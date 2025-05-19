@@ -11,6 +11,7 @@
     >
       <span
         class="dynamic"
+        @click="openDynamic"
         style="display: flex; flex-direction: column; align-items: center"
       >
         <div class="dynamic1"><img src="../img/动态.png" /></div>
@@ -1045,6 +1046,17 @@
 <script>
 export default {
   name: "classify",
+  
+  setup(){
+
+    function openDynamic(){
+      window.open("./dynamic", "_blank");
+    }
+
+    return{
+      openDynamic,
+    }
+  }
 };
 </script>
 
