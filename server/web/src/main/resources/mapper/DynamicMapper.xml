@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moji.mapper.DynamicMapper">
+
+
+    <select id="homeDynamic" resultType="com.moji.po.Dynamic">
+        SELECT * FROM (
+                          SELECT *
+                          FROM dynamic
+                          WHERE follow_id = #{homeUserId}
+                            AND fans_id IS NULL
+                            AND dynamic_id IS NULL
+                            AND video_id IS NOT NULL
+                            AND comment_id IS NULL
+                          GROUP BY video_id
+
+                          UNION
+
+                          SELECT *
+                          FROM dynamic
+                          WHERE follow_id = #{homeUserId}
+                            AND fans_id IS NULL
+                            AND dynamic_id IS NULL
+                            AND comment_id IS NOT NULL
+
+                          UNION
+
+                          SELECT *
+                          FROM dynamic
+                          WHERE follow_id = #{homeUserId}
+                            AND fans_id IS NULL
+                            AND video_id IS NULL
+                            AND dynamic_id IS NULL
+                            AND comment_id IS NULL
+                            ) AS subquery
+                            ORDER BY up_flag DESC, id DESC
+                            LIMIT #{offset}, 10
+    </select>
+
+    <select id="getAllDynamic" resultType="com.moji.po.Dynamic">
+        SELECT *
+        FROM (
+                 SELECT d.*
+                 FROM dynamic d
+                          LEFT JOIN follow f ON f.follow_id = d.follow_id
+                 WHERE d.fans_id IS NULL
+                   AND (f.user_id = #{userId} OR d.follow_id = #{userId})
+                   AND d.video_id IS NOT NULL
+                   AND d.dynamic_id IS NULL
+                   AND d.comment_id IS NULL
+                 GROUP BY d.video_id
+
+                 UNION
+
+                 SELECT d.*
+                 FROM dynamic d
+                          LEFT JOIN follow f ON f.follow_id = d.follow_id
+                 WHERE d.fans_id IS NULL
+                   AND (f.user_id = #{userId} OR d.follow_id = #{userId})
+                   AND d.dynamic_id IS NULL
+                   AND d.comment_id IS NOT NULL
+
+                 UNION
+
+                 SELECT d.*
+                 FROM dynamic d
+                          LEFT JOIN follow f ON f.follow_id = d.follow_id
+                 WHERE d.fans_id IS NULL
+                   AND (f.user_id = #{userId} OR d.follow_id = #{userId})
+                   AND d.dynamic_id IS NULL
+                   AND d.video_id IS NULL
+                   AND d.comment_id IS NULL
+             ) AS subquery
+        ORDER BY id DESC
+        LIMIT #{offset}, 10
+    </select>
+
+    <select id="getAllDynamic2" resultType="com.moji.po.Dynamic">
+        SELECT d.*
+        FROM dynamic d LEFT JOIN follow f
+        ON f.follow_id = d.follow_id
+        WHERE (f.user_id = #{userId} OR d.follow_id = #{userId})
+          AND d.video_id IS NOT NULL
+          AND d.comment_id IS NULL
+          AND d.dynamic_id IS NULL
+          AND d.fans_id IS NULL
+        ORDER BY d.id DESC
+        LIMIT #{offset}, 10
+    </select>
+
+    <select id="getAllDynamic3" resultType="com.moji.po.Dynamic">
+        SELECT d.*
+        FROM dynamic d LEFT JOIN follow f
+        ON d.follow_id = f.follow_id
+        WHERE (f.user_id = #{userId} OR d.follow_id = #{userId})
+          AND (
+                d.content IS NOT NULL
+                OR d.img_address IS NOT NULL
+            )
+          AND d.dynamic_id IS NULL
+        ORDER BY d.id DESC
+        LIMIT #{offset}, 10
+    </select>
+
+</mapper>

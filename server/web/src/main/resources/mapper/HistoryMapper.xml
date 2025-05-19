@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moji.mapper.HistoryMapper">
+
+
+    <select id="selectHistoryList" resultType="com.moji.po.History">
+        SELECT h.* FROM history h LEFT JOIN videos v
+        ON v.id=h.video_id WHERE h.user_id= #{userId}
+        AND (LOWER(v.title) LIKE CONCAT('%',LOWER(#{keyWord}),'%')
+        OR LOWER(v.user_name) LIKE CONCAT('%',LOWER(#{keyWord}),'%'))
+       <if test="sort != null">
+           <choose>
+               <when test="sort == 2">
+                   <![CDATA[
+                    AND h.watch_video_date >= CURDATE()
+                    AND h.watch_video_date < CURDATE() + INTERVAL 1 DAY
+                    ]]>
+               </when>
+               <when test="sort == 3">
+                   <![CDATA[
+                    AND h.watch_video_date >= CURDATE() - INTERVAL 1 DAY
+                    AND h.watch_video_date < CURDATE()
+                    ]]>
+               </when>
+               <when test="sort == 4">
+                   <![CDATA[
+                    AND h.watch_video_date >= CURDATE() - INTERVAL 7 DAY
+                    AND h.watch_video_date < CURDATE()
+                    ]]>
+               </when>
+               <when test="sort == 5">
+                    AND h.watch_video_date BETWEEN #{startTime} AND #{endTime}
+               </when>
+           </choose>
+        </if>
+        ORDER BY h.watch_video_date DESC
+        LIMIT #{offset},10
+    </select>
+
+</mapper>

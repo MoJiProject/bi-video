@@ -1,0 +1,94 @@
+.custom-tooltip {
+    border: 1px solid black !important; /* 修改边框颜色和宽度 */
+    height: auto;
+    color: black !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+    z-index: 10000000 !important;
+    border-radius: 0px !important;
+}
+
+
+.el-message--info {
+    display: flex; /* 使用 Flexbox 布局 */
+    align-items: center; /* 垂直居中对齐图标和文字 */
+    justify-content: center; /* 水平居中对齐图标和文字 */
+    margin-top: 115px; /* 修改图标位置 */
+    width: auto !important;
+    height: 35px !important;
+    padding: 5px;
+    text-align: center; /* 文字水平居中 */
+    font-size: 14px !important;
+    background-color: #303030 !important;
+    opacity: 0.6;
+    color: white;
+    border: none !important;
+    z-index: 1000000 !important;
+    transform: translateX(-16px);
+  }
+  
+  .el-message--info .el-message__icon {
+    display: none; /* 修改图标颜色 */
+  }
+
+  .custom-switch1 .el-switch__core {
+    height: 18px;
+    min-width: 30px;
+    border-radius: 15px; /* 修改圆角 */
+    transition: all 0.3s ease !important; /* 切换时平滑过渡 */
+  }
+
+  .comment-emoji-img{
+    width:21px;
+    height:21px;
+    display:inline-block;
+    vertical-align:middle;
+    transform:translateY(-3px);
+  }
+
+  div{
+    text-indent: 0px !important;
+    word-break: break-all !important;
+  }
+
+  span{
+    word-break: break-all !important;
+  }
+
+  a{
+    text-decoration: none !important;
+  }
+
+  .el-pagination {
+    --el-pagination-border-radius: 8px;
+    --el-color-primary: #00AEEC;
+    font-weight: normal;
+
+  }
+  .el-pager li.is-active {
+    font-weight: 400;
+  }
+
+  .highlight2{
+    color: #FF6699 !important;
+   }
+
+*{
+  --el-checkbox-font-size: 13px;
+  --el-text-color-regular: #18191C;
+  --el-color-primary: #00AEEC;
+}
+
+.el-checkbox__label{
+  padding-left: 20px !important;
+}
+
+.date-picker{
+  --el-text-color-regular: #b7b7b7;
+}
+
+.user-content2 a{
+   color: #9499a0;
+}

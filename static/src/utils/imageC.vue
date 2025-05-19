@@ -1,0 +1,427 @@
+<template>
+    <div class="video">
+        <div class="video-link" @click="openVideo(video)">
+         <img class="cover-img" :src="video.coverAddress">
+         <div v-show="batchControls" class="check-out-box" :class="{'active-check-out': checkExistVideo(history.id)}">
+             <div class="border">
+                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                 <path fill-rule="evenodd" clip-rule="evenodd" d="M14.3378 3.00678C14.0492 2.74694 13.6046 2.77024 13.3447 3.05882L5.46602 11.809L2.66657 8.69993C2.40673 8.41135 1.96215 8.38805 1.67357 8.64789C1.38498 8.90773 1.36168 9.35232 1.62153 9.6409L4.93385 13.3196C5.11955 13.5259 5.39962 13.5966 5.64967 13.5253C5.78192 13.4929 5.90618 13.4218 6.00416 13.313L14.3898 3.99979C14.6496 3.7112 14.6263 3.26662 14.3378 3.00678Z" fill="white"></path>
+                 <path d="M13.3447 3.05882L13.9021 3.56067L13.9021 3.56067L13.3447 3.05882ZM14.3378 3.00678L13.8359 3.56414L14.3378 3.00678ZM5.46602 11.809L4.90866 12.3109L5.46602 12.9299L6.02338 12.3109L5.46602 11.809ZM2.66657 8.69993L3.22393 8.19809L3.22393 8.19809L2.66657 8.69993ZM1.67357 8.64789L1.17172 8.09053L1.17172 8.09053L1.67357 8.64789ZM1.62153 9.6409L2.17888 9.13905L2.17888 9.13905L1.62153 9.6409ZM4.93385 13.3196L5.4912 12.8178L5.4912 12.8178L4.93385 13.3196ZM5.64967 13.5253L5.47111 12.7969L5.45752 12.8002L5.44406 12.8041L5.64967 13.5253ZM6.00416 13.313L6.56152 13.8148L6.56152 13.8148L6.00416 13.313ZM14.3898 3.99979L14.9472 4.50163L14.9472 4.50163L14.3898 3.99979ZM13.9021 3.56067C13.8848 3.57991 13.8551 3.58146 13.8359 3.56414L14.8396 2.44942C14.2432 1.91242 13.3244 1.96057 12.7874 2.55697L13.9021 3.56067ZM6.02338 12.3109L13.9021 3.56067L12.7874 2.55697L4.90866 11.3072L6.02338 12.3109ZM6.02338 11.3072L3.22393 8.19809L2.10921 9.20178L4.90866 12.3109L6.02338 11.3072ZM3.22393 8.19809C2.68693 7.60168 1.76812 7.55353 1.17172 8.09053L2.17541 9.20525C2.15618 9.22257 2.12654 9.22102 2.10921 9.20178L3.22393 8.19809ZM1.17172 8.09053C0.575316 8.62754 0.527163 9.54634 1.06417 10.1427L2.17888 9.13905C2.19621 9.15829 2.19465 9.18793 2.17541 9.20525L1.17172 8.09053ZM1.06417 10.1427L4.37649 13.8215L5.4912 12.8178L2.17888 9.13905L1.06417 10.1427ZM4.37649 13.8215C4.76102 14.2485 5.34044 14.3933 5.85527 14.2466L5.44406 12.8041C5.45258 12.8016 5.46061 12.8017 5.46824 12.8039C5.47717 12.8063 5.48577 12.8117 5.4912 12.8178L4.37649 13.8215ZM5.4468 12.8111C5.44921 12.8085 5.45292 12.8052 5.45767 12.8024C5.46225 12.7997 5.46684 12.7979 5.47111 12.7969L5.82823 14.2538C6.10199 14.1866 6.35971 14.039 6.56152 13.8148L5.4468 12.8111ZM13.8324 3.49794L5.4468 12.8111L6.56152 13.8148L14.9472 4.50163L13.8324 3.49794ZM13.8359 3.56414C13.8167 3.54681 13.8151 3.51718 13.8324 3.49794L14.9472 4.50163C15.4842 3.90523 15.436 2.98642 14.8396 2.44942L13.8359 3.56414Z" fill="white"></path>
+                 </svg>
+             </div>
+         </div>
+         <div class="video-info">
+             <span v-if="!history.watchVideoFlag" class="video-info-item">
+                <span>
+                    {{ history.watchVideoTime.split(':').length>2?history.watchVideoTime.split(':')[0]:''}} 
+                    <span class="split">{{ history.watchVideoTime.split(':').length>2?':':''}}</span>
+                    {{ history.watchVideoTime.split(':')[history.watchVideoTime.split(':').length-2]}} 
+                    <span class="split">:</span>
+                    {{ history.watchVideoTime.split(':')[history.watchVideoTime.split(':').length-1]}} 
+                </span>
+                <span class="video-duration">/</span>
+                <span>
+                    {{ video.hour?video.hour:''}}
+                    <span class="split">{{ video.hour?':':''}}</span>
+                    {{ video.minutes}} 
+                    <span class="split">:</span>
+                    {{ video.second}}
+                </span>
+             </span>
+             <span v-else class="video-info-item">已看完</span>
+         </div>
+         <div class="video-progress" :style="{ '--progress-width': history.watchCurrentTime/(video.hour?parseInt(video.hour)*60*60:0+parseInt(video.minutes)*60+parseInt(video.second))*100+'%' }"></div>
+        </div>
+        <div class="video-link2" @click="openVideo(video)">
+            <el-tooltip
+            :disabled="batchControls"
+            popper-class="custom-tooltip"
+            class="box-item"
+            effect="light"
+            :show-after="300"
+            :offset="-15"
+            :content="video.videoTitle"
+            placement="bottom"
+            :show-arrow="false"
+            >
+                <div v-if="searchContent" class="video-title" v-html="highlightText(video.videoTitle)"></div>
+                <div v-else class="video-title">{{ video.videoTitle }}</div>
+            </el-tooltip>
+            <div class="delete-history" @click.stop="cancelCollect(history.id)">
+                <img src="../img/历史记录删除黑.png">
+                <img src="../img/历史记录删除蓝.png">
+            </div>
+        </div>
+        <div class="up-user-name-link" @click="openHome(1,video)">
+             <div>
+                <div class="up-user-name">
+                    <img src="../img/up蓝.png">
+                    <img src="../img/up.png">
+                    <el-tooltip
+                    popper-class="custom-tooltip"
+                    :disabled="batchControls"
+                    class="box-item"
+                    effect="light"
+                    :show-after="300"
+                    :content="video.userName"
+                    placement="bottom"
+                    :show-arrow="false"
+                    >
+                        <span>{{ video.userName }}</span>
+                    </el-tooltip>
+                </div>
+                <div class="watch-time">
+                    <img src="../img/电脑端.png">
+                    {{ video.createTime }}
+                </div>
+            </div>
+        </div>
+    </div>
+ </template>
+ 
+ <script setup>
+ import { useGlobalStore } from "@/store/store";
+ 
+ const props=defineProps({
+   video: {
+     type: Object,
+     required: true,
+   },
+   history:{
+     type: Object,
+     required: true,
+   },
+   batchControls:{
+     type: Boolean,
+     required: true,
+    },
+    searchContent:{
+        type: String,
+        required: true,
+    },
+ });
+ 
+ const store = useGlobalStore();
+
+
+ function highlightText(title) {
+ const regex = new RegExp(`(${props.searchContent})`, "g");
+ return title.replace(regex, '<span class="highlight2">$1</span>');
+ }
+ 
+ //打开我的主页
+ function openHome(menu,video){
+ 
+ if(props.batchControls){
+ 
+     if(store.autoVideoList.length>0&&store.autoVideoList.some(item=> item === props.history.id)){
+         store.autoVideoList.splice(store.autoVideoList.findIndex(item=> item === props.history.id),1);
+     }
+     else{
+         store.autoVideoList.push(props.history.id);
+     }
+ 
+ return;
+ }
+ 
+ window.open(
+ `./home?homeMenu=${menu}&userId=${video.userId}`,
+ "_blank",
+ );
+ }
+ 
+ //打开视频页
+ function openVideo(video) {
+ 
+ if(props.batchControls){
+ 
+     if(store.autoVideoList.length>0&&store.autoVideoList.some(item=> item === props.history.id)){
+         store.autoVideoList.splice(store.autoVideoList.findIndex(item=> item === props.history.id),1);
+     }
+     else{
+         store.autoVideoList.push(props.history.id);
+     }
+ 
+ return;
+ }
+ 
+ if(props.history.deleteFlag)
+ return;
+     
+ window.open("../video?videoId=BV"+video.videoId,"videoWindow");
+ }
+ 
+ //检查是否选中该视频
+ function checkExistVideo(id){
+ 
+ return store.autoVideoList.some(item=> item === id);
+ }
+ 
+ //取消收藏
+ function cancelCollect(id){
+     if(props.batchControls)
+        return;
+     store.autoVideoList.push(id);
+ }
+ 
+ 
+ </script>
+ 
+ <style lang="scss" scoped>
+ *{
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+ }
+ 
+ video{
+     object-fit: cover;
+     background-color: black;
+ }
+ 
+ .video{
+     position: relative;
+     top: 0px;
+     width: 258px;
+     height: 145.13px;
+     cursor: pointer;
+     
+     .video-link{
+         position: relative;
+         display: block;
+         width: 100%;
+         height: 100%;
+         border-radius: 6px;
+         overflow: hidden;
+         .cover-img{
+         position: relative;
+         width: 100%;
+         height: 100%;
+         z-index: 10;
+         object-fit: cover;
+         background-color: black;
+         transition: opacity 0.3s ease;
+         }
+         .check-out-box{
+         position: absolute;
+         top: 8px;
+         left: 8px;
+         z-index: 200;
+         border: 1.5px solid white;
+         border-radius: 3px;
+         background-color: rgba(0, 0, 0, .2);
+         color: white;
+         transition: background-color 0.3s ease;
+         width: 24px;
+         height: 24px;
+ 
+             .border{
+             width: 100%;
+             height: 100%;
+             display: flex;
+             border-radius: 3px;
+             opacity: 0;
+             visibility: hidden;
+             transition: all 0.3s ease;
+             justify-content: center;
+             align-items: center;
+             pointer-events: none;
+             }
+         }
+         .active-check-out{
+          background-color: #00AEEC;
+          
+             .border{
+             opacity: 1;
+             visibility: visible;
+             }
+         }
+         .video-content{
+         position: absolute;
+         width: 100%;
+         height: 100%;
+         left: 0px;
+         object-fit: cover;
+         }
+         .video-info{
+         position: absolute;
+         bottom: 4px;
+         left: 0;
+         z-index: 10;
+         box-sizing: border-box;
+         padding: 14px 8px 6px;
+         width: 100%;
+         border-bottom-right-radius: 6px;
+         border-bottom-left-radius: 6px;
+         background-video: linear-gradient(180deg, #0000, #000c);
+         color: #fff;
+         opacity: 1;
+         display: flex;
+         align-items: center;
+         justify-content: space-between;
+         pointer-events: none;
+         transition: all .2s linear .2s;
+             .video-info-item{
+             position: relative;
+             display: flex;
+             top: 2.5px;
+             align-items: center;
+             justify-content: right;
+             font-size: 13px;
+             height: 18px;
+             flex: 1;
+             overflow: hidden;
+
+                .split{
+                position: relative;
+                top: -1px;
+                margin-right: -2px;
+                margin-left: -2px;    
+                }
+                .video-duration{
+                 position: relative;
+                 top: -2px;
+                 margin-right: 3px;
+                 height: 15px;
+                 overflow: hidden;
+                 font-size: 12px;   
+                }
+             }
+         }
+         .video-progress{
+         position: absolute;
+         bottom: 0;
+         left: 0;
+         right: 0;
+         z-index: 50;
+         height: 3px;
+         pointer-events: none;
+         background-color: rgba(0, 0, 0, .5);
+         transition: opacity .2s linear .2s;
+         }
+         .video-progress::after{
+         content: "";
+         position: absolute;
+         width: var(--progress-width, 0%);
+         top: 0;
+         left: 0;
+         height: 100%;
+         background-color: #FF6699;
+         }
+     }
+     .video-link2{
+       position: relative;  
+       display: block;  
+         .video-title{
+             position: relative;
+             top: 8px;
+             padding-right: 16px;
+             color: #18191C;
+             font-size: 14.5px;
+             line-height: 22px;
+             height: 48px;
+             display: -webkit-box;
+             overflow: hidden;
+             -webkit-box-orient: vertical;
+             text-overflow: ellipsis;
+             word-break: break-all;
+             -webkit-line-clamp: 2;
+             transition: color 0.3s ease;
+         }
+         .video-title:hover{
+         color: #00AEEC;
+         }
+         .delete-history{
+          position: absolute;
+          right: 20px;
+          top: 12px;
+            img{
+            position: absolute;    
+            width: 18.5px;
+            height: 18px;
+            transition: opacity 0.3s ease;
+            }
+            img:nth-child(1){
+             opacity: 1;
+            }
+            img:nth-child(1):hover{
+             opacity: 0;
+            }
+            img:nth-child(2){
+             opacity: 0;
+            }
+            img:nth-child(2):hover{
+             opacity: 1;
+            }
+         }
+     }
+     .up-user-name-link{
+         position: relative;
+         top: 10px;
+         left: 1.5px;
+         height: 18px;
+
+            div{
+            display: flex;
+            justify-content: space-between;
+                .up-user-name{
+                flex: 1;
+                    img{
+                        position: absolute;
+                        width: 15px;
+                        height: 13px;
+                        top: 3px;
+                        transition: opacity 0.3s ease;
+                    }
+                    span{
+                        position: relative;
+                        width: 89%;
+                        left: 18px;
+                        top: -1.5px;
+                        display: -webkit-box;
+                        overflow: hidden;
+                        -webkit-box-orient: vertical;
+                        text-overflow: ellipsis;
+                        word-break: break-all;
+                        -webkit-line-clamp: 1;
+                        font-size: 13px;
+                        color: #9499A0;
+                        transition: color 0.3s ease;
+                    }
+                }
+                .watch-time{
+                position: relative;
+                top: -1px;   
+                display: flex;
+                align-items: center;  
+                font-size: 13px;
+                color: #9499A0;
+
+                    img{
+                    width: 14px;
+                    height: 12px;
+                    margin-right: 3px;
+                    transform: translateY(1px);
+                    }
+                }
+            }
+     }
+     .up-user-name-link:hover{
+     .up-user-name{
+         img:nth-child(2){
+             transition: opacity 0.3s ease;
+             opacity: 0;
+         }
+         img:nth-child(1){
+             opacity: 1;
+             transition: opacity 0.3s ease;
+         }
+         span{
+             color: #00AEEC;
+         }
+     }
+     }
+     
+ }
+ 
+ </style>

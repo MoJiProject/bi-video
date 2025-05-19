@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moji.mapper.CollectMapper">
+
+
+    <select id="getCollectByName" resultType="com.moji.po.Collects">
+        SELECT c.*
+        FROM collects c
+        LEFT JOIN videos v ON c.video_id = v.id
+        WHERE c.user_id = #{homeUserId} AND c.collect_name = #{collectName}
+        <if test="sort != null">
+            ORDER BY
+            <choose>
+                <when test="sort == 1">
+                    c.collect_time DESC
+                </when>
+                <when test="sort == 2">
+                    v.play_number DESC
+                </when>
+                <when test="sort == 3">
+                    v.create_time DESC
+                </when>
+            </choose>
+        </if>
+        LIMIT #{offset},20
+    </select>
+
+    <select id="getCollectByName2" resultType="com.moji.po.Collects">
+        SELECT c.*
+        FROM collects c
+        LEFT JOIN videos v ON c.video_id = v.id
+        WHERE c.user_id = #{homeUserId} AND c.collect_name = #{collectName}
+        AND (LOWER(#{keyWord}) LIKE CONCAT('%', LOWER(v.title), '%')
+        OR LOWER(v.title) LIKE CONCAT('%',LOWER(#{keyWord}),'%')
+        OR LOWER(#{keyWord}) LIKE CONCAT('%', LOWER(v.user_name), '%')
+        OR LOWER(v.user_name) LIKE CONCAT('%',LOWER(#{keyWord}),'%'))
+        <if test="sort != null">
+            ORDER BY
+            <choose>
+                <when test="sort == 1">
+                    c.collect_time DESC
+                </when>
+                <when test="sort == 2">
+                    v.play_number DESC
+                </when>
+                <when test="sort == 3">
+                    v.create_time DESC
+                </when>
+            </choose>
+        </if>
+        LIMIT #{offset},20
+    </select>
+
+    <select id="getCollectByName3" resultType="com.moji.po.Collects">
+        SELECT c.*
+        FROM collects c
+        LEFT JOIN videos v ON c.video_id = v.id
+        WHERE c.user_id = #{homeUserId}
+        AND (LOWER(#{keyWord}) LIKE CONCAT('%', LOWER(v.title), '%')
+        OR LOWER(v.title) LIKE CONCAT('%',LOWER(#{keyWord}),'%')
+        OR LOWER(#{keyWord}) LIKE CONCAT('%', LOWER(v.user_name), '%')
+        OR LOWER(v.user_name) LIKE CONCAT('%',LOWER(#{keyWord}),'%'))
+        <if test="sort != null">
+            ORDER BY
+            <choose>
+                <when test="sort == 1">
+                    c.collect_time DESC
+                </when>
+                <when test="sort == 2">
+                    v.play_number DESC
+                </when>
+                <when test="sort == 3">
+                    v.create_time DESC
+                </when>
+            </choose>
+        </if>
+        LIMIT #{offset},20
+    </select>
+
+    <select id="getCollectByNameCount" resultType="java.lang.Long">
+        SELECT count(*)
+        FROM collects c
+                 LEFT JOIN videos v ON c.video_id = v.id
+        WHERE c.user_id = #{homeUserId} AND c.collect_name = #{collectName}
+    </select>
+
+    <select id="getCollectByNameCount2" resultType="java.lang.Long">
+        SELECT count(*)
+        FROM collects c
+                 LEFT JOIN videos v ON c.video_id = v.id
+        WHERE c.user_id = #{homeUserId} AND c.collect_name = #{collectName}
+          AND (LOWER(#{keyWord}) LIKE CONCAT('%', LOWER(v.title), '%')
+            OR LOWER(v.title) LIKE CONCAT('%',LOWER(#{keyWord}),'%')
+            OR LOWER(#{keyWord}) LIKE CONCAT('%', LOWER(v.user_name), '%')
+            OR LOWER(v.user_name) LIKE CONCAT('%',LOWER(#{keyWord}),'%'))
+    </select>
+
+    <select id="getCollectByNameCount3" resultType="java.lang.Long">
+        SELECT count(*)
+        FROM collects c
+                 LEFT JOIN videos v ON c.video_id = v.id
+        WHERE c.user_id = #{homeUserId}
+          AND (LOWER(#{keyWord}) LIKE CONCAT('%', LOWER(v.title), '%')
+            OR LOWER(v.title) LIKE CONCAT('%',LOWER(#{keyWord}),'%')
+            OR LOWER(#{keyWord}) LIKE CONCAT('%', LOWER(v.user_name), '%')
+            OR LOWER(v.user_name) LIKE CONCAT('%',LOWER(#{keyWord}),'%'))
+    </select>
+
+    <select id="selectWaitWatch" resultType="com.moji.po.Collects">
+       SELECT c.* FROM collects c LEFT JOIN videos v
+       ON c.video_id = v.id
+       where c.user_id = #{userId}
+       AND c.collect_name = '稍后再看'
+       AND (LOWER(v.title) LIKE CONCAT('%',LOWER(#{keyWord}),'%')
+       OR LOWER(v.user_name) LIKE CONCAT('%',LOWER(#{keyWord}),'%'))
+       <if test="sort != null">
+            <choose>
+                <when test="sort == 2">
+                    <![CDATA[
+                    AND c.collect_time >= CURDATE()
+                    AND c.collect_time < CURDATE() + INTERVAL 1 DAY
+                    ]]>
+                </when>
+                <when test="sort == 3">
+                    <![CDATA[
+                    AND c.collect_time >= CURDATE() - INTERVAL 1 DAY
+                    AND c.collect_time < CURDATE()
+                    ]]>
+                </when>
+                <when test="sort == 4">
+                    <![CDATA[
+                    AND c.collect_time >= CURDATE() - INTERVAL 7 DAY
+                    AND c.collect_time < CURDATE()
+                    ]]>
+                </when>
+                <when test="sort == 5">
+                    AND c.collect_time BETWEEN #{startTime} AND #{endTime}
+                </when>
+            </choose>
+       </if>
+       <if test="sort2 != null">
+           <choose>
+               <when test="sort2 == 1">
+                  ORDER BY c.collect_time DESC
+               </when>
+               <when test="sort2 == 2">
+                  ORDER BY c.collect_time ASC
+               </when>
+           </choose>
+       </if>
+       LIMIT #{offset},10
+    </select>
+
+</mapper>
