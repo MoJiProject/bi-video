@@ -17,9 +17,6 @@ module.exports = defineConfig({
     },
   },
 
-  // 设置静态资源访问 CDN 路径
-  // publicPath: 'https://cdn.example.com/', // ✅ 替换为你的 CDN 地址
-
   configureWebpack: {
     plugins: [
       new webpack.DefinePlugin({
