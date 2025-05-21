@@ -11,7 +11,7 @@
  Target Server Version : 50724 (5.7.24)
  File Encoding         : 65001
 
- Date: 14/05/2025 16:23:42
+ Date: 21/05/2025 12:09:52
 */
 
 SET NAMES utf8mb4;
@@ -29,7 +29,7 @@ CREATE TABLE `at`  (
   `comment_id` int(11) NULL DEFAULT NULL,
   `dynamic_id` int(11) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 63 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 64 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for collects
@@ -43,7 +43,7 @@ CREATE TABLE `collects`  (
   `collect_time` datetime NOT NULL,
   `delete_flag` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 657 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 658 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for collects_classify
@@ -73,7 +73,7 @@ CREATE TABLE `comment_controls`  (
   `like_comment_time` datetime NULL DEFAULT NULL,
   `dynamic_id` int(11) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 804 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 805 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for comments
@@ -99,7 +99,7 @@ CREATE TABLE `comments`  (
   `up_flag` int(11) NOT NULL DEFAULT 0,
   `dynamic_id` int(11) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 824 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 826 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for dialogue
@@ -140,7 +140,7 @@ CREATE TABLE `dynamic`  (
   `dynamic_id` int(11) NULL DEFAULT NULL,
   `like_warn` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 469 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 471 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for fans
@@ -180,7 +180,7 @@ CREATE TABLE `history`  (
   `watch_video_flag` int(11) NOT NULL DEFAULT 0,
   `watch_current_time` int(11) NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 177 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 180 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for key_word
@@ -206,7 +206,7 @@ CREATE TABLE `likes`  (
   `like_type` int(11) NOT NULL,
   `delete_flag` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 744 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 749 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for private_message
@@ -282,7 +282,7 @@ CREATE TABLE `users`  (
   `exp` int(11) NOT NULL DEFAULT 0,
   `follow_number` int(11) NOT NULL DEFAULT 0,
   `fans_number` int(11) NOT NULL DEFAULT 0,
-  `own_dynamic_number` int(11) NOT NULL,
+  `own_dynamic_number` int(11) NOT NULL DEFAULT 0,
   `introduce` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
   `like_number` int(11) NOT NULL DEFAULT 0,
   `login_date_time` datetime NULL DEFAULT NULL,
