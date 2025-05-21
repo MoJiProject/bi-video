@@ -200,7 +200,7 @@ addDialogue(store.token,dialogue).then(res=>{
   if(res.data.code===1)
   {
     window.open(
-    `./message.html?dialogueId=${dialogueId}`,
+    `./message?dialogueId=${dialogueId}`,
     "_blank",
     );
   }

@@ -86,7 +86,7 @@
                 'Authorization': store.token
               }"
         class="upload-demo"
-        action="http://localhost:8081/upload/uploadVideo"
+        action="/api/upload/uploadVideo"
         :data="{ uId: 0 }"
         show-file-list
         drag
@@ -379,7 +379,7 @@
               :headers="{
                 'Authorization': store.token
               }"
-              action="http://localhost:8081/upload/uploadVideo"
+              action="/api/upload/uploadVideo"
               :data="{ uId: 0 }"
               accept="image/jpeg,image/png,image/gif,image/bmp,image/webp"
               :file-list="fileListCover"
@@ -1136,7 +1136,7 @@ export default {
       loading.value = true;
       try {
         const response = await apiClient.put(
-          "http://localhost:8081/upload/updateVideo",
+          "/api/upload/updateVideo",
           formData,
           {
             headers: {

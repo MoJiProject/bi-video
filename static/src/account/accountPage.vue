@@ -60,7 +60,7 @@ if (response.data.code === 1) {
     store.setUserInformation(response.data.data);
 } else {
     store.setUserId(null);
-    window.location.href = "http://localhost:8080";
+    window.location.href = "../";
 }
 })
 }

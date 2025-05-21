@@ -5012,7 +5012,7 @@ export default {
         token: store.token,
       };
 
-      const url = "http://localhost:8081/history/addHistory";
+      const url = "/api/history/addHistory";
 
       // 将数据转换为 JSON 字符串
       const payload = JSON.stringify(acceptHistory);

@@ -2,7 +2,7 @@
   <div class="header" v-external-link>
     <ul class="v-header-ul" :class="{ head2Flag: head2Flag }">
       <li>
-        <a class="head-li1" href="http://localhost:8080">
+        <a class="head-li1" href="../">
           <img v-show="!head2Flag" src="../img/首页.png" alt="首页" style="width: 18px;margin-top: 1px;" />
           <img v-show="head2Flag" src="../img/bilibili蓝.png" alt="首页" style="width: 60px;margin-top: 2px;margin-right: 23px;animation: none;transform: translate(-2px);"/>
             首页
@@ -1561,7 +1561,6 @@
         </div>
       </li>
     </ul>
-  </div>
       <el-dialog
                 style="
                   height: 480px !important;
@@ -2032,6 +2031,7 @@
                   </div>
                 </div>
       </el-dialog>
+    </div>
 </template>
 
 <script>
@@ -2466,7 +2466,7 @@ export default {
         plain: true,
         duration: 1700,
       });
-      window.location.href = "http://localhost:8080";
+      window.location.href = "../";
     };
     //注册请求
     async function sigininAxios() {

@@ -2765,7 +2765,7 @@ export default {
     //跳转到视频详情页
     function locationHerfVideo(videoId) {
       window.open(
-        `http://localhost:8080/video.html?videoId=BV${videoId}`,
+        `../video?videoId=BV${videoId}`,
         "_blank",
       );
     };
