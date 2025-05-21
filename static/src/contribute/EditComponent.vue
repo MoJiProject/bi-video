@@ -4,7 +4,7 @@
       <a href="./subpage2"
         ><img
           src="../img/返回.png"
-          style="transform: translate(20px, 20px); width: 24px; height: 18px"
+          style="position:relative;transform: translate(20px, 20px); width: 24px; height: 18px;z-index: 100;"
       /></a>
       <div
         style="
@@ -480,10 +480,10 @@
           >
           <el-radio-group
             v-model="video.type"
-            style="transform: translate(85px, 0px);--el-radio-text-color: rgb(135, 135, 135);"
+            style="transform: translate(85px, 0px);"
           >
-            <el-radio :value="0">自制</el-radio>
-            <el-radio :value="1">转载</el-radio>
+            <el-radio class="contribute-radio" :value="0">自制</el-radio>
+            <el-radio class="contribute-radio" :value="1">转载</el-radio>
           </el-radio-group>
         </div>
 

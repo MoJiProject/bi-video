@@ -9,7 +9,7 @@
         style="
           position: relative;
           width: 110%;
-          z-index: 100;
+          z-index: 10;
           height: 50px;
           background-color: white;
           box-shadow: 0 4px 5px rgba(0, 0, 0, 0.03);
@@ -122,11 +122,11 @@
        </div>
       </el-header>
       <el-container >
-        <el-aside width="200px">
+        <el-aside width="200px" style="position: relative; z-index: 10;">
           <AsideComponent />
         </el-aside>
         <el-main>
-          <EditComponent style="position: relative;z-index: 10;"/>
+          <EditComponent style="position: relative;z-index: 100;"/>
         </el-main>
       </el-container>
     </el-container>

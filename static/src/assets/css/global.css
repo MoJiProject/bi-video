@@ -81,6 +81,10 @@
   --el-color-primary: #00AEEC;
 }
 
+.contribute-radio{
+  --el-text-color-regular: #61666d;
+}
+
 .el-checkbox__label{
   padding-left: 20px !important;
 }

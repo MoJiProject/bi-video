@@ -12,7 +12,7 @@
       <span
         class="dynamic"
         @click="openDynamic"
-        style="display: flex; flex-direction: column; align-items: center"
+        style="display: flex; flex-direction: column; align-items: center;cursor: pointer;"
       >
         <div class="dynamic1"><img src="../img/动态.png" /></div>
         <span>动态</span>
@@ -24,6 +24,7 @@
           flex-direction: column;
           align-items: center;
           transform: translate(25px, -1px);
+          cursor: pointer;
         "
       >
         <div class="fire1"><img src="../img/热门.png" /></div>

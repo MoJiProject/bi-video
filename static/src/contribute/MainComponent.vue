@@ -479,11 +479,12 @@
             ><span style="color: red">*&nbsp;</span>类型</span
           >
           <el-radio-group
+            class="contribute-type"
             v-model="video.type"
-            style="transform: translate(85px, 0px);--el-radio-text-color: rgb(135, 135, 135);"
+            style="transform: translate(85px, 0px);"
           >
-            <el-radio :value="0">自制</el-radio>
-            <el-radio :value="1">转载</el-radio>
+            <el-radio class="contribute-radio" :value="0">自制</el-radio>
+            <el-radio class="contribute-radio" :value="1">转载</el-radio>
           </el-radio-group>
         </div>
 
