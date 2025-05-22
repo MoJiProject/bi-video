@@ -72,7 +72,7 @@
         <div v-show="dynamicList.length>0" class="find-info">共找到关于"{{ keyword }}"的 <span>{{ dynamicTotal }}</span> 个动态</div>
         <div>
             <div v-show="!loadMore&&dynamicList.length>0" class="dynamic-item" v-for="dynamic in dynamicList" :key="dynamic.dynamic.id">
-                <dynamic :dynamic="dynamic"/>
+                <dynamicC :dynamic="dynamic"/>
             </div>
             <div v-if="fotterFlag&&dynamicList.length>0&&!loadMore2&&!loadMore" class="no-more">你已经到达世界的尽头~</div>
         </div>
@@ -92,7 +92,7 @@
 <script setup>
 import { onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useGlobalStore } from "../store/store";
-import dynamic from "@/utils/dynamic.vue";
+import dynamicC from "@/utils/dynamic.vue";
 import { homeDynamic,homeContributeVideos } from "@/api/home/index";
 import { getEitList } from "@/api/user/index";
 import videoList4 from "@/utils/videoList4.vue";

@@ -18,10 +18,10 @@
                <img src="../img/loading-blue.gif">
                <span>拼命加载中...</span>
             </div>
-            <div v-show="!loadMore&&dynamicList.length>0" class="dynamic-item" v-for="dynamic in dynamicList" :key="dynamic.dynamic.id">
-                <dynamic :dynamic="dynamic"/>
+            <div v-show="!loadMore&&dynamicList.length" class="dynamic-item" v-for="dynamic in dynamicList" :key="dynamic.dynamic.id">
+                <dynamicC :dynamic="dynamic"/>
             </div>
-            <div v-if="dynamicList.length===0&&!loadMore" class="no-data">
+            <div v-if="!dynamicList.length&&!loadMore" class="no-data">
                 <img src="../img/home_nodata.svg">
                 <div>好像没有东西诶</div>
             </div>
@@ -37,7 +37,7 @@
 <script setup>
 import { onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useGlobalStore } from '../store/store';
-import dynamic from "@/utils/dynamic.vue";
+import dynamicC from "@/utils/dynamic.vue";
 import {homeDynamic} from "@/api/home/index";
 import {getEitList} from "@/api/user/index";
 
