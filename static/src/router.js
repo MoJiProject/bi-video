@@ -46,6 +46,11 @@ const routes = [
         name:'subpage3',
         component: () => import('./contribute/Page3.vue'),
       },
+      {
+        path: '/contribute/subpage4',
+        name:'subpage4',
+        component: () => import('./contribute/Page4.vue'),
+      },
       // 消息
       {
         path: '/message',

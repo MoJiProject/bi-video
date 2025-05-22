@@ -55,6 +55,7 @@ public class UserInfo implements Serializable {
     private Integer publicFansList;
     private Integer publicBirthday;
     private Integer historyFlag;
+    private Integer adminFlag;
 
 
 }

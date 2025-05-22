@@ -316,6 +316,7 @@
           <el-dialog
             style="transform: translate(-55px, -20px); height: 700px"
             :modal="false"
+            :lock-scroll="false"
             v-model="centerDialogVisible"
             width="700"
             center
@@ -1434,34 +1435,6 @@ export default {
       video.subZoneKey = "";
       video.subZoneValue = "";
       video.type = 0;
-    }
-
-     //获取用户ip和token
-     async function getUserIp(){
-    
-    const response = await apiClient.get("/userIp/getUserIp");
-
-    if(response.data.code === 1)
-      store.setUserIp(response.data.data.userIp);
-      store.setToken(response.data.data.token);
-
-     }
-
-    //检查登录
-    async function ChecklLogin() {
-      try {
-
-       
-        const response = await apiClient.get(`/user/checkLoginFlag/${store.userIp}`,
-        );
-        if (response.data.code === 1) {
-          store.setUserId(response.data.data.id);
-        } else {
-          store.setUserId(null);
-        }
-      } catch (error) {
-        store.setUserId(null);
-      }
     }
 
      //获取@用户列表

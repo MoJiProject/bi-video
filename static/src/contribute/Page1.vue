@@ -9,7 +9,7 @@
         style="
           position: relative;
           width: 110%;
-          z-index: 5;
+          z-index: 200;
           height: 50px;
           background-color: white;
           box-shadow: 0 4px 5px rgba(0, 0, 0, 0.03);
@@ -71,7 +71,7 @@
           <div
             style="
               font-size: 13px;
-              transform: translate(970px, -112px);
+              transform: translate(970px, -12px);
               width: 160px;
               height: 28px;
               background-color: #fdf4ef;
@@ -85,7 +85,7 @@
           >
             成为up主的第{{ daysAsUP }}天 >
           </div>
-          <div style="transform: translate(1160px, -140px); color: #ededed">
+          <div style="transform: translate(1160px, -40px); color: #ededed">
             |
           </div>
           <div class="message">
@@ -302,7 +302,7 @@ export default {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  transform: translate(930px, -75px);
+  transform: translate(930px, 25px);
 }
 .avatar {
   width: 36px;
@@ -311,7 +311,7 @@ export default {
 }
 
 .feature {
-  transform: translate(880px, -80px);
+  transform: translate(880px, 20px);
   transition: opacity 0.3s ease, visibility 0.3s ease; /* 过渡效果 */
   display: flex;
   flex-direction: column;
@@ -366,7 +366,7 @@ export default {
 
 .message {
   position: absolute; /* 使子元素绝对定位 */
-  transform: translate(1200px, -163px);
+  transform: translate(1200px, -63px);
 }
 
 .message a {
@@ -450,7 +450,9 @@ export default {
 }
 
 .right{
- display: inline-block;
+  position: relative;
+  left: 80px;
+  top: -100px;
 }
 
 </style>

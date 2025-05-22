@@ -50,4 +50,8 @@ public interface UserService extends IService<Users> {
     Boolean uploadAvatar(Integer userId, String avatar);
 
     Boolean uploadBackground(Integer userId, String background);
+
+    Page<UserInfo2> getUsers(Integer pageNum, String keyword, Integer type);
+
+    boolean putAdmin(Integer adminId);
 }

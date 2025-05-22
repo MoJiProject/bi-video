@@ -1,5 +1,5 @@
 <template>
-  <div v-show="store.homeUserInformation.id" class="dynamic">
+  <div v-if="store.homeUserInformation.id" class="dynamic">
       <div v-if="dynamic.dynamic.upFlag===1" class="up-sign">
             <svg class="bili-dyn-tag__icon" style="width: 12px; height: 12px;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 12 12" width="12" height="12"><path d="M9.8054 5.406475C10.198275 5.89755 9.84865 6.625 9.21975 6.625L2.780235 6.625C2.151355 6.625 1.80173 5.89755 2.194585 5.406475L5.41435 1.38177C5.714575 1.00647 6.2854 1.00647 6.58565 1.38177L9.8054 5.406475z" fill="currentColor"></path><path d="M4.375 5.5C4.375 5.085775 4.710785 4.75 5.125 4.75L6.875 4.75C7.289225 4.75 7.625 5.085775 7.625 5.5L7.625 9.75C7.625 10.164225 7.289225 10.5 6.875 10.5L5.125 10.5C4.710785 10.5 4.375 10.164225 4.375 9.75L4.375 5.5z" fill="currentColor"></path></svg>
             &nbsp;置顶

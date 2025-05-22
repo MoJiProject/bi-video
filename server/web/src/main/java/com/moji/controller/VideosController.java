@@ -160,8 +160,12 @@ public class VideosController {
     @PutMapping("/examineVideo")
     public R<String> examineVideo(@RequestBody Videos video,@RequestHeader("Authorization") String token){
 
+        Users users = userService.getById(video.getUserId());
+        if(users==null||(users.getAdminFlag()==0&&!users.getUserName().equals("MoJi")))
+            return R.error("操作失败");
+
         LoginLimiterServer limiterServer=new LoginLimiterServer();
-        if(!limiterServer.checkUser(video.getUserId(),token)&&(video.getUserId()==1||video.getUserId()==2))
+        if(!limiterServer.checkUser(video.getUserId(),token))
             return R.error("操作失败");
 
         Boolean b = videosService.examineVideo(video.getId());
@@ -179,8 +183,12 @@ public class VideosController {
     @PostMapping("/examineVideoFiled")
     public R<String> examineVideoFiled(@RequestBody VideoExamineDto videoExamineDto,@RequestHeader("Authorization") String token){
 
+        Users users = userService.getById(videoExamineDto.getUserId());
+        if(users==null||(users.getAdminFlag()==0&&!users.getUserName().equals("MoJi")))
+            return R.error("操作失败");
+
         LoginLimiterServer limiterServer=new LoginLimiterServer();
-        if(!limiterServer.checkUser(videoExamineDto.getUserId(),token)&&(videoExamineDto.getUserId()==1||videoExamineDto.getUserId()==2))
+        if(!limiterServer.checkUser(videoExamineDto.getUserId(),token))
             return R.error("操作失败");
 
         Videos videos = videosMapper.selectById(videoExamineDto.getVideoId());

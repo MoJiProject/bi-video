@@ -122,11 +122,11 @@
        </div>
       </el-header>
       <el-container >
-        <el-aside width="200px" style="position: relative; z-index: 10;">
-          <AsideComponent />
+        <el-aside width="200px">
+          <AsideComponent style="position: relative;z-index: 10;"/>
         </el-aside>
         <el-main>
-          <EditComponent style="position: relative;z-index: 100;"/>
+          <SubPage4 style="position: relative;z-index: 10;"/>
         </el-main>
       </el-container>
     </el-container>
@@ -140,12 +140,12 @@ import {useGlobalStore} from "../store/store";
 import "element-plus/theme-chalk/el-message.css";
 import { ElMessage } from "element-plus";
 import AsideComponent from './AsideComponent.vue';
-import EditComponent from './EditComponent.vue';
+import SubPage4 from "./SubPage4.vue";
 export default {
   name: "Contribute",
   components: {
     AsideComponent,
-    EditComponent,
+    SubPage4,
   },
   setup() {
     
@@ -297,6 +297,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+
 .avatar1 {
   width: 30px;
   height: 30px;
@@ -454,4 +455,5 @@ export default {
   left: 80px;
   top: -100px;
 }
+
 </style>

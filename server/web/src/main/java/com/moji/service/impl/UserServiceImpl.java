@@ -1,4 +1,5 @@
 package com.moji.service.impl;
+import ch.qos.logback.core.util.StringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -733,6 +734,45 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
         cacheService.deleteCommentCacheByVideoId(null,null,userId);
         cacheService.deleteReplyCommentCacheByCommentId(null,null,null,userId);
 
+        int i = userMapper.updateById(users);
+        return i>0;
+    }
+
+    @Override
+    public Page<UserInfo2> getUsers(Integer pageNum, String keyword, Integer type) {
+
+        Page<Users> usersPage=new Page<>(pageNum,10);
+        LambdaQueryWrapper<Users> usersLambdaQueryWrapper=new LambdaQueryWrapper<>();
+        if(StringUtil.notNullNorEmpty(keyword))
+                usersLambdaQueryWrapper
+                        .apply("LOWER({0}) LIKE CONCAT('%', LOWER(user_name), '%')",keyword)
+                        .or()
+                        .like(Users::getUserName,keyword);
+        if(type!=-1)
+            usersLambdaQueryWrapper.eq(Users::getAdminFlag,type);
+        usersLambdaQueryWrapper.orderByDesc(Users::getCreateTime);
+        Page<Users> usersPage1 = userMapper.selectPage(usersPage, usersLambdaQueryWrapper);
+        List<Users> records = usersPage1.getRecords();
+        List<UserInfo2> userInfo2List=new ArrayList<>();
+        for (Users record : records) {
+            UserInfo2 userInfo2=new UserInfo2();
+            BeanUtils.copyProperties(record,userInfo2);
+            userInfo2List.add(userInfo2);
+        }
+        Page<UserInfo2> userInfo2Page=new Page<>();
+        userInfo2Page.setRecords(userInfo2List);
+        userInfo2Page.setTotal(usersPage.getTotal());
+        return userInfo2Page;
+    }
+
+    @Override
+    @Transactional
+    public boolean putAdmin(Integer adminId) {
+
+        Users users = userMapper.selectById(adminId);
+        if(users==null)
+            return false;
+        users.setAdminFlag(users.getAdminFlag()==0?1:0);
         int i = userMapper.updateById(users);
         return i>0;
     }

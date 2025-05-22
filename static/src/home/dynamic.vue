@@ -11,7 +11,7 @@
         <div v-if="(store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicBirthday===1" class="home-user-info">
             <div>个人资料 <span v-if="store.homeUserInformation.id===store.userId" @click="openAccount">编辑 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path></svg></span></div>
             <div><img src="../img/uid.png"> {{ store.homeUserInformation.id }}</div>
-            <div><img src="../img/birthday.png"> {{ store.homeUserInformation?.birthday?.split(' ')[0] }}</div>
+            <div v-if="store.homeUserInformation.birthday"><img src="../img/birthday.png"> {{ store.homeUserInformation?.birthday?.split(' ')[0] }}</div>
         </div> 
         <div class="dynamic-list">
             <div v-show="loadMore" class="class-loading">

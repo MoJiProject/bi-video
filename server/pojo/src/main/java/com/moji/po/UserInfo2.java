@@ -48,6 +48,7 @@ public class UserInfo2 implements Serializable {
     private Integer newFans;
     private Integer historyFlag;
     private Integer newDynamicFlag;//是否有新的动态
+    private Integer adminFlag;
 
 
 }

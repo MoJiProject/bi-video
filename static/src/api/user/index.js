@@ -217,3 +217,39 @@ export async function uploadBackground(token,userId,background) {
   });
   return response;
 }
+
+//获取所有用户
+export async function getUsers(token,userId,pageNum,keyword,type) {
+
+  const response = await apiClient.get("/user/getUsers",{
+      headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+      },
+      params: {
+          userId,
+          pageNum,
+          type,
+          keyword,
+      },
+  });
+  return response;
+}
+
+//设置用户管理员
+export async function putAdmin(token,userId,adminId) {
+
+  const response = await apiClient.put("/user/putAdmin",{},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        params: {
+          userId,
+          adminId,
+        },
+      }
+    );
+  return response;
+}

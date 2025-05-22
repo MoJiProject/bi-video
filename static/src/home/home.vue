@@ -11,7 +11,7 @@
                 </span>
             </div>
             <div><img src="../img/uid.png"> {{ store.homeUserInformation.id }}</div>
-            <div><img src="../img/birthday.png"> {{ store.homeUserInformation?.birthday?.split(' ')[0] }}</div>
+            <div v-if="store.homeUserInformation.birthday"><img src="../img/birthday.png"> {{ store.homeUserInformation?.birthday?.split(' ')[0] }}</div>
         </div>
         <!-- 单独渲染加载中部分 -->
         <div v-show="loadMore" class="class-loading">

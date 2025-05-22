@@ -52,7 +52,7 @@
       <img
         @click="searchVideo"
         src="../img/搜索稿件.png"
-        style="transform: translate(768px, -3px); width: 14px"
+        style="transform: translate(768px, -3px); width: 14px;cursor: pointer;"
       />
       <div
         @click="allUpload"
@@ -344,10 +344,10 @@
       </div>
       <div
         v-show="
-          (click1 === 1 && UserVideoVo.videoWaitNumber === 0) ||
+         ( (click1 === 1 && UserVideoVo.videoWaitNumber === 0) ||
           (click2 === 1 && UserVideoVo.videoSuccessNumber === 0) ||
           (click3 === 1 && UserVideoVo.videoErrorNumber === 0) ||
-          (click4 === 1 && UserVideoVo.videoAllNumber === 0)
+          (click4 === 1 && UserVideoVo.videoAllNumber === 0))&&!videoList.length
         "
         style="transform: translate(440px, 68px)"
       >
@@ -422,7 +422,7 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted, computed, watch } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import apiClient from "../services/apiClient";
 import { ElMessage } from "element-plus";
 import editsBlue from "../img/编辑蓝.png";
