@@ -1092,7 +1092,7 @@ export default {
       loading.value = true;
       try {
         const response = await apiClient.post(
-          "/api/upload/uploadVideo",
+          "/upload/uploadVideo",
           formData,
           {
             headers: {

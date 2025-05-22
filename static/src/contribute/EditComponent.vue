@@ -1136,7 +1136,7 @@ export default {
       loading.value = true;
       try {
         const response = await apiClient.put(
-          "/api/upload/updateVideo",
+          "/upload/updateVideo",
           formData,
           {
             headers: {
