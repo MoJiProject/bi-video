@@ -2998,7 +2998,6 @@
       </div>
       <!-- 视频介绍 -->
       <div
-        id="video-content-container"
         class="video-content-container"
         :class="{ videoContentFlag: videoContentFlag1 && !videoContentFlag }"
       >
@@ -3308,9 +3307,6 @@ export default {
       setTimeout(() => {
         updateScrolling();
       }, 1000);
-      handleVideoContentHeightInterval = setInterval(() => {
-        if (!handleVideoContentHeightFlag) handleVideoContentHeight();
-      }, 100);
       
     });
 
@@ -3386,23 +3382,23 @@ export default {
     });
 
     //判断视频简介的高度
-    let handleVideoContentHeightFlag = false;
     function handleVideoContentHeight() {
-      const videoContent = document.getElementById("video-content-container");
-
-      // 获取内容的实际高度
-      const contentHeight = videoContent.scrollHeight; // 内容的总高度，包括超出容器的部分
-      if (contentHeight > 80) {
-        videoContentFlag1.value = true;
-        videoContentFlag.value = false;
-        handleVideoContentHeightFlag = true;
-      } else {
-        videoContentFlag1.value = false;
-        handleVideoContentHeightFlag = true;
-      }
-
-      if (handleVideoContentHeightFlag)
-        clearInterval(handleVideoContentHeightInterval);
+      // 1. 创建元素
+      const div = document.createElement('div');
+      // 2. 设置样式（必须有内容或样式才能看到高度）
+      div.innerHTML = SelectVideoByIdVo.upVideo.contentHtml;
+      div.style.fontSize = '14px';
+      div.style.lineHeight = '24px';
+      div.style.width = '690px';
+      div.style.paddingBottom = '5px';
+      div.style.visibility = 'hidden';
+      // 4. 插入 DOM（必须插入才能获取尺寸）
+      document.body.appendChild(div);
+      // 5. 获取高度
+      const height = div.offsetHeight;
+      // 6. 使用后移除（可选）
+      document.body.removeChild(div);
+      videoContentFlag1.value=height>80;
     }
 
     // 更新图片位置
@@ -3560,6 +3556,7 @@ export default {
             SelectVideoByIdVo.upVideo.title + "-哔哩哔哩_bilibili";
           checkVideoTitle(response.data.data.upVideo.title);
           onloadPage.value = true;
+          handleVideoContentHeight();
         } else {
           setTimeout(() => {
             window.location.href = "./videoNotFound";
