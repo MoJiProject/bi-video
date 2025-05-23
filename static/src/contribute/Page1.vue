@@ -38,6 +38,9 @@
             color: #757575;
             font-size: 14px;
             display: flex;
+            width: 100px;
+            position: relative;
+            z-index: 300;
             transform: translate(220px, -52px);
           "
         >

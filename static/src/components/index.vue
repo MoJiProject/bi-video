@@ -30,7 +30,6 @@ import apiClient from "../services/apiClient";
 import carousel from './carousel.vue';
 import {useGlobalStore} from "../store/store";
 import { onMounted, ref,onUnmounted,} from 'vue';
-import {uploadLog} from "../api/user/index";
 export default {
   name: 'index',
   components: {
@@ -56,15 +55,11 @@ export default {
           window.scrollTo(0, 0);
         }, 0);
         window.addEventListener("scroll",handleScroll);
-        window.addEventListener("keydown",handleKeydown);
         getPlaceholder();
-       
-
     });
 
     onUnmounted(()=>{
       window.removeEventListener("scroll",handleScroll);
-      window.removeEventListener("keydown",handleKeydown);
     })
 
     const handleScroll = () => {
@@ -86,14 +81,8 @@ export default {
       store.setMouseX(event.clientX);
     }
 
-    //键盘事件
-    function handleKeydown(event) {
-      if (event.key === "Enter"&&store.userId&&!store.loginLoadFlag) {
-        window.open("/home?homeMenu=1&userId="+store.userId, "_blank");
-      }
-    }
-    
 
+    
 
 
     return{

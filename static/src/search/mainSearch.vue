@@ -1326,6 +1326,7 @@
           >
             <img
               :src="user.avatarAddress"
+              @click="openHome(user.userId)"
               style="
                 width: 84.8px;
                 height: 84.8px;
@@ -1345,6 +1346,7 @@
             >
               <span
                 class="user-Name"
+                @click="openHome(user.userId)"
                 style="
                   width: auto;
                   display: inline-block;
@@ -2821,6 +2823,10 @@ export default {
         }
     }
 
+    function openHome(userId) {
+      window.open(`./home?userId=${userId}&homeMenu=1`,"_blank")
+    }
+
     return {
       onloadPage,
       isVisible,
@@ -2954,6 +2960,7 @@ export default {
       videoMouseleave,
       store,
       loginDialogVisibleFlag,
+      openHome,
     };
   },
 };
