@@ -22,7 +22,7 @@
           :src="Videos[index].videoAddress"
         ></video>
         <div
-          v-show="store.userId !== null"
+          v-show="store.userId !== null && (Videos[index].waitWatch === 0 || Videos[index].waitWatch === 1)"
           class="waitWatch"
           @click="waitWatch(Videos[index].videoId)"
           @mouseover="waitFont = 1"
@@ -224,7 +224,7 @@
           :src="video.videoAddress"
         ></video>
         <div
-          v-show="store.userId !== null"
+          v-show="store.userId !== null&&(video.waitWatch === 0 || video.waitWatch === 1)"
           class="waitWatch"
           @click="waitWatch(video.videoId)"
           @mouseover="waitFont = 1"
