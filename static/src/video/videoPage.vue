@@ -3344,6 +3344,8 @@ export default {
 
     //获取@用户列表
     async function getEitList() {
+      if(!store.userId)
+      return;
       try {
         const response = await apiClient.get(`/user/getEit/${store.userId}`, {
           headers: {
@@ -4218,7 +4220,7 @@ export default {
     }
 
     //连接websocket实时更新滚动弹幕
-    const socket = new WebSocket("ws://localhost:8081/api/scrolling");
+    const socket = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/api/scrolling`);
     socket.onopen = async () => {
       await getVideoAndUser();
       if(SelectVideoByIdVo.upVideo?.id != null)
@@ -5023,6 +5025,8 @@ export default {
 
     //查询历史记录
     async function getHistory() {
+      if(!store.userId)
+      return;
       const urlParams = new URLSearchParams(window.location.search);
       let videoId = urlParams.get("videoId");
       videoId = videoId.replace("BV", "");

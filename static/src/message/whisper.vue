@@ -808,7 +808,7 @@ function addEmoji(index) {
 }
 
 //连接websocket实时更新滚动弹幕
-const socket = new WebSocket("ws://localhost:8081/api/chat");
+const socket = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/api/chat`);
 socket.onopen = async () => {
 
 socket.send("open:"+store.userId);
