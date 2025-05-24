@@ -4218,7 +4218,7 @@ export default {
     }
 
     //连接websocket实时更新滚动弹幕
-    const socket = new WebSocket("ws://localhost:8081/scrolling");
+    const socket = new WebSocket("ws://localhost:8081/api/scrolling");
     socket.onopen = async () => {
       await getVideoAndUser();
       if(SelectVideoByIdVo.upVideo?.id != null)
