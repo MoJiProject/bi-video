@@ -3138,6 +3138,7 @@ a {
 .v-header-ul li {
   display: flex;
   align-items: center; /* 垂直居中对齐列表项中的内容 */
+  cursor: pointer;
 }
 
 .v-header-ul li a img:hover {
