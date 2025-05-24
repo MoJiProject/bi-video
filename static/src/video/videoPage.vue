@@ -3232,7 +3232,6 @@ export default {
     const loginDialogVisibleFlag = ref(0);
     const videoContentFlag = ref(false);
     const videoContentFlag1 = ref(false);
-    let handleVideoContentHeightInterval = null;
     const autoPlayVideoFlag = ref(0);
     const closePostionHoverFlag = ref(false);
     const closePostionFlag = ref(true);
