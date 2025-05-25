@@ -106,7 +106,7 @@ function openVideo(videoId){
         color: #9499A0 !important;
         }
         ::v-deep(.introduce img) {
-         display: none;
+         display: none !important;
         }
         .bottom{
         font-size: 13px;
