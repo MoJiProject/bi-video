@@ -37,6 +37,7 @@ function openVideo(videoId){
   window.open("./video?videoId=BV"+videoId,"videoWindow");
 }
 
+
 </script>
 
 <style lang="scss" scoped>
@@ -100,6 +101,12 @@ function openVideo(videoId){
           height: 34px;
           line-height: 17px;
           margin-top: 6px;
+        }
+        ::v-deep(.introduce a) {
+        color: #9499A0 !important;
+        }
+        ::v-deep(.introduce img) {
+         display: none;
         }
         .bottom{
         font-size: 13px;
