@@ -1649,7 +1649,7 @@
             >
               <span
                 class="scrolling-content-container"
-                @click="copyScrolling(scrolling.content)"
+                @click.stop="copyScrolling(scrolling.content)"
                 >{{ scrolling.content }}
               </span>
             </div>
@@ -1686,7 +1686,7 @@
             >
               <span
                 class="scrolling-content-container"
-                @click="copyScrolling(scrolling.content)"
+                @click.stop="copyScrolling(scrolling.content)"
                 >{{ scrolling.content }}
               </span>
             </div>
@@ -1723,7 +1723,7 @@
             >
               <span
                 class="scrolling-content-container"
-                @click="copyScrolling(scrolling.content)"
+                @click.stop="copyScrolling(scrolling.content)"
                 >{{ scrolling.content }}
               </span>
             </div>
@@ -1789,7 +1789,7 @@
             >
               <span
                 class="scrolling-content-container"
-                @click="copyScrolling(scrolling.content)"
+                @click.stop="copyScrolling(scrolling.content)"
                 >{{ scrolling.content }}
               </span>
             </div>
@@ -1826,7 +1826,7 @@
             >
               <span
                 class="scrolling-content-container"
-                @click="copyScrolling(scrolling.content)"
+                @click.stop="copyScrolling(scrolling.content)"
                 >{{ scrolling.content }}
               </span>
             </div>
@@ -1863,7 +1863,7 @@
             >
               <span
                 class="scrolling-content-container"
-                @click="copyScrolling(scrolling.content)"
+                @click.stop="copyScrolling(scrolling.content)"
                 >{{ scrolling.content }}
               </span>
             </div>
