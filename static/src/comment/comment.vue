@@ -1,5 +1,5 @@
 <template>
-  <div class="comment-container">
+  <div class="comment-container"  v-loading.fullscreen="loading" element-loading-background="rgba(122, 122, 122, 0)">
     <div class="comment-header">
       <div class="comment-title">
         评论
@@ -1428,6 +1428,7 @@ export default {
     const searchCommentId=ref(parseInt(new URLSearchParams(location.search).get("commentId"))||null);
     const searchReplyId=ref(parseInt(new URLSearchParams(location.search).get("replyId"))||null);
     const videoId = new URLSearchParams(window.location.search).get("videoId").replace("BV", "");
+    const loading=ref(false);
 
     onMounted(() => {
       commentPlaceholderr.value =
@@ -2086,6 +2087,10 @@ export default {
     async function publishComment() {
       if (commentContent.value.trim() === "" || !commentImg.length === 0)
         return;
+
+      if(commentImg.length)
+          loading.value=true;
+
       // 网址超链接
       commentContent.value = commentContent.value.replace(
         /(https?:\/\/[^\s<>"]+?)(?=\s|&nbsp;|<div>|<\/div>|$)\b/g,
@@ -2191,12 +2196,17 @@ export default {
           duration: 1700,
         });
       }
+      loading.value=false;
     }
 
     //发布评论
     async function publishComment2() {
       if (commentContent2.value.trim() === "" || !commentImg2.length === 0)
         return;
+
+      if(commentImg2.length)
+          loading.value=true;
+
       // 网址超链接
       commentContent2.value = commentContent2.value.replace(
         /(https?:\/\/[^\s<>"]+?)(?=\s|&nbsp;|<div>|<\/div>|$)\b/g,
@@ -2216,7 +2226,6 @@ export default {
 
       commentContent2.value = commentContent2.value.replace("m1a,s,a2","")
       commentContent2.value = commentContent2.value.replace("data-eitt-userid","data-eit-userid")
-
 
       // 替换本站链接格式
       const container = document.createElement("div");
@@ -2251,7 +2260,6 @@ export default {
       commentContent2.value = container.innerHTML.replace(/(<div>\s*<br\s*\/?>\s*<\/div>\s*)+$/, '');
       
         
-
       //如果是二级回复
       if(replyComment.value!==mainComment.value){
       commentContent2.value= `&nbsp;回复 <a href='./home?homeMenu=1&userId=${replyUserId.value}' target='_blank' data-eit-userid='${replyUserId.value}' class='at-msg' style='color:#008ac5;'>@${replyUserName.value}</a> ：`+commentContent2.value;
@@ -2262,7 +2270,6 @@ export default {
       if(store.upUserId===store.userId&&commentImg2.length === 0){
         commentContent2.value = "<img style='width: 24px;height: 24px;display: inline-block;vertical-align: middle;transform: translateY(-1.5px);user-select: none;' src='../img/up_pb.svg'>&nbsp;"+commentContent2.value;
       }
-
 
       let comments = {
         content: commentContent2.value,
@@ -2310,10 +2317,7 @@ export default {
         {
           selectReplyComment(commentList[index],1);
           commentList[index].replyNumber++;
-
         }
-
-
       } else {
         ElMessage({
           message: "发送失败",
@@ -2322,6 +2326,7 @@ export default {
           duration: 1700,
         });
       }
+      loading.value=false;
     }
 
     //查询评论
@@ -2991,6 +2996,7 @@ export default {
       searchCommentId,
       searchReplyId,
       openHome,
+      loading,
     };
   },
 };

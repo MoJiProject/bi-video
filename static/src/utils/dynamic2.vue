@@ -529,6 +529,8 @@ function openDynamic(dynamicId){
     min-width: 556px;
     position: relative;
     margin-bottom: 8px;
+    overflow: hidden;
+    
         .up-sign{
         left: 0px;  
         color: #00AEEC;

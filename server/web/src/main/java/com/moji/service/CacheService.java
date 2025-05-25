@@ -1,22 +1,11 @@
 package com.moji.service;
-import com.moji.mapper.CommentsMapper;
-import com.moji.mapper.VideosMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-
-import java.util.HashSet;
 import java.util.Set;
 
 @Service
 public class CacheService {
-
-
-    @Autowired
-    private VideosMapper  videosMapper;
-
-    @Autowired
-    private CommentsMapper commentsMapper;
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;

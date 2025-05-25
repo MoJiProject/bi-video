@@ -1,5 +1,5 @@
 <template>
-  <div class="comment-container">
+  <div class="comment-container"  v-loading.fullscreen="loading" element-loading-background="rgba(122, 122, 122, 0)">
     <div class="comment-header">
       <div class="comment-title">
         评论
@@ -1148,6 +1148,8 @@ export default {
     const eitUserInfoTop = ref(0);
     const commentTotal=ref(0);
     const replyImgContainer = ref(null);
+    const loading = ref(false);
+
 
     onMounted(() => {
       commentPlaceholderr.value =
@@ -1685,6 +1687,10 @@ export default {
     async function publishComment() {
       if (commentContent.value.trim() === "" || !commentImg.length === 0)
         return;
+
+      if(commentImg.length)
+        loading.value = true;
+        
       // 网址超链接
       commentContent.value = commentContent.value.replace(
         /(https?:\/\/[^\s<>"]+?)(?=\s|&nbsp;|<div>|<\/div>|$)\b/g,
@@ -1788,12 +1794,17 @@ export default {
           duration: 1700,
         });
       }
+      loading.value = false;
     }
 
     //发布评论
     async function publishComment2() {
       if (commentContent2.value.trim() === "" || !commentImg2.length === 0)
         return;
+
+      if(commentImg2.length)
+        loading.value=true;
+
       // 网址超链接
       commentContent2.value = commentContent2.value.replace(
         /(https?:\/\/[^\s<>"]+?)(?=\s|&nbsp;|<div>|<\/div>|$)\b/g,
@@ -1903,10 +1914,7 @@ export default {
         {
           selectReplyComment(commentList[index],1);
           commentList[index].replyNumber++;
-
         }
-
-
       } else {
         ElMessage({
           message: "发送失败",
@@ -1915,6 +1923,7 @@ export default {
           duration: 1700,
         });
       }
+      loading.value=false;
     }
 
     //查询评论
@@ -2624,6 +2633,7 @@ export default {
       handleScrollImg,
       handleScrollImg2,
       replyImgContainer,
+      loading,
     };
   },
 };

@@ -242,7 +242,7 @@
                  <div>{{ user.fansNumber }} <span v-if="NewFansNumber.value">+{{ NewFansNumber.value }}11</span></div>
                  <div>粉丝</div>
               </span>
-               <span>
+               <span @click="openDynamic">
                  <div>{{ user.ownDynamicNumber }}</div>
                  <div>动态</div>
                </span>
@@ -3023,6 +3023,11 @@ export default {
     function openHistory(){
       window.open("./history","_blank",);
     }
+
+    //打开动态
+    function openDynamic(){
+      window.open("./dynamic","_blank",);
+    }
     
 
     return {
@@ -3084,6 +3089,7 @@ export default {
       openMessage,
       openHome,
       openHistory,
+      openDynamic,
     };
   },
 };

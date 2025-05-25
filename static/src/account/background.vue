@@ -1,5 +1,5 @@
 <template>
-<div class="account-user-background">
+<div class="account-user-background" v-loading.fullscreen="loading" element-loading-background="rgba(122, 122, 122, 0)">
     <div class="title"><span></span> 我的背景</div>
     <div class="background-container">
         <div class="title2">当前背景</div>
@@ -26,6 +26,7 @@ import { uploadBackground } from '@/api/user/index';
 const store = useGlobalStore();
 const fileInput = ref(null);
 const backgroundAddress = ref(null);
+const loading = ref(false);
 
 //更换背景
 function changeBackground(event) {
@@ -80,7 +81,7 @@ function updateBackground() {
         });
         return;
     }
-
+    loading.value = true;
     uploadBackground(store.token,store.userId,backgroundAddress.value).then(res => {
         if(res.data.code===1)
         {
@@ -102,6 +103,7 @@ function updateBackground() {
                 duration: 1700,
             });
         }
+        loading.value = false;
     })
 }
 

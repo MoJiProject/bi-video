@@ -1,5 +1,5 @@
 <template>
-<div class="account-user-avatar">
+<div class="account-user-avatar" v-loading.fullscreen="loading" element-loading-background="rgba(122, 122, 122, 0)">
     <div class="title" :class="{active: uploadFlag}"><span v-show="!uploadFlag" class="icon"></span> <span class="avatar" @click="uploadFlag=false">我的头像</span> <span v-show="uploadFlag" class="change-avatar"> > 更换头像</span></div>
     <div class="avatar-container" v-show="!uploadFlag">
         <div class="content">
@@ -76,6 +76,7 @@ const prevHeight = ref(96);
 const prevOffsetX = ref(0);
 const prevOffsetY = ref(0);
 const cutOrder = ref(false);
+const loading = ref(false);
 
 //打开文件选择框
 function openFile() {
@@ -125,10 +126,9 @@ function resetImg() {
 
 //发送裁剪图片
 function send(img) {
-
     if(!img)
         return;
-
+    loading.value = true;
     uploadAvatar(store.token,store.userId,img).then(res => {
         if(res.data.code === 1) {
             ElMessage({
@@ -149,8 +149,8 @@ function send(img) {
                 duration: 1700,
             });
         }
+        loading.value = false;
     })
-
 }
 
 </script>

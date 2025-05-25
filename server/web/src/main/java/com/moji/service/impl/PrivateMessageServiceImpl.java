@@ -135,8 +135,10 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             dialogue.setSign(String.valueOf(dialogue.getUserId()>dialogue.getDialogueId()? dialogue.getDialogueId():dialogue.getUserId())
                     +String.valueOf(dialogue.getUserId()<dialogue.getDialogueId()? dialogue.getDialogueId():dialogue.getUserId()));
             int insert = dialogueMapper.insert(dialogue);
-            if(insert>0)
+            if(insert>0) {
                 cacheService.deleteDialogueByUserId(dialogue.getUserId());
+                cacheService.deleteDialogueByUserId(dialogue.getDialogueId());
+            }
             return insert > 0;
         }
         return true;
@@ -238,7 +240,9 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         }
         int insert = privateMessageMapper.insert(privateMessage);
             cacheService.deleteDialogueByUserId(privateMessage.getSenderId());
+            cacheService.deleteDialogueByUserId(privateMessage.getReceiverId());
             cacheService.deleteMessageByUserId(privateMessage.getSenderId(),privateMessage.getReceiverId());
+            cacheService.deleteMessageByUserId(privateMessage.getReceiverId(),privateMessage.getSenderId());
         return insert>0;
     }
 
@@ -311,8 +315,10 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             }
         } else
             return false;
-           cacheService.deleteDialogueByUserId(userId);
-           cacheService.deleteMessageByUserId(userId,Objects.equals(privateMessage.getSenderId(),userId)?privateMessage.getReceiverId():privateMessage.getSenderId());
+           cacheService.deleteDialogueByUserId(privateMessage.getSenderId());
+           cacheService.deleteDialogueByUserId(privateMessage.getReceiverId());
+           cacheService.deleteMessageByUserId(privateMessage.getSenderId(),privateMessage.getReceiverId());
+           cacheService.deleteMessageByUserId(privateMessage.getReceiverId(),privateMessage.getSenderId());
         return true;
     }
 
@@ -340,8 +346,8 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         boolean b = this.updateBatchById(privateMessages);
         if(b)
         {
-            cacheService.deleteDialogueByUserId(userId);
             cacheService.deleteMessageByUserId(userId,dialogueId);
+            cacheService.deleteMessageByUserId(dialogueId,userId);
         }
         return b;
     }
@@ -363,8 +369,10 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
                 privateMessageMapper.updateById(privateMessage);
             }
         }else return false;
-        cacheService.deleteDialogueByUserId(userId);
-        cacheService.deleteMessageByUserId(userId,Objects.equals(privateMessage.getSenderId(),userId)?privateMessage.getReceiverId():privateMessage.getSenderId());
+        cacheService.deleteDialogueByUserId(privateMessage.getSenderId());
+        cacheService.deleteDialogueByUserId(privateMessage.getReceiverId());
+        cacheService.deleteMessageByUserId(privateMessage.getReceiverId(),privateMessage.getSenderId());
+        cacheService.deleteMessageByUserId(privateMessage.getSenderId(),privateMessage.getReceiverId());
         return true;
     }
 

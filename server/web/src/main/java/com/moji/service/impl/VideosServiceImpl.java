@@ -566,29 +566,31 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
         videos.setStatus(0);
         videos.setId(videos1.getId());
 
-        Users users = userMapper.selectById(videos.getUserId());
-        users.setVideoNumber(users.getVideoNumber()-1);
-        users.setOwnDynamicNumber(users.getOwnDynamicNumber()-1);
-        userMapper.updateById(users);
+        if(videos1.getStatus()==1){
+            Users users = userMapper.selectById(videos.getUserId());
+            users.setVideoNumber(users.getVideoNumber()-1);
+            users.setOwnDynamicNumber(users.getOwnDynamicNumber()-1);
+            userMapper.updateById(users);
 
-        //删除收藏
-        LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
-        collectsLambdaQueryWrapper.eq(Collects::getVideoId,videos1.getId());
-        List<Collects> collects = collectMapper.selectList(collectsLambdaQueryWrapper);
-        for (Collects collect : collects) {
-            collect.setDeleteFlag(1);
-            collectMapper.updateById(collect);
+            //删除收藏
+            LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
+            collectsLambdaQueryWrapper.eq(Collects::getVideoId,videos1.getId());
+            List<Collects> collects = collectMapper.selectList(collectsLambdaQueryWrapper);
+            for (Collects collect : collects) {
+                collect.setDeleteFlag(1);
+                collectMapper.updateById(collect);
+            }
+
+            //清除动态
+            LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
+            dynamicLambdaQueryWrapper.eq(Dynamic::getVideoId,videos1.getId())
+                    .isNull(Dynamic::getCommentId);
+            dynamicMapper.delete(dynamicLambdaQueryWrapper);
         }
 
-        //清除动态
-        LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
-        dynamicLambdaQueryWrapper.eq(Dynamic::getVideoId,videos1.getId())
-                .isNull(Dynamic::getCommentId);
-        dynamicMapper.delete(dynamicLambdaQueryWrapper);
         int i = videosMapper.updateById(videos);
         return i > 0;
     }
-
 
     @Override
     public List<SelectVideoDto> getVideo(Integer userId, Integer sort, Integer pageNum) {

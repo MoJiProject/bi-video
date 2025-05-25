@@ -1,5 +1,5 @@
 <template>
-  <div class="whisper-container">
+  <div class="whisper-container" v-loading.fullscreen="loading" element-loading-background="rgba(122, 122, 122, 0)">
     <div class="head2">我的消息</div>
     <div class="body">
         <div class="body-left">
@@ -141,6 +141,7 @@
                         :preview-src-list="[message.content]"
                         :initial-index="index"
                         fit="cover"
+                        @close="restoreBodyOverflow"
                     />
                     </div>
                     </el-tooltip>
@@ -311,6 +312,7 @@ const dialogueLoadingFlag=ref(true);
 const messageLoading=ref(false);
 const messageLoadingFlag=ref(true);
 const deleteMessageDialogFlag=ref(false);
+const loading=ref(false);
 
 onMounted(()=>{
 
@@ -400,6 +402,7 @@ async function handleFileChange(event){
         event.target.value = "";
         return;
     }
+    loading.value=true;
     base64=await readFileAsBase64(file);
     if(base64!==null){
         let message={
@@ -425,6 +428,7 @@ async function handleFileChange(event){
         })
     }
     event.target.value = "";
+    loading.value=false;
 }
 
 function readFileAsBase64(file) {
@@ -572,7 +576,6 @@ function handleContextMenu(e,flag){
 
 //右击消息弹出菜单
 function handleContextMenu2(e){
-
 e.preventDefault();
 }
 
@@ -810,9 +813,7 @@ function addEmoji(index) {
 //连接websocket实时更新滚动弹幕
 const socket = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/api/chat`);
 socket.onopen = async () => {
-
 socket.send("open:"+store.userId);
-
 };
 
 //接收websocket实时更新消息
@@ -1039,6 +1040,11 @@ function openHome(menu,id){
   `./home?homeMenu=${menu}&userId=${id}`,
   "_blank",
 );
+}
+
+//修改关闭预览的bug
+function restoreBodyOverflow(){
+    document.body.style.overflowY = 'hidden';
 }
 
 </script>

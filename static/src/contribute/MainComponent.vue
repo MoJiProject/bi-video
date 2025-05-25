@@ -1,5 +1,5 @@
 <template>
-  <div class="main-content4" v-loading="loading">
+  <div class="main-content4" v-loading.fullscreen="loading" element-loading-background="rgba(122, 122, 122, 0)">
     <div class="white">
       <div
         style="

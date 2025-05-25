@@ -1,5 +1,5 @@
 <template>
-  <div class="dynamic-body" :style="{backgroundImage: 'url('+backgroundImgSrc[bIndex]+')'}">
+  <div class="dynamic-body" v-loading.fullscreen="loading" element-loading-background="rgba(122, 122, 122, 0)" :style="{backgroundImage: 'url('+backgroundImgSrc[bIndex]+')'}">
       <div class="left">
           <div class="user-info">
               <div class="top">
@@ -208,6 +208,7 @@ const dynamicList=reactive([]);
 const loadMore=ref(false);
 const noDataFlag=ref(false);
 const newAllDynamicFlag=ref(false);
+const loading=ref(false);
 
 onMounted(()=>{
 
@@ -750,6 +751,9 @@ async function addDynamicF(){
 
   if(content.value.trim() === ""&&imgList2.length===0)
     return;
+    
+    if(imgList2.length)
+      loading.value=true;
 
     // 网址超链接
     content.value = content.value.replace(
@@ -836,6 +840,7 @@ async function addDynamicF(){
             duration: 1700,
           });
       }
+      loading.value=false;
   })
 }  
 
