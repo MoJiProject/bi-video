@@ -425,10 +425,10 @@ async function handleFileChange(event){
             duration: 1700,
             });
         }
+        loading.value=false;
         })
     }
     event.target.value = "";
-    loading.value=false;
 }
 
 function readFileAsBase64(file) {
