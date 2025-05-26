@@ -3026,6 +3026,11 @@ export default {
 
     //打开动态
     function openDynamic(){
+      if(!store.userId)
+      {
+        loginDialogVisible.value=true;
+        flag.value=1;
+      } 
       window.open("./dynamic","_blank",);
     }
     
