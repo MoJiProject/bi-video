@@ -411,6 +411,7 @@ export default {
         position: relative;
         top: 0;
         left: 0;
+        z-index: 100;
         .auto-play-video-avatar{
             width: 48.78px;
             height: 48.78px;
