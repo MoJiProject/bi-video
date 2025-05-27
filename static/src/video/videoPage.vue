@@ -910,6 +910,7 @@
                     position: absolute;
                     transform: translate(200px, 1px);
                     color: #d2d3d0;
+                    word-break: normal !important;
                   "
                   >{{ scrollingDisplayAreaValue }}%</span
                 >
@@ -933,6 +934,7 @@
                     position: absolute;
                     transform: translate(200px, 1px);
                     color: #d2d3d0;
+                    word-break: normal !important;
                   "
                   >{{ scrollingDisplayOpacityValue }}%</span
                 >
@@ -956,6 +958,7 @@
                     position: absolute;
                     transform: translate(200px, 1px);
                     color: #d2d3d0;
+                    word-break: normal !important;
                   "
                   >{{ scrollingDisplayFontSizeValue }}%</span
                 >
