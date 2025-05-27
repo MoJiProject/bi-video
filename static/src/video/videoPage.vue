@@ -6755,6 +6755,10 @@ export default {
   transform: translate(20px, 100px);
 }
 
+.scrolling-slider-container div{
+  margin-top: 8px;
+}
+
 .scrolling-display-slider {
   -webkit-appearance: none; /* Safari */
   position: absolute;
