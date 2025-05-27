@@ -4002,10 +4002,10 @@ export default {
 
       if (isInputField || !keyNoMoreClike) return;
 
+      event.preventDefault();
       //  空格键 播放
       if (event.key === " " && !isInputField) {
         // 阻止默认的空格键行为（滚动页面）
-        event.preventDefault();
         pausedOrPlayUpVideo();
       }
       // F键 全屏
