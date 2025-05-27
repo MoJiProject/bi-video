@@ -52,8 +52,8 @@
          </span>
          <span v-show="video.videoId===store.autoVideoList[0].videoId" class="line"></span>
        </div>
-        <div v-show="!showMoreVideoFlag" class="show-video-btn" @click="showMoreVideoFlag=true">展开</div>
-        <div v-show="showMoreVideoFlag" class="autoPlayVideo2-item" v-for="video in store.autoVideoList.slice(10,20)" :key="video.videoId" :class="{lineFlag: video.videoId===store.autoVideoList[0].videoId}">
+        <div v-if="store.autoVideoList.length>10" v-show="!showMoreVideoFlag" class="show-video-btn" @click="showMoreVideoFlag=true">展开</div>
+        <div  v-show="showMoreVideoFlag" class="autoPlayVideo2-item" v-for="video in store.autoVideoList.slice(10,20)" :key="video.videoId" :class="{lineFlag: video.videoId===store.autoVideoList[0].videoId}">
          <span class="autoPlayVideo2-item-left" @click="intoVideo(video.videoId)" @mousemove="videoMouseover(video.videoId)" @mouseleave="videoMouseleave(video.videoId)">
           <img class="autoPlayVideo2-cover" :src="video.coverAddress">
           <video :src="video.videoAddress"
@@ -103,7 +103,7 @@
          </span>
          <span v-show="video.videoId===store.autoVideoList[0].videoId" class="line"></span>
        </div>
-       <div v-show="showMoreVideoFlag" class="show-video-btn" @click="showMoreVideoFlag=false">收起</div>
+       <div v-if="store.autoVideoList.length>10" v-show="showMoreVideoFlag" class="show-video-btn" @click="showMoreVideoFlag=false">收起</div>
   </div>
 </template>
 
