@@ -6756,7 +6756,7 @@ export default {
 }
 
 .scrolling-slider-container div{
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 .scrolling-display-slider {
