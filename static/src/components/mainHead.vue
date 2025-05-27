@@ -4050,7 +4050,7 @@ a {
   text-overflow: ellipsis; /* 显示省略号 */
   transform: translate(145px, -90px);
   cursor: pointer;
-  height: 35px;
+  height: 38px;
 }
 .collectVideoUpName {
   display: -webkit-box; /* 使用 flexbox 布局 */
