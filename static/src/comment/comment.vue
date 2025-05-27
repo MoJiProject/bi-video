@@ -218,11 +218,11 @@
         }"
       >
       <div v-if="store.userId === null" class="overlay-comment"></div>
-      <div v-if="store.userId === null&&store.commentNumber>1" class="limit-mask-tip" @click="store.setLoginDialogVisibleFlag(true)">登录后查看 {{ store.commentNumber }} 条评论</div>
+      <div v-if="store.userId === null&&store.commentNumber>0" class="limit-mask-tip" @click="store.setLoginDialogVisibleFlag(true)">登录后查看 {{ store.commentNumber }} 条评论</div>
       <div
         class="comment-list"
         :class="{commentAnimationClass: comment.comments.id === searchCommentId&&searchReplyId===null}"
-        v-for="comment in store.userId!==null? commentList : commentList.slice(0,2) "
+        v-for="comment in store.userId ? commentList : commentList.slice(0,2) "
         :key="comment.comments.id"
         @mouseleave="deleteCommentHoverFlag2 = -1"
       >
@@ -1465,7 +1465,7 @@ export default {
         window.innerHeight || document.documentElement.clientHeight; // 可视区域高度
 
       if (scrollTop + clientHeight + 400 >= scrollHeight) {
-        if(store.userId!==null||pageNum.value===1)
+        if(store.userId||pageNum.value===1)
         {
           selectComment();
         }
@@ -1789,8 +1789,9 @@ export default {
         } else {
           insertEit2();
         }
-
         if (onceSelectComment && store.userId !== null) {
+         pageNum.value=1;
+         commentList.length=0;
          await selectComment();
           setTimeout(()=>{
             selectCommentFromAxios();
@@ -2777,20 +2778,6 @@ export default {
       
     }
 
-    //监视登录后查询评论
-    let loginSelectCommentFlag=true;
-    watch([()=>store.userId,()=>store.loginLoadFlag],()=>{
-
-      if(store.userId!==null&&loginSelectCommentFlag&&store.loginLoadFlag)
-      {
-        loginSelectCommentFlag=false;
-        pageNum.value=1;
-        commentList.length=0;
-        selectComment();
-      }
-
-    })
-    
     //添加私信对话并跳转
     async function addDialogueF(dialogueId) {
 

@@ -2315,16 +2315,14 @@ export default {
 
     //监视登录后查询评论
     let loginSelectCommentFlag=true;
-    watch([()=>store.userId,()=>store.loginLoadFlag],()=>{
-
-      if(store.userId!==null&&loginSelectCommentFlag&&store.loginLoadFlag)
+    watch(()=>store.userId,()=>{
+      if(store.userId!==null&&loginSelectCommentFlag)
       {
         loginSelectCommentFlag=false;
         pageNum.value=1;
         commentList.length=0;
         selectComment();
       }
-
     })
     
     //添加私信对话并跳转

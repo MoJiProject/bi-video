@@ -96,3 +96,8 @@
 .user-content2 a{
    color: #9499a0;
 }
+
+.at-msg:hover{
+  transition: color 0.3s ease !important;
+  color: #00AEEC !important;
+}

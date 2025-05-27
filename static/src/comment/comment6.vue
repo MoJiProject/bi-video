@@ -1616,8 +1616,9 @@ export default {
         } else {
           insertEit2();
         }
-
         if (onceSelectComment && store.userId !== null) {
+         pageNum.value=1;
+         commentList.length=0;
          await selectComment();
           setTimeout(()=>{
             selectCommentFromAxios();
@@ -2019,7 +2020,6 @@ export default {
       //如果是二级回复
       if(replyComment.value!==mainComment.value){
       commentContent2.value= `&nbsp;回复 <a href='./home?homeMenu=1&userId=${replyUserId.value}' target='_blank' data-eit-userid='${replyUserId.value}' class='at-msg' style='color:#008ac5;'>@${replyUserName.value}</a> ：`+commentContent2.value;
-
       }  
 
       //如果发布评论的是视频作者
@@ -2534,20 +2534,6 @@ export default {
       
     }
 
-    //监视登录后查询评论
-    let loginSelectCommentFlag=true;
-    watch([()=>store.userId,()=>store.loginLoadFlag],()=>{
-
-      if(store.userId!==null&&loginSelectCommentFlag&&store.loginLoadFlag)
-      {
-        loginSelectCommentFlag=false;
-        pageNum.value=1;
-        commentList.length=0;
-        selectComment();
-      }
-
-    })
-    
     //添加私信对话并跳转
     async function addDialogueF(dialogueId) {
 
