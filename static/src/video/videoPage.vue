@@ -2114,6 +2114,7 @@
                     position: absolute;
                     transform: translate(200px, 1px);
                     color: #d2d3d0;
+                    word-break: normal !important;
                   "
                   >{{ scrollingDisplayAreaValue }}%</span
                 >
@@ -2137,6 +2138,7 @@
                     position: absolute;
                     transform: translate(200px, 1px);
                     color: #d2d3d0;
+                    word-break: normal !important;
                   "
                   >{{ scrollingDisplayOpacityValue }}%</span
                 >
@@ -2160,6 +2162,7 @@
                     position: absolute;
                     transform: translate(200px, 1px);
                     color: #d2d3d0;
+                    word-break: normal !important;
                   "
                   >{{ scrollingDisplayFontSizeValue }}%</span
                 >
@@ -6750,10 +6753,6 @@ export default {
   flex-direction: column;
   color: white;
   transform: translate(20px, 100px);
-}
-
-.scrolling-slider-container div {
-  margin-top: 15px;
 }
 
 .scrolling-display-slider {
