@@ -115,6 +115,12 @@ onMounted(async()=>{
         await fansOrFollowF2();
         store.setHomeLoad(true,'homeBody');
     }
+    else{
+        setTimeout(() => {
+           store.setHomeLoad(true,'homeBody'); 
+        }, 300);
+    } 
+    
 })
 
 onUnmounted(()=>{
@@ -186,24 +192,26 @@ function fansOrFollowF(){
       searchFlag=true;
 
     fansOrFollow(userId,store.userId,8,pageNum.value,searchWord.value,store.token).then(res=>{
-        followList.length=0;
-        Object.assign(followList,res.data.data.records);
-        followTotal.value=res.data.data.total;
+        if(res.data.code===1){
+            followList.length=0;
+            Object.assign(followList,res.data.data.records);
+            followTotal.value=res.data.data.total;
+        }
         let date2=new Date();
         setTimeout(() => {
                 loadMore.value=false;
         }, date2 - date<300?300:date2 - date);
     })
-
 }
 
 //查询粉丝或关注列表
 async function fansOrFollowF2(){
 
 fansOrFollow(userId,store.userId,9,pageNum.value,searchWord.value,store.token).then(res=>{
-    fansTotal.value=res.data.data.total;
+    if(res.data.code===1){
+        fansTotal.value=res.data.data.total;
+    }
 })
-
 }
 
 //关注用户

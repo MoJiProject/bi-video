@@ -102,7 +102,7 @@ function openVideo(videoId){
           line-height: 17px;
           margin-top: 6px;
         }
-        ::v-deep(.introduce a) {
+        ::v-deep(.introduce *) {
         color: #9499A0 !important;
         }
         ::v-deep(.introduce img) {

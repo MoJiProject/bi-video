@@ -110,8 +110,12 @@ onMounted(async()=>{
         await fansOrFollowF2();
         putNewFans(store.token,store.userId);
         store.setHomeLoad(true,'homeBody');
+    }
+    else{
+        setTimeout(() => {
+           store.setHomeLoad(true,'homeBody'); 
+        }, 300);
     } 
-
 })
 
 onUnmounted(()=>{
@@ -167,10 +171,10 @@ function changeHomeMenu(homeMenu){
 function fansOrFollowF(){
 
 fansOrFollow(userId,store.userId,8,pageNum.value,searchWord.value,store.token).then(res=>{
-    followTotal.value=res.data.data.total;
-
+    if(res.data.code===1){
+        followTotal.value=res.data.data.total;
+    }
 })
-
 }
 
 //查询粉丝或关注列表
@@ -182,9 +186,11 @@ async function fansOrFollowF2(){
     else
       searchFlag=true;
 fansOrFollow(userId,store.userId,9,pageNum.value,searchWord.value,store.token).then(res=>{
+   if(res.data.code===1){
     fansTotal.value=res.data.data.total;
     fansList.length=0;
     Object.assign(fansList,res.data.data.records);
+   }
     let date2=new Date();
     setTimeout(() => {
             loadMore.value=false;
