@@ -90,8 +90,10 @@
                   <img v-else-if="dynamic.replyComment" class="comment-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADYAAAA2CAYAAACMRWrdAAAACXBIWXMAACE4AAAhOAFFljFgAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAASmSURBVHgB7VlRctpIEO0eBMknuQF7giUnWHyCeE8A+tg4LkhsThB8Ary7drni/RCcIPgEZk8QbpDkBnymjJhOj4xgJI1AQkKQKt4PSDUzmjfd093zBuCII4444ogVEHLG3Z1TcwFqafpYAN/Oz+1vkCMyE/v3zmnwKKco8A8gqEMWIExI0v88zuj9uT2GDNia2D93TkuUsMmTaMAOQGxFBOx1zppD2AKpiSkLYQn7ma2TEIqgK+mkm9JVUxG7/W/4kV2lB9GPTwXBWAKOAeV3S8IEEkJKqEoBVUDxuwBqSIQGT6oabseu3mv/1bxKOm5iYjf3A4cZtPR3ajWB8Np9IYdd255CDug7TrX0w9uzHzEchBAGnbctO8k4iYgZSUm6cl/CdV6ETGC37ymCgZcJyW0kFnY/z0qS7KxRKylub526tPBzyHrXnbNWd12/tcS8yCfQ8Z+33chZ0efcaAl81MnxYp+sW9xYYsrXrSf8og82k/Rb0aR8KMuRhY+wCCzeIlfoddxWEHEDVVxxETQ/dfdFSqHdticSaBkV1dysH3AZ1z6WmJTU8v+r1emc2dewZ3xQc0AY+88cWC6UZ5naGompvRWwFgcLOBDQnPRcVi0/BaO1DyMxr1TyB2JrFRUBk2Axl1UBgPjG1M7sinr9J2mrWm2X4Ij4sHqAuskdI8S8aj2IMRwextr/amUWPSZFLSaCdRpXF4nrvqIQntN8Hi3Io8RkoNF0lyXTtljMaTkvIWCzK+ogrfOhQZ8byZTEfmVEiHlF7gKYUrsoEvrcUEQ9K0Is3EiJM3Bg6N87gWBBhoNthJgbajSD3WgaWVAKRUFX8zIfEWKq0NXdsSTMmX2fQG2x1VxNxXlM5bHK7NyxEVdo7gPqbMbF77LkQzQXEHEl1Uh7qq47HhSNiiWa+vMsWBQvEXvQZJ3jUasZp3zIfL3P85iCslZZ4NflC1bGOu9aJ6a2sXkscjworSSCfYHn8Fl/RkGxukcsMXU8IKK/ly/YejefBn3YE5SoFBBpWa1qv7Vj69i1lYf7AnoUDKWX3gcKhkkpi9tbPjbLbyERZdFp9CR3r4GoaFyesftRILxP3QT7fWOtqEQUdElt0FXRCXCq5LCbT8Mm7Ai398MLVsm+Rki5yeS/xBJ3jHDpuQVrjwOuax7W+Xyib6hSCcUbFpIuw/q9J7e59Ge3newbqS4lPOESoKcnyNDHp5wwJ0gwZals+P7MHsWOxQtVKePFol+dCGqmy4jFwOMZkZ3G9be6H/NULNOlQQizCr0yHVRNyq4Jz4GLuusWKA6ZbjQ9CRzZehhTKBOedt41H/RXJoU52g9UqrnKoo5ZkAEfzu0B/wyeJ8vkWFbQb0ckyVfhPl6U0zV4tUfV3RrRdw5lE7cC4zzkiEwWM4GTOPn/OQjYC/J+6H7Uk+wm/T0LMlksKbw99eTlwpr/bnlzsyOxKFeLeffTwiPwDN5jWIJ6OHwXcR2Vr8UQTvVHQhrwvqtisM3EnXM+2nHVkq9KFdLRI0mWi+pZuZiLw1wtti7BZg3faZErMXUxJwBXR5s9EPKRe7hXAYSDQ23+EkaHKI8fcUTB+Akpbi5uawt9pAAAAABJRU5ErkJggg==">
                   <div v-if="dynamic.replyComment" class="comment-text">
                       <span class="user-name" @click="openHome(1,dynamic.replyComment.userId)" @mouseover="selectFollowFlag(dynamic.replyUserInfo2)" @mouseleave="selectFollowDelayF">{{ dynamic.replyComment.userName }}：<userInfo2 class="user-info" :user-info="dynamic.replyUserInfo2"/></span>
-                      <span class="user-content2" @click="openVideoOrDynamic(dynamic.replyComment,dynamic.replyComment.id)" v-html="cleanColor(dynamic.replyComment.content)"></span>
-                  </div>
+                      <span class="user-content2-container">
+                        <span class="user-content2" @click="openVideoOrDynamic(dynamic.replyComment,dynamic.replyComment.id)" v-html="cleanColor(dynamic.replyComment.content)"></span>
+                      </span>
+                    </div>
                   <div v-else-if="dynamic.userInfo2s?.length>0" class="comment-text">
                     <span class="user-name" @click="openHome(1,user.id)" @mouseover="selectFollowFlag(user)" @mouseleave="selectFollowDelayF" v-for="(user,index) in dynamic.userInfo2s" :key="user.id">{{ user.userName }} <userInfo2 class="user-info" :user-info="user"/><span v-if="index!=dynamic.userInfo2s.length-1">、</span></span>
                     <span class="user-content">&nbsp;{{ getLikeNumber(dynamic) }}</span>
@@ -805,10 +807,6 @@ function openDynamic(dynamicId){
             padding-right: 30px;
                 .comment-content{
                   position: relative;
-                  display: -webkit-box;
-                  -webkit-box-orient: vertical;
-                  -webkit-line-clamp: 2;
-                  overflow: hidden;
 
                     img{
                       user-select: none;
@@ -822,9 +820,10 @@ function openDynamic(dynamicId){
                         width: 14px;
                     }
                     .comment-text{
-                        margin-left: 24px;
-                        line-height: 22px;
-                        font-size: 13px;
+                     display: flex;
+                     margin-left: 24px;
+                     line-height: 22px;
+                     font-size: 13px;
                         .user-name{
                             position: relative;
                             color: #61666d;
@@ -853,9 +852,17 @@ function openDynamic(dynamicId){
                           word-break: break-word;
                           color: #9499a0;
                         }
-                        .user-content2{
-                          word-break: break-word;
-                          color: #9499a0;
+                        .user-content2-container{
+                        display: -webkit-box;
+                        -webkit-box-orient: vertical;
+                        -webkit-line-clamp: 2;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        word-break: break-word; /* 允许断词 */
+                          .user-content2{
+                            word-break: break-word;
+                            color: #9499a0;
+                          }
                         }
                     }
                 }
