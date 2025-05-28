@@ -144,7 +144,7 @@
                   </div>
                 </a>
                 <div class="at-right-content-bottom">
-                    <span class="at-time">{{ at.dynamic.publishTime }}</span>
+                    <span class="at-time">{{ at.dynamic?.publishTime }}</span>
                     <span class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id" @mouseover="deleteCommentNotificaitonHoverFlag=true" @mouseleave="deleteCommentNotificaitonHoverFlag=false"><img :src="deleteCommentNotificaitonHoverFlag?'../img/删除通知蓝.png':'../img/删除通知.png'"> <span>删除该通知</span></span>
                 </div>
                 <el-tooltip
