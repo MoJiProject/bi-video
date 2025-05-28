@@ -364,7 +364,6 @@ function deleteDynamicF(dynamic){
     min-width: 556px;
     position: relative;
     margin-bottom: 8px;
-    overflow: hidden;
 
         .dynamic-content{
         position: relative;

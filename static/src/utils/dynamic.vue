@@ -523,7 +523,6 @@ function openDynamic(dynamicId){
     min-width: 556px;
     position: relative;
     border: 1px solid #E3E5E7;
-    overflow: hidden;
 
         .up-sign{
         left: 0px;  
@@ -800,7 +799,10 @@ function openDynamic(dynamicId){
             padding-right: 30px;
                 .comment-content{
                   position: relative;
-                
+                  display: -webkit-box;
+                  -webkit-box-orient: vertical;
+                  -webkit-line-clamp: 2;
+                  overflow: hidden;
 
                     img{
                       user-select: none;
