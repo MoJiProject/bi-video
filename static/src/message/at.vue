@@ -139,7 +139,7 @@
                 <a :href="'./dynamicDetail?dynamicId='+at.at.dynamicId" target="dynamicWindow">
                   <div class="at-right-content-center">
                     <div class="at-message-content">
-                      <span v-html="at.dynamic.content"></span> 
+                      <span v-html="at.dynamic.content||'该评论已被删除'"></span> 
                     </div>
                   </div>
                 </a>
