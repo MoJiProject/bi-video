@@ -139,7 +139,7 @@
                 <a :href="'./dynamicDetail?dynamicId='+at.at.dynamicId" target="dynamicWindow">
                   <div class="at-right-content-center">
                     <div class="at-message-content">
-                      <span v-html="at.dynamic.content||'该评论已被删除'"></span> 
+                      <span v-html="at.dynamic?.content||'该评论已被删除'"></span> 
                     </div>
                   </div>
                 </a>
@@ -274,7 +274,7 @@
 
   //判断是否添加图片
   function addImgFlagF(comment){          
-      if(comment.deleteSign===1)
+      if(comment.deleteSign===1||!comment.content)
       return "[该评论已被删除]";
       let content=comment.content.replace("style='width: 24px;height: 24px;display: inline-block;","style='width: 24px;height: 24px;display: none;");
   

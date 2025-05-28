@@ -250,7 +250,7 @@
 
    //判断是否添加图片
   function addImgFlagF(comment,flag){
-    if(comment.deleteSign===1)
+    if(comment.deleteSign===1||!comment.content)
     return "[该评论已被删除]";
     let content=comment.content.replace("style='width: 24px;height: 24px;display: inline-block;","style='width: 24px;height: 24px;display: none;");
     if(flag)
