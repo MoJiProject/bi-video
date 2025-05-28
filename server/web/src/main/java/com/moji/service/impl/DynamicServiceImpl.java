@@ -635,6 +635,8 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                     if(homeDynamicDto.getReplyComment()==null){
                         LambdaQueryWrapper<Likes> likesLambdaQueryWrapper=new LambdaQueryWrapper<>();
                         likesLambdaQueryWrapper.eq(Likes::getFondId,record.getId())
+                                .eq(Likes::getLikeType,3)
+                                .eq(Likes::getDeleteFlag,0)
                                 .last("LIMIT 2")
                                 .orderByDesc(Likes::getId);
                         List<Likes> likes = likesMapper.selectList(likesLambdaQueryWrapper);
@@ -702,6 +704,8 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                     if(homeDynamicDto.getReplyComment()==null) {
                         LambdaQueryWrapper<Likes> likesLambdaQueryWrapper = new LambdaQueryWrapper<>();
                         likesLambdaQueryWrapper.eq(Likes::getFondId, record.getVideoId())
+                                .eq(Likes::getLikeType,1)
+                                .eq(Likes::getDeleteFlag,0)
                                 .last("LIMIT 2")
                                 .orderByDesc(Likes::getId);
                         List<Likes> likes = likesMapper.selectList(likesLambdaQueryWrapper);
@@ -761,6 +765,8 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                     if(homeDynamicDto.getReplyComment()==null){
                         LambdaQueryWrapper<Likes> likesLambdaQueryWrapper=new LambdaQueryWrapper<>();
                         likesLambdaQueryWrapper.eq(Likes::getFondId,record.getId())
+                                .eq(Likes::getLikeType,3)
+                                .eq(Likes::getDeleteFlag,0)
                                 .last("LIMIT 2")
                                 .orderByDesc(Likes::getId);
                         List<Likes> likes = likesMapper.selectList(likesLambdaQueryWrapper);
@@ -856,6 +862,8 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                     if(homeDynamicDto.getReplyComment()==null){
                         LambdaQueryWrapper<Likes> likesLambdaQueryWrapper=new LambdaQueryWrapper<>();
                         likesLambdaQueryWrapper.eq(Likes::getFondId,record.getId())
+                                .eq(Likes::getLikeType,3)
+                                .eq(Likes::getDeleteFlag,0)
                                 .last("LIMIT 2")
                                 .orderByDesc(Likes::getId);
                         List<Likes> likes = likesMapper.selectList(likesLambdaQueryWrapper);
@@ -923,6 +931,8 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                     if(homeDynamicDto.getReplyComment()==null) {
                         LambdaQueryWrapper<Likes> likesLambdaQueryWrapper = new LambdaQueryWrapper<>();
                         likesLambdaQueryWrapper.eq(Likes::getFondId, record.getVideoId())
+                                .eq(Likes::getLikeType,1)
+                                .eq(Likes::getDeleteFlag,0)
                                 .last("LIMIT 2")
                                 .orderByDesc(Likes::getId);
                         List<Likes> likes = likesMapper.selectList(likesLambdaQueryWrapper);
@@ -982,6 +992,8 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                     if(homeDynamicDto.getReplyComment()==null){
                         LambdaQueryWrapper<Likes> likesLambdaQueryWrapper=new LambdaQueryWrapper<>();
                         likesLambdaQueryWrapper.eq(Likes::getFondId,record.getId())
+                                .eq(Likes::getLikeType,3)
+                                .eq(Likes::getDeleteFlag,0)
                                 .last("LIMIT 2")
                                 .orderByDesc(Likes::getId);
                         List<Likes> likes = likesMapper.selectList(likesLambdaQueryWrapper);
