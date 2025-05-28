@@ -148,17 +148,17 @@
                     <span class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id" @mouseover="deleteCommentNotificaitonHoverFlag=true" @mouseleave="deleteCommentNotificaitonHoverFlag=false"><img :src="deleteCommentNotificaitonHoverFlag?'../img/删除通知蓝.png':'../img/删除通知.png'"> <span>删除该通知</span></span>
                 </div>
                 <el-tooltip
-                    v-if="at.dynamic.imgAddress"
+                    v-if="at.dynamic?.imgAddress"
                     popper-class="custom-tooltip"
                     effect="light"
                     :show-after="300"
-                    :content="at.dynamic.title"
+                    :content="at.dynamic?.title"
                     placement="bottom-end"
                     :offset="12"
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a v-if="at.dynamic.imgAddress" class="at-video-cover-container" :href="'./dynamicDetail?dynamicId='+at.at.dynamicId" target="dynamicWindow"><img class="at-video-cover" :src="at.dynamic.imgAddress.split(',')[0]"></a>
+                  <a v-if="at.dynamic?.imgAddress" class="at-video-cover-container" :href="'./dynamicDetail?dynamicId='+at.at.dynamicId" target="dynamicWindow"><img class="at-video-cover" :src="at.dynamic?.imgAddress.split(',')[0]"></a>
                 </el-tooltip>
                 <div class="at-line"></div>
               </div>
