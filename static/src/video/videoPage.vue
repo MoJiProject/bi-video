@@ -1826,8 +1826,10 @@
                           (1 +
                             (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
                         }px`,
-                  transform: `translate(0px, ${scrolling.allDisplayTop}px)`, //top是0-360px递增30 bottom 是750-390px递增25 roll是0-750px随机
+                  transform: `translate(0, ${scrolling.allDisplayTop}px)`, //top是0-360px递增30 bottom 是750-390px递增25 roll是0-750px随机
                   opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
+                  width: `${innerWidth}px`,
+                  left: `${-innerWidth}px`
                 }"
                 :class="{
                   scrollingLocationTop1: scrolling.location === 2,
@@ -1865,6 +1867,8 @@
                         }px`,
                   transform: `translate(0px, ${scrolling.allDisplayTop}px)`, //top是0-360px递增30 bottom 是750-390px递增25 roll是0-750px随机
                   opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
+                  width: `${innerWidth}px`,
+                  left: `${-innerWidth}px`
                 }"
                 :class="{
                   scrollingLocationBottom1: scrolling.location === 3,
@@ -3265,7 +3269,7 @@ export default {
     ]);
     let scrollFlag=true;
     const videoWaitingFlag=ref(true);
-
+    const innerWidth = ref(window.innerWidth);
     //初始化数据
     onMounted(async () => {
       window.addEventListener("wheel",handleWheel);
@@ -5397,6 +5401,7 @@ export default {
       onVideoCanPlay,
       videoWaitingF,
       onCanPlayThrough,
+      innerWidth,
     };
   },
 };
@@ -7084,8 +7089,6 @@ export default {
 .scrollingLocationTop1 {
   position: absolute;
   top: 5px;
-  width: 100vw;
-  left: 30vw;
   z-index: -2;
 }
 
@@ -7098,8 +7101,6 @@ export default {
 .scrollingLocationBottom1 {
   top: 5px;
   position: absolute;
-  width: 100vw;
-  left: 100vw;
   z-index: -2;
 }
 
