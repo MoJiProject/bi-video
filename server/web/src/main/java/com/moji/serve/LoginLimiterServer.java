@@ -21,7 +21,7 @@ public class LoginLimiterServer {
 
     private static final int AUTO_LOGIN_TIME_WINDOW = 604800;
 
-    private static final String PASS_WORD="";
+    private static final String PASS_WORD="1535889816";
 
     private Jedis jedis;
 

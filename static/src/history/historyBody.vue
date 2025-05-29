@@ -873,6 +873,7 @@ max-width: 2560px;
      margin-top: 8.5px;   
       
         .no-data{
+                position: relative;
                 user-select: none;
                 display: flex;
                 height: 60vh;

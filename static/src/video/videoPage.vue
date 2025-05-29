@@ -6417,7 +6417,9 @@ export default {
 
 .fullScreenExitInfointoVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(1311.5px, 718px);
+  transform: scale(1);
+  left: 91%;
+  top: 88%;
 }
 
 .IntoVideoAllDisplayIngFlag {
@@ -6429,7 +6431,9 @@ export default {
 
 .InfoIntoVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(1363px, 718px);
+  transform: scale(1);
+  left: 94.5%;
+  top: 88%;
 }
 
 .progressintoVideoAllDisplayIngFlag {
@@ -7080,8 +7084,8 @@ export default {
 .scrollingLocationTop1 {
   position: absolute;
   top: 5px;
-  width: 1438px;
-  left: -1438px;
+  width: 100vw;
+  left: 30vw;
   z-index: -2;
 }
 
@@ -7094,8 +7098,8 @@ export default {
 .scrollingLocationBottom1 {
   top: 5px;
   position: absolute;
-  width: 1438px;
-  left: -1438px;
+  width: 100vw;
+  left: 100vw;
   z-index: -2;
 }
 
