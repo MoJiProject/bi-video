@@ -42,4 +42,5 @@ hs_err_pid*.log
 *.tmp
 *.swp
 *.lock
+*.mp4
 /static/upload/*
