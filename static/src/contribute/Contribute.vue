@@ -457,4 +457,11 @@ export default {
   top: -100px;
 }
 
+.common-layout{
+  width: 1425px;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 </style>

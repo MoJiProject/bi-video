@@ -3,22 +3,22 @@
     <div class="message-head">
     <headComponent :head2-flag="true"/>
     </div>
-  <asideComponent/>
-  <div v-if="store.messageMenu === 1" class="message-body">
-    <whisper/>
-  </div>
-  <div v-else-if="store.messageMenu === 2" class="message-body">
-    <reply/>
-  </div>
-  <div v-else-if="store.messageMenu === 3" class="message-body">
-    <at/>
-  </div>
-  <div v-else-if="store.messageMenu === 4" class="message-body">
-    <love/>
-  </div>
-  <div v-else-if="store.messageMenu === 5" class="message-body">
-    <config/>
-  </div>
+    <asideComponent/>
+    <div v-if="store.messageMenu === 1" class="message-body">
+      <whisper/>
+    </div>
+    <div v-else-if="store.messageMenu === 2" class="message-body">
+      <reply/>
+    </div>
+    <div v-else-if="store.messageMenu === 3" class="message-body">
+      <at/>
+    </div>
+    <div v-else-if="store.messageMenu === 4" class="message-body">
+      <love/>
+    </div>
+    <div v-else-if="store.messageMenu === 5" class="message-body">
+      <config/>
+    </div>
   </div>
 </template>
 
@@ -123,7 +123,9 @@ watch(()=>store.userInformation,()=>{
   background-position: 0px 50px;
   background-repeat: no-repeat;
   background-size: cover;
+
 }
+
 
 .message-head {
   top: 0px;

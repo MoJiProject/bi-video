@@ -126,7 +126,7 @@ export default {
   left: -53px;
   z-index: 1000001;
   background-color: white;
-
+  width: 102%;
  }
 
  .head2Animate{
@@ -152,7 +152,6 @@ export default {
 
 .isClissify2Visible{
   animation: classifyAnimate 0.5s ease forwards;
-
 }
 
 @keyframes classifyAnimate {

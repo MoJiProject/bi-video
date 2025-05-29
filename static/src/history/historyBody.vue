@@ -866,13 +866,17 @@ max-width: 2560px;
         }
     }
     .body{
+     position: relative;
+     display: flex;
+     justify-content: center;
+     left: -405.5px;
      margin-top: 8.5px;   
-     padding-left: 148px;
-     
+      
         .no-data{
                 user-select: none;
                 display: flex;
                 height: 60vh;
+                left: 405.5px;
                 justify-content: center;
                 align-items: center;
                 flex-direction: column;  

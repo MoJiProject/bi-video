@@ -10,3027 +10,3034 @@
         :loginDialogVisibleFlag="loginDialogVisibleFlag"
       />
     </div>
-    <div class="video-body">
-      <el-tooltip
-        popper-class="custom-tooltip"
-        class="dynamicContent-item-tooltip"
-        effect="light"
-        :content="SelectVideoByIdVo.upVideo.title"
-        :show-after="300"
-        placement="top"
-        :offset="6"
-        :show-arrow="false"
-        :hide-after="0"
-      >
-        <div class="up-videoTitle">{{ SelectVideoByIdVo.upVideo.title }}</div>
-      </el-tooltip>
-      <div
-        :class="{
-          titleShowFlagCss: titleShowFlag,
-          allowFlagcss1: SelectVideoByIdVo.upVideo.allowTwo === 0,
-          allowFlagcss2: SelectVideoByIdVo.upVideo.allowTwo === 1,
-        }"
-        class="up-video-infos-container"
-      >
-        <img
-          src="../img/播放量灰.png"
-          style="
-            width: 16.5px;
-            height: 14px;
-            transform: translate(0px, 2.5px);
-            margin-right: 7px;
-          "
-        />
-        <span style="font-size: 12.5px; margin-right: 15px">{{
-          SelectVideoByIdVo.upVideo.playNumber
-        }}</span>
-        <img
-          src="../img/弹幕灰.png"
-          style="
-            width: 16.5px;
-            height: 14px;
-            transform: translate(0px, 2.5px);
-            margin-right: 6px;
-          "
-        />
-        <span style="font-size: 12.5px; margin-right: 12px">{{
-          SelectVideoByIdVo.upVideo.scrollingNumber
-        }}</span>
-        <span style="font-size: 12.5px">{{
-          SelectVideoByIdVo.upVideo.createTime
-        }}</span>
-        <div
-          v-if="SelectVideoByIdVo.upVideo.allowTwo === 0"
-          style="
-            font-size: 12.5px;
-            transform: translate(32px, 0px);
-            display: inline-block;
-          "
-        >
-          <span class="prohibition-sign"></span>
-          <span style="margin-left: -2px">未经作者授权，禁止转载</span>
-        </div>
-      </div>
-      <div v-if="titleShowFlag" class="expand-icon-container">
-        <img src="../img/展开.png" class="expand-icon" />
-        <div class="show-up-videoTitle-container">
-          <div class="show-up-videoTitle">
-            {{ SelectVideoByIdVo.upVideo.title }}
-          </div>
-          <div style="transform: translate(0px, 5px); color: #95999f">
-            <img
-              src="../img/播放量灰.png"
-              style="
-                width: 16.5px;
-                height: 14px;
-                transform: translate(0px, 2.5px);
-                margin-right: 7px;
-              "
-            />
-            <span style="font-size: 12.5px; margin-right: 15px">{{
-              SelectVideoByIdVo.upVideo.playNumber
-            }}</span>
-            <img
-              src="../img/弹幕灰.png"
-              style="
-                width: 16.5px;
-                height: 14px;
-                transform: translate(0px, 2.5px);
-                margin-right: 6px;
-              "
-            />
-            <span style="font-size: 12.5px; margin-right: 12px">{{
-              SelectVideoByIdVo.upVideo.scrollingNumber
-            }}</span>
-            <span style="font-size: 12.5px">{{
-              SelectVideoByIdVo.upVideo.createTime
-            }}</span>
-            <div
-              v-if="SelectVideoByIdVo.upVideo.allowTwo === 0"
-              style="
-                font-size: 12.5px;
-                transform: translate(32px, 0px);
-                display: inline-block;
-              "
-            >
-              <span class="prohibition-sign"></span>
-              <span style="margin-left: -2px">未经作者授权，禁止转载</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        style="
-          transform: translate(0px, 22px);
-          z-index: -1;
-          position: absolute;
-          height: 55px;
-        "
-      >
-        <div
-          class="up-user-avatar-container"
-        >
-          <img
-            @click="openHome(1,SelectVideoByIdVo.upUser.id)"
-            :src="SelectVideoByIdVo.upUser?.avatarAddress"
-            class="up-user-avatar"
-            @mouseover="delayUserInfo(1)"
-            @mouseleave="delayUserInfo(0)"
-          />
-          <div
-            v-show="nameOrAvatarHoverFlag !== 0"
-            :style="{
-              transform:
-                nameOrAvatarHoverFlag === 1
-                  ? 'translate(0px, 0px)'
-                  : 'translate(55px, -35px)',
-            }"
-            class="up-user-info"
-            @mouseover="nameOrAvatarHoverFlag2=true"
-            @mouseleave="nameOrAvatarHoverFlag2=false,delayUserInfo(0)"
-          >
-            <div v-if="!SelectVideoByIdVo.upUser.backgroundAddress" :style="{backgroundImage:'url(../img/主页背景图.webp)'}" class="up-user-info-bg"></div>
-            <div v-else :style="{backgroundImage:`url(${SelectVideoByIdVo.upUser.backgroundAddress})`}" class="up-user-info-bg"></div>
-            <div class="up-user-info-container">
-              <img
-                @click="openHome(1,SelectVideoByIdVo.upUser.id)"
-                :src="SelectVideoByIdVo.upUser?.avatarAddress"
-                class="up-user-info-avatar"
-              />
-              <div class="up-user-info-container-header">
-                <span
-                 @click="openHome(1,SelectVideoByIdVo.upUser.id)"
-                  class="up-user-info-name"
-                  :style="{
-                    color:
-                      SelectVideoByIdVo.upUser.grade > 4 ? '#fb7299' : '#000',
-                  }"
-                  >{{ SelectVideoByIdVo.upUser.userName }}</span
-                >
-                <img
-                  v-if="SelectVideoByIdVo.upUser.gender === 1"
-                  src="../img/man.png"
-                  class="up-user-info-gender"
-                />
-                <img
-                  v-if="SelectVideoByIdVo.upUser.gender === 2"
-                  src="../img/man.png"
-                  class="up-user-info-gender"
-                />
-                <img
-                  v-if="SelectVideoByIdVo.upUser.grade"
-                  :src="'../img/' + SelectVideoByIdVo.upUser.grade + '级.png'"
-                  class="up-user-info-level"
-                />
-              </div>
-              <div class="up-user-info-container-content">
-                <span @click="openHome(8,SelectVideoByIdVo.upUser.id)" style="color: #95999f; cursor: pointer"
-                  ><span style="color: black">{{
-                    SelectVideoByIdVo.upUser.followNumber
-                  }}</span>
-                  &nbsp;关注</span
-                >
-                <span @click="openHome(9,SelectVideoByIdVo.upUser.id)" style="margin-left: 25px; color: #95999f; cursor: pointer"
-                  ><span style="color: black">{{
-                    SelectVideoByIdVo.upUser.fansNumber
-                  }}</span>
-                  &nbsp;粉丝</span
-                >
-                <span style="margin-left: 25px; color: #95999f; cursor: pointer"
-                  ><span style="color: black">{{
-                    SelectVideoByIdVo.upUser.likeNumber
-                  }}</span>
-                  &nbsp;获赞</span
-                >
-              </div>
-              <div class="up-user-info-container-introduce">
-                <span class="up-user-info-introduce-content">
-                  {{ SelectVideoByIdVo.upUser.introduce }}
-                </span>
-              </div>
-              <div class="up-user-info-container-footer">
-                <span
-                  v-show="SelectVideoByIdVo.isFansFlag === 0"
-                  class="up-user-info-container-footer-add-follow"
-                  @click="addFollowAxios(SelectVideoByIdVo.upUser.id)"
-                  ><img
-                    src="../img/加关注.png"
-                    style="width: 14px; margin-right: 4px"
-                  />关注</span
-                >
-                <span
-                  v-show="SelectVideoByIdVo.isFansFlag === 1"
-                  class="up-user-info-container-footer-delete-follow"
-                  @click="deleteFollowAxios(SelectVideoByIdVo.upUser.id)"
-                  @mouseover="isDeleteFollowFlag = 1"
-                  @mouseleave="isDeleteFollowFlag = 0"
-                >
-                  <span v-show="isDeleteFollowFlag === 0">已关注</span>
-                  <span v-show="isDeleteFollowFlag === 1">取消关注</span></span
-                >
-                <span class="up-user-info-container-footer-message"
-                @click="addDialogueF(SelectVideoByIdVo.upUser.id)"
-                  >发消息</span
-                >
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="up-user-header">
-          <div
-            class="up-user-name"
-            @click="openHome(1,SelectVideoByIdVo.upUser.id)"
-            @mouseover="delayUserInfo(2)"
-            @mouseleave="delayUserInfo(0)"
-            :style="{
-              color: SelectVideoByIdVo.upUser.grade > 4 ? '#fb7299' : '#000',
-            }"
-          >
-            {{ SelectVideoByIdVo.upUser.userName }}
-          </div>
-          <span
-            class="sendMessage-container"
-            @mouseover="showSendMessageFlag = true"
-            @mouseleave="showSendMessageFlag = false"
-          >
-            <img
-              class="sendUpMessageImg"
-              :src="showSendMessageFlag ? sendMessageBlue : sendMessageGray"
-            />
-            <span class="sendUpMessage" @click="addDialogueF(SelectVideoByIdVo.upUser.id)">发消息</span>
-          </span>
-        </div>
+    <div class="video-body-container">
+      <div class="video-body">
         <el-tooltip
           popper-class="custom-tooltip"
           class="dynamicContent-item-tooltip"
           effect="light"
+          :content="SelectVideoByIdVo.upVideo.title"
           :show-after="300"
-          :content="SelectVideoByIdVo.upUser.introduce"
-          placement="left"
-          :offset="24"
+          placement="top"
+          :offset="6"
           :show-arrow="false"
           :hide-after="0"
         >
-          <div class="up-user-content">
-            {{ SelectVideoByIdVo.upUser.introduce }}
-          </div>
+          <div class="up-videoTitle">{{ SelectVideoByIdVo.upVideo.title }}</div>
         </el-tooltip>
-        <div id="up-power-container" class="up-power-container">
-          <img src="../img/充电.webp" />
-          <span style="margin-right: 2px">充</span><span>电</span>
-        </div>
         <div
-          v-show="SelectVideoByIdVo.isFansFlag === 0"
-          class="up-add-follow-container"
-          @click="addFollowAxios(SelectVideoByIdVo.upUser.id)"
-        >
-          <img
-            src="../img/加关注.png"
-            style="width: 12px; margin-right: 7px; margin-left: 3px"
-          />关注 {{ SelectVideoByIdVo.upUser.fansNumber }}
-        </div>
-        <div
-          v-show="SelectVideoByIdVo.isFansFlag === 1"
-          v
-          class="up-delete-follow-container"
-          @click="deleteFollowAxios(SelectVideoByIdVo.upUser.id)"
-        >
-          <img
-            src="../img/取消关注.png"
-            style="width: 12px; margin-right: 7px; margin-left: 3px"
-          />已关注 {{ SelectVideoByIdVo.upUser.fansNumber }}
-        </div>
-      </div>
-      <div id="upvideocontainer" class="up-video-container">
-        <video
           :class="{
-            setVideoMirrorFlag: setVideoMirrorFlag,
-            VideoAllDisplayIngFlagVideo: intoVideoAllDisplayIngFlag,
+            titleShowFlagCss: titleShowFlag,
+            allowFlagcss1: SelectVideoByIdVo.upVideo.allowTwo === 0,
+            allowFlagcss2: SelectVideoByIdVo.upVideo.allowTwo === 1,
           }"
-          ref="upVideoPlayer"
-          @play="pausedOrPlayVideoFlag = true"
-          @pause="pausedOrPlayVideoFlag = false"
-          @dblclick="toggleFullscreen"
-          @click="pausedOrPlayUpVideo"
-          @timeupdate="updateProgress"
-          @mousemove="videoMove"
-          @canplay="onVideoCanPlay"
-          @waiting="videoWaitingF"
-          @canplaythrough="onCanPlayThrough"
-          :src="SelectVideoByIdVo.upVideo.videoAddress"
-          class="up-user-video-player"
-        ></video>
-        <div
-          v-show="
-            !setVideoAutoRePlayFlag &&
-            !pausedOrPlayVideoFlag &&
-            upVideoProgress === 100
-          "
-          :class="{ autoPlayVideoContainer1: intoVideoAllDisplayIngFlag }"
-          class="autoPlayVideoContainer"
-          @mousemove="videoMove"
-        >
-          <autoPlayVideo
-            :intoVideoAllDisplayIngFlag="intoVideoAllDisplayIngFlag"
-            :likeVideoClickFlag="likeVideoClickFlag"
-            :videoThrowCoinClickFlag="videoThrowCoinClickFlag"
-            :videoShareClickFlag="videoShareClickFlag"
-            :videoCollectClickFlag="videoCollectClickFlag"
-            style="position: absolute"
-          />
-        </div>
-        <span
-          v-show="intoVideoAllDisplayIngFlag && videoFeatureShowFlag"
-          @click="pausedOrPlayUpVideo"
-          class="intoVideoAllDisplayIngFlagVideoTitle"
-          >{{ SelectVideoByIdVo.upVideo.title }}</span
-        >
-        <div
-          v-show="videoFeatureShowFlag"
-          :class="{
-            intoVideoAllDisplayIngFlagavatarandaddFollow:
-              intoVideoAllDisplayIngFlag,
-          }"
-          v-if="SelectVideoByIdVo.isFansFlag === 0"
-          @mouseover="handlerCleanTime(), (videoLeave = true)"
-          @mouseleave="videoLeave = false"
-          @click="addFollowAxios(SelectVideoByIdVo.upUser.id)"
-          class="up-video-avatar-and-addFollow-container"
+          class="up-video-infos-container"
         >
           <img
-            :src="SelectVideoByIdVo.upUser?.avatarAddress"
-            class="up-video-avatar-and-addFollow-avatar"
-          />
-          <img
-            src="../img/加关注.png"
+            src="../img/播放量灰.png"
             style="
-              width: 10px;
-              height: 10px;
-              transform: translate(13.2px, 11.5px);
+              width: 16.5px;
+              height: 14px;
+              transform: translate(0px, 2.5px);
+              margin-right: 7px;
             "
           />
-          <span
-            style="
-              color: white;
-              font-size: 11px;
-              transform: translate(20px, 9px);
-            "
-            >关注</span
-          >
-        </div>
-        <!-- 进度条 -->
-        <progress
-          v-show="videoFeatureShowFlag && !intoVideoAllDisplayIngFlag"
-          @click="changeUpVideoTime"
-          @mousemove="updateupVideoProgressImgPosition"
-          @mouseover="
-            (upVideoProgressImg = true), handlerCleanTime(), (videoLeave = true)
-          "
-          @mouseleave="(upVideoProgressImg = false), (videoLeave = false)"
-          :value="upVideoProgress"
-          max="100"
-          class="up-VideoProgress"
-        ></progress>
-        <!-- 放大视频后的 -->
-        <progress
-          :class="{
-            progressintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
-          }"
-          v-show="videoFeatureShowFlag && intoVideoAllDisplayIngFlag"
-          @click="changeUpVideoTime"
-          @mousemove="updateupVideoProgressImgPosition1"
-          @mouseover="
-            (upVideoProgressImg = true), handlerCleanTime(), (videoLeave = true)
-          "
-          @mouseleave="(upVideoProgressImg = false), (videoLeave = false)"
-          :value="upVideoProgress"
-          max="100"
-          class="up-VideoProgress"
-        ></progress>
-        <!-- 进度条图片 -->
-        <img
-          v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
-          @click="startMoving"
-          @mouseover="upVideoProgressImg = true"
-          @mouseleave="upVideoProgressImg = false"
-          src="../img/视频进度图片.png"
-          class="up-video-progress-img"
-          :style="{
-            left: `${upVideoProgress * 0.555 * 12}px`,
-          }"
-        />
-        <!-- 放大视频后的 -->
-        <img
-          :class="{
-            progressImgintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
-          }"
-          v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
-          @click="startMoving1"
-          @mouseover="upVideoProgressImg = true"
-          @mouseleave="upVideoProgressImg = false"
-          src="../img/视频进度图片.png"
-          class="up-video-progress-img"
-          :style="{
-            left: `${upVideoProgress * 14.1}px`,
-          }"
-        />
-        <!-- 指示器 -->
-        <img
-          v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
-          @click="upVideoPointerClickChangerTime"
-          @mousemove="updateupVideoProgressImgPosition"
-          @mouseover="upVideoProgressImg = true"
-          @mouseleave="upVideoProgressImg = false"
-          src="../img/指示器上.png"
-          class="pointer-top"
-          :style="{
-            left: `${upVideoProgressImgPosition - 185.5}px`,
-          }"
-        />
-        <div
-          class="pointer-top-container"
-          :style="{
-            left: `${upVideoProgressImgPosition - 185.5}px`,
-          }"
-          v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
-          @click="upVideoPointerClickChangerTime"
-          @mousemove="updateupVideoProgressImgPosition"
-          @mouseover="upVideoProgressImg = true"
-          @mouseleave="upVideoProgressImg = false"
-        ></div>
-        <img
-          v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
-          @click="upVideoPointerClickChangerTime"
-          @mousemove="updateupVideoProgressImgPosition"
-          @mouseover="upVideoProgressImg = true"
-          @mouseleave="upVideoProgressImg = false"
-          src="../img/指示器下.png"
-          class="pointer-bottom"
-          :style="{
-            left: `${upVideoProgressImgPosition - 185.5}px`,
-          }"
-        />
-        <div
-          class="pointer-bottom-container"
-          :style="{
-            left: `${upVideoProgressImgPosition - 185.5}px`,
-          }"
-          v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
-          @click="upVideoPointerClickChangerTime"
-          @mousemove="updateupVideoProgressImgPosition"
-          @mouseover="upVideoProgressImg = true"
-          @mouseleave="upVideoProgressImg = false"
-        ></div>
-        <!-- 放大视频后的 -->
-        <img
-          :class="{
-            progressPointerTopintoVideoAllDisplayIngFlag:
-              intoVideoAllDisplayIngFlag,
-          }"
-          v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
-          @click="upVideoPointerClickChangerTime"
-          @mousemove="updateupVideoProgressImgPosition1"
-          @mouseover="upVideoProgressImg = true"
-          @mouseleave="upVideoProgressImg = false"
-          src="../img/指示器上.png"
-          class="pointer-top"
-          :style="{
-            left: `${upVideoProgressImgPosition - 13.5}px`,
-          }"
-        />
-        <div
-          :class="{
-            topContainerintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
-          }"
-          class="pointer-top-container"
-          :style="{
-            left: `${upVideoProgressImgPosition - 13.5}px`,
-          }"
-          v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
-          @click="upVideoPointerClickChangerTime"
-          @mousemove="updateupVideoProgressImgPosition1"
-          @mouseover="upVideoProgressImg = true"
-          @mouseleave="upVideoProgressImg = false"
-        ></div>
-        <img
-          :class="{
-            progressPointerBottomintoVideoAllDisplayIngFlag:
-              intoVideoAllDisplayIngFlag,
-          }"
-          v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
-          @click="upVideoPointerClickChangerTime"
-          @mousemove="updateupVideoProgressImgPosition1"
-          @mouseover="upVideoProgressImg = true"
-          @mouseleave="upVideoProgressImg = false"
-          src="../img/指示器下.png"
-          class="pointer-bottom"
-          :style="{
-            left: `${upVideoProgressImgPosition - 13.5}px`,
-          }"
-        />
-        <div
-          :class="{
-            bottomContainerintoVideoAllDisplayIngFlag:
-              intoVideoAllDisplayIngFlag,
-          }"
-          class="pointer-bottom-container"
-          :style="{
-            left: `${upVideoProgressImgPosition - 13.5}px`,
-          }"
-          v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
-          @click="upVideoPointerClickChangerTime"
-          @mousemove="updateupVideoProgressImgPosition1"
-          @mouseover="upVideoProgressImg = true"
-          @mouseleave="upVideoProgressImg = false"
-        ></div>
-        <!-- 指示器时间 -->
-        <span
-          v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
-          class="up-video-play-bottom-video-pointer-time"
-          :style="{
-            left: `${upVideoProgressImgPosition - 185.5}px`,
-          }"
-          >{{ upVideoPointerMoveTime }}</span
-        >
-        <!-- 放大视频后的 -->
-        <span
-          :class="{
-            pointerTImeintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
-          }"
-          v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
-          class="up-video-play-bottom-video-pointer-time"
-          :style="{
-            left: `${upVideoProgressImgPosition - 13.5}px`,
-          }"
-          >{{ upVideoPointerMoveTime }}</span
-        >
-        <!-- 开始播放 -->
-        <img
-          :class="{
-            startplaywhiteintoVideoAllDisplayIngFlag:
-              intoVideoAllDisplayIngFlag,
-          }"
-          v-show="!pausedOrPlayVideoFlag && !upVideoStartPlayFlag"
-          @mouseover="upVideoStartPlayFlag = true"
-          src="../img/开始播放灰.png"
-          class="up-video-start-play-white"
-        />
-        <img
-          :class="{
-            startplaywhiteintoVideoAllDisplayIngFlag:
-              intoVideoAllDisplayIngFlag,
-          }"
-          v-show="!pausedOrPlayVideoFlag && upVideoStartPlayFlag"
-          @click="playUpVideo"
-          @mouseleave="upVideoStartPlayFlag = false"
-          src="../img/开始播放白.png"
-          class="up-video-start-play-white"
-        />
-        <img
-          :class="{
-            playwhiteintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
-          }"
-          v-show="videoFeatureShowFlag && !pausedOrPlayVideoFlag"
-          class="up-video-play-bottom-play"
-          @click="playUpVideo"
-          :src="upVideoPlayFlag ? upVideoPlayWhite : upVideoPlayGray"
-          @mousemove="
-            (upVideoPlayFlag = true),
-              handlerCleanTime(),
-              video,
-              (videoLeave = true)
-          "
-          @mouseleave="(upVideoPlayFlag = false), (videoLeave = false)"
-        />
-        <img
-          :class="{
-            playwhiteintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
-          }"
-          v-show="videoFeatureShowFlag && pausedOrPlayVideoFlag"
-          class="up-video-play-bottom-play"
-          @click="pausedUpVideo"
-          :src="videoPausedFlag ? pausedVideoWhite : pausedVideoGray"
-          @mousemove="
-            (videoPausedFlag = true),
-              handlerCleanTime(),
-              video,
-              (videoLeave = true)
-          "
-          @mouseleave="(videoPausedFlag = false), (videoLeave = false)"
-        />
-        <!-- 播放时间定位 -->
-        <div
-          class="videoPostion"
-          v-if="
-            history.watchCurrentTime !== undefined &&
-            history.watchCurrentTime !== 0 &&
-            closePostionFlag
-          "
-          :class="{
-            closePostionFlagAllDisplay: intoVideoAllDisplayIngFlag,
-          }"
-        >
-          <img
-            class="img1"
-            @mouseover="closePostionHoverFlag = true"
-            @mouseleave="closePostionHoverFlag = false"
-            src="../img/关闭视频定位.png"
-            :class="{ closePostionHoverFlag: !closePostionHoverFlag }"
-          />
-          <img
-            class="img2"
-            @click="closePostionFlag = false"
-            @mouseover="closePostionHoverFlag = true"
-            @mouseleave="closePostionHoverFlag = false"
-            src="../img/关闭视频定位粉.png"
-            :class="{ closePostionHoverFlag: closePostionHoverFlag }"
-          />
-          <span>已为您定位至{{ history.watchVideoTime }}</span>
-        </div>
-        <!-- 时间 -->
-        <div
-          :class="{
-            timeintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
-          }"
-          v-show="videoFeatureShowFlag && !upVideoInputTimeFlag"
-          @click="reInputUpVideoTime"
-          @mousemove="(videoLeave = true), handlerCleanTime()"
-          @mouseleave="videoLeave = false"
-          class="up-video-play-bottom-video-time-container"
-        >
-          <span style="margin-right: 10px">{{ formattedTime }}</span>
-          <span
-            style="
-              font-size: 11px;
-              position: absolute;
-              transform: translate(-5.5px);
-            "
-            >/</span
-          >
-          <span style="margin-left: 5px">{{
-            SelectVideoByIdVo.upVideo.videoTime
+          <span style="font-size: 12.5px; margin-right: 15px">{{
+            SelectVideoByIdVo.upVideo.playNumber
           }}</span>
-        </div>
-        <div
-          :class="{
-            inputTimeintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
-          }"
-          v-show="videoFeatureShowFlag && upVideoInputTimeFlag"
-          @mousemove="(videoLeave = true), handlerCleanTime()"
-          @mouseleave="videoLeave = false"
-          class="up-video-play-bottom-video-time-input-container"
-        >
-          <input
-            type="text"
-            class="up-video-play-bottom-video-time-input"
-            @keydown.enter="enterUpVideoTime"
-            v-model="inputUpVideoTimeValue"
-          />
-        </div>
-        <!-- 弹幕  -->
-        <!-- 打开或关闭弹幕  -->
-        <img
-          class="up-video-play-bottom-video-close-open-scrolling"
-          style="width: 22px"
-          :class="{
-            openOrCloseScrollingintovideoAllDisplayIngFlag:
-              intoVideoAllDisplayIngFlag,
-          }"
-          v-show="
-            openOrCloseScrollingFlag &&
-            intoVideoAllDisplayIngFlag &&
-            videoFeatureShowFlag
-          "
-          :src="openScrollingWhite"
-          @click="openOrCloseScrollingFlag = false"
-        />
-        <span
-          class="up-video-play-bottom-video-close-open-scrolling-info"
-          v-show="
-            !openOrCloseScrollingFlag &&
-            openOrCloseScrollingInfoFlag &&
-            intoVideoAllDisplayIngFlag
-          "
-          >打开弹幕(d)</span
-        >
-        <img
-          class="up-video-play-bottom-video-open-close-scrolling"
-          :class="{
-            openOrCloseScrollingintovideoAllDisplayIngFlag:
-              intoVideoAllDisplayIngFlag,
-          }"
-          v-show="
-            !openOrCloseScrollingFlag &&
-            intoVideoAllDisplayIngFlag &&
-            videoFeatureShowFlag
-          "
-          :src="closeScrollingWhite"
-          @click="openOrCloseScrollingFlag = true"
-        />
-        <span
-          class="up-video-play-bottom-video-close-open-scrolling-info"
-          v-show="
-            openOrCloseScrollingFlag &&
-            openOrCloseScrollingInfoFlag &&
-            intoVideoAllDisplayIngFlag
-          "
-          >关闭弹幕(d)</span
-        >
-        <!-- 弹幕设置 -->
-        <img
-          v-show="
-            !openOrCloseScrollingFlag &&
-            intoVideoAllDisplayIngFlag &&
-            videoFeatureShowFlag
-          "
-          style="width: 23px; height: 21.5px"
-          :class="{
-            closeSettingScrollintovideoAllDisplayIngFlag:
-              intoVideoAllDisplayIngFlag,
-          }"
-          class="up-video-play-bottom-video-close-setting-scrolling"
-          :src="scrollingSettingWhite"
-        />
-        <div
-          v-show="
-            openOrCloseScrollingFlag &&
-            intoVideoAllDisplayIngFlag &&
-            videoFeatureShowFlag
-          "
-          :class="{
-            settingScrollintovideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
-          }"
-          class="up-video-play-bottom-video-setting-scrolling-container"
-        >
           <img
-            style="width: 23px; height: 20.5px"
-            class="up-video-play-bottom-video-setting-scrolling"
-            :src="scrollingSettingWhite"
+            src="../img/弹幕灰.png"
+            style="
+              width: 16.5px;
+              height: 14px;
+              transform: translate(0px, 2.5px);
+              margin-right: 6px;
+            "
           />
+          <span style="font-size: 12.5px; margin-right: 12px">{{
+            SelectVideoByIdVo.upVideo.scrollingNumber
+          }}</span>
+          <span style="font-size: 12.5px">{{
+            SelectVideoByIdVo.upVideo.createTime
+          }}</span>
           <div
-            class="up-video-play-bottom-video-setting-scrolling-info-container"
+            v-if="SelectVideoByIdVo.upVideo.allowTwo === 0"
+            style="
+              font-size: 12.5px;
+              transform: translate(32px, 0px);
+              display: inline-block;
+            "
           >
-            <span
-              style="
-                position: absolute;
-                transform: translate(18px, 10px);
-                cursor: pointer;
-                color: white;
-              "
-              >按类型屏蔽</span
-            >
-            <!-- 屏蔽滚动弹幕 -->
-            <div
-              class="roll-scrolling-container"
-              @mouseover="scrollingRollHoverFlag = true"
-              @mouseleave="scrollingRollHoverFlag = false"
-              @click="scrollingRollOpenFlag = !scrollingRollOpenFlag"
-            >
+            <span class="prohibition-sign"></span>
+            <span style="margin-left: -2px">未经作者授权，禁止转载</span>
+          </div>
+        </div>
+        <div v-if="titleShowFlag" class="expand-icon-container">
+          <img src="../img/展开.png" class="expand-icon" />
+          <div class="show-up-videoTitle-container">
+            <div class="show-up-videoTitle">
+              {{ SelectVideoByIdVo.upVideo.title }}
+            </div>
+            <div style="transform: translate(0px, 5px); color: #95999f">
               <img
-                class="roll-scrolling-img"
-                v-show="!scrollingRollOpenFlag"
-                :src="
-                  scrollingRollHoverFlag
-                    ? scrollingRollWhite
-                    : scrollingRollGray
+                src="../img/播放量灰.png"
+                style="
+                  width: 16.5px;
+                  height: 14px;
+                  transform: translate(0px, 2.5px);
+                  margin-right: 7px;
                 "
               />
+              <span style="font-size: 12.5px; margin-right: 15px">{{
+                SelectVideoByIdVo.upVideo.playNumber
+              }}</span>
               <img
-                class="roll-scrolling-img"
-                v-show="scrollingRollOpenFlag"
-                :src="hiddenRollScrollingBlue"
-              />
-              <span
-                class="roll-scrolling-text"
-                :class="{
-                  rollScrollingText: scrollingRollOpenFlag,
-                  scrollingRollHoverFlag: scrollingRollHoverFlag,
-                }"
-                >滚动</span
-              >
-            </div>
-            <!-- 屏蔽固定弹幕 -->
-            <div
-              class="fixed-scrolling-container"
-              @mouseover="scrollingFilexdHoverFlag = true"
-              @mouseleave="scrollingFilexdHoverFlag = false"
-              @click="scrollingFilexdOpenFlag = !scrollingFilexdOpenFlag"
-            >
-              <img
-                class="fixed-scrolling-img"
-                v-show="!scrollingFilexdOpenFlag"
-                :src="
-                  scrollingFilexdHoverFlag
-                    ? hiddenScrollingFiexdWhite
-                    : hiddenScrollingFiexdGray
+                src="../img/弹幕灰.png"
+                style="
+                  width: 16.5px;
+                  height: 14px;
+                  transform: translate(0px, 2.5px);
+                  margin-right: 6px;
                 "
               />
-              <img
-                class="fixed-scrolling-img"
-                v-show="scrollingFilexdOpenFlag"
-                :src="hiddenScrollingFiexdBlue"
-              />
-              <span
-                class="fixed-scrolling-text"
-                :class="{
-                  fixedScrollingText: scrollingFilexdOpenFlag,
-                  scrollingFilexdHoverFlag: scrollingFilexdHoverFlag,
-                }"
-                >固定</span
+              <span style="font-size: 12.5px; margin-right: 12px">{{
+                SelectVideoByIdVo.upVideo.scrollingNumber
+              }}</span>
+              <span style="font-size: 12.5px">{{
+                SelectVideoByIdVo.upVideo.createTime
+              }}</span>
+              <div
+                v-if="SelectVideoByIdVo.upVideo.allowTwo === 0"
+                style="
+                  font-size: 12.5px;
+                  transform: translate(32px, 0px);
+                  display: inline-block;
+                "
               >
-            </div>
-            <!-- 勾选设置  -->
-            <div
-              class="chckbox-container"
-              @mouseover="checkBoxHoverFlag = true"
-              @mouseleave="checkBoxHoverFlag = false"
-              @click="checkBoxOpenFlag = !checkBoxOpenFlag"
-            >
-              <img
-                class="setting-scrolling-checkbox"
-                v-show="!checkBoxOpenFlag"
-                :src="checkBoxHoverFlag ? checkBoxBlue : checkBoxWhite"
-              />
-              <img
-                class="setting-scrolling-checkbox"
-                v-show="checkBoxOpenFlag"
-                :src="checkBoxs"
-              />
-              <span
-                class="setting-scrolling-text"
-                :class="{ checkBoxHoverFlag: checkBoxHoverFlag }"
-                >弹幕速度同步播放倍数</span
-              >
-            </div>
-            <!-- 滑块属性值设置 -->
-            <div class="scrolling-slider-container">
-              <div>
-                <span>显示区域</span>
-                <input
-                  id="volume"
-                  class="scrolling-display-slider"
-                  :class="{
-                    scrollingDisplayAreaValue:
-                      parseInt(scrollingDisplayAreaValue) === 0,
-                    scrollingDisplayAreaValue1:
-                      parseInt(scrollingDisplayAreaValue) === 25,
-                    scrollingDisplayAreaValue2:
-                      parseInt(scrollingDisplayAreaValue) === 50,
-                    scrollingDisplayAreaValue3:
-                      parseInt(scrollingDisplayAreaValue) === 75,
-                  }"
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="25"
-                  v-model="scrollingDisplayAreaValue"
-                />
-                <span
-                  class="silder-pointer1"
-                  @click="scrollingDisplayAreaValue = '0'"
-                ></span
-                ><span
-                  class="silder-pointer2"
-                  @click="scrollingDisplayAreaValue = '25'"
-                ></span
-                ><span
-                  class="silder-pointer3"
-                  @click="scrollingDisplayAreaValue = '50'"
-                ></span
-                ><span
-                  class="silder-pointer4"
-                  @click="scrollingDisplayAreaValue = '75'"
-                ></span
-                ><span
-                  class="silder-pointer5"
-                  @click="scrollingDisplayAreaValue = '100'"
-                ></span>
-                <span
-                  style="
-                    position: absolute;
-                    transform: translate(200px, 1px);
-                    color: #d2d3d0;
-                    word-break: normal !important;
-                  "
-                  >{{ scrollingDisplayAreaValue }}%</span
-                >
-              </div>
-              <div>
-                <span>不透明度</span>
-                <input
-                  id="volume"
-                  class="scrolling-display-slider"
-                  :style="{
-                    background: `linear-gradient(to right, #00aeec ${scrollingDisplayOpacityValue}%, #424242 ${scrollingDisplayOpacityValue}%, #424242 170px)`,
-                  }"
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="1"
-                  v-model="scrollingDisplayOpacityValue"
-                />
-                <span
-                  style="
-                    position: absolute;
-                    transform: translate(200px, 1px);
-                    color: #d2d3d0;
-                    word-break: normal !important;
-                  "
-                  >{{ scrollingDisplayOpacityValue }}%</span
-                >
-              </div>
-              <div>
-                <span>弹幕字号</span>
-                <input
-                  id="volume"
-                  class="scrolling-display-slider"
-                  :style="{
-                    background: `linear-gradient(to right, #00aeec ${scrollingDisplayFontSizeValue}%, #424242 ${scrollingDisplayFontSizeValue}%, #424242 170px)`,
-                  }"
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="1"
-                  v-model="scrollingDisplayFontSizeValue"
-                />
-                <span
-                  style="
-                    position: absolute;
-                    transform: translate(200px, 1px);
-                    color: #d2d3d0;
-                    word-break: normal !important;
-                  "
-                  >{{ scrollingDisplayFontSizeValue }}%</span
-                >
-              </div>
-              <div v-show="!checkBoxOpenFlag">
-                <span>弹幕速度</span>
-                <input
-                  id="volume"
-                  class="scrolling-display-slider"
-                  :class="{
-                    scrollingDisplayAreaValue:
-                      scrollingDisplaySpeedValue === '0',
-                    scrollingDisplayAreaValue1:
-                      scrollingDisplaySpeedValue === '25',
-                    scrollingDisplayAreaValue2:
-                      scrollingDisplaySpeedValue === '50' ||
-                      scrollingDisplaySpeedValue === 50,
-                    scrollingDisplayAreaValue3:
-                      scrollingDisplaySpeedValue === '75',
-                    scrollingDisplayAreaValue4:
-                      scrollingDisplaySpeedValue === '100',
-                  }"
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="25"
-                  v-model="scrollingDisplaySpeedValue"
-                />
-                <span
-                  class="silder-pointer1"
-                  @click="scrollingDisplayAreaValue = '0'"
-                ></span
-                ><span
-                  class="silder-pointer2"
-                  @click="scrollingDisplaySpeedValue = '25'"
-                ></span
-                ><span
-                  class="silder-pointer3"
-                  @click="scrollingDisplaySpeedValue = '50'"
-                ></span
-                ><span
-                  class="silder-pointer4"
-                  @click="scrollingDisplaySpeedValue = '75'"
-                ></span
-                ><span
-                  class="silder-pointer5"
-                  @click="scrollingDisplaySpeedValue = '100'"
-                ></span>
-                <span
-                  v-show="scrollingDisplaySpeedValue === '0'"
-                  style="
-                    position: absolute;
-                    transform: translate(200px, 1px);
-                    color: #d2d3d0;
-                    width: 24px;
-                  "
-                  >极慢</span
-                >
-                <span
-                  v-show="scrollingDisplaySpeedValue === '25'"
-                  style="
-                    position: absolute;
-                    transform: translate(200px, 1px);
-                    color: #d2d3d0;
-                    width: 24px;
-                  "
-                  >较慢</span
-                >
-                <span
-                  v-show="
-                    scrollingDisplaySpeedValue === '50' ||
-                    scrollingDisplaySpeedValue === 50
-                  "
-                  style="
-                    position: absolute;
-                    transform: translate(200px, 1px);
-                    color: #d2d3d0;
-                    width: 24px;
-                  "
-                  >正常</span
-                >
-                <span
-                  v-show="scrollingDisplaySpeedValue === '75'"
-                  style="
-                    position: absolute;
-                    transform: translate(200px, 1px);
-                    color: #d2d3d0;
-                    width: 24px;
-                  "
-                  >较快</span
-                >
-                <span
-                  v-show="scrollingDisplaySpeedValue === '100'"
-                  style="
-                    position: absolute;
-                    transform: translate(200px, 1px);
-                    color: #d2d3d0;
-                    width: 24px;
-                  "
-                  >极快</span
-                >
+                <span class="prohibition-sign"></span>
+                <span style="margin-left: -2px">未经作者授权，禁止转载</span>
               </div>
             </div>
           </div>
         </div>
-        <!-- 弹幕输入框 -->
-        <!-- 关闭 发送弹幕区域 -->
         <div
-          v-show="
-            !openOrCloseScrollingFlag &&
-            intoVideoAllDisplayIngFlag &&
-            videoFeatureShowFlag
+          style="
+            transform: translate(0px, 22px);
+            z-index: -1;
+            position: absolute;
+            height: 55px;
           "
-          class="up-video-play-bottom-video-open-scrolling-container2"
-          :class="{
-            inputContainerintoVideoAllDisplayIngFlag:
-              intoVideoAllDisplayIngFlag,
-          }"
-        >
-          <span
-            style="color: #b9b7b8"
-            :style="{ opacity: store.userId === null ? 0 : 1 }"
-            >已关闭弹幕</span
-          >
-          <span
-            v-show="store.userId === null"
-            style="color: #b9b7b8; position: absolute"
-            >请先
-            <span
-              style="color: #00aeec; cursor: pointer"
-              @click="
-                loginDialogVisibleFlag === 0
-                  ? (loginDialogVisibleFlag = 1)
-                  : (loginDialogVisibleFlag = 0)
-              "
-              >登录</span
-            >
-            或
-            <span
-              style="color: #00aeec; cursor: pointer"
-              @click="
-                loginDialogVisibleFlag === 2
-                  ? (loginDialogVisibleFlag = 3)
-                  : (loginDialogVisibleFlag = 2)
-              "
-              >注册</span
-            ></span
-          >
-          <span style="transform: translate(276.5px, -1px)"
-            ><a
-              class="scrolling-regulation1"
-              target="_blank"
-              href="https://www.bilibili.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
-              >弹幕礼仪 ></a
-            ></span
-          >
-          <span class="send-scrolling-btn-close1">发送</span>
-        </div>
-        <!-- 打开 发送弹幕区域 -->
-        <div
-          :class="{
-            inputContainerintoVideoAllDisplayIngFlag:
-              intoVideoAllDisplayIngFlag,
-          }"
-          v-show="
-            openOrCloseScrollingFlag &&
-            intoVideoAllDisplayIngFlag &&
-            videoFeatureShowFlag
-          "
-          class="up-video-play-bottom-video-open-scrolling-container1"
         >
           <div
-            :style="{ opacity: store.userId === null ? 0 : 1 }"
-            class="up-video-play-bottom-video-open-scrolling-color-container"
+            class="up-user-avatar-container"
           >
             <img
-              class="up-video-play-bottom-video-close-scrolling-color"
-              :src="
-                showScrollingColorFlag
-                  ? scrollingColorBlue
-                  : scrollingColorWhite
-              "
-              @mouseover="showScrollingColorFlag = true"
-              @mouseleave="showScrollingColorFlag = false"
+              @click="openHome(1,SelectVideoByIdVo.upUser.id)"
+              :src="SelectVideoByIdVo.upUser?.avatarAddress"
+              class="up-user-avatar"
+              @mouseover="delayUserInfo(1)"
+              @mouseleave="delayUserInfo(0)"
             />
             <div
-              :class="{ predefineColorsHoverFlag: predefineColorsHoverFlag }"
-              class="up-video-play-bottom-video-open-scrolling-color-info-container"
+              v-show="nameOrAvatarHoverFlag !== 0"
+              :style="{
+                transform:
+                  nameOrAvatarHoverFlag === 1
+                    ? 'translate(0px, 0px)'
+                    : 'translate(55px, -35px)',
+              }"
+              class="up-user-info"
+              @mouseover="nameOrAvatarHoverFlag2=true"
+              @mouseleave="nameOrAvatarHoverFlag2=false,delayUserInfo(0)"
             >
-              <span>字号</span>
-              <div
-                class="up-video-play-bottom-video-open-scrolling-color-info-container-font"
-              >
-                <span
-                  class="ss"
-                  v-show="sendScrollingFontSize !== 16"
-                  style="margin-right: 5px"
-                  @click="sendScrollingFontSize = 16"
-                  >小</span
-                >
-                <span
-                  v-show="sendScrollingFontSize === 16"
-                  style="margin-right: 5px; background-color: #00aeec"
-                  @click="sendScrollingFontSize = 16"
-                  >小</span
-                >
-                <span
-                  class="ss"
-                  v-show="sendScrollingFontSize !== 20"
-                  style="margin-left: 5px"
-                  @click="sendScrollingFontSize = 20"
-                  >标准</span
-                >
-                <span
-                  v-show="sendScrollingFontSize === 20"
-                  style="margin-left: 5px; background-color: #00aeec"
-                  @click="sendScrollingFontSize = 20"
-                  >标准</span
-                >
-              </div>
-              <div style="margin-top: 15px">模式</div>
-              <div
-                class="up-video-play-bottom-video-open-scrolling-color-info-container-pattern"
-              >
-                <div class="scrolling-pattern-roll-container">
-                  <img
-                    class="aa"
-                    v-show="scrollingPattern !== 1"
-                    :src="
-                      scrollingRollHoverFlag
-                        ? scrollingRollWhite
-                        : scrollingRollGray
-                    "
-                    @mouseover="scrollingRollHoverFlag = true"
-                    @mouseleave="scrollingRollHoverFlag = false"
-                    @click="scrollingPattern = 1"
-                  />
-                  <img
-                    style="width: 24.5px; height: 22px"
-                    v-show="scrollingPattern === 1"
-                    :src="scrollingRollBlue"
-                  />
-                  <div
-                    v-show="scrollingPattern !== 1"
-                    class="cc"
-                    @click="scrollingPattern = 1"
-                  >
-                    滚动
-                  </div>
-                  <div class="cc2" v-show="scrollingPattern === 1">滚动</div>
-                </div>
-                <div class="scrolling-pattern-top-container">
-                  <img
-                    class="aa"
-                    v-show="scrollingPattern !== 2"
-                    :src="
-                      scrollingTopHoverFlag
-                        ? hiddenScrollingFiexdWhite
-                        : hiddenScrollingFiexdGray
-                    "
-                    @mouseover="scrollingTopHoverFlag = true"
-                    @mouseleave="scrollingTopHoverFlag = false"
-                    @click="scrollingPattern = 2"
-                  />
-                  <img
-                    style="width: 25px; height: 22px"
-                    v-show="scrollingPattern === 2"
-                    :src="topScrollingBlue"
-                  />
-                  <div
-                    v-show="scrollingPattern !== 2"
-                    class="cc"
-                    @click="scrollingPattern = 2"
-                  >
-                    顶部
-                  </div>
-                  <div class="cc2" v-show="scrollingPattern === 2">顶部</div>
-                </div>
-                <div class="scrolling-pattern-bottom-container">
-                  <img
-                    class="aa"
-                    v-show="scrollingPattern !== 3"
-                    :src="
-                      scrollingBottomHoverFlag
-                        ? bottomScrollingWhite
-                        : bottomScrollingGray
-                    "
-                    @mouseover="scrollingBottomHoverFlag = true"
-                    @mouseleave="scrollingBottomHoverFlag = false"
-                    @click="scrollingPattern = 3"
-                  />
-                  <img
-                    style="width: 24.5px; height: 22px"
-                    v-show="scrollingPattern === 3"
-                    :src="bottomScrollingBlue"
-                  />
-                  <div
-                    class="cc"
-                    v-show="scrollingPattern !== 3"
-                    @click="scrollingPattern = 3"
-                  >
-                    底部
-                  </div>
-                  <div class="cc2" v-show="scrollingPattern === 3">底部</div>
-                </div>
-                <div style="transform: translate(0px, 60px)">颜色</div>
-                <el-color-picker
-                  class="scrolling-color-picker"
-                  :teleported="false"
-                  v-model="sendScrollingColor"
-                  :sizeshow-alpha="false"
-                  :predefine="predefineColors"
+              <div v-if="!SelectVideoByIdVo.upUser.backgroundAddress" :style="{backgroundImage:'url(../img/主页背景图.webp)'}" class="up-user-info-bg"></div>
+              <div v-else :style="{backgroundImage:`url(${SelectVideoByIdVo.upUser.backgroundAddress})`}" class="up-user-info-bg"></div>
+              <div class="up-user-info-container">
+                <img
+                  @click="openHome(1,SelectVideoByIdVo.upUser.id)"
+                  :src="SelectVideoByIdVo.upUser?.avatarAddress"
+                  class="up-user-info-avatar"
                 />
+                <div class="up-user-info-container-header">
+                  <span
+                  @click="openHome(1,SelectVideoByIdVo.upUser.id)"
+                    class="up-user-info-name"
+                    :style="{
+                      color:
+                        SelectVideoByIdVo.upUser.grade > 4 ? '#fb7299' : '#000',
+                    }"
+                    >{{ SelectVideoByIdVo.upUser.userName }}</span
+                  >
+                  <img
+                    v-if="SelectVideoByIdVo.upUser.gender === 1"
+                    src="../img/man.png"
+                    class="up-user-info-gender"
+                  />
+                  <img
+                    v-if="SelectVideoByIdVo.upUser.gender === 2"
+                    src="../img/man.png"
+                    class="up-user-info-gender"
+                  />
+                  <img
+                    v-if="SelectVideoByIdVo.upUser.grade"
+                    :src="'../img/' + SelectVideoByIdVo.upUser.grade + '级.png'"
+                    class="up-user-info-level"
+                  />
+                </div>
+                <div class="up-user-info-container-content">
+                  <span @click="openHome(8,SelectVideoByIdVo.upUser.id)" style="color: #95999f; cursor: pointer"
+                    ><span style="color: black">{{
+                      SelectVideoByIdVo.upUser.followNumber
+                    }}</span>
+                    &nbsp;关注</span
+                  >
+                  <span @click="openHome(9,SelectVideoByIdVo.upUser.id)" style="margin-left: 25px; color: #95999f; cursor: pointer"
+                    ><span style="color: black">{{
+                      SelectVideoByIdVo.upUser.fansNumber
+                    }}</span>
+                    &nbsp;粉丝</span
+                  >
+                  <span style="margin-left: 25px; color: #95999f; cursor: pointer"
+                    ><span style="color: black">{{
+                      SelectVideoByIdVo.upUser.likeNumber
+                    }}</span>
+                    &nbsp;获赞</span
+                  >
+                </div>
+                <div class="up-user-info-container-introduce">
+                  <span class="up-user-info-introduce-content">
+                    {{ SelectVideoByIdVo.upUser.introduce }}
+                  </span>
+                </div>
+                <div class="up-user-info-container-footer">
+                  <span
+                    v-show="SelectVideoByIdVo.isFansFlag === 0"
+                    class="up-user-info-container-footer-add-follow"
+                    @click="addFollowAxios(SelectVideoByIdVo.upUser.id)"
+                    ><img
+                      src="../img/加关注.png"
+                      style="width: 14px; margin-right: 4px"
+                    />关注</span
+                  >
+                  <span
+                    v-show="SelectVideoByIdVo.isFansFlag === 1"
+                    class="up-user-info-container-footer-delete-follow"
+                    @click="deleteFollowAxios(SelectVideoByIdVo.upUser.id)"
+                    @mouseover="isDeleteFollowFlag = 1"
+                    @mouseleave="isDeleteFollowFlag = 0"
+                  >
+                    <span v-show="isDeleteFollowFlag === 0">已关注</span>
+                    <span v-show="isDeleteFollowFlag === 1">取消关注</span></span
+                  >
+                  <span class="up-user-info-container-footer-message"
+                  @click="addDialogueF(SelectVideoByIdVo.upUser.id)"
+                    >发消息</span
+                  >
+                </div>
               </div>
             </div>
           </div>
-          <input
-            :style="{ opacity: store.userId === null ? 0 : 1 }"
-            class="up-video-play-bottom-video-close-scrolling-input1"
-            type="text"
-            maxlength="50"
-            @focus="sendScrollingInputStatus = true"
-            @blur="sendScrollingInputStatus = false"
-            v-model="sendScrollingText"
-            @keydown.enter="sendScrollingAxios"
-            placeholder="发个友善的弹幕见证当下"
-          />
-          <span
-            v-show="store.userId === null"
-            style="color: #b9b7b8; position: absolute"
-            >请先
-            <span
-              style="color: #00aeec; cursor: pointer"
-              @click="
-                loginDialogVisibleFlag === 0
-                  ? (loginDialogVisibleFlag = 1)
-                  : (loginDialogVisibleFlag = 0)
-              "
-              >登录</span
+          <div class="up-user-header">
+            <div
+              class="up-user-name"
+              @click="openHome(1,SelectVideoByIdVo.upUser.id)"
+              @mouseover="delayUserInfo(2)"
+              @mouseleave="delayUserInfo(0)"
+              :style="{
+                color: SelectVideoByIdVo.upUser.grade > 4 ? '#fb7299' : '#000',
+              }"
             >
-            或
+              {{ SelectVideoByIdVo.upUser.userName }}
+            </div>
             <span
-              style="color: #00aeec; cursor: pointer"
-              @click="
-                loginDialogVisibleFlag === 2
-                  ? (loginDialogVisibleFlag = 3)
-                  : (loginDialogVisibleFlag = 2)
-              "
-              >注册</span
-            ></span
+              class="sendMessage-container"
+              @mouseover="showSendMessageFlag = true"
+              @mouseleave="showSendMessageFlag = false"
+            >
+              <img
+                class="sendUpMessageImg"
+                :src="showSendMessageFlag ? sendMessageBlue : sendMessageGray"
+              />
+              <span class="sendUpMessage" @click="addDialogueF(SelectVideoByIdVo.upUser.id)">发消息</span>
+            </span>
+          </div>
+          <el-tooltip
+            popper-class="custom-tooltip"
+            class="dynamicContent-item-tooltip"
+            effect="light"
+            :show-after="300"
+            :content="SelectVideoByIdVo.upUser.introduce"
+            placement="left"
+            :offset="24"
+            :show-arrow="false"
+            :hide-after="0"
           >
-          <span style="transform: translate(323.5px, -1px)"
-            ><a
-              class="scrolling-regulation1"
-              target="_blank"
-              href="https://www.bilibili.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
-              >弹幕礼仪 ></a
-            ></span
+            <div class="up-user-content">
+              {{ SelectVideoByIdVo.upUser.introduce }}
+            </div>
+          </el-tooltip>
+          <div id="up-power-container" class="up-power-container">
+            <img src="../img/充电.webp" />
+            <span style="margin-right: 2px">充</span><span>电</span>
+          </div>
+          <div
+            v-show="SelectVideoByIdVo.isFansFlag === 0"
+            class="up-add-follow-container"
+            @click="addFollowAxios(SelectVideoByIdVo.upUser.id)"
           >
-          <span class="send-scrolling-btn-open1" @click="sendScrollingAxios"
-            >发送</span
+            <img
+              src="../img/加关注.png"
+              style="width: 12px; margin-right: 7px; margin-left: 3px"
+            />关注 {{ SelectVideoByIdVo.upUser.fansNumber }}
+          </div>
+          <div
+            v-show="SelectVideoByIdVo.isFansFlag === 1"
+            v
+            class="up-delete-follow-container"
+            @click="deleteFollowAxios(SelectVideoByIdVo.upUser.id)"
           >
+            <img
+              src="../img/取消关注.png"
+              style="width: 12px; margin-right: 7px; margin-left: 3px"
+            />已关注 {{ SelectVideoByIdVo.upUser.fansNumber }}
+          </div>
         </div>
-        <!-- 画质没做 -->
-        <span
-          :class="{
-            imageQualityintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
-          }"
-          v-show="videoFeatureShowFlag"
-          @mousemove="(videoLeave = true), handlerCleanTime()"
-          @mouseleave="videoLeave = false"
-          class="up-video-play-bottom-video-image-quality"
-          >1080P 高清</span
-        >
-        <!-- 倍速 -->
-        <span
-          :class="{ sppedVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag }"
-          v-show="videoFeatureShowFlag"
-          @mousemove="(videoLeave = true), handlerCleanTime()"
-          @mouseleave="videoLeave = false"
-          class="up-video-play-bottom-video-spped"
-          >倍速
-          <div class="up-video-play-bottom-video-speed-container">
-            <span
-              @click="
-                (selectVideoSpped = 1), (upVideoPlayer.playbackRate = 2.0)
+        <div id="upvideocontainer" class="up-video-container">
+          <video
+            :class="{
+              setVideoMirrorFlag: setVideoMirrorFlag,
+              VideoAllDisplayIngFlagVideo: intoVideoAllDisplayIngFlag,
+            }"
+            ref="upVideoPlayer"
+            @play="pausedOrPlayVideoFlag = true"
+            @pause="pausedOrPlayVideoFlag = false"
+            @dblclick="toggleFullscreen"
+            @click="pausedOrPlayUpVideo"
+            @timeupdate="updateProgress"
+            @mousemove="videoMove"
+            @canplay="onVideoCanPlay"
+            @waiting="videoWaitingF"
+            @canplaythrough="onCanPlayThrough"
+            :src="SelectVideoByIdVo.upVideo.videoAddress"
+            class="up-user-video-player"
+          ></video>
+          <div
+            v-show="
+              !setVideoAutoRePlayFlag &&
+              !pausedOrPlayVideoFlag &&
+              upVideoProgress === 100
+            "
+            :class="{ autoPlayVideoContainer1: intoVideoAllDisplayIngFlag }"
+            class="autoPlayVideoContainer"
+            @mousemove="videoMove"
+          >
+            <autoPlayVideo
+              :intoVideoAllDisplayIngFlag="intoVideoAllDisplayIngFlag"
+              :likeVideoClickFlag="likeVideoClickFlag"
+              :videoThrowCoinClickFlag="videoThrowCoinClickFlag"
+              :videoShareClickFlag="videoShareClickFlag"
+              :videoCollectClickFlag="videoCollectClickFlag"
+              style="position: absolute"
+            />
+          </div>
+          <span
+            v-show="intoVideoAllDisplayIngFlag && videoFeatureShowFlag"
+            @click="pausedOrPlayUpVideo"
+            class="intoVideoAllDisplayIngFlagVideoTitle"
+            >{{ SelectVideoByIdVo.upVideo.title }}</span
+          >
+          <div
+            v-show="videoFeatureShowFlag"
+            :class="{
+              intoVideoAllDisplayIngFlagavatarandaddFollow:
+                intoVideoAllDisplayIngFlag,
+            }"
+            v-if="SelectVideoByIdVo.isFansFlag === 0"
+            @mouseover="handlerCleanTime(), (videoLeave = true)"
+            @mouseleave="videoLeave = false"
+            @click="addFollowAxios(SelectVideoByIdVo.upUser.id)"
+            class="up-video-avatar-and-addFollow-container"
+          >
+            <img
+              :src="SelectVideoByIdVo.upUser?.avatarAddress"
+              class="up-video-avatar-and-addFollow-avatar"
+            />
+            <img
+              src="../img/加关注.png"
+              style="
+                width: 10px;
+                height: 10px;
+                transform: translate(13.2px, 11.5px);
               "
-              :class="{ selectVideoSpped: selectVideoSpped === 1 }"
-              >2.0x</span
-            >
+            />
             <span
-              @click="
-                (selectVideoSpped = 2), (upVideoPlayer.playbackRate = 1.5)
+              style="
+                color: white;
+                font-size: 11px;
+                transform: translate(20px, 9px);
               "
-              :class="{ selectVideoSpped: selectVideoSpped === 2 }"
-              >1.5x</span
-            >
-            <span
-              @click="
-                (selectVideoSpped = 3), (upVideoPlayer.playbackRate = 1.25)
-              "
-              :class="{ selectVideoSpped: selectVideoSpped === 3 }"
-              >1.25x</span
-            >
-            <span
-              @click="(selectVideoSpped = 4), (upVideoPlayer.playbackRate = 1)"
-              :class="{ selectVideoSpped: selectVideoSpped === 4 }"
-              >1.0x</span
-            >
-            <span
-              @click="
-                (selectVideoSpped = 5), (upVideoPlayer.playbackRate = 0.75)
-              "
-              :class="{ selectVideoSpped: selectVideoSpped === 5 }"
-              >0.75x</span
-            >
-            <span
-              @click="
-                (selectVideoSpped = 6), (upVideoPlayer.playbackRate = 0.5)
-              "
-              :class="{ selectVideoSpped: selectVideoSpped === 6 }"
-              >0.5x</span
+              >关注</span
             >
           </div>
-        </span>
-        <!-- 音量 -->
-        <div
-          :class="{ audioVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag }"
-          class="up-video-play-bottom-video-audio-container"
-          v-show="videoFeatureShowFlag"
-          @mousemove="(videoLeave = true), handlerCleanTime()"
-          @mouseleave="videoLeave = false"
-        >
+          <!-- 进度条 -->
+          <progress
+            v-show="videoFeatureShowFlag && !intoVideoAllDisplayIngFlag"
+            @click="changeUpVideoTime"
+            @mousemove="updateupVideoProgressImgPosition"
+            @mouseover="
+              (upVideoProgressImg = true), handlerCleanTime(), (videoLeave = true)
+            "
+            @mouseleave="(upVideoProgressImg = false), (videoLeave = false)"
+            :value="upVideoProgress"
+            max="100"
+            class="up-VideoProgress"
+          ></progress>
+          <!-- 放大视频后的 -->
+          <progress
+            :class="{
+              progressintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
+            }"
+            v-show="videoFeatureShowFlag && intoVideoAllDisplayIngFlag"
+            @click="changeUpVideoTime"
+            @mousemove="updateupVideoProgressImgPosition1"
+            @mouseover="
+              (upVideoProgressImg = true), handlerCleanTime(), (videoLeave = true)
+            "
+            @mouseleave="(upVideoProgressImg = false), (videoLeave = false)"
+            :value="upVideoProgress"
+            max="100"
+            class="up-VideoProgress"
+          ></progress>
+          <!-- 进度条图片 -->
           <img
-            v-show="videoFeatureShowFlag && videoCloseAudioOrOpenAudioFlag"
-            @click="
-              (videoCloseAudioOrOpenAudioFlag = false),
-                (upVideoPlayer.muted = true),
-                (closeAudioFlag = true)
-            "
-            @mousemove="
-              (audioFlag = true), (videoLeave = true), handlerCleanTime()
-            "
-            @mouseleave="(audioFlag = false), (videoLeave = false)"
-            :src="audioFlag ? audioWhite : audioGray"
-            class="up-video-play-bottom-video-audio"
+            v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
+            @click="startMoving"
+            @mouseover="upVideoProgressImg = true"
+            @mouseleave="upVideoProgressImg = false"
+            src="../img/视频进度图片.png"
+            class="up-video-progress-img"
+            :style="{
+              left: `${upVideoProgress * 0.555 * 12}px`,
+            }"
+          />
+          <!-- 放大视频后的 -->
+          <img
+            :class="{
+              progressImgintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
+            }"
+            v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
+            @click="startMoving1"
+            @mouseover="upVideoProgressImg = true"
+            @mouseleave="upVideoProgressImg = false"
+            src="../img/视频进度图片.png"
+            class="up-video-progress-img"
+            :style="{
+              left: `${upVideoProgress*0.97+1.5}%`,
+            }"
+          />
+          <!-- 指示器 -->
+          <img
+            v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
+            @click="upVideoPointerClickChangerTime"
+            @mousemove="updateupVideoProgressImgPosition"
+            @mouseover="upVideoProgressImg = true"
+            @mouseleave="upVideoProgressImg = false"
+            src="../img/指示器上.png"
+            class="pointer-top"
+            :style="{
+              left: `${upVideoProgressImgPosition - 183.3}px`,
+            }"
+          />
+          <div
+            class="pointer-top-container"
+            :style="{
+              left: `${upVideoProgressImgPosition - 183.3}px`,
+            }"
+            v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
+            @click="upVideoPointerClickChangerTime"
+            @mousemove="updateupVideoProgressImgPosition"
+            @mouseover="upVideoProgressImg = true"
+            @mouseleave="upVideoProgressImg = false"
+          ></div>
+          <img
+            v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
+            @click="upVideoPointerClickChangerTime"
+            @mousemove="updateupVideoProgressImgPosition"
+            @mouseover="upVideoProgressImg = true"
+            @mouseleave="upVideoProgressImg = false"
+            src="../img/指示器下.png"
+            class="pointer-bottom"
+            :style="{
+              left: `${upVideoProgressImgPosition - 183.3}px`,
+            }"
+          />
+          <div
+            class="pointer-bottom-container"
+            :style="{
+              left: `${upVideoProgressImgPosition - 183.5}px`,
+            }"
+            v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
+            @click="upVideoPointerClickChangerTime"
+            @mousemove="updateupVideoProgressImgPosition"
+            @mouseover="upVideoProgressImg = true"
+            @mouseleave="upVideoProgressImg = false"
+          ></div>
+          <!-- 放大视频后的 -->
+          <img
+            :class="{
+              progressPointerTopintoVideoAllDisplayIngFlag:
+                intoVideoAllDisplayIngFlag,
+            }"
+            v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
+            @click="upVideoPointerClickChangerTime"
+            @mousemove="updateupVideoProgressImgPosition1"
+            @mouseover="upVideoProgressImg = true"
+            @mouseleave="upVideoProgressImg = false"
+            src="../img/指示器上.png"
+            class="pointer-top"
+            :style="{
+              left: `${upVideoProgressImgPosition - 3.5}px`,
+            }"
+          />
+          <div
+            :class="{
+              topContainerintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
+            }"
+            class="pointer-top-container"
+            :style="{
+              left: `${upVideoProgressImgPosition - 3.5}px`,
+            }"
+            v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
+            @click="upVideoPointerClickChangerTime"
+            @mousemove="updateupVideoProgressImgPosition1"
+            @mouseover="upVideoProgressImg = true"
+            @mouseleave="upVideoProgressImg = false"
+          ></div>
+          <img
+            :class="{
+              progressPointerBottomintoVideoAllDisplayIngFlag:
+                intoVideoAllDisplayIngFlag,
+            }"
+            v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
+            @click="upVideoPointerClickChangerTime"
+            @mousemove="updateupVideoProgressImgPosition1"
+            @mouseover="upVideoProgressImg = true"
+            @mouseleave="upVideoProgressImg = false"
+            src="../img/指示器下.png"
+            class="pointer-bottom"
+            :style="{
+              left: `${upVideoProgressImgPosition - 3.5}px`,
+            }"
+          />
+          <div
+            :class="{
+              bottomContainerintoVideoAllDisplayIngFlag:
+                intoVideoAllDisplayIngFlag,
+            }"
+            class="pointer-bottom-container"
+            :style="{
+              left: `${upVideoProgressImgPosition - 3.5}px`,
+            }"
+            v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
+            @click="upVideoPointerClickChangerTime"
+            @mousemove="updateupVideoProgressImgPosition1"
+            @mouseover="upVideoProgressImg = true"
+            @mouseleave="upVideoProgressImg = false"
+          ></div>
+          <!-- 指示器时间 -->
+          <span
+            v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
+            class="up-video-play-bottom-video-pointer-time"
+            :style="{
+              left: `${upVideoProgressImgPosition - 183.3}px`,
+            }"
+            >{{ upVideoPointerMoveTime }}</span
+          >
+          <!-- 放大视频后的 -->
+          <span
+            :class="{
+              pointerTImeintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
+            }"
+            v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
+            class="up-video-play-bottom-video-pointer-time"
+            :style="{
+              left: `${upVideoProgressImgPosition - 19.5}px`,
+            }"
+            >{{ upVideoPointerMoveTime }}</span
+          >
+          <!-- 开始播放 -->
+          <img
+            :class="{
+              startplaywhiteintoVideoAllDisplayIngFlag:
+                intoVideoAllDisplayIngFlag,
+            }"
+            v-show="!pausedOrPlayVideoFlag && !upVideoStartPlayFlag"
+            @mouseover="upVideoStartPlayFlag = true"
+            src="../img/开始播放灰.png"
+            class="up-video-start-play-white"
           />
           <img
-            v-show="videoFeatureShowFlag && !videoCloseAudioOrOpenAudioFlag"
-            @click="
-              (videoCloseAudioOrOpenAudioFlag = true),
-                (upVideoPlayer.muted = false),
-                (audioFlag = true)
-            "
-            @mousemove="
-              (closeAudioFlag = true), (videoLeave = true), handlerCleanTime()
-            "
-            @mouseleave="(closeAudioFlag = false), (videoLeave = false)"
-            :src="closeAudioFlag ? closeAudioWhite : closeAudioGray"
-            class="up-video-play-bottom-video-colse-audio"
+            :class="{
+              startplaywhiteintoVideoAllDisplayIngFlag:
+                intoVideoAllDisplayIngFlag,
+            }"
+            v-show="!pausedOrPlayVideoFlag && upVideoStartPlayFlag"
+            @click="playUpVideo"
+            @mouseleave="upVideoStartPlayFlag = false"
+            src="../img/开始播放白.png"
+            class="up-video-start-play-white"
           />
-          <div class="up-video-play-bottom-video-audio-value">
-            {{ videoAudio }}
+          <img
+            :class="{
+              playwhiteintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
+            }"
+            v-show="videoFeatureShowFlag && !pausedOrPlayVideoFlag"
+            class="up-video-play-bottom-play"
+            @click="playUpVideo"
+            :src="upVideoPlayFlag ? upVideoPlayWhite : upVideoPlayGray"
+            @mousemove="
+              (upVideoPlayFlag = true),
+                handlerCleanTime(),
+                video,
+                (videoLeave = true)
+            "
+            @mouseleave="(upVideoPlayFlag = false), (videoLeave = false)"
+          />
+          <img
+            :class="{
+              playwhiteintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
+            }"
+            v-show="videoFeatureShowFlag && pausedOrPlayVideoFlag"
+            class="up-video-play-bottom-play"
+            @click="pausedUpVideo"
+            :src="videoPausedFlag ? pausedVideoWhite : pausedVideoGray"
+            @mousemove="
+              (videoPausedFlag = true),
+                handlerCleanTime(),
+                video,
+                (videoLeave = true)
+            "
+            @mouseleave="(videoPausedFlag = false), (videoLeave = false)"
+          />
+          <!-- 播放时间定位 -->
+          <div
+            class="videoPostion"
+            v-if="
+              history.watchCurrentTime !== undefined &&
+              history.watchCurrentTime !== 0 &&
+              closePostionFlag
+            "
+            :class="{
+              closePostionFlagAllDisplay: intoVideoAllDisplayIngFlag,
+            }"
+          >
+            <img
+              class="img1"
+              @mouseover="closePostionHoverFlag = true"
+              @mouseleave="closePostionHoverFlag = false"
+              src="../img/关闭视频定位.png"
+              :class="{ closePostionHoverFlag: !closePostionHoverFlag }"
+            />
+            <img
+              class="img2"
+              @click="closePostionFlag = false"
+              @mouseover="closePostionHoverFlag = true"
+              @mouseleave="closePostionHoverFlag = false"
+              src="../img/关闭视频定位粉.png"
+              :class="{ closePostionHoverFlag: closePostionHoverFlag }"
+            />
+            <span>已为您定位至{{ history.watchVideoTime }}</span>
+          </div>
+          <!-- 时间 -->
+          <div
+            :class="{
+              timeintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
+            }"
+            v-show="videoFeatureShowFlag && !upVideoInputTimeFlag"
+            @click="reInputUpVideoTime"
+            @mousemove="(videoLeave = true), handlerCleanTime()"
+            @mouseleave="videoLeave = false"
+            class="up-video-play-bottom-video-time-container"
+          >
+            <span style="margin-right: 10px">{{ formattedTime }}</span>
+            <span
+              style="
+                font-size: 11px;
+                position: absolute;
+                transform: translate(-5.5px);
+              "
+              >/</span
+            >
+            <span style="margin-left: 5px">{{
+              SelectVideoByIdVo.upVideo.videoTime
+            }}</span>
           </div>
           <div
             :class="{
-              videoCloseAudioOrOpenAudioFlag: !videoCloseAudioOrOpenAudioFlag,
+              inputTimeintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
             }"
-            class="up-video-play-bottom-video-set-audio"
+            v-show="videoFeatureShowFlag && upVideoInputTimeFlag"
+            @mousemove="(videoLeave = true), handlerCleanTime()"
+            @mouseleave="videoLeave = false"
+            class="up-video-play-bottom-video-time-input-container"
           >
-            <div>
-              <input
-                id="volume"
-                :style="{
-                  background: `linear-gradient(to right, #00aeec ${videoAudio}%, white ${videoAudio}%, white 170px)`,
-                }"
-                class="volume-slider"
-                type="range"
-                min="0"
-                max="100"
-                step="1"
-                v-model="videoAudio"
-                @input="upVideoPlayer.volume = videoAudio / 100"
-              />
-            </div>
+            <input
+              type="text"
+              class="up-video-play-bottom-video-time-input"
+              @keydown.enter="enterUpVideoTime"
+              v-model="inputUpVideoTimeValue"
+            />
           </div>
-        </div>
-        <!-- 设置 -->
-        <div
-          :class="{ setVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag }"
-          v-show="videoFeatureShowFlag"
-          class="up-video-play-bottom-video-setting-container"
-          @mousemove="(videoLeave = true), handlerCleanTime()"
-          @mouseleave="videoLeave = false"
-        >
+          <!-- 弹幕  -->
+          <!-- 打开或关闭弹幕  -->
           <img
-            :src="videoSettingFlag ? videoSettingWhite : videoSettingGray"
-            @mousemove="
-              (videoSettingFlag = true), (videoLeave = true), handlerCleanTime()
+            class="up-video-play-bottom-video-close-open-scrolling"
+            style="width: 22px"
+            :class="{
+              openOrCloseScrollingintovideoAllDisplayIngFlag:
+                intoVideoAllDisplayIngFlag,
+            }"
+            v-show="
+              openOrCloseScrollingFlag &&
+              intoVideoAllDisplayIngFlag &&
+              videoFeatureShowFlag
             "
-            @mouseleave="(videoSettingFlag = false), (videoLeave = false)"
-            class="up-video-play-bottom-video-setting"
+            :src="openScrollingWhite"
+            @click="openOrCloseScrollingFlag = false"
           />
-          <div class="up-video-play-bottom-video-set-container">
-            <span @click="setVideoMirrorFlag = !setVideoMirrorFlag"
-              >镜像画面
-              <el-switch
-                @click.stop
-                class="custom-switch"
-                v-model="setVideoMirrorFlag"
-            /></span>
-            <span @click="setVideoAutoRePlayFlag = !setVideoAutoRePlayFlag"
-              >洗脑循环
-              <el-switch
-                @click.stop
-                class="custom-switch"
-                v-model="setVideoAutoRePlayFlag"
-            /></span>
-            <span @click="setVideoOpenAutoPlayFlag = !setVideoOpenAutoPlayFlag"
-              >自动开播
-              <el-switch
-                class="custom-switch"
-                @click.stop
-                v-model="setVideoOpenAutoPlayFlag"
-            /></span>
-          </div>
-        </div>
-        <!-- 画中画 -->
-        <img
-          :class="{
-            fullScreenExitintoVideoAllDisplayIngFlag:
-              intoVideoAllDisplayIngFlag,
-          }"
-          v-show="videoFeatureShowFlag"
-          @click="togglePictureInPicture"
-          :src="fullScreenExitFlag ? fullScreenExitWhite : fullScreenExitGray"
-          @mousemove="
-            (fullScreenExitFlag = true),
-              (videoLeave = true),
-              handlerCleanTime(),
-              (showFullScreenExitFlag = true)
-          "
-          @mouseleave="
-            (fullScreenExitFlag = false),
-              (videoLeave = false),
-              (showFullScreenExitFlag = false)
-          "
-          class="up-video-play-bottom-video-fullScreenExit"
-        />
-        <span
-          :class="{
-            fullScreenExitInfointoVideoAllDisplayIngFlag:
-              intoVideoAllDisplayIngFlag,
-          }"
-          v-show="showFullScreenExitFlag && !openOrCloseFullScreenExitFlag"
-          class="up-video-play-bottom-video-fullScreenExit-text"
-          >开启画中画</span
-        >
-        <span
-          :class="{
-            fullScreenExitInfointoVideoAllDisplayIngFlag:
-              intoVideoAllDisplayIngFlag,
-          }"
-          v-show="showFullScreenExitFlag && openOrCloseFullScreenExitFlag"
-          class="up-video-play-bottom-video-fullScreenExit-text"
-          >退出画中画</span
-        >
-        <!-- 宽屏模式没做 -->
-        <img
-          v-show="videoFeatureShowFlag && !intoVideoAllDisplayIngFlag"
-          :src="fullScreenFlag ? fullScreenWhite : fullScreenGray"
-          @mousemove="
-            (fullScreenFlag = true), (videoLeave = true), handlerCleanTime()
-          "
-          @mouseleave="(fullScreenFlag = false), (videoLeave = false)"
-          class="up-video-play-bottom-video-fullScreen"
-        />
-        <!-- 网页全屏没做 -->
-        <img
-          v-show="videoFeatureShowFlag && !intoVideoAllDisplayIngFlag"
-          :src="webFullScreenFlag ? webFullScreenWhite : webFullScreenGray"
-          @mousemove="
-            (webFullScreenFlag = true), (videoLeave = true), handlerCleanTime()
-          "
-          @mouseleave="(webFullScreenFlag = false), (videoLeave = false)"
-          class="up-video-play-bottom-video-webFullScreen"
-        />
-        <!-- 视频加载中... -->
-        <div v-show="videoWaitingFlag" class="video-waiting">
-            <div></div>
-        </div>
-        <!-- 进入全屏 -->
-        <img
-          :class="{ IntoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag }"
-          v-show="videoFeatureShowFlag"
-          @click="toggleFullscreen"
-          :src="intoAllDisplayFlag ? intoAllDisplayWhite : intoAllDisplayGray"
-          @mousemove="
-            (intoAllDisplayFlag = true),
-              (videoLeave = true),
-              handlerCleanTime(),
-              (intoVideoAllDisplayFlag = true)
-          "
-          @mouseleave="
-            (intoAllDisplayFlag = false),
-              (videoLeave = false),
-              (intoVideoAllDisplayFlag = false)
-          "
-          class="up-video-play-bottom-video-intoAllDisplay"
-        />
-        <span
-          v-show="intoVideoAllDisplayFlag && !intoVideoAllDisplayIngFlag"
-          class="up-video-play-bottom-video-intoAllDisplay-text"
-          >进入全屏(f)</span
-        >
-        <span
-          :class="{
-            InfoIntoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
-          }"
-          v-show="intoVideoAllDisplayFlag && intoVideoAllDisplayIngFlag"
-          class="up-video-play-bottom-video-intoAllDisplay-text"
-          >退出全屏(f)</span
-        >
-        <div
-          v-show="videoFeatureShowFlag"
-          @mousemove="(videoLeave = true), handlerCleanTime()"
-          @mouseleave="videoLeave = false"
-          :class="{
-            falseContainerIntoVideoAllDisplayIngFlag:
-              intoVideoAllDisplayIngFlag,
-          }"
-          class="video-false-container"
-        ></div>
-        <!-- 弹幕 -->
-        <div v-show="!intoVideoAllDisplayIngFlag">
-          <div
-            @click="pausedOrPlayUpVideo"
-            class="scrolling-container"
-            v-for="scrolling in ScrollingDataList"
-            :key="scrolling.id"
-          >
-            <div
-              v-show="
-                scrolling.videoTime <= upVideoPlayer.currentTime &&
-                openOrCloseScrollingFlag &&
-                scrollingDisplayTime(scrolling.videoTime) &&
-                scrolling.location === 1 &&
-                !scrollingRollOpenFlag &&
-                scrollingDisplayFunction(scrolling.top)
-              "
-              class="scrolling-boder"
-              :style="{
-                color: `${scrolling.color}`,
-                fontSize:
-                  parseInt(scrollingDisplayFontSizeValue) >= 50
-                    ? `${
-                        scrolling.size *
-                        (1 +
-                          (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                      }px`
-                    : `${
-                        scrolling.size *
-                        (1 +
-                          (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                      }px`,
-                top: `${scrolling.top}px`, //top是0-180px递增30 bottom 330-210px递增30 roll是0-330px随机
-                animation: checkBoxOpenFlag
-                  ? `slideRight ${
-                      13 / sppedList[selectVideoSpped - 1]
-                    }s linear forwards`
-                  : `slideRight ${
-                      parseInt(scrollingDisplaySpeedValue) >= 50
-                        ? 13 /
-                          (1 + parseInt(scrollingDisplaySpeedValue - 50) / 100)
-                        : 13 /
-                          (1 + parseInt(scrollingDisplaySpeedValue - 50) / 100)
-                    }s linear forwards`,
-                animationPlayState: !pausedOrPlayVideoFlag
-                  ? 'paused'
-                  : 'running',
-                opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
-                padding: scrolling.userId === store.userId ? '1px' : '0px',
-                border:
-                  scrolling.userId === store.userId
-                    ? `1px solid #a7dacc`
-                    : 'none',
-              }"
-              :class="{
-                scrollingLocationRoll: scrolling.location === 1,
-              }"
-            >
-              <span
-                class="scrolling-content-container"
-                @click.stop="copyScrolling(scrolling.content)"
-                >{{ scrolling.content }}
-              </span>
-            </div>
-            <div
-              v-show="
-                scrolling.videoTime <= upVideoPlayer.currentTime &&
-                openOrCloseScrollingFlag &&
-                scrolling.videoTime + 5 >= upVideoPlayer.currentTime &&
-                scrolling.location === 2 &&
-                !scrollingFilexdOpenFlag &&
-                scrollingDisplayFunction(scrolling.top)
-              "
-              class="scrolling-boder"
-              :style="{
-                color: `${scrolling.color}`,
-                fontSize:
-                  parseInt(scrollingDisplayFontSizeValue) >= 50
-                    ? `${
-                        scrolling.size *
-                        (1 +
-                          (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                      }px`
-                    : `${
-                        scrolling.size *
-                        (1 +
-                          (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                      }px`,
-                transform: `translate(0px, ${scrolling.top}px)`, //top是0-180px递增30 bottom 330-210px递增30 roll是0-330px随机
-                opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
-              }"
-              :class="{
-                scrollingLocationTop: scrolling.location === 2,
-              }"
-            >
-              <span
-                class="scrolling-content-container"
-                @click.stop="copyScrolling(scrolling.content)"
-                >{{ scrolling.content }}
-              </span>
-            </div>
-            <div
-              v-show="
-                scrolling.videoTime <= upVideoPlayer.currentTime &&
-                openOrCloseScrollingFlag &&
-                scrolling.videoTime + 5 >= upVideoPlayer.currentTime &&
-                scrolling.location === 3 &&
-                !scrollingFilexdOpenFlag &&
-                scrollingDisplayFunction(scrolling.top)
-              "
-              class="scrolling-boder"
-              :style="{
-                color: `${scrolling.color}`,
-                fontSize:
-                  parseInt(scrollingDisplayFontSizeValue) >= 50
-                    ? `${
-                        scrolling.size *
-                        (1 +
-                          (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                      }px`
-                    : `${
-                        scrolling.size *
-                        (1 +
-                          (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                      }px`,
-                transform: `translate(0px, ${scrolling.top}px)`, //top是0-180px递增30 bottom 330-210px递增30 roll是0-330px随机
-                opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
-              }"
-              :class="{
-                scrollingLocationBottom: scrolling.location === 3,
-              }"
-            >
-              <span
-                class="scrolling-content-container"
-                @click.stop="copyScrolling(scrolling.content)"
-                >{{ scrolling.content }}
-              </span>
-            </div>
-          </div>
-        </div>
-        <!-- 放大视频后的弹幕 -->
-        <div v-show="intoVideoAllDisplayIngFlag">
-          <div
-            @click="pausedOrPlayUpVideo"
-            class="scrolling-container"
-            v-for="scrolling in ScrollingDataList"
-            :key="scrolling.id"
-          >
-            <div
-              v-show="
-                scrolling.videoTime <= upVideoPlayer.currentTime &&
-                openOrCloseScrollingFlag &&
-                scrollingDisplayTime(scrolling.videoTime) &&
-                scrolling.location === 1 &&
-                !scrollingRollOpenFlag &&
-                scrollingDisplayFunction(scrolling.allDisplayTop)
-              "
-              class="scrolling-boder"
-              :style="{
-                color: `${scrolling.color}`,
-                fontSize:
-                  parseInt(scrollingDisplayFontSizeValue) >= 50
-                    ? `${
-                        scrolling.size *
-                        (1 +
-                          (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                      }px`
-                    : `${
-                        scrolling.size *
-                        (1 +
-                          (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                      }px`,
-                top: `${scrolling.allDisplayTop}px`, //top是0-360px递增30 bottom 是750-390px递增25 roll是0-750px随机
-                animation: checkBoxOpenFlag
-                  ? `slideRight1 ${
-                      16 / sppedList[selectVideoSpped - 1]
-                    }s linear forwards`
-                  : `slideRight1 ${
-                      parseInt(scrollingDisplaySpeedValue) >= 50
-                        ? 16 /
-                          (1 + parseInt(scrollingDisplaySpeedValue - 50) / 100)
-                        : 16 /
-                          (1 + parseInt(scrollingDisplaySpeedValue - 50) / 100)
-                    }s linear forwards`,
-                animationPlayState: !pausedOrPlayVideoFlag
-                  ? 'paused'
-                  : 'running',
-                opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
-                padding: scrolling.userId === store.userId ? '1px' : '0px',
-                border:
-                  scrolling.userId === store.userId
-                    ? `1px solid #a7dacc`
-                    : 'none',
-              }"
-              :class="{
-                scrollingLocationRoll1: scrolling.location === 1,
-              }"
-            >
-              <span
-                class="scrolling-content-container"
-                @click.stop="copyScrolling(scrolling.content)"
-                >{{ scrolling.content }}
-              </span>
-            </div>
-            <div
-              v-show="
-                scrolling.videoTime <= upVideoPlayer.currentTime &&
-                openOrCloseScrollingFlag &&
-                scrolling.videoTime + 5 >= upVideoPlayer.currentTime &&
-                scrolling.location === 2 &&
-                !scrollingFilexdOpenFlag &&
-                scrollingDisplayFunction(scrolling.allDisplayTop)
-              "
-              class="scrolling-boder"
-              :style="{
-                color: `${scrolling.color}`,
-                fontSize:
-                  parseInt(scrollingDisplayFontSizeValue) >= 50
-                    ? `${
-                        scrolling.size *
-                        (1 +
-                          (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                      }px`
-                    : `${
-                        scrolling.size *
-                        (1 +
-                          (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                      }px`,
-                transform: `translate(0px, ${scrolling.allDisplayTop}px)`, //top是0-360px递增30 bottom 是750-390px递增25 roll是0-750px随机
-                opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
-              }"
-              :class="{
-                scrollingLocationTop1: scrolling.location === 2,
-              }"
-            >
-              <span
-                class="scrolling-content-container"
-                @click.stop="copyScrolling(scrolling.content)"
-                >{{ scrolling.content }}
-              </span>
-            </div>
-            <div
-              v-show="
-                scrolling.videoTime <= upVideoPlayer.currentTime &&
-                openOrCloseScrollingFlag &&
-                scrolling.videoTime + 5 >= upVideoPlayer.currentTime &&
-                scrolling.location === 3 &&
-                !scrollingFilexdOpenFlag &&
-                scrollingDisplayFunction(scrolling.allDisplayTop)
-              "
-              class="scrolling-boder"
-              :style="{
-                color: `${scrolling.color}`,
-                fontSize:
-                  parseInt(scrollingDisplayFontSizeValue) >= 50
-                    ? `${
-                        scrolling.size *
-                        (1 +
-                          (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                      }px`
-                    : `${
-                        scrolling.size *
-                        (1 +
-                          (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                      }px`,
-                transform: `translate(0px, ${scrolling.allDisplayTop}px)`, //top是0-360px递增30 bottom 是750-390px递增25 roll是0-750px随机
-                opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
-              }"
-              :class="{
-                scrollingLocationBottom1: scrolling.location === 3,
-              }"
-            >
-              <span
-                class="scrolling-content-container"
-                @click.stop="copyScrolling(scrolling.content)"
-                >{{ scrolling.content }}
-              </span>
-            </div>
-          </div>
-        </div>
-        <!-- 快捷键提示  -->
-        <div
-          :class="{ keyInfoAllDisplay: intoVideoAllDisplayIngFlag }"
-          v-show="keyInfo.length > 0"
-          class="key-info"
-        >
-          {{ keyInfo }}
-        </div>
-        <!-- 快捷键音量提示 -->
-        <div
-          :class="{ audioInfoAllDisplay: intoVideoAllDisplayIngFlag }"
-          v-show="audioInfoFlag"
-          class="audio-info"
-        >
-          <img
-            class="img1"
-            v-show="parseInt(videoAudio) === 0"
-            :src="closeAudioBlack"
-          />
-          <img
-            class="img2"
-            v-show="parseInt(videoAudio) !== 0"
-            :src="audioBlack"
-          />
-          <span v-show="parseInt(videoAudio) !== 0">{{ videoAudio }}%</span>
-          <span v-show="parseInt(videoAudio) === 0">静音</span>
-        </div>
-      </div>
-      <div v-show="shareHover&&!store.shareHover" class="video-share-container" @mouseover="shareHoverF(true)" @mouseleave="shareHoverF(false)"><videoShareC :shareHover="shareHover"/></div>
-      <!-- 发送弹幕 -->
-      <div class="up-video-play-bottom-video-scrolling-container">
-        <img
-          v-show="likeVideoImgFlag"
-          src="../img/视频点赞.gif"
-          class="up-video-controls-img0"
-        />
-        <span class="watch-num"
-          ><span style="font-size: 12px">{{ watchingNumber }}</span>
-          人正在看，已装填
-          {{ SelectVideoByIdVo.upVideo.scrollingNumber }} 条弹幕</span
-        >
-        <!-- 打开或关闭弹幕  -->
-        <img
-          class="up-video-play-bottom-video-close-open-scrolling"
-          v-show="!openOrCloseScrollingFlag"
-          :src="
-            showCloseScrollingFlag ? closeScrollingBlue : closeScrollingGray
-          "
-          @mouseover="
-            (showCloseScrollingFlag = true),
-              (openOrCloseScrollingInfoFlag = true)
-          "
-          @mouseleave="
-            (showCloseScrollingFlag = false),
-              (openOrCloseScrollingInfoFlag = false)
-          "
-          @click="openOrCloseScrollingFlag = true"
-        />
-        <span
-          class="up-video-play-bottom-video-close-open-scrolling-info"
-          v-show="!openOrCloseScrollingFlag && openOrCloseScrollingInfoFlag"
-          >打开弹幕(d)</span
-        >
-        <img
-          class="up-video-play-bottom-video-open-close-scrolling"
-          v-show="openOrCloseScrollingFlag"
-          :src="showOpenScrollingFlag ? openScrollingBlue : openScrollingGray"
-          @mouseover="
-            (showOpenScrollingFlag = true),
-              (openOrCloseScrollingInfoFlag = true)
-          "
-          @mouseleave="
-            (showOpenScrollingFlag = false),
-              (openOrCloseScrollingInfoFlag = false)
-          "
-          @click="openOrCloseScrollingFlag = false"
-        />
-        <span
-          class="up-video-play-bottom-video-close-open-scrolling-info"
-          v-show="openOrCloseScrollingFlag && openOrCloseScrollingInfoFlag"
-          >关闭弹幕(d)</span
-        >
-        <!-- 弹幕设置 -->
-        <img
-          v-show="!openOrCloseScrollingFlag"
-          class="up-video-play-bottom-video-close-setting-scrolling"
-          :src="scrollingSettingGray"
-        />
-        <div
-          v-show="openOrCloseScrollingFlag"
-          class="up-video-play-bottom-video-setting-scrolling-container"
-        >
-          <img
-            class="up-video-play-bottom-video-setting-scrolling"
-            :src="
-              showScrollingSettingFlag
-                ? scrollingSettingBlue
-                : scrollingSettingGray
+          <span
+            class="up-video-play-bottom-video-close-open-scrolling-info"
+            v-show="
+              !openOrCloseScrollingFlag &&
+              openOrCloseScrollingInfoFlag &&
+              intoVideoAllDisplayIngFlag
             "
-            @mouseover="showScrollingSettingFlag = true"
-            @mouseleave="showScrollingSettingFlag = false"
+            >打开弹幕(d)</span
+          >
+          <img
+            class="up-video-play-bottom-video-open-close-scrolling"
+            :class="{
+              openOrCloseScrollingintovideoAllDisplayIngFlag:
+                intoVideoAllDisplayIngFlag,
+            }"
+            v-show="
+              !openOrCloseScrollingFlag &&
+              intoVideoAllDisplayIngFlag &&
+              videoFeatureShowFlag
+            "
+            :src="closeScrollingWhite"
+            @click="openOrCloseScrollingFlag = true"
+          />
+          <span
+            class="up-video-play-bottom-video-close-open-scrolling-info"
+            v-show="
+              openOrCloseScrollingFlag &&
+              openOrCloseScrollingInfoFlag &&
+              intoVideoAllDisplayIngFlag
+            "
+            >关闭弹幕(d)</span
+          >
+          <!-- 弹幕设置 -->
+          <img
+            v-show="
+              !openOrCloseScrollingFlag &&
+              intoVideoAllDisplayIngFlag &&
+              videoFeatureShowFlag
+            "
+            style="width: 23px; height: 21.5px"
+            :class="{
+              closeSettingScrollintovideoAllDisplayIngFlag:
+                intoVideoAllDisplayIngFlag,
+            }"
+            class="up-video-play-bottom-video-close-setting-scrolling"
+            :src="scrollingSettingWhite"
           />
           <div
-            class="up-video-play-bottom-video-setting-scrolling-info-container"
+            v-show="
+              openOrCloseScrollingFlag &&
+              intoVideoAllDisplayIngFlag &&
+              videoFeatureShowFlag
+            "
+            :class="{
+              settingScrollintovideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
+            }"
+            class="up-video-play-bottom-video-setting-scrolling-container"
           >
-            <span
-              style="
-                position: absolute;
-                transform: translate(18px, 10px);
-                cursor: pointer;
-                color: white;
-              "
-              >按类型屏蔽</span
-            >
-            <!-- 屏蔽滚动弹幕 -->
+            <img
+              style="width: 23px; height: 20.5px"
+              class="up-video-play-bottom-video-setting-scrolling"
+              :class="{settingScrollintovideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,}"
+              :src="scrollingSettingWhite"
+            />
             <div
-              class="roll-scrolling-container"
-              @mouseover="scrollingRollHoverFlag = true"
-              @mouseleave="scrollingRollHoverFlag = false"
-              @click="scrollingRollOpenFlag = !scrollingRollOpenFlag"
+              class="up-video-play-bottom-video-setting-scrolling-info-container"
+              :class="{intoUpVideoPlayBottomVideoSettingScrollingInfoContainer: intoVideoAllDisplayIngFlag,}"
             >
-              <img
-                class="roll-scrolling-img"
-                v-show="!scrollingRollOpenFlag"
-                :src="
-                  scrollingRollHoverFlag
-                    ? scrollingRollWhite
-                    : scrollingRollGray
+              <span
+                style="
+                  position: absolute;
+                  transform: translate(18px, 10px);
+                  cursor: pointer;
+                  color: white;
                 "
-              />
-              <img
-                class="roll-scrolling-img"
-                v-show="scrollingRollOpenFlag"
-                :src="hiddenRollScrollingBlue"
-              />
-              <span
-                class="roll-scrolling-text"
-                :class="{
-                  rollScrollingText: scrollingRollOpenFlag,
-                  scrollingRollHoverFlag: scrollingRollHoverFlag,
-                }"
-                >滚动</span
+                >按类型屏蔽</span
               >
-            </div>
-            <!-- 屏蔽固定弹幕 -->
-            <div
-              class="fixed-scrolling-container"
-              @mouseover="scrollingFilexdHoverFlag = true"
-              @mouseleave="scrollingFilexdHoverFlag = false"
-              @click="scrollingFilexdOpenFlag = !scrollingFilexdOpenFlag"
-            >
-              <img
-                class="fixed-scrolling-img"
-                v-show="!scrollingFilexdOpenFlag"
-                :src="
-                  scrollingFilexdHoverFlag
-                    ? hiddenScrollingFiexdWhite
-                    : hiddenScrollingFiexdGray
-                "
-              />
-              <img
-                class="fixed-scrolling-img"
-                v-show="scrollingFilexdOpenFlag"
-                :src="hiddenScrollingFiexdBlue"
-              />
-              <span
-                class="fixed-scrolling-text"
-                :class="{
-                  fixedScrollingText: scrollingFilexdOpenFlag,
-                  scrollingFilexdHoverFlag: scrollingFilexdHoverFlag,
-                }"
-                >固定</span
+              <!-- 屏蔽滚动弹幕 -->
+              <div
+                class="roll-scrolling-container"
+                @mouseover="scrollingRollHoverFlag = true"
+                @mouseleave="scrollingRollHoverFlag = false"
+                @click="scrollingRollOpenFlag = !scrollingRollOpenFlag"
               >
-            </div>
-            <!-- 勾选设置  -->
-            <div
-              class="chckbox-container"
-              @mouseover="checkBoxHoverFlag = true"
-              @mouseleave="checkBoxHoverFlag = false"
-              @click="checkBoxOpenFlag = !checkBoxOpenFlag"
-            >
-              <img
-                class="setting-scrolling-checkbox"
-                v-show="!checkBoxOpenFlag"
-                :src="checkBoxHoverFlag ? checkBoxBlue : checkBoxWhite"
-              />
-              <img
-                class="setting-scrolling-checkbox"
-                v-show="checkBoxOpenFlag"
-                :src="checkBoxs"
-              />
-              <span
-                class="setting-scrolling-text"
-                :class="{ checkBoxHoverFlag: checkBoxHoverFlag }"
-                >弹幕速度同步播放倍数</span
-              >
-            </div>
-            <!-- 滑块属性值设置 -->
-            <div class="scrolling-slider-container">
-              <div>
-                <span>显示区域</span>
-                <input
-                  id="volume"
-                  class="scrolling-display-slider"
+                <img
+                  class="roll-scrolling-img"
+                  v-show="!scrollingRollOpenFlag"
+                  :src="
+                    scrollingRollHoverFlag
+                      ? scrollingRollWhite
+                      : scrollingRollGray
+                  "
+                />
+                <img
+                  class="roll-scrolling-img"
+                  v-show="scrollingRollOpenFlag"
+                  :src="hiddenRollScrollingBlue"
+                />
+                <span
+                  class="roll-scrolling-text"
                   :class="{
-                    scrollingDisplayAreaValue:
-                      parseInt(scrollingDisplayAreaValue) === 0,
-                    scrollingDisplayAreaValue1:
-                      parseInt(scrollingDisplayAreaValue) === 25,
-                    scrollingDisplayAreaValue2:
-                      parseInt(scrollingDisplayAreaValue) === 50,
-                    scrollingDisplayAreaValue3:
-                      parseInt(scrollingDisplayAreaValue) === 75,
+                    rollScrollingText: scrollingRollOpenFlag,
+                    scrollingRollHoverFlag: scrollingRollHoverFlag,
                   }"
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="25"
-                  v-model="scrollingDisplayAreaValue"
-                />
-                <span
-                  class="silder-pointer1"
-                  @click="scrollingDisplayAreaValue = '0'"
-                ></span
-                ><span
-                  class="silder-pointer2"
-                  @click="scrollingDisplayAreaValue = '25'"
-                ></span
-                ><span
-                  class="silder-pointer3"
-                  @click="scrollingDisplayAreaValue = '50'"
-                ></span
-                ><span
-                  class="silder-pointer4"
-                  @click="scrollingDisplayAreaValue = '75'"
-                ></span
-                ><span
-                  class="silder-pointer5"
-                  @click="scrollingDisplayAreaValue = '100'"
-                ></span>
-                <span
-                  style="
-                    position: absolute;
-                    transform: translate(200px, 1px);
-                    color: #d2d3d0;
-                    word-break: normal !important;
-                  "
-                  >{{ scrollingDisplayAreaValue }}%</span
+                  >滚动</span
                 >
               </div>
-              <div>
-                <span>不透明度</span>
-                <input
-                  id="volume"
-                  class="scrolling-display-slider"
-                  :style="{
-                    background: `linear-gradient(to right, #00aeec ${scrollingDisplayOpacityValue}%, #424242 ${scrollingDisplayOpacityValue}%, #424242 170px)`,
-                  }"
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="1"
-                  v-model="scrollingDisplayOpacityValue"
+              <!-- 屏蔽固定弹幕 -->
+              <div
+                class="fixed-scrolling-container"
+                @mouseover="scrollingFilexdHoverFlag = true"
+                @mouseleave="scrollingFilexdHoverFlag = false"
+                @click="scrollingFilexdOpenFlag = !scrollingFilexdOpenFlag"
+              >
+                <img
+                  class="fixed-scrolling-img"
+                  v-show="!scrollingFilexdOpenFlag"
+                  :src="
+                    scrollingFilexdHoverFlag
+                      ? hiddenScrollingFiexdWhite
+                      : hiddenScrollingFiexdGray
+                  "
+                />
+                <img
+                  class="fixed-scrolling-img"
+                  v-show="scrollingFilexdOpenFlag"
+                  :src="hiddenScrollingFiexdBlue"
                 />
                 <span
-                  style="
-                    position: absolute;
-                    transform: translate(200px, 1px);
-                    color: #d2d3d0;
-                    word-break: normal !important;
-                  "
-                  >{{ scrollingDisplayOpacityValue }}%</span
-                >
-              </div>
-              <div>
-                <span>弹幕字号</span>
-                <input
-                  id="volume"
-                  class="scrolling-display-slider"
-                  :style="{
-                    background: `linear-gradient(to right, #00aeec ${scrollingDisplayFontSizeValue}%, #424242 ${scrollingDisplayFontSizeValue}%, #424242 170px)`,
-                  }"
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="1"
-                  v-model="scrollingDisplayFontSizeValue"
-                />
-                <span
-                  style="
-                    position: absolute;
-                    transform: translate(200px, 1px);
-                    color: #d2d3d0;
-                    word-break: normal !important;
-                  "
-                  >{{ scrollingDisplayFontSizeValue }}%</span
-                >
-              </div>
-              <div v-show="!checkBoxOpenFlag">
-                <span>弹幕速度</span>
-                <input
-                  id="volume"
-                  class="scrolling-display-slider"
+                  class="fixed-scrolling-text"
                   :class="{
-                    scrollingDisplayAreaValue:
-                      scrollingDisplaySpeedValue === '0',
-                    scrollingDisplayAreaValue1:
-                      scrollingDisplaySpeedValue === '25',
-                    scrollingDisplayAreaValue2:
+                    fixedScrollingText: scrollingFilexdOpenFlag,
+                    scrollingFilexdHoverFlag: scrollingFilexdHoverFlag,
+                  }"
+                  >固定</span
+                >
+              </div>
+              <!-- 勾选设置  -->
+              <div
+                class="chckbox-container"
+                @mouseover="checkBoxHoverFlag = true"
+                @mouseleave="checkBoxHoverFlag = false"
+                @click="checkBoxOpenFlag = !checkBoxOpenFlag"
+              >
+                <img
+                  class="setting-scrolling-checkbox"
+                  v-show="!checkBoxOpenFlag"
+                  :src="checkBoxHoverFlag ? checkBoxBlue : checkBoxWhite"
+                />
+                <img
+                  class="setting-scrolling-checkbox"
+                  v-show="checkBoxOpenFlag"
+                  :src="checkBoxs"
+                />
+                <span
+                  class="setting-scrolling-text"
+                  :class="{ checkBoxHoverFlag: checkBoxHoverFlag }"
+                  >弹幕速度同步播放倍数</span
+                >
+              </div>
+              <!-- 滑块属性值设置 -->
+              <div class="scrolling-slider-container">
+                <div>
+                  <span>显示区域</span>
+                  <input
+                    id="volume"
+                    class="scrolling-display-slider"
+                    :class="{
+                      scrollingDisplayAreaValue:
+                        parseInt(scrollingDisplayAreaValue) === 0,
+                      scrollingDisplayAreaValue1:
+                        parseInt(scrollingDisplayAreaValue) === 25,
+                      scrollingDisplayAreaValue2:
+                        parseInt(scrollingDisplayAreaValue) === 50,
+                      scrollingDisplayAreaValue3:
+                        parseInt(scrollingDisplayAreaValue) === 75,
+                    }"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="25"
+                    v-model="scrollingDisplayAreaValue"
+                  />
+                  <span
+                    class="silder-pointer1"
+                    @click="scrollingDisplayAreaValue = '0'"
+                  ></span
+                  ><span
+                    class="silder-pointer2"
+                    @click="scrollingDisplayAreaValue = '25'"
+                  ></span
+                  ><span
+                    class="silder-pointer3"
+                    @click="scrollingDisplayAreaValue = '50'"
+                  ></span
+                  ><span
+                    class="silder-pointer4"
+                    @click="scrollingDisplayAreaValue = '75'"
+                  ></span
+                  ><span
+                    class="silder-pointer5"
+                    @click="scrollingDisplayAreaValue = '100'"
+                  ></span>
+                  <span
+                    style="
+                      position: absolute;
+                      transform: translate(200px, 1px);
+                      color: #d2d3d0;
+                      word-break: normal !important;
+                    "
+                    >{{ scrollingDisplayAreaValue }}%</span
+                  >
+                </div>
+                <div>
+                  <span>不透明度</span>
+                  <input
+                    id="volume"
+                    class="scrolling-display-slider"
+                    :style="{
+                      background: `linear-gradient(to right, #00aeec ${scrollingDisplayOpacityValue}%, #424242 ${scrollingDisplayOpacityValue}%, #424242 170px)`,
+                    }"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    v-model="scrollingDisplayOpacityValue"
+                  />
+                  <span
+                    style="
+                      position: absolute;
+                      transform: translate(200px, 1px);
+                      color: #d2d3d0;
+                      word-break: normal !important;
+                    "
+                    >{{ scrollingDisplayOpacityValue }}%</span
+                  >
+                </div>
+                <div>
+                  <span>弹幕字号</span>
+                  <input
+                    id="volume"
+                    class="scrolling-display-slider"
+                    :style="{
+                      background: `linear-gradient(to right, #00aeec ${scrollingDisplayFontSizeValue}%, #424242 ${scrollingDisplayFontSizeValue}%, #424242 170px)`,
+                    }"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    v-model="scrollingDisplayFontSizeValue"
+                  />
+                  <span
+                    style="
+                      position: absolute;
+                      transform: translate(200px, 1px);
+                      color: #d2d3d0;
+                      word-break: normal !important;
+                    "
+                    >{{ scrollingDisplayFontSizeValue }}%</span
+                  >
+                </div>
+                <div v-show="!checkBoxOpenFlag">
+                  <span>弹幕速度</span>
+                  <input
+                    id="volume"
+                    class="scrolling-display-slider"
+                    :class="{
+                      scrollingDisplayAreaValue:
+                        scrollingDisplaySpeedValue === '0',
+                      scrollingDisplayAreaValue1:
+                        scrollingDisplaySpeedValue === '25',
+                      scrollingDisplayAreaValue2:
+                        scrollingDisplaySpeedValue === '50' ||
+                        scrollingDisplaySpeedValue === 50,
+                      scrollingDisplayAreaValue3:
+                        scrollingDisplaySpeedValue === '75',
+                      scrollingDisplayAreaValue4:
+                        scrollingDisplaySpeedValue === '100',
+                    }"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="25"
+                    v-model="scrollingDisplaySpeedValue"
+                  />
+                  <span
+                    class="silder-pointer1"
+                    @click="scrollingDisplayAreaValue = '0'"
+                  ></span
+                  ><span
+                    class="silder-pointer2"
+                    @click="scrollingDisplaySpeedValue = '25'"
+                  ></span
+                  ><span
+                    class="silder-pointer3"
+                    @click="scrollingDisplaySpeedValue = '50'"
+                  ></span
+                  ><span
+                    class="silder-pointer4"
+                    @click="scrollingDisplaySpeedValue = '75'"
+                  ></span
+                  ><span
+                    class="silder-pointer5"
+                    @click="scrollingDisplaySpeedValue = '100'"
+                  ></span>
+                  <span
+                    v-show="scrollingDisplaySpeedValue === '0'"
+                    style="
+                      position: absolute;
+                      transform: translate(200px, 1px);
+                      color: #d2d3d0;
+                      width: 24px;
+                    "
+                    >极慢</span
+                  >
+                  <span
+                    v-show="scrollingDisplaySpeedValue === '25'"
+                    style="
+                      position: absolute;
+                      transform: translate(200px, 1px);
+                      color: #d2d3d0;
+                      width: 24px;
+                    "
+                    >较慢</span
+                  >
+                  <span
+                    v-show="
                       scrollingDisplaySpeedValue === '50' ||
-                      scrollingDisplaySpeedValue === 50,
-                    scrollingDisplayAreaValue3:
-                      scrollingDisplaySpeedValue === '75',
-                    scrollingDisplayAreaValue4:
-                      scrollingDisplaySpeedValue === '100',
+                      scrollingDisplaySpeedValue === 50
+                    "
+                    style="
+                      position: absolute;
+                      transform: translate(200px, 1px);
+                      color: #d2d3d0;
+                      width: 24px;
+                    "
+                    >正常</span
+                  >
+                  <span
+                    v-show="scrollingDisplaySpeedValue === '75'"
+                    style="
+                      position: absolute;
+                      transform: translate(200px, 1px);
+                      color: #d2d3d0;
+                      width: 24px;
+                    "
+                    >较快</span
+                  >
+                  <span
+                    v-show="scrollingDisplaySpeedValue === '100'"
+                    style="
+                      position: absolute;
+                      transform: translate(200px, 1px);
+                      color: #d2d3d0;
+                      width: 24px;
+                    "
+                    >极快</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 弹幕输入框 -->
+          <!-- 关闭 发送弹幕区域 -->
+          <div
+            v-show="
+              !openOrCloseScrollingFlag &&
+              intoVideoAllDisplayIngFlag &&
+              videoFeatureShowFlag
+            "
+            class="up-video-play-bottom-video-open-scrolling-container2"
+            :class="{
+              inputContainerintoVideoAllDisplayIngFlag:
+                intoVideoAllDisplayIngFlag,
+            }"
+          >
+            <span
+              style="color: #b9b7b8"
+              :style="{ opacity: store.userId === null ? 0 : 1 }"
+              >已关闭弹幕</span
+            >
+            <span
+              v-show="store.userId === null"
+              style="color: #b9b7b8; position: absolute"
+              >请先
+              <span
+                style="color: #00aeec; cursor: pointer"
+                @click="
+                  loginDialogVisibleFlag === 0
+                    ? (loginDialogVisibleFlag = 1)
+                    : (loginDialogVisibleFlag = 0)
+                "
+                >登录</span
+              >
+              或
+              <span
+                style="color: #00aeec; cursor: pointer"
+                @click="
+                  loginDialogVisibleFlag === 2
+                    ? (loginDialogVisibleFlag = 3)
+                    : (loginDialogVisibleFlag = 2)
+                "
+                >注册</span
+              ></span
+            >
+            <span style="transform: translate(276.5px, -1px)"
+              ><a
+                class="scrolling-regulation1"
+                target="_blank"
+                href="https://www.bilibili.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
+                >弹幕礼仪 ></a
+              ></span
+            >
+            <span class="send-scrolling-btn-close1">发送</span>
+          </div>
+          <!-- 打开 发送弹幕区域 -->
+          <div
+            :class="{
+              inputContainerintoVideoAllDisplayIngFlag:
+                intoVideoAllDisplayIngFlag,
+            }"
+            v-show="
+              openOrCloseScrollingFlag &&
+              intoVideoAllDisplayIngFlag &&
+              videoFeatureShowFlag
+            "
+            class="up-video-play-bottom-video-open-scrolling-container1"
+          >
+            <div
+              :style="{ opacity: store.userId === null ? 0 : 1 }"
+              class="up-video-play-bottom-video-open-scrolling-color-container"
+            >
+              <img
+                class="up-video-play-bottom-video-close-scrolling-color"
+                :src="
+                  showScrollingColorFlag
+                    ? scrollingColorBlue
+                    : scrollingColorWhite
+                "
+                @mouseover="showScrollingColorFlag = true"
+                @mouseleave="showScrollingColorFlag = false"
+              />
+              <div
+                :class="{ predefineColorsHoverFlag: predefineColorsHoverFlag }"
+                class="up-video-play-bottom-video-open-scrolling-color-info-container"
+              >
+                <span>字号</span>
+                <div
+                  class="up-video-play-bottom-video-open-scrolling-color-info-container-font"
+                >
+                  <span
+                    class="ss"
+                    v-show="sendScrollingFontSize !== 16"
+                    style="margin-right: 5px"
+                    @click="sendScrollingFontSize = 16"
+                    >小</span
+                  >
+                  <span
+                    v-show="sendScrollingFontSize === 16"
+                    style="margin-right: 5px; background-color: #00aeec"
+                    @click="sendScrollingFontSize = 16"
+                    >小</span
+                  >
+                  <span
+                    class="ss"
+                    v-show="sendScrollingFontSize !== 20"
+                    style="margin-left: 5px"
+                    @click="sendScrollingFontSize = 20"
+                    >标准</span
+                  >
+                  <span
+                    v-show="sendScrollingFontSize === 20"
+                    style="margin-left: 5px; background-color: #00aeec"
+                    @click="sendScrollingFontSize = 20"
+                    >标准</span
+                  >
+                </div>
+                <div style="margin-top: 15px">模式</div>
+                <div
+                  class="up-video-play-bottom-video-open-scrolling-color-info-container-pattern"
+                >
+                  <div class="scrolling-pattern-roll-container">
+                    <img
+                      class="aa"
+                      v-show="scrollingPattern !== 1"
+                      :src="
+                        scrollingRollHoverFlag
+                          ? scrollingRollWhite
+                          : scrollingRollGray
+                      "
+                      @mouseover="scrollingRollHoverFlag = true"
+                      @mouseleave="scrollingRollHoverFlag = false"
+                      @click="scrollingPattern = 1"
+                    />
+                    <img
+                      style="width: 24.5px; height: 22px"
+                      v-show="scrollingPattern === 1"
+                      :src="scrollingRollBlue"
+                    />
+                    <div
+                      v-show="scrollingPattern !== 1"
+                      class="cc"
+                      @click="scrollingPattern = 1"
+                    >
+                      滚动
+                    </div>
+                    <div class="cc2" v-show="scrollingPattern === 1">滚动</div>
+                  </div>
+                  <div class="scrolling-pattern-top-container">
+                    <img
+                      class="aa"
+                      v-show="scrollingPattern !== 2"
+                      :src="
+                        scrollingTopHoverFlag
+                          ? hiddenScrollingFiexdWhite
+                          : hiddenScrollingFiexdGray
+                      "
+                      @mouseover="scrollingTopHoverFlag = true"
+                      @mouseleave="scrollingTopHoverFlag = false"
+                      @click="scrollingPattern = 2"
+                    />
+                    <img
+                      style="width: 25px; height: 22px"
+                      v-show="scrollingPattern === 2"
+                      :src="topScrollingBlue"
+                    />
+                    <div
+                      v-show="scrollingPattern !== 2"
+                      class="cc"
+                      @click="scrollingPattern = 2"
+                    >
+                      顶部
+                    </div>
+                    <div class="cc2" v-show="scrollingPattern === 2">顶部</div>
+                  </div>
+                  <div class="scrolling-pattern-bottom-container">
+                    <img
+                      class="aa"
+                      v-show="scrollingPattern !== 3"
+                      :src="
+                        scrollingBottomHoverFlag
+                          ? bottomScrollingWhite
+                          : bottomScrollingGray
+                      "
+                      @mouseover="scrollingBottomHoverFlag = true"
+                      @mouseleave="scrollingBottomHoverFlag = false"
+                      @click="scrollingPattern = 3"
+                    />
+                    <img
+                      style="width: 24.5px; height: 22px"
+                      v-show="scrollingPattern === 3"
+                      :src="bottomScrollingBlue"
+                    />
+                    <div
+                      class="cc"
+                      v-show="scrollingPattern !== 3"
+                      @click="scrollingPattern = 3"
+                    >
+                      底部
+                    </div>
+                    <div class="cc2" v-show="scrollingPattern === 3">底部</div>
+                  </div>
+                  <div style="transform: translate(0px, 60px)">颜色</div>
+                  <el-color-picker
+                    class="scrolling-color-picker"
+                    :teleported="false"
+                    v-model="sendScrollingColor"
+                    :sizeshow-alpha="false"
+                    :predefine="predefineColors"
+                  />
+                </div>
+              </div>
+            </div>
+            <input
+              :style="{ opacity: store.userId === null ? 0 : 1 }"
+              class="up-video-play-bottom-video-close-scrolling-input1"
+              type="text"
+              maxlength="50"
+              @focus="sendScrollingInputStatus = true"
+              @blur="sendScrollingInputStatus = false"
+              v-model="sendScrollingText"
+              @keydown.enter="sendScrollingAxios"
+              placeholder="发个友善的弹幕见证当下"
+            />
+            <span
+              v-show="store.userId === null"
+              style="color: #b9b7b8; position: absolute"
+              >请先
+              <span
+                style="color: #00aeec; cursor: pointer"
+                @click="
+                  loginDialogVisibleFlag === 0
+                    ? (loginDialogVisibleFlag = 1)
+                    : (loginDialogVisibleFlag = 0)
+                "
+                >登录</span
+              >
+              或
+              <span
+                style="color: #00aeec; cursor: pointer"
+                @click="
+                  loginDialogVisibleFlag === 2
+                    ? (loginDialogVisibleFlag = 3)
+                    : (loginDialogVisibleFlag = 2)
+                "
+                >注册</span
+              ></span
+            >
+            <span style="transform: translate(323.5px, -1px)"
+              ><a
+                class="scrolling-regulation1"
+                target="_blank"
+                href="https://www.bilibili.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
+                >弹幕礼仪 ></a
+              ></span
+            >
+            <span class="send-scrolling-btn-open1" @click="sendScrollingAxios"
+              >发送</span
+            >
+          </div>
+          <!-- 画质没做 -->
+          <span
+            :class="{
+              imageQualityintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
+            }"
+            v-show="videoFeatureShowFlag"
+            @mousemove="(videoLeave = true), handlerCleanTime()"
+            @mouseleave="videoLeave = false"
+            class="up-video-play-bottom-video-image-quality"
+            >1080P 高清</span
+          >
+          <!-- 倍速 -->
+          <span
+            :class="{ sppedVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag }"
+            v-show="videoFeatureShowFlag"
+            @mousemove="(videoLeave = true), handlerCleanTime()"
+            @mouseleave="videoLeave = false"
+            class="up-video-play-bottom-video-spped"
+            >倍速
+            <div class="up-video-play-bottom-video-speed-container">
+              <span
+                @click="
+                  (selectVideoSpped = 1), (upVideoPlayer.playbackRate = 2.0)
+                "
+                :class="{ selectVideoSpped: selectVideoSpped === 1 }"
+                >2.0x</span
+              >
+              <span
+                @click="
+                  (selectVideoSpped = 2), (upVideoPlayer.playbackRate = 1.5)
+                "
+                :class="{ selectVideoSpped: selectVideoSpped === 2 }"
+                >1.5x</span
+              >
+              <span
+                @click="
+                  (selectVideoSpped = 3), (upVideoPlayer.playbackRate = 1.25)
+                "
+                :class="{ selectVideoSpped: selectVideoSpped === 3 }"
+                >1.25x</span
+              >
+              <span
+                @click="(selectVideoSpped = 4), (upVideoPlayer.playbackRate = 1)"
+                :class="{ selectVideoSpped: selectVideoSpped === 4 }"
+                >1.0x</span
+              >
+              <span
+                @click="
+                  (selectVideoSpped = 5), (upVideoPlayer.playbackRate = 0.75)
+                "
+                :class="{ selectVideoSpped: selectVideoSpped === 5 }"
+                >0.75x</span
+              >
+              <span
+                @click="
+                  (selectVideoSpped = 6), (upVideoPlayer.playbackRate = 0.5)
+                "
+                :class="{ selectVideoSpped: selectVideoSpped === 6 }"
+                >0.5x</span
+              >
+            </div>
+          </span>
+          <!-- 音量 -->
+          <div
+            :class="{ audioVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag }"
+            class="up-video-play-bottom-video-audio-container"
+            v-show="videoFeatureShowFlag"
+            @mousemove="(videoLeave = true), handlerCleanTime()"
+            @mouseleave="videoLeave = false"
+          >
+            <img
+              v-show="videoFeatureShowFlag && videoCloseAudioOrOpenAudioFlag"
+              @click="
+                (videoCloseAudioOrOpenAudioFlag = false),
+                  (upVideoPlayer.muted = true),
+                  (closeAudioFlag = true)
+              "
+              @mousemove="
+                (audioFlag = true), (videoLeave = true), handlerCleanTime()
+              "
+              @mouseleave="(audioFlag = false), (videoLeave = false)"
+              :src="audioFlag ? audioWhite : audioGray"
+              class="up-video-play-bottom-video-audio"
+              :class="{intoAllDisplayFlagUpVideoPlayBottomVideoAudio: intoVideoAllDisplayIngFlag}"
+            />
+            <img
+              v-show="videoFeatureShowFlag && !videoCloseAudioOrOpenAudioFlag"
+              @click="
+                (videoCloseAudioOrOpenAudioFlag = true),
+                  (upVideoPlayer.muted = false),
+                  (audioFlag = true)
+              "
+              @mousemove="
+                (closeAudioFlag = true), (videoLeave = true), handlerCleanTime()
+              "
+              @mouseleave="(closeAudioFlag = false), (videoLeave = false)"
+              :src="closeAudioFlag ? closeAudioWhite : closeAudioGray"
+              class="up-video-play-bottom-video-colse-audio"
+              :class="{intoAllDisplayFlagUpVideoPlayBottomVideoAudio2: intoVideoAllDisplayIngFlag}"
+            />
+            <div class="up-video-play-bottom-video-audio-value">
+              {{ videoAudio }}
+            </div>
+            <div
+              :class="{
+                videoCloseAudioOrOpenAudioFlag: !videoCloseAudioOrOpenAudioFlag,
+                intoUpVideoPlayBottomVideoSetAudio: intoVideoAllDisplayIngFlag
+              }"
+              class="up-video-play-bottom-video-set-audio"
+            >
+              <div>
+                <input
+                  id="volume"
+                  :style="{
+                    background: `linear-gradient(to right, #00aeec ${videoAudio}%, white ${videoAudio}%, white 170px)`,
                   }"
+                  class="volume-slider"
                   type="range"
                   min="0"
                   max="100"
-                  step="25"
-                  v-model="scrollingDisplaySpeedValue"
+                  step="1"
+                  v-model="videoAudio"
+                  @input="upVideoPlayer.volume = videoAudio / 100"
                 />
-                <span
-                  class="silder-pointer1"
-                  @click="scrollingDisplayAreaValue = '0'"
-                ></span
-                ><span
-                  class="silder-pointer2"
-                  @click="scrollingDisplaySpeedValue = '25'"
-                ></span
-                ><span
-                  class="silder-pointer3"
-                  @click="scrollingDisplaySpeedValue = '50'"
-                ></span
-                ><span
-                  class="silder-pointer4"
-                  @click="scrollingDisplaySpeedValue = '75'"
-                ></span
-                ><span
-                  class="silder-pointer5"
-                  @click="scrollingDisplaySpeedValue = '100'"
-                ></span>
-                <span
-                  v-show="scrollingDisplaySpeedValue === '0'"
-                  style="
-                    position: absolute;
-                    transform: translate(200px, 1px);
-                    color: #d2d3d0;
-                    width: 24px;
-                  "
-                  >极慢</span
-                >
-                <span
-                  v-show="scrollingDisplaySpeedValue === '25'"
-                  style="
-                    position: absolute;
-                    transform: translate(200px, 1px);
-                    color: #d2d3d0;
-                    width: 24px;
-                  "
-                  >较慢</span
-                >
-                <span
-                  v-show="
-                    scrollingDisplaySpeedValue === '50' ||
-                    scrollingDisplaySpeedValue === 50
-                  "
-                  style="
-                    position: absolute;
-                    transform: translate(200px, 1px);
-                    color: #d2d3d0;
-                    width: 24px;
-                  "
-                  >正常</span
-                >
-                <span
-                  v-show="scrollingDisplaySpeedValue === '75'"
-                  style="
-                    position: absolute;
-                    transform: translate(200px, 1px);
-                    color: #d2d3d0;
-                    width: 24px;
-                  "
-                  >较快</span
-                >
-                <span
-                  v-show="scrollingDisplaySpeedValue === '100'"
-                  style="
-                    position: absolute;
-                    transform: translate(200px, 1px);
-                    color: #d2d3d0;
-                    width: 24px;
-                  "
-                  >极快</span
-                >
               </div>
             </div>
           </div>
-        </div>
-        <!-- 关闭 发送弹幕区域 -->
-        <div
-          v-show="!openOrCloseScrollingFlag"
-          class="up-video-play-bottom-video-close-scrolling-container"
-        >
-          <span
-            :style="{ opacity: store.userId === null ? 0 : 1 }"
-            style="color: #999999"
-            >已关闭弹幕</span
-          >
-          <span
-            v-show="store.userId === null"
-            style="color: #999999; position: absolute"
-            >请先
-            <span
-              style="color: #00aeec; cursor: pointer"
-              @click="
-                loginDialogVisibleFlag === 0
-                  ? (loginDialogVisibleFlag = 1)
-                  : (loginDialogVisibleFlag = 0)
-              "
-              >登录</span
-            >
-            或
-            <span
-              style="color: #00aeec; cursor: pointer"
-              @click="
-                loginDialogVisibleFlag === 2
-                  ? (loginDialogVisibleFlag = 3)
-                  : (loginDialogVisibleFlag = 2)
-              "
-              >注册</span
-            ></span
-          >
-          <span style="transform: translate(187px, -1px)"
-            ><a
-              class="scrolling-regulation"
-              target="_blank"
-              href="https://www.bilibili.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
-              >弹幕礼仪 ></a
-            ></span
-          >
-          <span class="send-scrolling-btn-close">发送</span>
-        </div>
-        <!-- 打开 发送弹幕区域 -->
-        <div
-          v-show="openOrCloseScrollingFlag"
-          class="up-video-play-bottom-video-open-scrolling-container"
-        >
+          <!-- 设置 -->
           <div
-            class="up-video-play-bottom-video-open-scrolling-color-container"
-            :style="{ opacity: store.userId === null ? 0 : 1 }"
+            :class="{ setVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag }"
+            v-show="videoFeatureShowFlag"
+            class="up-video-play-bottom-video-setting-container"
+            @mousemove="(videoLeave = true), handlerCleanTime()"
+            @mouseleave="videoLeave = false"
           >
             <img
-              class="up-video-play-bottom-video-close-scrolling-color"
-              :src="
-                showScrollingColorFlag ? scrollingColorBlue : scrollingColorGray
+              :src="videoSettingFlag ? videoSettingWhite : videoSettingGray"
+              @mousemove="
+                (videoSettingFlag = true), (videoLeave = true), handlerCleanTime()
               "
-              @mouseover="showScrollingColorFlag = true"
-              @mouseleave="showScrollingColorFlag = false"
+              @mouseleave="(videoSettingFlag = false), (videoLeave = false)"
+              class="up-video-play-bottom-video-setting"
             />
-            <div
-              :class="{ predefineColorsHoverFlag: predefineColorsHoverFlag }"
-              class="up-video-play-bottom-video-open-scrolling-color-info-container"
-            >
-              <span>字号</span>
-              <div
-                class="up-video-play-bottom-video-open-scrolling-color-info-container-font"
-              >
-                <span
-                  class="ss"
-                  v-show="sendScrollingFontSize !== 16"
-                  style="margin-right: 5px"
-                  @click="sendScrollingFontSize = 16"
-                  >小</span
-                >
-                <span
-                  v-show="sendScrollingFontSize === 16"
-                  style="margin-right: 5px; background-color: #00aeec"
-                  @click="sendScrollingFontSize = 16"
-                  >小</span
-                >
-                <span
-                  class="ss"
-                  v-show="sendScrollingFontSize !== 20"
-                  style="margin-left: 5px"
-                  @click="sendScrollingFontSize = 20"
-                  >标准</span
-                >
-                <span
-                  v-show="sendScrollingFontSize === 20"
-                  style="margin-left: 5px; background-color: #00aeec"
-                  @click="sendScrollingFontSize = 20"
-                  >标准</span
-                >
-              </div>
-              <div style="margin-top: 15px">模式</div>
-              <div
-                class="up-video-play-bottom-video-open-scrolling-color-info-container-pattern"
-              >
-                <div class="scrolling-pattern-roll-container">
-                  <img
-                    class="aa"
-                    v-show="scrollingPattern !== 1"
-                    :src="
-                      scrollingRollHoverFlag
-                        ? scrollingRollWhite
-                        : scrollingRollGray
-                    "
-                    @mouseover="scrollingRollHoverFlag = true"
-                    @mouseleave="scrollingRollHoverFlag = false"
-                    @click="scrollingPattern = 1"
-                  />
-                  <img
-                    style="width: 24.5px; height: 22px"
-                    v-show="scrollingPattern === 1"
-                    :src="scrollingRollBlue"
-                  />
-                  <div
-                    v-show="scrollingPattern !== 1"
-                    class="cc"
-                    @click="scrollingPattern = 1"
-                  >
-                    滚动
-                  </div>
-                  <div class="cc2" v-show="scrollingPattern === 1">滚动</div>
-                </div>
-                <div class="scrolling-pattern-top-container">
-                  <img
-                    class="aa"
-                    v-show="scrollingPattern !== 2"
-                    :src="
-                      scrollingTopHoverFlag
-                        ? hiddenScrollingFiexdWhite
-                        : hiddenScrollingFiexdGray
-                    "
-                    @mouseover="scrollingTopHoverFlag = true"
-                    @mouseleave="scrollingTopHoverFlag = false"
-                    @click="scrollingPattern = 2"
-                  />
-                  <img
-                    style="width: 25px; height: 22px"
-                    v-show="scrollingPattern === 2"
-                    :src="topScrollingBlue"
-                  />
-                  <div
-                    v-show="scrollingPattern !== 2"
-                    class="cc"
-                    @click="scrollingPattern = 2"
-                  >
-                    顶部
-                  </div>
-                  <div class="cc2" v-show="scrollingPattern === 2">顶部</div>
-                </div>
-                <div class="scrolling-pattern-bottom-container">
-                  <img
-                    class="aa"
-                    v-show="scrollingPattern !== 3"
-                    :src="
-                      scrollingBottomHoverFlag
-                        ? bottomScrollingWhite
-                        : bottomScrollingGray
-                    "
-                    @mouseover="scrollingBottomHoverFlag = true"
-                    @mouseleave="scrollingBottomHoverFlag = false"
-                    @click="scrollingPattern = 3"
-                  />
-                  <img
-                    style="width: 24.5px; height: 22px"
-                    v-show="scrollingPattern === 3"
-                    :src="bottomScrollingBlue"
-                  />
-                  <div
-                    class="cc"
-                    v-show="scrollingPattern !== 3"
-                    @click="scrollingPattern = 3"
-                  >
-                    底部
-                  </div>
-                  <div class="cc2" v-show="scrollingPattern === 3">底部</div>
-                </div>
-                <div style="transform: translate(0px, 60px)">颜色</div>
-                <el-color-picker
-                  class="scrolling-color-picker"
-                  v-model="sendScrollingColor"
-                  :sizeshow-alpha="false"
-                  :predefine="predefineColors"
-                />
-              </div>
+            <div class="up-video-play-bottom-video-set-container">
+              <span @click="setVideoMirrorFlag = !setVideoMirrorFlag"
+                >镜像画面
+                <el-switch
+                  @click.stop
+                  class="custom-switch"
+                  v-model="setVideoMirrorFlag"
+              /></span>
+              <span @click="setVideoAutoRePlayFlag = !setVideoAutoRePlayFlag"
+                >洗脑循环
+                <el-switch
+                  @click.stop
+                  class="custom-switch"
+                  v-model="setVideoAutoRePlayFlag"
+              /></span>
+              <span @click="setVideoOpenAutoPlayFlag = !setVideoOpenAutoPlayFlag"
+                >自动开播
+                <el-switch
+                  class="custom-switch"
+                  @click.stop
+                  v-model="setVideoOpenAutoPlayFlag"
+              /></span>
             </div>
           </div>
-          <input
-            class="up-video-play-bottom-video-close-scrolling-input"
-            :style="{ opacity: store.userId === null ? 0 : 1 }"
-            type="text"
-            maxlength="50"
-            @focus="sendScrollingInputStatus = true"
-            @blur="sendScrollingInputStatus = false"
-            v-model="sendScrollingText"
-            @keydown.enter="sendScrollingAxios"
-            placeholder="发个友善的弹幕见证当下"
+          <!-- 画中画 -->
+          <img
+            :class="{
+              fullScreenExitintoVideoAllDisplayIngFlag:
+                intoVideoAllDisplayIngFlag,
+            }"
+            v-show="videoFeatureShowFlag"
+            @click="togglePictureInPicture"
+            :src="fullScreenExitFlag ? fullScreenExitWhite : fullScreenExitGray"
+            @mousemove="
+              (fullScreenExitFlag = true),
+                (videoLeave = true),
+                handlerCleanTime(),
+                (showFullScreenExitFlag = true)
+            "
+            @mouseleave="
+              (fullScreenExitFlag = false),
+                (videoLeave = false),
+                (showFullScreenExitFlag = false)
+            "
+            class="up-video-play-bottom-video-fullScreenExit"
           />
           <span
-            v-show="store.userId === null"
-            style="color: #999999; position: absolute"
-            >请先
-            <span
-              style="color: #00aeec; cursor: pointer"
-              @click="
-                loginDialogVisibleFlag === 0
-                  ? (loginDialogVisibleFlag = 1)
-                  : (loginDialogVisibleFlag = 0)
-              "
-              >登录</span
+            :class="{
+              fullScreenExitInfointoVideoAllDisplayIngFlag:
+                intoVideoAllDisplayIngFlag,
+            }"
+            v-show="showFullScreenExitFlag && !openOrCloseFullScreenExitFlag"
+            class="up-video-play-bottom-video-fullScreenExit-text"
+            >开启画中画</span
+          >
+          <span
+            :class="{
+              fullScreenExitInfointoVideoAllDisplayIngFlag:
+                intoVideoAllDisplayIngFlag,
+            }"
+            v-show="showFullScreenExitFlag && openOrCloseFullScreenExitFlag"
+            class="up-video-play-bottom-video-fullScreenExit-text"
+            >退出画中画</span
+          >
+          <!-- 宽屏模式没做 -->
+          <img
+            v-show="videoFeatureShowFlag && !intoVideoAllDisplayIngFlag"
+            :src="fullScreenFlag ? fullScreenWhite : fullScreenGray"
+            @mousemove="
+              (fullScreenFlag = true), (videoLeave = true), handlerCleanTime()
+            "
+            @mouseleave="(fullScreenFlag = false), (videoLeave = false)"
+            class="up-video-play-bottom-video-fullScreen"
+          />
+          <!-- 网页全屏没做 -->
+          <img
+            v-show="videoFeatureShowFlag && !intoVideoAllDisplayIngFlag"
+            :src="webFullScreenFlag ? webFullScreenWhite : webFullScreenGray"
+            @mousemove="
+              (webFullScreenFlag = true), (videoLeave = true), handlerCleanTime()
+            "
+            @mouseleave="(webFullScreenFlag = false), (videoLeave = false)"
+            class="up-video-play-bottom-video-webFullScreen"
+          />
+          <!-- 视频加载中... -->
+          <div v-show="videoWaitingFlag" class="video-waiting">
+              <div></div>
+          </div>
+          <!-- 进入全屏 -->
+          <img
+            :class="{ IntoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag }"
+            v-show="videoFeatureShowFlag"
+            @click="toggleFullscreen"
+            :src="intoAllDisplayFlag ? intoAllDisplayWhite : intoAllDisplayGray"
+            @mousemove="
+              (intoAllDisplayFlag = true),
+                (videoLeave = true),
+                handlerCleanTime(),
+                (intoVideoAllDisplayFlag = true)
+            "
+            @mouseleave="
+              (intoAllDisplayFlag = false),
+                (videoLeave = false),
+                (intoVideoAllDisplayFlag = false)
+            "
+            class="up-video-play-bottom-video-intoAllDisplay"
+          />
+          <span
+            v-show="intoVideoAllDisplayFlag && !intoVideoAllDisplayIngFlag"
+            class="up-video-play-bottom-video-intoAllDisplay-text"
+            >进入全屏(f)</span
+          >
+          <span
+            :class="{
+              InfoIntoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
+            }"
+            v-show="intoVideoAllDisplayFlag && intoVideoAllDisplayIngFlag"
+            class="up-video-play-bottom-video-intoAllDisplay-text"
+            >退出全屏(f)</span
+          >
+          <div
+            v-show="videoFeatureShowFlag"
+            @mousemove="(videoLeave = true), handlerCleanTime()"
+            @mouseleave="videoLeave = false"
+            :class="{
+              falseContainerIntoVideoAllDisplayIngFlag:
+                intoVideoAllDisplayIngFlag,
+            }"
+            class="video-false-container"
+          ></div>
+          <!-- 弹幕 -->
+          <div v-show="!intoVideoAllDisplayIngFlag">
+            <div
+              @click="pausedOrPlayUpVideo"
+              class="scrolling-container"
+              v-for="scrolling in ScrollingDataList"
+              :key="scrolling.id"
             >
-            或
-            <span
-              style="color: #00aeec; cursor: pointer"
-              @click="
-                loginDialogVisibleFlag === 2
-                  ? (loginDialogVisibleFlag = 3)
-                  : (loginDialogVisibleFlag = 2)
-              "
-              >注册</span
-            ></span
+              <div
+                v-show="
+                  scrolling.videoTime <= upVideoPlayer.currentTime &&
+                  openOrCloseScrollingFlag &&
+                  scrollingDisplayTime(scrolling.videoTime) &&
+                  scrolling.location === 1 &&
+                  !scrollingRollOpenFlag &&
+                  scrollingDisplayFunction(scrolling.top)
+                "
+                class="scrolling-boder"
+                :style="{
+                  color: `${scrolling.color}`,
+                  fontSize:
+                    parseInt(scrollingDisplayFontSizeValue) >= 50
+                      ? `${
+                          scrolling.size *
+                          (1 +
+                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
+                        }px`
+                      : `${
+                          scrolling.size *
+                          (1 +
+                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
+                        }px`,
+                  top: `${scrolling.top}px`, //top是0-180px递增30 bottom 330-210px递增30 roll是0-330px随机
+                  animation: checkBoxOpenFlag
+                    ? `slideRight ${
+                        13 / sppedList[selectVideoSpped - 1]
+                      }s linear forwards`
+                    : `slideRight ${
+                        parseInt(scrollingDisplaySpeedValue) >= 50
+                          ? 13 /
+                            (1 + parseInt(scrollingDisplaySpeedValue - 50) / 100)
+                          : 13 /
+                            (1 + parseInt(scrollingDisplaySpeedValue - 50) / 100)
+                      }s linear forwards`,
+                  animationPlayState: !pausedOrPlayVideoFlag
+                    ? 'paused'
+                    : 'running',
+                  opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
+                  padding: scrolling.userId === store.userId ? '1px' : '0px',
+                  border:
+                    scrolling.userId === store.userId
+                      ? `1px solid #a7dacc`
+                      : 'none',
+                }"
+                :class="{
+                  scrollingLocationRoll: scrolling.location === 1,
+                }"
+              >
+                <span
+                  class="scrolling-content-container"
+                  @click.stop="copyScrolling(scrolling.content)"
+                  >{{ scrolling.content }}
+                </span>
+              </div>
+              <div
+                v-show="
+                  scrolling.videoTime <= upVideoPlayer.currentTime &&
+                  openOrCloseScrollingFlag &&
+                  scrolling.videoTime + 5 >= upVideoPlayer.currentTime &&
+                  scrolling.location === 2 &&
+                  !scrollingFilexdOpenFlag &&
+                  scrollingDisplayFunction(scrolling.top)
+                "
+                class="scrolling-boder"
+                :style="{
+                  color: `${scrolling.color}`,
+                  fontSize:
+                    parseInt(scrollingDisplayFontSizeValue) >= 50
+                      ? `${
+                          scrolling.size *
+                          (1 +
+                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
+                        }px`
+                      : `${
+                          scrolling.size *
+                          (1 +
+                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
+                        }px`,
+                  transform: `translate(0px, ${scrolling.top}px)`, //top是0-180px递增30 bottom 330-210px递增30 roll是0-330px随机
+                  opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
+                }"
+                :class="{
+                  scrollingLocationTop: scrolling.location === 2,
+                }"
+              >
+                <span
+                  class="scrolling-content-container"
+                  @click.stop="copyScrolling(scrolling.content)"
+                  >{{ scrolling.content }}
+                </span>
+              </div>
+              <div
+                v-show="
+                  scrolling.videoTime <= upVideoPlayer.currentTime &&
+                  openOrCloseScrollingFlag &&
+                  scrolling.videoTime + 5 >= upVideoPlayer.currentTime &&
+                  scrolling.location === 3 &&
+                  !scrollingFilexdOpenFlag &&
+                  scrollingDisplayFunction(scrolling.top)
+                "
+                class="scrolling-boder"
+                :style="{
+                  color: `${scrolling.color}`,
+                  fontSize:
+                    parseInt(scrollingDisplayFontSizeValue) >= 50
+                      ? `${
+                          scrolling.size *
+                          (1 +
+                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
+                        }px`
+                      : `${
+                          scrolling.size *
+                          (1 +
+                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
+                        }px`,
+                  transform: `translate(0px, ${scrolling.top}px)`, //top是0-180px递增30 bottom 330-210px递增30 roll是0-330px随机
+                  opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
+                }"
+                :class="{
+                  scrollingLocationBottom: scrolling.location === 3,
+                }"
+              >
+                <span
+                  class="scrolling-content-container"
+                  @click.stop="copyScrolling(scrolling.content)"
+                  >{{ scrolling.content }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <!-- 放大视频后的弹幕 -->
+          <div v-show="intoVideoAllDisplayIngFlag">
+            <div
+              @click="pausedOrPlayUpVideo"
+              class="scrolling-container"
+              v-for="scrolling in ScrollingDataList"
+              :key="scrolling.id"
+            >
+              <div
+                v-show="
+                  scrolling.videoTime <= upVideoPlayer.currentTime &&
+                  openOrCloseScrollingFlag &&
+                  scrollingDisplayTime(scrolling.videoTime) &&
+                  scrolling.location === 1 &&
+                  !scrollingRollOpenFlag &&
+                  scrollingDisplayFunction(scrolling.allDisplayTop)
+                "
+                class="scrolling-boder"
+                :style="{
+                  color: `${scrolling.color}`,
+                  fontSize:
+                    parseInt(scrollingDisplayFontSizeValue) >= 50
+                      ? `${
+                          scrolling.size *
+                          (1 +
+                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
+                        }px`
+                      : `${
+                          scrolling.size *
+                          (1 +
+                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
+                        }px`,
+                  top: `${scrolling.allDisplayTop}px`, //top是0-360px递增30 bottom 是750-390px递增25 roll是0-750px随机
+                  animation: checkBoxOpenFlag
+                    ? `slideRight1 ${
+                        16 / sppedList[selectVideoSpped - 1]
+                      }s linear forwards`
+                    : `slideRight1 ${
+                        parseInt(scrollingDisplaySpeedValue) >= 50
+                          ? 16 /
+                            (1 + parseInt(scrollingDisplaySpeedValue - 50) / 100)
+                          : 16 /
+                            (1 + parseInt(scrollingDisplaySpeedValue - 50) / 100)
+                      }s linear forwards`,
+                  animationPlayState: !pausedOrPlayVideoFlag
+                    ? 'paused'
+                    : 'running',
+                  opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
+                  padding: scrolling.userId === store.userId ? '1px' : '0px',
+                  border:
+                    scrolling.userId === store.userId
+                      ? `1px solid #a7dacc`
+                      : 'none',
+                }"
+                :class="{
+                  scrollingLocationRoll1: scrolling.location === 1,
+                }"
+              >
+                <span
+                  class="scrolling-content-container"
+                  @click.stop="copyScrolling(scrolling.content)"
+                  >{{ scrolling.content }}
+                </span>
+              </div>
+              <div
+                v-show="
+                  scrolling.videoTime <= upVideoPlayer.currentTime &&
+                  openOrCloseScrollingFlag &&
+                  scrolling.videoTime + 5 >= upVideoPlayer.currentTime &&
+                  scrolling.location === 2 &&
+                  !scrollingFilexdOpenFlag &&
+                  scrollingDisplayFunction(scrolling.allDisplayTop)
+                "
+                class="scrolling-boder"
+                :style="{
+                  color: `${scrolling.color}`,
+                  fontSize:
+                    parseInt(scrollingDisplayFontSizeValue) >= 50
+                      ? `${
+                          scrolling.size *
+                          (1 +
+                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
+                        }px`
+                      : `${
+                          scrolling.size *
+                          (1 +
+                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
+                        }px`,
+                  transform: `translate(0px, ${scrolling.allDisplayTop}px)`, //top是0-360px递增30 bottom 是750-390px递增25 roll是0-750px随机
+                  opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
+                }"
+                :class="{
+                  scrollingLocationTop1: scrolling.location === 2,
+                }"
+              >
+                <span
+                  class="scrolling-content-container"
+                  @click.stop="copyScrolling(scrolling.content)"
+                  >{{ scrolling.content }}
+                </span>
+              </div>
+              <div
+                v-show="
+                  scrolling.videoTime <= upVideoPlayer.currentTime &&
+                  openOrCloseScrollingFlag &&
+                  scrolling.videoTime + 5 >= upVideoPlayer.currentTime &&
+                  scrolling.location === 3 &&
+                  !scrollingFilexdOpenFlag &&
+                  scrollingDisplayFunction(scrolling.allDisplayTop)
+                "
+                class="scrolling-boder"
+                :style="{
+                  color: `${scrolling.color}`,
+                  fontSize:
+                    parseInt(scrollingDisplayFontSizeValue) >= 50
+                      ? `${
+                          scrolling.size *
+                          (1 +
+                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
+                        }px`
+                      : `${
+                          scrolling.size *
+                          (1 +
+                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
+                        }px`,
+                  transform: `translate(0px, ${scrolling.allDisplayTop}px)`, //top是0-360px递增30 bottom 是750-390px递增25 roll是0-750px随机
+                  opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
+                }"
+                :class="{
+                  scrollingLocationBottom1: scrolling.location === 3,
+                }"
+              >
+                <span
+                  class="scrolling-content-container"
+                  @click.stop="copyScrolling(scrolling.content)"
+                  >{{ scrolling.content }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <!-- 快捷键提示  -->
+          <div
+            :class="{ keyInfoAllDisplay: intoVideoAllDisplayIngFlag }"
+            v-show="keyInfo.length > 0"
+            class="key-info"
           >
-          <span style="transform: translate(234px, -1px)"
-            ><a
-              class="scrolling-regulation"
-              target="_blank"
-              href="https://www.bilibili.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
-              >弹幕礼仪 ></a
-            ></span
+            {{ keyInfo }}
+          </div>
+          <!-- 快捷键音量提示 -->
+          <div
+            :class="{ audioInfoAllDisplay: intoVideoAllDisplayIngFlag }"
+            v-show="audioInfoFlag"
+            class="audio-info"
           >
-          <span class="send-scrolling-btn-open" @click="sendScrollingAxios"
-            >发送</span
-          >
+            <img
+              class="img1"
+              v-show="parseInt(videoAudio) === 0"
+              :src="closeAudioBlack"
+            />
+            <img
+              class="img2"
+              v-show="parseInt(videoAudio) !== 0"
+              :src="audioBlack"
+            />
+            <span v-show="parseInt(videoAudio) !== 0">{{ videoAudio }}%</span>
+            <span v-show="parseInt(videoAudio) === 0">静音</span>
+          </div>
         </div>
-      </div>
-      <div
-        style="
-          width: 700px;
-          height: 5px;
-          background-color: white;
-          position: absolute;
-          transform: translate(10px, 77px);
-        "
-      ></div>
-      <!-- 三连 -->
-      <div class="up-video-controls-container">
-        <!-- 点赞 -->
-        <el-tooltip
-          popper-class="custom-tooltip"
-          class="dynamicContent-item-tooltip"
-          effect="light"
-          :show-after="300"
-          content="点赞（Q）"
-          placement="bottom"
-          :offset="14"
-          :show-arrow="false"
-          :hide-after="0"
-        >
-          <span
-            class="up-video-controls-span"
-            style="margin-left: 3px; margin-top: 3px"
-            @mousedown="startThree"
-            @mouseup="endThree(2)"
-            @mouseleave="startThree(1), (videoLikeHoverFlag = false)"
-            @mouseover="videoLikeHoverFlag = true"
+        <div v-show="shareHover&&!store.shareHover" class="video-share-container" @mouseover="shareHoverF(true)" @mouseleave="shareHoverF(false)"><videoShareC :shareHover="shareHover"/></div>
+        <!-- 发送弹幕 -->
+        <div class="up-video-play-bottom-video-scrolling-container">
+          <img
+            v-show="likeVideoImgFlag"
+            src="../img/视频点赞.gif"
+            class="up-video-controls-img0"
+          />
+          <span class="watch-num"
+            ><span style="font-size: 12px">{{ watchingNumber }}</span>
+            人正在看，已装填
+            {{ SelectVideoByIdVo.upVideo.scrollingNumber }} 条弹幕</span
           >
-            <div
-              class="up-video-controls-div1"
-              :class="{
-                dotDisplay: threeAnmationAfterFlag,
-                dotDisplay2: threeAnmationBeforeFlag,
-              }"
-            >
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-            </div>
-            <img
-              v-show="!likeVideoClickFlag"
-              class="up-video-controls-img1"
-              :class="{
-                threeAnmationBefore: threeAnmationBeforeFlag,
-                threeAnmationAfter: threeAnmationAfterFlag,
-              }"
-              :src="videoLikeHoverFlag ? likeVideoBlue : likeVideo"
-            />
-            <img
-              v-show="likeVideoClickFlag"
-              class="up-video-controls-img1"
-              :class="{
-                threeAnmationBefore: threeAnmationBeforeFlag,
-                threeAnmationAfter: threeAnmationAfterFlag,
-              }"
-              :src="likeVideoBlue"
-            />
-            <span
-              :class="{ likeVideoClickFlag: likeVideoClickFlag }"
-              class="up-video-controls-span1"
-              >{{ SelectVideoByIdVo.upVideo.likeNumber }}</span
-            >
-          </span>
-        </el-tooltip>
-        <!-- 投币 -->
-        <el-tooltip
-          popper-class="custom-tooltip"
-          class="dynamicContent-item-tooltip"
-          effect="light"
-          :show-after="300"
-          content="投币 （W）"
-          placement="bottom"
-          :offset="14"
-          :show-arrow="false"
-          :hide-after="0"
-        >
+          <!-- 打开或关闭弹幕  -->
+          <img
+            class="up-video-play-bottom-video-close-open-scrolling"
+            v-show="!openOrCloseScrollingFlag"
+            :src="
+              showCloseScrollingFlag ? closeScrollingBlue : closeScrollingGray
+            "
+            @mouseover="
+              (showCloseScrollingFlag = true),
+                (openOrCloseScrollingInfoFlag = true)
+            "
+            @mouseleave="
+              (showCloseScrollingFlag = false),
+                (openOrCloseScrollingInfoFlag = false)
+            "
+            @click="openOrCloseScrollingFlag = true"
+          />
           <span
-            class="up-video-controls-span"
-            style="margin-left: 76.5px; margin-top: 6px"
-            @mouseover="videoThrowCoinHoverFlag = true"
-            @mouseleave="videoThrowCoinHoverFlag = false"
-            @click="throwCoinDialog = true"
+            class="up-video-play-bottom-video-close-open-scrolling-info"
+            v-show="!openOrCloseScrollingFlag && openOrCloseScrollingInfoFlag"
+            >打开弹幕(d)</span
           >
-            <div
-              class="up-video-controls-div2"
-              :class="{
-                dotDisplay: threeAnmationAfterFlag,
-                dotDisplay2: threeAnmationBeforeFlag,
-              }"
-            >
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-            </div>
+          <img
+            class="up-video-play-bottom-video-open-close-scrolling"
+            v-show="openOrCloseScrollingFlag"
+            :src="showOpenScrollingFlag ? openScrollingBlue : openScrollingGray"
+            @mouseover="
+              (showOpenScrollingFlag = true),
+                (openOrCloseScrollingInfoFlag = true)
+            "
+            @mouseleave="
+              (showOpenScrollingFlag = false),
+                (openOrCloseScrollingInfoFlag = false)
+            "
+            @click="openOrCloseScrollingFlag = false"
+          />
+          <span
+            class="up-video-play-bottom-video-close-open-scrolling-info"
+            v-show="openOrCloseScrollingFlag && openOrCloseScrollingInfoFlag"
+            >关闭弹幕(d)</span
+          >
+          <!-- 弹幕设置 -->
+          <img
+            v-show="!openOrCloseScrollingFlag"
+            class="up-video-play-bottom-video-close-setting-scrolling"
+            :src="scrollingSettingGray"
+          />
+          <div
+            v-show="openOrCloseScrollingFlag"
+            class="up-video-play-bottom-video-setting-scrolling-container"
+          >
             <img
-              v-show="!videoThrowCoinClickFlag"
-              class="up-video-controls-img2"
-              :class="{
-                threeAnmationAfter: threeAnmationAfterFlag,
-              }"
+              class="up-video-play-bottom-video-setting-scrolling"
               :src="
-                videoThrowCoinHoverFlag ? videoThrowCoinBlue : videoThrowCoin
+                showScrollingSettingFlag
+                  ? scrollingSettingBlue
+                  : scrollingSettingGray
               "
+              @mouseover="showScrollingSettingFlag = true"
+              @mouseleave="showScrollingSettingFlag = false"
             />
-            <img
-              v-show="videoThrowCoinClickFlag"
-              class="up-video-controls-img2"
-              :class="{
-                threeAnmationAfter: threeAnmationAfterFlag,
-              }"
-              :src="videoThrowCoinBlue"
+            <div
+              class="up-video-play-bottom-video-setting-scrolling-info-container"
+            >
+              <span
+                style="
+                  position: absolute;
+                  transform: translate(18px, 10px);
+                  cursor: pointer;
+                  color: white;
+                "
+                >按类型屏蔽</span
+              >
+              <!-- 屏蔽滚动弹幕 -->
+              <div
+                class="roll-scrolling-container"
+                @mouseover="scrollingRollHoverFlag = true"
+                @mouseleave="scrollingRollHoverFlag = false"
+                @click="scrollingRollOpenFlag = !scrollingRollOpenFlag"
+              >
+                <img
+                  class="roll-scrolling-img"
+                  v-show="!scrollingRollOpenFlag"
+                  :src="
+                    scrollingRollHoverFlag
+                      ? scrollingRollWhite
+                      : scrollingRollGray
+                  "
+                />
+                <img
+                  class="roll-scrolling-img"
+                  v-show="scrollingRollOpenFlag"
+                  :src="hiddenRollScrollingBlue"
+                />
+                <span
+                  class="roll-scrolling-text"
+                  :class="{
+                    rollScrollingText: scrollingRollOpenFlag,
+                    scrollingRollHoverFlag: scrollingRollHoverFlag,
+                  }"
+                  >滚动</span
+                >
+              </div>
+              <!-- 屏蔽固定弹幕 -->
+              <div
+                class="fixed-scrolling-container"
+                @mouseover="scrollingFilexdHoverFlag = true"
+                @mouseleave="scrollingFilexdHoverFlag = false"
+                @click="scrollingFilexdOpenFlag = !scrollingFilexdOpenFlag"
+              >
+                <img
+                  class="fixed-scrolling-img"
+                  v-show="!scrollingFilexdOpenFlag"
+                  :src="
+                    scrollingFilexdHoverFlag
+                      ? hiddenScrollingFiexdWhite
+                      : hiddenScrollingFiexdGray
+                  "
+                />
+                <img
+                  class="fixed-scrolling-img"
+                  v-show="scrollingFilexdOpenFlag"
+                  :src="hiddenScrollingFiexdBlue"
+                />
+                <span
+                  class="fixed-scrolling-text"
+                  :class="{
+                    fixedScrollingText: scrollingFilexdOpenFlag,
+                    scrollingFilexdHoverFlag: scrollingFilexdHoverFlag,
+                  }"
+                  >固定</span
+                >
+              </div>
+              <!-- 勾选设置  -->
+              <div
+                class="chckbox-container"
+                @mouseover="checkBoxHoverFlag = true"
+                @mouseleave="checkBoxHoverFlag = false"
+                @click="checkBoxOpenFlag = !checkBoxOpenFlag"
+              >
+                <img
+                  class="setting-scrolling-checkbox"
+                  v-show="!checkBoxOpenFlag"
+                  :src="checkBoxHoverFlag ? checkBoxBlue : checkBoxWhite"
+                />
+                <img
+                  class="setting-scrolling-checkbox"
+                  v-show="checkBoxOpenFlag"
+                  :src="checkBoxs"
+                />
+                <span
+                  class="setting-scrolling-text"
+                  :class="{ checkBoxHoverFlag: checkBoxHoverFlag }"
+                  >弹幕速度同步播放倍数</span
+                >
+              </div>
+              <!-- 滑块属性值设置 -->
+              <div class="scrolling-slider-container">
+                <div>
+                  <span>显示区域</span>
+                  <input
+                    id="volume"
+                    class="scrolling-display-slider"
+                    :class="{
+                      scrollingDisplayAreaValue:
+                        parseInt(scrollingDisplayAreaValue) === 0,
+                      scrollingDisplayAreaValue1:
+                        parseInt(scrollingDisplayAreaValue) === 25,
+                      scrollingDisplayAreaValue2:
+                        parseInt(scrollingDisplayAreaValue) === 50,
+                      scrollingDisplayAreaValue3:
+                        parseInt(scrollingDisplayAreaValue) === 75,
+                    }"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="25"
+                    v-model="scrollingDisplayAreaValue"
+                  />
+                  <span
+                    class="silder-pointer1"
+                    @click="scrollingDisplayAreaValue = '0'"
+                  ></span
+                  ><span
+                    class="silder-pointer2"
+                    @click="scrollingDisplayAreaValue = '25'"
+                  ></span
+                  ><span
+                    class="silder-pointer3"
+                    @click="scrollingDisplayAreaValue = '50'"
+                  ></span
+                  ><span
+                    class="silder-pointer4"
+                    @click="scrollingDisplayAreaValue = '75'"
+                  ></span
+                  ><span
+                    class="silder-pointer5"
+                    @click="scrollingDisplayAreaValue = '100'"
+                  ></span>
+                  <span
+                    style="
+                      position: absolute;
+                      transform: translate(200px, 1px);
+                      color: #d2d3d0;
+                      word-break: normal !important;
+                    "
+                    >{{ scrollingDisplayAreaValue }}%</span
+                  >
+                </div>
+                <div>
+                  <span>不透明度</span>
+                  <input
+                    id="volume"
+                    class="scrolling-display-slider"
+                    :style="{
+                      background: `linear-gradient(to right, #00aeec ${scrollingDisplayOpacityValue}%, #424242 ${scrollingDisplayOpacityValue}%, #424242 170px)`,
+                    }"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    v-model="scrollingDisplayOpacityValue"
+                  />
+                  <span
+                    style="
+                      position: absolute;
+                      transform: translate(200px, 1px);
+                      color: #d2d3d0;
+                      word-break: normal !important;
+                    "
+                    >{{ scrollingDisplayOpacityValue }}%</span
+                  >
+                </div>
+                <div>
+                  <span>弹幕字号</span>
+                  <input
+                    id="volume"
+                    class="scrolling-display-slider"
+                    :style="{
+                      background: `linear-gradient(to right, #00aeec ${scrollingDisplayFontSizeValue}%, #424242 ${scrollingDisplayFontSizeValue}%, #424242 170px)`,
+                    }"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    v-model="scrollingDisplayFontSizeValue"
+                  />
+                  <span
+                    style="
+                      position: absolute;
+                      transform: translate(200px, 1px);
+                      color: #d2d3d0;
+                      word-break: normal !important;
+                    "
+                    >{{ scrollingDisplayFontSizeValue }}%</span
+                  >
+                </div>
+                <div v-show="!checkBoxOpenFlag">
+                  <span>弹幕速度</span>
+                  <input
+                    id="volume"
+                    class="scrolling-display-slider"
+                    :class="{
+                      scrollingDisplayAreaValue:
+                        scrollingDisplaySpeedValue === '0',
+                      scrollingDisplayAreaValue1:
+                        scrollingDisplaySpeedValue === '25',
+                      scrollingDisplayAreaValue2:
+                        scrollingDisplaySpeedValue === '50' ||
+                        scrollingDisplaySpeedValue === 50,
+                      scrollingDisplayAreaValue3:
+                        scrollingDisplaySpeedValue === '75',
+                      scrollingDisplayAreaValue4:
+                        scrollingDisplaySpeedValue === '100',
+                    }"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="25"
+                    v-model="scrollingDisplaySpeedValue"
+                  />
+                  <span
+                    class="silder-pointer1"
+                    @click="scrollingDisplayAreaValue = '0'"
+                  ></span
+                  ><span
+                    class="silder-pointer2"
+                    @click="scrollingDisplaySpeedValue = '25'"
+                  ></span
+                  ><span
+                    class="silder-pointer3"
+                    @click="scrollingDisplaySpeedValue = '50'"
+                  ></span
+                  ><span
+                    class="silder-pointer4"
+                    @click="scrollingDisplaySpeedValue = '75'"
+                  ></span
+                  ><span
+                    class="silder-pointer5"
+                    @click="scrollingDisplaySpeedValue = '100'"
+                  ></span>
+                  <span
+                    v-show="scrollingDisplaySpeedValue === '0'"
+                    style="
+                      position: absolute;
+                      transform: translate(200px, 1px);
+                      color: #d2d3d0;
+                      width: 24px;
+                    "
+                    >极慢</span
+                  >
+                  <span
+                    v-show="scrollingDisplaySpeedValue === '25'"
+                    style="
+                      position: absolute;
+                      transform: translate(200px, 1px);
+                      color: #d2d3d0;
+                      width: 24px;
+                    "
+                    >较慢</span
+                  >
+                  <span
+                    v-show="
+                      scrollingDisplaySpeedValue === '50' ||
+                      scrollingDisplaySpeedValue === 50
+                    "
+                    style="
+                      position: absolute;
+                      transform: translate(200px, 1px);
+                      color: #d2d3d0;
+                      width: 24px;
+                    "
+                    >正常</span
+                  >
+                  <span
+                    v-show="scrollingDisplaySpeedValue === '75'"
+                    style="
+                      position: absolute;
+                      transform: translate(200px, 1px);
+                      color: #d2d3d0;
+                      width: 24px;
+                    "
+                    >较快</span
+                  >
+                  <span
+                    v-show="scrollingDisplaySpeedValue === '100'"
+                    style="
+                      position: absolute;
+                      transform: translate(200px, 1px);
+                      color: #d2d3d0;
+                      width: 24px;
+                    "
+                    >极快</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 关闭 发送弹幕区域 -->
+          <div
+            v-show="!openOrCloseScrollingFlag"
+            class="up-video-play-bottom-video-close-scrolling-container"
+          >
+            <span
+              :style="{ opacity: store.userId === null ? 0 : 1 }"
+              style="color: #999999"
+              >已关闭弹幕</span
+            >
+            <span
+              v-show="store.userId === null"
+              style="color: #999999; position: absolute"
+              >请先
+              <span
+                style="color: #00aeec; cursor: pointer"
+                @click="
+                  loginDialogVisibleFlag === 0
+                    ? (loginDialogVisibleFlag = 1)
+                    : (loginDialogVisibleFlag = 0)
+                "
+                >登录</span
+              >
+              或
+              <span
+                style="color: #00aeec; cursor: pointer"
+                @click="
+                  loginDialogVisibleFlag === 2
+                    ? (loginDialogVisibleFlag = 3)
+                    : (loginDialogVisibleFlag = 2)
+                "
+                >注册</span
+              ></span
+            >
+            <span style="transform: translate(187px, -1px)"
+              ><a
+                class="scrolling-regulation"
+                target="_blank"
+                href="https://www.bilibili.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
+                >弹幕礼仪 ></a
+              ></span
+            >
+            <span class="send-scrolling-btn-close">发送</span>
+          </div>
+          <!-- 打开 发送弹幕区域 -->
+          <div
+            v-show="openOrCloseScrollingFlag"
+            class="up-video-play-bottom-video-open-scrolling-container"
+          >
+            <div
+              class="up-video-play-bottom-video-open-scrolling-color-container"
+              :style="{ opacity: store.userId === null ? 0 : 1 }"
+            >
+              <img
+                class="up-video-play-bottom-video-close-scrolling-color"
+                :src="
+                  showScrollingColorFlag ? scrollingColorBlue : scrollingColorGray
+                "
+                @mouseover="showScrollingColorFlag = true"
+                @mouseleave="showScrollingColorFlag = false"
+              />
+              <div
+                :class="{ predefineColorsHoverFlag: predefineColorsHoverFlag }"
+                class="up-video-play-bottom-video-open-scrolling-color-info-container"
+              >
+                <span>字号</span>
+                <div
+                  class="up-video-play-bottom-video-open-scrolling-color-info-container-font"
+                >
+                  <span
+                    class="ss"
+                    v-show="sendScrollingFontSize !== 16"
+                    style="margin-right: 5px"
+                    @click="sendScrollingFontSize = 16"
+                    >小</span
+                  >
+                  <span
+                    v-show="sendScrollingFontSize === 16"
+                    style="margin-right: 5px; background-color: #00aeec"
+                    @click="sendScrollingFontSize = 16"
+                    >小</span
+                  >
+                  <span
+                    class="ss"
+                    v-show="sendScrollingFontSize !== 20"
+                    style="margin-left: 5px"
+                    @click="sendScrollingFontSize = 20"
+                    >标准</span
+                  >
+                  <span
+                    v-show="sendScrollingFontSize === 20"
+                    style="margin-left: 5px; background-color: #00aeec"
+                    @click="sendScrollingFontSize = 20"
+                    >标准</span
+                  >
+                </div>
+                <div style="margin-top: 15px">模式</div>
+                <div
+                  class="up-video-play-bottom-video-open-scrolling-color-info-container-pattern"
+                >
+                  <div class="scrolling-pattern-roll-container">
+                    <img
+                      class="aa"
+                      v-show="scrollingPattern !== 1"
+                      :src="
+                        scrollingRollHoverFlag
+                          ? scrollingRollWhite
+                          : scrollingRollGray
+                      "
+                      @mouseover="scrollingRollHoverFlag = true"
+                      @mouseleave="scrollingRollHoverFlag = false"
+                      @click="scrollingPattern = 1"
+                    />
+                    <img
+                      style="width: 24.5px; height: 22px"
+                      v-show="scrollingPattern === 1"
+                      :src="scrollingRollBlue"
+                    />
+                    <div
+                      v-show="scrollingPattern !== 1"
+                      class="cc"
+                      @click="scrollingPattern = 1"
+                    >
+                      滚动
+                    </div>
+                    <div class="cc2" v-show="scrollingPattern === 1">滚动</div>
+                  </div>
+                  <div class="scrolling-pattern-top-container">
+                    <img
+                      class="aa"
+                      v-show="scrollingPattern !== 2"
+                      :src="
+                        scrollingTopHoverFlag
+                          ? hiddenScrollingFiexdWhite
+                          : hiddenScrollingFiexdGray
+                      "
+                      @mouseover="scrollingTopHoverFlag = true"
+                      @mouseleave="scrollingTopHoverFlag = false"
+                      @click="scrollingPattern = 2"
+                    />
+                    <img
+                      style="width: 25px; height: 22px"
+                      v-show="scrollingPattern === 2"
+                      :src="topScrollingBlue"
+                    />
+                    <div
+                      v-show="scrollingPattern !== 2"
+                      class="cc"
+                      @click="scrollingPattern = 2"
+                    >
+                      顶部
+                    </div>
+                    <div class="cc2" v-show="scrollingPattern === 2">顶部</div>
+                  </div>
+                  <div class="scrolling-pattern-bottom-container">
+                    <img
+                      class="aa"
+                      v-show="scrollingPattern !== 3"
+                      :src="
+                        scrollingBottomHoverFlag
+                          ? bottomScrollingWhite
+                          : bottomScrollingGray
+                      "
+                      @mouseover="scrollingBottomHoverFlag = true"
+                      @mouseleave="scrollingBottomHoverFlag = false"
+                      @click="scrollingPattern = 3"
+                    />
+                    <img
+                      style="width: 24.5px; height: 22px"
+                      v-show="scrollingPattern === 3"
+                      :src="bottomScrollingBlue"
+                    />
+                    <div
+                      class="cc"
+                      v-show="scrollingPattern !== 3"
+                      @click="scrollingPattern = 3"
+                    >
+                      底部
+                    </div>
+                    <div class="cc2" v-show="scrollingPattern === 3">底部</div>
+                  </div>
+                  <div style="transform: translate(0px, 60px)">颜色</div>
+                  <el-color-picker
+                    class="scrolling-color-picker"
+                    v-model="sendScrollingColor"
+                    :sizeshow-alpha="false"
+                    :predefine="predefineColors"
+                  />
+                </div>
+              </div>
+            </div>
+            <input
+              class="up-video-play-bottom-video-close-scrolling-input"
+              :style="{ opacity: store.userId === null ? 0 : 1 }"
+              type="text"
+              maxlength="50"
+              @focus="sendScrollingInputStatus = true"
+              @blur="sendScrollingInputStatus = false"
+              v-model="sendScrollingText"
+              @keydown.enter="sendScrollingAxios"
+              placeholder="发个友善的弹幕见证当下"
             />
             <span
-              :class="{ videoThrowCoinClickFlag: videoThrowCoinClickFlag }"
-              class="up-video-controls-span2"
-              >{{ SelectVideoByIdVo.upVideo.coinThrowNumber }}</span
+              v-show="store.userId === null"
+              style="color: #999999; position: absolute"
+              >请先
+              <span
+                style="color: #00aeec; cursor: pointer"
+                @click="
+                  loginDialogVisibleFlag === 0
+                    ? (loginDialogVisibleFlag = 1)
+                    : (loginDialogVisibleFlag = 0)
+                "
+                >登录</span
+              >
+              或
+              <span
+                style="color: #00aeec; cursor: pointer"
+                @click="
+                  loginDialogVisibleFlag === 2
+                    ? (loginDialogVisibleFlag = 3)
+                    : (loginDialogVisibleFlag = 2)
+                "
+                >注册</span
+              ></span
             >
-            <!-- 投币对话框 -->
-            <el-dialog
-              v-model="throwCoinDialog"
-              append-to-body
-              width="430"
-              align-center
-              class="throwCoinDialog"
+            <span style="transform: translate(234px, -1px)"
+              ><a
+                class="scrolling-regulation"
+                target="_blank"
+                href="https://www.bilibili.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
+                >弹幕礼仪 ></a
+              ></span
             >
-              <template #footer>
-                <div class="throw-coin-dialog-content">
-                  <div v-show="throwCoinNumber === 1" class="throw-coin-title">
-                    给UP主投上<span>1</span>枚硬币
-                  </div>
-                  <div v-show="throwCoinNumber === 2" class="throw-coin-title">
-                    给UP主投上<span>2</span>枚硬币
-                  </div>
-                  <div
-                    :class="{
-                      throwCoinNumberConten1: throwCoinNumber === 1,
-                      throwCoinNumberContenImg1: throwCoinNumber === 2,
-                    }"
-                    @click="throwCoinNumber = 1"
-                    class="throw-coin-img-content1"
-                  >
-                    <span>1硬币</span>
-                    <div class="overlay1"></div>
-                    <img
-                      class="img-static"
-                      v-show="throwCoinNumber === 2"
-                      src="../img/22-coin-ani-static.png"
-                    />
-                    <div class="overlay2"></div>
-                  </div>
-                  <div
-                    :class="{
-                      throwCoinNumberConten2: throwCoinNumber === 2,
-                      throwCoinNumberContenImg2: throwCoinNumber === 1,
-                    }"
-                    @click="throwCoinNumber = 2"
-                    class="throw-coin-img-content2"
-                  >
-                    <span>2硬币</span>
-                    <div class="overlay1"></div>
-                    <img
-                      class="img-static"
-                      v-show="throwCoinNumber === 1"
-                      src="../img/33-coin-ani-static.png"
-                    />
-                    <div class="overlay2"></div>
-                  </div>
+            <span class="send-scrolling-btn-open" @click="sendScrollingAxios"
+              >发送</span
+            >
+          </div>
+        </div>
+        <div
+          style="
+            width: 700px;
+            height: 5px;
+            background-color: white;
+            position: absolute;
+            transform: translate(10px, 77px);
+          "
+        ></div>
+        <!-- 三连 -->
+        <div class="up-video-controls-container">
+          <!-- 点赞 -->
+          <el-tooltip
+            popper-class="custom-tooltip"
+            class="dynamicContent-item-tooltip"
+            effect="light"
+            :show-after="300"
+            content="点赞（Q）"
+            placement="bottom"
+            :offset="14"
+            :show-arrow="false"
+            :hide-after="0"
+          >
+            <span
+              class="up-video-controls-span"
+              style="margin-left: 3px; margin-top: 3px"
+              @mousedown="startThree"
+              @mouseup="endThree(2)"
+              @mouseleave="startThree(1), (videoLikeHoverFlag = false)"
+              @mouseover="videoLikeHoverFlag = true"
+            >
+              <div
+                class="up-video-controls-div1"
+                :class="{
+                  dotDisplay: threeAnmationAfterFlag,
+                  dotDisplay2: threeAnmationBeforeFlag,
+                }"
+              >
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+              </div>
+              <img
+                v-show="!likeVideoClickFlag"
+                class="up-video-controls-img1"
+                :class="{
+                  threeAnmationBefore: threeAnmationBeforeFlag,
+                  threeAnmationAfter: threeAnmationAfterFlag,
+                }"
+                :src="videoLikeHoverFlag ? likeVideoBlue : likeVideo"
+              />
+              <img
+                v-show="likeVideoClickFlag"
+                class="up-video-controls-img1"
+                :class="{
+                  threeAnmationBefore: threeAnmationBeforeFlag,
+                  threeAnmationAfter: threeAnmationAfterFlag,
+                }"
+                :src="likeVideoBlue"
+              />
+              <span
+                :class="{ likeVideoClickFlag: likeVideoClickFlag }"
+                class="up-video-controls-span1"
+                >{{ SelectVideoByIdVo.upVideo.likeNumber }}</span
+              >
+            </span>
+          </el-tooltip>
+          <!-- 投币 -->
+          <el-tooltip
+            popper-class="custom-tooltip"
+            class="dynamicContent-item-tooltip"
+            effect="light"
+            :show-after="300"
+            content="投币 （W）"
+            placement="bottom"
+            :offset="14"
+            :show-arrow="false"
+            :hide-after="0"
+          >
+            <span
+              class="up-video-controls-span"
+              style="margin-left: 76.5px; margin-top: 6px"
+              @mouseover="videoThrowCoinHoverFlag = true"
+              @mouseleave="videoThrowCoinHoverFlag = false"
+              @click="throwCoinDialog = true"
+            >
+              <div
+                class="up-video-controls-div2"
+                :class="{
+                  dotDisplay: threeAnmationAfterFlag,
+                  dotDisplay2: threeAnmationBeforeFlag,
+                }"
+              >
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+              </div>
+              <img
+                v-show="!videoThrowCoinClickFlag"
+                class="up-video-controls-img2"
+                :class="{
+                  threeAnmationAfter: threeAnmationAfterFlag,
+                }"
+                :src="
+                  videoThrowCoinHoverFlag ? videoThrowCoinBlue : videoThrowCoin
+                "
+              />
+              <img
+                v-show="videoThrowCoinClickFlag"
+                class="up-video-controls-img2"
+                :class="{
+                  threeAnmationAfter: threeAnmationAfterFlag,
+                }"
+                :src="videoThrowCoinBlue"
+              />
+              <span
+                :class="{ videoThrowCoinClickFlag: videoThrowCoinClickFlag }"
+                class="up-video-controls-span2"
+                >{{ SelectVideoByIdVo.upVideo.coinThrowNumber }}</span
+              >
+              <!-- 投币对话框 -->
+              <el-dialog
+                v-model="throwCoinDialog"
+                append-to-body
+                width="430"
+                align-center
+                class="throwCoinDialog"
+              >
+                <template #footer>
+                  <div class="throw-coin-dialog-content">
+                    <div v-show="throwCoinNumber === 1" class="throw-coin-title">
+                      给UP主投上<span>1</span>枚硬币
+                    </div>
+                    <div v-show="throwCoinNumber === 2" class="throw-coin-title">
+                      给UP主投上<span>2</span>枚硬币
+                    </div>
+                    <div
+                      :class="{
+                        throwCoinNumberConten1: throwCoinNumber === 1,
+                        throwCoinNumberContenImg1: throwCoinNumber === 2,
+                      }"
+                      @click="throwCoinNumber = 1"
+                      class="throw-coin-img-content1"
+                    >
+                      <span>1硬币</span>
+                      <div class="overlay1"></div>
+                      <img
+                        class="img-static"
+                        v-show="throwCoinNumber === 2"
+                        src="../img/22-coin-ani-static.png"
+                      />
+                      <div class="overlay2"></div>
+                    </div>
+                    <div
+                      :class="{
+                        throwCoinNumberConten2: throwCoinNumber === 2,
+                        throwCoinNumberContenImg2: throwCoinNumber === 1,
+                      }"
+                      @click="throwCoinNumber = 2"
+                      class="throw-coin-img-content2"
+                    >
+                      <span>2硬币</span>
+                      <div class="overlay1"></div>
+                      <img
+                        class="img-static"
+                        v-show="throwCoinNumber === 1"
+                        src="../img/33-coin-ani-static.png"
+                      />
+                      <div class="overlay2"></div>
+                    </div>
 
-                  <div
-                    @click="likeVideoFlag = !likeVideoFlag"
-                    class="throw-coin-check-box"
-                  >
-                    <img v-show="!likeVideoFlag" src="../img/投币复选框.svg" />
-                    <img
-                      v-show="likeVideoFlag"
-                      src="../img/投币复选框选中.svg"
-                    />
-                    <span>同时点赞内容</span>
-                  </div>
+                    <div
+                      @click="likeVideoFlag = !likeVideoFlag"
+                      class="throw-coin-check-box"
+                    >
+                      <img v-show="!likeVideoFlag" src="../img/投币复选框.svg" />
+                      <img
+                        v-show="likeVideoFlag"
+                        src="../img/投币复选框选中.svg"
+                      />
+                      <span>同时点赞内容</span>
+                    </div>
 
-                  <el-button
-                    class="throw-coin-submit"
-                    @click="videoThrowCoinAxios"
+                    <el-button
+                      class="throw-coin-submit"
+                      @click="videoThrowCoinAxios"
+                    >
+                      确定
+                    </el-button>
+
+                    <div class="throw-coin-fotter">经验值+20</div>
+                  </div>
+                </template>
+              </el-dialog>
+            </span>
+          </el-tooltip>
+          <!-- 收藏 -->
+          <el-tooltip
+            popper-class="custom-tooltip"
+            class="dynamicContent-item-tooltip"
+            effect="light"
+            :show-after="300"
+            content="收藏 （E）"
+            placement="bottom"
+            :offset="14"
+            :show-arrow="false"
+            :hide-after="0"
+          >
+            <span
+              class="up-video-controls-span"
+              style="margin-left: 77px; margin-top: 6px"
+              @mouseover="videoCollectHoverFlag = true"
+              @mouseleave="videoCollectHoverFlag = false"
+              @click="collectDialogVisible = true"
+            >
+              <div
+                class="up-video-controls-div3"
+                :class="{
+                  dotDisplay: threeAnmationAfterFlag,
+                  dotDisplay2: threeAnmationBeforeFlag,
+                }"
+              >
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+              </div>
+              <img
+                v-show="!videoCollectClickFlag"
+                class="up-video-controls-img3"
+                :class="{
+                  threeAnmationAfter: threeAnmationAfterFlag,
+                }"
+                :src="videoCollectHoverFlag ? videoCollectBlue : videoCollect"
+              />
+              <img
+                v-show="videoCollectClickFlag"
+                class="up-video-controls-img3"
+                :class="{
+                  threeAnmationAfter: threeAnmationAfterFlag,
+                }"
+                :src="videoCollectBlue"
+              />
+              <span
+                :class="{ videoCollectClickFlag: videoCollectClickFlag }"
+                class="up-video-controls-span3"
+                >{{ SelectVideoByIdVo.upVideo.collectNumber }}</span
+              >
+              <!-- 收藏对话框 -->
+              <el-dialog
+                v-model="collectDialogVisible"
+                width="420.5"
+                center
+                append-to-body
+                class="collect-dialog"
+              >
+                <div class="collect-dialog-title">添加到收藏夹</div>
+                <template #footer>
+                  <div
+                    class="collect-list-container"
+                    @click="collectInputButtonFlag = false"
+                  >
+                    <div
+                      class="collect-list-item"
+                      v-for="collectInfo in collectInfoList"
+                      :key="collectInfo.id"
+                      @mouseover="collectCheckBoxHoverFlag = collectInfo.id"
+                      @mouseleave="collectCheckBoxHoverFlag = collectInfo.id"
+                      @click="addCollectVideo(collectInfo)"
+                    >
+                      <div>
+                        <img
+                          v-show="!collectInfo.flag"
+                          class="collect-list-item-img"
+                          :src="
+                            collectCheckBoxHoverFlag === collectInfo.id
+                              ? collectCheckBoxBlue
+                              : collectCheckBox
+                          "
+                        />
+                        <img
+                          v-show="collectInfo.flag"
+                          class="collect-list-item-img"
+                          src="../img/收藏复选框勾选.png"
+                        />
+                        <span class="collect-list-item-name">{{
+                          collectInfo.collectName
+                        }}<span v-if="!collectInfo.status" class="collect-unPublic">[私密]</span></span>
+                        <span class="collect-list-item-num"
+                          >{{ collectInfo.videoNumber }}
+                          <span v-show="collectInfo.collectName !== `默认收藏夹`"
+                            >/1000</span
+                          >
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    v-show="!collectInputButtonFlag"
+                    @click="collectInputButtonFlag = true"
+                    class="dialog-footer-input-container"
+                  >
+                    <img src="../img/新建收藏.png" />
+                    <span>新建收藏夹</span>
+                  </div>
+                  <div
+                    v-show="collectInputButtonFlag"
+                    class="dialog-footer-input-container1"
+                  >
+                    <input
+                      ref="collectInputRef"
+                      class="dialog-footer-input"
+                      maxlength="20"
+                      v-model="collectName"
+                      placeholder="最多可输入20个字"
+                      @keydown.enter="addCollect"
+                      type="text"
+                    />
+                    <span class="dialog-footer-input-btn" @click="addCollect"
+                      >新建
+                      <div
+                        v-show="newCreateCollectInfoFlag"
+                        class="new-create-collect-info"
+                      >
+                        {{ newCreateCollectInfoContent }}
+                      </div>
+                    </span>
+                  </div>
+                  <div v-show="!collectSubimtFlag" class="dialog-footer-item">
+                    确定
+                  </div>
+                  <div
+                    v-show="collectSubimtFlag"
+                    class="dialog-footer-item1"
+                    @click="addCollectVideoAxios"
                   >
                     确定
-                  </el-button>
-
-                  <div class="throw-coin-fotter">经验值+20</div>
-                </div>
-              </template>
-            </el-dialog>
-          </span>
-        </el-tooltip>
-        <!-- 收藏 -->
-        <el-tooltip
-          popper-class="custom-tooltip"
-          class="dynamicContent-item-tooltip"
-          effect="light"
-          :show-after="300"
-          content="收藏 （E）"
-          placement="bottom"
-          :offset="14"
-          :show-arrow="false"
-          :hide-after="0"
-        >
-          <span
-            class="up-video-controls-span"
-            style="margin-left: 77px; margin-top: 6px"
-            @mouseover="videoCollectHoverFlag = true"
-            @mouseleave="videoCollectHoverFlag = false"
-            @click="collectDialogVisible = true"
-          >
-            <div
-              class="up-video-controls-div3"
-              :class="{
-                dotDisplay: threeAnmationAfterFlag,
-                dotDisplay2: threeAnmationBeforeFlag,
-              }"
-            >
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-            </div>
-            <img
-              v-show="!videoCollectClickFlag"
-              class="up-video-controls-img3"
-              :class="{
-                threeAnmationAfter: threeAnmationAfterFlag,
-              }"
-              :src="videoCollectHoverFlag ? videoCollectBlue : videoCollect"
-            />
-            <img
-              v-show="videoCollectClickFlag"
-              class="up-video-controls-img3"
-              :class="{
-                threeAnmationAfter: threeAnmationAfterFlag,
-              }"
-              :src="videoCollectBlue"
-            />
-            <span
-              :class="{ videoCollectClickFlag: videoCollectClickFlag }"
-              class="up-video-controls-span3"
-              >{{ SelectVideoByIdVo.upVideo.collectNumber }}</span
-            >
-            <!-- 收藏对话框 -->
-            <el-dialog
-              v-model="collectDialogVisible"
-              width="420.5"
-              center
-              append-to-body
-              class="collect-dialog"
-            >
-              <div class="collect-dialog-title">添加到收藏夹</div>
-              <template #footer>
-                <div
-                  class="collect-list-container"
-                  @click="collectInputButtonFlag = false"
-                >
-                  <div
-                    class="collect-list-item"
-                    v-for="collectInfo in collectInfoList"
-                    :key="collectInfo.id"
-                    @mouseover="collectCheckBoxHoverFlag = collectInfo.id"
-                    @mouseleave="collectCheckBoxHoverFlag = collectInfo.id"
-                    @click="addCollectVideo(collectInfo)"
-                  >
-                    <div>
-                      <img
-                        v-show="!collectInfo.flag"
-                        class="collect-list-item-img"
-                        :src="
-                          collectCheckBoxHoverFlag === collectInfo.id
-                            ? collectCheckBoxBlue
-                            : collectCheckBox
-                        "
-                      />
-                      <img
-                        v-show="collectInfo.flag"
-                        class="collect-list-item-img"
-                        src="../img/收藏复选框勾选.png"
-                      />
-                      <span class="collect-list-item-name">{{
-                        collectInfo.collectName
-                      }}<span v-if="!collectInfo.status" class="collect-unPublic">[私密]</span></span>
-                      <span class="collect-list-item-num"
-                        >{{ collectInfo.videoNumber }}
-                        <span v-show="collectInfo.collectName !== `默认收藏夹`"
-                          >/1000</span
-                        >
-                      </span>
-                    </div>
                   </div>
-                </div>
-                <div
-                  v-show="!collectInputButtonFlag"
-                  @click="collectInputButtonFlag = true"
-                  class="dialog-footer-input-container"
-                >
-                  <img src="../img/新建收藏.png" />
-                  <span>新建收藏夹</span>
-                </div>
-                <div
-                  v-show="collectInputButtonFlag"
-                  class="dialog-footer-input-container1"
-                >
-                  <input
-                    ref="collectInputRef"
-                    class="dialog-footer-input"
-                    maxlength="20"
-                    v-model="collectName"
-                    placeholder="最多可输入20个字"
-                    @keydown.enter="addCollect"
-                    type="text"
-                  />
-                  <span class="dialog-footer-input-btn" @click="addCollect"
-                    >新建
-                    <div
-                      v-show="newCreateCollectInfoFlag"
-                      class="new-create-collect-info"
-                    >
-                      {{ newCreateCollectInfoContent }}
-                    </div>
-                  </span>
-                </div>
-                <div v-show="!collectSubimtFlag" class="dialog-footer-item">
-                  确定
-                </div>
-                <div
-                  v-show="collectSubimtFlag"
-                  class="dialog-footer-item1"
-                  @click="addCollectVideoAxios"
-                >
-                  确定
-                </div>
-              </template>
-            </el-dialog>
-          </span>
-        </el-tooltip>
-        <!-- 分享 -->
-        <span
-            class="up-video-controls-span"
-            @click="shareHoverF2"
-            style="margin-left: 76.5px; margin-top: 7px"
-            @mouseover="videoShareHoverFlag = true"
-            @mouseleave="videoShareHoverFlag = false,shareHoverF(false)"
-          >
-            <img
-              v-show="!videoShareClickFlag"
-              class="up-video-controls-img4"
-              :src="videoShareHoverFlag ? videoShareBlue : videoShare"
-            />
-            <img
-              v-show="videoShareClickFlag"
-              class="up-video-controls-img4"
-              :src="videoShareBlue"
-            />
-            <span
-              class="up-video-controls-span4"
-              :class="{ videoShareClickFlag: videoShareClickFlag }"
-              >{{ SelectVideoByIdVo.upVideo.shareNumber }}</span
+                </template>
+              </el-dialog>
+            </span>
+          </el-tooltip>
+          <!-- 分享 -->
+          <span
+              class="up-video-controls-span"
+              @click="shareHoverF2"
+              style="margin-left: 76.5px; margin-top: 7px"
+              @mouseover="videoShareHoverFlag = true"
+              @mouseleave="videoShareHoverFlag = false,shareHoverF(false)"
             >
-        </span>
-      </div>
-      <div
-        class="addWaitWatch"
-        @mouseover="addWaitWatchHoverFlag = true"
-        @mouseleave="addWaitWatchHoverFlag = false"
-      >
-        <img
-          class="wait-img"
-          :src="addWaitWatchHoverFlag ? addWaitWatchBlue : addWaitWatch"
-        />
-        <div class="wait-watch-info" @click="waitWatchAxios">
-          <img src="../img/稍后再看灰.png" />
-          <span>稍后再看</span>
+              <img
+                v-show="!videoShareClickFlag"
+                class="up-video-controls-img4"
+                :src="videoShareHoverFlag ? videoShareBlue : videoShare"
+              />
+              <img
+                v-show="videoShareClickFlag"
+                class="up-video-controls-img4"
+                :src="videoShareBlue"
+              />
+              <span
+                class="up-video-controls-span4"
+                :class="{ videoShareClickFlag: videoShareClickFlag }"
+                >{{ SelectVideoByIdVo.upVideo.shareNumber }}</span
+              >
+          </span>
         </div>
-        <div v-show="waitWatchMsg.length > 0" class="waitWatchMsg">
-          {{ waitWatchMsg }}
+        <div
+          class="addWaitWatch"
+          @mouseover="addWaitWatchHoverFlag = true"
+          @mouseleave="addWaitWatchHoverFlag = false"
+        >
+          <img
+            class="wait-img"
+            :src="addWaitWatchHoverFlag ? addWaitWatchBlue : addWaitWatch"
+          />
+          <div class="wait-watch-info" @click="waitWatchAxios">
+            <img src="../img/稍后再看灰.png" />
+            <span>稍后再看</span>
+          </div>
+          <div v-show="waitWatchMsg.length > 0" class="waitWatchMsg">
+            {{ waitWatchMsg }}
+          </div>
         </div>
-      </div>
-      <div style="position: absolute; z-index: -5;height: 0;">
-        <!-- 弹幕列表 -->
-        <div class="scrolling-list-container">
-          <span class="scrolling-list-title">弹幕列表</span>
-          <img src="../img/弹幕列表.png" class="scrolling-list-img" />
-          <el-collapse class="scrolling-list">
-            <el-collapse-item name="1">
-              <div class="scrolling-list-item">
-                <div class="scrolling-list-item-top">
-                  <span style="margin-left: 17px; cursor: pointer">时间</span>
-                  <span style="margin-left: 27px; cursor: pointer"
-                    >弹幕内容</span
-                  >
-                  <span style="margin-left: 122px; cursor: pointer"
-                    >发送时间</span
-                  >
-                </div>
-                <div class="scrolling-list-item-bottom-container">
-                  <div
-                    class="scrolling-list-item-bottom"
-                    v-for="(scrollingData, index) in ScrollingDataList"
-                    :key="index"
-                    @mouseover="ScrollingReocationHoverFlag = scrollingData.id"
-                    @mouseleave="
-                      ScrollingReocationHoverFlag = -scrollingData.id
-                    "
-                  >
-                    <span
-                      style="
-                        display: inline-block;
-                        transform: translate(0px, -9px);
-                        margin-left: 17px;
-                        color: #62666c;
-                      "
-                      >{{ videoTimeFormat(scrollingData.videoTime) }}</span
+        <div style="position: absolute; z-index: -5;height: 0;">
+          <!-- 弹幕列表 -->
+          <div class="scrolling-list-container">
+            <span class="scrolling-list-title">弹幕列表</span>
+            <img src="../img/弹幕列表.png" class="scrolling-list-img" />
+            <el-collapse class="scrolling-list">
+              <el-collapse-item name="1">
+                <div class="scrolling-list-item">
+                  <div class="scrolling-list-item-top">
+                    <span style="margin-left: 17px; cursor: pointer">时间</span>
+                    <span style="margin-left: 27px; cursor: pointer"
+                      >弹幕内容</span
                     >
-                    <el-tooltip
-                      popper-class="custom-tooltip"
-                      class="dynamicContent-item-tooltip"
-                      effect="light"
-                      :content="scrollingData.content"
-                      placement="bottom"
-                      :show-after="300"
-                      :offset="12"
-                      :show-arrow="false"
-                      :hide-after="0"
+                    <span style="margin-left: 122px; cursor: pointer"
+                      >发送时间</span
+                    >
+                  </div>
+                  <div class="scrolling-list-item-bottom-container">
+                    <div
+                      class="scrolling-list-item-bottom"
+                      v-for="(scrollingData, index) in ScrollingDataList"
+                      :key="index"
+                      @mouseover="ScrollingReocationHoverFlag = scrollingData.id"
+                      @mouseleave="
+                        ScrollingReocationHoverFlag = -scrollingData.id
+                      "
                     >
                       <span
-                        class="scrolling-list-item-content"
-                        @click="
-                          upVideoPlayer.currentTime =
-                            scrollingData.videoTime - 0.1
+                        style="
+                          display: inline-block;
+                          transform: translate(0px, -9px);
+                          margin-left: 17px;
+                          color: #62666c;
                         "
-                        >{{ scrollingData.content }}
+                        >{{ videoTimeFormat(scrollingData.videoTime) }}</span
+                      >
+                      <el-tooltip
+                        popper-class="custom-tooltip"
+                        class="dynamicContent-item-tooltip"
+                        effect="light"
+                        :content="scrollingData.content"
+                        placement="bottom"
+                        :show-after="300"
+                        :offset="12"
+                        :show-arrow="false"
+                        :hide-after="0"
+                      >
+                        <span
+                          class="scrolling-list-item-content"
+                          @click="
+                            upVideoPlayer.currentTime =
+                              scrollingData.videoTime - 0.1
+                          "
+                          >{{ scrollingData.content }}
+                        </span>
+                      </el-tooltip>
+                      <span
+                        v-show="
+                          ScrollingReocationHoverFlag === scrollingData.id &&
+                          store.userId === scrollingData.userId
+                        "
+                        class="scrolling-reocation"
+                        @click="revocationScrollingAxios(scrollingData.id)"
+                        >撤回
                       </span>
-                    </el-tooltip>
-                    <span
-                      v-show="
-                        ScrollingReocationHoverFlag === scrollingData.id &&
-                        store.userId === scrollingData.userId
-                      "
-                      class="scrolling-reocation"
-                      @click="revocationScrollingAxios(scrollingData.id)"
-                      >撤回
-                    </span>
-                    <span
-                      v-show="
-                        ScrollingReocationHoverFlag !== scrollingData.id ||
-                        store.userId !== scrollingData.userId
-                      "
-                      class="scrolling-list-item-sendTime"
-                      >{{ scrollingData.sendTime.slice(0, 16) }}</span
-                    >
+                      <span
+                        v-show="
+                          ScrollingReocationHoverFlag !== scrollingData.id ||
+                          store.userId !== scrollingData.userId
+                        "
+                        class="scrolling-list-item-sendTime"
+                        >{{ scrollingData.sendTime.slice(0, 16) }}</span
+                      >
+                    </div>
                   </div>
                 </div>
-              </div>
-            </el-collapse-item>
-          </el-collapse>
+              </el-collapse-item>
+            </el-collapse>
+          </div>
+          <!-- 自动播放视频第二部分 -->
+          <auto-play-video-2 />
         </div>
-        <!-- 自动播放视频第二部分 -->
-        <auto-play-video-2 />
-      </div>
-      <!-- 视频介绍 -->
-      <div
-        class="video-content-container"
-        :class="{ videoContentFlag: videoContentFlag1 && !videoContentFlag }"
-      >
-        <span v-html="SelectVideoByIdVo.upVideo.contentHtml"></span>
-      </div>
-      <div
-        v-show="videoContentFlag1"
-        @click="videoContentFlag = !videoContentFlag"
-        class="video-content-container-switch"
-      >
-        <span v-show="!videoContentFlag">展开更多</span>
-        <span v-show="videoContentFlag">收起</span>
-      </div>
-      <!-- 视频标签 -->
-      <div class="video-tage-container">
-        <span
-          class="video-tage-item"
-          @click="tagClick(index)"
-          v-for="index in SelectVideoByIdVo.upVideo.tag?.split(',')"
-          :key="index"
-          >{{ index }}</span
+        <!-- 视频介绍 -->
+        <div
+          class="video-content-container"
+          :class="{ videoContentFlag: videoContentFlag1 && !videoContentFlag }"
         >
+          <span v-html="SelectVideoByIdVo.upVideo.contentHtml"></span>
+        </div>
+        <div
+          v-show="videoContentFlag1"
+          @click="videoContentFlag = !videoContentFlag"
+          class="video-content-container-switch"
+        >
+          <span v-show="!videoContentFlag">展开更多</span>
+          <span v-show="videoContentFlag">收起</span>
+        </div>
+        <!-- 视频标签 -->
+        <div class="video-tage-container">
+          <span
+            class="video-tage-item"
+            @click="tagClick(index)"
+            v-for="index in SelectVideoByIdVo.upVideo.tag?.split(',')"
+            :key="index"
+            >{{ index }}</span
+          >
+        </div>
+        <div style="position: fixed;top: 800px;">
+        <el-backtop :right="5"/>
+        </div>
+        <comment />
       </div>
-      <div style="position: fixed;top: 800px;">
-      <el-backtop :right="5"/>
-      </div>
-      <comment />
     </div>
   </div>
 </template>
@@ -3436,7 +3443,7 @@ export default {
           (seconds < 10 ? "0" + seconds : "" + seconds);
       } else {
         const pointertime = parseInt(
-          ((event.clientX - 185.5) / (width - 5)) * videoTime,
+          ((event.clientX - 183.3) / (width - 5)) * videoTime,
         );
         const minutes = parseInt(pointertime / 60);
         const seconds = pointertime % 60;
@@ -3464,7 +3471,7 @@ export default {
     };
 
     const updateupVideoProgressImgPosition1 = (event) => {
-      let width = 1414;
+      let width = window.innerWidth*0.97+20;
       const container = event.currentTarget;
       const { left } = container.getBoundingClientRect(); // 获取滚动容器的边界
       const relativeX = event.clientX - left; // 计算相对于容器的 X 坐标
@@ -3477,7 +3484,7 @@ export default {
         parseInt(upVideoTimes.value[0]) * 60 + parseInt(upVideoTimes.value[1]);
       //指示器移动到视频时间
       if (event.target.className === "up-VideoProgress") {
-        const pointertime = parseInt((relativeX / (width - 5)) * videoTime);
+        const pointertime = parseInt((relativeX / width) * videoTime);
         clickUpVideoTime.value = pointertime;
         const minutes = parseInt(pointertime / 60);
         const seconds = pointertime % 60;
@@ -3486,7 +3493,7 @@ export default {
           ":" +
           (seconds < 10 ? "0" + seconds : "" + seconds);
       } else {
-        const pointertime = parseInt((event.clientX / (width - 5)) * videoTime);
+        const pointertime = parseInt((event.clientX / width) * videoTime);
         clickUpVideoTime.value = pointertime;
         const minutes = parseInt(pointertime / 60);
         const seconds = pointertime % 60;
@@ -3782,7 +3789,7 @@ export default {
       const containerWidth = box.offsetWidth; // 进度条宽度
 
       upVideoProgressImgPosition.value = event.clientX;
-      let relativeX = event.clientX - 185.5; // 计算相对于容器的 X 坐标
+      let relativeX = event.clientX - 183.3; // 计算相对于容器的 X 坐标
 
       upVideoProgress.value = (relativeX / containerWidth) * 100;
       if (upVideoProgress.value > 0 && upVideoProgress.value < 100)
@@ -3791,7 +3798,7 @@ export default {
     }
 
     function changeUpVideoTimeImg1(event) {
-      const containerWidth = 1414; // 进度条宽度
+      const containerWidth = window.innerWidth*0.97+20; // 进度条宽度
       upVideoProgressImgPosition.value = event.clientX;
       const relativeX = event.clientX;
       upVideoProgress.value = (relativeX / containerWidth) * 100;
@@ -5415,11 +5422,16 @@ export default {
   box-shadow: 2px 0px 4px #d3d3d3;
 }
 
+.video-body-container{
+  display: flex;
+  justify-content: center;
+}
+
 .video-body {
   position: absolute;
   height: auto;
   padding-bottom: 200px;
-  padding-left: 163px;
+  transform: translateX(-203px);
   top: 63.5px;
   z-index: -1000;
 }
@@ -6002,6 +6014,14 @@ export default {
   transform: translate(0px, -18px);
 }
 
+.intoAllDisplayFlagUpVideoPlayBottomVideoAudio{
+  transform: translate(0px, 3.5px);
+}
+
+.intoAllDisplayFlagUpVideoPlayBottomVideoAudio2{
+  transform: translate(-2px, 2.5px) !important;
+}
+
 .up-video-play-bottom-video-colse-audio {
   width: 17px;
   height: 18px;
@@ -6143,6 +6163,10 @@ export default {
   visibility: hidden;
   transition: visibility 0.3s ease;
   align-items: center;
+}
+
+.intoUpVideoPlayBottomVideoSetAudio{
+  transform: translate(-42.5px, -86.5px) rotate(-90deg) !important;
 }
 
 .volume-slider {
@@ -6325,7 +6349,9 @@ export default {
 
 .startplaywhiteintoVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(1348px, 645px);
+  transform: scale(1);
+  left: 93.7%;
+  top: 80%;
 }
 
 .VideoAllDisplayIngFlagVideo {
@@ -6335,42 +6361,58 @@ export default {
 
 .playwhiteintoVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(33px, 765px) scale(1.2);
+  transform: scale(1.2);
+  left: 2.1%;
+  top: 94.5%;
 }
 
 .timeintoVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(90px, 765px) scale(1.2);
+  transform: scale(1.2);
+  left: 7%;
+  top: 94.2%;
 }
 
 .inputTimeintoVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(90px, 760px) scale(1.2);
+  transform: scale(1.2);
+  left: 7%;
+  top: 94%;
 }
 
 .imageQualityintoVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(1057px, 761px) scale(1.08);
+  transform: scale(1.08);
+  left: 73%;
+  top: 93.9%;
 }
 
 .sppedVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(1165px, 761px) scale(1.08);
+  transform: scale(1.08);
+  left: 81%;
+  top: 93.9%;
 }
 
 .audioVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(1233px, 785.5px) scale(1.2);
+  transform: scale(1.2);
+  left: 85.6%;
+  top: 93.9%;
 }
 
 .setVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(1284px, 762.5px) scale(1.2);
+  transform: scale(1.2);
+  left: 89.2%;
+  top: 94%;
 }
 
 .fullScreenExitintoVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(1340px, 764.5px) scale(1.2);
+  transform: scale(1.2);
+  left: 92.8%;
+  top: 94.5%;
 }
 
 .fullScreenExitInfointoVideoAllDisplayIngFlag {
@@ -6380,7 +6422,9 @@ export default {
 
 .IntoVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(1392px, 765px) scale(1.2);
+  transform: scale(1.2);
+  left: 96.3%;
+  top: 94.5%;
 }
 
 .InfoIntoVideoAllDisplayIngFlag {
@@ -6390,44 +6434,55 @@ export default {
 
 .progressintoVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(12px, 728px);
-  width: 1415px;
+  transform: scale(1);
+  width: 97%;
+  height: 3px;
+  left: 1.5%;
+  top: 90%;
 }
 
 .progressImgintoVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(10px, 722px);
+  transform: scale(1);
+  top: 89.25%;
 }
 
 .progressPointerTopintoVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(10px, 721px);
+  transform: scale(1);
+  top: 89%;
 }
 
 .progressPointerBottomintoVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(10px, 735px);
+  transform: scale(1);
+  top: 91%;
 }
 
 .topContainerintoVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(10px, 724px);
+  transform: scale(3);
+  top: 90%;
 }
 
 .bottomContainerintoVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(10px, 731px);
+  transform: scale(3);
+  top: 90%;
 }
 
 .pointerTImeintoVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(-5px, 690px);
+  transform: scale(1);
+  top: 85%;
 }
 
 .falseContainerIntoVideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(0px, 731px);
+  transform: scale(1);
   height: 80px;
+  left: 0;
+  bottom: 0px;
 }
 
 .up-video-play-bottom-video-scrolling-container {
@@ -6677,6 +6732,10 @@ export default {
   visibility: hidden;
   color: #d0d0d0;
   z-index: 10;
+}
+
+.intoUpVideoPlayBottomVideoSettingScrollingInfoContainer{
+  transform: translate(-50%, -257px) !important;
 }
 
 .up-video-play-bottom-video-setting-scrolling-container:hover
@@ -6960,22 +7019,30 @@ export default {
 .inputContainerintoVideoAllDisplayIngFlag {
   position: absolute;
   width: 412px;
-  transform: translate(461px, 755px);
+  transform: scale(1);
+  left: 32%;
+  top: 93.2%;
 }
 
 .settingScrollintovideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(161px, 759.5px);
+  transform: scale(1);
+  left: 29.5%;
+  top: 93.8%;
 }
 
 .closeSettingScrollintovideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(426px, 760px);
+  transform: scale(1);
+  left: 29.5%;
+  top: 93.8%;
 }
 
 .openOrCloseScrollingintovideoAllDisplayIngFlag {
   position: absolute;
-  transform: translate(388px, 761px);
+  transform: scale(1);
+  left: 27%;
+  top: 93.8%;
 }
 
 .scrolling-container {
@@ -7769,7 +7836,10 @@ export default {
 }
 
 .keyInfoAllDisplay {
-  transform: translate(688px, 389px);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .audio-info {
@@ -7792,7 +7862,10 @@ export default {
 }
 
 .audioInfoAllDisplay {
-  transform: translate(671px, 381.5px);
+ position: absolute;
+ left: 50%;
+ top: 50%;
+ transform: translate(-50%, -50%);
 }
 
 .audio-info .img1 {
@@ -8482,5 +8555,6 @@ a:hover {
       background-position: -320px -184px;
   }
 }
+
 
 </style>

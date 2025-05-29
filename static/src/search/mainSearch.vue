@@ -2977,6 +2977,10 @@ export default {
 .SearchBox {
   user-select: none;
   height: auto;
+  position: relative;
+  width: 1425px;
+  left: 50%;
+  transform: translate(-50%,0);
 }
 
 .searchBox2{
@@ -3006,7 +3010,6 @@ export default {
 }
 
 .head {
-  
   position: relative;
   width: 102%;
   left: -15px;

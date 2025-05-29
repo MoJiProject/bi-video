@@ -46,8 +46,8 @@ function jumpPage(messageMenu){
   position: absolute;
   padding-top: 15px;
   top: 56px;
-  left: 148.5px;
-  width: 140px;
+  left: clamp(10.5vw, 2.4vw + 7.2%, 34vw);
+  width: 9.5vw;
   height: 100vh;
   background-color: rgba(255,255,255,0.7);
 
@@ -143,6 +143,7 @@ img{
 }
     
 }
+
 
 .liColor{
     color: #2faee3 !important;

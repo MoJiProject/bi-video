@@ -1058,9 +1058,11 @@ function restoreBodyOverflow(){
 
 .whisper-container{
     position: absolute;
-    width: 983px;
+    width: 67%;
+    min-width: 983px;
+    left: clamp(20.7vw, 2.4vw + 15.2%, 44vw);
     top: 74px;
-    left: 299px;
+    
     .head2{
     height: 42px;
     padding: 0 16px;

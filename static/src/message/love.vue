@@ -634,9 +634,10 @@
   
 .love-container{
       position: absolute;
-      width: 983px;
       top: 74px;
-      left: 299px;
+      width: 67%;
+      min-width: 983px;
+      left: clamp(20.7vw, 2.4vw + 15.2%, 44vw);
       .head2{
       user-select: none;
       height: 42px;
@@ -679,7 +680,7 @@
       .love-content{
       position: relative;
       top: 10px;
-      width: 983px;
+      width: 100%;
       height: 100vh;
       background-color: var(--background-color);
       border-radius: 4px;

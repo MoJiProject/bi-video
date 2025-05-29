@@ -819,12 +819,13 @@ max-width: 2560px;
         }
     }
     .body{
-     max-width: 1280px; 
-     padding: 0 100px;  
+     position: relative;
+     display: flex;
+     justify-content: center;
      margin: 8.5px auto;
 
         .video-list{
-        margin-top: 15px;
+        margin-top: 3px;
         margin-bottom: 60px;   
         }
         .no-data{

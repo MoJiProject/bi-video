@@ -1001,8 +1001,7 @@ export default {
 
 .classify2{
   top: -55px;
-  left: 0px;
-  width: 100%;
+  width: 1425px;
   z-index: 1000000;
   position: fixed;
   height: 55px;
