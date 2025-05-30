@@ -417,7 +417,7 @@
             src="../img/视频进度图片.png"
             class="up-video-progress-img"
             :style="{
-              left: `${upVideoProgress * 0.555 * 12}px`,
+              left: `${upVideoProgress*676/100-6}px`,
             }"
           />
           <!-- 放大视频后的 -->
@@ -432,7 +432,7 @@
             src="../img/视频进度图片.png"
             class="up-video-progress-img"
             :style="{
-              left: `${upVideoProgress*0.97+1.5}%`,
+              left: `${upVideoProgress*0.97+1.3}%`,
             }"
           />
           <!-- 指示器 -->
@@ -3746,6 +3746,8 @@ export default {
 
     //更改视频时间进度
     function changeUpVideoTime() {
+      isProgressImgMoving=false;
+      stopMoving();
       upVideoPlayer.value.currentTime = clickUpVideoTime.value;
       if (upVideoPlayer.value.paused) {
         pausedOrPlayVideoFlag.value = true;
@@ -3762,8 +3764,8 @@ export default {
         stopMoving();
         return;
       }
+      pausedUpVideo();
       window.addEventListener("mousemove", changeUpVideoTimeImg);
-      changeUpVideoTimeImg(event);
     }
 
     function startMoving1(event) {
@@ -3773,20 +3775,20 @@ export default {
         stopMoving();
         return;
       }
+      pausedUpVideo();
       window.addEventListener("mousemove", changeUpVideoTimeImg1);
-      changeUpVideoTimeImg1(event);
     }
 
     //跟随鼠标移动滑动时间进度条
     function changeUpVideoTimeImg(event) {
-      const box = document.querySelector(".up-VideoProgress");
-      const containerWidth = box.offsetWidth; // 进度条宽度
-      const container = event.currentTarget;
+      const containerWidth = 676; // 进度条宽度
+      const container = event.target;
+      if (!container || typeof container.getBoundingClientRect !== 'function' || event.target.className!== "up-user-video-player")
+      return;
       const { left } = container.getBoundingClientRect(); // 获取滚动容器的边界
-      upVideoProgressImgPosition.value = event.clientX -3;
-      let relativeX = event.clientX - left; // 计算相对于容器的 X 坐标
-
-      upVideoProgress.value = (relativeX / containerWidth) * 100;
+      upVideoProgressImgPosition.value = event.clientX - left - 3;
+      console.log(upVideoProgressImgPosition.value);
+      upVideoProgress.value = ((upVideoProgressImgPosition.value) / containerWidth) * 100;
       if (upVideoProgress.value > 0 && upVideoProgress.value < 100)
         upVideoPlayer.value.currentTime =
           (upVideoProgress.value * upVideoPlayer.value.duration) / 100;
@@ -3807,13 +3809,14 @@ export default {
       isProgressImgMoving = false;
       window.removeEventListener("mousemove", changeUpVideoTimeImg);
       window.removeEventListener("mousemove", changeUpVideoTimeImg1);
-      playUpVideo();
     }
 
     //指示器范围点击也更新进度条
     function upVideoPointerClickChangerTime() {
       upVideoPlayer.value.currentTime = clickUpVideoTime.value;
       pausedOrPlayVideoFlag.value = true;
+      isProgressImgMoving=false;
+      stopMoving();
       changeUpVideoTime();
     }
 
