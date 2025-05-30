@@ -81,6 +81,10 @@
                     <div v-if="store.userId!==null&&store.userId===userId">你还没关注任何人</div>
                     <div v-else>TA还没关注任何人</div>
         </div>
+        <div v-else-if="store.userId&&followTotal!==0&&followList.length===0&&!loadMore" class="not-data-container">
+            <img src="../img/home_nodata.svg">
+            <div>未找到相关用户_(:зゝ∠)_<br/>换个关键词试试吧</div>
+        </div>
         <div v-if="!store.userId" class="not-login-container">
             <img src="../img/home_nodata.svg">
             <div>请先登录</div>
