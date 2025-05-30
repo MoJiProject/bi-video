@@ -82,8 +82,8 @@
                 <img src="../img/home_nodata.svg">
                 <div>这里什么都没有哦~</div>
             </div>
-            <div v-show="dataFlag&&waitWatchList.length" class="fotter">已经探索到底啦~</div>
         </div>
+        <div v-show="dataFlag&&waitWatchList.length" class="fotter">已经探索到底啦~</div>
         <!-- 清空稍后再看对话框 -->
         <el-dialog
         v-model="deleteAllwaitWatchDialogFlag"

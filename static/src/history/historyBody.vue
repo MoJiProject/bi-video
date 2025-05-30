@@ -88,8 +88,8 @@
                 <img src="../img/home_nodata.svg">
                 <div>还没有观看记录</div>
             </div>
-            <div v-show="dataFlag&&historyList.length" class="fotter">已经到底啦~</div>
         </div>
+        <div v-show="dataFlag&&historyList.length" class="fotter">已经到底啦~</div>
         <!-- 清空历史对话框 -->
         <el-dialog
         v-model="deleteAllHistoryDialogFlag"

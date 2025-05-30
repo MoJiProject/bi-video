@@ -392,7 +392,7 @@ video{
             color: #18191C;
             font-size: 15px;
             line-height: 22px;
-            height: 54px;
+            height: 48px;
             display: -webkit-box;
             overflow: hidden;
             -webkit-box-orient: vertical;
