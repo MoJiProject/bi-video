@@ -5906,7 +5906,7 @@ export default {
   width: 14px;
   height: 14px;
   transform: translate(11px, 337.5px);
-  z-index: 1000;
+  z-index: 2000;
   cursor: pointer;
 }
 
