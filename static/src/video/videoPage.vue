@@ -445,14 +445,11 @@
             src="../img/指示器上.png"
             class="pointer-top"
             :style="{
-              left: `${upVideoProgressImgPosition - 183.3}px`,
+              left: `${upVideoProgressImgPosition}px`,
             }"
           />
           <div
             class="pointer-top-container"
-            :style="{
-              left: `${upVideoProgressImgPosition - 183.3}px`,
-            }"
             v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
             @click="upVideoPointerClickChangerTime"
             @mousemove="updateupVideoProgressImgPosition"
@@ -468,14 +465,11 @@
             src="../img/指示器下.png"
             class="pointer-bottom"
             :style="{
-              left: `${upVideoProgressImgPosition - 183.3}px`,
+              left: `${upVideoProgressImgPosition}px`,
             }"
           />
           <div
             class="pointer-bottom-container"
-            :style="{
-              left: `${upVideoProgressImgPosition - 183.5}px`,
-            }"
             v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
             @click="upVideoPointerClickChangerTime"
             @mousemove="updateupVideoProgressImgPosition"
@@ -505,7 +499,7 @@
             }"
             class="pointer-top-container"
             :style="{
-              left: `${upVideoProgressImgPosition - 3.5}px`,
+              width: `${innerWidth * 0.97}px`,
             }"
             v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
             @click="upVideoPointerClickChangerTime"
@@ -536,7 +530,7 @@
             }"
             class="pointer-bottom-container"
             :style="{
-              left: `${upVideoProgressImgPosition - 3.5}px`,
+              width: `${innerWidth * 0.97}px`,
             }"
             v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
             @click="upVideoPointerClickChangerTime"
@@ -549,7 +543,7 @@
             v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
             class="up-video-play-bottom-video-pointer-time"
             :style="{
-              left: `${upVideoProgressImgPosition - 183.3}px`,
+              left: `${upVideoProgressImgPosition}px`,
             }"
             >{{ upVideoPointerMoveTime }}</span
           >
@@ -3421,16 +3415,12 @@ export default {
 
     // 更新图片位置
     const updateupVideoProgressImgPosition = (event) => {
-      const box = document.querySelector(".up-VideoProgress"); // 通过类名获取元素
-      let width = 0;
-      if (box) {
-        width = box.offsetWidth; // 获取宽度
-      }
+      let width = 676;
       const container = event.currentTarget;
       const { left } = container.getBoundingClientRect(); // 获取滚动容器的边界
       const relativeX = event.clientX - left; // 计算相对于容器的 X 坐标
       if (upVideoProgressImg.value)
-        upVideoProgressImgPosition.value = event.clientX; // 获取鼠标的 X 坐标
+        upVideoProgressImgPosition.value = event.clientX - left -3; // 获取鼠标的 X 坐标
       //获取视频总时长
       if (SelectVideoByIdVo.upVideo.videoTime !== undefined)
         upVideoTimes.value = SelectVideoByIdVo.upVideo.videoTime.split(":");
@@ -3447,7 +3437,7 @@ export default {
           (seconds < 10 ? "0" + seconds : "" + seconds);
       } else {
         const pointertime = parseInt(
-          ((event.clientX - 183.3) / (width - 5)) * videoTime,
+          ((event.clientX - left) / (width - 5)) * videoTime,
         );
         const minutes = parseInt(pointertime / 60);
         const seconds = pointertime % 60;
@@ -3791,9 +3781,10 @@ export default {
     function changeUpVideoTimeImg(event) {
       const box = document.querySelector(".up-VideoProgress");
       const containerWidth = box.offsetWidth; // 进度条宽度
-
-      upVideoProgressImgPosition.value = event.clientX;
-      let relativeX = event.clientX - 183.3; // 计算相对于容器的 X 坐标
+      const container = event.currentTarget;
+      const { left } = container.getBoundingClientRect(); // 获取滚动容器的边界
+      upVideoProgressImgPosition.value = event.clientX -3;
+      let relativeX = event.clientX - left; // 计算相对于容器的 X 坐标
 
       upVideoProgress.value = (relativeX / containerWidth) * 100;
       if (upVideoProgress.value > 0 && upVideoProgress.value < 100)
@@ -5939,23 +5930,23 @@ export default {
 
 .pointer-top-container {
   position: absolute;
-  width: 7px;
-  height: 4px;
+  width: 676px;
+  height: 5.5px;
   background-color: aqua;
-  transform: translate(10px, 340px);
+  transform: translate(10px, 339px);
   opacity: 0;
-  z-index: 100;
+  z-index: 1000;
   cursor: pointer;
 }
 
 .pointer-bottom-container {
   position: absolute;
-  width: 7px;
-  height: 4px;
+  width: 676px;
+  height: 5.5px;
   background-color: aqua;
   transform: translate(10px, 347px);
   opacity: 0;
-  z-index: 100;
+  z-index: 1000;
   cursor: pointer;
 }
 
@@ -6368,7 +6359,7 @@ export default {
   position: absolute;
   transform: scale(1.2);
   left: 2.1%;
-  top: 94.5%;
+  top: 94.23%;
 }
 
 .timeintoVideoAllDisplayIngFlag {
@@ -6410,14 +6401,14 @@ export default {
   position: absolute;
   transform: scale(1.2);
   left: 89.2%;
-  top: 94%;
+  top: 94.1%;
 }
 
 .fullScreenExitintoVideoAllDisplayIngFlag {
   position: absolute;
   transform: scale(1.2);
   left: 92.8%;
-  top: 94.5%;
+  top: 94.3%;
 }
 
 .fullScreenExitInfointoVideoAllDisplayIngFlag {
@@ -6431,7 +6422,7 @@ export default {
   position: absolute;
   transform: scale(1.2);
   left: 96.3%;
-  top: 94.5%;
+  top: 94.3%;
 }
 
 .InfoIntoVideoAllDisplayIngFlag {
@@ -6471,13 +6462,15 @@ export default {
 .topContainerintoVideoAllDisplayIngFlag {
   position: absolute;
   transform: scale(3);
-  top: 90%;
+  top: 89.5%;
+  left: 1.5%;
 }
 
 .bottomContainerintoVideoAllDisplayIngFlag {
   position: absolute;
   transform: scale(3);
-  top: 90%;
+  top: 90.3%;
+  left: 1.5%;
 }
 
 .pointerTImeintoVideoAllDisplayIngFlag {
@@ -7037,7 +7030,7 @@ export default {
   position: absolute;
   transform: scale(1);
   left: 29.5%;
-  top: 93.8%;
+  top: 93.9%;
 }
 
 .closeSettingScrollintovideoAllDisplayIngFlag {
