@@ -24,7 +24,7 @@
                <img src="../img/loading-blue.gif">
                <span>拼命加载中...</span>
         </div>
-        <div v-if="store.userId&&(followTotal>0||searchWord.length>0)&&followList.length&&!loadMore" class="content">
+        <div v-if="store.userId&&(followTotal>0||searchWord.length>0)&&!loadMore" class="content">
             <div v-if="store.userId!==null&&store.userId===userId" class="title">我的关注</div>
             <div v-else class="title">TA的关注</div>
             <div class="search-container">
@@ -80,10 +80,6 @@
                     <img src="../img/home_nodata.svg">
                     <div v-if="store.userId!==null&&store.userId===userId">你还没关注任何人</div>
                     <div v-else>TA还没关注任何人</div>
-        </div>
-        <div v-else-if="store.userId&&followTotal!==0&&!followList.length&&!loadMore" class="not-data-container">
-            <img src="../img/home_nodata.svg">
-            <div>未找到相关用户_(:зゝ∠)_<br/>换个关键词试试吧</div>
         </div>
         <div v-if="!store.userId" class="not-login-container">
             <img src="../img/home_nodata.svg">
