@@ -24,7 +24,7 @@
                <img src="../img/loading-blue.gif">
                <span>拼命加载中...</span>
         </div>
-        <div v-if="store.userId&&(fansTotal>0||searchWord.length>0)&&!loadMore" class="content">
+        <div v-if="store.userId&&(fansTotal>0||searchWord.length>0)&&fansList.length&&!loadMore" class="content">
             <div v-if="store.userId!==null&&store.userId!==userId" class="title">TA的粉丝</div>
             <div v-else class="title">我的粉丝</div>
             <div class="search-container">
@@ -78,7 +78,7 @@
                     <div v-if="store.userId!==null&&store.userId===userId">你还没关注任何人</div>
                     <div v-else>TA还没关注任何人</div>
         </div>
-        <div v-else-if="store.userId&&fansTotal!==0&&fansList.length===0&&!loadMore" class="not-data-container">
+        <div v-else-if="store.userId&&fansTotal!==0&&!fansList.length&&!loadMore" class="not-data-container">
             <img src="../img/home_nodata.svg">
             <div>未找到相关用户_(:зゝ∠)_<br/>换个关键词试试吧</div>
         </div>
