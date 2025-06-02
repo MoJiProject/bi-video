@@ -1077,7 +1077,7 @@
           >
             <span
               style="color: #b9b7b8"
-              :style="{ opacity: store.userId === null ? 0 : 1 }"
+              :style="{ display: store.userId ? 'initial' : 'none' }"
               >已关闭弹幕</span
             >
             <span
@@ -1128,7 +1128,7 @@
             class="up-video-play-bottom-video-open-scrolling-container1"
           >
             <div
-              :style="{ opacity: store.userId === null ? 0 : 1 }"
+            :style="{ display: store.userId ? 'initial' : 'none' }"
               class="up-video-play-bottom-video-open-scrolling-color-container"
             >
               <img
@@ -1273,7 +1273,7 @@
               </div>
             </div>
             <input
-              :style="{ opacity: store.userId === null ? 0 : 1 }"
+              :style="{ display: store.userId ? 'initial' : 'none' }"
               class="up-video-play-bottom-video-close-scrolling-input1"
               type="text"
               maxlength="50"
@@ -2281,7 +2281,7 @@
             class="up-video-play-bottom-video-close-scrolling-container"
           >
             <span
-              :style="{ opacity: store.userId === null ? 0 : 1 }"
+              :style="{ display: store.userId ? 'initial' : 'none' }"
               style="color: #999999"
               >已关闭弹幕</span
             >
@@ -2326,7 +2326,7 @@
           >
             <div
               class="up-video-play-bottom-video-open-scrolling-color-container"
-              :style="{ opacity: store.userId === null ? 0 : 1 }"
+              :style="{ display: store.userId ? 'initial' : 'none' }"
             >
               <img
                 class="up-video-play-bottom-video-close-scrolling-color"
@@ -2468,7 +2468,7 @@
             </div>
             <input
               class="up-video-play-bottom-video-close-scrolling-input"
-              :style="{ opacity: store.userId === null ? 0 : 1 }"
+              :style="{ display: store.userId ? 'initial' : 'none' }"
               type="text"
               maxlength="50"
               @focus="sendScrollingInputStatus = true"
@@ -4369,7 +4369,7 @@ export default {
     async function endThree(a) {
       const endThreeTime = Date.now() - StartThreeTime.value;
       //发送点赞请求
-      if (endThreeTime >= 1 && endThreeTime <= 100) {
+      if (endThreeTime >= 1 && endThreeTime <= 300) {
         clearInterval(intervalId);
         if (!likeNoMoreClick) return;
         await likeVideoAxios();
