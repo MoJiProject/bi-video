@@ -4356,7 +4356,7 @@ export default {
       StartThreeTime.value = Date.now();
       intervalId = setInterval(() => {
         endThree(intervalId);
-      }, 100);
+      }, 150);
     }
 
     function ThreImgDisplay() {
@@ -4369,7 +4369,7 @@ export default {
     async function endThree(a) {
       const endThreeTime = Date.now() - StartThreeTime.value;
       //发送点赞请求
-      if (endThreeTime >= 1 && endThreeTime <= 300) {
+      if (endThreeTime >= 1 && endThreeTime <= 150) {
         clearInterval(intervalId);
         if (!likeNoMoreClick) return;
         await likeVideoAxios();
@@ -4414,7 +4414,8 @@ export default {
     async function getLTCAxios() {
       try {
         threeForCount++;
-        if (threeForCount === 1) return;
+        if (threeForCount === 1 || !likeNoMoreClick) return;
+        likeNoMoreClick = false;
         if (store.userId === null) {
           loginDialogVisibleFlag.value =
             loginDialogVisibleFlag.value === 0 ? 1 : 0;
@@ -4475,12 +4476,16 @@ export default {
           duration: 1700,
         });
       }
+      likeNoMoreClick=true;
     }
 
     //发送点赞请求
     let likeNoMoreClick = true;
     async function likeVideoAxios() {
       try {
+        if(!likeNoMoreClick)
+          return;
+          likeNoMoreClick = false;
         store.setLTCAFlag(0);
         if (store.userId === null) {
           loginDialogVisibleFlag.value =
@@ -4514,7 +4519,6 @@ export default {
           duration: 1700,
         });
       }
-      likeNoMoreClick = false;
       setTimeout(() => {
         likeNoMoreClick = true;
       }, 1000);
