@@ -3031,10 +3031,10 @@
             >{{ index }}</span
           >
         </div>
-        <div style="position: fixed;top: 800px;">
-        <el-backtop :right="5"/>
-        </div>
         <comment />
+      </div>
+      <div style="position: fixed;top: 800px;">
+        <el-backtop :right="5"/>
       </div>
     </div>
   </div>
