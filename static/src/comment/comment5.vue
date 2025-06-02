@@ -1680,7 +1680,7 @@ export default {
         }
         const userId = link.getAttribute("data-eit-userid");
         const index=atUserList.findIndex((item) => item.atUserId === userId);
-        if(index===-1&&userId!==store.userId)
+        if(userId&&index===-1&&userId!==store.userId)
         {
           let at={
             userId: store.userId,
@@ -1794,7 +1794,7 @@ export default {
         }
         const userId = link.getAttribute("data-eit-userid");
         const index=atUserList.findIndex((item) => item.atUserId === userId);
-        if(index===-1&&userId!==store.userId)
+        if(userId&&index===-1&&userId!==store.userId)
         {
           let at={
             userId: store.userId,
