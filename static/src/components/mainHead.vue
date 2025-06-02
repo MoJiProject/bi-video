@@ -946,7 +946,7 @@
                 </div>
               </div>
             </div>
-            <div v-if="dynamics.length !== 0" class="checkAllDynamic">
+            <div v-if="dynamics.length !== 0" class="checkAllDynamic" @click="openDynamic">
               查看全部动态 >
             </div>
             <div style="height: 20px"></div>
