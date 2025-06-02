@@ -1722,6 +1722,7 @@ export default {
             if (res.data.code === 1) {
               // 动态替换 HTML 中的链接
               link.innerHTML = `<img style="width: 14px;height: 14px;padding-right: 2px;transform: translateY(1px);" src="../img/视频标题.png">${res.data.data}<br>`;
+              link.target = "_blank";
             }
           } catch (error) {}
         }
@@ -1836,6 +1837,7 @@ export default {
             if (res.data.code === 1) {
               // 动态替换 HTML 中的链接
               link.innerHTML = `<img style="width: 14px;height: 14px;padding-right: 2px;transform: translateY(1px);" src="../img/视频标题.png">${res.data.data}<br>`;
+              link.target = "_blank";
             }
           } catch (error) {}
         }
