@@ -751,6 +751,7 @@ function sendMessageF(){
     sendMessage(store.token,message).then(res=>{
         if(res.data.code === 1){
             messageInput.value.innerHTML="";
+            messageNumber.value = 0;
             const index=dialogueList.findIndex((iten)=> iten.dialogue.id===currentDialogue.value.dialogue.id);
             if(index!==-1)
             dialogueList[index].dialogue.newContent=message.content;
@@ -1107,6 +1108,7 @@ function restoreBodyOverflow(){
         width: 239px;
         height: 93.6%;
         overflow-y: auto;
+        overflow-x: hidden;
 
 
         .message-user-item{

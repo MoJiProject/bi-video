@@ -1119,12 +1119,12 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
     public void addDynamicByFansMessage(Dynamic dynamic){
 
         Integer dynamicId=dynamic.getId();
-        dynamic.setId(null);
         //进行更新提醒
         LambdaQueryWrapper<Fans> fansLambdaQueryWrapper=new LambdaQueryWrapper<>();
         fansLambdaQueryWrapper.eq(Fans::getUserId,dynamic.getFollowId());
         List<Fans> fans = fansMapper.selectList(fansLambdaQueryWrapper);
         for (Fans fan : fans) {
+            dynamic.setId(null);
             dynamic.setFansId(fan.getFansId());
             dynamic.setDynamicId(dynamicId);
             dynamicMapper.insert(dynamic);

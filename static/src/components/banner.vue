@@ -1,32 +1,45 @@
 <template>
   <div class="background-container" @mousemove="handleMouseMove">
     <div
-  class="background-image"
-  :style="{
-    backgroundPositionX: (store.mouseX * 0.1 - 200) + 'px',
-    opacity: store.mouseX < 476.67
-      ? (0.6 + 0.5 * (1 - Math.abs(store.mouseX - 238.33) / 238.33)).toFixed(2)
-      : 0
-  }"
+      class="background-image"
+      :style="{
+        backgroundPositionX: store.mouseX * 0.1 - 200 + 'px',
+        opacity:
+          store.mouseX < 476.67 + windowsWidthP * 0.33
+            ? (
+                0.6 +
+                0.5 * (1 - Math.abs(store.mouseX - 238.33) / 238.33)
+              ).toFixed(2)
+            : 0,
+      }"
     ></div>
 
     <div
       class="background-image2"
       :style="{
-        backgroundPositionX: (store.mouseX * 0.1 - 200) + 'px',
-        opacity: store.mouseX >= 476.67 && store.mouseX < 953.33
-          ? (0.6 + 0.5 * (1 - Math.abs(store.mouseX - 715) / 238.33)).toFixed(2)
-          : 0
+        backgroundPositionX: store.mouseX * 0.1 - 200 + 'px',
+        opacity:
+          store.mouseX >= 476.67 + windowsWidthP * 0.33 &&
+          store.mouseX < 953.33 + windowsWidthP * 0.66
+            ? (0.6 + 0.5 * (1 - Math.abs(store.mouseX - 715) / 238.33)).toFixed(
+                2
+              )
+            : 0,
       }"
     ></div>
 
     <div
       class="background-image3"
       :style="{
-        backgroundPositionX: (store.mouseX * 0.1 - 200) + 'px',
-        opacity: store.mouseX >= 953.33 && store.mouseX <= 1430
-          ? (0.6 + 0.5 * (1 - Math.abs(store.mouseX - 1191.67) / 238.33)).toFixed(2)
-          : 0
+        backgroundPositionX: store.mouseX * 0.1 - 200 + 'px',
+        opacity:
+          store.mouseX >= 953.33 + windowsWidthP * 0.66 &&
+          store.mouseX <= 1430 + windowsWidthP
+            ? (
+                0.6 +
+                0.5 * (1 - Math.abs(store.mouseX - 1191.67) / 238.33)
+              ).toFixed(2)
+            : 0,
       }"
     ></div>
     <div class="content">
@@ -42,24 +55,30 @@
 </template>
 
 <script>
-import {useGlobalStore} from "../store/store";
+import { useGlobalStore } from "../store/store";
+import { ref, onMounted } from "vue";
 
 export default {
   name: "banner",
- 
-  setup() {
 
+  setup() {
     const store = useGlobalStore();
+    const windowsWidthP = ref(0);
 
     function handleMouseMove(event) {
       store.setMouseX(event.clientX);
     }
 
+    onMounted(() => {
+      if (window.screen.width > 1500) {
+        windowsWidthP.value = (window.screen.width - 1500)/1.5;
+      }
+    });
 
     return {
       handleMouseMove,
       store,
-      
+      windowsWidthP,
     };
   },
 };
@@ -97,7 +116,7 @@ body {
   background-size: cover; /* 确保背景图覆盖整个区域 */
   background-repeat: no-repeat; /* 背景图不重复 */
   background-position-y: 70%;
-  transition: opacity 0.3s linear,transform 0.1s linear; /* 平滑过渡效果 */
+  transition: opacity 0.3s linear, transform 0.1s linear; /* 平滑过渡效果 */
 }
 
 .background-image2 {
@@ -110,9 +129,8 @@ body {
   background-size: cover; /* 确保背景图覆盖整个区域 */
   background-repeat: no-repeat; /* 背景图不重复 */
   background-position-y: 60%;
-  transition: opacity 0.3s linear,transform 0.1s linear; /* 平滑过渡效果 */
+  transition: opacity 0.3s linear, transform 0.1s linear; /* 平滑过渡效果 */
 }
-
 
 .background-image3 {
   position: absolute;
@@ -124,7 +142,7 @@ body {
   background-size: cover; /* 确保背景图覆盖整个区域 */
   background-repeat: no-repeat; /* 背景图不重复 */
   background-position-y: 90%;
-  transition: opacity 0.3s linear,transform 0.1s linear; /* 平滑过渡效果 */
+  transition: opacity 0.3s linear, transform 0.1s linear; /* 平滑过渡效果 */
 }
 
 .content {

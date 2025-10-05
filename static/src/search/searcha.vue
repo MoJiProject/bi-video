@@ -307,7 +307,7 @@ export default {
 
         try {
 
-            const response=await apiClient.get("/keyWord/addKeyWord",{params:{
+            await apiClient.get("/keyWord/addKeyWord",{params:{
               keyWord: Content.value
             }})
 

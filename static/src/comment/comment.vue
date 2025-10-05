@@ -2765,10 +2765,14 @@ export default {
         });
         if(res.data.code === 1)
         eitUserInfoTime=setTimeout(() => {
-          eitUserInfoLeft.value=event.clientX+15;
-          eitUserInfoTop.value=event.clientY+15;
           if(event.clientY>430)
-            eitUserInfoTop.value=event.clientY/2;
+          {
+            eitUserInfoTop.value = -50 * (event.clientY / 100);
+          }else{
+            eitUserInfoTop.value = 0;
+          }
+          eitUserInfoLeft.value=event.clientX-120;
+          eitUserInfoTop.value=eitUserInfoTop.value + event.clientY+650;
           store.setEitUserInfo(res.data.data);
         }, 300);
       }else{
