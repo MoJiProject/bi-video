@@ -239,7 +239,6 @@
       }
     selectReplayComment(store.token,store.userId,pageNum.value++).then(res=>{
       if(res.data.code===1){
-        console.log(res.data.data);
         pushData(res.data.data);
         if(res.data.data===null||res.data.data.length===0)
         Scrolled.value=false;

@@ -3787,7 +3787,6 @@ export default {
       return;
       const { left } = container.getBoundingClientRect(); // 获取滚动容器的边界
       upVideoProgressImgPosition.value = event.clientX - left - 3;
-      console.log(upVideoProgressImgPosition.value);
       upVideoProgress.value = ((upVideoProgressImgPosition.value) / containerWidth) * 100;
       if (upVideoProgress.value > 0 && upVideoProgress.value < 100)
         upVideoPlayer.value.currentTime =

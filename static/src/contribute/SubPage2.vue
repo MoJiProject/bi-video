@@ -567,7 +567,6 @@ export default {
             "Authorization": store.token,
           },
         });
-           console.log(response.data)
         if (response.data.code === 1) {
           videoList.length = 0;
           Object.assign(UserVideoVo, response.data.data);

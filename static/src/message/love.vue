@@ -496,9 +496,6 @@
       deleteLoveNotificaitonId.value=love.comments.id;
     else if(deleteLoveNotificaitonType.value===3)
       deleteLoveNotificaitonId.value=love.dynamic.id;
-      console.log(deleteLoveNotificaitonType.value);
-          console.log(deleteLoveNotificaitonId.value);
-          console.log(loveList);
   }
 
   //删除通知
