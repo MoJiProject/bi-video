@@ -10,7 +10,7 @@
       <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===3" :href="'./dynamicDetail?dynamicId='+loves.dynamic.id" target="dynamicWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">动态：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.dynamic.title"></span></span></div></a>
       <div v-show="likeUserList.length===0" class="love-content" @scroll="handleScroll">
         <div v-show="loveList.length>0" class="love-item" v-for="love in loveList" :key="love.id">
-           <div v-if="love.userInfoList?.length===1" class="love-item-content">
+           <div v-if="love.userInfoList?.length===1 && love.userInfoList?.[0]" class="love-item-content">
               <el-tooltip
                     popper-class="custom-tooltip"
                     effect="light"
