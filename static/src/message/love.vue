@@ -9,7 +9,7 @@
       <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===2&&loves.comments.deleteSign===1&&loves.comments.dynamicId" :href="'./dynamicDetail?dynamicId='+loves.comments.dynamicId" target="dynamicWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">评论：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.dynamic.title"></span></span></div></a>
       <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===3" :href="'./dynamicDetail?dynamicId='+loves.dynamic.id" target="dynamicWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">动态：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.dynamic.title"></span></span></div></a>
       <div v-show="likeUserList.length===0" class="love-content" @scroll="handleScroll">
-        <div v-show="loveList.length>0" class="love-item" v-for="love in loveList" :key="love.id">
+        <div v-show="loveList.length>0 && love.id" class="love-item" v-for="love in loveList" :key="love.id">
            <div v-if="love.userInfoList?.length===1 && love.userInfoList?.[0]" class="love-item-content">
               <el-tooltip
                     popper-class="custom-tooltip"
