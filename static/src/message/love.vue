@@ -78,7 +78,7 @@
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a v-if="love.likes.likeType===1" class="love-video-cover-container" :href="'./video?videoId=BV'+love.videos.id" target="videoWindow"><img class="love-video-cover" :src="love.videos.coverAddress"></a>
+                  <a v-if="love.likes.likeType===1" class="love-video-cover-container" :href="'./video?videoId=BV'+love.videos?.id" target="videoWindow"><img class="love-video-cover" :src="love.videos.coverAddress"></a>
                 </el-tooltip>
                 <el-tooltip
                     v-if="love.likes.likeType===3&&love.dynamic.imgAddress"
@@ -91,7 +91,7 @@
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a v-if="love.likes.likeType===3&&love.dynamic.imgAddress" class="love-video-cover-container" :href="'./video?videoId=BV'+love.videos.id" target="videoWindow"><img class="love-video-cover" :src="love.dynamic.imgAddress.split(',')[0]"></a>
+                  <a v-if="love.likes.likeType===3&&love.dynamic.imgAddress" class="love-video-cover-container" :href="'./video?videoId=BV'+love.videos?.id" target="videoWindow"><img class="love-video-cover" :src="love.dynamic.imgAddress.split(',')[0]"></a>
                 </el-tooltip>
                 <div class="love-line"></div>
               </div>
@@ -185,7 +185,7 @@
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a v-if="love.likes.likeType===1" class="love-video-cover-container" :href="'./video?videoId=BV'+love.videos.id" target="videoWindow"><img class="love-video-cover" :src="love.videos.coverAddress"></a>
+                  <a v-if="love.likes.likeType===1" class="love-video-cover-container" :href="'./video?videoId=BV'+love.videos?.id" target="videoWindow"><img class="love-video-cover" :src="love.videos.coverAddress"></a>
                 </el-tooltip>
                 <el-tooltip
                     v-if="love.likes.likeType===3&&love.dynamic.imgAddress"
@@ -198,7 +198,7 @@
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a v-if="love.likes.likeType===3&&love.dynamic.imgAddress" class="love-video-cover-container" :href="'./video?videoId=BV'+love.videos.id" target="videoWindow"><img class="love-video-cover" :src="love.dynamic.imgAddress.split(',')[0]"></a>
+                  <a v-if="love.likes.likeType===3&&love.dynamic.imgAddress" class="love-video-cover-container" :href="'./video?videoId=BV'+love.videos?.id" target="videoWindow"><img class="love-video-cover" :src="love.dynamic.imgAddress.split(',')[0]"></a>
                 </el-tooltip>
                 <div class="love-line"></div>
               </div>
@@ -292,7 +292,7 @@
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a v-if="love.likes.likeType===1" class="love-video-cover-container" :href="'./video?videoId=BV'+love.videos.id" target="videoWindow"><img class="love-video-cover" :src="love.videos.coverAddress"></a>
+                  <a v-if="love.likes.likeType===1" class="love-video-cover-container" :href="'./video?videoId=BV'+love.videos?.id" target="videoWindow"><img class="love-video-cover" :src="love.videos.coverAddress"></a>
                 </el-tooltip>
                 <el-tooltip
                     v-if="love.likes.likeType===3&&love.dynamic.imgAddress"
@@ -305,7 +305,7 @@
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a v-if="love.likes.likeType===3&&love.dynamic.imgAddress" class="love-video-cover-container" :href="'./video?videoId=BV'+love.videos.id" target="videoWindow"><img class="love-video-cover" :src="love.dynamic.imgAddress.split(',')[0]"></a>
+                  <a v-if="love.likes.likeType===3&&love.dynamic.imgAddress" class="love-video-cover-container" :href="'./video?videoId=BV'+love.videos?.id" target="videoWindow"><img class="love-video-cover" :src="love.dynamic.imgAddress.split(',')[0]"></a>
                 </el-tooltip>
                 <div class="love-line"></div>
               </div>
@@ -491,7 +491,7 @@
     deleteLoveDialogFlag.value=true;
     deleteLoveNotificaitonType.value=love.likes.likeType;
     if(deleteLoveNotificaitonType.value===1)
-      deleteLoveNotificaitonId.value=love.videos.id;
+      deleteLoveNotificaitonId.value=love.videos?.id;
     else if(deleteLoveNotificaitonType.value===2)
       deleteLoveNotificaitonId.value=love.comments.id;
     else if(deleteLoveNotificaitonType.value===3)
@@ -548,7 +548,7 @@
       let id=null;
 
       if(love.likes.likeType===1)
-        id=love.videos.id;
+        id=love.videos?.id;
       else if(love.likes.likeType===2)
         id=love.comments.id;
       else if(love.likes.likeType===3)
@@ -572,7 +572,7 @@
     loves.value=love;
     let id=null;
     if(love.likes.likeType===1)
-      id=love.videos.id;
+      id=love.videos?.id;
     else if(love.likes.likeType===2)
       id=love.comments.id;
     else if(love.likes.likeType===3)
