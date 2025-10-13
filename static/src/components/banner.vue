@@ -71,7 +71,7 @@ export default {
 
     onMounted(() => {
       if (window.screen.width > 1500) {
-        windowsWidthP.value = (window.screen.width - 1500)/1.5;
+        windowsWidthP.value = window.screen.width - 1500;
       }
     });
 
