@@ -87,6 +87,7 @@
           AND d.comment_id IS NULL
           AND d.dynamic_id IS NULL
           AND d.fans_id IS NULL
+        GROUP BY d.id
         ORDER BY d.id DESC
         LIMIT #{offset}, 10
     </select>
@@ -101,6 +102,7 @@
                 OR d.img_address IS NOT NULL
             )
           AND d.dynamic_id IS NULL
+        GROUP BY d.id
         ORDER BY d.id DESC
         LIMIT #{offset}, 10
     </select>
