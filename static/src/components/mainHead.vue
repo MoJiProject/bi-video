@@ -62,7 +62,7 @@
         <div v-if="searchFlag" class="head-search" :class="{ head2SearchFlag: head2Flag } "></div>
       </li>
       <li>
-        <div v-if="user.userName !== null" class="avatar-container">
+        <div v-if="store.userId !== null" class="avatar-container">
           <div class="avatar1" @click="openHome(1)">
             <img
               :src="store.userInformation?.avatarAddress"
@@ -348,10 +348,10 @@
           </div>
         </div>
         <div
-          v-if="!user.userName"
+          v-if="!store.userId"
           class="avatar"
         >
-          <span v-if="!user.userName"  @click="loginDialogVisible = true,flag=1">登录 </span>
+          <span v-if="!store.userId"  @click="loginDialogVisible = true,flag=1">登录 </span>
 
           <div v-if="loginDialogVisible === false" class="login-info">
             <div class="login-can">登录后你可以:</div>
@@ -413,7 +413,7 @@
            大会员
         </a>
         <div class="transparent-div12"></div>
-        <div v-if="user.userName !== null" class="vip-introduce">
+        <div v-if="store.userId !== null" class="vip-introduce">
           <a
             style="animation: none !important"
             href="#"
@@ -552,7 +552,7 @@
         </div>
       </li>
       <li>
-        <a v-if="user.userName !== null" target="_blank" :href='`./message`'>
+        <a v-if="store.userId !== null" target="_blank" :href='`./message`'>
           <div
             v-if="store.userInformation.allMessageNumber>0"
             class="number-style"
@@ -563,12 +563,12 @@
           <img v-show="head2Flag" style="width:18px;" src="../img/消息黑.png" alt="消息" />
           消息
         </a>
-        <a v-if="!user.userName" @click="loginDialogVisible = true">
+        <a v-if="!store.userId" @click="loginDialogVisible = true">
           <img v-show="!head2Flag" style="width:18px;" src="../img/消息.png" alt="消息" />
           <img v-show="head2Flag" style="width:18px;" src="../img/消息黑.png" alt="消息" />
            消息
         </a>
-        <div class="login-info2" v-if="!user.userName">
+        <div class="login-info2" v-if="!store.userId">
           <span style="font-size: 14px; margin-top: 20px"
             >登录即可查看消息记录</span
           >
@@ -581,7 +581,7 @@
           </el-button>
         </div>
         <div class="transparent-div13"></div>
-        <div class="message-info" v-if="user.userName !== null">
+        <div class="message-info" v-if="store.userId !== null">
           <span @click="openMessage(1)" style="margin-top: 15px; cursor: pointer">
           <div class="text">我的消息</div>
           <div v-if="store.userInformation.messageNumber>0" class="message-number-style">{{ store.userInformation.messageNumber>99? '99+' : store.userInformation.messageNumber }}</div>
@@ -604,11 +604,11 @@
         </div>
       </li>
       <li>
-        <a v-if="!user.userName" @click="loginDialogVisible = true">
+        <a v-if="!store.userId" @click="loginDialogVisible = true">
           <img v-show="!head2Flag" style="width:18px;" src="../img/动态.png" alt="动态" />
           <img v-show="head2Flag" style="width:18px;" src="../img/动态黑.png" alt="动态" /> 动态
         </a>
-        <a v-if="user.userName !== null" href="./dynamic" target="_blank">
+        <a v-if="store.userId !== null" href="./dynamic" target="_blank">
           <div
             v-if="store.userInformation.dynamicNumber>0"
             class="number-style"
@@ -619,7 +619,7 @@
           <img v-show="head2Flag" style="width:18px;" src="../img/动态黑.png" alt="动态" />
           动态
         </a>
-        <div class="login-info2" v-if="!user.userName">
+        <div class="login-info2" v-if="!store.userId">
           <span style="font-size: 14px; margin-top: 20px"
             >登录即可查看关注动态</span
           >
@@ -633,7 +633,7 @@
         </div>
         <div class="transparent-div14"></div>
         <div
-          v-if="user.userName !== null"
+          v-if="store.userId !== null"
           class="dynamic-info"
           @mouseleave="cleanAllDynamicAxios"
         >
@@ -954,16 +954,16 @@
         </div>
       </li>
       <li @mouseover="setCollectStore">
-        <a v-if="!user.userName" @click="loginDialogVisible = true">
+        <a v-if="!store.userId" @click="loginDialogVisible = true">
           <img v-show="!head2Flag" style="width: 18px;height: 18px;" src="../img/收藏.png" alt="收藏" />
           <img v-show="head2Flag" style="width: 18px;height: 18px;" src="../img/收藏黑.png" alt="收藏" />
            收藏
         </a>
-        <a v-if="user.userName !== null" :href="'./home?userId='+store.userInformation.id+'&homeMenu=5'" target="_blank">
+        <a v-if="store.userId !== null" :href="'./home?userId='+store.userInformation.id+'&homeMenu=5'" target="_blank">
           <img v-show="!head2Flag" style="width: 18px;height: 18px;" src="../img/收藏.png" alt="收藏" />
           <img v-show="head2Flag" style="width: 18px;height: 18px;" src="../img/收藏黑.png" alt="收藏" /> 收藏
         </a>
-        <div class="login-info2" v-if="!user.userName">
+        <div class="login-info2" v-if="!store.userId">
           <span style="font-size: 14px; margin-top: 20px"
             >登录即可查看我的收藏</span
           >
@@ -976,7 +976,7 @@
           </el-button>
         </div>
         <div class="transparent-div15"></div>
-        <div v-if="user.userName !== null" class="collect-info">
+        <div v-if="store.userId !== null" class="collect-info">
           <div class="collectAside">
             <div
               class="collectAdideContent"
@@ -1130,16 +1130,16 @@
         </div>
       </li>
       <li>
-        <a v-if="!user.userName" @click="loginDialogVisible = true">
+        <a v-if="!store.userId" @click="loginDialogVisible = true">
           <img v-show="!head2Flag" style="width:18px;" src="../img/历史.png" alt="历史" /> 
           <img v-show="head2Flag" style="width:18px;" src="../img/历史黑.png" alt="历史" /> 
           历史
         </a>
-        <a v-if="user.userName !== null" href="/history" target="_blank" @mouseover="selectHistoryAxios" @mouseleave="historyAxiosTimeF">
+        <a v-if="store.userId !== null" href="/history" target="_blank" @mouseover="selectHistoryAxios" @mouseleave="historyAxiosTimeF">
           <img v-show="!head2Flag" style="width:18px;" src="../img/历史.png" alt="历史" /> 
           <img v-show="head2Flag" style="width:18px;" src="../img/历史黑.png" alt="历史" /> 历史
         </a>
-        <div class="login-info2" v-if="!user.userName">
+        <div class="login-info2" v-if="!store.userId">
           <span style="font-size: 14px; margin-top: 20px"
             >登录即可查看历史记录</span
           >
@@ -1152,7 +1152,7 @@
           </el-button>
         </div>
         <div class="transparent-div16"></div>
-        <div v-if="user.userName !== null" class="history-info">
+        <div v-if="store.userId !== null" class="history-info">
           <div class="historyAside">
             <span v-show="historyAsideFlag !== 0" @click="selectHistoryAxios"
               >视频</span
@@ -1524,18 +1524,18 @@
         </div>
       </li>
       <li>
-        <a v-if="!user.userName" @click="loginDialogVisible = true">
+        <a v-if="!store.userId" @click="loginDialogVisible = true">
           <img v-show="!head2Flag" style="width:15px;height:18px;" src="../img/创作中心.png" alt="创作中心" />
           <img v-show="head2Flag" style="width:15px;height:18px;" src="../img/创作中心黑.png" alt="创作中心" />
           创作中心
         </a>
-        <a v-if="user.userName !== null" href="./contribute" target="_blank">
+        <a v-if="store.userId !== null" href="./contribute" target="_blank">
           <img v-show="!head2Flag" style="width:15px;height:18px;" src="../img/创作中心.png" alt="创作中心" />
           <img v-show="head2Flag" style="width:15px;height:18px;" src="../img/创作中心黑.png" alt="创作中心" /> 创作中心
         </a>
       </li>
       <li>
-        <div v-if="user.userName !== null" class="upload">
+        <div v-if="store.userId !== null" class="upload">
           <a
             href="./contribute"
             style="
@@ -1551,7 +1551,7 @@
           </a>
         </div>
         <div
-          v-if="!user.userName"
+          v-if="!store.userId"
           class="upload"
           @click="loginDialogVisible = true"
         >
@@ -2459,15 +2459,6 @@ export default {
       }, 1700);
     };
 
-    const notLogin = () => {
-      ElMessage({
-        message: "您还没有登录",
-        type: "info",
-        plain: true,
-        duration: 1700,
-      });
-      window.location.href = "../";
-    };
     //注册请求
     async function sigininAxios() {
       try {
@@ -2640,24 +2631,55 @@ export default {
 
     //检查是否登录
     async function ChecklLoginF(){
-
     ChecklLogin(store.userIp).then(response=>{
     if (response.data.code === 1) {
         if(store.userId!==response.data.data.id||!store.userId)
           autoLogin();
         else{
-          user.length = 0;
-          store.setUserId(response.data.data.id);
-          Object.assign(user, response.data.data);
-          store.setUserInformation(response.data.data);
+          if(response.data){
+            user.length = 0;
+            store.setUserId(response.data.data.id);
+            Object.assign(user, response.data.data);
+            store.setUserInformation(response.data.data);
+          }else{
+            refreshToHome();
+          }
         }
     } else {
-        store.setUserId(null);
-        if(window.location.href.indexOf("message")>0)
-          window.location.href = "../";
+        refreshToHome();
     }
     })
     }
+
+
+
+    //需要权限没有登录上刷新到首页
+    function refreshToHome(){
+        user.length = 0;
+        store.setUserId(null);
+        store.userInformation={};
+        store.setToken(null);
+        if(window.location.href.indexOf("message")>0
+        ||(window.location.href.indexOf("dynamc")>0
+        &&window.location.href.indexOf("dynamcDetail")===0)
+        ||window.location.href.indexOf("waitWatch")>0
+        ||window.location.href.indexOf("history")>0
+        ||window.location.href.indexOf("contribute")>0
+        ||window.location.href.indexOf("account")>0)
+        {
+          ElMessage({
+            message: "您还没有登录",
+            type: "info",
+            plain: true,
+            duration: 1700,
+          });
+          setTimeout(()=>{
+            window.location.href = "../";
+          },1800);
+        }
+    }
+
+
 
     //自动登录
     async function autoLogin() {
@@ -3064,7 +3086,6 @@ export default {
       removeSpaces2,
       openFullScreen2,
       timewait,
-      notLogin,
       fullscreenLoading,
       NewFansNumber,
       waitWatch,
