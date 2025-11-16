@@ -159,14 +159,14 @@
         <!-- FFmpeg Java 封装 -->
         <dependency>
             <groupId>org.bytedeco</groupId>
-            <artifactId>ffmpeg</artifactId>
-            <version>5.0-1.5.7</version>
+            <artifactId>javacv</artifactId>
+            <version>1.5.7</version>
         </dependency>
 
         <dependency>
             <groupId>org.bytedeco</groupId>
-            <artifactId>ffmpeg-platform</artifactId>
-            <version>5.0-1.5.7</version> <!-- 确保版本匹配 -->
+            <artifactId>ffmpeg</artifactId>
+            <version>5.0-1.5.7</version>
         </dependency>
 
         <dependency>
