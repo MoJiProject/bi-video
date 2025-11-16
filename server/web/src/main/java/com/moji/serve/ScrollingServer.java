@@ -17,7 +17,9 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,27 +27,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 @EnableWebSocket
 public class ScrollingServer implements WebSocketConfigurer {
 
-    // 创建 ObjectMapper 实例 转json
     private final ObjectMapper objectMapper = new ObjectMapper();
-    //第二个是视频id 根据视频id进行群发到所有网页这个id的弹幕进行更新
     private static final Map<WebSocketSession, Integer> sessions = new ConcurrentHashMap<>();
     private static final Logger log = LoggerFactory.getLogger(ScrollingServer.class);
-
-    private static AtomicInteger[] watchNumber = new AtomicInteger[100000];
-
-    // 静态初始化代码块，初始化数组中的每个元素
-    static {
-        for (int i = 0; i < watchNumber.length; i++) {
-            watchNumber[i] = new AtomicInteger(0);  // 初始化每个 AtomicInteger 对象
-        }
-    }
+    private static final Map<Integer, AtomicInteger> watchNumber = new ConcurrentHashMap<>();
 
     @Autowired
     private ScrollingService scrollingService;
 
     @PostConstruct
     public void init() {
-
     }
 
     @Override
@@ -55,92 +46,108 @@ public class ScrollingServer implements WebSocketConfigurer {
 
     private class CustomWebSocketHandler extends TextWebSocketHandler {
 
-
         @Override
         public void afterConnectionEstablished(WebSocketSession session) {
-
         }
 
         @Override
         protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-
             String payload = message.getPayload();
-
-
             try {
-                String[] split = payload.split(":");
-                Integer videoId= Integer.valueOf(split[0]);
-                String open= split[1];
-                if (split[0].isEmpty()) {
+                String[] split = payload.split(":", 2);
+                if (split.length < 2 || split[0].isEmpty()) {
+                    sendMessage(session, "格式错误: 'videoId:操作'");
                     return;
                 }
-                sessions.put(session,videoId);
-                if(open.equals("open"))
-                    watchNumber[sessions.get(session)].incrementAndGet();
-                // 查询逻辑
+
+                Integer videoId = Integer.valueOf(split[0]);
+                String operation = split[1];
+
+                session.getAttributes().put("videoId", videoId);
+                sessions.put(session, videoId);
+
+                if ("open".equals(operation)) {
+                    watchNumber.computeIfAbsent(videoId, k -> new AtomicInteger(0)).incrementAndGet();
+                }
+
                 List<Scrolling> scrollings = scrollingService.selectScrollingList(videoId);
-
                 String jsonScrollings = objectMapper.writeValueAsString(scrollings);
-                broadcastToAllSessions(jsonScrollings,videoId);
+                broadcastToAllSessions(jsonScrollings, videoId);
+
             } catch (NumberFormatException e) {
-                sendMessage(session, "Error: Invalid videoId format");
+                sendMessage(session, "无效videoId");
+            } catch (Exception e) {
+                log.error("处理消息失败", e);
+                sendMessage(session, "服务器错误");
             }
         }
 
-        /**
-         * 群发 更新弹幕和观看人数（发送弹幕和初始化时调用）
-         * @param message
-         * @param vid
-         */
-        private void broadcastToAllSessions(String message,int vid) {
-            for (Map.Entry<WebSocketSession, Integer> entry : sessions.entrySet()) {
+        private void broadcastToAllSessions(String scrollMessage, int videoId) {
+            int currentWatchNum = watchNumber.getOrDefault(videoId, new AtomicInteger(0)).get();
+            String watchNumMsg = String.valueOf(currentWatchNum);
+
+            // 复制快照避免并发修改异常
+            Set<Map.Entry<WebSocketSession, Integer>> entries = Set.copyOf(sessions.entrySet());
+            for (Map.Entry<WebSocketSession, Integer> entry : entries) {
                 WebSocketSession session = entry.getKey();
-                Integer videoId = entry.getValue();
-                // 发送消息
-                if (videoId!=null&&session.isOpen()&&videoId==vid) {  // 检查 session 是否仍然打开
-                    sendMessage(session, message);
-                    sendMessage(session, String.valueOf(watchNumber[sessions.get(session)].get()));
-                }else {
-                    sessions.remove(session);
+                Integer sessionVideoId = entry.getValue();
+
+                if (sessionVideoId != null && sessionVideoId.equals(videoId)) {
+                    sendMessage(session, scrollMessage);
+                    sendMessage(session, watchNumMsg);
                 }
             }
         }
 
-        /**
-         * 群发 更新观看人数(网页关闭时调用)
-         * @param sessionN 关闭的websocket
-         * @param vid
-         */
-        private void broadcastToAllSessionsWatch(WebSocketSession sessionN,int vid) {
-            for (Map.Entry<WebSocketSession, Integer> entry : sessions.entrySet()) {
+        private void broadcastToAllSessionsWatch(int videoId) {
+            int currentWatchNum = watchNumber.getOrDefault(videoId, new AtomicInteger(0)).get();
+            String watchNumMsg = String.valueOf(currentWatchNum);
+
+            Set<Map.Entry<WebSocketSession, Integer>> entries = Set.copyOf(sessions.entrySet());
+            for (Map.Entry<WebSocketSession, Integer> entry : entries) {
                 WebSocketSession session = entry.getKey();
-                int videoId = entry.getValue();
-                // 发送消息
-                if (session.isOpen()&&videoId==vid && session!=sessionN) {  // 检查 session 是否仍然打开
-                    sendMessage(session, String.valueOf(watchNumber[vid].get()));
-                }else {
-                    sessions.remove(session);
+                Integer sessionVideoId = entry.getValue();
+
+                if (sessionVideoId != null && sessionVideoId.equals(videoId)) {
+                    sendMessage(session, watchNumMsg);
                 }
             }
         }
-
 
         @Override
         public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-            Integer videoId=sessions.get(session);
-            if(videoId==null)
-                return;
-            watchNumber[videoId].decrementAndGet();
-            broadcastToAllSessionsWatch(session,videoId);
-            sessions.remove(session);
 
+            Integer videoId = (Integer) session.getAttributes().get("videoId");
+            if (videoId != null) {
+                watchNumber.computeIfPresent(videoId, (k, count) -> {
+                    count.decrementAndGet();
+                    return count;
+                });
+                broadcastToAllSessionsWatch(videoId);
+            }
+            sessions.remove(session); // 强制移除会话
         }
 
+        /**
+         * 核心优化：专门捕获会话关闭导致的发送异常
+         */
         private void sendMessage(WebSocketSession session, String message) {
+            // 快速检查：已关闭则直接清理
+            if (!session.isOpen()) {
+                sessions.remove(session);
+                return;
+            }
+
             try {
+                // 尝试发送消息（此处仍可能因并发关闭抛出异常）
                 session.sendMessage(new TextMessage(message));
+            } catch (IllegalStateException e) {
+                // 专门捕获"会话已关闭"的异常，仅记录trace级别日志（避免刷屏）
+                sessions.remove(session);
             } catch (IOException e) {
-                log.error("Error sending message", e);
+                // 其他IO异常（如网络问题）
+                log.error("向会话{}发送消息失败", session.getId(), e);
+                sessions.remove(session);
             }
         }
     }
