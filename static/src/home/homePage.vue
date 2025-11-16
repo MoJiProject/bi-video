@@ -60,7 +60,6 @@ watch(()=>store.homeLoad,()=>{
 
 .home-page{
     position: relative;
-    left: 13px;
     width: 100%;
 
     .home-loading{

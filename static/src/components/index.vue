@@ -110,7 +110,7 @@ export default {
  }
  .index{
   position: relative;
-  left: 37.5px;
+  left: 24.5px;
   user-select: none;
   height: auto;
   min-height: 110vh;

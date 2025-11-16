@@ -3,7 +3,7 @@
     <div
       class="background-image"
       :style="{
-        backgroundPositionX: store.mouseX * 0.1 - 200 + 'px',
+        backgroundPositionX: store.mouseX * 0.1 - 150 + 'px',
         opacity:
           store.mouseX < 476.67 + windowsWidthP * 0.33
             ? (
@@ -99,7 +99,7 @@ body {
 
 .background-container {
   position: absolute;
-  width: 1500px;
+  width: 100%;
   height: 160px;
   z-index: inherit;
   overflow: hidden; /* 隐藏超出容器的内容 */
