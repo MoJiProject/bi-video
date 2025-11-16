@@ -159,14 +159,15 @@
         <!-- FFmpeg Java 封装 -->
         <dependency>
             <groupId>org.bytedeco</groupId>
-            <artifactId>javacv</artifactId>
-            <version>1.5.7</version>
+            <artifactId>ffmpeg</artifactId>
+            <version>5.0-1.5.7</version>
         </dependency>
-
+        <!-- Windows x86_64 平台的 native 库 -->
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>ffmpeg</artifactId>
             <version>5.0-1.5.7</version>
+            <classifier>windows-x86_64</classifier>
         </dependency>
 
         <dependency>
