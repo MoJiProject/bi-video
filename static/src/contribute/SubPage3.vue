@@ -814,8 +814,7 @@ export default {
 
     //打开视频页
     function openVideo(video) {
-       
-      if(video.status!==1)
+      if(video.status!==1&&store.userInformation.adminFlag===0)
       return;
       else{
         window.open("../video?videoId=BV"+video.id,"videoWindow");

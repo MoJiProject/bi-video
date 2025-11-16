@@ -1082,16 +1082,17 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
     @Override
     public SelectVideoByIdVo selectByVideoId(Integer videoId, Integer userId){
 
+        Users user = userMapper.selectById(userId);
+        Videos videos = videosMapper.selectById(videoId);
+        if (videos==null||(videos.getStatus()!=1&&user.getAdminFlag()==0))
+            return null;
+        Users upUsers = userMapper.selectById(videos.getUserId());
+
+        int isFansFlag=0;
         boolean likeVideoClickFlag=false;
         boolean videoThrowCoinClickFlag=false;
         boolean videoShareClickFlag=false;
         boolean videoCollectClickFlag=false;
-
-        Videos videos = videosMapper.selectById(videoId);
-        if (videos==null||videos.getStatus()!=1)
-            return null;
-        Users upUsers = userMapper.selectById(videos.getUserId());
-        int isFansFlag=0;
 
         if(userId!=0) {
             LambdaQueryWrapper<Fans> fansLambdaQueryWrapper=new LambdaQueryWrapper<>();
