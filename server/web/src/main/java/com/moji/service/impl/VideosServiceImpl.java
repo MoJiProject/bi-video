@@ -1270,12 +1270,16 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
             {
                 LambdaQueryWrapper<Collects> collectLambdaQueryWrapper=new LambdaQueryWrapper<>();
                 collectLambdaQueryWrapper.eq(Collects::getVideoId,selectVideoByIdVo.getUpVideo().getId())
+                        .ne(Collects::getCollectName,"稍后再看")
                         .eq(Collects::getUserId,selectVideoByIdVo.getUserId());
                 List<Collects> collects = collectMapper.selectList(collectLambdaQueryWrapper);
-                if(collects.isEmpty()||collects.get(0).getCollectName().equals("稍后再看"))
+                if(collects.isEmpty())
                 {
-                    collectLambdaQueryWrapper.eq(Collects::getCollectName,"默认收藏夹");
-                    if(collectMapper.selectOne(collectLambdaQueryWrapper)==null) {
+                    LambdaQueryWrapper<Collects> collectLambdaQueryWrapper2=new LambdaQueryWrapper<>();
+                    collectLambdaQueryWrapper2.eq(Collects::getVideoId,selectVideoByIdVo.getUpVideo().getId())
+                            .eq(Collects::getCollectName,"默认收藏夹")
+                            .eq(Collects::getUserId,selectVideoByIdVo.getUserId());
+                    if(collectMapper.selectOne(collectLambdaQueryWrapper2)==null) {
                         Collects collect = Collects.builder()
                                 .videoId(selectVideoByIdVo.getUpVideo().getId())
                                 .userId(selectVideoByIdVo.getUserId())
@@ -1303,10 +1307,8 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
                         collectsClassify.setVideoNumber(collectsClassify.getVideoNumber()+1);
                         collectClassifyMapper.updateById(collectsClassify);
                     }
-
-
-                    Videos videos=selectVideoByIdVo.getUpVideo();
-                    videos.setCollectNumber(videos.getCollectNumber()+1);
+                    Videos videos = selectVideoByIdVo.getUpVideo();
+                    videos.setCollectNumber(videos.getCollectNumber() + 1);
                     videosMapper.updateById(videos);
                 }
             }
