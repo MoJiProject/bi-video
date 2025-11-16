@@ -915,7 +915,7 @@ socket.onmessage = (event) => {
     }
 };
 
-//更新字体
+//更新字数
 function updateFontNumber(){
 
     messageNumber.value=messageInput.value.innerText.trim().length+messageInput.value.getElementsByTagName("img").length*5;

@@ -334,6 +334,7 @@ function handleContentInput(){
     } else {
       eitFlag.value = false;
     }
+    contentLength.value=contentInput.value.innerText.trim().length+contentInput.value.getElementsByTagName("img").length*5;
 }
 
 // 获取光标之前的文本，支持嵌套子节点
@@ -386,6 +387,7 @@ function addEmoji(index) {
   selection.removeAllRanges();
   selection.addRange(newRange);
   handleContentInput();
+  contentLength.value=contentInput.value.innerText.trim().length+contentInput.value.getElementsByTagName("img").length*5;
 }
 
 //添加eit
