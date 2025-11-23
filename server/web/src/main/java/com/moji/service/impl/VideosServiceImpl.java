@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> implements VideosService {
@@ -487,10 +488,13 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
             LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
             collectsLambdaQueryWrapper.eq(Collects::getVideoId,videoId);
             List<Collects> collects = collectMapper.selectList(collectsLambdaQueryWrapper);
-            for (Collects collect : collects) {
-                collect.setDeleteFlag(1);
-                collectMapper.updateById(collect);
-            }
+            List<Integer> collectIds = collects.stream()
+                    .map(Collects::getId)
+                    .collect(Collectors.toList());
+            Collects collectEntry = new Collects();
+            collectEntry.setDeleteFlag(1);
+            collectMapper.update(collectEntry, new LambdaQueryWrapper<Collects>()
+                    .in(Collects::getId, collectIds));
             //删除历史
             LambdaQueryWrapper<History> historyLambdaQueryWrapper=new LambdaQueryWrapper<>();
             historyLambdaQueryWrapper.eq(History::getVideoId,videoId);
@@ -507,11 +511,11 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
             //删除弹幕
             LambdaQueryWrapper<Scrolling> scrollingLambdaQueryWrapper=new LambdaQueryWrapper<>();
             scrollingLambdaQueryWrapper.eq(Scrolling::getVideoId,videoId);
-            List<Scrolling> scrollings = scrollingMapper.selectList(scrollingLambdaQueryWrapper);
-            if(!scrollings.isEmpty())
-             for (Scrolling scrolling : scrollings) {
-                scrollingMapper.deleteById(scrolling);
-            }
+            List<Scrolling> scrollingList = scrollingMapper.selectList(scrollingLambdaQueryWrapper);
+            List<Integer> scrollIds = scrollingList.stream()
+                    .map(Scrolling::getId)
+                    .collect(Collectors.toList());
+            scrollingMapper.deleteBatchIds(scrollIds);
             //删除评论
             LambdaQueryWrapper<Comments> commentsLambdaQueryWrapper=new LambdaQueryWrapper<>();
             commentsLambdaQueryWrapper.eq(Comments::getVideoId,videoId);
@@ -576,10 +580,13 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
             LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
             collectsLambdaQueryWrapper.eq(Collects::getVideoId,videos1.getId());
             List<Collects> collects = collectMapper.selectList(collectsLambdaQueryWrapper);
-            for (Collects collect : collects) {
-                collect.setDeleteFlag(1);
-                collectMapper.updateById(collect);
-            }
+            List<Integer> collectIds = collects.stream()
+                    .map(Collects::getId)
+                    .collect(Collectors.toList());
+            Collects collectEntry = new Collects();
+            collectEntry.setDeleteFlag(1);
+            collectMapper.update(collectEntry, new LambdaQueryWrapper<Collects>()
+                    .in(Collects::getId, collectIds));
 
             //清除动态
             LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
@@ -1042,13 +1049,10 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
         fansLambdaQueryWrapper.eq(Fans::getUserId,videoUser.getId());
 
         List<Fans> fans = fansMapper.selectList(fansLambdaQueryWrapper);
-
         for (Fans fan : fans) {
-
             Users users = userMapper.selectById(fan.getFansId());
             users.setDynamicNumber(users.getDynamicNumber()+1);
             userMapper.updateById(users);
-
             Dynamic dynamic=Dynamic.builder()
                     .watchDynamicFlag(0)
                     .videoId(videoId)
@@ -1063,10 +1067,13 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
         LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
         collectsLambdaQueryWrapper.eq(Collects::getVideoId,videoId);
         List<Collects> collects = collectMapper.selectList(collectsLambdaQueryWrapper);
-        for (Collects collect : collects) {
-            collect.setDeleteFlag(0);
-            collectMapper.updateById(collect);
-        }
+        List<Integer> collectIds = collects.stream()
+                .map(Collects::getId)
+                .collect(Collectors.toList());
+        Collects collectEntry = new Collects();
+        collectEntry.setDeleteFlag(0);
+        collectMapper.update(collectEntry, new LambdaQueryWrapper<Collects>()
+                .in(Collects::getId, collectIds));
 
         Dynamic dynamic=Dynamic
                 .builder()
@@ -1371,12 +1378,10 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
 
             String[] tag = videos1.getTag().split(",");
             for (String s : tag) {
-
                 LambdaQueryWrapper<Videos> lambdaQueryWrapper = new LambdaQueryWrapper<>();
                 lambdaQueryWrapper
                         .eq(Videos::getStatus,1)
                         .like(Videos::getTag, s);
-
                 List<Videos> videos2 = videosMapper.selectList(lambdaQueryWrapper);
                 if (!videos2.isEmpty()) {
                     for (Videos videos3 : videos2) {
@@ -1469,9 +1474,14 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
         List<ThrowCoin> records = selectPage.getRecords();
 
         List<Videos> videosList=new ArrayList<>();
-        for (ThrowCoin record : records) {
-            videosList.add(videosMapper.selectById(record.getVideoId()));
+        List<Integer> videoIds = records.stream()
+                .map(ThrowCoin::getVideoId)
+                .distinct()
+                .collect(Collectors.toList());
+        if (!videoIds.isEmpty()) {
+            videosList.addAll(videosMapper.selectBatchIds(videoIds));
         }
+
 
         return this.getSelectVideoDto(videosList, userId, true);
     }
@@ -1488,9 +1498,20 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
 
         List<Likes> likes = likesMapper.selectList(likesLambdaQueryWrapper);
         List<Videos> videosList=new ArrayList<>();
+        List<Integer> videoIds = likes.stream()
+                .map(Likes::getFondId)
+                .distinct()
+                .collect(Collectors.toList());
+        Map<Integer, Videos> videosMap = videosMapper.selectBatchIds(videoIds)
+                .stream()
+                .collect(Collectors.toMap(Videos::getId, v -> v));
         for (Likes like : likes) {
-           videosList.add( videosMapper.selectById(like.getFondId()));
+            Videos video = videosMap.get(like.getFondId());
+            if (video != null) {
+                videosList.add(video);
+            }
         }
+
 
         return this.getSelectVideoDto(videosList, userId, true);
     }
