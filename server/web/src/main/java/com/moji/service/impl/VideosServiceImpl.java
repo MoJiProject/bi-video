@@ -488,13 +488,16 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
             LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
             collectsLambdaQueryWrapper.eq(Collects::getVideoId,videoId);
             List<Collects> collects = collectMapper.selectList(collectsLambdaQueryWrapper);
-            List<Integer> collectIds = collects.stream()
-                    .map(Collects::getId)
-                    .collect(Collectors.toList());
-            Collects collectEntry = new Collects();
-            collectEntry.setDeleteFlag(1);
-            collectMapper.update(collectEntry, new LambdaQueryWrapper<Collects>()
-                    .in(Collects::getId, collectIds));
+            if(!collects.isEmpty()){
+                List<Integer> collectIds = collects.stream()
+                        .map(Collects::getId)
+                        .collect(Collectors.toList());
+                Collects collectEntry = new Collects();
+                collectEntry.setDeleteFlag(1);
+                collectMapper.update(collectEntry, new LambdaQueryWrapper<Collects>()
+                        .in(Collects::getId, collectIds));
+            }
+
             //删除历史
             LambdaQueryWrapper<History> historyLambdaQueryWrapper=new LambdaQueryWrapper<>();
             historyLambdaQueryWrapper.eq(History::getVideoId,videoId);
@@ -580,13 +583,15 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
             LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
             collectsLambdaQueryWrapper.eq(Collects::getVideoId,videos1.getId());
             List<Collects> collects = collectMapper.selectList(collectsLambdaQueryWrapper);
-            List<Integer> collectIds = collects.stream()
-                    .map(Collects::getId)
-                    .collect(Collectors.toList());
-            Collects collectEntry = new Collects();
-            collectEntry.setDeleteFlag(1);
-            collectMapper.update(collectEntry, new LambdaQueryWrapper<Collects>()
-                    .in(Collects::getId, collectIds));
+            if(!collects.isEmpty()){
+                List<Integer> collectIds = collects.stream()
+                        .map(Collects::getId)
+                        .collect(Collectors.toList());
+                Collects collectEntry = new Collects();
+                collectEntry.setDeleteFlag(1);
+                collectMapper.update(collectEntry, new LambdaQueryWrapper<Collects>()
+                        .in(Collects::getId, collectIds));
+            }
 
             //清除动态
             LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
@@ -1067,13 +1072,15 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
         LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
         collectsLambdaQueryWrapper.eq(Collects::getVideoId,videoId);
         List<Collects> collects = collectMapper.selectList(collectsLambdaQueryWrapper);
-        List<Integer> collectIds = collects.stream()
-                .map(Collects::getId)
-                .collect(Collectors.toList());
-        Collects collectEntry = new Collects();
-        collectEntry.setDeleteFlag(0);
-        collectMapper.update(collectEntry, new LambdaQueryWrapper<Collects>()
-                .in(Collects::getId, collectIds));
+        if(!collects.isEmpty()) {
+            List<Integer> collectIds = collects.stream()
+                    .map(Collects::getId)
+                    .collect(Collectors.toList());
+            Collects collectEntry = new Collects();
+            collectEntry.setDeleteFlag(0);
+            collectMapper.update(collectEntry, new LambdaQueryWrapper<Collects>()
+                    .in(Collects::getId, collectIds));
+        }
 
         Dynamic dynamic=Dynamic
                 .builder()
