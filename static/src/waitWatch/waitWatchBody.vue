@@ -240,6 +240,7 @@ function deleteAllwaitWatchF(){
             });
             deleteAllwaitWatchDialogFlag.value=false;
             waitWatchList.length=0;
+            store.collectNumber=0;
         }
         else{
             ElMessage({
