@@ -60,6 +60,9 @@ public class CollectClassifyServiceImpl extends ServiceImpl<CollectClassifyMappe
         List<String> collectNames = collectsClassifyList.stream()
                 .map(CollectsClassify::getCollectName)
                 .collect(Collectors.toList());
+        if(collectNames.isEmpty()){
+            return collectsClassifies;
+        }
         List<Collects> latestCollects = collectMapper.selectList(
                 new LambdaQueryWrapper<Collects>()
                         .eq(Collects::getUserId, homeUserId)

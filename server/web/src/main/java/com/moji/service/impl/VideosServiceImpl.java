@@ -494,8 +494,10 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
                         .collect(Collectors.toList());
                 Collects collectEntry = new Collects();
                 collectEntry.setDeleteFlag(1);
-                collectMapper.update(collectEntry, new LambdaQueryWrapper<Collects>()
-                        .in(Collects::getId, collectIds));
+                if(!collectIds.isEmpty()) {
+                    collectMapper.update(collectEntry, new LambdaQueryWrapper<Collects>()
+                            .in(Collects::getId, collectIds));
+                }
             }
 
             //删除历史
@@ -589,8 +591,10 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
                         .collect(Collectors.toList());
                 Collects collectEntry = new Collects();
                 collectEntry.setDeleteFlag(1);
-                collectMapper.update(collectEntry, new LambdaQueryWrapper<Collects>()
-                        .in(Collects::getId, collectIds));
+                if(!collectIds.isEmpty()) {
+                    collectMapper.update(collectEntry, new LambdaQueryWrapper<Collects>()
+                            .in(Collects::getId, collectIds));
+                }
             }
 
             //清除动态
@@ -1078,8 +1082,10 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
                     .collect(Collectors.toList());
             Collects collectEntry = new Collects();
             collectEntry.setDeleteFlag(0);
-            collectMapper.update(collectEntry, new LambdaQueryWrapper<Collects>()
-                    .in(Collects::getId, collectIds));
+            if (!collectIds.isEmpty()) {
+                collectMapper.update(collectEntry, new LambdaQueryWrapper<Collects>()
+                        .in(Collects::getId, collectIds));
+            }
         }
 
         Dynamic dynamic=Dynamic
