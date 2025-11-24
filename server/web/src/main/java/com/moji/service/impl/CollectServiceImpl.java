@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> implements CollectService {
@@ -66,10 +66,19 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
                 List<Collects> collects = collectMapper.selectList(collectsLambdaQueryWrapper);
 
                 List<CollectDto> collectDtos=new ArrayList<>();
+                List<Integer> videoIds = collects.stream()
+                        .map(Collects::getVideoId)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+                Map<Integer, Videos> videoMap = new HashMap<>();
+                if (!videoIds.isEmpty()) {
+                    List<Videos> videos = videosMapper.selectBatchIds(videoIds);
+                    videoMap = videos.stream().collect(Collectors.toMap(Videos::getId, v -> v));
+                }
                 for (Collects collect : collects) {
-                    CollectDto collectDto=new CollectDto();
+                    CollectDto collectDto = new CollectDto();
                     collectDto.setCollects(collect);
-                    collectDto.setVideos(videosMapper.selectById(collect.getVideoId()));
+                    collectDto.setVideos(videoMap.get(collect.getVideoId()));
                     collectDtos.add(collectDto);
                 }
 
@@ -101,10 +110,7 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
                         .build();
                 collectClassifyMapper.insert(collectsClassify);
             }
-
             return collectVos;
-
-
     }
 
     @Override
@@ -127,51 +133,59 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
            videosMapper.updateById(videos);
         }
 
-        int closeCollectFlag=0;
+        int closeCollectFlag = 0;
+        List<String> names = acceptCollect.getAllInFlags()
+                .stream().map(AllInFlag::getName).collect(Collectors.toList());
+        if(names.isEmpty()){
+            throw new RuntimeException("收藏夹不能为空");
+        }
+        List<Collects> oldCollects = collectMapper.selectList(
+                new LambdaQueryWrapper<Collects>()
+                        .eq(Collects::getVideoId, acceptCollect.getVideoId())
+                        .eq(Collects::getUserId, acceptCollect.getUserId())
+                        .in(Collects::getCollectName, names)
+        );
+        Map<String, Collects> oldCollectMap = oldCollects.stream()
+                .collect(Collectors.toMap(Collects::getCollectName, c -> c));
+        if(names.isEmpty())
+        {
+            throw new RuntimeException("收藏夹不能为空");
+        }
+        List<CollectsClassify> classifies = collectClassifyMapper.selectList(
+                new LambdaQueryWrapper<CollectsClassify>()
+                        .eq(CollectsClassify::getUserId, acceptCollect.getUserId())
+                        .in(CollectsClassify::getCollectName, names)
+        );
+        Map<String, CollectsClassify> classifyMap = classifies.stream()
+                .collect(Collectors.toMap(CollectsClassify::getCollectName, c -> c));
         for (AllInFlag allInFlag : acceptCollect.getAllInFlags()) {
-
-            if(!allInFlag.getFlag())
+            if (!allInFlag.getFlag())
                 closeCollectFlag++;
-            //收藏夹全部取消该视频，该视频收藏数量-1(上次收藏过)
-            if((!collectss.isEmpty() || waitWatchFlag)&&closeCollectFlag==acceptCollect.getAllInFlags().size())
-            {
-                videos.setCollectNumber(videos.getCollectNumber()-1);
+            if ((!collectss.isEmpty() || waitWatchFlag) &&
+                    closeCollectFlag == acceptCollect.getAllInFlags().size()) {
+                videos.setCollectNumber(videos.getCollectNumber() - 1);
                 videosMapper.updateById(videos);
             }
-            //查询之前是否收藏过(精确)
-            LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper1=new LambdaQueryWrapper<>();
-            collectsLambdaQueryWrapper1.eq(Collects::getVideoId,acceptCollect.getVideoId())
-                    .eq(Collects::getUserId,acceptCollect.getUserId())
-                    .eq(Collects::getCollectName,allInFlag.getName());
-            Collects collects1 = collectMapper.selectOne(collectsLambdaQueryWrapper1);
-            //收藏
-           if(allInFlag.getFlag()&&collects1==null)
-           {
-               LambdaQueryWrapper<CollectsClassify> collectsClassifyLambdaQueryWrapper=new LambdaQueryWrapper<>();
-               collectsClassifyLambdaQueryWrapper.eq(CollectsClassify::getUserId,acceptCollect.getUserId())
-                       .eq(CollectsClassify::getCollectName,allInFlag.getName());
-               CollectsClassify collectsClassify = collectClassifyMapper.selectOne(collectsClassifyLambdaQueryWrapper);
-               collectsClassify.setVideoNumber(collectsClassify.getVideoNumber()+1);
-               collectClassifyMapper.updateById(collectsClassify);
-               Collects collects=Collects.builder()
-                       .userId(acceptCollect.getUserId())
-                       .collectName(allInFlag.getName())
-                       .videoId(videos.getId())
-                       .collectTime(LocalDateTime.now())
-                       .build();
-               collectMapper.insert(collects);
-           }
-           //取消收藏
-            else if((!allInFlag.getFlag())&&collects1!=null) {
-               LambdaQueryWrapper<CollectsClassify> collectsClassifyLambdaQueryWrapper=new LambdaQueryWrapper<>();
-               collectsClassifyLambdaQueryWrapper.eq(CollectsClassify::getUserId,acceptCollect.getUserId())
-                       .eq(CollectsClassify::getCollectName,allInFlag.getName());
-               CollectsClassify collectsClassify = collectClassifyMapper.selectOne(collectsClassifyLambdaQueryWrapper);
-               collectsClassify.setVideoNumber(collectsClassify.getVideoNumber()-1);
-               collectClassifyMapper.updateById(collectsClassify);
-               collectMapper.deleteById(collects1);
-           }
+            Collects collects1 = oldCollectMap.get(allInFlag.getName());
+            if (allInFlag.getFlag() && collects1 == null) {
+                CollectsClassify collectsClassify = classifyMap.get(allInFlag.getName());
+                collectsClassify.setVideoNumber(collectsClassify.getVideoNumber() + 1);
+                collectClassifyMapper.updateById(collectsClassify);
+                Collects collects = Collects.builder()
+                        .userId(acceptCollect.getUserId())
+                        .collectName(allInFlag.getName())
+                        .videoId(videos.getId())
+                        .collectTime(LocalDateTime.now())
+                        .build();
+                collectMapper.insert(collects);
+            } else if (!allInFlag.getFlag() && collects1 != null) {
+                CollectsClassify collectsClassify = classifyMap.get(allInFlag.getName());
+                collectsClassify.setVideoNumber(collectsClassify.getVideoNumber() - 1);
+                collectClassifyMapper.updateById(collectsClassify);
+                collectMapper.deleteById(collects1);
+            }
         }
+
     }
 
 
@@ -201,14 +215,27 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
             }
         }
         List<CollectDto> collectDtos=new ArrayList<>();
+        List<Integer> videoIds = collects.stream()
+                .map(Collects::getVideoId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<Integer, Videos> videoMap = new HashMap<>();
+        if (!videoIds.isEmpty()) {
+            List<Videos> videosList = videosMapper.selectBatchIds(videoIds);
+            videoMap = videosList.stream().collect(Collectors.toMap(Videos::getId, v -> v));
+        }
         for (Collects collect : collects) {
-            Videos videos = videosMapper.selectById(collect.getVideoId());
-            SelectVideoDto selectVideoDto=new SelectVideoDto();
-            if(videos!=null) {
-                videos.setCreateTime(collect.getCollectTime());
-                selectVideoDto = videosService.getSelectVideo(videos, userId,true);
+            Videos videos = videoMap.get(collect.getVideoId());
+            SelectVideoDto selectVideoDto = new SelectVideoDto();
+            if (videos != null) {
+                Videos v = new Videos();
+                BeanUtils.copyProperties(videos, v);
+                v.setCreateTime(collect.getCollectTime());
+                selectVideoDto = videosService.getSelectVideo(v, userId, true);
             }
-            CollectDto collectDto=new CollectDto();
+            CollectDto collectDto = new CollectDto();
             collectDto.setSelectVideoDto(selectVideoDto);
             collectDto.setCollects(collect);
             collectDtos.add(collectDto);
@@ -227,13 +254,23 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
                 .eq(Collects::getDeleteFlag,1);
         List<Collects> collects = collectMapper.selectList(collectsLambdaQueryWrapper);
         //更新视频数量
+        List<String> names = collects.stream()
+                .map(Collects::getCollectName)
+                .collect(Collectors.toList());
+        if (names.isEmpty()) {
+            return false;
+        }
+        List<CollectsClassify> classifies = collectClassifyMapper.selectList(
+                new LambdaQueryWrapper<CollectsClassify>()
+                        .eq(CollectsClassify::getUserId, userId)
+                        .in(CollectsClassify::getCollectName, names)
+        );
+        Map<String, CollectsClassify> classifyMap = classifies.stream()
+                .collect(Collectors.toMap(CollectsClassify::getCollectName, c -> c));
         for (Collects collect : collects) {
-            LambdaQueryWrapper<CollectsClassify> collectsClassifyLambdaQueryWrapper=new LambdaQueryWrapper<>();
-            collectsClassifyLambdaQueryWrapper.eq(CollectsClassify::getCollectName,collect.getCollectName())
-                    .eq(CollectsClassify::getUserId,userId);
-            CollectsClassify collectsClassify = collectClassifyMapper.selectOne(collectsClassifyLambdaQueryWrapper);
-            if(collectsClassify!=null){
-                collectsClassify.setVideoNumber(collectsClassify.getVideoNumber()-1);
+            CollectsClassify collectsClassify = classifyMap.get(collect.getCollectName());
+            if (collectsClassify != null) {
+                collectsClassify.setVideoNumber(collectsClassify.getVideoNumber() - 1);
                 collectClassifyMapper.updateById(collectsClassify);
             }
         }
@@ -249,27 +286,43 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
             return false;
 
         List<Collects> collects = collectMapper.selectBatchIds(ids);
-        for (Collects collect : collects) {
-
-            LambdaQueryWrapper<CollectsClassify> collectsClassifyLambdaQueryWrapper=new LambdaQueryWrapper<>();
-            collectsClassifyLambdaQueryWrapper.eq(CollectsClassify::getCollectName,collect.getCollectName())
-                    .eq(CollectsClassify::getUserId,userId);
-            if(!collect.getUserId().equals(userId))
+        Set<Integer> videoIds = new HashSet<>();
+        Set<String> classKeys = new HashSet<>();
+        for (Collects c : collects) {
+            classKeys.add(c.getCollectName() + "_" + userId);
+            videoIds.add(c.getVideoId());
+        }
+        LambdaQueryWrapper<CollectsClassify> qw1 = new LambdaQueryWrapper<>();
+        qw1.eq(CollectsClassify::getUserId, userId)
+                .in(CollectsClassify::getCollectName, collects.stream().map(Collects::getCollectName).collect(Collectors.toSet()));
+        List<CollectsClassify> classList = collectClassifyMapper.selectList(qw1);
+        Map<String, CollectsClassify> classMap = new HashMap<>();
+        for (CollectsClassify cc : classList) {
+            classMap.put(cc.getCollectName() + "_" + userId, cc);
+        }
+        LambdaQueryWrapper<Collects> qw2 = new LambdaQueryWrapper<>();
+        qw2.eq(Collects::getUserId, userId)
+                .in(Collects::getVideoId, videoIds);
+        List<Collects> collectList = collectMapper.selectList(qw2);
+        Map<Integer, Long> videoCountMap = collectList.stream()
+                .collect(Collectors.groupingBy(Collects::getVideoId, Collectors.counting()));
+        List<Videos> videoList = videosMapper.selectBatchIds(videoIds);
+        Map<Integer, Videos> videoMap = videoList.stream().collect(Collectors.toMap(Videos::getId, v -> v));
+        for (Collects c : collects) {
+            if (!c.getUserId().equals(userId))
                 return false;
-            CollectsClassify collectsClassify = collectClassifyMapper.selectOne(collectsClassifyLambdaQueryWrapper);
-            if(collectsClassify==null)
+            String k = c.getCollectName() + "_" + userId;
+            CollectsClassify cc = classMap.get(k);
+            if (cc == null)
                 return false;
-            else {
-                collectsClassify.setVideoNumber(collectsClassify.getVideoNumber()-1);
-                collectClassifyMapper.updateById(collectsClassify);
-                LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
-                collectsLambdaQueryWrapper.eq(Collects::getUserId,userId)
-                        .eq(Collects::getVideoId,collect.getVideoId());
-                //查询是否有别的收藏夹收藏该视频
-                if(collectMapper.selectList(collectsLambdaQueryWrapper).size()==1) {
-                    Videos videos = videosMapper.selectById(collect.getVideoId());
-                    videos.setCollectNumber(videos.getCollectNumber() - 1);
-                    videosMapper.updateById(videos);
+            cc.setVideoNumber(cc.getVideoNumber() - 1);
+            collectClassifyMapper.updateById(cc);
+            long cnt = videoCountMap.getOrDefault(c.getVideoId(), 0L);
+            if (cnt == 1) {
+                Videos v = videoMap.get(c.getVideoId());
+                if (v != null) {
+                    v.setCollectNumber(v.getCollectNumber() - 1);
+                    videosMapper.updateById(v);
                 }
             }
         }
@@ -293,67 +346,63 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
             return false;
 
         //复制
-        if(controls==1){
-            for (CollectsClassify collectsClassify : collectsClassifies) {
-                int i=0;
-                for (Collects collect : collects) {
-                    LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
-                    collectsLambdaQueryWrapper.eq(Collects::getVideoId,collect.getVideoId())
-                            .eq(Collects::getCollectName,collectsClassify.getCollectName())
-                            .eq(Collects::getUserId,userId);
-
-                    if(!collect.getUserId().equals(userId))
-                      return false;
-
-                    //如果不存在复制
-                    if(collectMapper.selectOne(collectsLambdaQueryWrapper)==null)
-                    {
-                        Collects collects1=new Collects();
-                        BeanUtils.copyProperties(collect,collects1);
-                        collects1.setId(null);
-                        collects1.setCollectName(collectsClassify.getCollectName());
-                        collectMapper.insert(collects1);
-                        i++;
+        if (controls == 1) {
+            Set<String> existsKey = new HashSet<>();
+            for (Collects c : collects) {
+                existsKey.add(c.getVideoId() + "_" + c.getCollectName());
+            }
+            for (CollectsClassify cc : collectsClassifies) {
+                int count = 0;
+                for (Collects c : collects) {
+                    if (!c.getUserId().equals(userId))
+                        return false;
+                    String key = c.getVideoId() + "_" + cc.getCollectName();
+                    if (!existsKey.contains(key)) {
+                        Collects newC = new Collects();
+                        BeanUtils.copyProperties(c, newC);
+                        newC.setId(null);
+                        newC.setCollectName(cc.getCollectName());
+                        collectMapper.insert(newC);
+                        existsKey.add(key);
+                        count++;
                     }
                 }
-                collectsClassify.setVideoNumber(collectsClassify.getVideoNumber()+i);
-                collectClassifyMapper.updateById(collectsClassify);
+                cc.setVideoNumber(cc.getVideoNumber() + count);
+                collectClassifyMapper.updateById(cc);
             }
         }
         //移动
-        else if(controls==2){
-            for (CollectsClassify collectsClassify : collectsClassifies) {
-                int i=0;
-                for (Collects collect : collects) {
-                    LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper = new LambdaQueryWrapper<>();
-                    collectsLambdaQueryWrapper.eq(Collects::getVideoId, collect.getVideoId())
-                            .eq(Collects::getCollectName, collectsClassify.getCollectName())
-                            .eq(Collects::getUserId, userId);
-
-                    if(!collect.getUserId().equals(userId))
+        else if (controls == 2) {
+            Set<String> existsKey = new HashSet<>();
+            for (Collects c : collects) {
+                existsKey.add(c.getVideoId() + "_" + c.getCollectName());
+            }
+            for (CollectsClassify cc : collectsClassifies) {
+                int count = 0;
+                for (Collects c : collects) {
+                    if (!c.getUserId().equals(userId))
                         return false;
-
-                    //如果不存在移动
-                    if (collectMapper.selectOne(collectsLambdaQueryWrapper) == null) {
-                        Collects collects1 = new Collects();
-                        BeanUtils.copyProperties(collect, collects1);
-                        collects1.setId(null);
-                        collects1.setCollectName(collectsClassify.getCollectName());
-                        collectMapper.insert(collects1);
-                        i++;
+                    String key = c.getVideoId() + "_" + cc.getCollectName();
+                    if (!existsKey.contains(key)) {
+                        Collects newC = new Collects();
+                        BeanUtils.copyProperties(c, newC);
+                        newC.setId(null);
+                        newC.setCollectName(cc.getCollectName());
+                        collectMapper.insert(newC);
+                        existsKey.add(key);
+                        count++;
                     }
                 }
-                collectsClassify.setVideoNumber(collectsClassify.getVideoNumber()+i);
-                collectClassifyMapper.updateById(collectsClassify);
+                cc.setVideoNumber(cc.getVideoNumber() + count);
+                collectClassifyMapper.updateById(cc);
             }
-
-            int i = collectMapper.deleteBatchIds(collectIds);
-            LambdaQueryWrapper<CollectsClassify> collectsClassifyLambdaQueryWrapper=new LambdaQueryWrapper<>();
-            collectsClassifyLambdaQueryWrapper.eq(CollectsClassify::getUserId,userId)
-                    .eq(CollectsClassify::getCollectName,collects.get(0).getCollectName());
-            CollectsClassify collectsClassify = collectClassifyMapper.selectOne(collectsClassifyLambdaQueryWrapper);
-            collectsClassify.setVideoNumber(collectsClassify.getVideoNumber()-i);
-            collectClassifyMapper.updateById(collectsClassify);
+            int del = collectMapper.deleteBatchIds(collectIds);
+            LambdaQueryWrapper<CollectsClassify> qw = new LambdaQueryWrapper<>();
+            qw.eq(CollectsClassify::getUserId, userId)
+                    .eq(CollectsClassify::getCollectName, collects.get(0).getCollectName());
+            CollectsClassify cc = collectClassifyMapper.selectOne(qw);
+            cc.setVideoNumber(cc.getVideoNumber() - del);
+            collectClassifyMapper.updateById(cc);
         }
 
         return true;
@@ -376,15 +425,26 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
         else if(sort==5) return collectDtoList;
 
         List<Collects> collectsList = collectMapper.selectWaitWatch(userId, (pageNum - 1) * 10, sort, sort2, keyWord, startTime2, endTime2);
-        for (Collects collects : collectsList) {
-            CollectDto collectDto=new CollectDto();
-            collectDto.setCollects(collects);
-            Videos videos = videosMapper.selectById(collects.getVideoId());
-            if(videos==null)
-                continue;
-            collectDto.setSelectVideoDto(videosService.getSelectVideo(videos,0,false));
-            collectDtoList.add(collectDto);
+        if(collectsList.isEmpty()) {
+            return collectDtoList;
         }
+        List<Integer> videoIds = collectsList.stream()
+                .map(Collects::getVideoId)
+                .collect(Collectors.toList());
+        List<Videos> videosList = videosMapper.selectBatchIds(videoIds);
+            Map<Integer, Videos> videosMap = videosList.stream()
+                    .collect(Collectors.toMap(Videos::getId, v -> v));
+            for (Collects collects : collectsList) {
+                Videos videos = videosMap.get(collects.getVideoId());
+                if (videos == null)
+                    continue;
+                CollectDto collectDto = new CollectDto();
+                collectDto.setCollects(collects);
+                collectDto.setSelectVideoDto(
+                        videosService.getSelectVideo(videos, 0, false)
+                );
+                collectDtoList.add(collectDto);
+            }
         return collectDtoList;
     }
 
