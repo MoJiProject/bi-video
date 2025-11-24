@@ -22,10 +22,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Base64;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CollectClassifyServiceImpl extends ServiceImpl<CollectClassifyMapper, CollectsClassify> implements CollectClassifyService {
@@ -53,18 +51,45 @@ public class CollectClassifyServiceImpl extends ServiceImpl<CollectClassifyMappe
         List<CollectsClassify> collectsClassifies = collectClassifyMapper.selectList(collectsClassifyLambdaQueryWrapper);
 
         //设置收藏夹封面
-        for (CollectsClassify collectsClassify : collectsClassifies) {
-            if(collectsClassify.getCoverAddress()==null&&collectsClassify.getVideoNumber()>0)
-            {
-                LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
-                collectsLambdaQueryWrapper.eq(Collects::getUserId,homeUserId)
-                        .eq(Collects::getCollectName,collectsClassify.getCollectName())
+        List<CollectsClassify> collectsClassifyList = collectsClassifies.stream()
+                .filter(c -> c.getCoverAddress() == null && c.getVideoNumber() > 0)
+                .toList();
+        if (collectsClassifyList.isEmpty()) {
+            return collectsClassifies;
+        }
+        List<String> collectNames = collectsClassifyList.stream()
+                .map(CollectsClassify::getCollectName)
+                .collect(Collectors.toList());
+        List<Collects> latestCollects = collectMapper.selectList(
+                new LambdaQueryWrapper<Collects>()
+                        .eq(Collects::getUserId, homeUserId)
+                        .in(Collects::getCollectName, collectNames)
                         .orderByDesc(Collects::getId)
-                        .last("LIMIT 1");
-                Collects collects = collectMapper.selectOne(collectsLambdaQueryWrapper);
-                Videos videos = videosMapper.selectById(collects.getVideoId());
-                if(videos!=null)
-                    collectsClassify.setCoverAddress(videos.getCoverAddress());
+        );
+        Map<String, Collects> latestCollectMap =
+                latestCollects.stream()
+                        .collect(Collectors.groupingBy(
+                                Collects::getCollectName,
+                                Collectors.collectingAndThen(
+                                        Collectors.toList(),
+                                        list -> list.get(0)
+                                )
+                        ));
+        List<Integer> videoIds = latestCollectMap.values().stream()
+                .map(Collects::getVideoId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        Map<Integer, Videos> videoMap = new HashMap<>();
+        if (!videoIds.isEmpty()) {
+            List<Videos> videosList = videosMapper.selectBatchIds(videoIds);
+            videoMap = videosList.stream().collect(Collectors.toMap(Videos::getId, v -> v));
+        }
+        for (CollectsClassify collectsClassify : collectsClassifyList) {
+            Collects collects = latestCollectMap.get(collectsClassify.getCollectName());
+            if (collects == null) continue;
+            Videos videos = videoMap.get(collects.getVideoId());
+            if (videos != null) {
+                collectsClassify.setCoverAddress(videos.getCoverAddress());
             }
         }
         return collectsClassifies;

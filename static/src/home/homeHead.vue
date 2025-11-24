@@ -290,7 +290,7 @@ watch(()=>store.loginDialogVisibleFlag,()=>{
 
 //获取所有收藏夹名称
 function getCollectsClassifyF(){
-    getCollectsClassify(store.homeUserInformation.id,store.userId,store.token).then(res=>{
+    getCollectsClassify(userId,store.userId,store.token).then(res=>{
         if(res.data.code === 1){
             store.setCollectClassifyNumber(res.data.data.length);
         }
