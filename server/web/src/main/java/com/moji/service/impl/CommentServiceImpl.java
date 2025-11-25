@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> implements CommentService {
@@ -663,13 +664,14 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
                        .eq(Likes::getLikeType,type)
                        .eq(Likes::getLikeUserId,userId);
                 List<Likes> likes = likesMapper.selectList(lambdaQueryWrapper);
-            for (Likes like : likes) {
-                like.setDeleteFlag(1);
-                likesMapper.updateById(like);
+            if (!likes.isEmpty()) {
+                List<Integer> ids = likes.stream().map(Likes::getId).collect(Collectors.toList());
+                Likes updateEntity = new Likes();
+                updateEntity.setDeleteFlag(1);
+                likesMapper.update(updateEntity, new LambdaQueryWrapper<Likes>().in(Likes::getId, ids));
             }
             return true;
         }
-
         return false;
     }
 
@@ -776,11 +778,22 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
                         .orderByDesc(Likes::getLikeTime);
                 List<Likes> likes = likesMapper.selectList(lambdaQueryWrapper2);
                 List<UserInfo2> userInfo2List=new ArrayList<>();
-                for (Likes like : likes) {
-                    Users users = userMapper.selectById(like.getUserId());
-                    UserInfo2 userInfo2=new UserInfo2();
-                    BeanUtils.copyProperties(users,userInfo2);
-                    userInfo2List.add(userInfo2);
+                List<Integer> userIds = likes.stream()
+                        .map(Likes::getUserId)
+                        .distinct()
+                        .collect(Collectors.toList());
+                if (!userIds.isEmpty()) {
+                    List<Users> usersList = userMapper.selectBatchIds(userIds);
+                    Map<Integer, Users> userMap = usersList.stream()
+                            .collect(Collectors.toMap(Users::getId, u -> u));
+                    for (Likes like : likes) {
+                        Users users = userMap.get(like.getUserId());
+                        if (users != null) {
+                            UserInfo2 userInfo2 = new UserInfo2();
+                            BeanUtils.copyProperties(users, userInfo2);
+                            userInfo2List.add(userInfo2);
+                        }
+                    }
                 }
                 selectLike.setUserInfoList(userInfo2List);
                 selectLike.setId(record.getId());
@@ -803,11 +816,22 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
                         .orderByDesc(Likes::getLikeTime);
                 List<Likes> likes = likesMapper.selectList(lambdaQueryWrapper2);
                 List<UserInfo2> userInfo2List=new ArrayList<>();
-                for (Likes like : likes) {
-                    Users users = userMapper.selectById(like.getUserId());
-                    UserInfo2 userInfo2=new UserInfo2();
-                    BeanUtils.copyProperties(users,userInfo2);
-                    userInfo2List.add(userInfo2);
+                List<Integer> userIds = likes.stream()
+                        .map(Likes::getUserId)
+                        .distinct()
+                        .collect(Collectors.toList());
+                if (!userIds.isEmpty()) {
+                    List<Users> usersList = userMapper.selectBatchIds(userIds);
+                    Map<Integer, Users> userMap = usersList.stream()
+                            .collect(Collectors.toMap(Users::getId, u -> u));
+                    for (Likes like : likes) {
+                        Users users = userMap.get(like.getUserId());
+                        if (users != null) {
+                            UserInfo2 userInfo2 = new UserInfo2();
+                            BeanUtils.copyProperties(users, userInfo2);
+                            userInfo2List.add(userInfo2);
+                        }
+                    }
                 }
                 selectLike.setUserInfoList(userInfo2List);
                 selectLike.setLikeTime(record.getLikeTime());
@@ -830,11 +854,22 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
                         .orderByDesc(Likes::getLikeTime);
                 List<Likes> likes = likesMapper.selectList(lambdaQueryWrapper2);
                 List<UserInfo2> userInfo2List=new ArrayList<>();
-                for (Likes like : likes) {
-                    Users users = userMapper.selectById(like.getUserId());
-                    UserInfo2 userInfo2=new UserInfo2();
-                    BeanUtils.copyProperties(users,userInfo2);
-                    userInfo2List.add(userInfo2);
+                List<Integer> userIds = likes.stream()
+                        .map(Likes::getUserId)
+                        .distinct()
+                        .collect(Collectors.toList());
+                if (!userIds.isEmpty()) {
+                    List<Users> usersList = userMapper.selectBatchIds(userIds);
+                    Map<Integer, Users> userMap = usersList.stream()
+                            .collect(Collectors.toMap(Users::getId, u -> u));
+                    for (Likes like : likes) {
+                        Users users = userMap.get(like.getUserId());
+                        if (users != null) {
+                            UserInfo2 userInfo2 = new UserInfo2();
+                            BeanUtils.copyProperties(users, userInfo2);
+                            userInfo2List.add(userInfo2);
+                        }
+                    }
                 }
                 selectLike.setUserInfoList(userInfo2List);
                 selectLike.setLikeTime(record.getLikeTime());
