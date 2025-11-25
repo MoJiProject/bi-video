@@ -413,7 +413,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
                             //判断是否开启点赞消息提醒
                             if(comments.getLikeWarn()==1) {
                                 Users users1 = userMapper.selectById(comments.getUserId());
-                                if(users1.getLikeMessageWarn()==1&&!Objects.equals(comments.getUserId(), users1.getId()))
+                                if(users1.getLikeMessageWarn()==1&&!Objects.equals(commentControls.getUserId(), users1.getId()))
                                 {
                                     users1.setLikeAllNumber(users1.getLikeAllNumber() == 0 ? 0 : users1.getLikeAllNumber() - 1);
                                     users1.setAllMessageNumber(users1.getAllMessageNumber() == 0 ? 0 : users1.getAllMessageNumber() - 1);
@@ -446,7 +446,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
                             //判断是否开启点赞消息提醒
                             if(comments.getLikeWarn()==1){
                                 Users users1 = userMapper.selectById(comments.getUserId());
-                                if(users1.getLikeMessageWarn()==1&&!Objects.equals(comments.getUserId(), users1.getId()))
+                                if(users1.getLikeMessageWarn()==1&&!Objects.equals(commentControls.getUserId(), users1.getId()))
                                 {
                                     users1.setLikeAllNumber(users1.getLikeAllNumber()+1);
                                     users1.setAllMessageNumber(users1.getAllMessageNumber()+1);
@@ -476,7 +476,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
 
                                 if(comments.getLikeWarn()==1){
                                     Users users1 = userMapper.selectById(comments.getUserId());
-                                    if(users1.getLikeMessageWarn()==1&&!Objects.equals(comments.getUserId(), users1.getId()))
+                                    if(users1.getLikeMessageWarn()==1&&!Objects.equals(commentControls.getUserId(), users1.getId()))
                                     {
                                         users1.setLikeAllNumber(users1.getLikeAllNumber() == 0 ? 0 : users1.getLikeAllNumber() - 1);
                                         users1.setAllMessageNumber(users1.getAllMessageNumber() == 0 ? 0 : users1.getAllMessageNumber() - 1);
@@ -506,7 +506,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
                                 if(comments.getLikeWarn()==1)
                                 {
                                     Users users1 = userMapper.selectById(comments.getUserId());
-                                    if(users1.getLikeMessageWarn()==1&& !Objects.equals(comments.getUserId(), users1.getId()))
+                                    if(users1.getLikeMessageWarn()==1&& !Objects.equals(commentControls.getUserId(), users1.getId()))
                                     {
                                         users1.setLikeAllNumber(users1.getLikeAllNumber() + 1);
                                         users1.setAllMessageNumber(users1.getAllMessageNumber() + 1);
