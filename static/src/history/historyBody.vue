@@ -477,11 +477,10 @@ function deleteCheckHistoryF(){
 
     deleteHistory(store.token,store.userId,store.autoVideoList).then(res=>{
         if(res.data.code===1){
-            historyList.forEach((item,index)=>{
-                if(store.autoVideoList.includes(item.history.id)){
-                    historyList.splice(index,1);
-                }
-            })
+            const filteredItems = historyList.filter(item => 
+            !store.autoVideoList.includes(item.history.id));
+            historyList.length = 0;
+            Object.assign(historyList,filteredItems);
             ElMessage({
                 message: res.data.data,
                 type: "info",

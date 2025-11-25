@@ -372,12 +372,11 @@ function deleteCheckwaitWatchF(){
 
     deleteCollect(store.token,store.userId,store.autoVideoList).then(res=>{
         if(res.data.code===1){
-            waitWatchList.forEach((item,index)=>{
-                if(store.autoVideoList.includes(item.collects.id)){
-                    waitWatchList.splice(index,1);
-                }
-            })
-            store.setCollectNumber(store.collectNumber-store.autoVideoList.length);
+            const filteredItems = waitWatchList.filter(item => 
+            !store.autoVideoList.includes(item.collects.id));
+            waitWatchList.length = 0;
+            Object.assign(waitWatchList,filteredItems);
+            store.collectNumber-=store.autoVideoList.length;
             ElMessage({
                 message: res.data.data,
                 type: "info",
