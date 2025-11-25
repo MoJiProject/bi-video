@@ -349,14 +349,14 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
         if (controls == 1) {
             Set<String> existsKey = new HashSet<>();
             for (Collects c : collects) {
-                existsKey.add(c.getVideoId() + "_" + c.getCollectName());
+                existsKey.add(String.valueOf(c.getVideoId()));
             }
             for (CollectsClassify cc : collectsClassifies) {
                 int count = 0;
                 for (Collects c : collects) {
                     if (!c.getUserId().equals(userId))
                         return false;
-                    String key = c.getVideoId() + "_" + cc.getCollectName();
+                    String key = String.valueOf(c.getVideoId());
                     if (!existsKey.contains(key)) {
                         Collects newC = new Collects();
                         BeanUtils.copyProperties(c, newC);
@@ -375,14 +375,14 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
         else if (controls == 2) {
             Set<String> existsKey = new HashSet<>();
             for (Collects c : collects) {
-                existsKey.add(c.getVideoId() + "_" + c.getCollectName());
+                existsKey.add(String.valueOf(c.getVideoId()));
             }
             for (CollectsClassify cc : collectsClassifies) {
                 int count = 0;
                 for (Collects c : collects) {
                     if (!c.getUserId().equals(userId))
                         return false;
-                    String key = c.getVideoId() + "_" + cc.getCollectName();
+                    String key = String.valueOf(c.getVideoId());
                     if (!existsKey.contains(key)) {
                         Collects newC = new Collects();
                         BeanUtils.copyProperties(c, newC);

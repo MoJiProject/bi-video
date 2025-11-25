@@ -200,7 +200,7 @@ function shareVideoF(){
             duration: 1700,
        });
       videoShareContent.value='';
-      props.dynamic.video.videoShareNumber++;
+      store.selectUpVideo.upVideo.shareNumber++;
       store.setShareHover(false);
       shareUserList.forEach(item => {
         item.checkFlag=false;
