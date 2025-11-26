@@ -28,6 +28,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> implements DynamicService {
@@ -40,6 +41,8 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
     private UserMapper userMapper;
     @Autowired
     private DynamicMapper dynamicMapper;
+    @Autowired
+    private DynamicService dynamicService;
     @Autowired
     private CollectMapper collectMapper;
     @Autowired
@@ -96,21 +99,21 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
 
                             Videos video = videosMapper.selectById(dynamic.getVideoId());
 
-                                Users followUser = userMapper.selectById(dynamic.getFollowId());
-                                DynamicDto dynamicDto = DynamicDto.builder()
-                                        .newDynamicNumber(fansUser.getDynamicNumber())
-                                        .userId(followUser.getId())
-                                        .avatarAddress(followUser.getAvatarAddress())
-                                        .userName(followUser.getUserName())
-                                        .title(video.getTitle())
-                                        .coverAddress(video.getCoverAddress())
-                                        .createTime(getDynamicCreatTime(video.getCreateTime()))
-                                        .videoId(video.getId())
-                                        .waitWatch(dynamic.getWaitWatch())
-                                        .build();
-                                dynamicDtoList.add(dynamicDto);
+                            Users followUser = userMapper.selectById(dynamic.getFollowId());
+                            DynamicDto dynamicDto = DynamicDto.builder()
+                                    .newDynamicNumber(fansUser.getDynamicNumber())
+                                    .userId(followUser.getId())
+                                    .avatarAddress(followUser.getAvatarAddress())
+                                    .userName(followUser.getUserName())
+                                    .title(video.getTitle())
+                                    .coverAddress(video.getCoverAddress())
+                                    .createTime(getDynamicCreatTime(video.getCreateTime()))
+                                    .videoId(video.getId())
+                                    .waitWatch(dynamic.getWaitWatch())
+                                    .build();
+                            dynamicDtoList.add(dynamicDto);
 
-                            }
+                        }
                         //观看过（历史动态）
                         else if(dynamic.getWatchDynamicFlag()==1){
 
@@ -130,12 +133,12 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                                     .build();
                             historyDynamicNumber++;
                             if(historyDynamicNumber<46)
-                            dynamicDtoList.add(dynamicDto);
+                                dynamicDtoList.add(dynamicDto);
                             else break;
-                        }
                         }
                     }
                 }
+            }
         }
         return dynamicDtoList;
     }
@@ -157,12 +160,14 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
             List<Dynamic> dynamics = dynamicMapper.selectList(dynamicLambdaQueryWrapper);
             if(!dynamics.isEmpty())
             {
-                for (Dynamic dynamic : dynamics) {
-                    dynamic.setWatchDynamicFlag(1);
-                    dynamicMapper.updateById(dynamic);
-                }
+                List<Integer> ids = dynamics.stream()
+                        .map(Dynamic::getId)
+                        .collect(Collectors.toList());
+                Dynamic updateEntity = new Dynamic();
+                updateEntity.setWatchDynamicFlag(1);
+                dynamicMapper.update(updateEntity, new LambdaQueryWrapper<Dynamic>().in(Dynamic::getId, ids));
             }
-           return true;
+            return true;
         }
         else return false;
 
@@ -175,47 +180,47 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
         Videos videos = videosMapper.selectById(videoId);
         if (videos!=null)
         {
-                LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
-                collectsLambdaQueryWrapper.eq(Collects::getVideoId,videoId)
-                        .eq(Collects::getUserId,userId)
-                        .eq(Collects::getCollectName,"稍后再看");
-                Collects collects = collectMapper.selectOne(collectsLambdaQueryWrapper);
-                if(collects==null){
+            LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
+            collectsLambdaQueryWrapper.eq(Collects::getVideoId,videoId)
+                    .eq(Collects::getUserId,userId)
+                    .eq(Collects::getCollectName,"稍后再看");
+            Collects collects = collectMapper.selectOne(collectsLambdaQueryWrapper);
+            if(collects==null){
 
-                    Collects collects1=Collects.builder()
-                            .videoId(videoId)
-                            .userId(userId)
-                            .collectName("稍后再看")
-                            .collectTime(LocalDateTime.now())
-                            .build();
-                    collectMapper.insert(collects1);
+                Collects collects1=Collects.builder()
+                        .videoId(videoId)
+                        .userId(userId)
+                        .collectName("稍后再看")
+                        .collectTime(LocalDateTime.now())
+                        .build();
+                collectMapper.insert(collects1);
 
-                    LambdaQueryWrapper<CollectsClassify> collectsClassifyLambdaQueryWrapper=new LambdaQueryWrapper<>();
-                    collectsClassifyLambdaQueryWrapper.eq(CollectsClassify::getUserId,userId)
-                            .eq(CollectsClassify::getCollectName,"稍后再看");
-                    CollectsClassify collectsClassify = collectClassifyMapper.selectOne(collectsClassifyLambdaQueryWrapper);
-                    collectsClassify.setVideoNumber(collectsClassify.getVideoNumber()+1);
-                    collectClassifyMapper.updateById(collectsClassify);
-                }
-                else {
-                    LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper1=new LambdaQueryWrapper<>();
-                    collectsLambdaQueryWrapper1.eq(Collects::getUserId,userId)
-                            .eq(Collects::getCollectName,"稍后再看")
-                            .eq(Collects::getVideoId,videoId);
-                    collectMapper.delete(collectsLambdaQueryWrapper1);
-
-                    LambdaQueryWrapper<CollectsClassify> collectsClassifyLambdaQueryWrapper=new LambdaQueryWrapper<>();
-                    collectsClassifyLambdaQueryWrapper.eq(CollectsClassify::getUserId,userId)
-                            .eq(CollectsClassify::getCollectName,"稍后再看");
-                    CollectsClassify collectsClassify = collectClassifyMapper.selectOne(collectsClassifyLambdaQueryWrapper);
-                    collectsClassify.setVideoNumber(collectsClassify.getVideoNumber()-1);
-                    collectClassifyMapper.updateById(collectsClassify);
-                }
-                if(collects==null)
-                return 0;
-                else
-                    return 1;
+                LambdaQueryWrapper<CollectsClassify> collectsClassifyLambdaQueryWrapper=new LambdaQueryWrapper<>();
+                collectsClassifyLambdaQueryWrapper.eq(CollectsClassify::getUserId,userId)
+                        .eq(CollectsClassify::getCollectName,"稍后再看");
+                CollectsClassify collectsClassify = collectClassifyMapper.selectOne(collectsClassifyLambdaQueryWrapper);
+                collectsClassify.setVideoNumber(collectsClassify.getVideoNumber()+1);
+                collectClassifyMapper.updateById(collectsClassify);
             }
+            else {
+                LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper1=new LambdaQueryWrapper<>();
+                collectsLambdaQueryWrapper1.eq(Collects::getUserId,userId)
+                        .eq(Collects::getCollectName,"稍后再看")
+                        .eq(Collects::getVideoId,videoId);
+                collectMapper.delete(collectsLambdaQueryWrapper1);
+
+                LambdaQueryWrapper<CollectsClassify> collectsClassifyLambdaQueryWrapper=new LambdaQueryWrapper<>();
+                collectsClassifyLambdaQueryWrapper.eq(CollectsClassify::getUserId,userId)
+                        .eq(CollectsClassify::getCollectName,"稍后再看");
+                CollectsClassify collectsClassify = collectClassifyMapper.selectOne(collectsClassifyLambdaQueryWrapper);
+                collectsClassify.setVideoNumber(collectsClassify.getVideoNumber()-1);
+                collectClassifyMapper.updateById(collectsClassify);
+            }
+            if(collects==null)
+                return 0;
+            else
+                return 1;
+        }
         return -1;
     }
 
@@ -230,8 +235,8 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                     .isNull(Dynamic::getFansId)
                     .isNotNull(Dynamic::getImgAddress);
             Page<Dynamic> page1 = dynamicMapper.selectPage(page,dynamicLambdaQueryWrapper);
-           return page1;
-           //评论
+            return page1;
+            //评论
         }
         else if (type == 2) {
             LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
@@ -259,71 +264,71 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
     public Page<HomeDynamicDto> homeDynamic(Integer homeUserId, Integer userId, Integer pageNum, Integer type, String keyWord) {
 
         //全部
-       if(type==1)
-       {
-           Page<HomeDynamicDto> page=new Page<>();
-           if(StringUtil.isNullOrEmpty(keyWord)) {
-               List<Dynamic> dynamicPage1 = dynamicMapper.homeDynamic(homeUserId,(pageNum-1)*10);
-               page.setRecords(this.HomeDynamicDto(dynamicPage1, homeUserId, userId));
-           }
-           else{
-               Page<Dynamic> dynamicPage=new Page<>(pageNum,10);
-               LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
-               dynamicLambdaQueryWrapper.eq(Dynamic::getFollowId,homeUserId)
-                       .isNull(Dynamic::getFansId)
-                       .isNull(Dynamic::getDynamicId)
-                       .and(wrapper->wrapper
-                        .like(Dynamic::getTitle,keyWord)
-                        .or()
-                        .like(Dynamic::getContent,keyWord)
-                       )
-                       .orderByDesc(Dynamic::getUpFlag)
-                       .orderByDesc(Dynamic::getId);
-               Page<Dynamic> dynamicPage1 = dynamicMapper.selectPage(dynamicPage, dynamicLambdaQueryWrapper);
-               page.setRecords(this.HomeDynamicDto(dynamicPage1.getRecords(),homeUserId,userId));
-               page.setTotal(dynamicPage1.getTotal());
-           }
-           return page;
-       }
-       //视频
-       else if(type==2)
-       {
-           Page<Dynamic> dynamicPage=new Page<>(pageNum,10);
-           LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
-           dynamicLambdaQueryWrapper.eq(Dynamic::getFollowId,homeUserId)
-                   .isNotNull(Dynamic::getVideoId)
-                   .isNull(Dynamic::getDynamicId)
-                   .isNull(Dynamic::getCommentId)
-                   .isNull(Dynamic::getFansId)
-                   .orderByDesc(Dynamic::getUpFlag)
-                   .orderByDesc(Dynamic::getId);
-           Page<Dynamic> dynamicPage1 = dynamicMapper.selectPage(dynamicPage, dynamicLambdaQueryWrapper);
-           List<Dynamic> records = dynamicPage1.getRecords();
+        if(type==1)
+        {
+            Page<HomeDynamicDto> page=new Page<>();
+            if(StringUtil.isNullOrEmpty(keyWord)) {
+                List<Dynamic> dynamicPage1 = dynamicMapper.homeDynamic(homeUserId,(pageNum-1)*10);
+                page.setRecords(this.HomeDynamicDto(dynamicPage1, homeUserId, userId));
+            }
+            else{
+                Page<Dynamic> dynamicPage=new Page<>(pageNum,10);
+                LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
+                dynamicLambdaQueryWrapper.eq(Dynamic::getFollowId,homeUserId)
+                        .isNull(Dynamic::getFansId)
+                        .isNull(Dynamic::getDynamicId)
+                        .and(wrapper->wrapper
+                                .like(Dynamic::getTitle,keyWord)
+                                .or()
+                                .like(Dynamic::getContent,keyWord)
+                        )
+                        .orderByDesc(Dynamic::getUpFlag)
+                        .orderByDesc(Dynamic::getId);
+                Page<Dynamic> dynamicPage1 = dynamicMapper.selectPage(dynamicPage, dynamicLambdaQueryWrapper);
+                page.setRecords(this.HomeDynamicDto(dynamicPage1.getRecords(),homeUserId,userId));
+                page.setTotal(dynamicPage1.getTotal());
+            }
+            return page;
+        }
+        //视频
+        else if(type==2)
+        {
+            Page<Dynamic> dynamicPage=new Page<>(pageNum,10);
+            LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
+            dynamicLambdaQueryWrapper.eq(Dynamic::getFollowId,homeUserId)
+                    .isNotNull(Dynamic::getVideoId)
+                    .isNull(Dynamic::getDynamicId)
+                    .isNull(Dynamic::getCommentId)
+                    .isNull(Dynamic::getFansId)
+                    .orderByDesc(Dynamic::getUpFlag)
+                    .orderByDesc(Dynamic::getId);
+            Page<Dynamic> dynamicPage1 = dynamicMapper.selectPage(dynamicPage, dynamicLambdaQueryWrapper);
+            List<Dynamic> records = dynamicPage1.getRecords();
 
-           Page<HomeDynamicDto> page=new Page<>();
-           page.setRecords(this.HomeDynamicDto(records,homeUserId,userId));
-           return page;
-       }
-       //图文
-       else if(type==3){
-           Page<Dynamic> dynamicPage=new Page<>(pageNum,10);
-           LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
-           dynamicLambdaQueryWrapper.eq(Dynamic::getFollowId,homeUserId)
-                   .and(wrapper -> wrapper
-                           .isNotNull(Dynamic::getContent)
-                           .or()
-                           .isNotNull(Dynamic::getImgAddress))
-                   .isNull(Dynamic::getDynamicId)
-                   .orderByDesc(Dynamic::getUpFlag)
-                   .orderByDesc(Dynamic::getId);
-           Page<Dynamic> dynamicPage1 = dynamicMapper.selectPage(dynamicPage, dynamicLambdaQueryWrapper);
-           List<Dynamic> records = dynamicPage1.getRecords();
+            Page<HomeDynamicDto> page=new Page<>();
+            page.setRecords(this.HomeDynamicDto(records,homeUserId,userId));
+            return page;
+        }
+        //图文
+        else if(type==3){
+            Page<Dynamic> dynamicPage=new Page<>(pageNum,10);
+            LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
+            dynamicLambdaQueryWrapper.eq(Dynamic::getFollowId,homeUserId)
+                    .and(wrapper -> wrapper
+                            .isNotNull(Dynamic::getContent)
+                            .or()
+                            .isNotNull(Dynamic::getImgAddress))
+                    .isNull(Dynamic::getDynamicId)
+                    .orderByDesc(Dynamic::getUpFlag)
+                    .orderByDesc(Dynamic::getId);
+            Page<Dynamic> dynamicPage1 = dynamicMapper.selectPage(dynamicPage, dynamicLambdaQueryWrapper);
+            List<Dynamic> records = dynamicPage1.getRecords();
 
-           Page<HomeDynamicDto> page=new Page<>();
-           page.setRecords(this.HomeDynamicDto(records,homeUserId,userId));
-           return page;
-       }
-       return null;
+            Page<HomeDynamicDto> page=new Page<>();
+            page.setRecords(this.HomeDynamicDto(records,homeUserId,userId));
+            return page;
+        }
+        return null;
     }
 
     @Override
@@ -460,23 +465,23 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
 
         LambdaQueryWrapper<Likes> likesLambdaQueryWrapper=new LambdaQueryWrapper<>();
         likesLambdaQueryWrapper.eq(Likes::getFondId,dynamicId)
-                  .eq(Likes::getLikeType,3);
+                .eq(Likes::getLikeType,3);
         likesMapper.delete(likesLambdaQueryWrapper);
 
         if (dynamic.getVideoId() == null && StringUtil.notNullNorEmpty(dynamic.getImgAddress()) && dynamic.getImgAddress().contains("dynamic")) {
-                String imgAddress = dynamic.getImgAddress();
-                String[] split = imgAddress.split(",");
-                for (String dynamicImg : split) {
+            String imgAddress = dynamic.getImgAddress();
+            String[] split = imgAddress.split(",");
+            for (String dynamicImg : split) {
 
-                    int lastIndexOf = dynamicImg.lastIndexOf("/");
-                    String dynamicFile = (lastIndexOf != -1) ? dynamicImg.substring(lastIndexOf + 1) : dynamicImg;
-                    Path dynamicPath = Paths.get(FilePathEnum.UPLOAD_IMG_DYNAMIC.getPath() + dynamicFile);
-                    try {
-                        Files.delete(dynamicPath);
-                    } catch (Exception e) {
-                        System.out.println(e.getMessage());
-                    }
+                int lastIndexOf = dynamicImg.lastIndexOf("/");
+                String dynamicFile = (lastIndexOf != -1) ? dynamicImg.substring(lastIndexOf + 1) : dynamicImg;
+                Path dynamicPath = Paths.get(FilePathEnum.UPLOAD_IMG_DYNAMIC.getPath() + dynamicFile);
+                try {
+                    Files.delete(dynamicPath);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
                 }
+            }
         }
         return true;
     }
@@ -496,32 +501,32 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
             //上传图片
             StringBuilder imgAddress= new StringBuilder();
             String[] imgBase64S = dynamic.getImgAddress().split(",,");
-                for (String imgBase64 : imgBase64S) {
-                    String imageFormat = commentService.getImageFormat(imgBase64);
-                    if (imageFormat == null||imageFormat.equals(".gif"))
-                        continue;
-                    UUID dynamicImgName = UUID.randomUUID();
-                    //添加图片地址
-                    imgAddress.append("/upload/dynamic/").append(dynamicImgName).append(imageFormat).append(",");
-                    // 创建上传目录
-                    File uploadDir;
-                    uploadDir = new File(FilePathEnum.UPLOAD_IMG_DYNAMIC.getPath());
-                    if (!uploadDir.exists())
-                        uploadDir.mkdirs();
-                    //上传
-                    try {
-                        String base64Body = imgBase64.contains(",") ? imgBase64.split(",")[1] : imgBase64;
-                        byte[] decodedBytes = Base64.getDecoder().decode(base64Body);
-                        // 写入文件
-                        File dest = new File(uploadDir, dynamicImgName + imageFormat);
-                        try (FileOutputStream fos = new FileOutputStream(dest)) {
-                            fos.write(decodedBytes);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return false;
+            for (String imgBase64 : imgBase64S) {
+                String imageFormat = commentService.getImageFormat(imgBase64);
+                if (imageFormat == null||imageFormat.equals(".gif"))
+                    continue;
+                UUID dynamicImgName = UUID.randomUUID();
+                //添加图片地址
+                imgAddress.append("/upload/dynamic/").append(dynamicImgName).append(imageFormat).append(",");
+                // 创建上传目录
+                File uploadDir;
+                uploadDir = new File(FilePathEnum.UPLOAD_IMG_DYNAMIC.getPath());
+                if (!uploadDir.exists())
+                    uploadDir.mkdirs();
+                //上传
+                try {
+                    String base64Body = imgBase64.contains(",") ? imgBase64.split(",")[1] : imgBase64;
+                    byte[] decodedBytes = Base64.getDecoder().decode(base64Body);
+                    // 写入文件
+                    File dest = new File(uploadDir, dynamicImgName + imageFormat);
+                    try (FileOutputStream fos = new FileOutputStream(dest)) {
+                        fos.write(decodedBytes);
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return false;
                 }
+            }
             dynamic.setImgAddress(imgAddress.toString());
         }
         int insert = dynamicMapper.insert(dynamic);
@@ -615,7 +620,6 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                     if(comments.getMainCommentId()==null)
                         homeDynamicDto.setReplyComment(comments);
                 }
-
                 if(homeDynamicDto.getReplyComment()==null){
                     LambdaQueryWrapper<Comments> commentsLambdaQueryWrapper=new LambdaQueryWrapper<>();
                     commentsLambdaQueryWrapper.eq(Comments::getDynamicId,record.getId())
@@ -624,13 +628,6 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                             .orderByDesc(Comments::getCommentTime)
                             .last("LIMIT 1");
                     homeDynamicDto.setReplyComment(commentsMapper.selectOne(commentsLambdaQueryWrapper));
-                    if(homeDynamicDto.getReplyComment()!=null)
-                    {
-                        Users commentUsers = userMapper.selectById(homeDynamicDto.getReplyComment().getUserId());
-                        UserInfo2 commentUserInfo2=new UserInfo2();
-                        BeanUtils.copyProperties(commentUsers,commentUserInfo2);
-                        homeDynamicDto.setReplyUserInfo2(commentUserInfo2);
-                    }
                     //查询点赞
                     if(homeDynamicDto.getReplyComment()==null){
                         LambdaQueryWrapper<Likes> likesLambdaQueryWrapper=new LambdaQueryWrapper<>();
@@ -641,14 +638,32 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                                 .orderByDesc(Likes::getId);
                         List<Likes> likes = likesMapper.selectList(likesLambdaQueryWrapper);
                         List<UserInfo2> userInfo2List=new ArrayList<>();
-                        for (Likes like : likes) {
-                            Users users = userMapper.selectById(like.getUserId());
-                            UserInfo2 userInfo2=new UserInfo2();
-                            BeanUtils.copyProperties(users,userInfo2);
-                            userInfo2List.add(userInfo2);
+                        if(!likes.isEmpty()) {
+                            List<Integer> userIds = likes.stream()
+                                    .map(Likes::getUserId)
+                                    .distinct()
+                                    .collect(Collectors.toList());
+                            List<Users> usersList = userMapper.selectBatchIds(userIds);
+                            Map<Integer, Users> userMap = usersList.stream()
+                                    .collect(Collectors.toMap(Users::getId, u -> u));
+                            for (Likes like : likes) {
+                                Users users = userMap.get(like.getUserId());
+                                if (users != null) {
+                                    UserInfo2 userInfo2 = new UserInfo2();
+                                    BeanUtils.copyProperties(users, userInfo2);
+                                    userInfo2List.add(userInfo2);
+                                }
+                            }
                         }
                         homeDynamicDto.setUserInfo2s(userInfo2List);
                     }
+                }
+                if(homeDynamicDto.getReplyComment()!=null)
+                {
+                    Users commentUsers = userMapper.selectById(homeDynamicDto.getReplyComment().getUserId());
+                    UserInfo2 commentUserInfo2=new UserInfo2();
+                    BeanUtils.copyProperties(commentUsers,commentUserInfo2);
+                    homeDynamicDto.setReplyUserInfo2(commentUserInfo2);
                 }
             }
             else if(record.getVideoId() != null){
@@ -684,7 +699,6 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                     if(comments.getMainCommentId()==null)
                         homeDynamicDto.setReplyComment(comments);
                 }
-
                 if(homeDynamicDto.getReplyComment()==null){
                     LambdaQueryWrapper<Comments> commentsLambdaQueryWrapper=new LambdaQueryWrapper<>();
                     commentsLambdaQueryWrapper.eq(Comments::getVideoId,record.getVideoId())
@@ -693,13 +707,6 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                             .orderByDesc(Comments::getCommentTime)
                             .last("LIMIT 1");
                     homeDynamicDto.setReplyComment(commentsMapper.selectOne(commentsLambdaQueryWrapper));
-                    if(homeDynamicDto.getReplyComment()!=null)
-                    {
-                        Users commentUsers = userMapper.selectById(homeDynamicDto.getReplyComment().getUserId());
-                        UserInfo2 commentUserInfo2=new UserInfo2();
-                        BeanUtils.copyProperties(commentUsers,commentUserInfo2);
-                        homeDynamicDto.setReplyUserInfo2(commentUserInfo2);
-                    }
                     //查询点赞
                     if(homeDynamicDto.getReplyComment()==null) {
                         LambdaQueryWrapper<Likes> likesLambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -710,14 +717,32 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                                 .orderByDesc(Likes::getId);
                         List<Likes> likes = likesMapper.selectList(likesLambdaQueryWrapper);
                         List<UserInfo2> userInfo2List = new ArrayList<>();
-                        for (Likes like : likes) {
-                            Users users = userMapper.selectById(like.getUserId());
-                            UserInfo2 userInfo2 = new UserInfo2();
-                            BeanUtils.copyProperties(users, userInfo2);
-                            userInfo2List.add(userInfo2);
+                        if(!likes.isEmpty()) {
+                            List<Integer> userIds = likes.stream()
+                                    .map(Likes::getUserId)
+                                    .distinct()
+                                    .collect(Collectors.toList());
+                            List<Users> usersList = userMapper.selectBatchIds(userIds);
+                            Map<Integer, Users> userMap = usersList.stream()
+                                    .collect(Collectors.toMap(Users::getId, u -> u));
+                            for (Likes like : likes) {
+                                Users users = userMap.get(like.getUserId());
+                                if (users != null) {
+                                    UserInfo2 userInfo2 = new UserInfo2();
+                                    BeanUtils.copyProperties(users, userInfo2);
+                                    userInfo2List.add(userInfo2);
+                                }
+                            }
                         }
                         homeDynamicDto.setUserInfo2s(userInfo2List);
                     }
+                }
+                if(homeDynamicDto.getReplyComment()!=null)
+                {
+                    Users commentUsers = userMapper.selectById(homeDynamicDto.getReplyComment().getUserId());
+                    UserInfo2 commentUserInfo2=new UserInfo2();
+                    BeanUtils.copyProperties(commentUsers,commentUserInfo2);
+                    homeDynamicDto.setReplyUserInfo2(commentUserInfo2);
                 }
             }
             else{
@@ -738,14 +763,12 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                         .ne("user_id",homeUserId)
                         .last("LIMIT 1");
                 CommentControls commentControls = commentControlsMapper.selectOne(commentControlsLambdaQueryWrapper);
-
                 //查询点赞数量最多的评论
                 if(commentControls!=null){
                     Comments comments = commentsMapper.selectById(commentControls.getCommentId());
                     if(comments.getMainCommentId()==null)
                         homeDynamicDto.setReplyComment(comments);
                 }
-
                 if(homeDynamicDto.getReplyComment()==null){
                     LambdaQueryWrapper<Comments> commentsLambdaQueryWrapper=new LambdaQueryWrapper<>();
                     commentsLambdaQueryWrapper.eq(Comments::getDynamicId,record.getId())
@@ -754,13 +777,6 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                             .orderByDesc(Comments::getCommentTime)
                             .last("LIMIT 1");
                     homeDynamicDto.setReplyComment(commentsMapper.selectOne(commentsLambdaQueryWrapper));
-                    if(homeDynamicDto.getReplyComment()!=null)
-                    {
-                        Users commentUsers = userMapper.selectById(homeDynamicDto.getReplyComment().getUserId());
-                        UserInfo2 commentUserInfo2=new UserInfo2();
-                        BeanUtils.copyProperties(commentUsers,commentUserInfo2);
-                        homeDynamicDto.setReplyUserInfo2(commentUserInfo2);
-                    }
                     //查询点赞
                     if(homeDynamicDto.getReplyComment()==null){
                         LambdaQueryWrapper<Likes> likesLambdaQueryWrapper=new LambdaQueryWrapper<>();
@@ -771,14 +787,32 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                                 .orderByDesc(Likes::getId);
                         List<Likes> likes = likesMapper.selectList(likesLambdaQueryWrapper);
                         List<UserInfo2> userInfo2List=new ArrayList<>();
-                        for (Likes like : likes) {
-                            Users users = userMapper.selectById(like.getUserId());
-                            UserInfo2 userInfo2=new UserInfo2();
-                            BeanUtils.copyProperties(users,userInfo2);
-                            userInfo2List.add(userInfo2);
+                        if(!likes.isEmpty()) {
+                            List<Integer> userIds = likes.stream()
+                                    .map(Likes::getUserId)
+                                    .distinct()
+                                    .collect(Collectors.toList());
+                            List<Users> usersList = userMapper.selectBatchIds(userIds);
+                            Map<Integer, Users> userMap = usersList.stream()
+                                    .collect(Collectors.toMap(Users::getId, u -> u));
+                            for (Likes like : likes) {
+                                Users users = userMap.get(like.getUserId());
+                                if (users != null) {
+                                    UserInfo2 userInfo2 = new UserInfo2();
+                                    BeanUtils.copyProperties(users, userInfo2);
+                                    userInfo2List.add(userInfo2);
+                                }
+                            }
                         }
                         homeDynamicDto.setUserInfo2s(userInfo2List);
                     }
+                }
+                if(homeDynamicDto.getReplyComment()!=null)
+                {
+                    Users commentUsers = userMapper.selectById(homeDynamicDto.getReplyComment().getUserId());
+                    UserInfo2 commentUserInfo2=new UserInfo2();
+                    BeanUtils.copyProperties(commentUsers,commentUserInfo2);
+                    homeDynamicDto.setReplyUserInfo2(commentUserInfo2);
                 }
             }
 
@@ -794,220 +828,253 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
 
     private HomeDynamicDto HomeDynamicDto(Dynamic record,Integer homeUserId,Integer userId){
 
-            HomeDynamicDto homeDynamicDto=new HomeDynamicDto();
+        HomeDynamicDto homeDynamicDto=new HomeDynamicDto();
 
-            if(record.getCommentId()!=null){
-                homeDynamicDto.setComment(commentsMapper.selectById(record.getCommentId()));
-                homeDynamicDto.setPublishTime(this.getDynamicCreatTime2(homeDynamicDto.getComment().getCommentTime()));
+        if(record.getCommentId()!=null){
+            homeDynamicDto.setComment(commentsMapper.selectById(record.getCommentId()));
+            homeDynamicDto.setPublishTime(this.getDynamicCreatTime2(homeDynamicDto.getComment().getCommentTime()));
 
-                //封装视频
-                Videos videos = videosMapper.selectById(homeDynamicDto.getComment().getVideoId());
-                if(videos!=null){
-                    List<Videos> videosList=new ArrayList<>();
-                    videosList.add(videos);
-                    List<SelectVideoDto> selectVideoDto2 = videosService.getSelectVideoDto2(videosList, userId, false);
-                    if(!selectVideoDto2.isEmpty())
-                        homeDynamicDto.setVideo(selectVideoDto2.get(0));
-                    //up信息
-                    Users upUser = userMapper.selectById(videos.getUserId());
-                    UserInfo2 upUserInfo2=new UserInfo2();
-                    BeanUtils.copyProperties(upUser,upUserInfo2);
-                    //查询是否关注该up
-                    LambdaQueryWrapper<Follow> followLambdaQueryWrapper=new LambdaQueryWrapper<>();
-                    followLambdaQueryWrapper.eq(Follow::getUserId,userId)
-                            .eq(Follow::getFollowId,videos.getUserId());
-                    upUserInfo2.setIsFollowFlag(followMapper.selectOne(followLambdaQueryWrapper)!=null?1:0);
-                    homeDynamicDto.setUpUserInfo2(upUserInfo2);
-                }
-
-                //查询是否点赞该视频
-                LambdaQueryWrapper<Likes> likesLambdaQueryWrapper2=new LambdaQueryWrapper<>();
-                likesLambdaQueryWrapper2.eq(Likes::getFondId,record.getId())
-                        .eq(Likes::getLikeType,3)
-                        .eq(Likes::getDeleteFlag,0)
-                        .eq(Likes::getUserId,userId)
-                        .eq(Likes::getLikeUserId,homeUserId);
-                homeDynamicDto.setLikeFlag(likesMapper.selectOne(likesLambdaQueryWrapper2)!=null?1:0);
-
-                QueryWrapper<CommentControls> commentControlsLambdaQueryWrapper= new QueryWrapper<>();
-                commentControlsLambdaQueryWrapper.eq("dynamic_id",record.getId())
-                        .select("comment_id","COUNT(*) as count")
-                        .ne("user_id",homeUserId)
-                        .last("LIMIT 1");
-                CommentControls commentControls = commentControlsMapper.selectOne(commentControlsLambdaQueryWrapper);
-
-                //查询点赞数量最多的评论
-                if(commentControls!=null){
-                    Comments comments = commentsMapper.selectById(commentControls.getCommentId());
-                    if(comments.getMainCommentId()==null)
-                        homeDynamicDto.setReplyComment(comments);
-                }
-
-                if(homeDynamicDto.getReplyComment()==null){
-                    LambdaQueryWrapper<Comments> commentsLambdaQueryWrapper=new LambdaQueryWrapper<>();
-                    commentsLambdaQueryWrapper.eq(Comments::getDynamicId,record.getId())
-                            .eq(Comments::getDeleteSign,0)
-                            .isNull(Comments::getMainCommentId)
-                            .orderByDesc(Comments::getCommentTime)
-                            .last("LIMIT 1");
-                    homeDynamicDto.setReplyComment(commentsMapper.selectOne(commentsLambdaQueryWrapper));
-                    if(homeDynamicDto.getReplyComment()!=null)
-                    {
-                        Users commentUsers = userMapper.selectById(homeDynamicDto.getReplyComment().getUserId());
-                        UserInfo2 commentUserInfo2=new UserInfo2();
-                        BeanUtils.copyProperties(commentUsers,commentUserInfo2);
-                        homeDynamicDto.setReplyUserInfo2(commentUserInfo2);
-                    }
-                    //查询点赞
-                    if(homeDynamicDto.getReplyComment()==null){
-                        LambdaQueryWrapper<Likes> likesLambdaQueryWrapper=new LambdaQueryWrapper<>();
-                        likesLambdaQueryWrapper.eq(Likes::getFondId,record.getId())
-                                .eq(Likes::getLikeType,3)
-                                .eq(Likes::getDeleteFlag,0)
-                                .last("LIMIT 2")
-                                .orderByDesc(Likes::getId);
-                        List<Likes> likes = likesMapper.selectList(likesLambdaQueryWrapper);
-                        List<UserInfo2> userInfo2List=new ArrayList<>();
-                        for (Likes like : likes) {
-                            Users users = userMapper.selectById(like.getUserId());
-                            UserInfo2 userInfo2=new UserInfo2();
-                            BeanUtils.copyProperties(users,userInfo2);
-                            userInfo2List.add(userInfo2);
-                        }
-                        homeDynamicDto.setUserInfo2s(userInfo2List);
-                    }
-                }
-            }
-            else if(record.getVideoId() != null){
-
-                Videos videos = videosMapper.selectById(record.getVideoId());
-
+            //封装视频
+            Videos videos = videosMapper.selectById(homeDynamicDto.getComment().getVideoId());
+            if(videos!=null){
                 List<Videos> videosList=new ArrayList<>();
                 videosList.add(videos);
-                List<SelectVideoDto> selectVideoDto = videosService.getSelectVideoDto2(videosList, userId, false);
+                List<SelectVideoDto> selectVideoDto2 = videosService.getSelectVideoDto2(videosList, userId, false);
+                if(!selectVideoDto2.isEmpty())
+                    homeDynamicDto.setVideo(selectVideoDto2.get(0));
+                //up信息
+                Users upUser = userMapper.selectById(videos.getUserId());
+                UserInfo2 upUserInfo2=new UserInfo2();
+                BeanUtils.copyProperties(upUser,upUserInfo2);
+                //查询是否关注该up
+                LambdaQueryWrapper<Follow> followLambdaQueryWrapper=new LambdaQueryWrapper<>();
+                followLambdaQueryWrapper.eq(Follow::getUserId,userId)
+                        .eq(Follow::getFollowId,videos.getUserId());
+                upUserInfo2.setIsFollowFlag(followMapper.selectOne(followLambdaQueryWrapper)!=null?1:0);
+                homeDynamicDto.setUpUserInfo2(upUserInfo2);
+            }
 
-                if(!selectVideoDto.isEmpty())
-                    homeDynamicDto.setVideo(selectVideoDto.get(0));
+            //查询是否点赞该视频
+            LambdaQueryWrapper<Likes> likesLambdaQueryWrapper2=new LambdaQueryWrapper<>();
+            likesLambdaQueryWrapper2.eq(Likes::getFondId,record.getId())
+                    .eq(Likes::getLikeType,3)
+                    .eq(Likes::getDeleteFlag,0)
+                    .eq(Likes::getUserId,userId)
+                    .eq(Likes::getLikeUserId,homeUserId);
+            homeDynamicDto.setLikeFlag(likesMapper.selectOne(likesLambdaQueryWrapper2)!=null?1:0);
 
-                LambdaQueryWrapper<Likes> likesLambdaQueryWrapper2=new LambdaQueryWrapper<>();
-                likesLambdaQueryWrapper2.eq(Likes::getFondId,record.getVideoId())
-                        .eq(Likes::getLikeType,1)
-                        .eq(Likes::getDeleteFlag,0)
-                        .eq(Likes::getUserId,userId)
-                        .eq(Likes::getLikeUserId,homeUserId);
-                homeDynamicDto.setLikeFlag(likesMapper.selectOne(likesLambdaQueryWrapper2)!=null?1:0);
+            QueryWrapper<CommentControls> commentControlsLambdaQueryWrapper= new QueryWrapper<>();
+            commentControlsLambdaQueryWrapper.eq("dynamic_id",record.getId())
+                    .select("comment_id","COUNT(*) as count")
+                    .ne("user_id",homeUserId)
+                    .last("LIMIT 1");
+            CommentControls commentControls = commentControlsMapper.selectOne(commentControlsLambdaQueryWrapper);
 
-                //查找点赞最多的评论
-                QueryWrapper<CommentControls> commentControlsLambdaQueryWrapper= new QueryWrapper<>();
-                commentControlsLambdaQueryWrapper.eq("video_id",record.getVideoId())
-                        .select("comment_id","COUNT(*) as count")
-                        .ne("user_id",homeUserId)
+            //查询点赞数量最多的评论
+            if(commentControls!=null){
+                Comments comments = commentsMapper.selectById(commentControls.getCommentId());
+                if(comments.getMainCommentId()==null)
+                    homeDynamicDto.setReplyComment(comments);
+            }
+
+            if(homeDynamicDto.getReplyComment()==null){
+                LambdaQueryWrapper<Comments> commentsLambdaQueryWrapper=new LambdaQueryWrapper<>();
+                commentsLambdaQueryWrapper.eq(Comments::getDynamicId,record.getId())
+                        .eq(Comments::getDeleteSign,0)
+                        .isNull(Comments::getMainCommentId)
+                        .orderByDesc(Comments::getCommentTime)
                         .last("LIMIT 1");
-                CommentControls commentControls = commentControlsMapper.selectOne(commentControlsLambdaQueryWrapper);
+                homeDynamicDto.setReplyComment(commentsMapper.selectOne(commentsLambdaQueryWrapper));
 
-                //查询点赞数量最多的评论
-                if(commentControls!=null){
-                    Comments comments = commentsMapper.selectById(commentControls.getCommentId());
-                    if(comments.getMainCommentId()==null)
-                        homeDynamicDto.setReplyComment(comments);
-                }
-
+                //查询点赞
                 if(homeDynamicDto.getReplyComment()==null){
-                    LambdaQueryWrapper<Comments> commentsLambdaQueryWrapper=new LambdaQueryWrapper<>();
-                    commentsLambdaQueryWrapper.eq(Comments::getVideoId,record.getVideoId())
-                            .eq(Comments::getDeleteSign,0)
-                            .isNull(Comments::getMainCommentId)
-                            .orderByDesc(Comments::getCommentTime)
-                            .last("LIMIT 1");
-                    homeDynamicDto.setReplyComment(commentsMapper.selectOne(commentsLambdaQueryWrapper));
-                    if(homeDynamicDto.getReplyComment()!=null)
-                    {
-                        Users commentUsers = userMapper.selectById(homeDynamicDto.getReplyComment().getUserId());
-                        UserInfo2 commentUserInfo2=new UserInfo2();
-                        BeanUtils.copyProperties(commentUsers,commentUserInfo2);
-                        homeDynamicDto.setReplyUserInfo2(commentUserInfo2);
-                    }
-                    //查询点赞
-                    if(homeDynamicDto.getReplyComment()==null) {
-                        LambdaQueryWrapper<Likes> likesLambdaQueryWrapper = new LambdaQueryWrapper<>();
-                        likesLambdaQueryWrapper.eq(Likes::getFondId, record.getVideoId())
-                                .eq(Likes::getLikeType,1)
-                                .eq(Likes::getDeleteFlag,0)
-                                .last("LIMIT 2")
-                                .orderByDesc(Likes::getId);
-                        List<Likes> likes = likesMapper.selectList(likesLambdaQueryWrapper);
-                        List<UserInfo2> userInfo2List = new ArrayList<>();
+                    LambdaQueryWrapper<Likes> likesLambdaQueryWrapper=new LambdaQueryWrapper<>();
+                    likesLambdaQueryWrapper.eq(Likes::getFondId,record.getId())
+                            .eq(Likes::getLikeType,3)
+                            .eq(Likes::getDeleteFlag,0)
+                            .last("LIMIT 2")
+                            .orderByDesc(Likes::getId);
+                    List<Likes> likes = likesMapper.selectList(likesLambdaQueryWrapper);
+                    List<UserInfo2> userInfo2List=new ArrayList<>();
+                    if(!likes.isEmpty()) {
+                        List<Integer> userIds = likes.stream()
+                                .map(Likes::getUserId)
+                                .distinct()
+                                .collect(Collectors.toList());
+                        List<Users> usersList = userMapper.selectBatchIds(userIds);
+                        Map<Integer, Users> userMap = usersList.stream()
+                                .collect(Collectors.toMap(Users::getId, u -> u));
                         for (Likes like : likes) {
-                            Users users = userMapper.selectById(like.getUserId());
-                            UserInfo2 userInfo2 = new UserInfo2();
-                            BeanUtils.copyProperties(users, userInfo2);
-                            userInfo2List.add(userInfo2);
+                            Users users = userMap.get(like.getUserId());
+                            if (users != null) {
+                                UserInfo2 userInfo2 = new UserInfo2();
+                                BeanUtils.copyProperties(users, userInfo2);
+                                userInfo2List.add(userInfo2);
+                            }
                         }
-                        homeDynamicDto.setUserInfo2s(userInfo2List);
                     }
+                    homeDynamicDto.setUserInfo2s(userInfo2List);
                 }
             }
-            else{
-                homeDynamicDto.setPublishTime(this.getDynamicCreatTime2(record.getPublishTime()));
+            if(homeDynamicDto.getReplyComment()!=null)
+            {
+                Users commentUsers = userMapper.selectById(homeDynamicDto.getReplyComment().getUserId());
+                UserInfo2 commentUserInfo2=new UserInfo2();
+                BeanUtils.copyProperties(commentUsers,commentUserInfo2);
+                homeDynamicDto.setReplyUserInfo2(commentUserInfo2);
+            }
+        }
+        else if(record.getVideoId() != null){
 
-                LambdaQueryWrapper<Likes> likesLambdaQueryWrapper2=new LambdaQueryWrapper<>();
-                likesLambdaQueryWrapper2.eq(Likes::getFondId,record.getId())
-                        .eq(Likes::getLikeType,3)
-                        .eq(Likes::getDeleteFlag,0)
-                        .eq(Likes::getUserId,userId)
-                        .eq(Likes::getLikeUserId,homeUserId);
-                homeDynamicDto.setLikeFlag(likesMapper.selectOne(likesLambdaQueryWrapper2)!=null?1:0);
+            Videos videos = videosMapper.selectById(record.getVideoId());
 
-                //查找点赞最多的评论
-                QueryWrapper<CommentControls> commentControlsLambdaQueryWrapper= new QueryWrapper<>();
-                commentControlsLambdaQueryWrapper.eq("dynamic_id",record.getId())
-                        .select("comment_id","COUNT(*) as count")
-                        .ne("user_id",homeUserId)
+            List<Videos> videosList=new ArrayList<>();
+            videosList.add(videos);
+            List<SelectVideoDto> selectVideoDto = videosService.getSelectVideoDto2(videosList, userId, false);
+
+            if(!selectVideoDto.isEmpty())
+                homeDynamicDto.setVideo(selectVideoDto.get(0));
+
+            LambdaQueryWrapper<Likes> likesLambdaQueryWrapper2=new LambdaQueryWrapper<>();
+            likesLambdaQueryWrapper2.eq(Likes::getFondId,record.getVideoId())
+                    .eq(Likes::getLikeType,1)
+                    .eq(Likes::getDeleteFlag,0)
+                    .eq(Likes::getUserId,userId)
+                    .eq(Likes::getLikeUserId,homeUserId);
+            homeDynamicDto.setLikeFlag(likesMapper.selectOne(likesLambdaQueryWrapper2)!=null?1:0);
+
+            //查找点赞最多的评论
+            QueryWrapper<CommentControls> commentControlsLambdaQueryWrapper= new QueryWrapper<>();
+            commentControlsLambdaQueryWrapper.eq("video_id",record.getVideoId())
+                    .select("comment_id","COUNT(*) as count")
+                    .ne("user_id",homeUserId)
+                    .last("LIMIT 1");
+            CommentControls commentControls = commentControlsMapper.selectOne(commentControlsLambdaQueryWrapper);
+
+            //查询点赞数量最多的评论
+            if(commentControls!=null){
+                Comments comments = commentsMapper.selectById(commentControls.getCommentId());
+                if(comments.getMainCommentId()==null)
+                    homeDynamicDto.setReplyComment(comments);
+            }
+
+            if(homeDynamicDto.getReplyComment()==null){
+                LambdaQueryWrapper<Comments> commentsLambdaQueryWrapper=new LambdaQueryWrapper<>();
+                commentsLambdaQueryWrapper.eq(Comments::getVideoId,record.getVideoId())
+                        .eq(Comments::getDeleteSign,0)
+                        .isNull(Comments::getMainCommentId)
+                        .orderByDesc(Comments::getCommentTime)
                         .last("LIMIT 1");
-                CommentControls commentControls = commentControlsMapper.selectOne(commentControlsLambdaQueryWrapper);
-
-                //查询点赞数量最多的评论
-                if(commentControls!=null){
-                    Comments comments = commentsMapper.selectById(commentControls.getCommentId());
-                    if(comments.getMainCommentId()==null)
-                        homeDynamicDto.setReplyComment(comments);
-                }
-
-                if(homeDynamicDto.getReplyComment()==null){
-                    LambdaQueryWrapper<Comments> commentsLambdaQueryWrapper=new LambdaQueryWrapper<>();
-                    commentsLambdaQueryWrapper.eq(Comments::getDynamicId,record.getId())
-                            .eq(Comments::getDeleteSign,0)
-                            .isNull(Comments::getMainCommentId)
-                            .orderByDesc(Comments::getCommentTime)
-                            .last("LIMIT 1");
-                    homeDynamicDto.setReplyComment(commentsMapper.selectOne(commentsLambdaQueryWrapper));
-                    if(homeDynamicDto.getReplyComment()!=null)
-                    {
-                        Users commentUsers = userMapper.selectById(homeDynamicDto.getReplyComment().getUserId());
-                        UserInfo2 commentUserInfo2=new UserInfo2();
-                        BeanUtils.copyProperties(commentUsers,commentUserInfo2);
-                        homeDynamicDto.setReplyUserInfo2(commentUserInfo2);
-                    }
-                    //查询点赞
-                    if(homeDynamicDto.getReplyComment()==null){
-                        LambdaQueryWrapper<Likes> likesLambdaQueryWrapper=new LambdaQueryWrapper<>();
-                        likesLambdaQueryWrapper.eq(Likes::getFondId,record.getId())
-                                .eq(Likes::getLikeType,3)
-                                .eq(Likes::getDeleteFlag,0)
-                                .last("LIMIT 2")
-                                .orderByDesc(Likes::getId);
-                        List<Likes> likes = likesMapper.selectList(likesLambdaQueryWrapper);
-                        List<UserInfo2> userInfo2List=new ArrayList<>();
+                homeDynamicDto.setReplyComment(commentsMapper.selectOne(commentsLambdaQueryWrapper));
+                //查询点赞
+                if(homeDynamicDto.getReplyComment()==null) {
+                    LambdaQueryWrapper<Likes> likesLambdaQueryWrapper = new LambdaQueryWrapper<>();
+                    likesLambdaQueryWrapper.eq(Likes::getFondId, record.getVideoId())
+                            .eq(Likes::getLikeType,1)
+                            .eq(Likes::getDeleteFlag,0)
+                            .last("LIMIT 2")
+                            .orderByDesc(Likes::getId);
+                    List<Likes> likes = likesMapper.selectList(likesLambdaQueryWrapper);
+                    List<UserInfo2> userInfo2List = new ArrayList<>();
+                    if(!likes.isEmpty()) {
+                        List<Integer> userIds = likes.stream()
+                                .map(Likes::getUserId)
+                                .distinct()
+                                .collect(Collectors.toList());
+                        List<Users> usersList = userMapper.selectBatchIds(userIds);
+                        Map<Integer, Users> userMap = usersList.stream()
+                                .collect(Collectors.toMap(Users::getId, u -> u));
                         for (Likes like : likes) {
-                            Users users = userMapper.selectById(like.getUserId());
-                            UserInfo2 userInfo2=new UserInfo2();
-                            BeanUtils.copyProperties(users,userInfo2);
-                            userInfo2List.add(userInfo2);
+                            Users users = userMap.get(like.getUserId());
+                            if (users != null) {
+                                UserInfo2 userInfo2 = new UserInfo2();
+                                BeanUtils.copyProperties(users, userInfo2);
+                                userInfo2List.add(userInfo2);
+                            }
                         }
-                        homeDynamicDto.setUserInfo2s(userInfo2List);
                     }
+                    homeDynamicDto.setUserInfo2s(userInfo2List);
                 }
             }
+            if(homeDynamicDto.getReplyComment()!=null)
+            {
+                Users commentUsers = userMapper.selectById(homeDynamicDto.getReplyComment().getUserId());
+                UserInfo2 commentUserInfo2=new UserInfo2();
+                BeanUtils.copyProperties(commentUsers,commentUserInfo2);
+                homeDynamicDto.setReplyUserInfo2(commentUserInfo2);
+            }
+        }
+        else{
+            homeDynamicDto.setPublishTime(this.getDynamicCreatTime2(record.getPublishTime()));
+
+            LambdaQueryWrapper<Likes> likesLambdaQueryWrapper2=new LambdaQueryWrapper<>();
+            likesLambdaQueryWrapper2.eq(Likes::getFondId,record.getId())
+                    .eq(Likes::getLikeType,3)
+                    .eq(Likes::getDeleteFlag,0)
+                    .eq(Likes::getUserId,userId)
+                    .eq(Likes::getLikeUserId,homeUserId);
+            homeDynamicDto.setLikeFlag(likesMapper.selectOne(likesLambdaQueryWrapper2)!=null?1:0);
+
+            //查找点赞最多的评论
+            QueryWrapper<CommentControls> commentControlsLambdaQueryWrapper= new QueryWrapper<>();
+            commentControlsLambdaQueryWrapper.eq("dynamic_id",record.getId())
+                    .select("comment_id","COUNT(*) as count")
+                    .ne("user_id",homeUserId)
+                    .last("LIMIT 1");
+            CommentControls commentControls = commentControlsMapper.selectOne(commentControlsLambdaQueryWrapper);
+
+            //查询点赞数量最多的评论
+            if(commentControls!=null){
+                Comments comments = commentsMapper.selectById(commentControls.getCommentId());
+                if(comments.getMainCommentId()==null)
+                    homeDynamicDto.setReplyComment(comments);
+            }
+            if(homeDynamicDto.getReplyComment()==null){
+                LambdaQueryWrapper<Comments> commentsLambdaQueryWrapper=new LambdaQueryWrapper<>();
+                commentsLambdaQueryWrapper.eq(Comments::getDynamicId,record.getId())
+                        .eq(Comments::getDeleteSign,0)
+                        .isNull(Comments::getMainCommentId)
+                        .orderByDesc(Comments::getCommentTime)
+                        .last("LIMIT 1");
+                homeDynamicDto.setReplyComment(commentsMapper.selectOne(commentsLambdaQueryWrapper));
+                //查询点赞
+                if(homeDynamicDto.getReplyComment()==null){
+                    LambdaQueryWrapper<Likes> likesLambdaQueryWrapper=new LambdaQueryWrapper<>();
+                    likesLambdaQueryWrapper.eq(Likes::getFondId,record.getId())
+                            .eq(Likes::getLikeType,3)
+                            .eq(Likes::getDeleteFlag,0)
+                            .last("LIMIT 2")
+                            .orderByDesc(Likes::getId);
+                    List<Likes> likes = likesMapper.selectList(likesLambdaQueryWrapper);
+                    List<UserInfo2> userInfo2List=new ArrayList<>();
+                    if(!likes.isEmpty()) {
+                        List<Integer> userIds = likes.stream()
+                                .map(Likes::getUserId)
+                                .distinct()
+                                .collect(Collectors.toList());
+                        List<Users> usersList = userMapper.selectBatchIds(userIds);
+                        Map<Integer, Users> userMap = usersList.stream()
+                                .collect(Collectors.toMap(Users::getId, u -> u));
+                        for (Likes like : likes) {
+                            Users users = userMap.get(like.getUserId());
+                            if (users != null) {
+                                UserInfo2 userInfo2 = new UserInfo2();
+                                BeanUtils.copyProperties(users, userInfo2);
+                                userInfo2List.add(userInfo2);
+                            }
+                        }
+                    }
+                    homeDynamicDto.setUserInfo2s(userInfo2List);
+                }
+            }
+            if(homeDynamicDto.getReplyComment()!=null)
+            {
+                Users commentUsers = userMapper.selectById(homeDynamicDto.getReplyComment().getUserId());
+                UserInfo2 commentUserInfo2=new UserInfo2();
+                BeanUtils.copyProperties(commentUsers,commentUserInfo2);
+                homeDynamicDto.setReplyUserInfo2(commentUserInfo2);
+            }
+        }
 
         Users users = userMapper.selectById(homeUserId);
         UserInfo2 userInfo2=new UserInfo2();
@@ -1033,15 +1100,15 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                 substring=duration.toHours()+"小时前";
         }
 
-             else if (duration.toHours()<2) {
+        else if (duration.toHours()<2) {
 
-                substring="昨天";
+            substring="昨天";
 
-            }else if (duration.toHours()<3) {
+        }else if (duration.toHours()<3) {
 
-                substring="前天";
+            substring="前天";
 
-            } else if (duration.toHours()<4) {
+        } else if (duration.toHours()<4) {
 
             substring="3天前";
         }
@@ -1123,11 +1190,15 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
         LambdaQueryWrapper<Fans> fansLambdaQueryWrapper=new LambdaQueryWrapper<>();
         fansLambdaQueryWrapper.eq(Fans::getUserId,dynamic.getFollowId());
         List<Fans> fans = fansMapper.selectList(fansLambdaQueryWrapper);
+        List<Dynamic> dynamicsToInsert = new ArrayList<>();
         for (Fans fan : fans) {
             dynamic.setId(null);
             dynamic.setFansId(fan.getFansId());
             dynamic.setDynamicId(dynamicId);
-            dynamicMapper.insert(dynamic);
+            dynamicsToInsert.add(dynamic);
+        }
+        if (!dynamicsToInsert.isEmpty()) {
+            dynamicService.saveBatch(dynamicsToInsert);
         }
     }
 
@@ -1146,9 +1217,13 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                 .eq(Dynamic::getFollowId,dynamicUserId)
                 .isNull(Dynamic::getDynamicId);
         List<Dynamic> dynamics = dynamicMapper.selectList(dynamicLambdaQueryWrapper2);
-        for (Dynamic dynamic : dynamics) {
-            dynamic.setWaitWatch(1);
-            dynamicMapper.updateById(dynamic);
+        if (!dynamics.isEmpty()) {
+            List<Integer> ids = dynamics.stream()
+                    .map(Dynamic::getId)
+                    .collect(Collectors.toList());
+            Dynamic updateEntity = new Dynamic();
+            updateEntity.setWaitWatch(1);
+            dynamicMapper.update(updateEntity, new LambdaQueryWrapper<Dynamic>().in(Dynamic::getId, ids));
         }
     }
 
@@ -1229,7 +1304,7 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
         }
         //个人动态
         else{
-           return this.homeDynamic(dynamicUserId, userId, pageNum, type, "").getRecords();
+            return this.homeDynamic(dynamicUserId, userId, pageNum, type, "").getRecords();
         }
         return null;
     }
@@ -1308,9 +1383,9 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
             //查询是否关注
             if(userId!=null)
             {
-               LambdaQueryWrapper<Follow> followLambdaQueryWrapper=new LambdaQueryWrapper<>();
-               followLambdaQueryWrapper.eq(Follow::getFollowId,record.getUserId())
-                       .eq(Follow::getUserId,userId);
+                LambdaQueryWrapper<Follow> followLambdaQueryWrapper=new LambdaQueryWrapper<>();
+                followLambdaQueryWrapper.eq(Follow::getFollowId,record.getUserId())
+                        .eq(Follow::getUserId,userId);
                 Follow follow = followMapper.selectOne(followLambdaQueryWrapper);
                 userInfo2.setIsFollowFlag(follow!=null?1:0);
             }
