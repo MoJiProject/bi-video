@@ -28,6 +28,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -60,6 +61,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
 
     @Autowired
     private CacheService cacheService;
+
+    @Autowired
+    private FansService fansService;
 
     public Users login(Users users) {
 
@@ -344,14 +348,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
             LambdaQueryWrapper<Follow> lambdaQueryWrapper=new LambdaQueryWrapper<>();
             lambdaQueryWrapper.eq(Follow::getUserId,userId);
             List<Follow> follows = followMapper.selectList(lambdaQueryWrapper);
-            if(!follows.isEmpty()){
-
+            if (!follows.isEmpty()) {
+                List<Integer> followIds = follows.stream()
+                        .map(Follow::getFollowId)
+                        .distinct()
+                        .collect(Collectors.toList());
+                List<Users> usersList = userMapper.selectBatchIds(followIds);
+                Map<Integer, Users> userMap = usersList.stream()
+                        .collect(Collectors.toMap(Users::getId, u -> u));
                 for (Follow follow : follows) {
-
-                    Users users = userMapper.selectById(follow.getFollowId());
-                    Eit eit=new Eit();
-                    BeanUtils.copyProperties(users,eit);
-                    friendList.add(eit);
+                    Users users = userMap.get(follow.getFollowId());
+                    if (users != null) {
+                        Eit eit = new Eit();
+                        BeanUtils.copyProperties(users, eit);
+                        friendList.add(eit);
+                    }
                 }
             }
         }
@@ -427,11 +438,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
 
         List<UserInfo2> userInfo2List=new ArrayList<>();
         List<Fans> fans = fansMapper.selectFansAndFollowerByUserId(userId,(pageNum-1)*10);
-        for (Fans fan : fans) {
-            Users users = userMapper.selectById(fan.getFansId());
-            UserInfo2 userInfo2=new UserInfo2();
-            BeanUtils.copyProperties(users,userInfo2);
-            userInfo2List.add(userInfo2);
+        if (!fans.isEmpty()) {
+            List<Integer> fanIds = fans.stream()
+                    .map(Fans::getFansId)
+                    .distinct()
+                    .collect(Collectors.toList());
+            List<Users> usersList = userMapper.selectBatchIds(fanIds);
+            Map<Integer, Users> userMap = usersList.stream()
+                    .collect(Collectors.toMap(Users::getId, u -> u));
+            for (Fans fan : fans) {
+                Users users = userMap.get(fan.getFansId());
+                if (users != null) {
+                    UserInfo2 userInfo2 = new UserInfo2();
+                    BeanUtils.copyProperties(users, userInfo2);
+                    userInfo2List.add(userInfo2);
+                }
+            }
         }
         return userInfo2List;
     }
@@ -626,9 +648,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
         LambdaQueryWrapper<Fans> fansLambdaQueryWrapper=new LambdaQueryWrapper<>();
         fansLambdaQueryWrapper.eq(Fans::getUserId,userId);
         List<Fans> fans = fansMapper.selectList(fansLambdaQueryWrapper);
-        for (Fans fan : fans) {
-            fan.setNewFansId(-1);
-            fansMapper.updateById(fan);
+        if(!fans.isEmpty()){
+            for (Fans fan : fans) {
+                fan.setNewFansId(-1);
+            }
+            fansService.updateBatchById(fans);
         }
     }
 
