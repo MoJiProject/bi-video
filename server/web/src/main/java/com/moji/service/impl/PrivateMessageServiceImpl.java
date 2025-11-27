@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper, PrivateMessage> implements PrivateMessageService {
@@ -62,27 +63,34 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
 
         List<SelectDialogue> selectDialogueList=new ArrayList<>();
 
-        for (Dialogue dialogue : dialoguesRecords) {
-
-            SelectDialogue selectDialogue=new SelectDialogue();
-
-            Users users = userMapper.selectById(dialogue.getDialogueId());
-            UserInfo2 userInfo2=new UserInfo2();
-            BeanUtils.copyProperties(users,userInfo2);
-            //查询未读的数量
-            LambdaQueryWrapper<PrivateMessage> privateMessageLambdaQueryWrapper=new LambdaQueryWrapper<>();
-            privateMessageLambdaQueryWrapper.eq(PrivateMessage::getSenderId,dialogue.getDialogueId())
-                            .eq(PrivateMessage::getReceiverId,dialogue.getUserId())
-                            .eq(PrivateMessage::getStatus,0);
-            List<PrivateMessage> notReadMessage = privateMessageMapper.selectList(privateMessageLambdaQueryWrapper);
-            LambdaQueryWrapper<PrivateMessage> privateMessageLambdaQueryWrapper1=new LambdaQueryWrapper<>();
-            privateMessageLambdaQueryWrapper1.eq(PrivateMessage::getSelectSign,dialogue.getSign());
-            List<PrivateMessage> privateMessages = privateMessageMapper.selectList(privateMessageLambdaQueryWrapper1);
-            selectDialogue.setDialogue(dialogue);
-            selectDialogue.setUserInfo(userInfo2);
-            selectDialogue.setAllMessageNumber(privateMessages.size());
-            selectDialogue.setNotReadNumber(notReadMessage.size());
-            selectDialogueList.add(selectDialogue);
+        if (!dialoguesRecords.isEmpty()) {
+            List<Integer> dialogueIds = dialoguesRecords.stream()
+                    .map(Dialogue::getDialogueId)
+                    .distinct()
+                    .collect(Collectors.toList());
+            List<Users> usersList = userMapper.selectBatchIds(dialogueIds);
+            Map<Integer, Users> userMap = usersList.stream()
+                    .collect(Collectors.toMap(Users::getId, u -> u));
+            for (Dialogue dialogue : dialoguesRecords) {
+                Users users = userMap.get(dialogue.getDialogueId());
+                UserInfo2 userInfo2 = new UserInfo2();
+                BeanUtils.copyProperties(users, userInfo2);
+                SelectDialogue selectDialogue=new SelectDialogue();
+                //查询未读的数量
+                LambdaQueryWrapper<PrivateMessage> privateMessageLambdaQueryWrapper = new LambdaQueryWrapper<>();
+                privateMessageLambdaQueryWrapper.eq(PrivateMessage::getSenderId, dialogue.getDialogueId())
+                        .eq(PrivateMessage::getReceiverId, dialogue.getUserId())
+                        .eq(PrivateMessage::getStatus, 0);
+                List<PrivateMessage> notReadMessage = privateMessageMapper.selectList(privateMessageLambdaQueryWrapper);
+                LambdaQueryWrapper<PrivateMessage> privateMessageLambdaQueryWrapper1 = new LambdaQueryWrapper<>();
+                privateMessageLambdaQueryWrapper1.eq(PrivateMessage::getSelectSign, dialogue.getSign());
+                List<PrivateMessage> privateMessages = privateMessageMapper.selectList(privateMessageLambdaQueryWrapper1);
+                selectDialogue.setDialogue(dialogue);
+                selectDialogue.setUserInfo(userInfo2);
+                selectDialogue.setAllMessageNumber(privateMessages.size());
+                selectDialogue.setNotReadNumber(notReadMessage.size());
+                selectDialogueList.add(selectDialogue);
+            }
         }
 
         return selectDialogueList;
@@ -404,15 +412,24 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         SelectPrivateMessage selectPrivateMessages=new SelectPrivateMessage();
 
         List<PrivateMessageDto> privateMessageDtoList=new ArrayList<>();
-        for (PrivateMessage privateMessage : privateMessages) {
-            PrivateMessageDto privateMessageDto=new PrivateMessageDto();
-            BeanUtils.copyProperties(privateMessage,privateMessageDto);
-            if(privateMessage.getMessageType()==3)
-            {
-                Videos videos = videosMapper.selectById(privateMessage.getContent());
-                privateMessageDto.setVideos(videos);
+        if (!privateMessages.isEmpty()) {
+            List<Integer> videoIds = privateMessages.stream()
+                    .filter(privateMessage -> privateMessage.getMessageType() == 3)
+                    .map(privateMessage -> Integer.valueOf(privateMessage.getContent()))
+                    .distinct()
+                    .collect(Collectors.toList());
+            List<Videos> videosList = videosMapper.selectBatchIds(videoIds);
+            Map<Integer, Videos> videoMap = videosList.stream()
+                    .collect(Collectors.toMap(Videos::getId, v -> v));
+            for (PrivateMessage privateMessage : privateMessages) {
+                PrivateMessageDto privateMessageDto = new PrivateMessageDto();
+                BeanUtils.copyProperties(privateMessage, privateMessageDto);
+                if (privateMessage.getMessageType() == 3) {
+                    Videos video = videoMap.get(Integer.valueOf(privateMessage.getContent()));
+                    privateMessageDto.setVideos(video);
+                }
+                privateMessageDtoList.add(privateMessageDto);
             }
-            privateMessageDtoList.add(privateMessageDto);
         }
         selectPrivateMessages.setPrivateMessage(privateMessageDtoList);
         selectPrivateMessages.setUserInfo(userInfo);
