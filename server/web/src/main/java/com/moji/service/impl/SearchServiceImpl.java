@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class SearchServiceImpl implements SearchService {
@@ -168,28 +169,34 @@ public class SearchServiceImpl implements SearchService {
 
         List<Users> users = userMapper.selectList(usersLambdaQueryWrapper);
         List<SelectUserDto> selectUserDtoList=new ArrayList<>();
-        for (Users user : users) {
+        if (!users.isEmpty()) {
+            List<Integer> userIds = users.stream()
+                    .map(Users::getId)
+                    .collect(Collectors.toList());
+            List<Follow> follows = followMapper.selectList(
+                    new LambdaQueryWrapper<Follow>()
+                            .eq(Follow::getUserId, acceptSearchData.getUserId())
+                            .in(Follow::getFollowId, userIds)
+            );
+            Map<Integer, Follow> followMap = follows.stream()
+                    .collect(Collectors.toMap(Follow::getFollowId, f -> f));
+            for (Users user : users) {
+                Follow follow = followMap.get(user.getId());
+                SelectUserDto userDto = SelectUserDto.builder()
+                        .userId(user.getId())
+                        .userName(user.getUserName())
+                        .avatarAddress(user.getAvatarAddress())
+                        .grade(user.getGrade())
+                        .fansNumber(user.getFansNumber())
+                        .introduce(user.getIntroduce())
+                        .videoNumber(user.getVideoNumber())
+                        .build();
 
-            LambdaQueryWrapper<Follow> followLambdaQueryWrapper=new LambdaQueryWrapper<>();
-            followLambdaQueryWrapper.eq(Follow::getUserId,acceptSearchData.getUserId())
-                    .eq(Follow::getFollowId,user.getId());
-            Follow follow = followMapper.selectOne(followLambdaQueryWrapper);
+                if (follow != null)
+                    userDto.setFollow(follow);
 
-            SelectUserDto userDto=SelectUserDto.builder()
-                    .userId(user.getId())
-                    .userName(user.getUserName())
-                    .avatarAddress(user.getAvatarAddress())
-                    .grade(user.getGrade())
-                    .fansNumber(user.getFansNumber())
-                    .introduce(user.getIntroduce())
-                    .videoNumber(user.getVideoNumber())
-                    .build();
-
-                if (follow!=null)
-                 userDto.setFollow(follow);
-
-            selectUserDtoList.add(userDto);
-
+                selectUserDtoList.add(userDto);
+            }
         }
 
         return selectUserDtoList;
