@@ -12,6 +12,7 @@ import com.moji.mapper.*;
 import com.moji.po.*;
 import com.moji.service.CacheService;
 import com.moji.service.CommentService;
+import com.moji.service.DialogueService;
 import com.moji.service.PrivateMessageService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,8 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
     private VideosMapper videosMapper;
     @Autowired
     private CacheService cacheService;
+    @Autowired
+    private DialogueService dialogueService;
 
 
     @Override
@@ -211,17 +214,19 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         }else if(users==null)
             return false;
 
-        //更新对话内容
+            //更新对话内容
             LambdaQueryWrapper<Dialogue> dialogueLambdaQueryWrapper = new LambdaQueryWrapper<>();
             dialogueLambdaQueryWrapper.eq(Dialogue::getSign, sign);
             List<Dialogue> dialogues = dialogueMapper.selectList(dialogueLambdaQueryWrapper);
-            for (Dialogue dialogue : dialogues) {
-                if(privateMessage.getMessageType()==1)
-                 dialogue.setNewContent(privateMessage.getContent());
-                else if(privateMessage.getMessageType()==2)
-                    dialogue.setNewContent("[图片]");
-                dialogueMapper.updateById(dialogue);
-            }
+            if(!dialogues.isEmpty()) {
+                for (Dialogue dialogue : dialogues) {
+                    if (privateMessage.getMessageType() == 1)
+                        dialogue.setNewContent(privateMessage.getContent());
+                    else if (privateMessage.getMessageType() == 2)
+                        dialogue.setNewContent("[图片]");
+                }
+            dialogueService.updateBatchById(dialogues);
+        }
             if(privateMessage.getMessageType()==2){
 
             String imageFormat = commentService.getImageFormat(privateMessage.getContent());
@@ -303,23 +308,23 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
                     .last("LIMIT 1");
             PrivateMessage privateMessage1 = privateMessageMapper.selectOne(privateMessageLambdaQueryWrapper);
 
-            for (Dialogue dialogue : dialogues) {
-                if(privateMessage1!=null)
-                {
-                    if(privateMessage1.getStatus()==2){
-                       if(Objects.equals(dialogue.getUserId(), privateMessage1.getSenderId()))
-                           dialogue.setNewContent("您撤回一条消息");
-                       else dialogue.setNewContent("对方撤回一条消息");
-                    }else{
-                        if(privateMessage1.getMessageType()==1)
-                            dialogue.setNewContent(privateMessage1.getContent());
-                        else if(privateMessage1.getMessageType()==2)
-                            dialogue.setNewContent("[图片]");
-                    }
+            if(!dialogues.isEmpty()) {
+                for (Dialogue dialogue : dialogues) {
+                    if (privateMessage1 != null) {
+                        if (privateMessage1.getStatus() == 2) {
+                            if (Objects.equals(dialogue.getUserId(), privateMessage1.getSenderId()))
+                                dialogue.setNewContent("您撤回一条消息");
+                            else dialogue.setNewContent("对方撤回一条消息");
+                        } else {
+                            if (privateMessage1.getMessageType() == 1)
+                                dialogue.setNewContent(privateMessage1.getContent());
+                            else if (privateMessage1.getMessageType() == 2)
+                                dialogue.setNewContent("[图片]");
+                        }
+                    } else
+                        dialogue.setNewContent(null);
                 }
-                else
-                    dialogue.setNewContent(null);
-                dialogueMapper.updateById(dialogue);
+                dialogueService.updateBatchById(dialogues);
             }
         } else
             return false;
