@@ -24,10 +24,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class HistoryServiceImpl extends ServiceImpl<HistoryMapper, History> implements HistoryService {
@@ -52,24 +56,27 @@ public class HistoryServiceImpl extends ServiceImpl<HistoryMapper, History> impl
 
         List<SelectHistoryDto> selectHistoryDtos=new ArrayList<>();
         int count=0;
-        if(!histories.isEmpty()){
+        if (!histories.isEmpty()) {
+            List<Integer> videoIds = histories.stream()
+                    .map(History::getVideoId)
+                    .distinct()
+                    .collect(Collectors.toList());
+            List<Videos> videosList = videosMapper.selectBatchIds(videoIds);
+            Map<Integer, Videos> videoMap = videosList.stream()
+                    .collect(Collectors.toMap(Videos::getId, v -> v));
             for (History history : histories) {
-                Videos video = videosMapper.selectById(history.getVideoId());
-                if (video.getStatus()!=1)
+                Videos video = videoMap.get(history.getVideoId());
+                if (video == null || video.getStatus() != 1)
                     continue;
-
                 String substring=null;
-                Duration duration=Duration.between(history.getWatchVideoDate(),LocalDateTime.now());
-                if (duration.toDays()<1){
-                    if(LocalDateTime.now().getDayOfMonth()==history.getWatchVideoDate().getDayOfMonth())
-                      substring="今天";
-                    else
-                        substring="昨天";
-                }
-                else if (duration.toDays()==1) {
-                    substring="昨天";
-                }
-                else{
+                LocalDate historyDate = history.getWatchVideoDate().toLocalDate();
+                LocalDate currentDate = LocalDate.now();
+                long dayDiff = ChronoUnit.DAYS.between(historyDate, currentDate);
+                if (dayDiff == 0) {
+                    substring = "今天";
+                } else if (dayDiff == 1) {
+                    substring = "昨天";
+                } else{
                     //判断是否是今年
                         int year = LocalDateTime.now().getYear();
                         int year1 = history.getWatchVideoDate().getYear();
@@ -181,22 +188,29 @@ public class HistoryServiceImpl extends ServiceImpl<HistoryMapper, History> impl
         else if(sort==5) return historyDtoList;
 
         List<History> histories = historyMapper.selectHistoryList(userId, (pageNum - 1) * 10, sort, keyWord, startTime2, endTime2);
-
-        for (History history : histories) {
-
-            HistoryDto historyDto=new HistoryDto();
-            Videos videos = videosMapper.selectById(history.getVideoId());
-            videos.setCreateTime(history.getWatchVideoDate());
-            historyDto.setSelectVideoDto(videosService.getSelectVideo(videos,userId,false));
-            historyDto.setHistory(history);
-            if(historyDto.getSelectVideoDto()!=null)
-            {
-                Users users = userMapper.selectById(historyDto.getSelectVideoDto().getUserId());
-                UserInfo2 userInfo2=new UserInfo2();
-                BeanUtils.copyProperties(users,userInfo2);
-                historyDto.setUserInfo2(userInfo2);
+        if(!histories.isEmpty()){
+            List<Integer> videoIds = histories.stream()
+                    .map(History::getVideoId)
+                    .distinct()
+                    .collect(Collectors.toList());
+            List<Videos> videosList = videosMapper.selectBatchIds(videoIds);
+            Map<Integer, Videos> videoMap = videosList.stream()
+                    .collect(Collectors.toMap(Videos::getId, v -> v));
+            for (History history : histories) {
+                Videos videos = videoMap.get(history.getVideoId());
+                HistoryDto historyDto=new HistoryDto();
+                videos.setCreateTime(history.getWatchVideoDate());
+                historyDto.setSelectVideoDto(videosService.getSelectVideo(videos,userId,false));
+                historyDto.setHistory(history);
+                if(historyDto.getSelectVideoDto()!=null)
+                {
+                    Users users = userMapper.selectById(historyDto.getSelectVideoDto().getUserId());
+                    UserInfo2 userInfo2=new UserInfo2();
+                    BeanUtils.copyProperties(users,userInfo2);
+                    historyDto.setUserInfo2(userInfo2);
+                }
+                historyDtoList.add(historyDto);
             }
-            historyDtoList.add(historyDto);
         }
         return historyDtoList;
     }
