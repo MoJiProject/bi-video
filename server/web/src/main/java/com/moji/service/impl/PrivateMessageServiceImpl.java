@@ -423,23 +423,30 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
                     .map(privateMessage -> Integer.valueOf(privateMessage.getContent()))
                     .distinct()
                     .collect(Collectors.toList());
-            List<Videos> videosList = videosMapper.selectBatchIds(videoIds);
-            Map<Integer, Videos> videoMap = videosList.stream()
-                    .collect(Collectors.toMap(Videos::getId, v -> v));
-            for (PrivateMessage privateMessage : privateMessages) {
-                PrivateMessageDto privateMessageDto = new PrivateMessageDto();
-                BeanUtils.copyProperties(privateMessage, privateMessageDto);
-                if (privateMessage.getMessageType() == 3) {
-                    Videos video = videoMap.get(Integer.valueOf(privateMessage.getContent()));
-                    privateMessageDto.setVideos(video);
+            if(!videoIds.isEmpty()){
+                List<Videos> videosList = videosMapper.selectBatchIds(videoIds);
+                Map<Integer, Videos> videoMap = videosList.stream()
+                        .collect(Collectors.toMap(Videos::getId, v -> v));
+                for (PrivateMessage privateMessage : privateMessages) {
+                    PrivateMessageDto privateMessageDto = new PrivateMessageDto();
+                    BeanUtils.copyProperties(privateMessage, privateMessageDto);
+                    if (privateMessage.getMessageType() == 3) {
+                        Videos video = videoMap.get(Integer.valueOf(privateMessage.getContent()));
+                        privateMessageDto.setVideos(video);
+                    }
+                    privateMessageDtoList.add(privateMessageDto);
                 }
-                privateMessageDtoList.add(privateMessageDto);
+            }else{
+                for (PrivateMessage privateMessage : privateMessages) {
+                    PrivateMessageDto privateMessageDto = new PrivateMessageDto();
+                    BeanUtils.copyProperties(privateMessage, privateMessageDto);
+                    privateMessageDtoList.add(privateMessageDto);
+                }
             }
         }
         selectPrivateMessages.setPrivateMessage(privateMessageDtoList);
         selectPrivateMessages.setUserInfo(userInfo);
         selectPrivateMessages.setDialogueUserInfo(dialogueUserInfo);
-
         return selectPrivateMessages;
     }
 
