@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.moji.FilePathEnum;
+import com.moji.R;
 import com.moji.dto.*;
 import com.moji.mapper.*;
 import com.moji.po.*;
@@ -80,6 +81,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
                 String imageFormat = getImageFormat(imgBase64);
                 if (imageFormat == null||imageFormat.equals(".gif"))
                     continue;
+                if(FilePathEnum.canUpload()){
+                    throw new RuntimeException("服务器存储空间不足，无法上传评论图片");
+                }
                 UUID commentImgName = UUID.randomUUID();
                 //添加图片地址
                 imgAddress.append("/upload/comment/").append(commentImgName).append(imageFormat).append(",");

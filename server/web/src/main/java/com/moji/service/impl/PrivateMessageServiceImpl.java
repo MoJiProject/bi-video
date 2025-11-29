@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.moji.FilePathEnum;
+import com.moji.R;
 import com.moji.dto.PrivateMessageDto;
 import com.moji.dto.SelectDialogue;
 import com.moji.dto.SelectPrivateMessage;
@@ -228,7 +229,9 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             dialogueService.updateBatchById(dialogues);
         }
             if(privateMessage.getMessageType()==2){
-
+                if(FilePathEnum.canUpload()){
+                   throw new RuntimeException("服务器存储空间不足，无法上传图片，请联系管理员");
+                }
             String imageFormat = commentService.getImageFormat(privateMessage.getContent());
             UUID messageImgName = UUID.randomUUID();
             // 创建上传目录

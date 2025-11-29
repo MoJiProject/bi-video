@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.moji.FilePathEnum;
+import com.moji.R;
 import com.moji.dto.AddDynamic;
 import com.moji.dto.DynamicDto;
 import com.moji.dto.HomeDynamicDto;
@@ -505,6 +506,9 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                 String imageFormat = commentService.getImageFormat(imgBase64);
                 if (imageFormat == null||imageFormat.equals(".gif"))
                     continue;
+                if(FilePathEnum.canUpload()){
+                    throw new RuntimeException("服务器存储空间不足，无法上传图片，请联系管理员！");
+                }
                 UUID dynamicImgName = UUID.randomUUID();
                 //添加图片地址
                 imgAddress.append("/upload/dynamic/").append(dynamicImgName).append(imageFormat).append(",");

@@ -4,6 +4,7 @@ import ch.qos.logback.core.util.StringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.moji.FilePathEnum;
+import com.moji.R;
 import com.moji.mapper.CollectClassifyMapper;
 import com.moji.mapper.CollectMapper;
 import com.moji.mapper.VideosMapper;
@@ -115,6 +116,10 @@ public class CollectClassifyServiceImpl extends ServiceImpl<CollectClassifyMappe
                     base64=collectsClassify.getCoverAddress().split(",")[1];
                 else
                     return false;
+
+                if(FilePathEnum.canUpload()){
+                    throw new RuntimeException("服务器存储空间不足，无法上传文件");
+                }
 
                 File dir=new File(FilePathEnum.UPLOAD_IMG_COLLECT_CLASSIFY.getPath());
                 byte[] decode = Base64.getDecoder().decode(base64);

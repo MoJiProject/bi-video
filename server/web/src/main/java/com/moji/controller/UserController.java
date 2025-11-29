@@ -4,6 +4,7 @@ import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.moji.FilePathEnum;
 import com.moji.R;
 import com.moji.dto.EitDto;
 import com.moji.dto.LimiterLoginDto;
@@ -393,6 +394,10 @@ public class UserController {
         if(!limiterServer.checkUser(userId,token))
             return R.error("头像更新失败");
 
+        if(FilePathEnum.canUpload()){
+            return R.error("上传文件过多，请联系管理员处理");
+        }
+
         Boolean b = userService.uploadAvatar(userId, avatar);
         if(b)
             return R.success("头像更新成功");
@@ -412,6 +417,10 @@ public class UserController {
         LoginLimiterServer limiterServer=new LoginLimiterServer();
         if(!limiterServer.checkUser(userId,token))
             return R.error("背景更新失败");
+
+        if(FilePathEnum.canUpload()){
+            return R.error("上传文件过多，请联系管理员处理");
+        }
 
         Boolean b = userService.uploadBackground(userId, background);
         if(b)

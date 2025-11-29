@@ -38,6 +38,10 @@ public class UploadController {
     @PostMapping("/uploadVideo")
     public R<String> uploadMedia(@RequestParam("file") MultipartFile[] files,@RequestParam(value = "uId",required = false) Integer uid, @ModelAttribute Videos videos,@RequestHeader("Authorization") String token) {
 
+        if(FilePathEnum.canUpload()){
+            return R.error("上传文件过多，请联系管理员处理");
+        }
+
         String videoName=null;
         String coverName=null;
         if(uid!=null)
