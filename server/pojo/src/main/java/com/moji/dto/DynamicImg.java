@@ -1,6 +1,5 @@
 package com.moji.dto;
 
-import com.moji.po.Comments;
 import com.moji.po.Dynamic;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

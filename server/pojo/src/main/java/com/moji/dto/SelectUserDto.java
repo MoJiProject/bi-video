@@ -1,6 +1,5 @@
 package com.moji.dto;
 
-import com.moji.po.Fans;
 import com.moji.po.Follow;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.List;
 
 @Data
 @Builder

@@ -1,7 +1,6 @@
 package com.moji.vo;
 
 import com.moji.dto.CollectDto;
-import com.moji.po.Collects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
