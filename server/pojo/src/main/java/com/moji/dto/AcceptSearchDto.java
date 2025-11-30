@@ -23,4 +23,6 @@ public class AcceptSearchDto implements Serializable {
     private String endTime;
     private Integer userSort;
     private String classifyIndex;
+    private Integer videoPageNum;
+    private Integer userPageNum;
 }

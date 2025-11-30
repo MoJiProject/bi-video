@@ -36,8 +36,8 @@
           style="transform: translate(6px, -1px)"
           >视频
           <span class="ac"
-            ><span v-if="Videos.length <= 99">{{ Videos.length }}</span
-            ><span v-if="Videos.length > 99">99+</span></span
+            ><span v-if="acceptSearchData.videoTotal <= 99">{{ acceptSearchData.videoTotal }}</span
+            ><span v-if="acceptSearchData.videoTotal > 99">99+</span></span
           ></span
         >
         <span
@@ -46,8 +46,8 @@
           style="transform: translate(6px, -1px)"
           >视频
           <span class="ac"
-            ><span v-if="Videos.length <= 99">{{ Videos.length }}</span
-            ><span v-if="Videos.length > 99">99+</span></span
+            ><span v-if="acceptSearchData.videoTotal <= 99">{{ acceptSearchData.videoTotal }}</span
+            ><span v-if="acceptSearchData.videoTotal > 99">99+</span></span
           ></span
         >
         <span
@@ -104,14 +104,22 @@
           @click="ClickFlag7"
           class="aw"
           style="transform: translate(19px, -1px)"
-          >用户 <span class="ac">{{ searchUserList.length }}</span></span
+          >用户  
+          <span class="ac">
+            <span v-if="acceptSearchData.userTotal <= 99">{{ acceptSearchData.userTotal }}</span>
+            <span v-if="acceptSearchData.userTotal > 99">99+</span>
+          </span>
+        </span
         >
         <span
           v-if="clickFlag7"
           class="aww"
           style="transform: translate(19px, -1px)"
-          >用户 <span class="ac">{{ searchUserList.length }}</span></span
-        >
+          >用户 
+          <span class="ac"
+            ><span v-if="acceptSearchData.userTotal <= 99">{{ acceptSearchData.userTotal }}</span
+            ><span v-if="acceptSearchData.userTotal > 99">99+</span></span>
+        </span>
       </div>
       <div class="clickAllBox">
         <span
@@ -992,7 +1000,7 @@
         <div class="bottomVideo">
           <div
             class="video-video"
-            v-for="(video, index) in paginatedVideos.slice(0,loadVideoNumber)"
+            v-for="(video, index) in Videos"
             :key="video.id"
           >
            <div class="videoBox1" style="width: 94%;"
@@ -1193,20 +1201,29 @@
             </el-tooltip>
           </div>
           <div
-          style="width:1400px;
+          style="width: 100%;
            display: flex;justify-content: center;
-           transform:translate(70px,-150px);
+           transform:translate(70px,-200px);
            padding-bottom: 50px ;
           "
         >
-          <el-pagination
-            :current-page="currentVideoPage"
-            :page-size="videoPageSize"
-            :total="videoTotal"
-            layout="prev, pager, next"
-            @current-change="handleCurrentVideoChange"
-            :hide-on-single-page="true"
-          />
+        <div v-show="acceptSearchData.videoTotal" class="page-container">
+            <el-pagination
+                :current-page="videoPageNum"
+                :page-size="20"
+                layout="prev, pager, next"
+                :total="acceptSearchData.videoTotal"
+                :background="true"
+                @current-change="handleCurrentChangeVideo"
+            />
+            <span
+                >共 {{ Math.ceil( acceptSearchData.videoTotal / 20) }} 页 /
+                {{ acceptSearchData.videoTotal }} 个，跳至<input
+                type="number"
+                @keydown.enter="handleCurrentChangeVideo2"
+                />页</span
+            >
+            </div>
         </div>
         </div>
        
@@ -1321,7 +1338,7 @@
            flex-wrap: wrap; ">
             <div
             class="usersContent"
-            v-for="(user, index) in paginatedUsers"
+            v-for="(user, index) in searchUserList"
             :key="index"
           >
             <img
@@ -1459,19 +1476,28 @@
               已关注
             </div>
           </div>
-          
-          <div style="width: 1400px;display: flex;justify-content: center;transform:translate(30px,300px);padding-bottom:30px;">
+          <div :style="{
+            width: windowWidth + 'px'
+          }" style="display: flex; justify-content: center;margin-top: 70px;margin-bottom: 50px;">
+            <div v-show="acceptSearchData.userTotal" class="page-container">
             <el-pagination
-              :current-page="currentUserPage"
-              :page-size="userPageSize"
-              :total="userTotal"
-              layout="prev, pager, next"
-              @current-change="handleCurrentUserChange"
+                :current-page="userPageNum"
+                :page-size="20"
+                layout="prev, pager, next"
+                :total="acceptSearchData.userTotal"
+                :background="true"
+                @current-change="handleCurrentChangeUser"
             />
+            <span
+                >共 {{ Math.ceil( acceptSearchData.userTotal / 20) }} 页 /
+                {{ acceptSearchData.userTotal }} 个，跳至<input
+                type="number"
+                @keydown.enter="handleCurrentChangeUser2"
+                />页</span
+            >
+            </div>
           </div>
-        
         </div>
-
         </div>
       </div>
     </div>
@@ -1483,7 +1509,7 @@ import head1 from '../components/mainHead.vue';
 import Searcha from './searcha';
 import up from "../img/up.png";
 import upBlue from "../img/up蓝.png";
-import { reactive, onMounted, ref, watch, computed, onUnmounted } from "vue";
+import { reactive, onMounted, ref, watch, onUnmounted } from "vue";
 import apiClient from "../services/apiClient";
 import { ElMessage } from "element-plus";
 import {useGlobalStore} from "../store/store";
@@ -1497,8 +1523,9 @@ export default {
   setup() {
     const loginDialogVisibleFlag = ref(0);
     const store = useGlobalStore();
-    const loadVideoNumber=ref(11);
     const onloadPage=ref(false);
+    const videoPageNum = ref(1);
+    const userPageNum = ref(1);
     const acceptSearchData = reactive({
       userId: 0,
       keyWord: "",
@@ -1511,51 +1538,27 @@ export default {
       startTime: "",
       endTime: "",
       userSort: 0,
+      videoPageNum: 1,
+      userPageNum: 1,
       classifyIndex: "",
+      videoTotal: 0,
+      userTotal: 0,
     });
     const searchUserList = reactive([]);
     const expanded = ref(false);
     const waitFont = ref(0);
     const upImgFlag = ref(false);
+    const windowWidth = ref(0);
     const Videos = reactive([]);
-    const handleCurrentUserChange = (page) => {
-      currentUserPage.value = page;
-    };
-    const handleCurrentVideoChange = (page) => {
-      currentVideoPage.value = page;
-    };
     function userContent(fansNumber, videoNumber, introduce) {
       if (introduce !== null)
         return `${fansNumber}粉丝 ·  ${videoNumber}个视频 · ${introduce}`;
       else return `${fansNumber}粉丝 ·  ${videoNumber}个视频`;
     }
-
-    const currentVideoPage = ref(1);
-    const videoPageSize = ref(25);
-    const videoTotal = computed(() => Videos.length);
-    const paginatedVideos = computed(() => {
-      const start = (currentVideoPage.value - 1) * videoPageSize.value;
-      return Videos.slice(start, start + videoPageSize.value);
-    });
-    const currentUserPage = ref(1);
-    const userPageSize = ref(25);
-    const userTotal = computed(() => searchUserList.length);
-    const paginatedUsers = computed(() => {
-      const start = (currentUserPage.value - 1) * userPageSize.value;
-      return searchUserList.slice(start, start + userPageSize.value);
-    });
     const isVisible = ref(false); // 用于控制盒子的可见性
     const handleScroll = () => {
       const scrollPosition = window.scrollY; // 当前滚动距离
       isVisible.value = scrollPosition > 155; // 当滚动超过155px时显示盒子
-
-      const scrollHeight = document.documentElement.scrollHeight;  // 文档总高度
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;  // 当前滚动高度
-      const clientHeight = window.innerHeight || document.documentElement.clientHeight;  // 可视区域高度
-
-      if (scrollTop + clientHeight >= scrollHeight-150) {
-        videoLoad();
-      }
     };
     const datea = ref("");
     const clickFlag1 = ref(true);
@@ -1619,6 +1622,7 @@ export default {
         if (!isNaN(date2.getTime())) {
           acceptSearchData.endTime = date2.toISOString();
         }
+        videoPageNum.value = 1;
         searchByKeyWordVideo();
       }
       if (newValue.length === 0) {
@@ -1812,7 +1816,7 @@ export default {
       clickDateFlag4.value = false;
       clickDateFlag5.value = false;
       datea.value = "";
-
+      videoPageNum.value = 1;
       acceptSearchData.date = 0;
       searchByKeyWordVideo();
     }
@@ -1823,7 +1827,7 @@ export default {
       clickDateFlag4.value = false;
       clickDateFlag5.value = false;
       datea.value = "";
-
+      videoPageNum.value = 1;
       acceptSearchData.date = 1;
       searchByKeyWordVideo();
     }
@@ -1834,7 +1838,7 @@ export default {
       clickDateFlag4.value = false;
       clickDateFlag5.value = false;
       datea.value = "";
-
+      videoPageNum.value = 1;
       acceptSearchData.date = 2;
       searchByKeyWordVideo();
     }
@@ -1845,7 +1849,7 @@ export default {
       clickDateFlag4.value = true;
       clickDateFlag5.value = false;
       datea.value = "";
-
+      videoPageNum.value = 1;
       acceptSearchData.date = 3;
       searchByKeyWordVideo();
     }
@@ -1865,7 +1869,7 @@ export default {
       clickTimeFlag3.value = false;
       clickTimeFlag4.value = false;
       clickTimeFlag5.value = false;
-
+      videoPageNum.value = 1;
       acceptSearchData.time = 0;
       searchByKeyWordVideo();
     }
@@ -1875,7 +1879,7 @@ export default {
       clickTimeFlag3.value = false;
       clickTimeFlag4.value = false;
       clickTimeFlag5.value = false;
-
+      videoPageNum.value = 1;
       acceptSearchData.time = 1;
       searchByKeyWordVideo();
     }
@@ -1885,7 +1889,7 @@ export default {
       clickTimeFlag3.value = true;
       clickTimeFlag4.value = false;
       clickTimeFlag5.value = false;
-
+      videoPageNum.value = 1;
       acceptSearchData.time = 2;
       searchByKeyWordVideo();
     }
@@ -1895,7 +1899,7 @@ export default {
       clickTimeFlag3.value = false;
       clickTimeFlag4.value = true;
       clickTimeFlag5.value = false;
-
+      videoPageNum.value = 1;
       acceptSearchData.time = 3;
       searchByKeyWordVideo();
     }
@@ -1905,7 +1909,7 @@ export default {
       clickTimeFlag3.value = false;
       clickTimeFlag4.value = false;
       clickTimeFlag5.value = true;
-
+      videoPageNum.value = 1;
       acceptSearchData.time = 4;
       searchByKeyWordVideo();
     }
@@ -1932,7 +1936,7 @@ export default {
       clickClassifyFlag20.value = false;
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
-
+      videoPageNum.value = 1;
       acceptSearchData.classify = "全部";
       searchByKeyWordVideo();
     }
@@ -1960,6 +1964,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "动画";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag3() {
@@ -1986,6 +1991,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "番剧";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag4() {
@@ -2012,6 +2018,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "国创";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag5() {
@@ -2038,6 +2045,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "音乐";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag6() {
@@ -2064,6 +2072,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "舞蹈";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag7() {
@@ -2090,6 +2099,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "游戏";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag8() {
@@ -2116,6 +2126,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "知识";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag9() {
@@ -2142,6 +2153,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "科技";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag10() {
@@ -2168,6 +2180,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "运动";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag11() {
@@ -2194,6 +2207,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "汽车";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag12() {
@@ -2220,6 +2234,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "生活";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag13() {
@@ -2246,6 +2261,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "美食";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag14() {
@@ -2272,6 +2288,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "动物圈";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag15() {
@@ -2298,6 +2315,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "鬼畜";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag16() {
@@ -2324,6 +2342,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "时尚";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag17() {
@@ -2350,6 +2369,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "资讯";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag18() {
@@ -2376,6 +2396,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "娱乐";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag19() {
@@ -2402,6 +2423,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "影视";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag20() {
@@ -2428,6 +2450,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "记录片";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag21() {
@@ -2454,6 +2477,7 @@ export default {
       clickClassifyFlag21.value = true;
       clickClassifyFlag22.value = false;
       acceptSearchData.classify = "电影";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function ClickClassifyFlag22() {
@@ -2480,6 +2504,7 @@ export default {
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = true;
       acceptSearchData.classify = "电视剧";
+      videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
     function highlightText(title) {
@@ -2500,6 +2525,7 @@ export default {
 
     onMounted(async() => {
       window.scrollTo({top: 0, behavior: "smooth"});
+      windowWidth.value = window.screen.width;
       onloadPage.value=true;
       await getUserIp();
       await ChecklLogin();
@@ -2514,6 +2540,7 @@ export default {
 
     async function searchByKeyWordVideoOnce() {
       try {
+        acceptSearchData.videoPageNum = 1;
         const urlParams = new URLSearchParams(window.location.search);
         const keyWord = urlParams.get("keyword");
         const classifyIndex = urlParams.get("classifyIndex");
@@ -2527,10 +2554,9 @@ export default {
           acceptSearchData,
         );
         if (response.data.code === 1) {
-        
             Videos.length = 0;
-            Object.assign(Videos, response.data.data);
-
+            acceptSearchData.videoTotal = response.data.data.videoTotal;
+            Object.assign(Videos, response.data.data.selectVideoDtoList);
         }
       } catch (error) {
         ElMessage({
@@ -2545,6 +2571,8 @@ export default {
     //根据关键字搜索视频
     async function searchByKeyWordVideo() {
       try {
+        acceptSearchData.videoPageNum = videoPageNum.value;
+        userPageNum.value = 1;
         const urlParams = new URLSearchParams(window.location.search);
         const keyWord = urlParams.get("keyword");
         acceptSearchData.keyWord = keyWord;
@@ -2555,9 +2583,9 @@ export default {
           acceptSearchData,
         );
         if (response.data.code === 1) {
-        
             Videos.length = 0;
-            Object.assign(Videos, response.data.data);
+            acceptSearchData.videoTotal = response.data.data.videoTotal;
+            Object.assign(Videos, response.data.data.selectVideoDtoList);
         }
       } catch (error) {
         ElMessage({
@@ -2572,13 +2600,16 @@ export default {
     //根据关键词搜索用户
     async function selectUsersAxios() {
       try {
+        acceptSearchData.userPageNum = userPageNum.value;
+        videoPageNum.value = 1;
         const response = await apiClient.post(
           "/search/selectUsers",
           acceptSearchData,
         );
-
         if (response.data.code === 1)
-          Object.assign(searchUserList, response.data.data);
+          searchUserList.length = 0;
+          acceptSearchData.userTotal = response.data.data.userTotal;
+          Object.assign(searchUserList, response.data.data.selectUserDtoList);
       } catch (error) {
         ElMessage({
           message: "未知错误",
@@ -2588,6 +2619,46 @@ export default {
         });
       }
     }
+
+     // 更改视频当前页
+     function handleCurrentChangeVideo(val) {
+      videoPageNum.value = val;
+    }
+
+    // 更改视频当前页
+    function handleCurrentChangeVideo2(event) {
+      if (
+        event.target.value !== "" &&
+        event.target.value <= Math.ceil(acceptSearchData.videoTotal / 20) &&
+        event.target.value >= 1
+      )
+      videoPageNum.value = parseInt(event.target.value);
+    }
+
+    // 更改用户当前页
+    function handleCurrentChangeUser(val) {
+      userPageNum.value = val;
+    }
+
+    // 更改用户当前页
+    function handleCurrentChangeUser2(event) {
+      if (
+        event.target.value !== "" &&
+        event.target.value <= Math.ceil( acceptSearchData.userTotal / 20) &&
+        event.target.value >= 1
+      )
+      userPageNum.value = parseInt(event.target.value);
+    }
+
+    //监视视频页数变化
+    watch(videoPageNum, () => {
+      searchByKeyWordVideo();
+    });
+
+    //监视用户页数变化
+    watch(userPageNum, () => {
+      selectUsersAxios();
+    });
 
     //关注
     async function addFollowAxios(userId) {
@@ -2774,27 +2845,6 @@ export default {
       );
     };
 
-    //加载视频
-    let videoLoadFlag=true;
-
-    function videoLoad(){
-      if(!videoLoadFlag)
-        return;
-
-      videoLoadFlag=false;
-      if(Videos.length>=loadVideoNumber.value+5)
-      {
-       for(let i=0;i<5;i++){
-        setTimeout(() => {
-        loadVideoNumber.value=loadVideoNumber.value+1;
-        }, 150);
-       }
-      }
-     
-      videoLoadFlag=true;
-
-    }
-
     function videoMouseover(id) {
     // 清除之前的定时器，防止重复触发
     if (videoAutoPlayTIme[id]) {
@@ -2939,28 +2989,23 @@ export default {
       highlightText,
       selectUsersAxios,
       searchUserList,
-      videoPageSize,
-      userPageSize,
-      userTotal,
-      videoTotal,
-      currentUserPage,
-      currentVideoPage,
-      paginatedUsers,
-      paginatedVideos,
       userContent,
-      handleCurrentUserChange,
-      handleCurrentVideoChange,
       addFollowAxios,
       deleteFollowAxios,
       waitWatch,
       locationHerfVideo,
-      loadVideoNumber,
-      videoLoad,
       videoMouseover,
       videoMouseleave,
       store,
       loginDialogVisibleFlag,
       openHome,
+      handleCurrentChangeUser,
+      handleCurrentChangeUser2,
+      handleCurrentChangeVideo,
+      handleCurrentChangeVideo2,
+      windowWidth,
+      videoPageNum,
+      userPageNum,
     };
   },
 };
@@ -3478,5 +3523,45 @@ video{
 
 .coverAddress{
   cursor: pointer;
+}
+
+.page-container {
+        position: relative;
+        margin-top: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        span {
+          color: #18191c;
+          font-size: 13px;
+          margin-left: 44px;
+          input {
+            width: 50px;
+            height: 34px;
+            overflow: hidden;
+            display: inline-flex;
+            flex-grow: 1;
+            outline: none;
+            position: relative;
+            padding: 0 12px;
+            background-color: white;
+            border: 1px solid #e3e5e7;
+            font-size: 14px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            padding: 0 10px;
+          }
+          input:hover {
+            border-color: #00aeec;
+          }
+          input:focus {
+            border-color: #00aeec;
+          }
+          input::-webkit-inner-spin-button,
+          input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+          }
+        }
 }
 </style>

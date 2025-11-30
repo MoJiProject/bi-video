@@ -1,14 +1,9 @@
 package com.moji.service;
-
-
-import com.moji.dto.SelectUserDto;
-import com.moji.dto.SelectVideoDto;
 import com.moji.dto.AcceptSearchDto;
-
-import java.util.List;
+import com.moji.vo.ResponseSearchVo;
 
 public interface SearchService {
-    List<SelectVideoDto> selectVideoByKeyWord(AcceptSearchDto acceptSearchData);
+    ResponseSearchVo selectVideoByKeyWord(AcceptSearchDto acceptSearchData);
 
-    List<SelectUserDto> selectUserByKeyWord(AcceptSearchDto keyWord);
+    ResponseSearchVo selectUserByKeyWord(AcceptSearchDto keyWord);
 }

@@ -1,6 +1,7 @@
 package com.moji.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.moji.dto.AcceptSearchDto;
 import com.moji.dto.SelectUserDto;
 import com.moji.dto.SelectVideoDto;
@@ -10,6 +11,7 @@ import com.moji.mapper.VideosMapper;
 import com.moji.po.*;
 import com.moji.service.SearchService;
 import com.moji.service.VideosService;
+import com.moji.vo.ResponseSearchVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -31,10 +33,11 @@ public class SearchServiceImpl implements SearchService {
     private FollowMapper followMapper;
 
     @Override
-    public List<SelectVideoDto> selectVideoByKeyWord(AcceptSearchDto acceptSearchData) {
+    public ResponseSearchVo selectVideoByKeyWord(AcceptSearchDto acceptSearchData) {
 
+        Page<Videos> page=new Page<>(acceptSearchData.getVideoPageNum(),20);
+        ResponseSearchVo responseSearchVo = new ResponseSearchVo();
         List<SelectVideoDto> selectVideoDto;
-
         LambdaQueryWrapper<Videos> videosLambdaQueryWrapper=new LambdaQueryWrapper<>();
         if (!acceptSearchData.getKeyWord().isEmpty() || !acceptSearchData.getClassifyIndex().isEmpty())
         videosLambdaQueryWrapper.and(wrapper->wrapper
@@ -63,7 +66,9 @@ public class SearchServiceImpl implements SearchService {
         if(!acceptSearchData.getClassify().equals("全部"))
             videosLambdaQueryWrapper.eq(Videos::getSubZoneKey,acceptSearchData.getClassify());
 
-        List<Videos> videos = videosMapper.selectList(videosLambdaQueryWrapper);
+        Page<Videos> videosPage = videosMapper.selectPage(page, videosLambdaQueryWrapper);
+        List<Videos> videos = videosPage.getRecords();
+        responseSearchVo.setVideoTotal(videosPage.getTotal());
 
         if(acceptSearchData.getClassify().equals("全部")){
             LambdaQueryWrapper<Videos> videosLambdaQueryWrapper1=new LambdaQueryWrapper<>();
@@ -103,7 +108,9 @@ public class SearchServiceImpl implements SearchService {
              selectVideoDto = videosService.getSelectVideoDto(videosList1,acceptSearchData.getUserId(),false);
             else
              selectVideoDto= videosService.getSelectVideoDto(videosList1);
-            return selectVideoDto;
+
+            responseSearchVo.setSelectVideoDtoList(selectVideoDto);
+            return responseSearchVo;
         }
 
         //添加标签搜索
@@ -139,13 +146,15 @@ public class SearchServiceImpl implements SearchService {
                 selectVideoDtos1.add(videoDto);
         }
 
-        return selectVideoDtos1;
+        responseSearchVo.setSelectVideoDtoList(selectVideoDtos1);
+        return responseSearchVo;
     }
 
     @Override
-    public List<SelectUserDto> selectUserByKeyWord(AcceptSearchDto acceptSearchData) {
+    public ResponseSearchVo selectUserByKeyWord(AcceptSearchDto acceptSearchData) {
 
-
+        Page<Users> page=new Page<>(acceptSearchData.getUserPageNum(),20);
+        ResponseSearchVo responseSearchVo = new ResponseSearchVo();
         LambdaQueryWrapper<Users> usersLambdaQueryWrapper=new LambdaQueryWrapper<>();
         if (!acceptSearchData.getKeyWord().isEmpty())
         usersLambdaQueryWrapper
@@ -167,7 +176,8 @@ public class SearchServiceImpl implements SearchService {
         if (acceptSearchData.getUserSort()==4)
             usersLambdaQueryWrapper.orderByAsc(Users::getGrade);
 
-        List<Users> users = userMapper.selectList(usersLambdaQueryWrapper);
+        Page<Users> usersPage = userMapper.selectPage(page, usersLambdaQueryWrapper);
+        List<Users> users = usersPage.getRecords();
         List<SelectUserDto> selectUserDtoList=new ArrayList<>();
         if (!users.isEmpty()) {
             List<Integer> userIds = users.stream()
@@ -199,6 +209,8 @@ public class SearchServiceImpl implements SearchService {
             }
         }
 
-        return selectUserDtoList;
+        responseSearchVo.setUserTotal(usersPage.getTotal());
+        responseSearchVo.setSelectUserDtoList(selectUserDtoList);
+        return responseSearchVo;
     }
 }
