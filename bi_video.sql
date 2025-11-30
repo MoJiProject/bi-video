@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : localhost_3306
+ Source Server         : bi_video
  Source Server Type    : MySQL
- Source Server Version : 50724 (5.7.24)
+ Source Server Version : 50726 (5.7.26)
  Source Host           : localhost:3306
  Source Schema         : bi_video
 
  Target Server Type    : MySQL
- Target Server Version : 50724 (5.7.24)
+ Target Server Version : 50726 (5.7.26)
  File Encoding         : 65001
 
- Date: 23/05/2025 08:45:43
+ Date: 30/11/2025 19:52:19
 */
 
 SET NAMES utf8mb4;
@@ -28,8 +28,11 @@ CREATE TABLE `at`  (
   `video_id` int(11) NULL DEFAULT NULL,
   `comment_id` int(11) NULL DEFAULT NULL,
   `dynamic_id` int(11) NULL DEFAULT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 64 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_at_video_id`(`user_id`, `at_user_id`, `video_id`) USING BTREE,
+  INDEX `idx_at_comment_id`(`at_user_id`, `user_id`, `comment_id`) USING BTREE,
+  INDEX `idx_at_dynamic_id`(`user_id`, `at_user_id`, `dynamic_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for collects
@@ -42,8 +45,11 @@ CREATE TABLE `collects`  (
   `collect_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `collect_time` datetime NOT NULL,
   `delete_flag` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 659 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_collects_user_id`(`user_id`) USING BTREE,
+  INDEX `idx_collects_video_id`(`video_id`) USING BTREE,
+  INDEX `idx_collects_uc`(`user_id`, `collect_name`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 56 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for collects_classify
@@ -57,8 +63,9 @@ CREATE TABLE `collects_classify`  (
   `status` int(11) NOT NULL DEFAULT 1,
   `video_number` int(11) NOT NULL DEFAULT 0,
   `cover_address` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 99 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_collects_classify_uc`(`user_id`, `collect_name`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 36 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for comment_controls
@@ -72,8 +79,10 @@ CREATE TABLE `comment_controls`  (
   `comment_id` int(11) NOT NULL,
   `like_comment_time` datetime NULL DEFAULT NULL,
   `dynamic_id` int(11) NULL DEFAULT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 805 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_comment_controls_uvc`(`user_id`, `video_id`, `comment_id`) USING BTREE,
+  INDEX `idx_comment_controls_udc`(`user_id`, `comment_id`, `dynamic_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 19 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for comments
@@ -98,8 +107,11 @@ CREATE TABLE `comments`  (
   `like_warn` int(11) NOT NULL DEFAULT 1,
   `up_flag` int(11) NOT NULL DEFAULT 0,
   `dynamic_id` int(11) NULL DEFAULT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 826 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_comments_uv`(`user_id`, `video_id`) USING BTREE,
+  INDEX `idx_comments_ud`(`user_id`, `dynamic_id`) USING BTREE,
+  INDEX `idx_comments_reply_user_id`(`reply_user_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 46 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for dialogue
@@ -113,8 +125,11 @@ CREATE TABLE `dialogue`  (
   `new_content` varchar(10000) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
   `up_date_time` datetime NULL DEFAULT NULL,
   `sign` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 87 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_dialogue_user_id`(`user_id`) USING BTREE,
+  INDEX `idx_dialogue_dialogue_id`(`dialogue_id`) USING BTREE,
+  INDEX `idx_dialogue_ud`(`user_id`, `dialogue_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for dynamic
@@ -139,8 +154,10 @@ CREATE TABLE `dynamic`  (
   `publish_time` datetime NULL DEFAULT NULL,
   `dynamic_id` int(11) NULL DEFAULT NULL,
   `like_warn` int(11) NOT NULL DEFAULT 1,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 477 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_dynamic_ff`(`fans_id`, `follow_id`) USING BTREE,
+  INDEX `idx_dynamic_ffd`(`fans_id`, `follow_id`, `dynamic_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 222 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for fans
@@ -152,8 +169,12 @@ CREATE TABLE `fans`  (
   `fans_id` int(11) NOT NULL,
   `new_fans_id` int(11) NULL DEFAULT NULL,
   `fans_user_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 375 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `idx_fans_uf`(`user_id`, `fans_id`) USING BTREE,
+  INDEX `idx_fans_user_id`(`user_id`) USING BTREE,
+  INDEX `idx_fans_fans_id`(`fans_id`) USING BTREE,
+  INDEX `idx_fans_unf`(`user_id`, `new_fans_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 22 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for follow
@@ -164,8 +185,11 @@ CREATE TABLE `follow`  (
   `user_id` int(11) NOT NULL,
   `follow_id` int(11) NOT NULL,
   `follow_user_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 375 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `idx_follow_uf`(`user_id`, `follow_id`) USING BTREE,
+  INDEX `idx_follow_user_id`(`user_id`) USING BTREE,
+  INDEX `idx_follow_follow_id`(`follow_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 22 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for history
@@ -179,8 +203,9 @@ CREATE TABLE `history`  (
   `watch_video_time` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `watch_video_flag` int(11) NOT NULL DEFAULT 0,
   `watch_current_time` int(11) NOT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 184 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `idx_history_uv`(`video_id`, `user_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 54 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for key_word
@@ -191,7 +216,7 @@ CREATE TABLE `key_word`  (
   `word` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `count` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 135 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 22 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for likes
@@ -205,8 +230,9 @@ CREATE TABLE `likes`  (
   `like_user_id` int(11) NOT NULL,
   `like_type` int(11) NOT NULL,
   `delete_flag` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 751 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `idx_likes_uflt`(`user_id`, `fond_id`, `like_type`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 154 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for private_message
@@ -222,8 +248,11 @@ CREATE TABLE `private_message`  (
   `select_sign` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `delete_sign` int(11) NULL DEFAULT NULL,
   `message_type` int(11) NOT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 590 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_private_message_sender_id`(`sender_id`) USING BTREE,
+  INDEX `idx_private_message_receiver_id`(`receiver_id`) USING BTREE,
+  INDEX `idx_private_message_sr`(`sender_id`, `receiver_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 42 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for scrolling
@@ -241,8 +270,9 @@ CREATE TABLE `scrolling`  (
   `video_time` double NOT NULL,
   `top` int(11) NOT NULL DEFAULT 0,
   `all_display_top` int(255) NOT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_scrolling_uv`(`user_id`, `video_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 71 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for throw_coin
@@ -252,8 +282,9 @@ CREATE TABLE `throw_coin`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `video_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_throw_coin_uv`(`user_id`, `video_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for users
@@ -302,7 +333,7 @@ CREATE TABLE `users`  (
   `history_flag` int(11) NOT NULL DEFAULT 1,
   `admin_flag` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 12383 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for videos
@@ -336,7 +367,11 @@ CREATE TABLE `videos`  (
   `user_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `wait_watch` int(11) UNSIGNED NULL DEFAULT 0,
   `like_warn` int(11) NOT NULL DEFAULT 1,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 284 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_videos_user_id`(`user_id`) USING BTREE,
+  INDEX `idx_videos_title`(`title`) USING BTREE,
+  INDEX `idx_videos_status`(`status`) USING BTREE,
+  INDEX `idx_videos_sub_zone_key`(`sub_zone_key`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 SET FOREIGN_KEY_CHECKS = 1;
