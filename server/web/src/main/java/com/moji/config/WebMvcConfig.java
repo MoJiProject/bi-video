@@ -21,10 +21,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
+
+    private static final String ALLOWED_ORIGIN = "https://mojivideo.xyz," +
+            "https://www.mojivideo.xyz," +
+            "https://localhost:8080";
 
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
@@ -55,7 +61,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
                             // ---------- 设置跨域响应头 ----------
                             // 允许指定域访问跨域资源
-                            .setHeader("Access-Control-Allow-Origin", "*")
+                            .setHeader("Access-Control-Allow-Origin", ALLOWED_ORIGIN)
                             // 允许所有请求方式
                             .setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
                             // 允许的header参数
