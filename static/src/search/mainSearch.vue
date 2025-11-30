@@ -1,1503 +1,1565 @@
 <template>
-  <div v-show="onloadPage" class="SearchBox">
-   
-    <div id="fixedBox" class="hiddenBox" :class="{ showHiddenBox: isVisible }" >
+  <div>
+    <div id="fixedBox" class="hiddenBox" :class="{ showHiddenBox: isVisible }">
       <img
         src="../img/bilibili蓝.png"
-        style="width: 60px; transform: translate(24px, 18px);cursor: pointer;"
+        style="width: 60px; transform: translate(24px, 18px); cursor: pointer"
       />
-      <Searcha style="transform: translate(392px, -25px);" :mainSearchFlag="true"/>
+      <Searcha
+        style="transform: translate(392px, -25px)"
+        :mainSearchFlag="true"
+      />
     </div>
-    <div class="head" :class="{headLoginIndex: store.loginDialogVisible || store.loginLoadFlag}">
-      <head1 :head2Flag="true" :searchFlag="true" :loginDialogVisibleFlag="loginDialogVisibleFlag"/>
-    </div>
-    <div class="searchBox2">
-      <Searcha v-show="!isVisible" style="transform: translate(392px, 28px);z-index: 1000;position: relative;"/>
-    </div>
-    <div class="middle">
-      <div class="sort">
-        <span
-          v-if="clickFlag1 === false"
-          @click="ClickFlag1"
-          class="aw"
-          style="transform: translate(17px, -1px)"
-          >综合
-        </span>
-        <span
-          v-if="clickFlag1"
-          class="aww"
-          style="transform: translate(17px, -1px)"
-          >综合
-        </span>
-        <span
-          v-if="clickFlag2 === false"
-          @click="ClickFlag2"
-          class="aw"
-          style="transform: translate(6px, -1px)"
-          >视频
-          <span class="ac"
-            ><span v-if="acceptSearchData.videoTotal <= 99">{{ acceptSearchData.videoTotal }}</span
-            ><span v-if="acceptSearchData.videoTotal > 99">99+</span></span
-          ></span
-        >
-        <span
-          v-if="clickFlag2"
-          class="aww"
-          style="transform: translate(6px, -1px)"
-          >视频
-          <span class="ac"
-            ><span v-if="acceptSearchData.videoTotal <= 99">{{ acceptSearchData.videoTotal }}</span
-            ><span v-if="acceptSearchData.videoTotal > 99">99+</span></span
-          ></span
-        >
-        <span
-          v-if="clickFlag3 === false"
-          @click="ClickFlag3"
-          class="aw"
-          style="margin-left: 26px"
-          >番剧 <span class="ac">0</span></span
-        >
-        <span v-if="clickFlag3" class="aww" style="margin-left: 26px"
-          >番剧 <span class="ac">0</span></span
-        >
-        <span
-          v-if="clickFlag4 === false"
-          @click="ClickFlag4"
-          class="aw"
-          style="transform: translate(8px, -1px)"
-          >影视 <span class="ac">0</span></span
-        >
-        <span
-          v-if="clickFlag4"
-          class="aww"
-          style="transform: translate(8px, -1px)"
-          >影视 <span class="ac">0</span></span
-        >
-        <span
-          v-if="clickFlag5 === false"
-          @click="ClickFlag5"
-          class="aw"
-          style="margin-left: 8px; transform: translate(9px, -1px)"
-          >直播 <span class="ac">0</span></span
-        >
-        <span
-          v-if="clickFlag5"
-          class="aww"
-          style="margin-left: 8px; transform: translate(9px, -1px)"
-          >直播 <span class="ac">0</span></span
-        >
-        <span
-          v-if="clickFlag6 === false"
-          @click="ClickFlag6"
-          class="aw"
-          style="margin-left: 14px; transform: translate(3px, -1px)"
-          >专栏 <span class="ac">0</span></span
-        >
-        <span
-          v-if="clickFlag6"
-          class="aww"
-          style="margin-left: 14px; transform: translate(3px, -1px)"
-          >专栏 <span class="ac">0</span></span
-        >
-        <span
-          v-if="clickFlag7 === false"
-          @click="ClickFlag7"
-          class="aw"
-          style="transform: translate(19px, -1px)"
-          >用户  
-          <span class="ac">
-            <span v-if="acceptSearchData.userTotal <= 99">{{ acceptSearchData.userTotal }}</span>
-            <span v-if="acceptSearchData.userTotal > 99">99+</span>
-          </span>
-        </span
-        >
-        <span
-          v-if="clickFlag7"
-          class="aww"
-          style="transform: translate(19px, -1px)"
-          >用户 
-          <span class="ac"
-            ><span v-if="acceptSearchData.userTotal <= 99">{{ acceptSearchData.userTotal }}</span
-            ><span v-if="acceptSearchData.userTotal > 99">99+</span></span>
-        </span>
-      </div>
-      <div class="clickAllBox">
-        <span
-          v-if="clickFlag1"
-          style="
-            width: 32px;
-            height: 4px;
-            background-color: #00aeec;
-            position: absolute;
-            transform: translate(63px, 137px);
-            border-radius: 5px;
-          "
-        ></span>
-        <span
-          v-if="clickFlag2"
-          style="
-            width: 32px;
-            height: 4px;
-            background-color: #00aeec;
-            position: absolute;
-            transform: translate(147.5px, 137px);
-            border-radius: 5px;
-          "
-        ></span>
-        <span
-          v-if="clickFlag3"
-          style="
-            width: 32px;
-            height: 4px;
-            background-color: #00aeec;
-            position: absolute;
-            transform: translate(267px, 137px);
-            border-radius: 5px;
-          "
-        ></span>
-        <span
-          v-if="clickFlag4"
-          style="
-            width: 32px;
-            height: 4px;
-            background-color: #00aeec;
-            position: absolute;
-            transform: translate(371.5px, 137px);
-            border-radius: 5px;
-          "
-        ></span>
-        <span
-          v-if="clickFlag5"
-          style="
-            width: 32px;
-            height: 4px;
-            background-color: #00aeec;
-            position: absolute;
-            transform: translate(475px, 137px);
-            border-radius: 5px;
-          "
-        ></span>
-        <span
-          v-if="clickFlag6"
-          style="
-            width: 32px;
-            height: 4px;
-            background-color: #00aeec;
-            position: absolute;
-            transform: translate(581px, 137px);
-            border-radius: 5px;
-          "
-        ></span>
-        <span
-          v-if="clickFlag7"
-          style="
-            width: 32px;
-            height: 4px;
-            background-color: #00aeec;
-            position: absolute;
-            transform: translate(692px, 137px);
-            border-radius: 5px;
-          "
-        ></span>
-      </div>
-    </div>
-
-    <div class="content">
-      <div v-show="clickFlag1 || clickFlag2" class="videoSort">
-        <span
-          v-show="clickSortFlag1 === false"
-          @click="ClickSortFlag1"
-          class="condition"
-          style="transform: translate(86px, 36.5px)"
-          >综合排序</span
-        >
-        <span
-          v-show="clickSortFlag1"
-          class="conditionClick"
-          style="transform: translate(64px, 31px)"
-          >综合排序</span
-        >
-        <span
-          v-show="clickSortFlag2 === false"
-          @click="ClickSortFlag2"
-          class="condition"
-          style="transform: translate(196px, 36.5px)"
-          >最多播放</span
-        >
-        <span
-          v-show="clickSortFlag2"
-          class="conditionClick"
-          style="transform: translate(174px, 31px)"
-          >最多播放</span
-        >
-        <span
-          v-show="clickSortFlag3 === false"
-          @click="ClickSortFlag3"
-          class="condition"
-          style="transform: translate(306px, 36.5px)"
-          >最新发布</span
-        >
-        <span
-          v-show="clickSortFlag3"
-          class="conditionClick"
-          style="transform: translate(284px, 31px)"
-          >最新发布</span
-        >
-        <span
-          v-show="clickSortFlag4 === false"
-          @click="ClickSortFlag4"
-          class="condition"
-          style="transform: translate(416px, 36.5px)"
-          >最多弹幕</span
-        >
-        <span
-          v-show="clickSortFlag4"
-          class="conditionClick"
-          style="transform: translate(394px, 31px)"
-          >最多弹幕</span
-        >
-        <span
-          v-show="clickSortFlag5 === false"
-          @click="ClickSortFlag5"
-          class="condition"
-          style="transform: translate(526px, 36.5px)"
-          >最多收藏</span
-        >
-        <span
-          v-show="clickSortFlag5"
-          class="conditionClick"
-          style="transform: translate(504px, 31px)"
-          >最多收藏</span
-        >
-        <span class="screen" @click="expanded=!expanded;"
-          ><span>更多筛选</span><img src="../img/更多.png"
-        /></span>
-
-        <div class="showBox" :class="{ expanded }">
-          <span
-            v-show="clickDateFlag1 === false"
-            @click="ClickDateFlag1"
-            class="condition"
-            style="transform: translate(86px, 80.5px)"
-            >全部日期</span
-          >
-          <span
-            v-show="clickDateFlag1"
-            class="conditionClick"
-            style="transform: translate(64px, 75px)"
-            >全部日期</span
-          >
-          <span
-            v-show="clickDateFlag2 === false"
-            @click="ClickDateFlag2"
-            class="condition"
-            style="transform: translate(196px, 80.5px)"
-            >最近一天</span
-          >
-          <span
-            v-show="clickDateFlag2"
-            class="conditionClick"
-            style="transform: translate(174px, 75px)"
-            >最近一天</span
-          >
-          <span
-            v-show="clickDateFlag3 === false"
-            @click="ClickDateFlag3"
-            class="condition"
-            style="transform: translate(306px, 80.5px)"
-            >最近一周</span
-          >
-          <span
-            v-show="clickDateFlag3"
-            class="conditionClick"
-            style="transform: translate(284px, 75px)"
-            >最近一周</span
-          >
-          <span
-            v-show="clickDateFlag4 === false"
-            @click="ClickDateFlag4"
-            class="condition"
-            style="transform: translate(416px, 80.5px)"
-            >最近半年</span
-          >
-          <span
-            v-show="clickDateFlag4"
-            class="conditionClick"
-            style="transform: translate(394px, 75px)"
-            >最近半年</span
-          >
-          <span
-            @click="ClickDateFlag5"
-            class="condition"
-            style="transform: translate(504px, 74px)"
-          >
-            <el-date-picker
-              v-model="datea"
-              style="border-radius: 8px; width: 310px; height: 34px"
-              type="daterange"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              :default-value="[new Date(), new Date()]"
-            >
-            </el-date-picker>
-          </span>
-
-          <span
-            v-show="clickTimeFlag1 === false"
-            @click="ClickTimeFlag1"
-            class="condition"
-            style="transform: translate(86px, 123.5px)"
-            >全部时长</span
-          >
-          <span
-            v-show="clickTimeFlag1"
-            class="conditionClick"
-            style="transform: translate(64px, 118px)"
-            >全部时长</span
-          >
-          <span
-            v-show="clickTimeFlag2 === false"
-            @click="ClickTimeFlag2"
-            class="condition"
-            style="transform: translate(189px, 123.5px)"
-            >10分钟以下</span
-          >
-          <span
-            v-show="clickTimeFlag2"
-            class="conditionClick"
-            style="transform: translate(175px, 118px)"
-            >10分钟以下</span
-          >
-          <span
-            v-show="clickTimeFlag3 === false"
-            @click="ClickTimeFlag3"
-            class="condition"
-            style="transform: translate(302px, 123.5px)"
-            >10-30分钟</span
-          >
-          <span
-            v-show="clickTimeFlag3"
-            class="conditionClick"
-            style="transform: translate(285.5px, 118px)"
-            >10-30分钟</span
-          >
-          <span
-            v-show="clickTimeFlag4 === false"
-            @click="ClickTimeFlag4"
-            class="condition"
-            style="transform: translate(412px, 123.5px)"
-            >30-60分钟</span
-          >
-          <span
-            v-show="clickTimeFlag4"
-            class="conditionClick"
-            style="transform: translate(395.5px, 118px)"
-            >30-60分钟</span
-          >
-          <span
-            v-show="clickTimeFlag5 === false"
-            @click="ClickTimeFlag5"
-            class="condition"
-            style="transform: translate(521px, 123.5px)"
-            >60分钟以上</span
-          >
-          <span
-            v-show="clickTimeFlag5"
-            class="conditionClick"
-            style="transform: translate(507px, 118px)"
-            >60分钟以上</span
-          >
-
-          <span
-            v-if="clickClassifyFlag1 === false"
-            @click="ClickClassifyFlag1"
-            class="condition"
-            style="transform: translate(86px, 165.5px)"
-            >全部分区</span
-          >
-          <span
-            v-if="clickClassifyFlag1"
-            class="conditionClick"
-            style="transform: translate(64px, 160px)"
-            >全部分区</span
-          >
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag2"
-          >
-            <template #content>
-              <div class="custom-tooltip2" @click="ClickClassifyFlag2">
-                <span>MAD·AMV</span><span>MMD·3D</span> <span>同人·手书</span
-                ><span>配音</span><span>模玩·周边</span><span>特摄</span
-                ><span>动漫杂谈</span><span>综合</span>
-              </div>
-            </template>
-            <span
-              v-if="!clickClassifyFlag2"
-              @click="ClickClassifyFlag2"
-              class="condition"
-              style="transform: translate(210px, 165.5px)"
-              >动画</span
-            >
-            <span
-              v-if="clickClassifyFlag2"
-              class="conditionClick"
-              style="transform: translate(174px, 160px)"
-              >动画</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag3"
-            :disabled="true"
-          >
-            <span
-              v-if="clickClassifyFlag3 === false"
-              @click="ClickClassifyFlag3"
-              class="condition"
-              style="transform: translate(320px, 165.5px)"
-              >番剧</span
-            >
-            <span
-              v-if="clickClassifyFlag3"
-              class="conditionClick"
-              style="transform: translate(284px, 160px)"
-              >番剧</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag4"
-          >
-            <template #content>
-              <div class="custom-tooltip2" @click="ClickClassifyFlag4">
-                <span>国产动画</span><span>国产原创相关</span>
-                <span>布袋戏</span><span>动态漫·广播剧</span><span>资讯</span
-                ><span>新番时间表</span><span>国产动画索引</span>
-              </div>
-            </template>
-            <span
-              v-if="clickClassifyFlag4 === false"
-              @click="ClickClassifyFlag4"
-              class="condition"
-              style="transform: translate(430px, 165.5px)"
-              >国创</span
-            >
-            <span
-              v-if="clickClassifyFlag4"
-              class="conditionClick"
-              style="transform: translate(394px, 160px)"
-              >国创</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag5"
-          >
-            <template #content>
-              <div class="custom-tooltip2" @click="ClickClassifyFlag5">
-                <span>音乐现场</span><span>翻唱</span> <span>演奏</span
-                ><span>乐评盘点</span><span>VOCLOID·UTAU</span><span>MV</span
-                ><span>音乐粉丝饭拍</span><span>AI音乐</span><span>电台</span
-                ><span>音乐教学</span><span>音乐综合</span><span>说唱</span>
-              </div>
-            </template>
-            <span
-              v-if="clickClassifyFlag5 === false"
-              @click="ClickClassifyFlag5"
-              class="condition"
-              style="transform: translate(540px, 165.5px)"
-              >音乐</span
-            >
-            <span
-              v-if="clickClassifyFlag5"
-              class="conditionClick"
-              style="transform: translate(504px, 160px)"
-              >音乐</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag6"
-          >
-            <template #content>
-              <div class="custom-tooltip2" @click="ClickClassifyFlag6">
-                <span>宅舞</span><span>街舞</span> <span>明星舞蹈</span
-                ><span>国风舞蹈</span><span>颜值·网红舞</span
-                ><span>舞蹈综合</span><span>舞蹈教程</span>
-              </div>
-            </template>
-            <span
-              v-if="clickClassifyFlag6 === false"
-              @click="ClickClassifyFlag6"
-              class="condition"
-              style="transform: translate(650px, 165.5px)"
-              >舞蹈</span
-            >
-            <span
-              v-if="clickClassifyFlag6"
-              class="conditionClick"
-              style="transform: translate(614px, 160px)"
-              >舞蹈</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag7"
-          >
-            <template #content>
-              <div class="custom-tooltip2" @click="ClickClassifyFlag7">
-                <span>单机游戏</span><span>电子竞技</span> <span>手机游戏</span
-                ><span>网络游戏</span><span>桌游棋牌</span><span>GMV</span
-                ><span>音游</span><span>Mugen</span><span>游戏赛事</span>
-              </div>
-            </template>
-            <span
-              v-if="clickClassifyFlag7 === false"
-              @click="ClickClassifyFlag7"
-              class="condition"
-              style="transform: translate(760px, 165.5px)"
-              >游戏</span
-            >
-            <span
-              v-if="clickClassifyFlag7"
-              class="conditionClick"
-              style="transform: translate(724px, 160px)"
-              >游戏</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag8"
-          >
-            <template #content>
-              <div class="custom-tooltip2" @click="ClickClassifyFlag8">
-                <span>科学科普</span><span>社科·法律·心理</span>
-                <span>人文历史</span><span>财经商业</span><span>校园学校</span
-                ><span>职业职场</span><span>设计·创意</span
-                ><span>野生技能协会</span><span>游戏赛事</span>
-              </div>
-            </template>
-            <span
-              v-if="clickClassifyFlag8 === false"
-              @click="ClickClassifyFlag8"
-              class="condition"
-              style="transform: translate(870px, 165.5px)"
-              >知识</span
-            >
-            <span
-              v-if="clickClassifyFlag8"
-              class="conditionClick"
-              style="transform: translate(834px, 160px)"
-              >知识</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag9"
-          >
-            <template #content>
-              <div class="custom-tooltip2" @click="ClickClassifyFlag9">
-                <span>数码</span><span>软件应用</span> <span>计算机技术</span
-                ><span>科工机械</span><span>极客DIY</span>
-              </div>
-            </template>
-            <span
-              v-if="clickClassifyFlag9 === false"
-              @click="ClickClassifyFlag9"
-              class="condition"
-              style="transform: translate(980px, 165.5px)"
-              >科技</span
-            >
-            <span
-              v-if="clickClassifyFlag9"
-              class="conditionClick"
-              style="transform: translate(944px, 160px)"
-              >科技</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag10"
-          >
-            <template #content>
-              <div class="custom-tooltip2" @click="ClickClassifyFlag10">
-                <span>篮球</span><span>足球</span> <span>健身</span
-                ><span>竞技体育</span><span>运动文化</span><span>运动综合</span>
-              </div>
-            </template>
-            <span
-              v-if="clickClassifyFlag10 === false"
-              @click="ClickClassifyFlag10"
-              class="condition"
-              style="transform: translate(1090px, 165.5px)"
-              >运动</span
-            >
-            <span
-              v-if="clickClassifyFlag10"
-              class="conditionClick"
-              style="transform: translate(1054px, 160px)"
-              >运动</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag11"
-            :disabled="true"
-          >
-            <span
-              v-if="clickClassifyFlag11 === false"
-              @click="ClickClassifyFlag11"
-              class="condition"
-              style="transform: translate(1200px, 165.5px)"
-              >汽车</span
-            >
-            <span
-              v-if="clickClassifyFlag11"
-              class="conditionClick"
-              style="transform: translate(1164px, 160px)"
-              >汽车</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag12"
-          >
-            <template #content>
-              <div class="custom-tooltip2" @click="ClickClassifyFlag12">
-                <span>搞笑</span><span>亲子</span> <span>出行</span
-                ><span>三农</span><span>家居房产</span><span>手工</span
-                ><span>绘画</span><span>日常</span>
-              </div>
-            </template>
-            <span
-              v-if="clickClassifyFlag12 === false"
-              @click="ClickClassifyFlag12"
-              class="condition"
-              style="transform: translate(100px, 207.5px)"
-              >生活</span
-            >
-            <span
-              v-if="clickClassifyFlag12"
-              class="conditionClick"
-              style="transform: translate(64px, 202px)"
-              >生活</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag13"
-          >
-            <template #content>
-              <div class="custom-tooltip2" @click="ClickClassifyFlag13">
-                <span>美食制作</span><span>美食侦探</span> <span>美食测评</span
-                ><span>田园美食</span><span>美食记录</span>
-              </div>
-            </template>
-            <span
-              v-if="clickClassifyFlag13 === false"
-              @click="ClickClassifyFlag13"
-              class="condition"
-              style="transform: translate(210px, 207.5px)"
-              >美食</span
-            >
-            <span
-              v-if="clickClassifyFlag13"
-              class="conditionClick"
-              style="transform: translate(174px, 202px)"
-              >美食</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag14"
-          >
-            <template #content>
-              <div class="custom-tooltip2" @click="ClickClassifyFlag14">
-                <span>喵星人</span><span>汪星人</span> <span>小宠异能</span
-                ><span>野生动物</span><span>动物二创</span><span>动物综合</span>
-              </div>
-            </template>
-            <span
-              v-if="clickClassifyFlag14 === false"
-              @click="ClickClassifyFlag14"
-              class="condition"
-              style="transform: translate(313px, 207.5px)"
-              >动物圈</span
-            >
-            <span
-              v-if="clickClassifyFlag14"
-              class="conditionClick"
-              style="transform: translate(284px, 202px)"
-              >动物圈</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag15"
-          >
-            <template #content>
-              <div class="custom-tooltip2" @click="ClickClassifyFlag15">
-                <span>鬼畜教程</span><span>音MAD</span> <span>人力VOCALOID</span
-                ><span>鬼畜剧场</span><span>教程演示</span>
-              </div>
-            </template>
-            <span
-              v-if="clickClassifyFlag15 === false"
-              @click="ClickClassifyFlag15"
-              class="condition"
-              style="transform: translate(430px, 207.5px)"
-              >鬼畜</span
-            >
-            <span
-              v-if="clickClassifyFlag15"
-              class="conditionClick"
-              style="transform: translate(394px, 202px)"
-              >鬼畜</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag16"
-          >
-            <template #content>
-              <div class="custom-tooltip2" @click="ClickClassifyFlag16">
-                <span>美妆护肤</span><span>仿妆cos</span> <span>穿搭</span
-                ><span>时尚潮流</span>
-              </div>
-            </template>
-            <span
-              v-if="clickClassifyFlag16 === false"
-              @click="ClickClassifyFlag16"
-              class="condition"
-              style="transform: translate(540px, 207.5px)"
-              >时尚</span
-            >
-            <span
-              v-if="clickClassifyFlag16"
-              class="conditionClick"
-              style="transform: translate(504px, 202px)"
-              >时尚</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag17"
-          >
-            <template #content>
-              <div class="custom-tooltip2" @click="ClickClassifyFlag17">
-                <span>热点</span><span>环球</span> <span>社会</span
-                ><span>综合</span>
-              </div>
-            </template>
-            <span
-              v-if="clickClassifyFlag17 === false"
-              @click="ClickClassifyFlag17"
-              class="condition"
-              style="transform: translate(650px, 207.5px)"
-              >资讯</span
-            >
-            <span
-              v-if="clickClassifyFlag17"
-              class="conditionClick"
-              style="transform: translate(614px, 202px)"
-              >资讯</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag18"
-          >
-            <template #content>
-              <div class="custom-tooltip2" @click="ClickClassifyFlag18">
-                <span>资讯杂谈</span><span>CP安利</span> <span>颜值安利</span
-                ><span>娱乐粉丝创作</span><span>明星综合</span><span>综艺</span>
-              </div>
-            </template>
-            <span
-              v-if="clickClassifyFlag18 === false"
-              @click="ClickClassifyFlag18"
-              class="condition"
-              style="transform: translate(760px, 207.5px)"
-              >娱乐</span
-            >
-            <span
-              v-if="clickClassifyFlag18"
-              class="conditionClick"
-              style="transform: translate(724px, 202px)"
-              >娱乐</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag19"
-          >
-            <template #content>
-              <div class="custom-tooltip2" @click="ClickClassifyFlag19">
-                <span>影视杂谈</span><span>影视剪辑</span> <span>影视整活</span
-                ><span>AI影像</span><span>预告·资讯</span><span>小剧场</span
-                ><span>短片</span><span>影视综合</span>
-              </div>
-            </template>
-            <span
-              v-if="clickClassifyFlag19 === false"
-              @click="ClickClassifyFlag19"
-              class="condition"
-              style="transform: translate(870px, 207.5px)"
-              >影视</span
-            >
-            <span
-              v-if="clickClassifyFlag19"
-              class="conditionClick"
-              style="transform: translate(834px, 202px)"
-              >影视</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag20"
-            :disabled="true"
-          >
-            <span
-              v-if="clickClassifyFlag20 === false"
-              @click="ClickClassifyFlag20"
-              class="condition"
-              style="transform: translate(973px, 207.5px)"
-              >纪录片</span
-            >
-            <span
-              v-if="clickClassifyFlag20"
-              class="conditionClick"
-              style="transform: translate(944px, 202px)"
-              >纪录片</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag21"
-            :disabled="true"
-          >
-            <span
-              v-if="clickClassifyFlag21 === false"
-              @click="ClickClassifyFlag21"
-              class="condition"
-              style="transform: translate(1090px, 207.5px)"
-              >电影</span
-            >
-            <span
-              v-if="clickClassifyFlag21"
-              class="conditionClick"
-              style="transform: translate(1054px, 202px)"
-              >电影</span
-            >
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            :show-arrow="false"
-            effect="light"
-            placement="bottom"
-            @click="ClickClassifyFlag22"
-            :disabled="true"
-          >
-            <span
-              v-if="clickClassifyFlag22 === false"
-              @click="ClickClassifyFlag22"
-              class="condition"
-              style="transform: translate(1193px, 207.5px)"
-              >电视剧</span
-            >
-            <span
-              v-if="clickClassifyFlag22"
-              class="conditionClick"
-              style="transform: translate(1164px, 202px)"
-              >电视剧</span
-            >
-          </el-tooltip>
-          <div
-            v-if="expanded"
-            style="width: 100%; height: 170px; z-index: 0"
-          ></div>
-        </div>
-        <div v-if="Videos.length === 0">
-          <img
-            src="../img/搜索空.png"
-            style="
-              width: 150px;
-              height: 160px;
-              transform: translate(637px, 133px);
-            "
-          />
-          <span
-            style="
-              position: absolute;
-              transform: translate(496.5px, 321px);
-              font-size: 14px;
-              color: #9599a5;
-            "
-            >今天真是寂寞如雪啊~</span
-          >
-        </div>
-        <div class="bottomVideo">
-          <div
-            class="video-video"
-            v-for="(video, index) in Videos"
-            :key="video.id"
-          >
-           <div class="videoBox1" style="width: 94%;"
-           @mouseover="videoMouseover(video.videoId)"
-           @mouseleave="videoMouseleave(video.videoId)"
-           >
-            <img class="coverAddress" @click="locationHerfVideo(video.videoId)" :src="video.coverAddress" />
-            <video
-              :id="video.videoId"
-              preload="none"
-              disablePictureInPicture
-              muted
-              loop
-              @click="locationHerfVideo(video.videoId)"
-              :src="video.videoAddress"
-            ></video>
-            <div
-              v-show="store.userId !== null && (video.waitWatch === 0 || video.waitWatch === 1)"
-              class="waitWatch"
-              @click="waitWatch(video.videoId)"
-              @mouseover="waitFont = 1"
-              @mouseleave="waitFont = 0"
-            >
-              <img
-                v-show="video.waitWatch === 0"
-                src="../img/稍后再看.png"
-                style="
-                  width: 21px;
-                  height: 18px;
-                  opacity: 1 !important;
-                  margin-left: 4px;
-                "
-              />
-              <img
-                v-show="video.waitWatch === 1"
-                src="../img/添加成功.png"
-                style="
-                  width: 18px;
-                  height: 15px;
-                  opacity: 1 !important;
-                  margin-left: 5px;
-                "
-              />
-              <span
-                v-show="waitFont === 1 && video.waitWatch === 0"
-                style="
-                  width: 110px;
-                  color: white;
-                  z-index: 10;
-                  font-size: 12px;
-                  transform: translate(28.5px, -0.5px);
-                  position: absolute;
-                "
-                >添加至稍后观看</span
-              >
-              <span
-                v-show="waitFont === 1 && video.waitWatch === 1"
-                style="
-                  width: 110px;
-                  color: white;
-                  z-index: 10;
-                  font-size: 12px;
-                  transform: translate(28.5px, -0.5px);
-                  position: absolute;
-                "
-                >已添加稍后观看</span
-              >
-            </div>
-            <div class="videoContent1">
-              <img
-                src="../img/播放量白.png"
-                style="
-                  width: 15px;
-                  height: 12px;
-                  transform: translate(9.5px, 7.5px);
-                  border-radius: 1px;
-                "
-              />
-              <span
-                style="
-                  font-size: 12.6px;
-                  transform: translate(13px, 9.5px);
-                  position: absolute;
-                "
-                >{{ video.videoPlayNumber }}</span
-              >
-              <img
-                src="../img/弹幕白.png"
-                style="
-                  width: 15px;
-                  height: 12px;
-                  transform: translate(57.5px, 7px);
-                  border-radius: 1px;
-                "
-              />
-              <span
-                style="
-                  font-size: 12.6px;
-                  transform: translate(61px, 9.5px);
-                  position: absolute;
-                "
-                >{{ video.videoScrollingNumber }}</span
-              >
-              <span
-                v-if="video.hour !== null"
-                style="
-                  font-size: 12.6px;
-                  transform: translate(159.5px, 9.5px);
-                  position: absolute;
-                "
-              >
-                <span>{{ video.hour }}<span class="colon">:</span></span
-                >{{ video.minutes }}<span class="colon">:</span
-                >{{ video.second }}</span
-              >
-
-              <span
-                v-if="video.hour === null"
-                style="
-                  font-size: 12.6px;
-                  transform: translate(175.5px, 9.5px);
-                  position: absolute;
-                "
-              >
-                {{ video.minutes }}<span class="colon">:</span
-                >{{ video.second }}</span
-              >
-            </div>
-            <div
-              style="
-                width: 245px;
-                height: 15px;
-                transform: translate(0px, -35px);
-                position: absolute;
-                opacity: 0;
-                z-index: -10;
-              "
-            ></div>
-            <div class="videoContent"></div>
-          </div>
-            <el-tooltip
-              popper-class="custom-tooltip1"
-              class="box-item"
-              :show-after="300"
-              effect="light"
-              :content="video.videoTitle"
-              placement="left"
-              :show-arrow="false"
-            >
-              <span
-                id="result"
-                class="title"
-                @click="locationHerfVideo(video.videoId)"
-                v-html="highlightText(video.videoTitle)"
-              ></span>
-            </el-tooltip>
-            <div
-              style="
-                height: 32px;
-                position: absolute;
-                width: 245px;
-                transform: translate(0px, -8px);
-                opacity: 0;
-                z-index: -10;
-              "
-            ></div>
-            <el-tooltip
-              popper-class="custom-tooltip1"
-              class="box-item"
-              effect="light"
-              :show-after="300"
-              :content="video.userName"
-              placement="left"
-              :show-arrow="false"
-            >
-              <a :href="'./home?homeMenu=1&userId='+video.userId" target="_blank">
-                <span
-                class="videoBottomInfo"
-                @mouseover="upImgFlag = index - 10"
-                @mouseleave="upImgFlag = -index - 50000"
-                ><img
-                  :src="upImgFlag === index - 10 ? upBlue : up"
-                  style="
-                    width: 15px;
-                    height: 12px;
-                    position: absolute;
-                    transform: translate(1px, 26px);
-                    border-radius: 0px;
-                  "
-                />
-                <span class="upInfo"
-                  >{{ video.userName }} &nbsp;·&nbsp;&nbsp;{{
-                    video.createTime
-                  }}</span
-                >
-              </span>
-              </a>
-            </el-tooltip>
-          </div>
-          <div
-          style="width: 100%;
-           display: flex;justify-content: center;
-           transform:translate(70px,-200px);
-           padding-bottom: 50px ;
-          "
-        >
-        <div v-show="acceptSearchData.videoTotal" class="page-container">
-            <el-pagination
-                :current-page="videoPageNum"
-                :page-size="20"
-                layout="prev, pager, next"
-                :total="acceptSearchData.videoTotal"
-                :background="true"
-                @current-change="handleCurrentChangeVideo"
-            />
-            <span
-                >共 {{ Math.ceil( acceptSearchData.videoTotal / 20) }} 页 /
-                {{ acceptSearchData.videoTotal }} 个，跳至<input
-                type="number"
-                @keydown.enter="handleCurrentChangeVideo2"
-                />页</span
-            >
-            </div>
-        </div>
-        </div>
-       
-      </div>
-
+    <div>
       <div
-        class="falseData"
-        v-if="clickFlag3 || clickFlag4 || clickFlag5 || clickFlag6"
+        class="head"
+        :class="{
+          headLoginIndex: store.loginDialogVisible || store.loginLoadFlag,
+        }"
       >
-        <img
-          src="../img/搜索空.png"
-          style="width: 150px; height: 160px; transform: translate(637px, 99px)"
+        <head1
+          :head2Flag="true"
+          :searchFlag="true"
+          :loginDialogVisibleFlag="loginDialogVisibleFlag"
         />
-        <span
-          style="
-            position: absolute;
-            transform: translate(496.5px, 287px);
-            font-size: 14px;
-            color: #9599a5;
-          "
-          >今天真是寂寞如雪啊~</span
-        >
       </div>
+      <div class="searchBox2">
+        <Searcha
+          style="
+            transform: translate(392px, 28px);
+            z-index: 1000;
+            position: relative;
+          "
+        />
+      </div>
+      <div class="middle">
+        <div class="sort">
+          <span
+            v-if="clickFlag1 === false"
+            @click="ClickFlag1"
+            class="aw"
+            style="transform: translate(17px, -1px)"
+            >综合
+          </span>
+          <span
+            v-if="clickFlag1"
+            class="aww"
+            style="transform: translate(17px, -1px)"
+            >综合
+          </span>
+          <span
+            v-if="clickFlag2 === false"
+            @click="ClickFlag2"
+            class="aw"
+            style="transform: translate(6px, -1px)"
+            >视频
+            <span class="ac"
+              ><span v-if="acceptSearchData.videoTotal <= 99">{{
+                acceptSearchData.videoTotal
+              }}</span
+              ><span v-if="acceptSearchData.videoTotal > 99">99+</span></span
+            ></span
+          >
+          <span
+            v-if="clickFlag2"
+            class="aww"
+            style="transform: translate(6px, -1px)"
+            >视频
+            <span class="ac"
+              ><span v-if="acceptSearchData.videoTotal <= 99">{{
+                acceptSearchData.videoTotal
+              }}</span
+              ><span v-if="acceptSearchData.videoTotal > 99">99+</span></span
+            ></span
+          >
+          <span
+            v-if="clickFlag3 === false"
+            @click="ClickFlag3"
+            class="aw"
+            style="margin-left: 26px"
+            >番剧 <span class="ac">0</span></span
+          >
+          <span v-if="clickFlag3" class="aww" style="margin-left: 26px"
+            >番剧 <span class="ac">0</span></span
+          >
+          <span
+            v-if="clickFlag4 === false"
+            @click="ClickFlag4"
+            class="aw"
+            style="transform: translate(8px, -1px)"
+            >影视 <span class="ac">0</span></span
+          >
+          <span
+            v-if="clickFlag4"
+            class="aww"
+            style="transform: translate(8px, -1px)"
+            >影视 <span class="ac">0</span></span
+          >
+          <span
+            v-if="clickFlag5 === false"
+            @click="ClickFlag5"
+            class="aw"
+            style="margin-left: 8px; transform: translate(9px, -1px)"
+            >直播 <span class="ac">0</span></span
+          >
+          <span
+            v-if="clickFlag5"
+            class="aww"
+            style="margin-left: 8px; transform: translate(9px, -1px)"
+            >直播 <span class="ac">0</span></span
+          >
+          <span
+            v-if="clickFlag6 === false"
+            @click="ClickFlag6"
+            class="aw"
+            style="margin-left: 14px; transform: translate(3px, -1px)"
+            >专栏 <span class="ac">0</span></span
+          >
+          <span
+            v-if="clickFlag6"
+            class="aww"
+            style="margin-left: 14px; transform: translate(3px, -1px)"
+            >专栏 <span class="ac">0</span></span
+          >
+          <span
+            v-if="clickFlag7 === false"
+            @click="ClickFlag7"
+            class="aw"
+            style="transform: translate(19px, -1px)"
+            >用户
+            <span class="ac">
+              <span v-if="acceptSearchData.userTotal <= 99">{{
+                acceptSearchData.userTotal
+              }}</span>
+              <span v-if="acceptSearchData.userTotal > 99">99+</span>
+            </span>
+          </span>
+          <span
+            v-if="clickFlag7"
+            class="aww"
+            style="transform: translate(19px, -1px)"
+            >用户
+            <span class="ac"
+              ><span v-if="acceptSearchData.userTotal <= 99">{{
+                acceptSearchData.userTotal
+              }}</span
+              ><span v-if="acceptSearchData.userTotal > 99">99+</span></span
+            >
+          </span>
+        </div>
+        <div class="clickAllBox">
+          <span
+            v-if="clickFlag1"
+            style="
+              width: 32px;
+              height: 4px;
+              background-color: #00aeec;
+              position: absolute;
+              transform: translate(63px, 137px);
+              border-radius: 5px;
+            "
+          ></span>
+          <span
+            v-if="clickFlag2"
+            style="
+              width: 32px;
+              height: 4px;
+              background-color: #00aeec;
+              position: absolute;
+              transform: translate(147.5px, 137px);
+              border-radius: 5px;
+            "
+          ></span>
+          <span
+            v-if="clickFlag3"
+            style="
+              width: 32px;
+              height: 4px;
+              background-color: #00aeec;
+              position: absolute;
+              transform: translate(267px, 137px);
+              border-radius: 5px;
+            "
+          ></span>
+          <span
+            v-if="clickFlag4"
+            style="
+              width: 32px;
+              height: 4px;
+              background-color: #00aeec;
+              position: absolute;
+              transform: translate(371.5px, 137px);
+              border-radius: 5px;
+            "
+          ></span>
+          <span
+            v-if="clickFlag5"
+            style="
+              width: 32px;
+              height: 4px;
+              background-color: #00aeec;
+              position: absolute;
+              transform: translate(475px, 137px);
+              border-radius: 5px;
+            "
+          ></span>
+          <span
+            v-if="clickFlag6"
+            style="
+              width: 32px;
+              height: 4px;
+              background-color: #00aeec;
+              position: absolute;
+              transform: translate(581px, 137px);
+              border-radius: 5px;
+            "
+          ></span>
+          <span
+            v-if="clickFlag7"
+            style="
+              width: 32px;
+              height: 4px;
+              background-color: #00aeec;
+              position: absolute;
+              transform: translate(692px, 137px);
+              border-radius: 5px;
+            "
+          ></span>
+        </div>
+      </div>
+      <div class="content">
+        <div v-show="clickFlag1 || clickFlag2" class="videoSort">
+          <span
+            v-show="clickSortFlag1 === false"
+            @click="ClickSortFlag1"
+            class="condition"
+            style="transform: translate(86px, 36.5px)"
+            >综合排序</span
+          >
+          <span
+            v-show="clickSortFlag1"
+            class="conditionClick"
+            style="transform: translate(64px, 31px)"
+            >综合排序</span
+          >
+          <span
+            v-show="clickSortFlag2 === false"
+            @click="ClickSortFlag2"
+            class="condition"
+            style="transform: translate(196px, 36.5px)"
+            >最多播放</span
+          >
+          <span
+            v-show="clickSortFlag2"
+            class="conditionClick"
+            style="transform: translate(174px, 31px)"
+            >最多播放</span
+          >
+          <span
+            v-show="clickSortFlag3 === false"
+            @click="ClickSortFlag3"
+            class="condition"
+            style="transform: translate(306px, 36.5px)"
+            >最新发布</span
+          >
+          <span
+            v-show="clickSortFlag3"
+            class="conditionClick"
+            style="transform: translate(284px, 31px)"
+            >最新发布</span
+          >
+          <span
+            v-show="clickSortFlag4 === false"
+            @click="ClickSortFlag4"
+            class="condition"
+            style="transform: translate(416px, 36.5px)"
+            >最多弹幕</span
+          >
+          <span
+            v-show="clickSortFlag4"
+            class="conditionClick"
+            style="transform: translate(394px, 31px)"
+            >最多弹幕</span
+          >
+          <span
+            v-show="clickSortFlag5 === false"
+            @click="ClickSortFlag5"
+            class="condition"
+            style="transform: translate(526px, 36.5px)"
+            >最多收藏</span
+          >
+          <span
+            v-show="clickSortFlag5"
+            class="conditionClick"
+            style="transform: translate(504px, 31px)"
+            >最多收藏</span
+          >
+          <span class="screen" @click="expanded = !expanded"
+            ><span>更多筛选</span><img src="../img/更多.png"
+          /></span>
 
-      <div v-if="clickFlag7" class="userSort">
-        <span
-          v-if="clickUserFlag1 === false"
-          @click="ClickUserFlag1"
-          class="condition"
-          style="transform: translate(86px, 36.5px)"
-          >默认排序</span
+          <div class="showBox" :class="{ expanded }">
+            <span
+              v-show="clickDateFlag1 === false"
+              @click="ClickDateFlag1"
+              class="condition"
+              style="transform: translate(86px, 80.5px)"
+              >全部日期</span
+            >
+            <span
+              v-show="clickDateFlag1"
+              class="conditionClick"
+              style="transform: translate(64px, 75px)"
+              >全部日期</span
+            >
+            <span
+              v-show="clickDateFlag2 === false"
+              @click="ClickDateFlag2"
+              class="condition"
+              style="transform: translate(196px, 80.5px)"
+              >最近一天</span
+            >
+            <span
+              v-show="clickDateFlag2"
+              class="conditionClick"
+              style="transform: translate(174px, 75px)"
+              >最近一天</span
+            >
+            <span
+              v-show="clickDateFlag3 === false"
+              @click="ClickDateFlag3"
+              class="condition"
+              style="transform: translate(306px, 80.5px)"
+              >最近一周</span
+            >
+            <span
+              v-show="clickDateFlag3"
+              class="conditionClick"
+              style="transform: translate(284px, 75px)"
+              >最近一周</span
+            >
+            <span
+              v-show="clickDateFlag4 === false"
+              @click="ClickDateFlag4"
+              class="condition"
+              style="transform: translate(416px, 80.5px)"
+              >最近半年</span
+            >
+            <span
+              v-show="clickDateFlag4"
+              class="conditionClick"
+              style="transform: translate(394px, 75px)"
+              >最近半年</span
+            >
+            <span
+              @click="ClickDateFlag5"
+              class="condition"
+              style="transform: translate(504px, 74px)"
+            >
+              <el-date-picker
+                v-model="datea"
+                style="border-radius: 8px; width: 310px; height: 34px"
+                type="daterange"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                :default-value="[new Date(), new Date()]"
+              >
+              </el-date-picker>
+            </span>
+
+            <span
+              v-show="clickTimeFlag1 === false"
+              @click="ClickTimeFlag1"
+              class="condition"
+              style="transform: translate(86px, 123.5px)"
+              >全部时长</span
+            >
+            <span
+              v-show="clickTimeFlag1"
+              class="conditionClick"
+              style="transform: translate(64px, 118px)"
+              >全部时长</span
+            >
+            <span
+              v-show="clickTimeFlag2 === false"
+              @click="ClickTimeFlag2"
+              class="condition"
+              style="transform: translate(189px, 123.5px)"
+              >10分钟以下</span
+            >
+            <span
+              v-show="clickTimeFlag2"
+              class="conditionClick"
+              style="transform: translate(175px, 118px)"
+              >10分钟以下</span
+            >
+            <span
+              v-show="clickTimeFlag3 === false"
+              @click="ClickTimeFlag3"
+              class="condition"
+              style="transform: translate(302px, 123.5px)"
+              >10-30分钟</span
+            >
+            <span
+              v-show="clickTimeFlag3"
+              class="conditionClick"
+              style="transform: translate(285.5px, 118px)"
+              >10-30分钟</span
+            >
+            <span
+              v-show="clickTimeFlag4 === false"
+              @click="ClickTimeFlag4"
+              class="condition"
+              style="transform: translate(412px, 123.5px)"
+              >30-60分钟</span
+            >
+            <span
+              v-show="clickTimeFlag4"
+              class="conditionClick"
+              style="transform: translate(395.5px, 118px)"
+              >30-60分钟</span
+            >
+            <span
+              v-show="clickTimeFlag5 === false"
+              @click="ClickTimeFlag5"
+              class="condition"
+              style="transform: translate(521px, 123.5px)"
+              >60分钟以上</span
+            >
+            <span
+              v-show="clickTimeFlag5"
+              class="conditionClick"
+              style="transform: translate(507px, 118px)"
+              >60分钟以上</span
+            >
+
+            <span
+              v-if="clickClassifyFlag1 === false"
+              @click="ClickClassifyFlag1"
+              class="condition"
+              style="transform: translate(86px, 165.5px)"
+              >全部分区</span
+            >
+            <span
+              v-if="clickClassifyFlag1"
+              class="conditionClick"
+              style="transform: translate(64px, 160px)"
+              >全部分区</span
+            >
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag2"
+            >
+              <template #content>
+                <div class="custom-tooltip2" @click="ClickClassifyFlag2">
+                  <span>MAD·AMV</span><span>MMD·3D</span> <span>同人·手书</span
+                  ><span>配音</span><span>模玩·周边</span><span>特摄</span
+                  ><span>动漫杂谈</span><span>综合</span>
+                </div>
+              </template>
+              <span
+                v-if="!clickClassifyFlag2"
+                @click="ClickClassifyFlag2"
+                class="condition"
+                style="transform: translate(210px, 165.5px)"
+                >动画</span
+              >
+              <span
+                v-if="clickClassifyFlag2"
+                class="conditionClick"
+                style="transform: translate(174px, 160px)"
+                >动画</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag3"
+              :disabled="true"
+            >
+              <span
+                v-if="clickClassifyFlag3 === false"
+                @click="ClickClassifyFlag3"
+                class="condition"
+                style="transform: translate(320px, 165.5px)"
+                >番剧</span
+              >
+              <span
+                v-if="clickClassifyFlag3"
+                class="conditionClick"
+                style="transform: translate(284px, 160px)"
+                >番剧</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag4"
+            >
+              <template #content>
+                <div class="custom-tooltip2" @click="ClickClassifyFlag4">
+                  <span>国产动画</span><span>国产原创相关</span>
+                  <span>布袋戏</span><span>动态漫·广播剧</span><span>资讯</span
+                  ><span>新番时间表</span><span>国产动画索引</span>
+                </div>
+              </template>
+              <span
+                v-if="clickClassifyFlag4 === false"
+                @click="ClickClassifyFlag4"
+                class="condition"
+                style="transform: translate(430px, 165.5px)"
+                >国创</span
+              >
+              <span
+                v-if="clickClassifyFlag4"
+                class="conditionClick"
+                style="transform: translate(394px, 160px)"
+                >国创</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag5"
+            >
+              <template #content>
+                <div class="custom-tooltip2" @click="ClickClassifyFlag5">
+                  <span>音乐现场</span><span>翻唱</span> <span>演奏</span
+                  ><span>乐评盘点</span><span>VOCLOID·UTAU</span><span>MV</span
+                  ><span>音乐粉丝饭拍</span><span>AI音乐</span><span>电台</span
+                  ><span>音乐教学</span><span>音乐综合</span><span>说唱</span>
+                </div>
+              </template>
+              <span
+                v-if="clickClassifyFlag5 === false"
+                @click="ClickClassifyFlag5"
+                class="condition"
+                style="transform: translate(540px, 165.5px)"
+                >音乐</span
+              >
+              <span
+                v-if="clickClassifyFlag5"
+                class="conditionClick"
+                style="transform: translate(504px, 160px)"
+                >音乐</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag6"
+            >
+              <template #content>
+                <div class="custom-tooltip2" @click="ClickClassifyFlag6">
+                  <span>宅舞</span><span>街舞</span> <span>明星舞蹈</span
+                  ><span>国风舞蹈</span><span>颜值·网红舞</span
+                  ><span>舞蹈综合</span><span>舞蹈教程</span>
+                </div>
+              </template>
+              <span
+                v-if="clickClassifyFlag6 === false"
+                @click="ClickClassifyFlag6"
+                class="condition"
+                style="transform: translate(650px, 165.5px)"
+                >舞蹈</span
+              >
+              <span
+                v-if="clickClassifyFlag6"
+                class="conditionClick"
+                style="transform: translate(614px, 160px)"
+                >舞蹈</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag7"
+            >
+              <template #content>
+                <div class="custom-tooltip2" @click="ClickClassifyFlag7">
+                  <span>单机游戏</span><span>电子竞技</span>
+                  <span>手机游戏</span><span>网络游戏</span><span>桌游棋牌</span
+                  ><span>GMV</span><span>音游</span><span>Mugen</span
+                  ><span>游戏赛事</span>
+                </div>
+              </template>
+              <span
+                v-if="clickClassifyFlag7 === false"
+                @click="ClickClassifyFlag7"
+                class="condition"
+                style="transform: translate(760px, 165.5px)"
+                >游戏</span
+              >
+              <span
+                v-if="clickClassifyFlag7"
+                class="conditionClick"
+                style="transform: translate(724px, 160px)"
+                >游戏</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag8"
+            >
+              <template #content>
+                <div class="custom-tooltip2" @click="ClickClassifyFlag8">
+                  <span>科学科普</span><span>社科·法律·心理</span>
+                  <span>人文历史</span><span>财经商业</span><span>校园学校</span
+                  ><span>职业职场</span><span>设计·创意</span
+                  ><span>野生技能协会</span><span>游戏赛事</span>
+                </div>
+              </template>
+              <span
+                v-if="clickClassifyFlag8 === false"
+                @click="ClickClassifyFlag8"
+                class="condition"
+                style="transform: translate(870px, 165.5px)"
+                >知识</span
+              >
+              <span
+                v-if="clickClassifyFlag8"
+                class="conditionClick"
+                style="transform: translate(834px, 160px)"
+                >知识</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag9"
+            >
+              <template #content>
+                <div class="custom-tooltip2" @click="ClickClassifyFlag9">
+                  <span>数码</span><span>软件应用</span> <span>计算机技术</span
+                  ><span>科工机械</span><span>极客DIY</span>
+                </div>
+              </template>
+              <span
+                v-if="clickClassifyFlag9 === false"
+                @click="ClickClassifyFlag9"
+                class="condition"
+                style="transform: translate(980px, 165.5px)"
+                >科技</span
+              >
+              <span
+                v-if="clickClassifyFlag9"
+                class="conditionClick"
+                style="transform: translate(944px, 160px)"
+                >科技</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag10"
+            >
+              <template #content>
+                <div class="custom-tooltip2" @click="ClickClassifyFlag10">
+                  <span>篮球</span><span>足球</span> <span>健身</span
+                  ><span>竞技体育</span><span>运动文化</span
+                  ><span>运动综合</span>
+                </div>
+              </template>
+              <span
+                v-if="clickClassifyFlag10 === false"
+                @click="ClickClassifyFlag10"
+                class="condition"
+                style="transform: translate(1090px, 165.5px)"
+                >运动</span
+              >
+              <span
+                v-if="clickClassifyFlag10"
+                class="conditionClick"
+                style="transform: translate(1054px, 160px)"
+                >运动</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag11"
+              :disabled="true"
+            >
+              <span
+                v-if="clickClassifyFlag11 === false"
+                @click="ClickClassifyFlag11"
+                class="condition"
+                style="transform: translate(1200px, 165.5px)"
+                >汽车</span
+              >
+              <span
+                v-if="clickClassifyFlag11"
+                class="conditionClick"
+                style="transform: translate(1164px, 160px)"
+                >汽车</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag12"
+            >
+              <template #content>
+                <div class="custom-tooltip2" @click="ClickClassifyFlag12">
+                  <span>搞笑</span><span>亲子</span> <span>出行</span
+                  ><span>三农</span><span>家居房产</span><span>手工</span
+                  ><span>绘画</span><span>日常</span>
+                </div>
+              </template>
+              <span
+                v-if="clickClassifyFlag12 === false"
+                @click="ClickClassifyFlag12"
+                class="condition"
+                style="transform: translate(100px, 207.5px)"
+                >生活</span
+              >
+              <span
+                v-if="clickClassifyFlag12"
+                class="conditionClick"
+                style="transform: translate(64px, 202px)"
+                >生活</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag13"
+            >
+              <template #content>
+                <div class="custom-tooltip2" @click="ClickClassifyFlag13">
+                  <span>美食制作</span><span>美食侦探</span>
+                  <span>美食测评</span><span>田园美食</span
+                  ><span>美食记录</span>
+                </div>
+              </template>
+              <span
+                v-if="clickClassifyFlag13 === false"
+                @click="ClickClassifyFlag13"
+                class="condition"
+                style="transform: translate(210px, 207.5px)"
+                >美食</span
+              >
+              <span
+                v-if="clickClassifyFlag13"
+                class="conditionClick"
+                style="transform: translate(174px, 202px)"
+                >美食</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag14"
+            >
+              <template #content>
+                <div class="custom-tooltip2" @click="ClickClassifyFlag14">
+                  <span>喵星人</span><span>汪星人</span> <span>小宠异能</span
+                  ><span>野生动物</span><span>动物二创</span
+                  ><span>动物综合</span>
+                </div>
+              </template>
+              <span
+                v-if="clickClassifyFlag14 === false"
+                @click="ClickClassifyFlag14"
+                class="condition"
+                style="transform: translate(313px, 207.5px)"
+                >动物圈</span
+              >
+              <span
+                v-if="clickClassifyFlag14"
+                class="conditionClick"
+                style="transform: translate(284px, 202px)"
+                >动物圈</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag15"
+            >
+              <template #content>
+                <div class="custom-tooltip2" @click="ClickClassifyFlag15">
+                  <span>鬼畜教程</span><span>音MAD</span>
+                  <span>人力VOCALOID</span><span>鬼畜剧场</span
+                  ><span>教程演示</span>
+                </div>
+              </template>
+              <span
+                v-if="clickClassifyFlag15 === false"
+                @click="ClickClassifyFlag15"
+                class="condition"
+                style="transform: translate(430px, 207.5px)"
+                >鬼畜</span
+              >
+              <span
+                v-if="clickClassifyFlag15"
+                class="conditionClick"
+                style="transform: translate(394px, 202px)"
+                >鬼畜</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag16"
+            >
+              <template #content>
+                <div class="custom-tooltip2" @click="ClickClassifyFlag16">
+                  <span>美妆护肤</span><span>仿妆cos</span> <span>穿搭</span
+                  ><span>时尚潮流</span>
+                </div>
+              </template>
+              <span
+                v-if="clickClassifyFlag16 === false"
+                @click="ClickClassifyFlag16"
+                class="condition"
+                style="transform: translate(540px, 207.5px)"
+                >时尚</span
+              >
+              <span
+                v-if="clickClassifyFlag16"
+                class="conditionClick"
+                style="transform: translate(504px, 202px)"
+                >时尚</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag17"
+            >
+              <template #content>
+                <div class="custom-tooltip2" @click="ClickClassifyFlag17">
+                  <span>热点</span><span>环球</span> <span>社会</span
+                  ><span>综合</span>
+                </div>
+              </template>
+              <span
+                v-if="clickClassifyFlag17 === false"
+                @click="ClickClassifyFlag17"
+                class="condition"
+                style="transform: translate(650px, 207.5px)"
+                >资讯</span
+              >
+              <span
+                v-if="clickClassifyFlag17"
+                class="conditionClick"
+                style="transform: translate(614px, 202px)"
+                >资讯</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag18"
+            >
+              <template #content>
+                <div class="custom-tooltip2" @click="ClickClassifyFlag18">
+                  <span>资讯杂谈</span><span>CP安利</span> <span>颜值安利</span
+                  ><span>娱乐粉丝创作</span><span>明星综合</span
+                  ><span>综艺</span>
+                </div>
+              </template>
+              <span
+                v-if="clickClassifyFlag18 === false"
+                @click="ClickClassifyFlag18"
+                class="condition"
+                style="transform: translate(760px, 207.5px)"
+                >娱乐</span
+              >
+              <span
+                v-if="clickClassifyFlag18"
+                class="conditionClick"
+                style="transform: translate(724px, 202px)"
+                >娱乐</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag19"
+            >
+              <template #content>
+                <div class="custom-tooltip2" @click="ClickClassifyFlag19">
+                  <span>影视杂谈</span><span>影视剪辑</span>
+                  <span>影视整活</span><span>AI影像</span><span>预告·资讯</span
+                  ><span>小剧场</span><span>短片</span><span>影视综合</span>
+                </div>
+              </template>
+              <span
+                v-if="clickClassifyFlag19 === false"
+                @click="ClickClassifyFlag19"
+                class="condition"
+                style="transform: translate(870px, 207.5px)"
+                >影视</span
+              >
+              <span
+                v-if="clickClassifyFlag19"
+                class="conditionClick"
+                style="transform: translate(834px, 202px)"
+                >影视</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag20"
+              :disabled="true"
+            >
+              <span
+                v-if="clickClassifyFlag20 === false"
+                @click="ClickClassifyFlag20"
+                class="condition"
+                style="transform: translate(973px, 207.5px)"
+                >纪录片</span
+              >
+              <span
+                v-if="clickClassifyFlag20"
+                class="conditionClick"
+                style="transform: translate(944px, 202px)"
+                >纪录片</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag21"
+              :disabled="true"
+            >
+              <span
+                v-if="clickClassifyFlag21 === false"
+                @click="ClickClassifyFlag21"
+                class="condition"
+                style="transform: translate(1090px, 207.5px)"
+                >电影</span
+              >
+              <span
+                v-if="clickClassifyFlag21"
+                class="conditionClick"
+                style="transform: translate(1054px, 202px)"
+                >电影</span
+              >
+            </el-tooltip>
+            <el-tooltip
+              class="box-item"
+              :show-arrow="false"
+              effect="light"
+              placement="bottom"
+              @click="ClickClassifyFlag22"
+              :disabled="true"
+            >
+              <span
+                v-if="clickClassifyFlag22 === false"
+                @click="ClickClassifyFlag22"
+                class="condition"
+                style="transform: translate(1193px, 207.5px)"
+                >电视剧</span
+              >
+              <span
+                v-if="clickClassifyFlag22"
+                class="conditionClick"
+                style="transform: translate(1164px, 202px)"
+                >电视剧</span
+              >
+            </el-tooltip>
+            <div
+              v-if="expanded"
+              style="width: 100%; height: 170px; z-index: 0"
+            ></div>
+          </div>
+          <div v-if="Videos.length === 0">
+            <img
+              src="../img/搜索空.png"
+              style="
+                width: 150px;
+                height: 160px;
+                transform: translate(637px, 133px);
+              "
+            />
+            <span
+              style="
+                position: absolute;
+                transform: translate(496.5px, 321px);
+                font-size: 14px;
+                color: #9599a5;
+              "
+              >今天真是寂寞如雪啊~</span
+            >
+          </div>
+          <div class="bottomVideo">
+            <div
+              class="video-video"
+              v-for="(video, index) in Videos"
+              :key="video.id"
+            >
+              <div
+                class="videoBox1"
+                style="width: 94%"
+                @mouseover="videoMouseover(video.videoId)"
+                @mouseleave="videoMouseleave(video.videoId)"
+              >
+                <img
+                  class="coverAddress"
+                  @click="locationHerfVideo(video.videoId)"
+                  :src="video.coverAddress"
+                />
+                <video
+                  :id="video.videoId"
+                  preload="none"
+                  disablePictureInPicture
+                  muted
+                  loop
+                  @click="locationHerfVideo(video.videoId)"
+                  :src="video.videoAddress"
+                ></video>
+                <div
+                  v-show="
+                    store.userId !== null &&
+                    (video.waitWatch === 0 || video.waitWatch === 1)
+                  "
+                  class="waitWatch"
+                  @click="waitWatch(video.videoId)"
+                  @mouseover="waitFont = 1"
+                  @mouseleave="waitFont = 0"
+                >
+                  <img
+                    v-show="video.waitWatch === 0"
+                    src="../img/稍后再看.png"
+                    style="
+                      width: 21px;
+                      height: 18px;
+                      opacity: 1 !important;
+                      margin-left: 4px;
+                    "
+                  />
+                  <img
+                    v-show="video.waitWatch === 1"
+                    src="../img/添加成功.png"
+                    style="
+                      width: 18px;
+                      height: 15px;
+                      opacity: 1 !important;
+                      margin-left: 5px;
+                    "
+                  />
+                  <span
+                    v-show="waitFont === 1 && video.waitWatch === 0"
+                    style="
+                      width: 110px;
+                      color: white;
+                      z-index: 10;
+                      font-size: 12px;
+                      transform: translate(28.5px, -0.5px);
+                      position: absolute;
+                    "
+                    >添加至稍后观看</span
+                  >
+                  <span
+                    v-show="waitFont === 1 && video.waitWatch === 1"
+                    style="
+                      width: 110px;
+                      color: white;
+                      z-index: 10;
+                      font-size: 12px;
+                      transform: translate(28.5px, -0.5px);
+                      position: absolute;
+                    "
+                    >已添加稍后观看</span
+                  >
+                </div>
+                <div class="videoContent1">
+                  <img
+                    src="../img/播放量白.png"
+                    style="
+                      width: 15px;
+                      height: 12px;
+                      transform: translate(9.5px, 7.5px);
+                      border-radius: 1px;
+                    "
+                  />
+                  <span
+                    style="
+                      font-size: 12.6px;
+                      transform: translate(13px, 9.5px);
+                      position: absolute;
+                    "
+                    >{{ video.videoPlayNumber }}</span
+                  >
+                  <img
+                    src="../img/弹幕白.png"
+                    style="
+                      width: 15px;
+                      height: 12px;
+                      transform: translate(57.5px, 7px);
+                      border-radius: 1px;
+                    "
+                  />
+                  <span
+                    style="
+                      font-size: 12.6px;
+                      transform: translate(61px, 9.5px);
+                      position: absolute;
+                    "
+                    >{{ video.videoScrollingNumber }}</span
+                  >
+                  <span
+                    v-if="video.hour !== null"
+                    style="
+                      font-size: 12.6px;
+                      transform: translate(159.5px, 9.5px);
+                      position: absolute;
+                    "
+                  >
+                    <span>{{ video.hour }}<span class="colon">:</span></span
+                    >{{ video.minutes }}<span class="colon">:</span
+                    >{{ video.second }}</span
+                  >
+
+                  <span
+                    v-if="video.hour === null"
+                    style="
+                      font-size: 12.6px;
+                      transform: translate(175.5px, 9.5px);
+                      position: absolute;
+                    "
+                  >
+                    {{ video.minutes }}<span class="colon">:</span
+                    >{{ video.second }}</span
+                  >
+                </div>
+                <div
+                  style="
+                    width: 245px;
+                    height: 15px;
+                    transform: translate(0px, -35px);
+                    position: absolute;
+                    opacity: 0;
+                    z-index: -10;
+                  "
+                ></div>
+                <div class="videoContent"></div>
+              </div>
+              <el-tooltip
+                popper-class="custom-tooltip1"
+                class="box-item"
+                :show-after="300"
+                effect="light"
+                :content="video.videoTitle"
+                placement="left"
+                :show-arrow="false"
+              >
+                <span
+                  id="result"
+                  class="title"
+                  @click="locationHerfVideo(video.videoId)"
+                  v-html="highlightText(video.videoTitle)"
+                ></span>
+              </el-tooltip>
+              <div
+                style="
+                  height: 32px;
+                  position: absolute;
+                  width: 245px;
+                  transform: translate(0px, -8px);
+                  opacity: 0;
+                  z-index: -10;
+                "
+              ></div>
+              <el-tooltip
+                popper-class="custom-tooltip1"
+                class="box-item"
+                effect="light"
+                :show-after="300"
+                :content="video.userName"
+                placement="left"
+                :show-arrow="false"
+              >
+                <a
+                  :href="'./home?homeMenu=1&userId=' + video.userId"
+                  target="_blank"
+                >
+                  <span
+                    class="videoBottomInfo"
+                    @mouseover="upImgFlag = index - 10"
+                    @mouseleave="upImgFlag = -index - 50000"
+                    ><img
+                      :src="upImgFlag === index - 10 ? upBlue : up"
+                      style="
+                        width: 15px;
+                        height: 12px;
+                        position: absolute;
+                        transform: translate(1px, 26px);
+                        border-radius: 0px;
+                      "
+                    />
+                    <span class="upInfo"
+                      >{{ video.userName }} &nbsp;·&nbsp;&nbsp;{{
+                        video.createTime
+                      }}</span
+                    >
+                  </span>
+                </a>
+              </el-tooltip>
+            </div>
+            <div
+              style="
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                transform: translate(70px, -200px);
+                padding-bottom: 50px;
+              "
+            >
+              <div v-show="acceptSearchData.videoTotal" class="page-container">
+                <el-pagination
+                  :current-page="videoPageNum"
+                  :page-size="20"
+                  layout="prev, pager, next"
+                  :total="acceptSearchData.videoTotal"
+                  :background="true"
+                  @current-change="handleCurrentChangeVideo"
+                />
+                <span
+                  >共 {{ Math.ceil(acceptSearchData.videoTotal / 20) }} 页 /
+                  {{ acceptSearchData.videoTotal }} 个，跳至<input
+                    type="number"
+                    @keydown.enter="handleCurrentChangeVideo2"
+                  />页</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="falseData"
+          v-if="clickFlag3 || clickFlag4 || clickFlag5 || clickFlag6"
         >
-        <span
-          v-if="clickUserFlag1"
-          class="conditionClick"
-          style="transform: translate(64px, 31px); width: 100px"
-          >默认排序</span
-        >
-        <span
-          v-if="clickUserFlag2 === false"
-          @click="ClickUserFlag2"
-          class="condition"
-          style="transform: translate(189px, 36.5px)"
-          >粉丝数由高到低</span
-        >
-        <span
-          v-if="clickUserFlag2"
-          class="conditionClick"
-          style="transform: translate(174px, 31px)"
-          >粉丝数由高到低</span
-        >
-        <span
-          v-if="clickUserFlag3 === false"
-          @click="ClickUserFlag3"
-          class="condition"
-          style="transform: translate(327px, 36.5px)"
-          >粉丝数由低到高</span
-        >
-        <span
-          v-if="clickUserFlag3"
-          class="conditionClick"
-          style="transform: translate(312px, 31px)"
-          >粉丝数由低到高</span
-        >
-        <span
-          v-if="clickUserFlag4 === false"
-          @click="ClickUserFlag4"
-          class="condition"
-          style="transform: translate(465px, 36.5px)"
-          >Lv等级由高到低</span
-        >
-        <span
-          v-if="clickUserFlag4"
-          class="conditionClick"
-          style="transform: translate(450px, 31px)"
-          >Lv等级由高到低</span
-        >
-        <span
-          v-if="clickUserFlag5 === false"
-          @click="ClickUserFlag5"
-          class="condition"
-          style="transform: translate(603px, 36.5px)"
-          >Lv等级由低到高</span
-        >
-        <span
-          v-if="clickUserFlag5"
-          class="conditionClick"
-          style="transform: translate(588px, 31px)"
-          >Lv等级由低到高</span
-        >
-        <div v-if="searchUserList.length === 0">
           <img
             src="../img/搜索空.png"
             style="
               width: 150px;
               height: 160px;
-              transform: translate(637px, 133px);
+              transform: translate(637px, 99px);
             "
           />
           <span
             style="
               position: absolute;
-              transform: translate(496.5px, 321px);
+              transform: translate(496.5px, 287px);
               font-size: 14px;
               color: #9599a5;
             "
             >今天真是寂寞如雪啊~</span
           >
         </div>
-        <div class="searchUsers">
-          <div style=" display: flex;
-           flex-wrap: wrap; ">
-            <div
-            class="usersContent"
-            v-for="(user, index) in searchUserList"
-            :key="index"
-          >
-            <img
-              :src="user.avatarAddress"
-              @click="openHome(user.userId)"
-              style="
-                width: 84.8px;
-                height: 84.8px;
-                border-radius: 50%;
-                cursor: pointer;
-              "
-            />
 
-            <el-tooltip
-              popper-class="custom-tooltip1"
-              class="box-item"
-              effect="light"
-              :content="user.userName"
-              placement="right"
-              :show-arrow="false"
-              :offset="20"
-            >
-              <span
-                class="user-Name"
-                @click="openHome(user.userId)"
-                style="
-                  width: auto;
-                  display: inline-block;
-                  transform: translate(17px, -65px);
-                  cursor: pointer;
-                "
-                >{{ user.userName }}
-                <img
-                  v-if="user.grade === 0"
-                  src="../img/0级.png"
-                  style="
-                    width: 23.5px;
-                    height: 12px;
-                    margin-left: 10.5px;
-                    margin-top: 6.5px;
-                  "
-                />
-                <img
-                  v-if="user.grade === 1"
-                  src="../img/1级.png"
-                  style="
-                    width: 23.5px;
-                    height: 12px;
-                    margin-left: 10.5px;
-                    margin-top: 6.5px;
-                  "
-                />
-                <img
-                  v-if="user.grade === 2"
-                  src="../img/2级.png"
-                  style="
-                    width: 23.5px;
-                    height: 12px;
-                    margin-left: 10.5px;
-                    margin-top: 6.5px;
-                  "
-                />
-                <img
-                  v-if="user.grade === 3"
-                  src="../img/3级.png"
-                  style="
-                    width: 23.5px;
-                    height: 12px;
-                    margin-left: 10.5px;
-                    margin-top: 6.5px;
-                  "
-                />
-                <img
-                  v-if="user.grade === 4"
-                  src="../img/4级.png"
-                  style="
-                    width: 23.5px;
-                    height: 12px;
-                    margin-left: 10.5px;
-                    margin-top: 6.5px;
-                  "
-                />
-                <img
-                  v-if="user.grade === 5"
-                  src="../img/5级.png"
-                  style="
-                    width: 23.5px;
-                    height: 12px;
-                    margin-left: 10.5px;
-                    margin-top: 6.5px;
-                  "
-                />
-                <img
-                  v-if="user.grade === 6"
-                  src="../img/6级.png"
-                  style="
-                    width: 23.5px;
-                    height: 12px;
-                    margin-left: 10.5px;
-                    margin-top: 6.5px;
-                  "
-                />
-              </span>
-            </el-tooltip>
-            <el-tooltip
-              popper-class="custom-tooltip1"
-              class="box-item"
-              effect="light"
-              :content="
-                userContent(user.fansNumber, user.videoNumber, user.introduce)
+        <div v-if="clickFlag7" class="userSort">
+          <span
+            v-if="clickUserFlag1 === false"
+            @click="ClickUserFlag1"
+            class="condition"
+            style="transform: translate(86px, 36.5px)"
+            >默认排序</span
+          >
+          <span
+            v-if="clickUserFlag1"
+            class="conditionClick"
+            style="transform: translate(64px, 31px); width: 100px"
+            >默认排序</span
+          >
+          <span
+            v-if="clickUserFlag2 === false"
+            @click="ClickUserFlag2"
+            class="condition"
+            style="transform: translate(189px, 36.5px)"
+            >粉丝数由高到低</span
+          >
+          <span
+            v-if="clickUserFlag2"
+            class="conditionClick"
+            style="transform: translate(174px, 31px)"
+            >粉丝数由高到低</span
+          >
+          <span
+            v-if="clickUserFlag3 === false"
+            @click="ClickUserFlag3"
+            class="condition"
+            style="transform: translate(327px, 36.5px)"
+            >粉丝数由低到高</span
+          >
+          <span
+            v-if="clickUserFlag3"
+            class="conditionClick"
+            style="transform: translate(312px, 31px)"
+            >粉丝数由低到高</span
+          >
+          <span
+            v-if="clickUserFlag4 === false"
+            @click="ClickUserFlag4"
+            class="condition"
+            style="transform: translate(465px, 36.5px)"
+            >Lv等级由高到低</span
+          >
+          <span
+            v-if="clickUserFlag4"
+            class="conditionClick"
+            style="transform: translate(450px, 31px)"
+            >Lv等级由高到低</span
+          >
+          <span
+            v-if="clickUserFlag5 === false"
+            @click="ClickUserFlag5"
+            class="condition"
+            style="transform: translate(603px, 36.5px)"
+            >Lv等级由低到高</span
+          >
+          <span
+            v-if="clickUserFlag5"
+            class="conditionClick"
+            style="transform: translate(588px, 31px)"
+            >Lv等级由低到高</span
+          >
+          <div v-if="searchUserList.length === 0">
+            <img
+              src="../img/搜索空.png"
+              style="
+                width: 150px;
+                height: 160px;
+                transform: translate(637px, 133px);
               "
-              placement="right"
-              :offset="-350"
-              :show-arrow="false"
-            >
-              <div class="userInfo-Content">
-                <span>{{ user.fansNumber }}粉丝 </span>
-                <span style="margin-left: 5.5px; margin-right: 5.5px">·</span>
-                <span>{{ user.videoNumber }}个视频 </span>
-                <span class="introduce">{{ user.introduce }}</span>
-              </div>
-            </el-tooltip>
-            <div
-              v-if="user.follow === null"
-              class="follow"
-              @click="addFollowAxios(user.userId)"
-            >
-              + 关注
-            </div>
-            <div
-              v-else
-              class="deleteFollow"
-              @click="deleteFollowAxios(user.userId)"
-            >
-              已关注
-            </div>
-          </div>
-          <div :style="{
-            width: windowWidth + 'px'
-          }" style="display: flex; justify-content: center;margin-top: 70px;margin-bottom: 50px;">
-            <div v-show="acceptSearchData.userTotal" class="page-container">
-            <el-pagination
-                :current-page="userPageNum"
-                :page-size="20"
-                layout="prev, pager, next"
-                :total="acceptSearchData.userTotal"
-                :background="true"
-                @current-change="handleCurrentChangeUser"
             />
             <span
-                >共 {{ Math.ceil( acceptSearchData.userTotal / 20) }} 页 /
-                {{ acceptSearchData.userTotal }} 个，跳至<input
-                type="number"
-                @keydown.enter="handleCurrentChangeUser2"
-                />页</span
+              style="
+                position: absolute;
+                transform: translate(496.5px, 321px);
+                font-size: 14px;
+                color: #9599a5;
+              "
+              >今天真是寂寞如雪啊~</span
             >
+          </div>
+          <div class="searchUsers">
+            <div style="display: flex; flex-wrap: wrap">
+              <div
+                class="usersContent"
+                v-for="(user, index) in searchUserList"
+                :key="index"
+              >
+                <img
+                  :src="user.avatarAddress"
+                  @click="openHome(user.userId)"
+                  style="
+                    width: 84.8px;
+                    height: 84.8px;
+                    border-radius: 50%;
+                    cursor: pointer;
+                  "
+                />
+
+                <el-tooltip
+                  popper-class="custom-tooltip1"
+                  class="box-item"
+                  effect="light"
+                  :content="user.userName"
+                  placement="right"
+                  :show-arrow="false"
+                  :offset="20"
+                >
+                  <span
+                    class="user-Name"
+                    @click="openHome(user.userId)"
+                    style="
+                      width: auto;
+                      display: inline-block;
+                      transform: translate(17px, -65px);
+                      cursor: pointer;
+                    "
+                    >{{ user.userName }}
+                    <img
+                      v-if="user.grade === 0"
+                      src="../img/0级.png"
+                      style="
+                        width: 23.5px;
+                        height: 12px;
+                        margin-left: 10.5px;
+                        margin-top: 6.5px;
+                      "
+                    />
+                    <img
+                      v-if="user.grade === 1"
+                      src="../img/1级.png"
+                      style="
+                        width: 23.5px;
+                        height: 12px;
+                        margin-left: 10.5px;
+                        margin-top: 6.5px;
+                      "
+                    />
+                    <img
+                      v-if="user.grade === 2"
+                      src="../img/2级.png"
+                      style="
+                        width: 23.5px;
+                        height: 12px;
+                        margin-left: 10.5px;
+                        margin-top: 6.5px;
+                      "
+                    />
+                    <img
+                      v-if="user.grade === 3"
+                      src="../img/3级.png"
+                      style="
+                        width: 23.5px;
+                        height: 12px;
+                        margin-left: 10.5px;
+                        margin-top: 6.5px;
+                      "
+                    />
+                    <img
+                      v-if="user.grade === 4"
+                      src="../img/4级.png"
+                      style="
+                        width: 23.5px;
+                        height: 12px;
+                        margin-left: 10.5px;
+                        margin-top: 6.5px;
+                      "
+                    />
+                    <img
+                      v-if="user.grade === 5"
+                      src="../img/5级.png"
+                      style="
+                        width: 23.5px;
+                        height: 12px;
+                        margin-left: 10.5px;
+                        margin-top: 6.5px;
+                      "
+                    />
+                    <img
+                      v-if="user.grade === 6"
+                      src="../img/6级.png"
+                      style="
+                        width: 23.5px;
+                        height: 12px;
+                        margin-left: 10.5px;
+                        margin-top: 6.5px;
+                      "
+                    />
+                  </span>
+                </el-tooltip>
+                <el-tooltip
+                  popper-class="custom-tooltip1"
+                  class="box-item"
+                  effect="light"
+                  :content="
+                    userContent(
+                      user.fansNumber,
+                      user.videoNumber,
+                      user.introduce
+                    )
+                  "
+                  placement="right"
+                  :offset="-350"
+                  :show-arrow="false"
+                >
+                  <div class="userInfo-Content">
+                    <span>{{ user.fansNumber }}粉丝 </span>
+                    <span style="margin-left: 5.5px; margin-right: 5.5px"
+                      >·</span
+                    >
+                    <span>{{ user.videoNumber }}个视频 </span>
+                    <span class="introduce">{{ user.introduce }}</span>
+                  </div>
+                </el-tooltip>
+                <div
+                  v-if="user.follow === null"
+                  class="follow"
+                  @click="addFollowAxios(user.userId)"
+                >
+                  + 关注
+                </div>
+                <div
+                  v-else
+                  class="deleteFollow"
+                  @click="deleteFollowAxios(user.userId)"
+                >
+                  已关注
+                </div>
+              </div>
+              <div
+                :style="{
+                  width: windowWidth + 'px',
+                }"
+                style="
+                  display: flex;
+                  justify-content: center;
+                  margin-top: 70px;
+                  margin-bottom: 50px;
+                "
+              >
+                <div v-show="acceptSearchData.userTotal" class="page-container">
+                  <el-pagination
+                    :current-page="userPageNum"
+                    :page-size="20"
+                    layout="prev, pager, next"
+                    :total="acceptSearchData.userTotal"
+                    :background="true"
+                    @current-change="handleCurrentChangeUser"
+                  />
+                  <span
+                    >共 {{ Math.ceil(acceptSearchData.userTotal / 20) }} 页 /
+                    {{ acceptSearchData.userTotal }} 个，跳至<input
+                      type="number"
+                      @keydown.enter="handleCurrentChangeUser2"
+                    />页</span
+                  >
+                </div>
+              </div>
             </div>
           </div>
-        </div>
         </div>
       </div>
     </div>
@@ -1505,14 +1567,14 @@
 </template>
 
 <script>
-import head1 from '../components/mainHead.vue';
-import Searcha from './searcha';
+import head1 from "../components/mainHead.vue";
+import Searcha from "./searcha";
 import up from "../img/up.png";
 import upBlue from "../img/up蓝.png";
 import { reactive, onMounted, ref, watch, onUnmounted } from "vue";
 import apiClient from "../services/apiClient";
 import { ElMessage } from "element-plus";
-import {useGlobalStore} from "../store/store";
+import { useGlobalStore } from "../store/store";
 export default {
   name: "MainSearch",
   components: {
@@ -1523,7 +1585,7 @@ export default {
   setup() {
     const loginDialogVisibleFlag = ref(0);
     const store = useGlobalStore();
-    const onloadPage=ref(false);
+    const onloadPage = ref(false);
     const videoPageNum = ref(1);
     const userPageNum = ref(1);
     const acceptSearchData = reactive({
@@ -1610,41 +1672,41 @@ export default {
     const clickClassifyFlag20 = ref(false);
     const clickClassifyFlag21 = ref(false);
     const clickClassifyFlag22 = ref(false);
-    const videoAutoPlayTIme={};
+    const videoAutoPlayTIme = {};
     watch(datea, (newValue) => {
-     if(newValue!== null){
-      if (newValue.length !== 0) {
-        const date1 = new Date(datea.value[0]);
-        const date2 = new Date(datea.value[1]);
-        if (!isNaN(date1.getTime())) {
-          acceptSearchData.startTime = date1.toISOString();
+      if (newValue !== null) {
+        if (newValue.length !== 0) {
+          const date1 = new Date(datea.value[0]);
+          const date2 = new Date(datea.value[1]);
+          if (!isNaN(date1.getTime())) {
+            acceptSearchData.startTime = date1.toISOString();
+          }
+          if (!isNaN(date2.getTime())) {
+            acceptSearchData.endTime = date2.toISOString();
+          }
+          videoPageNum.value = 1;
+          searchByKeyWordVideo();
         }
-        if (!isNaN(date2.getTime())) {
-          acceptSearchData.endTime = date2.toISOString();
+        if (newValue.length === 0) {
+          acceptSearchData.startTIme = "";
+          acceptSearchData.endTime = "";
         }
-        videoPageNum.value = 1;
-        searchByKeyWordVideo();
-      }
-      if (newValue.length === 0) {
-        acceptSearchData.startTIme = "";
-        acceptSearchData.endTime = "";
-      }
 
-      if (newValue.length !== 0) {
-        clickDateFlag1.value = false;
-        clickDateFlag2.value = false;
-        clickDateFlag3.value = false;
-        clickDateFlag4.value = false;
-        clickDateFlag5.value = true;
-      } else if (
-        clickDateFlag2.value &&
-        clickDateFlag3.value &&
-        clickDateFlag4.value
-      ) {
-        clickDateFlag1.value = true;
-        clickDateFlag5.value = false;
+        if (newValue.length !== 0) {
+          clickDateFlag1.value = false;
+          clickDateFlag2.value = false;
+          clickDateFlag3.value = false;
+          clickDateFlag4.value = false;
+          clickDateFlag5.value = true;
+        } else if (
+          clickDateFlag2.value &&
+          clickDateFlag3.value &&
+          clickDateFlag4.value
+        ) {
+          clickDateFlag1.value = true;
+          clickDateFlag5.value = false;
+        }
       }
-     }
     });
 
     function ClickFlag1() {
@@ -2513,25 +2575,24 @@ export default {
     }
 
     //获取用户ip和token
-    async function getUserIp(){
-      
+    async function getUserIp() {
       const response = await apiClient.get("/userIp/getUserIp");
 
-      if(response.data.code === 1)
-        store.setUserIp(response.data.data.userIp);
-        store.setToken(response.data.data.token);
-
+      if (response.data.code === 1) store.setUserIp(response.data.data.userIp);
+      store.setToken(response.data.data.token);
     }
 
-    onMounted(async() => {
-      window.scrollTo({top: 0, behavior: "smooth"});
+    onMounted(async () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
       windowWidth.value = window.screen.width;
-      onloadPage.value=true;
+      onloadPage.value = true;
       await getUserIp();
       await ChecklLogin();
       searchByKeyWordVideoOnce();
       selectUsersAxios();
-      document.title = acceptSearchData.keyWord||acceptSearchData.classify + "-哔哩哔哩_bilibili";
+      document.title =
+        acceptSearchData.keyWord ||
+        acceptSearchData.classify + "-哔哩哔哩_bilibili";
       window.addEventListener("scroll", handleScroll); // 监听滚动事件
     });
     onUnmounted(() => {
@@ -2545,18 +2606,19 @@ export default {
         const keyWord = urlParams.get("keyword");
         const classifyIndex = urlParams.get("classifyIndex");
         acceptSearchData.keyWord = keyWord;
-        if (classifyIndex.length > 0){ 
+        if (classifyIndex.length > 0) {
           acceptSearchData.classify = classifyIndex;
-        clickClassifyFlag1.value = false;}
+          clickClassifyFlag1.value = false;
+        }
         acceptSearchData.classifyIndex = classifyIndex;
         const response = await apiClient.post(
           "/search/searchVideoByKeyWord",
-          acceptSearchData,
+          acceptSearchData
         );
         if (response.data.code === 1) {
-            Videos.length = 0;
-            acceptSearchData.videoTotal = response.data.data.videoTotal;
-            Object.assign(Videos, response.data.data.selectVideoDtoList);
+          Videos.length = 0;
+          acceptSearchData.videoTotal = response.data.data.videoTotal;
+          Object.assign(Videos, response.data.data.selectVideoDtoList);
         }
       } catch (error) {
         ElMessage({
@@ -2567,7 +2629,7 @@ export default {
         });
       }
     }
-    
+
     //根据关键字搜索视频
     async function searchByKeyWordVideo() {
       try {
@@ -2580,12 +2642,12 @@ export default {
         acceptSearchData.classifyIndex = classifyIndex;
         const response = await apiClient.post(
           "/search/searchVideoByKeyWord",
-          acceptSearchData,
+          acceptSearchData
         );
         if (response.data.code === 1) {
-            Videos.length = 0;
-            acceptSearchData.videoTotal = response.data.data.videoTotal;
-            Object.assign(Videos, response.data.data.selectVideoDtoList);
+          Videos.length = 0;
+          acceptSearchData.videoTotal = response.data.data.videoTotal;
+          Object.assign(Videos, response.data.data.selectVideoDtoList);
         }
       } catch (error) {
         ElMessage({
@@ -2604,12 +2666,11 @@ export default {
         videoPageNum.value = 1;
         const response = await apiClient.post(
           "/search/selectUsers",
-          acceptSearchData,
+          acceptSearchData
         );
-        if (response.data.code === 1)
-          searchUserList.length = 0;
-          acceptSearchData.userTotal = response.data.data.userTotal;
-          Object.assign(searchUserList, response.data.data.selectUserDtoList);
+        if (response.data.code === 1) searchUserList.length = 0;
+        acceptSearchData.userTotal = response.data.data.userTotal;
+        Object.assign(searchUserList, response.data.data.selectUserDtoList);
       } catch (error) {
         ElMessage({
           message: "未知错误",
@@ -2620,8 +2681,8 @@ export default {
       }
     }
 
-     // 更改视频当前页
-     function handleCurrentChangeVideo(val) {
+    // 更改视频当前页
+    function handleCurrentChangeVideo(val) {
       videoPageNum.value = val;
     }
 
@@ -2632,7 +2693,7 @@ export default {
         event.target.value <= Math.ceil(acceptSearchData.videoTotal / 20) &&
         event.target.value >= 1
       )
-      videoPageNum.value = parseInt(event.target.value);
+        videoPageNum.value = parseInt(event.target.value);
     }
 
     // 更改用户当前页
@@ -2644,10 +2705,10 @@ export default {
     function handleCurrentChangeUser2(event) {
       if (
         event.target.value !== "" &&
-        event.target.value <= Math.ceil( acceptSearchData.userTotal / 20) &&
+        event.target.value <= Math.ceil(acceptSearchData.userTotal / 20) &&
         event.target.value >= 1
       )
-      userPageNum.value = parseInt(event.target.value);
+        userPageNum.value = parseInt(event.target.value);
     }
 
     //监视视频页数变化
@@ -2663,10 +2724,9 @@ export default {
     //关注
     async function addFollowAxios(userId) {
       try {
-       
-        if(store.userId === null)
-        {
-          loginDialogVisibleFlag.value = loginDialogVisibleFlag.value===0?1:0;
+        if (store.userId === null) {
+          loginDialogVisibleFlag.value =
+            loginDialogVisibleFlag.value === 0 ? 1 : 0;
           return;
         }
 
@@ -2680,20 +2740,21 @@ export default {
           return;
         }
 
-        const response = await apiClient.post("/video/addFollow", {
-          followId: userId,
-          fansId: store.userId,
-        },
-        {
+        const response = await apiClient.post(
+          "/video/addFollow",
+          {
+            followId: userId,
+            fansId: store.userId,
+          },
+          {
             headers: {
-            "Content-Type": "application/json",
-            "Authorization": store.token,
-          },        
+              "Content-Type": "application/json",
+              Authorization: store.token,
+            },
           }
         );
-        if (response.data.code === 1) 
-        selectUsersAxios();
-        else{
+        if (response.data.code === 1) selectUsersAxios();
+        else {
           ElMessage({
             message: response.data.msg,
             type: "info",
@@ -2707,28 +2768,27 @@ export default {
     //取消关注
     async function deleteFollowAxios(userId) {
       try {
-
-        
-        if(store.userId === null)
-        {
-          loginDialogVisibleFlag.value = loginDialogVisibleFlag.value===0?1:0;
+        if (store.userId === null) {
+          loginDialogVisibleFlag.value =
+            loginDialogVisibleFlag.value === 0 ? 1 : 0;
           return;
         }
 
-        const response = await apiClient.post("/video/deleteFollow", {
-          followId: userId,
-          fansId: acceptSearchData.userId,
-        },
-        {
+        const response = await apiClient.post(
+          "/video/deleteFollow",
+          {
+            followId: userId,
+            fansId: acceptSearchData.userId,
+          },
+          {
             headers: {
-            "Content-Type": "application/json",
-            "Authorization": store.token,
-          },        
+              "Content-Type": "application/json",
+              Authorization: store.token,
+            },
           }
         );
-        if (response.data.code === 1) 
-        selectUsersAxios();
-        else{
+        if (response.data.code === 1) selectUsersAxios();
+        else {
           ElMessage({
             message: response.data.msg,
             type: "info",
@@ -2742,9 +2802,8 @@ export default {
     //检查登录
     async function ChecklLogin() {
       try {
-
-       
-        const response = await apiClient.get(`/user/checkLoginFlag/${store.userIp}`,
+        const response = await apiClient.get(
+          `/user/checkLoginFlag/${store.userIp}`
         );
         if (response.data.code === 1) {
           acceptSearchData.userId = response.data.data.id;
@@ -2762,24 +2821,24 @@ export default {
     //添加到稍后观看
     async function waitWatch(videoId) {
       try {
-
-        if(store.userId === null)
-        {
-          loginDialogVisibleFlag.value = loginDialogVisibleFlag.value===0?1:0;
+        if (store.userId === null) {
+          loginDialogVisibleFlag.value =
+            loginDialogVisibleFlag.value === 0 ? 1 : 0;
           return;
         }
 
-        let dynamicDto={
-            videoId: videoId,
-            userId: store.userId,
-        }
+        let dynamicDto = {
+          videoId: videoId,
+          userId: store.userId,
+        };
         const response = await apiClient.put(
-          "/dynamic/updateWaitWatch",dynamicDto,
-            {
+          "/dynamic/updateWaitWatch",
+          dynamicDto,
+          {
             headers: {
-            "Content-Type": "application/json",
-            "Authorization": store.token,
-          },        
+              "Content-Type": "application/json",
+              Authorization: store.token,
+            },
           }
         );
         if (response.data.code === 1) {
@@ -2793,8 +2852,7 @@ export default {
           });
           Videos.length = 0; // 清空原数组
           Object.assign(Videos, updatedVideos); // 重新赋值
-        }
-        else{
+        } else {
           ElMessage({
             message: response.data.msg,
             type: "info",
@@ -2834,47 +2892,45 @@ export default {
         else if (newValue.classify === "电视剧")
           clickClassifyFlag22.value = true;
       },
-      { deep: true },
+      { deep: true }
     );
 
     //跳转到视频详情页
     function locationHerfVideo(videoId) {
-      window.open(
-        `./video?videoId=BV${videoId}`,
-        "videoWindow",
-      );
-    };
-
-    function videoMouseover(id) {
-    // 清除之前的定时器，防止重复触发
-    if (videoAutoPlayTIme[id]) {
-        clearTimeout(videoAutoPlayTIme[id]);
+      window.open(`./video?videoId=BV${videoId}`, "videoWindow");
     }
 
-    // 延迟播放视频
-    videoAutoPlayTIme[id] = setTimeout(() => {
+    function videoMouseover(id) {
+      // 清除之前的定时器，防止重复触发
+      if (videoAutoPlayTIme[id]) {
+        clearTimeout(videoAutoPlayTIme[id]);
+      }
+
+      // 延迟播放视频
+      videoAutoPlayTIme[id] = setTimeout(() => {
         const video = document.getElementById(id);
-        if(video)
-        if (video.paused) {  // 只有在视频处于暂停状态时才播放
-            video.play().catch(function(error) {
-            });
-        }
-    }, 700);  // 1秒后播放视频
+        if (video)
+          if (video.paused) {
+            // 只有在视频处于暂停状态时才播放
+            video.play().catch(function (error) {});
+          }
+      }, 700); // 1秒后播放视频
     }
 
     function videoMouseleave(id) {
-        // 清除之前的视频播放定时器
-        clearTimeout(videoAutoPlayTIme[id]);
+      // 清除之前的视频播放定时器
+      clearTimeout(videoAutoPlayTIme[id]);
 
-        const video = document.getElementById(id);
-        if(video)
-        if (!video.paused) {  // 只有在视频播放时才暂停
-            video.pause();
+      const video = document.getElementById(id);
+      if (video)
+        if (!video.paused) {
+          // 只有在视频播放时才暂停
+          video.pause();
         }
     }
 
     function openHome(userId) {
-      window.open(`./home?userId=${userId}&homeMenu=1`,"_blank")
+      window.open(`./home?userId=${userId}&homeMenu=1`, "_blank");
     }
 
     return {
@@ -3016,7 +3072,6 @@ export default {
   padding: 0; /* 移除内边距 */
   margin: 0; /* 移除外边距 */
   box-sizing: border-box; /* 包括内边距和边框在元素的总宽度和高度中 */
-
 }
 
 .SearchBox {
@@ -3025,10 +3080,10 @@ export default {
   position: relative;
   width: 1425px;
   left: 50%;
-  transform: translate(-50%,0);
+  transform: translate(-50%, 0);
 }
 
-.searchBox2{
+.searchBox2 {
   position: relative;
   z-index: 1000;
 }
@@ -3050,8 +3105,7 @@ export default {
   transition: all 0.3s ease;
   visibility: visible;
   transform: translateY(0px);
-  z-index: 1000;
-
+  z-index: 100000;
 }
 
 .head {
@@ -3063,10 +3117,9 @@ export default {
   box-shadow: 0 0px 3px rgba(0, 0, 0, 0.3); /* 添加底部阴影 */
 }
 
-.headLoginIndex{
+.headLoginIndex {
   z-index: 100;
 }
-
 
 .middle {
   width: 100%;
@@ -3084,7 +3137,7 @@ export default {
   font-size: 15.5px;
 }
 
-.content{
+.content {
   transform: translateY(-65px);
 }
 
@@ -3145,7 +3198,6 @@ export default {
   cursor: pointer;
   color: #5b5b5b;
   transition: all 0.3s ease;
-
 }
 
 .userSort .condition:hover {
@@ -3201,7 +3253,6 @@ export default {
 .custom-tooltip2 span {
   margin-left: 5px;
   margin-right: 5px;
-  
 }
 .custom-tooltip2 span:hover {
   color: #00aeec;
@@ -3236,7 +3287,7 @@ export default {
   transform: translate(75px, -507px);
 }
 
-video{
+video {
   width: 94%; /* 视频宽度为100% */
   height: 100%; /* 视频高度为100% */
   object-fit: cover; /* 填充并保持比例 */
@@ -3274,7 +3325,6 @@ video{
   color: white;
   visibility: visible;
   z-index: 2990;
-
 }
 .videoContent1 {
   width: 245px;
@@ -3285,33 +3335,31 @@ video{
   z-index: 3000;
 }
 
+.videoBox1:hover {
+  video {
+    opacity: 1;
+    transition: all 0.3s ease;
+    visibility: visible;
+    transition-delay: 0.6s;
+  }
 
-.videoBox1:hover{
+  .videoContent1 {
+    opacity: 0;
+    transition: all 0.3s ease;
+    visibility: hidden;
+  }
+  .videoContent {
+    opacity: 0;
+    transition: all 0.3s ease;
+    visibility: hidden;
+  }
 
-video{
-  opacity: 1;
-  transition: all 0.3s ease;
-  visibility: visible;
-  transition-delay: 0.6s;
-}
-
-.videoContent1{
-  opacity: 0;
-  transition: all 0.3s ease;
-  visibility: hidden;
-}
-.videoContent{
-  opacity: 0;
-  transition: all 0.3s ease;
-  visibility: hidden;
-}
-
-.waitWatch{
-  transition-delay: 0.3s;
-  opacity: 1;
-  transition: all 0.3s ease;
-  visibility: visible;
-}
+  .waitWatch {
+    transition-delay: 0.3s;
+    opacity: 1;
+    transition: all 0.3s ease;
+    visibility: visible;
+  }
 }
 
 .colon {
@@ -3329,7 +3377,7 @@ video{
   height: 28px;
   right: 28px;
   top: 8px;
-  background-color: rgba(33, 33, 33, .8);
+  background-color: rgba(33, 33, 33, 0.8);
   opacity: 0;
   visibility: hidden;
   transition: transform 0.3s ease, width 0.3s ease; /* 添加宽度变化的动画效果 */
@@ -3520,48 +3568,47 @@ video{
   text-overflow: ellipsis; /* 显示省略号 */
 }
 
-
-.coverAddress{
+.coverAddress {
   cursor: pointer;
 }
 
 .page-container {
-        position: relative;
-        margin-top: 60px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+  position: relative;
+  margin-top: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-        span {
-          color: #18191c;
-          font-size: 13px;
-          margin-left: 44px;
-          input {
-            width: 50px;
-            height: 34px;
-            overflow: hidden;
-            display: inline-flex;
-            flex-grow: 1;
-            outline: none;
-            position: relative;
-            padding: 0 12px;
-            background-color: white;
-            border: 1px solid #e3e5e7;
-            font-size: 14px;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            padding: 0 10px;
-          }
-          input:hover {
-            border-color: #00aeec;
-          }
-          input:focus {
-            border-color: #00aeec;
-          }
-          input::-webkit-inner-spin-button,
-          input::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-          }
-        }
+  span {
+    color: #18191c;
+    font-size: 13px;
+    margin-left: 44px;
+    input {
+      width: 50px;
+      height: 34px;
+      overflow: hidden;
+      display: inline-flex;
+      flex-grow: 1;
+      outline: none;
+      position: relative;
+      padding: 0 12px;
+      background-color: white;
+      border: 1px solid #e3e5e7;
+      font-size: 14px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      padding: 0 10px;
+    }
+    input:hover {
+      border-color: #00aeec;
+    }
+    input:focus {
+      border-color: #00aeec;
+    }
+    input::-webkit-inner-spin-button,
+    input::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+    }
+  }
 }
 </style>
