@@ -174,14 +174,14 @@ const title=ref("");
 const contentInput=ref(null);
 const contentLength=ref(0);
 const backgroundImgSrc=[
-  '/background.jpg',
-  '/background2.png',
-  '/background3.jpg',
-  '/background4.jpg',
-  '/background5.jpg',
-  '/background6.jpg',
-  '/background7.png',
-  '/background8.jpg',
+  '/background.webp',
+  '/background2.webp',
+  '/background3.webp',
+  '/background4.webp',
+  '/background5.webp',
+  '/background6.webp',
+  '/background7.webp',
+  '/background8.webp',
 ];
 let bIndex=Math.floor(Math.random()*backgroundImgSrc.length);
 const content=ref("");

@@ -112,7 +112,7 @@ body {
   left: 0;
   width: 110%; /* 背景图宽度，根据实际情况调整 */
   height: 165px; /* 背景图高度与容器一致 */
-  background-image: url("../img/background.png"); /* 替换为你的背景图 URL */
+  background-image: url("../img/background.webp"); /* 替换为你的背景图 URL */
   background-size: cover; /* 确保背景图覆盖整个区域 */
   background-repeat: no-repeat; /* 背景图不重复 */
   background-position-y: 70%;
@@ -125,7 +125,7 @@ body {
   left: 0;
   width: 110%; /* 背景图宽度，根据实际情况调整 */
   height: 165px; /* 背景图高度与容器一致 */
-  background-image: url("../img/background2.png"); /* 替换为你的背景图 URL */
+  background-image: url("../img/background2.webp"); /* 替换为你的背景图 URL */
   background-size: cover; /* 确保背景图覆盖整个区域 */
   background-repeat: no-repeat; /* 背景图不重复 */
   background-position-y: 60%;
@@ -138,7 +138,7 @@ body {
   left: 0;
   width: 110%; /* 背景图宽度，根据实际情况调整 */
   height: 165px; /* 背景图高度与容器一致 */
-  background-image: url("../img/background3.jpg"); /* 替换为你的背景图 URL */
+  background-image: url("../img/background3.webp"); /* 替换为你的背景图 URL */
   background-size: cover; /* 确保背景图覆盖整个区域 */
   background-repeat: no-repeat; /* 背景图不重复 */
   background-position-y: 90%;
