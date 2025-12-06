@@ -633,7 +633,7 @@ function openAccount(){
             column-gap: 16px;
             row-gap: 23px;
             display: grid;
-            grid-template-columns: repeat(5,1fr);
+            grid-template-columns: repeat(5,193px);
                 .video-item{
                     cursor: pointer;
                     position: relative;
@@ -978,6 +978,24 @@ function openAccount(){
     display: flex;
     align-items: center;
     margin-bottom: 15px;
+}
+
+@media (max-width: 1150px) {
+  :deep(.collect-list) {
+    grid-template-columns: repeat(4, 193px) !important;
+  }
+}
+
+@media (max-width: 940px) {
+  :deep(.collect-list) {
+    grid-template-columns: repeat(3, 193px) !important;
+  }
+}
+
+@media (max-width: 730px) {
+  :deep(.collect-list) {
+    grid-template-columns: repeat(2, 193px) !important;
+  }
 }
 
 </style>

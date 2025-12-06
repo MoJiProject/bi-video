@@ -821,14 +821,17 @@ max-width: 2560px;
     .body{
      position: relative;
      display: flex;
-     justify-content: center;
+     justify-content: start;
      margin: 8.5px auto;
 
         .video-list{
         margin-top: 3px;
-        margin-bottom: 60px;   
+        margin-bottom: 60px;
+        margin-left: 185px;   
         }
         .no-data{
+                position: absolute;
+                width: 100%;
                 user-select: none;
                 display: flex;
                 height: 60vh;

@@ -502,4 +502,25 @@ watch(imgSource, () => {
     }
   }
 }
+
+@media (max-width: 1300px) {
+  :deep(.img-list) {
+    width: 669px; 
+    column-count: 3 !important;
+  }
+}
+
+@media (max-width: 960px) {
+  :deep(.img-list) {
+    width: 434px; 
+    column-count: 2 !important;
+  }
+}
+
+@media (max-width: 720px) {
+  :deep(.img-list) {
+    width: 234px; 
+    column-count: 1 !important;
+  }
+}
 </style>

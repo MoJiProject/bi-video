@@ -1,5 +1,5 @@
 <template>
-    <div class="video-list">
+    <div class="video-list7">
        <div class="video-item" v-for="video in data" :key="video.collects.id">
            <video6 :video="video.selectVideoDto" :collect="video.collects" :batchControls="batchControls" :searchContent="searchContent"/>
        </div>
@@ -40,12 +40,12 @@ defineProps({
    box-sizing: border-box;
 }
 
-.video-list{
+.video-list7{
 position: relative;
 column-gap: 16px;
 row-gap: 19px;
 display: grid;
-grid-template-columns: repeat(5,1fr);
+grid-template-columns: repeat(5,206px);
    .video-item{
        height: 183px;
    }
@@ -71,5 +71,26 @@ grid-template-columns: repeat(5,1fr);
        }
    }    
 }
+@media (max-width: 1420px) {
+  .video-list7 {
+    grid-template-columns: repeat(4, 206px);
+  }
+}
 
+@media (max-width: 1200px) {
+  .video-list7 {
+    grid-template-columns: repeat(3, 206px);
+  }
+}
+
+@media (max-width: 985px) {
+  .video-list7 {
+    grid-template-columns: repeat(2, 206px);
+  }
+}
+@media (max-width: 760px) {
+  .video-list7 {
+    grid-template-columns: repeat(1, 206px);
+  }
+}
 </style>

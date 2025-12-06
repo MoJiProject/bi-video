@@ -1,140 +1,148 @@
 <template>
-  <div class="videoBox" >
+  <div class="videoBox">
     <div class="video6Box" v-if="Videos.length >= 6">
       <div
         class="video6"
         v-for="(video, index) in Videos.slice(0, 6)"
         :key="index"
       >
-       <div
-        class="videoBox1"
-        style="width: 92.6%;" 
-        @mouseover.stop="videoMouseover(Videos[index].videoId)" 
-        @mouseleave="videoMouseleave(Videos[index].videoId)">
-        <img class="coverAddress" @click="locationHerfVideo(Videos[index].videoId)" :src="Videos[index].coverAddress"/>
-        <video
-          :id="Videos[index].videoId"
-          preload="none"
-          disablePictureInPicture
-          muted
-          loop
-          @click="locationHerfVideo(Videos[index].videoId)"
-          :src="Videos[index].videoAddress"
-        ></video>
         <div
-          v-show="store.userId !== null && (Videos[index].waitWatch === 0 || Videos[index].waitWatch === 1)"
-          class="waitWatch"
-          @click="waitWatch(Videos[index].videoId)"
-          @mouseover="waitFont = 1"
-          @mouseleave="waitFont = 0"
+          class="videoBox1"
+          style="width: 92.6%"
+          @mouseover.stop="videoMouseover(Videos[index].videoId)"
+          @mouseleave="videoMouseleave(Videos[index].videoId)"
         >
           <img
-            v-show="Videos[index].waitWatch === 0"
-            src="../img/稍后再看.png"
-            style="
-              width: 21px;
-              height: 18px;
-              opacity: 1 !important;
-              margin-left: 4px;
-            "
+            class="coverAddress"
+            @click="locationHerfVideo(Videos[index].videoId)"
+            :src="Videos[index].coverAddress"
           />
-          <img
-            v-show="Videos[index].waitWatch === 1"
-            src="../img/添加成功.png"
-            style="
-              width: 18px;
-              height: 15px;
-              opacity: 1 !important;
-              margin-left: 5px;
+          <video
+            :id="Videos[index].videoId"
+            preload="none"
+            disablePictureInPicture
+            muted
+            loop
+            @click="locationHerfVideo(Videos[index].videoId)"
+            :src="Videos[index].videoAddress"
+          ></video>
+          <div
+            v-show="
+              store.userId !== null &&
+              (Videos[index].waitWatch === 0 || Videos[index].waitWatch === 1)
             "
-          />
-          <span
-            v-show="waitFont === 1 && Videos[index].waitWatch === 0"
-            style="
-              width: 110px;
-              color: white;
-              z-index: 10;
-              font-size: 12px;
-              transform: translate(28.5px, -0.5px);
-              position: absolute;
-            "
-            >添加至稍后观看</span
+            class="waitWatch"
+            @click="waitWatch(Videos[index].videoId)"
+            @mouseover="waitFont = 1"
+            @mouseleave="waitFont = 0"
           >
-          <span
-            v-show="waitFont === 1 && Videos[index].waitWatch === 1"
-            style="
-              width: 110px;
-              color: white;
-              z-index: 10;
-              font-size: 12px;
-              transform: translate(28.5px, -0.5px);
-              position: absolute;
-            "
-            >已添加稍后观看</span
-          >
-        </div>
-        <div class="videoContent1">
-          <img
-            src="../img/播放量白.png"
-            style="
-              width: 15px;
-              height: 12px;
-              transform: translate(9.5px, 6px);
-              border-radius: 1px;
-            "
-          />
-          <span
-            style="
-              font-size: 12.6px;
-              transform: translate(13px, 8.5px);
-              position: absolute;
-            "
-            >{{ Videos[index].videoPlayNumber }}</span
-          >
-          <img
-            src="../img/弹幕白.png"
-            style="
-              width: 15px;
-              height: 12px;
-              transform: translate(57.5px, 6px);
-              border-radius: 1px;
-            "
-          />
-          <span
-            style="
-              font-size: 12.6px;
-              transform: translate(61px, 8.5px);
-              position: absolute;
-            "
-            >{{ Videos[index].videoScrollingNumber }}</span
-          >
-          <span
-            v-if="Videos[index].hour !== null"
-            style="
-              font-size: 12.6px;
-              transform: translate(158px, 8.5px);
-              position: absolute;
-            "
-          >
-            <span>{{ Videos[index].hour }}<span class="colon">:</span></span
-            >{{ Videos[index].minutes }}<span class="colon">:</span
-            >{{ Videos[index].second }}</span
-          >
+            <img
+              v-show="Videos[index].waitWatch === 0"
+              src="../img/稍后再看.png"
+              style="
+                width: 21px;
+                height: 18px;
+                opacity: 1 !important;
+                margin-left: 4px;
+              "
+            />
+            <img
+              v-show="Videos[index].waitWatch === 1"
+              src="../img/添加成功.png"
+              style="
+                width: 18px;
+                height: 15px;
+                opacity: 1 !important;
+                margin-left: 5px;
+              "
+            />
+            <span
+              v-show="waitFont === 1 && Videos[index].waitWatch === 0"
+              style="
+                width: 110px;
+                color: white;
+                z-index: 10;
+                font-size: 12px;
+                transform: translate(28.5px, -0.5px);
+                position: absolute;
+              "
+              >添加至稍后观看</span
+            >
+            <span
+              v-show="waitFont === 1 && Videos[index].waitWatch === 1"
+              style="
+                width: 110px;
+                color: white;
+                z-index: 10;
+                font-size: 12px;
+                transform: translate(28.5px, -0.5px);
+                position: absolute;
+              "
+              >已添加稍后观看</span
+            >
+          </div>
+          <div class="videoContent1">
+            <img
+              src="../img/播放量白.png"
+              style="
+                width: 15px;
+                height: 12px;
+                transform: translate(9.5px, 6px);
+                border-radius: 1px;
+              "
+            />
+            <span
+              style="
+                font-size: 12.6px;
+                transform: translate(13px, 8.5px);
+                position: absolute;
+              "
+              >{{ Videos[index].videoPlayNumber }}</span
+            >
+            <img
+              src="../img/弹幕白.png"
+              style="
+                width: 15px;
+                height: 12px;
+                transform: translate(57.5px, 6px);
+                border-radius: 1px;
+              "
+            />
+            <span
+              style="
+                font-size: 12.6px;
+                transform: translate(61px, 8.5px);
+                position: absolute;
+              "
+              >{{ Videos[index].videoScrollingNumber }}</span
+            >
+            <span
+              v-if="Videos[index].hour !== null"
+              style="
+                font-size: 12.6px;
+                transform: translate(158px, 8.5px);
+                position: absolute;
+              "
+            >
+              <span>{{ Videos[index].hour }}<span class="colon">:</span></span
+              >{{ Videos[index].minutes }}<span class="colon">:</span
+              >{{ Videos[index].second }}</span
+            >
 
-          <span
-            v-if="Videos[index].hour === null"
-            style="
-              font-size: 12.6px;
-              transform: translate(174px, 8.5px);
-              position: absolute;
-            "
-          >
-            {{ Videos[index].minutes }}<span class="colon">:</span
-            >{{ Videos[index].second }}</span
-          >
+            <span
+              v-if="Videos[index].hour === null"
+              style="
+                font-size: 12.6px;
+                transform: translate(174px, 8.5px);
+                position: absolute;
+              "
+            >
+              {{ Videos[index].minutes }}<span class="colon">:</span
+              >{{ Videos[index].second }}</span
+            >
+          </div>
+          <div class="videoContent"></div>
         </div>
-        <div class="videoContent"></div>
-       </div>
         <div
           style="
             width: 245px;
@@ -178,27 +186,30 @@
           placement="bottom-end"
           :show-arrow="false"
         >
-          <a :href="'./home?homeMenu=1&userId='+Videos[index].userId" target="_blank">
+          <a
+            :href="'./home?homeMenu=1&userId=' + Videos[index].userId"
+            target="_blank"
+          >
             <span
-            class="videoBottomInfo"
-            @mouseover="upImgFlag = index - 200000"
-            @mouseleave="upImgFlag = -index - 3000000"
-            ><img
-              :src="upImgFlag === index - 200000 ? upBlue : up"
-              style="
-                width: 14px;
-                height: 12px;
-                position: absolute;
-                transform: translate(1.2px, 26.2px);
-                border-radius: 0px;
-              "
-            />
-            <span class="upInfo"
-              >{{ Videos[index].userName }} &nbsp;·&nbsp;&nbsp;{{
-                Videos[index].createTime
-              }}</span
-            >
-          </span>
+              class="videoBottomInfo"
+              @mouseover="upImgFlag = index - 200000"
+              @mouseleave="upImgFlag = -index - 3000000"
+              ><img
+                :src="upImgFlag === index - 200000 ? upBlue : up"
+                style="
+                  width: 14px;
+                  height: 12px;
+                  position: absolute;
+                  transform: translate(1.2px, 26.2px);
+                  border-radius: 0px;
+                "
+              />
+              <span class="upInfo"
+                >{{ Videos[index].userName }} &nbsp;·&nbsp;&nbsp;{{
+                  Videos[index].createTime
+                }}</span
+              >
+            </span>
           </a>
         </el-tooltip>
       </div>
@@ -209,142 +220,154 @@
     <div class="bottomVideo">
       <div
         class="video-video"
-        v-for="(video, index) in Videos.slice(6,Videos.length)"
+        v-for="(video, index) in Videos.slice(0, Videos.length)"
         :key="video.id"
       >
-        <div class="videoBox1" style="width: 92.6%;" @mousemove="videoMouseover(video.videoId)" @mouseleave="videoMouseleave(video.videoId)">
-          <img class="coverAddress"  @click="locationHerfVideo(video.videoId)" :src="video.coverAddress"/>
-          <video
-          :id="video.videoId"
-          preload="none"
-          disablePictureInPicture
-          muted
-          loop
-          @click="locationHerfVideo(video.videoId)"
-          :src="video.videoAddress"
-        ></video>
         <div
-          v-show="store.userId !== null&&(video.waitWatch === 0 || video.waitWatch === 1)"
-          class="waitWatch"
-          @click="waitWatch(video.videoId)"
-          @mouseover="waitFont = 1"
-          @mouseleave="waitFont = 0"
+          class="videoBox1"
+          style="width: 92.6%"
+          @mousemove="videoMouseover(video.videoId)"
+          @mouseleave="videoMouseleave(video.videoId)"
         >
           <img
-            v-show="video.waitWatch === 0"
-            src="../img/稍后再看.png"
-            style="
-              width: 21px;
-              height: 18px;
-              opacity: 1 !important;
-              margin-left: 4px;
-            "
+            class="coverAddress"
+            @click="locationHerfVideo(video.videoId)"
+            :src="video.coverAddress"
           />
-          <img
-            v-show="video.waitWatch === 1"
-            src="../img/添加成功.png"
-            style="
-              width: 18px;
-              height: 15px;
-              opacity: 1 !important;
-              margin-left: 5px;
+          <video
+            :id="video.videoId"
+            preload="none"
+            disablePictureInPicture
+            muted
+            loop
+            @click="locationHerfVideo(video.videoId)"
+            :src="video.videoAddress"
+          ></video>
+          <div
+            v-show="
+              store.userId !== null &&
+              (video.waitWatch === 0 || video.waitWatch === 1)
             "
-          />
-          <span
-            v-show="waitFont === 1 && video.waitWatch === 0"
-            style="
-              width: 110px;
-              color: white;
-              z-index: 10;
-              font-size: 12px;
-              transform: translate(28.5px, -0.5px);
-              position: absolute;
-            "
-            >添加至稍后观看</span
+            class="waitWatch"
+            @click="waitWatch(video.videoId)"
+            @mouseover="waitFont = 1"
+            @mouseleave="waitFont = 0"
           >
-          <span
-            v-show="waitFont === 1 && video.waitWatch === 1"
-            style="
-              width: 110px;
-              color: white;
-              z-index: 10;
-              font-size: 12px;
-              transform: translate(28.5px, -0.5px);
-              position: absolute;
-            "
-            >已添加稍后观看</span
-          >
-        </div>
-        <div class="videoContent1">
-          <img
-            src="../img/播放量白.png"
-            style="
-              width: 15px;
-              height: 12px;
-              transform: translate(9.5px, 6px);
-              border-radius: 1px;
-            "
-          />
-          <span
-            style="
-              font-size: 12.6px;
-              transform: translate(13px, 8.5px);
-              position: absolute;
-            "
-            >{{ video.videoPlayNumber }}</span
-          >
-          <img
-            src="../img/弹幕白.png"
-            style="
-              width: 15px;
-              height: 12px;
-              transform: translate(57.5px, 6px);
-              border-radius: 1px;
-            "
-          />
-          <span
-            style="
-              font-size: 12.6px;
-              transform: translate(61px, 8.5px);
-              position: absolute;
-            "
-            >{{ video.videoScrollingNumber }}</span
-          >
-          <span
-            v-if="video.hour !== null"
-            style="
-              font-size: 12.6px;
-              transform: translate(158px, 8.5px);
-              position: absolute;
-            "
-          >
-            <span>{{ video.hour }}<span class="colon">:</span></span
-            >{{ video.minutes }}<span class="colon">:</span
-            >{{ video.second }}</span
-          >
+            <img
+              v-show="video.waitWatch === 0"
+              src="../img/稍后再看.png"
+              style="
+                width: 21px;
+                height: 18px;
+                opacity: 1 !important;
+                margin-left: 4px;
+              "
+            />
+            <img
+              v-show="video.waitWatch === 1"
+              src="../img/添加成功.png"
+              style="
+                width: 18px;
+                height: 15px;
+                opacity: 1 !important;
+                margin-left: 5px;
+              "
+            />
+            <span
+              v-show="waitFont === 1 && video.waitWatch === 0"
+              style="
+                width: 110px;
+                color: white;
+                z-index: 10;
+                font-size: 12px;
+                transform: translate(28.5px, -0.5px);
+                position: absolute;
+              "
+              >添加至稍后观看</span
+            >
+            <span
+              v-show="waitFont === 1 && video.waitWatch === 1"
+              style="
+                width: 110px;
+                color: white;
+                z-index: 10;
+                font-size: 12px;
+                transform: translate(28.5px, -0.5px);
+                position: absolute;
+              "
+              >已添加稍后观看</span
+            >
+          </div>
+          <div class="videoContent1">
+            <img
+              src="../img/播放量白.png"
+              style="
+                width: 15px;
+                height: 12px;
+                transform: translate(9.5px, 6px);
+                border-radius: 1px;
+              "
+            />
+            <span
+              style="
+                font-size: 12.6px;
+                transform: translate(13px, 8.5px);
+                position: absolute;
+              "
+              >{{ video.videoPlayNumber }}</span
+            >
+            <img
+              src="../img/弹幕白.png"
+              style="
+                width: 15px;
+                height: 12px;
+                transform: translate(57.5px, 6px);
+                border-radius: 1px;
+              "
+            />
+            <span
+              style="
+                font-size: 12.6px;
+                transform: translate(61px, 8.5px);
+                position: absolute;
+              "
+              >{{ video.videoScrollingNumber }}</span
+            >
+            <span
+              v-if="video.hour !== null"
+              style="
+                font-size: 12.6px;
+                transform: translate(158px, 8.5px);
+                position: absolute;
+              "
+            >
+              <span>{{ video.hour }}<span class="colon">:</span></span
+              >{{ video.minutes }}<span class="colon">:</span
+              >{{ video.second }}</span
+            >
 
-          <span
-            v-if="video.hour === null"
+            <span
+              v-if="video.hour === null"
+              style="
+                font-size: 12.6px;
+                transform: translate(174px, 8.5px);
+                position: absolute;
+              "
+            >
+              {{ video.minutes }}<span class="colon">:</span
+              >{{ video.second }}</span
+            >
+          </div>
+          <div
             style="
-              font-size: 12.6px;
-              transform: translate(174px, 8.5px);
+              width: 245px;
+              height: 15px;
+              transform: translate(0px, -35px);
               position: absolute;
+              opacity: 0;
             "
-          >
-            {{ video.minutes }}<span class="colon">:</span
-            >{{ video.second }}</span
-          >
-        </div>
-        <div
-          style="
-            width: 245px;
-            height: 15px;
-            transform: translate(0px, -35px);
-            position: absolute;
-            opacity: 0;
-          "
-        ></div>
-        <div class="videoContent"></div>
+          ></div>
+          <div class="videoContent"></div>
         </div>
         <el-tooltip
           popper-class="custom-tooltip"
@@ -378,27 +401,27 @@
           placement="bottom-end"
           :show-arrow="false"
         >
-          <a :href="'./home?homeMenu=1&userId='+video.userId" target="_blank">
+          <a :href="'./home?homeMenu=1&userId=' + video.userId" target="_blank">
             <span
-            class="videoBottomInfo"
-            @mouseover="upImgFlag = index - 10"
-            @mouseleave="upImgFlag = -index - 10"
-            ><img
-              :src="upImgFlag === index - 10 ? upBlue : up"
-              style="
-                width: 14px;
-                height: 12px;
-                position: absolute;
-                transform: translate(1px, 26px);
-                border-radius: 0px;
-              "
-            />
-            <span class="upInfo"
-              >{{ video.userName }} &nbsp;·&nbsp;&nbsp;{{
-                video.createTime
-              }}</span
-            >
-          </span>
+              class="videoBottomInfo"
+              @mouseover="upImgFlag = index - 10"
+              @mouseleave="upImgFlag = -index - 10"
+              ><img
+                :src="upImgFlag === index - 10 ? upBlue : up"
+                style="
+                  width: 14px;
+                  height: 12px;
+                  position: absolute;
+                  transform: translate(1px, 26px);
+                  border-radius: 0px;
+                "
+              />
+              <span class="upInfo"
+                >{{ video.userName }} &nbsp;·&nbsp;&nbsp;{{
+                  video.createTime
+                }}</span
+              >
+            </span>
           </a>
         </el-tooltip>
       </div>
@@ -411,9 +434,9 @@ import { ref, reactive, onMounted, onUnmounted, watch } from "vue";
 import apiClient from "../services/apiClient";
 import up from "../img/up.png";
 import upBlue from "../img/up蓝.png";
-import {useGlobalStore} from "../store/store";
+import { useGlobalStore } from "../store/store";
 import { ElMessage } from "element-plus";
-import { selectVideo } from '@/api/video/index';
+import { selectVideo } from "@/api/video/index";
 export default {
   name: "videos",
   setup() {
@@ -421,11 +444,11 @@ export default {
     const waitFont = ref(0);
     const upImgFlag = ref(false);
     const Videos = reactive([]);
-    const imgTrasitionFlag=ref(false);
-    const pageNum=ref(1);
-    let sort=Math.floor(Math.random() * (6)) + 1;//1升序视频标题 2降序视频标题 3升序播放量 4降序播放量 5升序发布时间 6降序发布时间
-    let videoAutoPlayTIme={};
-    onMounted(async() => {
+    const imgTrasitionFlag = ref(false);
+    const pageNum = ref(1);
+    let sort = Math.floor(Math.random() * 6) + 1; //1升序视频标题 2降序视频标题 3升序播放量 4降序播放量 5升序发布时间 6降序发布时间
+    let videoAutoPlayTIme = {};
+    onMounted(async () => {
       await getUserIp();
       await ChecklLogin();
       selectVideos();
@@ -437,89 +460,80 @@ export default {
     });
 
     //获取用户ip和token
-    async function getUserIp(){
-      
+    async function getUserIp() {
       const response = await apiClient.get("/userIp/getUserIp");
 
-      if(response.data.code === 1)
-        store.setUserIp(response.data.data.userIp);
-        store.setToken(response.data.data.token);
-
+      if (response.data.code === 1) store.setUserIp(response.data.data.userIp);
+      store.setToken(response.data.data.token);
     }
 
     const handleScroll1 = () => {
+      if (nodata) return;
 
-      if(nodata)
-        return;
-
-      const scrollHeight = document.documentElement.scrollHeight;  // 文档总高度
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;  // 当前滚动高度
-      const clientHeight = window.innerHeight || document.documentElement.clientHeight;  // 可视区域高度
+      const scrollHeight = document.documentElement.scrollHeight; // 文档总高度
+      const scrollTop = window.scrollY || document.documentElement.scrollTop; // 当前滚动高度
+      const clientHeight =
+        window.innerHeight || document.documentElement.clientHeight; // 可视区域高度
 
       if (scrollTop + clientHeight >= scrollHeight) {
         selectVideos();
       }
     };
-    
+
     async function ChecklLogin() {
       try {
-
-        const response = await apiClient.get(`/user/checkLoginFlag/${store.userIp}`);
+        const response = await apiClient.get(
+          `/user/checkLoginFlag/${store.userIp}`
+        );
         if (response.data.code === 1) {
           store.setUserId(response.data.data.id);
         }
-       
-
-      } catch (error) {
-      }
+      } catch (error) {}
     }
 
-    let selectFlag=true;
-    let nodata=false;
+    let selectFlag = true;
+    let nodata = false;
     async function selectVideos() {
-        if(!selectFlag){
-          return;
+      if (!selectFlag) {
+        return;
+      } else {
+        selectFlag = false;
+      }
+      let userId = 0;
+      if (store.userId === null) userId = 0;
+      else userId = store.userId;
+      selectVideo(userId, pageNum.value++, sort).then((response) => {
+        if (response.data.code === 1) {
+          Videos.push(...response.data.data);
+          if (!response.data.data || response.data.data.length === 0) {
+            nodata = true;
+          }
+          selectFlag = true;
+        } else {
+          ElMessage({
+            message: response.data.msg,
+            type: "info",
+            plain: true,
+            duration: 1700,
+          });
         }
-        else{
-          selectFlag=false;
-        }
-        let userId=0; 
-        if(store.userId === null)
-        userId=0;
-        else
-        userId=store.userId;
-        selectVideo(userId,pageNum.value++,sort).then(response=>{
-            if (response.data.code === 1) {
-            Videos.push(...response.data.data);
-            if(!response.data.data||response.data.data.length===0){
-              nodata=true;
-            }
-            selectFlag=true;
-            } else {
-            ElMessage({
-              message: response.data.msg,
-              type: "info",
-              plain: true,
-              duration: 1700,
-            });
-        }
-        })
+      });
     }
 
     async function waitWatch(videoId) {
       try {
-
-        let dynamicDto={
-            videoId: videoId,
-            userId: store.userId,
-        }
+        let dynamicDto = {
+          videoId: videoId,
+          userId: store.userId,
+        };
         const response = await apiClient.put(
-          "/dynamic/updateWaitWatch",dynamicDto,
-            {
+          "/dynamic/updateWaitWatch",
+          dynamicDto,
+          {
             headers: {
-            "Content-Type": "application/json",
-            "Authorization": store.token,
-          },        
+              "Content-Type": "application/json",
+              Authorization: store.token,
+            },
           }
         );
         if (response.data.code === 1) {
@@ -533,8 +547,7 @@ export default {
           });
           Videos.length = 0; // 清空原数组
           Object.assign(Videos, updatedVideos); // 重新赋值
-        }
-        else{
+        } else {
           ElMessage({
             message: response.data.msg,
             type: "info",
@@ -542,63 +555,55 @@ export default {
             duration: 1700,
           });
         }
-      } catch (error) {
-
-      }
+      } catch (error) {}
     }
 
     function locationHerfVideo(videoId) {
-      window.open(
-        `./video?videoId=BV${videoId}`,
-        "videoWindow",
-      );
+      window.open(`./video?videoId=BV${videoId}`, "videoWindow");
     }
 
     function videoMouseover(id) {
-    // 清除之前的定时器，防止重复触发
-    if (videoAutoPlayTIme[id]) {
+      // 清除之前的定时器，防止重复触发
+      if (videoAutoPlayTIme[id]) {
         clearTimeout(videoAutoPlayTIme[id]);
-    }
+      }
 
-    // 延迟播放视频
-    videoAutoPlayTIme[id] = setTimeout(() => {
+      // 延迟播放视频
+      videoAutoPlayTIme[id] = setTimeout(() => {
         const video = document.getElementById(id);
-        if(video)
-        if (video.paused) {  // 只有在视频处于暂停状态时才播放
-            video.play().catch(function(error) {
-            });
-        }
-    }, 700);  // 1秒后播放视频
+        if (video)
+          if (video.paused) {
+            // 只有在视频处于暂停状态时才播放
+            video.play().catch(function (error) {});
+          }
+      }, 700); // 1秒后播放视频
     }
 
     function videoMouseleave(id) {
-        // 清除之前的视频播放定时器
-        clearTimeout(videoAutoPlayTIme[id]);
+      // 清除之前的视频播放定时器
+      clearTimeout(videoAutoPlayTIme[id]);
 
-        const video = document.getElementById(id);
-        if(video)
-        if (!video.paused) {  // 只有在视频播放时才暂停
-            video.pause();
+      const video = document.getElementById(id);
+      if (video)
+        if (!video.paused) {
+          // 只有在视频播放时才暂停
+          video.pause();
         }
     }
 
-    let loaddimgFlag=true;
-    watch([()=>store.loginLoadFlag,()=>store.userId],()=>{
-      
-        if(store.loginLoadFlag&&loaddimgFlag&&store.userId!==null)
-        {
-          loaddimgFlag=false;
-          selectVideos();
-        }
-      
+    let loaddimgFlag = true;
+    watch([() => store.loginLoadFlag, () => store.userId], () => {
+      if (store.loginLoadFlag && loaddimgFlag && store.userId !== null) {
+        loaddimgFlag = false;
+        selectVideos();
+      }
+    });
 
-    })
-
-    function changeVideo(){
-      sort=Math.floor(Math.random() * (6)) + 1;
-      pageNum.value=1;
-      Videos.length=0;
-      nodata=false;
+    function changeVideo() {
+      sort = Math.floor(Math.random() * 6) + 1;
+      pageNum.value = 1;
+      Videos.length = 0;
+      nodata = false;
       selectVideos();
     }
 
@@ -622,8 +627,7 @@ export default {
 </script>
 
 <style lang="scss">
-
-video{
+video {
   cursor: pointer;
   visibility: hidden;
   width: 92.6%; /* 视频宽度为100% */
@@ -636,14 +640,13 @@ video{
   border-radius: 5px;
 }
 
-
 * {
   padding: 0; /* 移除内边距 */
   margin: 0; /* 移除外边距 */
   box-sizing: border-box; /* 包括内边距和边框在元素的总宽度和高度中 */
 }
 
-.videoBox{
+.videoBox {
   height: auto;
 }
 
@@ -656,6 +659,8 @@ video{
 }
 .video6Box {
   width: 883px;
+  height: 466px;
+  overflow: hidden;
   display: flex;
   flex-wrap: wrap; /* 允许换行 */
 }
@@ -663,7 +668,6 @@ video{
 .imgTrasitionFlag {
   opacity: 0;
 }
-
 
 .video6:hover .waitWatch {
   visibility: visible;
@@ -716,7 +720,6 @@ video{
   color: white;
   visibility: visible;
   z-index: 2990;
-
 }
 .videoContent1 {
   width: 245px;
@@ -727,29 +730,26 @@ video{
   z-index: 3000;
 }
 
-
-
-.videoBox1:hover{
-
-  video{
+.videoBox1:hover {
+  video {
     opacity: 1;
     transition: all 0.3s ease;
     visibility: visible;
     transition-delay: 0.6s;
   }
 
-  .videoContent1{
+  .videoContent1 {
     opacity: 0;
     transition: all 0.3s ease;
     visibility: hidden;
   }
-  .videoContent{
+  .videoContent {
     opacity: 0;
     transition: all 0.3s ease;
     visibility: hidden;
   }
 
-  .waitWatch{
+  .waitWatch {
     transition-delay: 0.3s;
     opacity: 1;
     transition: all 0.3s ease;
@@ -774,7 +774,7 @@ video{
   border-radius: 5px;
   width: 28px;
   height: 28px;
-  background-color: rgba(33, 33, 33, .8);
+  background-color: rgba(33, 33, 33, 0.8);
   top: 8px;
   right: 28px;
   opacity: 0;
@@ -866,9 +866,62 @@ video{
   color: #00aeec;
 }
 
-.coverAddress{
+.coverAddress {
   cursor: pointer;
 }
 
+@media (max-width: 1400px) {
+  .video6Box {
+    width: 530px;
+  }
+  .video6 {
+    flex: 0 0 50%;
+  }
+}
 
+@media (max-width: 1130px) {
+  .video6Box {
+    width: 300px;
+  }
+  .video6 {
+    flex: 0 0 100%;
+  }
+}
+
+
+@media (max-width: 1400px) {
+  .bottomVideo {
+    width: 1059px;
+  }
+  .video-video {
+    flex: 0 0 25%;
+  }
+}
+
+@media (max-width: 1130px) {
+  .bottomVideo {
+    width: 793.7px;
+  }
+  .video-video {
+    flex: 0 0 33.3333333333%;
+  }
+}
+
+@media (max-width: 880px) {
+  .bottomVideo {
+    width: 528.5px;
+  }
+  .video-video {
+    flex: 0 0 50%;
+  }
+}
+
+@media (max-width: 600px) {
+  .bottomVideo {
+    width: 550px;
+  }
+  .video-video {
+    flex: 0 0 100%;
+  }
+}
 </style>

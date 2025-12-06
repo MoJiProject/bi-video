@@ -3611,4 +3611,47 @@ video {
     }
   }
 }
+
+@media (max-width: 1400px) {
+  .bottomVideo{
+    width: 1050px;
+  }
+  .video-video {
+    flex: 0 0 25% ;
+  }
+}
+
+@media (max-width: 1130px) {
+  .bottomVideo{
+    width: 787.5px;
+  }
+  .video-video {
+    flex: 0 0 33.3333333333% ;
+  }
+}
+
+@media (max-width: 880px) {
+  .bottomVideo{
+    width: 525px;
+  }
+  .video-video {
+    flex: 0 0 50% ;
+  }
+}
+
+@media (max-width: 600px) {
+  .bottomVideo{
+    width: 550px;
+  }
+  .video-video {
+    flex: 0 0 100% ;
+  }
+}
+
+@media (max-width: 950px) {
+  .usersContent {
+    flex: 0 0 calc(80% - 20px);
+  }
+}
+
 </style>
