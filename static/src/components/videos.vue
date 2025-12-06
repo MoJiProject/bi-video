@@ -220,7 +220,7 @@
     <div class="bottomVideo">
       <div
         class="video-video"
-        v-for="(video, index) in Videos.slice(0, Videos.length)"
+        v-for="(video, index) in Videos.slice(6, Videos.length)"
         :key="video.id"
       >
         <div
