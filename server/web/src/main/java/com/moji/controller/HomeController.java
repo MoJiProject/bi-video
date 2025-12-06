@@ -40,7 +40,7 @@ public class HomeController {
      * @return
      */
     @GetMapping("/contribute")
-    public R<Page<SelectVideoDto>> homeContributeVideos(@RequestParam(required = false) Integer userId,@RequestParam Integer homeUserId, @RequestParam Integer sort,@RequestParam(required = false,defaultValue = "") String keyWord,@RequestParam Integer pageNum) {
+    public R<Page<SelectVideoDto>> homeContributeVideos(@RequestParam(required = false,defaultValue = "0") Integer userId,@RequestParam Integer homeUserId, @RequestParam Integer sort,@RequestParam(required = false,defaultValue = "") String keyWord,@RequestParam Integer pageNum) {
 
         return R.success(videosService.homeContributeVideos(userId, sort, pageNum, keyWord, homeUserId));
     }
@@ -53,7 +53,7 @@ public class HomeController {
      * @return
      */
     @GetMapping("/throwCoin")
-    public R<List<SelectVideoDto>> homeThrowCoinVideos(@RequestParam(required = false) Integer userId, @RequestParam Integer homeUserId) {
+    public R<List<SelectVideoDto>> homeThrowCoinVideos(@RequestParam(required = false,defaultValue = "0") Integer userId, @RequestParam Integer homeUserId) {
 
         return R.success(videosService.homeThrowCoinVideos(userId,homeUserId));
     }
@@ -65,7 +65,7 @@ public class HomeController {
      * @return
      */
     @GetMapping("/love")
-    public R<List<SelectVideoDto>> homeLoveVideos(@RequestParam(required = false) Integer userId, @RequestParam Integer homeUserId) {
+    public R<List<SelectVideoDto>> homeLoveVideos(@RequestParam(required = false,defaultValue = "0") Integer userId, @RequestParam Integer homeUserId) {
 
         return R.success(videosService.homeLoveVideos(userId,homeUserId));
     }
@@ -91,7 +91,7 @@ public class HomeController {
      * @return
      */
     @GetMapping("/dynamic")
-    public R<Page<HomeDynamicDto>> homeDynamic(@RequestParam Integer homeUserId,@RequestParam(required = false) Integer userId,@RequestParam Integer pageNum,@RequestParam Integer type,@RequestParam(required = false) String keyWord) {
+    public R<Page<HomeDynamicDto>> homeDynamic(@RequestParam Integer homeUserId,@RequestParam(required = false,defaultValue = "0") Integer userId,@RequestParam Integer pageNum,@RequestParam Integer type,@RequestParam(required = false) String keyWord) {
 
         return R.success(dynamicService.homeDynamic(homeUserId,userId,pageNum,type,keyWord));
     }
@@ -104,7 +104,7 @@ public class HomeController {
      * @return
      */
     @GetMapping("/magnum")
-    public R<List<SelectVideoDto>> magnum(@RequestParam Integer homeUserId,@RequestParam(required = false) Integer userId){
+    public R<List<SelectVideoDto>> magnum(@RequestParam Integer homeUserId,@RequestParam(required = false,defaultValue = "0") Integer userId){
 
         return R.success(videosService.magnum(homeUserId,userId));
 
@@ -117,7 +117,7 @@ public class HomeController {
      * @return
      */
     @GetMapping("/collectsClassify")
-    public R<List<CollectsClassify>> getCollectsClassify(@RequestParam Integer homeUserId,@RequestParam(required = false) Integer userId,@RequestHeader(value = "Authorization",required = false) String token){
+    public R<List<CollectsClassify>> getCollectsClassify(@RequestParam Integer homeUserId,@RequestParam(required = false,defaultValue = "0") Integer userId,@RequestHeader(value = "Authorization",required = false) String token){
 
         if(Objects.equals(userId, homeUserId)){
             LoginLimiterServer limiterServer=new LoginLimiterServer();
@@ -137,7 +137,7 @@ public class HomeController {
      */
     @GetMapping("/collectByName")
     public R<Page<CollectDto>> getCollectByName(@RequestParam String collectName,@RequestParam Integer homeUserId,@RequestParam Integer pageNum,
-                                                @RequestParam Integer type,@RequestParam Integer sort,@RequestParam(required = false) String keyWord,@RequestParam(required = false) Integer userId ){
+                                                @RequestParam Integer type,@RequestParam Integer sort,@RequestParam(required = false) String keyWord,@RequestParam(required = false,defaultValue = "0") Integer userId ){
        return R.success(collectService.getCollectByName(collectName,homeUserId,userId,pageNum,type,sort,keyWord));
     }
 

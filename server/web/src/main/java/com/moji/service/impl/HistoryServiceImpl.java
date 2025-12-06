@@ -108,6 +108,7 @@ public class HistoryServiceImpl extends ServiceImpl<HistoryMapper, History> impl
     }
 
     @Override
+    @Transactional
     public void addHistory(String acceptHistory1) {
 
         //将json字符串转换成对象

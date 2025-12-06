@@ -280,7 +280,7 @@ public class DynamicController {
      * @return
      */
     @GetMapping("/likeDynamicUser")
-    public R<List<UserInfo2>> likeDynamicUser(@RequestParam(required = false) Integer userId,@RequestParam Integer pageNum,@RequestParam Integer dynamicId){
+    public R<List<UserInfo2>> likeDynamicUser(@RequestParam(required = false,defaultValue = "0") Integer userId,@RequestParam Integer pageNum,@RequestParam Integer dynamicId){
 
         return R.success(dynamicService.likeDynamicUser(userId,pageNum,dynamicId));
     }
