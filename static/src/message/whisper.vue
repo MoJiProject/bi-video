@@ -857,7 +857,7 @@ let dealyFlag = true;
 function messageListScroll(e){
     if(!e.target) return;
     if(!messageLoadingFlag.value) return;
-    messageLoading.value = e.target.scrollTop <= 200;
+    messageLoading.value = e.target.scrollTop <= 250;
     if(messageLoading.value && dealyFlag){
         dealyFlag = false;
         selectPrivateMessageF2(currentDialogue.value);
