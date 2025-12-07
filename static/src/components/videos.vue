@@ -446,8 +446,6 @@ export default {
     const Videos = reactive([]);
     const imgTrasitionFlag = ref(false);
     const pageNum = ref(1);
-    const startX = ref(0);
-    const startY = ref(0);
     let sort = Math.floor(Math.random() * 6) + 1;
     let videoAutoPlayTIme = {};
     const displayVideoNumber = ref(6);
@@ -455,44 +453,15 @@ export default {
       await getUserIp();
       await ChecklLogin();
       selectVideos();
-      updateSize();
+      debouncedUpdate();
       window.addEventListener("scroll", handleScroll1);
-      window.addEventListener("touchstart", handleTouchStart);
-      window.addEventListener("touchmove", handleTouchMove, { passive: true });
-      window.addEventListener("touchend", handleTouchEnd);
       window.addEventListener("resize", debouncedUpdate);
     });
 
     onUnmounted(() => {
       window.removeEventListener("scroll", handleScroll1);
-      window.removeEventListener("touchstart", handleTouchStart);
-      window.removeEventListener("touchmove", handleTouchMove);
-      window.removeEventListener("touchend", handleTouchEnd);
       window.removeEventListener("resize", debouncedUpdate);
     });
-
-    const handleTouchStart = (e) => {
-      startX.value = e.touches[0].clientX;
-      startY.value = e.touches[0].clientY;
-    };
-
-    const handleTouchMove = (e) => {
-      if (nodata) return;
-      const currentY = e.touches[0].clientY;
-      const deltaY = currentY - startY.value;
-      const scrollHeight = document.documentElement.scrollHeight;
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const clientHeight =
-        window.innerHeight || document.documentElement.clientHeight;
-      if (deltaY < 0 && scrollTop + clientHeight >= scrollHeight - 10) {
-        selectVideos();
-      }
-    };
-
-    const handleTouchEnd = () => {
-      startX.value = 0;
-      startY.value = 0;
-    };
 
     // 防抖逻辑
     const debounce = (fn) => {
