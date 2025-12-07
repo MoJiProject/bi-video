@@ -220,7 +220,7 @@
     <div class="bottomVideo">
       <div
         class="video-video"
-        v-for="(video, index) in Videos.slice(6, Videos.length)"
+        v-for="(video, index) in Videos.slice(displayVideoNumber, Videos.length)"
         :key="video.id"
       >
         <div
@@ -450,6 +450,7 @@ export default {
     const startY = ref(0);
     let sort = Math.floor(Math.random() * 6) + 1;
     let videoAutoPlayTIme = {};
+    const displayVideoNumber = ref(6);
     onMounted(async () => {
       await getUserIp();
       await ChecklLogin();
@@ -458,6 +459,7 @@ export default {
       window.addEventListener("touchstart", handleTouchStart);
       window.addEventListener("touchmove", handleTouchMove, { passive: true });
       window.addEventListener("touchend", handleTouchEnd);
+      window.addEventListener("resize", debouncedUpdate);
     });
 
     onUnmounted(() => {
@@ -465,6 +467,7 @@ export default {
       window.removeEventListener("touchstart", handleTouchStart);
       window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("touchend", handleTouchEnd);
+      window.removeEventListener("resize", debouncedUpdate);
     });
 
     const handleTouchStart = (e) => {
@@ -478,7 +481,8 @@ export default {
       const deltaY = currentY - startY.value;
       const scrollHeight = document.documentElement.scrollHeight;
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const clientHeight = window.innerHeight || document.documentElement.clientHeight;
+      const clientHeight =
+        window.innerHeight || document.documentElement.clientHeight;
       if (deltaY < 0 && scrollTop + clientHeight >= scrollHeight - 10) {
         selectVideos();
       }
@@ -488,6 +492,29 @@ export default {
       startX.value = 0;
       startY.value = 0;
     };
+
+    // 防抖逻辑
+    const debounce = (fn) => {
+      let timer = null;
+      return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), 200);
+      };
+    };
+
+    // 更新数量
+    const updateSize = () => {
+      if(window.innerWidth<=1400&&window.innerWidth>1130){
+        displayVideoNumber.value = 4;
+      }else if(window.innerWidth<=1130)
+      {
+        displayVideoNumber.value = 2;
+      }
+      else{
+        displayVideoNumber.value = 6;
+      }
+    };
+    const debouncedUpdate = debounce(updateSize);
 
     async function getUserIp() {
       const response = await apiClient.get("/userIp/getUserIp");
@@ -650,6 +677,7 @@ export default {
       store,
       imgTrasitionFlag,
       changeVideo,
+      displayVideoNumber,
     };
   },
 };
@@ -916,7 +944,6 @@ video {
     flex: 0 0 100%;
   }
 }
-
 
 @media (max-width: 1400px) {
   .bottomVideo {
