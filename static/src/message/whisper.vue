@@ -559,7 +559,8 @@ async function selectPrivateMessageF(sDialogue, a) {
       nextTick(() => {
         requestAnimationFrame(() => {
           if (messageContent?.value) messageContent.value.scrollTop = messageContent.value.scrollHeight;
-          messageLoadingFlag.value = true;
+          messageLoadingFlag.value = incoming.length === 20;
+          messageLoading.value = false;
         });
       });
     }
@@ -588,6 +589,7 @@ const selectPrivateMessageF2 =async (sDialogue) => {
       }
       if (!incoming || incoming.length === 0) messageLoadingFlag.value = false;
       messageLoading.value = false;
+      dealyFlag = true;
     }
   }).catch(() => {
     messageLoading.value = false;
@@ -598,6 +600,8 @@ const selectPrivateMessageF2 =async (sDialogue) => {
 watch(currentDialogue, async (newVal) => {
   if (newVal !== null) {
     userInfo.value = null;
+    messageNumber.value = 0;
+    dealyFlag = true;
     dialogueUserInfo.value = null;
     privateMessageList.length = 0;
     messageLoadingFlag.value = true;
@@ -849,22 +853,16 @@ function dialogueListScroll(e) {
   _dialogueListScrollHandler(e);
 }
 
-let messageScrollTimer = null;
-
+let dealyFlag = true;
 function messageListScroll(e){
     if(!e.target) return;
     if(!messageLoadingFlag.value) return;
-
-    clearTimeout(messageScrollTimer);
-
-    messageScrollTimer = setTimeout(() => {
-        messageLoading.value = e.target.scrollTop <= 150;
-        if(messageLoading.value){
-            selectPrivateMessageF2(currentDialogue.value);
-        }
-    }, 0);
+    messageLoading.value = e.target.scrollTop <= 200;
+    if(messageLoading.value && dealyFlag){
+        dealyFlag = false;
+        selectPrivateMessageF2(currentDialogue.value);
+    }
 }
-
 
 function handleSaveImg(msg) {
   const link = document.createElement("a");

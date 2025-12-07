@@ -455,6 +455,7 @@ export default {
       await getUserIp();
       await ChecklLogin();
       selectVideos();
+      updateSize();
       window.addEventListener("scroll", handleScroll1);
       window.addEventListener("touchstart", handleTouchStart);
       window.addEventListener("touchmove", handleTouchMove, { passive: true });

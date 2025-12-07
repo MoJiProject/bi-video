@@ -362,6 +362,8 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         boolean b = this.updateBatchById(privateMessages);
         if(b)
         {
+            cacheService.deleteDialogueByUserId(userId);
+            cacheService.deleteDialogueByUserId(dialogueId);
             cacheService.deleteMessageByUserId(userId,dialogueId);
             cacheService.deleteMessageByUserId(dialogueId,userId);
         }
