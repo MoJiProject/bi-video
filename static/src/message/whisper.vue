@@ -81,7 +81,7 @@
             </div>
          </div>
          <div ref="messageContent" class="message-content-container" @scroll="messageListScroll">
-            <div v-show="!messageDialogFlag&&!messageLoading" class="no-message">没有更多消息了～</div>
+            <div v-show="!messageDialogFlag&&!messageLoading&&!messageLoadingFlag" class="no-message">没有更多消息了～</div>
              <div v-show="messageLoading" class="loading-icon-container">
                 <div class="loading-icon">
                 <div></div>
@@ -281,738 +281,608 @@
 
 <script setup>
 import { nextTick, onMounted, onUnmounted, reactive, ref, watch } from "vue";
-import {useGlobalStore} from "../store/store";
+import { useGlobalStore } from "../store/store";
 import { ElMessage } from "element-plus";
-import {selectDialogue,changeUpStatus,changeDndStatus,deleteDialogue,sendMessage
-,revocationMessage,changeMessageStatus,deletePrivateMessage,selectPrivateMessage} from '../api/privateMessage/index';
+import {
+  selectDialogue,
+  changeUpStatus,
+  changeDndStatus,
+  deleteDialogue,
+  sendMessage,
+  revocationMessage,
+  changeMessageStatus,
+  deletePrivateMessage,
+  selectPrivateMessage
+} from "../api/privateMessage/index";
+
+function debounce(fn, wait = 200) {
+  let t = null;
+  return function (...args) {
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(this, args), wait);
+  };
+}
+
+function throttle(fn, limit = 150) {
+  let inThrottle = false;
+  return function (...args) {
+    if (!inThrottle) {
+      fn.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => (inThrottle = false), limit);
+    }
+  };
+}
+
+function capArray(arr, max = 1000) {
+  if (arr.length > max) arr.splice(0, arr.length - max);
+}
 
 const store = useGlobalStore();
-const messageSettingHoverFlag=ref(false);
-const messageDialogFlag=ref(false);
-const imgFeatureHoverFlag=ref(false);
-const emojiHoverFlag=ref(false);
-const emojiFlag=ref(false);
-const dialogueList=reactive([]);
-const dialoguePageNum=ref(1);
-const messagePageNum=ref(1);
-const currentDialogue=ref(null);
-const handleContextMenuFlag=ref(false);
-const handleContextMenuPosition=ref({x:0,y:0});
-const privateMessageList=reactive([]);
-const userInfo=ref(null);
-const dialogueUserInfo=ref(null);
-const messageInput=ref(null);
-const messageNumber=ref(0);
-const messageContent=ref(null);
-const copyMessage=ref(null);
-const messageIsImgFlag=ref(false);
-const messageObj=ref(null);
-const dialogueLoading=ref(false);
-const dialogueLoadingFlag=ref(true);
-const messageLoading=ref(false);
-const messageLoadingFlag=ref(true);
-const deleteMessageDialogFlag=ref(false);
-const loading=ref(false);
+const messageSettingHoverFlag = ref(false);
+const messageDialogFlag = ref(false);
+const imgFeatureHoverFlag = ref(false);
+const emojiHoverFlag = ref(false);
+const emojiFlag = ref(false);
+const dialogueList = reactive([]);
+const dialoguePageNum = ref(1);
+const messagePageNum = ref(1);
+const currentDialogue = ref(null);
+const handleContextMenuFlag = ref(false);
+const handleContextMenuPosition = ref({ x: 0, y: 0 });
+const privateMessageList = reactive([]);
+const userInfo = ref(null);
+const dialogueUserInfo = ref(null);
+const messageInput = ref(null);
+const messageContent = ref(null);
+const messageNumber = ref(0);
+const copyMessage = ref(null);
+const messageIsImgFlag = ref(false);
+const messageObj = ref(null);
+const dialogueLoading = ref(false);
+const dialogueLoadingFlag = ref(true);
+const messageLoading = ref(false);
+const messageLoadingFlag = ref(true);
+const deleteMessageDialogFlag = ref(false);
+const loading = ref(false);
+let range = null;
 
-onMounted(()=>{
+onMounted(() => {
+  window.addEventListener("click", outSideClick);
+  selectDialogueF();
+});
 
-    window.addEventListener("click",outSideClick);
-    selectDialogueF();
-})
-
-onUnmounted(()=>{
-    window.removeEventListener("click",outSideClick);
+onUnmounted(() => {
+  window.removeEventListener("click", outSideClick);
+  if (socket) {
+    socket.onmessage = null;
     socket.close();
-})
+  }
+});
 
-//监视单击到除弹窗外的区域
-function outSideClick(e){
-
-    handleContextMenuFlag.value=false;
-    if(!e.target.className.indexOf)
-        return;
-   if(!messageDialogFlag.value){
-     if(e.target.className.indexOf("message-setting-dialog-img-container")!==-1||e.target.className.indexOf("message-setting-dialog-img")!==-1)
-       messageDialogFlag.value=true;
+function outSideClick(e) {
+  handleContextMenuFlag.value = false;
+  if (!e.target.className || typeof e.target.className.indexOf !== "function") return;
+  if (!messageDialogFlag.value) {
+    if (e.target.className.indexOf("message-setting-dialog-img-container") !== -1 || e.target.className.indexOf("message-setting-dialog-img") !== -1)
+      messageDialogFlag.value = true;
+  } else {
+    messageDialogFlag.value = false;
+  }
+  if (!emojiFlag.value) {
+    if (e.target.className.indexOf("message-feature-emoji") !== -1) emojiFlag.value = true;
+  } else {
+    if (e.target.className.indexOf("message-emoji-list") === -1 && e.target.className.indexOf("emoji-title") === -1 && e.target.className.indexOf("comment-emoji-content") === -1 && e.target.className.indexOf("comment-emoji-img") === -1)
+      emojiFlag.value = false;
+  }
+  if (e.target.classList && e.target.classList.contains("message-emoji-img")) {
+    const selection = window.getSelection();
+    const r = document.createRange();
+    const previousNode = e.target.previousSibling;
+    if (previousNode) {
+      r.setStartAfter(previousNode);
+      r.setEndAfter(previousNode);
+    } else {
+      r.setStartAfter(e.target);
+      r.setEndAfter(e.target);
     }
-    else{
-        messageDialogFlag.value=false;
-    }
-
-    if(!emojiFlag.value){
-        if(e.target.className.indexOf("message-feature-emoji")!==-1)
-            emojiFlag.value=true;
-    }
-    else{
-        if(e.target.className.indexOf("message-emoji-list")===-1&&e.target.className.indexOf("emoji-title")===-1&&e.target.className.indexOf("comment-emoji-content")===-1&&e.target.className.indexOf("comment-emoji-img")===-1)
-        emojiFlag.value=false;
-    }
-
-    //解决表情中的光标问题
-    if (e.target.classList.contains("message-emoji-img")) {
-        const selection = window.getSelection();
-        const range = document.createRange();
-
-        // 找到图片的上一个兄弟节点
-        const previousNode = e.target.previousSibling;
-
-        // 如果上一个兄弟节点存在
-        if (previousNode) {
-          range.setStartAfter(previousNode); // 将光标设置到上一个节点之后
-          range.setEndAfter(previousNode);
-        } else {
-          // 如果没有上一个节点，光标设置到图片前
-          range.setStartAfter(e.target);
-          range.setEndAfter(e.target);
-        }
-        selection.removeAllRanges();
-        selection.addRange(range);
-      }
-
-
-
+    selection.removeAllRanges();
+    selection.addRange(r);
+  }
 }
 
-//发送图片
-function addSendImg(){
-    document.querySelector(".message-file-input").click();
+function addSendImg() {
+  const el = document.querySelector(".message-file-input");
+  if (el) el.click();
 }
 
-//处理文件上传
-async function handleFileChange(event){
-    let file = event.target.files[0]; // 只取第一个文件
-    let base64 = null;
-    if (!file) return; // 防止 files[0] 为空时报错
-    if (!file.type.startsWith("image/")) {
-        ElMessage({
-        message: "只能上传图片",
-        type: "info",
-        plain: true,
-        duration: 1700,
-        });
-        event.target.value = "";
-        return;
-    } else if(file.size >= 10 * 1024 * 1024) {
-        ElMessage({
-        message: "图片大小不能超过10M",
-        type: "info",
-        plain: true,
-        duration: 1700,
-        });
-        event.target.value = "";
-        return;
-    }
-    loading.value=true;
-    base64=await readFileAsBase64(file);
-    if(base64!==null){
-        let message={
-        senderId:store.userId,
-        receiverId:currentDialogue.value.dialogue.dialogueId,
+async function handleFileChange(event) {
+  let file = event.target.files[0];
+  let base64 = null;
+  if (!file) return;
+  if (!file.type.startsWith("image/")) {
+    ElMessage({ message: "只能上传图片", type: "info", plain: true, duration: 1700 });
+    event.target.value = "";
+    return;
+  } else if (file.size >= 10 * 1024 * 1024) {
+    ElMessage({ message: "图片大小不能超过10M", type: "info", plain: true, duration: 1700 });
+    event.target.value = "";
+    return;
+  }
+  loading.value = true;
+  try {
+    base64 = await readFileAsBase64(file);
+    if (base64 !== null) {
+      let message = {
+        senderId: store.userId,
+        receiverId: currentDialogue.value.dialogue.dialogueId,
         content: base64,
         messageType: 2
-    }
-    sendMessage(store.token,message).then(res=>{
-        if(res.data.code === 1){
-            const index=dialogueList.findIndex((iten)=> iten.dialogue.id===currentDialogue.value.dialogue.id);
-            if(index!==-1)
-            dialogueList[index].dialogue.newContent="[图片]";
-            socket.send("send:"+message.senderId+":"+message.receiverId);
-        }else{
-            ElMessage({
-            message: res.data.msg,
-            type: "info",
-            plain: true,
-            duration: 1700,
-            });
+      };
+      sendMessage(store.token, message).then(res => {
+        if (res.data.code === 1) {
+          const index = dialogueList.findIndex(iten => iten.dialogue.id === currentDialogue.value.dialogue.id);
+          if (index !== -1) dialogueList[index].dialogue.newContent = "[图片]";
+          socket.send("send:" + message.senderId + ":" + message.receiverId);
+        } else {
+          ElMessage({ message: res.data.msg, type: "info", plain: true, duration: 1700 });
         }
-        loading.value=false;
-        })
+        loading.value = false;
+      }).catch(() => {
+        loading.value = false;
+      });
     }
-    event.target.value = "";
+  } catch (err) {
+    loading.value = false;
+  }
+  event.target.value = "";
 }
 
 function readFileAsBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-
-    reader.onload = (e) => resolve(e.target.result); // 解析 base64
-    reader.onerror = (error) => reject(error); // 处理错误
-
-    reader.readAsDataURL(file); // 读取文件
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = error => reject(error);
+    reader.readAsDataURL(file);
   });
 }
 
-//获取私信对话列表
-function selectDialogueF(){
-    if(store.token === null||store.userId === null)
-    return;
-    selectDialogue(store.token,store.userId,dialoguePageNum.value).then(res=>{
-        if(res.data.code === 1){
-            dialogueList.push(...res.data.data);
-            dialoguePageNum.value++;
-            const urlParams = new URLSearchParams(window.location.search);
-            let dialogueId = Number(urlParams.get("dialogueId")); 
-            if(dialogueId!==null&&dialogueId!==0){
-                const index=dialogueList.findIndex((item)=> item.dialogue.dialogueId===dialogueId);
-                if(index!==-1){
-                    currentDialogue.value=dialogueList[index];
-                }
-            }else{
-                if(dialogueList.length>0)
-                currentDialogue.value=dialogueList[0];
-            }
-        }}
-    )
-}
-
-//获取私信对话列表
-function selectDialogueF2(){
-    if(store.token === null||store.userId === null)
-    return;
-    
-    selectDialogue(store.token,store.userId,dialoguePageNum.value).then(res=>{
-        if(res.data.code === 1){
-            setTimeout(() => {
-                dialogueList.push(...res.data.data);
-            if(res.data.data===null||res.data.data.length===0)
-            dialogueLoadingFlag.value=false;
-            dialogueLoading.value=false;
-            dialoguePageNum.value++;
-            const urlParams = new URLSearchParams(window.location.search);
-            let dialogueId = Number(urlParams.get("dialogueId")); 
-            if(dialogueId!==null&&dialogueId!==0){
-                const index=dialogueList.findIndex((item)=> item.dialogue.dialogueId===dialogueId);
-                if(index!==-1){
-                    currentDialogue.value=dialogueList[index];
-                }
-            }else{
-                if(dialogueList.length>0)
-                currentDialogue.value=dialogueList[0];
-               }
-            },1000)
-        }}
-    )
-}
-
-//修改置顶状态
-function changeUpStatusF(sDialogue){
-
-    if(sDialogue.dialogue.id === null)
-    return;
-
-    changeUpStatus(store,sDialogue.dialogue.id).then(res=>{
-
-        if(res.data.code === 1){
-             //取消置顶
-             if(sDialogue.dialogue.upDateTime!==null){
-                const index=dialogueList.findIndex((item)=> item.dialogue.id===sDialogue.dialogue.id);
-                if(index!==-1){
-                    dialogueList.splice(index,1);
-                    sDialogue.dialogue.upDateTime=null;
-                    const index2=dialogueList.findIndex((item)=> item.dialogue.upDateTime===null);
-                    if(index2!==-1)
-                        dialogueList.splice(index2,0,sDialogue);
-                    else
-                    dialogueList.push(sDialogue);
-                }
-            }
-            //置顶
-            else{
-                sDialogue.dialogue.upDateTime=Date.now();
-                const index=dialogueList.findIndex((item)=> item.dialogue.id===sDialogue.dialogue.id);
-                if(index!==-1){
-                    dialogueList.splice(index,1);
-                    dialogueList.unshift(sDialogue);
-                }
-            }
+function selectDialogueF() {
+  if (store.token === null || store.userId === null) return;
+  selectDialogue(store.token, store.userId, dialoguePageNum.value).then(res => {
+    if (res.data.code === 1) {
+      dialogueList.push(...res.data.data);
+      dialoguePageNum.value++;
+      const urlParams = new URLSearchParams(window.location.search);
+      let dialogueId = Number(urlParams.get("dialogueId"));
+      if (dialogueId !== null && dialogueId !== 0) {
+        const index = dialogueList.findIndex(item => item.dialogue.dialogueId === dialogueId);
+        if (index !== -1) {
+          currentDialogue.value = dialogueList[index];
         }
-
-    })  
-
-}
-
-//修改免打扰状态
-function changeDndStatusF(sDialogue){
-  
-    if(sDialogue.dialogue.id === null)
-    return;
-    changeDndStatus(store,sDialogue.dialogue.id).then(res=>{
-         
-        if(res.data.code === 1){
-
-            const index=dialogueList.findIndex((item)=> item.dialogue.id===sDialogue.dialogue.id);
-             
-            if(index!==-1)
-            dialogueList[index].dialogue.dnd=dialogueList[index].dialogue.dnd===0?1:0;
-        }
-        })
-}
-
-//删除对话
-function deleteDialogueF(sDialogue){
-
-    if(sDialogue.dialogue.id === null)
-    return;
-    deleteDialogue(store.token,sDialogue.dialogue.id).then(res=>{
-        if(res.data.code === 1){
-            const index=dialogueList.findIndex((item)=> item.dialogue.id===sDialogue.dialogue.id);
-            dialogueList.splice(index,1);
-            privateMessageList.length=0;
-            currentDialogue.value=null;
-        }
-    })
-
-}
-
-//右击消息弹出菜单
-function handleContextMenu(e,flag){
-
-    messageIsImgFlag.value=flag;
-    e.preventDefault();
-    handleContextMenuPosition.value={x:e.clientX,y:e.clientY};
-    handleContextMenuFlag.value=true;
-    copyMessage.value=e.target.innerText;
-}
-
-//右击消息弹出菜单
-function handleContextMenu2(e){
-e.preventDefault();
-}
-
-//查询聊天记录
-async function selectPrivateMessageF(sDialogue,a){
-    if(sDialogue.dialogue.id === null)
-    return;
-    messageLoadingFlag.value=false;
-    selectPrivateMessage(store,sDialogue.dialogue.dialogueId,messagePageNum.value--).then(res=>{
-        if(res.data.code === 1){
-            if(a===1)
-            privateMessageList.push(...res.data.data.privateMessage);
-            else
-            {   
-                if(privateMessageList.length<20&&res.data.data.privateMessage.length===20)
-                    privateMessageList.unshift(...res.data.data.privateMessage);
-            }
-            userInfo.value=res.data.data.userInfo;
-            dialogueUserInfo.value=res.data.data.dialogueUserInfo;
-                nextTick(()=>{
-                messageContent.value.scrollTop=messageContent.value.scrollHeight;
-                messageLoadingFlag.value=true;
-            })
-        }
-    })
-
-}
-
-//查询聊天记录
-async function selectPrivateMessageF2(sDialogue){
-    if(sDialogue.dialogue.id === null || messagePageNum.value<=0)
-    {
-        messageLoadingFlag.value=false;
-        messageLoading.value=false;
-        return;
+      } else {
+        if (dialogueList.length > 0) currentDialogue.value = dialogueList[0];
+      }
     }
-    selectPrivateMessage(store,sDialogue.dialogue.dialogueId,messagePageNum.value--).then(res=>{
-        if(res.data.code === 1){
-            privateMessageList.unshift(...res.data.data.privateMessage);
-            if(res.data.data.privateMessage===null||res.data.data.privateMessage.length===0)
-              messageLoadingFlag.value=false;
-            messageLoading.value=false;
-        }
-    })
+  });
 }
 
-//监视当前对话
-watch(currentDialogue,async(newVal)=>{
-    if(newVal!==null){
-        userInfo.value=null;
-        dialogueUserInfo.value=null;
-        privateMessageList.length=0;
-        messageLoadingFlag.value=true;
-        messagePageNum.value=Math.ceil(newVal?.allMessageNumber/20);
-        await selectPrivateMessageF(newVal,1);
-        await selectPrivateMessageF(newVal,2);
-        updateMessageNumber(-newVal.notReadNumber);
-        changeMessageStatusF(newVal);
+function selectDialogueF2() {
+  if (store.token === null || store.userId === null) return;
+  setTimeout(() => {
+    selectDialogue(store.token, store.userId, dialoguePageNum.value).then(res => {
+      if (res.data.code === 1) {
+        dialogueList.push(...res.data.data);
+        if (res.data.data === null || res.data.data.length === 0) dialogueLoadingFlag.value = false;
+        dialogueLoading.value = false;
+        dialoguePageNum.value++;
+        const urlParams = new URLSearchParams(window.location.search);
+        let dialogueId = Number(urlParams.get("dialogueId"));
+        if (dialogueId !== null && dialogueId !== 0) {
+          const index = dialogueList.findIndex(item => item.dialogue.dialogueId === dialogueId);
+          if (index !== -1) currentDialogue.value = dialogueList[index];
+        } else {
+          if (dialogueList.length > 0) currentDialogue.value = dialogueList[0];
+        }
+      }
+    });
+  }, 1000);
+}
+
+function changeUpStatusF(sDialogue) {
+  if (sDialogue.dialogue.id === null) return;
+  changeUpStatus(store, sDialogue.dialogue.id).then(res => {
+    if (res.data.code === 1) {
+      if (sDialogue.dialogue.upDateTime !== null) {
+        const index = dialogueList.findIndex(item => item.dialogue.id === sDialogue.dialogue.id);
+        if (index !== -1) {
+          dialogueList.splice(index, 1);
+          sDialogue.dialogue.upDateTime = null;
+          const index2 = dialogueList.findIndex(item => item.dialogue.upDateTime === null);
+          if (index2 !== -1) dialogueList.splice(index2, 0, sDialogue);
+          else dialogueList.push(sDialogue);
+        }
+      } else {
+        sDialogue.dialogue.upDateTime = Date.now();
+        const index = dialogueList.findIndex(item => item.dialogue.id === sDialogue.dialogue.id);
+        if (index !== -1) {
+          dialogueList.splice(index, 1);
+          dialogueList.unshift(sDialogue);
+        }
+      }
     }
-        messageInput.value.innerHTML="";
-    
+  });
+}
+
+function changeDndStatusF(sDialogue) {
+  if (sDialogue.dialogue.id === null) return;
+  changeDndStatus(store, sDialogue.dialogue.id).then(res => {
+    if (res.data.code === 1) {
+      const index = dialogueList.findIndex(item => item.dialogue.id === sDialogue.dialogue.id);
+      if (index !== -1) dialogueList[index].dialogue.dnd = dialogueList[index].dialogue.dnd === 0 ? 1 : 0;
+    }
+  });
+}
+
+function deleteDialogueF(sDialogue) {
+  if (sDialogue.dialogue.id === null) return;
+  deleteDialogue(store.token, sDialogue.dialogue.id).then(res => {
+    if (res.data.code === 1) {
+      const index = dialogueList.findIndex(item => item.dialogue.id === sDialogue.dialogue.id);
+      dialogueList.splice(index, 1);
+      privateMessageList.length = 0;
+      currentDialogue.value = null;
+    }
+  });
+}
+
+function handleContextMenu(e, flag) {
+  messageIsImgFlag.value = flag;
+  e.preventDefault();
+  handleContextMenuPosition.value = { x: e.clientX, y: e.clientY };
+  handleContextMenuFlag.value = true;
+  copyMessage.value = e.target.innerText;
+}
+
+function handleContextMenu2(e) {
+  e.preventDefault();
+}
+
+async function selectPrivateMessageF(sDialogue, a) {
+  if (!sDialogue?.dialogue?.id) return;
+  messageLoadingFlag.value = false;
+  const thisPage = messagePageNum.value;
+  messagePageNum.value = Math.max(0, messagePageNum.value - 1);
+  selectPrivateMessage(store, sDialogue.dialogue.dialogueId, thisPage).then(res => {
+    if (res.data.code === 1) {
+      const incoming = res.data.data.privateMessage || [];
+      if (a === 1) {
+        if (incoming.length) {
+          privateMessageList.push(...incoming);
+          capArray(privateMessageList);
+        }
+      } else {
+        if (privateMessageList.length < 20 && incoming.length === 20) {
+          privateMessageList.splice(0, 0, ...incoming);
+          capArray(privateMessageList);
+        }
+      }
+      userInfo.value = res.data.data.userInfo;
+      dialogueUserInfo.value = res.data.data.dialogueUserInfo;
+      nextTick(() => {
+        requestAnimationFrame(() => {
+          if (messageContent?.value) messageContent.value.scrollTop = messageContent.value.scrollHeight;
+          messageLoadingFlag.value = true;
+        });
+      });
+    }
+  });
+}
+
+
+const selectPrivateMessageF2 = debounce(async (sDialogue) => {
+  if (!sDialogue || !sDialogue.dialogue?.id) {
+    messageLoadingFlag.value = false;
+    messageLoading.value = false;
+    return;
+  }
+  if (messagePageNum.value <= 0) {
+    messageLoadingFlag.value = false;
+    messageLoading.value = false;
+    return;
+  }
+  const thisPage = messagePageNum.value;
+  messagePageNum.value = Math.max(0, messagePageNum.value - 1);
+  selectPrivateMessage(store, sDialogue.dialogue.dialogueId, thisPage).then(res => {
+    if (res.data.code === 1) {
+      const incoming = res.data.data.privateMessage || [];
+      if (incoming.length) {
+        privateMessageList.splice(0, 0, ...incoming);
+        capArray(privateMessageList);
+      }
+      if (!incoming || incoming.length === 0) messageLoadingFlag.value = false;
+      messageLoading.value = false;
+    }
+  }).catch(() => {
+    messageLoading.value = false;
+    messageLoadingFlag.value = false;
+  });
+}, 200);
+
+watch(currentDialogue, async (newVal) => {
+  if (newVal !== null) {
+    userInfo.value = null;
+    dialogueUserInfo.value = null;
+    privateMessageList.length = 0;
+    messageLoadingFlag.value = true;
+    messagePageNum.value = Math.ceil(newVal?.allMessageNumber / 20);
+    await selectPrivateMessageF(newVal, 1);
+    await selectPrivateMessageF(newVal, 2);
+    updateMessageNumber(-newVal.notReadNumber);
+    changeMessageStatusF(newVal);
+  }
+  if (messageInput?.value) messageInput.value.innerHTML = "";
 });
 
-//撤回消息
-function revocationMessageF(privateMessage){
-
-    if(privateMessage.id === null)
+function revocationMessageF(privateMessage) {
+  if (privateMessage.id === null) return;
+  const startTime = new Date(privateMessage?.sendTime);
+  const endTime = new Date();
+  const seconds = Math.abs(startTime.getTime() - endTime.getTime()) / 1000;
+  if (seconds > 180) {
+    ElMessage({ message: "消息已超过3分钟，无法撤回", type: "info", plain: true, duration: 1700 });
     return;
-    const startTime=new Date(privateMessage?.sendTime);
-    const endTime=new Date();
-    const seconds=Math.abs(startTime.getTime()-endTime.getTime())/1000;
-    if(seconds>180)
-    {
-        ElMessage({
-            message: "消息已超过3分钟，无法撤回",
-            type: "info",
-            plain: true,
-            duration: 1700,
-            });
-        return;
+  }
+  revocationMessage(store, privateMessage.id).then(res => {
+    if (res.data.code === 1) {
+      const index = privateMessageList.findIndex(item => item.id === privateMessage.id);
+      if (index !== -1) privateMessageList[index].status = 2;
+      ElMessage({ message: "撤回成功", type: "info", plain: true, duration: 1700 });
+      socket.send("put:" + privateMessage.id);
+    } else {
+      ElMessage({ message: res.data.msg, type: "info", plain: true, duration: 1700 });
     }
-
-    revocationMessage(store,privateMessage.id).then(res=>{
-        if(res.data.code === 1){
-            const index=privateMessageList.findIndex((item)=> item.id===privateMessage.id);
-            privateMessageList[index].status=2;
-                ElMessage({
-            message: "撤回成功",
-            type: "info",
-            plain: true,
-            duration: 1700,
-            });
-            socket.send("put:"+privateMessage.id);
-        }else{
-            ElMessage({
-            message: res.data.msg,
-            type: "info",
-            plain: true,
-            duration: 1700,
-            });
-        }
-    })
-
+  });
 }
 
-//删除私信
-function deletePrivateMessageF(privateMessage){
-
-    if(privateMessage.id === null)
-    return;
-    deletePrivateMessage(store,privateMessage.id).then(res=>{
-        if(res.data.code === 1){
-            const index=privateMessageList.findIndex((item)=> item.id===privateMessage.id);
-            privateMessageList.splice(index,1);
-            ElMessage({
-            message: "删除成功",
-            type: "info",
-            plain: true,
-            duration: 1700,
-            });
-            deleteMessageDialogFlag.value=false;
-        }else{
-            ElMessage({
-            message: res.data.msg,
-            type: "info",
-            plain: true,
-            duration: 1700,
-            });
-        }
-    })
-
-}
-
-//修改消息状态
-function changeMessageStatusF(sDialogue){
-
-    if(sDialogue?.dialogue.dialogueId === null)
-    return;
-    changeMessageStatus(store,sDialogue.dialogue.dialogueId).then(res=>{
-        if(res.data.code === 1){
-            const index=dialogueList.findIndex((item)=> item.dialogue.id===sDialogue.dialogue.id);
-            if(index!==-1)
-            dialogueList[index].notReadNumber=0;
-           if(privateMessageList[privateMessageList.length-1].senderId!==store.userId)
-           socket.send("put:"+privateMessageList[privateMessageList.length-1].id);
-        }
-    })
-
-}
-
-//发送消息
-function sendMessageF(){
-    if(messageNumber.value===0)
-    return;
-
-    if(messageNumber.value>500){
-        ElMessage({
-            message: "消息字数不能超过500",
-            type: "error",
-            type: "info",
-            plain: true,
-            duration: 1700,
-            });
-        return;
+function deletePrivateMessageF(privateMessage) {
+  if (privateMessage.id === null) return;
+  deletePrivateMessage(store, privateMessage.id).then(res => {
+    if (res.data.code === 1) {
+      const index = privateMessageList.findIndex(item => item.id === privateMessage.id);
+      if (index !== -1) privateMessageList.splice(index, 1);
+      ElMessage({ message: "删除成功", type: "info", plain: true, duration: 1700 });
+      deleteMessageDialogFlag.value = false;
+    } else {
+      ElMessage({ message: res.data.msg, type: "info", plain: true, duration: 1700 });
     }
-
-    let message={
-        senderId:store.userId,
-        receiverId:currentDialogue.value.dialogue.dialogueId,
-        content:messageInput.value.innerHTML,
-        messageType: 1
-    }
-    sendMessage(store.token,message).then(res=>{
-        if(res.data.code === 1){
-            messageInput.value.innerHTML="";
-            messageNumber.value = 0;
-            const index=dialogueList.findIndex((iten)=> iten.dialogue.id===currentDialogue.value.dialogue.id);
-            if(index!==-1)
-            dialogueList[index].dialogue.newContent=message.content;
-            socket.send("send:"+message.senderId+":"+message.receiverId);
-        }else{
-            ElMessage({
-            message: res.data.msg,
-            type: "info",
-            plain: true,
-            duration: 1700,
-            });
-        }
-        })
+  });
 }
 
-let range = null;
-// 获取失焦前的光标位置
+function changeMessageStatusF(sDialogue) {
+  if (sDialogue?.dialogue.dialogueId === null) return;
+  changeMessageStatus(store, sDialogue.dialogue.dialogueId).then(res => {
+    if (res.data.code === 1) {
+      const index = dialogueList.findIndex(item => item.dialogue.id === sDialogue.dialogue.id);
+      if (index !== -1) dialogueList[index].notReadNumber = 0;
+      if (privateMessageList.length && privateMessageList[privateMessageList.length - 1].senderId !== store.userId)
+        socket.send("put:" + privateMessageList[privateMessageList.length - 1].id);
+    }
+  });
+}
+
+function sendMessageF() {
+  if (messageNumber.value === 0) return;
+  if (messageNumber.value > 500) {
+    ElMessage({ message: "消息字数不能超过500", type: "info", plain: true, duration: 1700 });
+    return;
+  }
+  let message = {
+    senderId: store.userId,
+    receiverId: currentDialogue.value.dialogue.dialogueId,
+    content: messageInput.value.innerHTML,
+    messageType: 1
+  };
+  sendMessage(store.token, message).then(res => {
+    if (res.data.code === 1) {
+      messageInput.value.innerHTML = "";
+      messageNumber.value = 0;
+      const index = dialogueList.findIndex(iten => iten.dialogue.id === currentDialogue.value.dialogue.id);
+      if (index !== -1) dialogueList[index].dialogue.newContent = message.content;
+      socket.send("send:" + message.senderId + ":" + message.receiverId);
+    } else {
+      ElMessage({ message: res.data.msg, type: "info", plain: true, duration: 1700 });
+    }
+  });
+}
+
 function getAfterBlurIndex() {
-    const selection = window.getSelection();
-    if (selection.rangeCount > 0) {
-        range = selection.getRangeAt(0);
-    }
+  const selection = window.getSelection();
+  if (selection.rangeCount > 0) {
+    range = selection.getRangeAt(0);
+  }
 }
 
-// 添加表情
 function addEmoji(index) {
-
-    // 创建表情 HTML
-    const button = document.createElement("img");
-    button.src = `../img/emoji/${index}.png`;
-    button.className = "message-emoji-img";
-    button.style.width = "20px";
-    button.style.height = "20px";
-    button.style.marginRight = "2px";
-    button.style.marginLeft = "2px";
-    button.style.transform = "translateY(4px)";
-
-    const selection = window.getSelection();
-    // 如果 range 为空，默认插入到末尾
-    if (!range) {
-        messageInput.value.appendChild(button);
-        messageNumber.value=messageInput.value.innerText.trim().length+messageInput.value.getElementsByTagName("img").length*5;
-        return;
+  const button = document.createElement("img");
+  button.src = `../img/emoji/${index}.png`;
+  button.className = "message-emoji-img";
+  button.style.width = "20px";
+  button.style.height = "20px";
+  button.style.marginRight = "2px";
+  button.style.marginLeft = "2px";
+  button.style.transform = "translateY(4px)";
+  const selection = window.getSelection();
+  if (!range) {
+    if (messageInput?.value) {
+      messageInput.value.appendChild(button);
+      messageNumber.value = messageInput.value.innerText.trim().length + (messageInput.value.getElementsByTagName("img")?.length || 0) * 5;
     }
-
-    // 插入表情
-    range.insertNode(button);
-
-    // 创建新的 range 并移动光标到表情的后面
-    range.setStartAfter(button);
-    range.setEndAfter(button);
-
-    // 更新 selection，使光标真正移动
-    selection.removeAllRanges();
-    selection.addRange(range);
-    messageNumber.value=messageInput.value.innerText.trim().length+messageInput.value.getElementsByTagName("img").length*5;
-
+    return;
+  }
+  range.insertNode(button);
+  range.setStartAfter(button);
+  range.setEndAfter(button);
+  selection.removeAllRanges();
+  selection.addRange(range);
+  messageNumber.value = messageInput.value.innerText.trim().length + (messageInput.value.getElementsByTagName("img")?.length || 0) * 5;
 }
 
-//连接websocket实时更新滚动弹幕
 const socket = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/api/chat`);
 socket.onopen = async () => {
-socket.send("open:"+store.userId);
+  socket.send("open:" + store.userId);
 };
-
-//接收websocket实时更新消息
 socket.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    //在这个对话框
-    if(data.selectSign===currentDialogue.value?.dialogue.sign){
-        const index=privateMessageList.findIndex((item)=> item.id===data.id);
-        if(index===-1)
-        {
-            privateMessageList.push(data);
-            updateMessageNumber(-currentDialogue.value.notReadNumber);
-            changeMessageStatusF(currentDialogue.value);
-            const index1=dialogueList.findIndex((item)=>item.dialogue.dialogueId===data.senderId&&item.dialogue.userId===data.receiverId);
-            if(index1!==-1)
-            {
-                dialogueList[index1].notReadNumber++;
-                if(data.messageType===1)
-                dialogueList[index1].dialogue.newContent=data.content;
-                else
-                dialogueList[index1].dialogue.newContent="[图片]";
-            }
-            if(data.senderId===store.userId){
-            if(data.messageType===1){
-                nextTick(()=>{
-                    messageContent.value.scrollTop=messageContent.value.scrollHeight;
-                })
-            }else if(data.messageType===2){
-                setTimeout(()=>{
-                    nextTick(()=>{
-                    messageContent.value.scrollTop=messageContent.value.scrollHeight;
-                })
-                },700)
-            }
-            }else{
-                updateMessageNumber(1)
-                if(messageContent.value.scrollHeight - messageContent.value.scrollTop <= messageContent.value.clientHeight + 1)
-                {
-                    if(data.messageType===1){
-                    nextTick(()=>{
-                        messageContent.value.scrollTop=messageContent.value.scrollHeight;
-                    })
-                }else if(data.messageType===2){
-                    setTimeout(()=>{
-                        nextTick(()=>{
-                        messageContent.value.scrollTop=messageContent.value.scrollHeight;
-                    })
-                    },700)
-                }
-                }
-            }
+  const data = JSON.parse(event.data);
+  if (data.selectSign === currentDialogue.value?.dialogue.sign) {
+    const index = privateMessageList.findIndex(item => item.id === data.id);
+    if (index === -1) {
+      privateMessageList.push(data);
+      capArray(privateMessageList);
+      updateMessageNumber(-currentDialogue.value.notReadNumber);
+      changeMessageStatusF(currentDialogue.value);
+      const index1 = dialogueList.findIndex(item => item.dialogue.dialogueId === data.senderId && item.dialogue.userId === data.receiverId);
+      if (index1 !== -1) {
+        dialogueList[index1].notReadNumber++;
+        if (data.messageType === 1) dialogueList[index1].dialogue.newContent = data.content;
+        else dialogueList[index1].dialogue.newContent = "[图片]";
+      }
+      if (data.senderId === store.userId) {
+        if (data.messageType === 1) {
+          nextTick(() => requestAnimationFrame(() => { if (messageContent?.value) messageContent.value.scrollTop = messageContent.value.scrollHeight; }));
+        } else if (data.messageType === 2) {
+          setTimeout(() => nextTick(() => requestAnimationFrame(() => { if (messageContent?.value) messageContent.value.scrollTop = messageContent.value.scrollHeight; })), 700);
         }
-        else
-        {
-            if(store.userId!==data.senderId)
-            {
-            //撤回消息
-            privateMessageList[index]=data;
-            if(privateMessageList[privateMessageList.length-1].id===data.id&&data.content.length===0){
-                const index1=dialogueList.findIndex((item)=>item.dialogue.dialogueId===data.senderId&&item.dialogue.userId===data.receiverId);
-                if(index1!==-1)
-                    dialogueList[index1].dialogue.newContent="对方撤回一条消息";
-            }}else{
-                 //撤回消息
-            privateMessageList[index]=data;
-            if(privateMessageList[privateMessageList.length-1].id===data.id&&data.content.length===0){
-                const index1=dialogueList.findIndex((item)=>item.dialogue.dialogueId===data.receiverId&&item.dialogue.userId===data.senderId);
-                if(index1!==-1)
-                    dialogueList[index1].dialogue.newContent="您撤回一条消息";
-             }
-            }
-        }
-    }else{
-       //不在这个对话框,但是有该对话框
-       const index=dialogueList.findIndex((item)=>item.dialogue.sign===data.selectSign);
-       if(index!==-1){
-          if(data.status!==2){
-            if(data.messageType===1)
-            dialogueList[index].dialogue.newContent=data.content;
-            else if(data.messageType===2)
-            dialogueList[index].dialogue.newContent="[图片]";
-            dialogueList[index].notReadNumber++;
-            updateMessageNumber(1);
-          }else if(data.status===2){
-            if(store.userId!==data.senderId){
-                dialogueList[index].dialogue.newContent="对方撤回一条消息";
-                updateMessageNumber(-1);
-            }else{
-                dialogueList[index].dialogue.newContent="您撤回一条消息";
-            }
+      } else {
+        updateMessageNumber(1);
+        if (messageContent?.value && messageContent.value.scrollHeight - messageContent.value.scrollTop <= messageContent.value.clientHeight + 1) {
+          if (data.messageType === 1) {
+            nextTick(() => requestAnimationFrame(() => { if (messageContent?.value) messageContent.value.scrollTop = messageContent.value.scrollHeight; }));
+          } else if (data.messageType === 2) {
+            setTimeout(() => nextTick(() => requestAnimationFrame(() => { if (messageContent?.value) messageContent.value.scrollTop = messageContent.value.scrollHeight; })), 700);
           }
         }
-       else{
-         dialoguePageNum.value=1;
-         dialogueList.length=0;
-         selectDialogueF();
+      }
+    } else {
+      if (store.userId !== data.senderId) {
+        privateMessageList.splice(index, 1, data);
+        if (privateMessageList[privateMessageList.length - 1]?.id === data.id && data.content.length === 0) {
+          const index1 = dialogueList.findIndex(item => item.dialogue.dialogueId === data.senderId && item.dialogue.userId === data.receiverId);
+          if (index1 !== -1) dialogueList[index1].dialogue.newContent = "对方撤回一条消息";
         }
+      } else {
+        privateMessageList.splice(index, 1, data);
+        if (privateMessageList[privateMessageList.length - 1]?.id === data.id && data.content.length === 0) {
+          const index1 = dialogueList.findIndex(item => item.dialogue.dialogueId === data.receiverId && item.dialogue.userId === data.senderId);
+          if (index1 !== -1) dialogueList[index1].dialogue.newContent = "您撤回一条消息";
+        }
+      }
     }
+  } else {
+    const index = dialogueList.findIndex(item => item.dialogue.sign === data.selectSign);
+    if (index !== -1) {
+      if (data.status !== 2) {
+        if (data.messageType === 1) dialogueList[index].dialogue.newContent = data.content;
+        else if (data.messageType === 2) dialogueList[index].dialogue.newContent = "[图片]";
+        dialogueList[index].notReadNumber++;
+        updateMessageNumber(1);
+      } else if (data.status === 2) {
+        if (store.userId !== data.senderId) {
+          dialogueList[index].dialogue.newContent = "对方撤回一条消息";
+          updateMessageNumber(-1);
+        } else {
+          dialogueList[index].dialogue.newContent = "您撤回一条消息";
+        }
+      }
+    } else {
+      dialoguePageNum.value = 1;
+      dialogueList.length = 0;
+      selectDialogueF();
+    }
+  }
 };
 
-//更新字数
-function updateFontNumber(){
-
-    messageNumber.value=messageInput.value.innerText.trim().length+messageInput.value.getElementsByTagName("img").length*5;
-
+function updateFontNumber() {
+  messageNumber.value = (messageInput?.value?.innerText?.trim()?.length || 0) + ((messageInput?.value?.getElementsByTagName("img")?.length) || 0) * 5;
 }
 
-//获取显示发送时间
 function getDisplaySendTime(index) {
-  // 记录上一次已显示时间的索引
-  let lastShownIndex = -1;
+  if (index === 0) return true;
+
+  const currTime = new Date(privateMessageList[index]?.sendTime);
 
   for (let i = index - 1; i >= 0; i--) {
     const prevTime = new Date(privateMessageList[i]?.sendTime);
-    const currTime = new Date(privateMessageList[index]?.sendTime);
     const seconds = Math.abs(currTime - prevTime) / 1000;
 
     if (seconds > 300) {
-      // 如果超过5分钟，则显示
       return true;
-    } else if (getDisplaySendTime(i, privateMessageList)) {
-      // 找到上一次显示时间的消息
-      lastShownIndex = i;
-      break;
+    } else {
+      return false;
     }
   }
 
-  // 如果是第一条消息或从未显示过时间
-  return index === 0 || lastShownIndex === -1;
+  return false;
 }
 
-//修改时间格式
+
 function getDisplySendTime2(time) {
-    const date = new Date(time);
-    const today = new Date();
-    const dateTime = time.split(" ");
-    const dateTime2 = dateTime[1].split(":");
-
-    // 获取时间戳
-    const oneDay = 24 * 60 * 60 * 1000; // 一天的毫秒数
-    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
-    const dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-
-    if (dateStart === todayStart) {
-        return "今天 " + dateTime2[0] + ":" + dateTime2[1];
-    } else if (dateStart === todayStart - oneDay) {
-        return "昨天 " + dateTime2[0] + ":" + dateTime2[1];
-    } else {
-        return dateTime[0] + " " + dateTime2[0] + ":" + dateTime2[1];
-    }
+  const date = new Date(time);
+  const today = new Date();
+  const dateTime = time.split(" ");
+  const dateTime2 = dateTime[1].split(":");
+  const oneDay = 24 * 60 * 60 * 1000;
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  if (dateStart === todayStart) {
+    return "今天 " + dateTime2[0] + ":" + dateTime2[1];
+  } else if (dateStart === todayStart - oneDay) {
+    return "昨天 " + dateTime2[0] + ":" + dateTime2[1];
+  } else {
+    return dateTime[0] + " " + dateTime2[0] + ":" + dateTime2[1];
+  }
 }
 
-//复制消息
-function handleCopyMessage(){
-    if(copyMessage.value.length>0){
-    ElMessage({
-        message: "复制成功",
-        type: "info",
-        plain: true,
-        duration: 1700,
-        });
+function handleCopyMessage() {
+  if (copyMessage.value && copyMessage.value.length > 0) {
+    ElMessage({ message: "复制成功", type: "info", plain: true, duration: 1700 });
     navigator.clipboard.writeText(copyMessage.value);
-    copyMessage.value=null;
-    }else{
-        ElMessage({
-            message: "不能复制表情",
-            type: "info",
-            plain: true,
-            duration: 1700,
-            });
-    }
+    copyMessage.value = null;
+  } else {
+    ElMessage({ message: "不能复制表情", type: "info", plain: true, duration: 1700 });
+  }
 }
 
-//监视对话列表滑动
-function dialogueListScroll(e){
-    if(!e.target)
-    return;
-    if(!dialogueLoadingFlag.value)
-    return;
-   dialogueLoading.value=e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 1;
-   if(dialogueLoading.value)
-   selectDialogueF2();
+const _dialogueListScrollHandler = throttle((e) => {
+  if (!e.target) return;
+  if (!dialogueLoadingFlag.value) return;
+  dialogueLoading.value = e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 1;
+  if (dialogueLoading.value) selectDialogueF2();
+}, 150);
+
+function dialogueListScroll(e) {
+  _dialogueListScrollHandler(e);
 }
 
-//监视消息列表滑动
+let messageScrollTimer = null;
+
 function messageListScroll(e){
-    if(!e.target)
-        return;
-    if(!messageLoadingFlag.value)
-        return;
-    messageLoading.value=e.target.scrollTop<=150;
-    if(messageLoading.value)
-    selectPrivateMessageF2(currentDialogue.value);
+    if(!e.target) return;
+    if(!messageLoadingFlag.value) return;
+
+    clearTimeout(messageScrollTimer);
+
+    messageScrollTimer = setTimeout(() => {
+        messageLoading.value = e.target.scrollTop <= 150;
+        if(messageLoading.value){
+            selectPrivateMessageF2(currentDialogue.value);
+        }
+    }, 0);
 }
 
-//保存图片
-function handleSaveImg(msg){
-const link = document.createElement('a');
+
+function handleSaveImg(msg) {
+  const link = document.createElement("a");
   link.href = msg.content;
   link.download = msg.content.split('/').pop();
   document.body.appendChild(link);
@@ -1020,34 +890,24 @@ const link = document.createElement('a');
   document.body.removeChild(link);
 }
 
-//更新消息总数
-function updateMessageNumber(sum){
-
-    let userInformation=store.userInformation;
-    userInformation.messageNumber=userInformation.messageNumber+sum;
-    userInformation.allMessageNumber=userInformation.messageNumber+userInformation.replyCommentNumber+userInformation.atNumber+userInformation.likeAllNumber;
-    store.setUserInformation(userInformation);
+function updateMessageNumber(sum) {
+  let userInformation = store.userInformation;
+  userInformation.messageNumber = userInformation.messageNumber + sum;
+  userInformation.allMessageNumber = userInformation.messageNumber + userInformation.replyCommentNumber + userInformation.atNumber + userInformation.likeAllNumber;
+  store.setUserInformation(userInformation);
 }
 
-//跳转视频页
-function jumpVideo(videoId){
-    if(videoId!==null)
-    window.open(`./video?videoId=BV${videoId}`,'videoWindow');
+function jumpVideo(videoId) {
+  if (videoId !== null) window.open(`./video?videoId=BV${videoId}`, 'videoWindow');
 }
 
-//打开我的主页
-function openHome(menu,id){
-  window.open(
-  `./home?homeMenu=${menu}&userId=${id}`,
-  "_blank",
-);
+function openHome(menu, id) {
+  window.open(`./home?homeMenu=${menu}&userId=${id}`, "_blank");
 }
 
-//修改关闭预览的bug
-function restoreBodyOverflow(){
-    document.body.style.overflowY = 'hidden';
+function restoreBodyOverflow() {
+  document.body.style.overflowY = 'hidden';
 }
-
 </script>
 
 <style lang="scss" scoped>
