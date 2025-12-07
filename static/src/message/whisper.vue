@@ -295,14 +295,6 @@ import {
   selectPrivateMessage
 } from "../api/privateMessage/index";
 
-function debounce(fn, wait = 200) {
-  let t = null;
-  return function (...args) {
-    clearTimeout(t);
-    t = setTimeout(() => fn.apply(this, args), wait);
-  };
-}
-
 function throttle(fn, limit = 150) {
   let inThrottle = false;
   return function (...args) {
@@ -314,9 +306,6 @@ function throttle(fn, limit = 150) {
   };
 }
 
-function capArray(arr, max = 1000) {
-  if (arr.length > max) arr.splice(0, arr.length - max);
-}
 
 const store = useGlobalStore();
 const messageSettingHoverFlag = ref(false);
@@ -559,12 +548,10 @@ async function selectPrivateMessageF(sDialogue, a) {
       if (a === 1) {
         if (incoming.length) {
           privateMessageList.push(...incoming);
-          capArray(privateMessageList);
         }
       } else {
         if (privateMessageList.length < 20 && incoming.length === 20) {
           privateMessageList.splice(0, 0, ...incoming);
-          capArray(privateMessageList);
         }
       }
       userInfo.value = res.data.data.userInfo;
@@ -580,7 +567,7 @@ async function selectPrivateMessageF(sDialogue, a) {
 }
 
 
-const selectPrivateMessageF2 = debounce(async (sDialogue) => {
+const selectPrivateMessageF2 =async (sDialogue) => {
   if (!sDialogue || !sDialogue.dialogue?.id) {
     messageLoadingFlag.value = false;
     messageLoading.value = false;
@@ -597,8 +584,7 @@ const selectPrivateMessageF2 = debounce(async (sDialogue) => {
     if (res.data.code === 1) {
       const incoming = res.data.data.privateMessage || [];
       if (incoming.length) {
-        privateMessageList.splice(0, 0, ...incoming);
-        capArray(privateMessageList);
+        privateMessageList.unshift(...incoming);
       }
       if (!incoming || incoming.length === 0) messageLoadingFlag.value = false;
       messageLoading.value = false;
@@ -607,7 +593,7 @@ const selectPrivateMessageF2 = debounce(async (sDialogue) => {
     messageLoading.value = false;
     messageLoadingFlag.value = false;
   });
-}, 200);
+};
 
 watch(currentDialogue, async (newVal) => {
   if (newVal !== null) {
@@ -738,7 +724,6 @@ socket.onmessage = (event) => {
     const index = privateMessageList.findIndex(item => item.id === data.id);
     if (index === -1) {
       privateMessageList.push(data);
-      capArray(privateMessageList);
       updateMessageNumber(-currentDialogue.value.notReadNumber);
       changeMessageStatusF(currentDialogue.value);
       const index1 = dialogueList.findIndex(item => item.dialogue.dialogueId === data.senderId && item.dialogue.userId === data.receiverId);
