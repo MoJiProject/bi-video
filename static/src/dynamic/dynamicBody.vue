@@ -168,6 +168,7 @@ import { ElMessage } from "element-plus";
 import Sortable from "sortablejs";
 import dynamic2 from "@/utils/dynamic2.vue";
 import { getDynamic,usersDynamic,cleanDynamicMessage,addDynamic,allDynamicMessage } from "@/api/dynamic/index";
+import apiClient from "../services/apiClient";
 
 const store = useGlobalStore();
 const title=ref("");
@@ -209,11 +210,16 @@ const loadMore=ref(false);
 const noDataFlag=ref(false);
 const newAllDynamicFlag=ref(false);
 const loading=ref(false);
+const startX = ref(0);
+const startY = ref(0);
 
 onMounted(()=>{
 
   window.addEventListener('click',handleClickOutside);
   window.addEventListener('scroll',handleScroll);
+  window.addEventListener('touchstart', handleTouchStart);
+  window.addEventListener('touchmove', handleTouchMove, { passive: true });
+  window.addEventListener('touchend', handleTouchEnd);
   nextTick(() => {
     initRange();
   });
@@ -231,7 +237,30 @@ onMounted(()=>{
 onUnmounted(()=>{
   window.removeEventListener('scroll',handleScroll);
   window.removeEventListener('click',handleClickOutside);
+  window.removeEventListener('touchstart', handleTouchStart);
+  window.removeEventListener('touchmove', handleTouchMove);
+  window.removeEventListener('touchend', handleTouchEnd);
 })
+
+const handleTouchStart = (e) => {
+  startX.value = e.touches[0].clientX;
+  startY.value = e.touches[0].clientY;
+};
+
+const handleTouchMove = (e) => {
+  if(!loadMore.value&&!fotterFlag.value){
+    const currentY = e.touches[0].clientY;
+    const deltaY = currentY - startY.value;
+    if(deltaY < 0 && (window.innerHeight+document.documentElement.scrollTop)>=document.documentElement.offsetHeight-100){
+      getDynamicF();
+    }
+  }
+};
+
+const handleTouchEnd = () => {
+  startX.value = 0;
+  startY.value = 0;
+};
 
 //初始化range
 function initRange() {
@@ -846,7 +875,6 @@ async function addDynamicF(){
       loading.value=false;
   })
 }  
-
 </script>
 
 <style lang="scss" scoped>

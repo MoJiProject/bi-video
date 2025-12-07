@@ -446,20 +446,49 @@ export default {
     const Videos = reactive([]);
     const imgTrasitionFlag = ref(false);
     const pageNum = ref(1);
-    let sort = Math.floor(Math.random() * 6) + 1; //1升序视频标题 2降序视频标题 3升序播放量 4降序播放量 5升序发布时间 6降序发布时间
+    const startX = ref(0);
+    const startY = ref(0);
+    let sort = Math.floor(Math.random() * 6) + 1;
     let videoAutoPlayTIme = {};
     onMounted(async () => {
       await getUserIp();
       await ChecklLogin();
       selectVideos();
       window.addEventListener("scroll", handleScroll1);
+      window.addEventListener("touchstart", handleTouchStart);
+      window.addEventListener("touchmove", handleTouchMove, { passive: true });
+      window.addEventListener("touchend", handleTouchEnd);
     });
 
     onUnmounted(() => {
       window.removeEventListener("scroll", handleScroll1);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
     });
 
-    //获取用户ip和token
+    const handleTouchStart = (e) => {
+      startX.value = e.touches[0].clientX;
+      startY.value = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e) => {
+      if (nodata) return;
+      const currentY = e.touches[0].clientY;
+      const deltaY = currentY - startY.value;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const clientHeight = window.innerHeight || document.documentElement.clientHeight;
+      if (deltaY < 0 && scrollTop + clientHeight >= scrollHeight - 10) {
+        selectVideos();
+      }
+    };
+
+    const handleTouchEnd = () => {
+      startX.value = 0;
+      startY.value = 0;
+    };
+
     async function getUserIp() {
       const response = await apiClient.get("/userIp/getUserIp");
 
@@ -470,10 +499,10 @@ export default {
     const handleScroll1 = () => {
       if (nodata) return;
 
-      const scrollHeight = document.documentElement.scrollHeight; // 文档总高度
-      const scrollTop = window.scrollY || document.documentElement.scrollTop; // 当前滚动高度
+      const scrollHeight = document.documentElement.scrollHeight;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const clientHeight =
-        window.innerHeight || document.documentElement.clientHeight; // 可视区域高度
+        window.innerHeight || document.documentElement.clientHeight;
 
       if (scrollTop + clientHeight >= scrollHeight) {
         selectVideos();
@@ -539,14 +568,14 @@ export default {
         if (response.data.code === 1) {
           const updatedVideos = Videos.map((item) => {
             if (item.videoId === videoId && item.waitWatch === 0) {
-              return { ...item, waitWatch: 1 }; // 创建一个新的对象并修改 waitWatch
+              return { ...item, waitWatch: 1 };
             } else if (item.videoId === videoId && item.waitWatch === 1) {
               return { ...item, waitWatch: 0 };
             }
-            return item; // 保留原始对象
+            return item;
           });
-          Videos.length = 0; // 清空原数组
-          Object.assign(Videos, updatedVideos); // 重新赋值
+          Videos.length = 0;
+          Object.assign(Videos, updatedVideos);
         } else {
           ElMessage({
             message: response.data.msg,
@@ -576,7 +605,7 @@ export default {
             // 只有在视频处于暂停状态时才播放
             video.play().catch(function (error) {});
           }
-      }, 700); // 1秒后播放视频
+      }, 700);
     }
 
     function videoMouseleave(id) {
