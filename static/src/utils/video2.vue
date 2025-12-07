@@ -159,7 +159,7 @@
          right: 8px;
          border-radius: 5px;
          width: 28px;
-          height: 28px;
+         height: 28px;
          opacity: 0;
          visibility: hidden;
          background-color: rgba(33, 33, 33, .8);

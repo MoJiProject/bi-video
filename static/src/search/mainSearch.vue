@@ -1036,7 +1036,7 @@
             >
               <div
                 class="videoBox1"
-                style="width: 94%"
+                style="width: 247px"
                 @mouseover="videoMouseover(video.videoId)"
                 @mouseleave="videoMouseleave(video.videoId)"
               >
@@ -3288,7 +3288,7 @@ export default {
 }
 
 video {
-  width: 94%; /* 视频宽度为100% */
+  width: 247px; /* 视频宽度为100% */
   height: 100%; /* 视频高度为100% */
   object-fit: cover; /* 填充并保持比例 */
   position: absolute; /* 绝对定位 */
@@ -3315,7 +3315,7 @@ video {
 }
 .videoContent {
   position: absolute; /* 确保位置是绝对的 */
-  width: 245px;
+  width: 246.5px;
   height: 30px;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.2));
   top: 78%; /* 改为100%以使其在图片下方显示 */
@@ -3641,7 +3641,7 @@ video {
 
 @media (max-width: 600px) {
   .bottomVideo{
-    width: 550px;
+    width: 263px;
   }
   .video-video {
     flex: 0 0 100% ;

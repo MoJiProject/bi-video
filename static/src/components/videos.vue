@@ -8,7 +8,7 @@
       >
         <div
           class="videoBox1"
-          style="width: 92.6%"
+          style="width: 245.39px"
           @mouseover.stop="videoMouseover(Videos[index].videoId)"
           @mouseleave="videoMouseleave(Videos[index].videoId)"
         >
@@ -225,7 +225,7 @@
       >
         <div
           class="videoBox1"
-          style="width: 92.6%"
+          style="width: 245.39px"
           @mousemove="videoMouseover(video.videoId)"
           @mouseleave="videoMouseleave(video.videoId)"
         >
@@ -630,7 +630,7 @@ export default {
 video {
   cursor: pointer;
   visibility: hidden;
-  width: 92.6%; /* 视频宽度为100% */
+  width: 245.39px; /* 视频宽度为100% */
   height: 100%; /* 视频高度为100% */
   object-fit: cover; /* 填充并保持比例 */
   position: absolute; /* 绝对定位 */
@@ -771,6 +771,7 @@ video {
   display: flex;
   justify-content: left;
   align-items: center;
+  position: absolute;
   border-radius: 5px;
   width: 28px;
   height: 28px;
@@ -781,7 +782,6 @@ video {
   visibility: hidden;
   transition: transform 0.3s ease, width 0.3s ease; /* 添加宽度变化的动画效果 */
   cursor: pointer;
-  position: absolute;
   z-index: 3000;
   overflow: hidden;
 }
@@ -881,7 +881,7 @@ video {
 
 @media (max-width: 1130px) {
   .video6Box {
-    width: 300px;
+    width: 265px;
   }
   .video6 {
     flex: 0 0 100%;
@@ -918,7 +918,7 @@ video {
 
 @media (max-width: 600px) {
   .bottomVideo {
-    width: 550px;
+    width: 263px;
   }
   .video-video {
     flex: 0 0 100%;
