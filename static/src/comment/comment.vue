@@ -2179,7 +2179,8 @@ export default {
           Authorization: store.token,
         },
       });
-
+      commentRef.value.blur();
+      commentRef2.value.blur();
       if (res.data.code === 1) {
         ElMessage({
           message: "发送成功",

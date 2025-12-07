@@ -1791,6 +1791,7 @@ export default {
           duration: 1700,
         });
       }
+      commentRef.value.blur();
       loading.value = false;
     }
 
