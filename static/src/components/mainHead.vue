@@ -3125,7 +3125,7 @@ export default {
 
 @font-face {
   font-family: "SimHei";
-  src: url("../assets/font/MSYH.TTC") format("truetype"); /* 指定字体文件的位置和格式 */
+  src: url("../assets/font/MSYH.woff2") format("truetype"); /* 指定字体文件的位置和格式 */
   font-weight: normal;
   font-style: normal;
 }
