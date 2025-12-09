@@ -452,8 +452,8 @@ export default {
     onMounted(async () => {
       await getUserIp();
       await ChecklLogin();
-      selectVideos();
       debouncedUpdate();
+      selectVideos();
       window.addEventListener("scroll", handleScroll1);
       window.addEventListener("resize", debouncedUpdate);
     });
@@ -474,9 +474,10 @@ export default {
 
     // 更新数量
     const updateSize = () => {
-      if(window.innerWidth<=1400&&window.innerWidth>1130){
+      const clientWidth = document.documentElement.clientWidth || document.body.clientWidth;
+      if(clientWidth<=1400&&clientWidth>1130){
         displayVideoNumber.value = 4;
-      }else if(window.innerWidth<=1130)
+      }else if(clientWidth<=1130)
       {
         displayVideoNumber.value = 2;
       }
