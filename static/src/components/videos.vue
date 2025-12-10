@@ -449,6 +449,11 @@ export default {
     let sort = Math.floor(Math.random() * 6) + 1;
     let videoAutoPlayTIme = {};
     const displayVideoNumber = ref(6);
+
+    let touchStartY = 0;
+    let touchEndY = 0;
+    const SWIPE_THRESHOLD = 50;
+
     onMounted(async () => {
       await getUserIp();
       await ChecklLogin();
@@ -456,14 +461,48 @@ export default {
       selectVideos();
       window.addEventListener("scroll", handleScroll1);
       window.addEventListener("resize", debouncedUpdate);
+
+      window.addEventListener("touchstart", handleTouchStart, { passive: true });
+      window.addEventListener("touchmove", handleTouchMove, { passive: true });
+      window.addEventListener("touchend", handleTouchEnd, { passive: true });
     });
 
     onUnmounted(() => {
       window.removeEventListener("scroll", handleScroll1);
       window.removeEventListener("resize", debouncedUpdate);
+
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
     });
 
-    // 防抖逻辑
+    const handleTouchStart = (e) => {
+      if (e.touches && e.touches[0]) {
+        touchStartY = e.touches[0].clientY;
+        touchEndY = touchStartY;
+      }
+    };
+
+    const handleTouchMove = (e) => {
+      if (e.touches && e.touches[0]) {
+        touchEndY = e.touches[0].clientY;
+      }
+    };
+
+    const handleTouchEnd = () => {
+      const deltaY = touchStartY - touchEndY;
+      if (deltaY > SWIPE_THRESHOLD) {
+        const scrollHeight = document.documentElement.scrollHeight;
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const clientHeight = window.innerHeight || document.documentElement.clientHeight;
+        if (scrollTop + clientHeight >= scrollHeight) {
+          selectVideos();
+        }
+      }
+      touchStartY = 0;
+      touchEndY = 0;
+    };
+
     const debounce = (fn) => {
       let timer = null;
       return (...args) => {
@@ -472,7 +511,6 @@ export default {
       };
     };
 
-    // 更新数量
     const updateSize = () => {
       const clientWidth = document.documentElement.clientWidth || document.body.clientWidth;
       if(clientWidth<=1400&&clientWidth>1130){
@@ -590,30 +628,25 @@ export default {
     }
 
     function videoMouseover(id) {
-      // 清除之前的定时器，防止重复触发
       if (videoAutoPlayTIme[id]) {
         clearTimeout(videoAutoPlayTIme[id]);
       }
 
-      // 延迟播放视频
       videoAutoPlayTIme[id] = setTimeout(() => {
         const video = document.getElementById(id);
         if (video)
           if (video.paused) {
-            // 只有在视频处于暂停状态时才播放
             video.play().catch(function (error) {});
           }
       }, 700);
     }
 
     function videoMouseleave(id) {
-      // 清除之前的视频播放定时器
       clearTimeout(videoAutoPlayTIme[id]);
 
       const video = document.getElementById(id);
       if (video)
         if (!video.paused) {
-          // 只有在视频播放时才暂停
           video.pause();
         }
     }
