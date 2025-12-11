@@ -49,28 +49,37 @@ const userId = parseInt(new URL(window.location).searchParams.get("userId"))|| n
 const pageNum=ref(1);
 const dynamicList=reactive([]);
 const fotterFlag=ref(false);
+const touchStartY = ref(0)
+const touchMoveY = ref(0)
+const touchEndY = ref(0)
 
 onMounted(async()=>{
 
-if(store.homeUserInformation.id){
-    await homeDynamicF();
-    store.setHomeLoad(true,"homeBody");
-}
+    if(store.homeUserInformation.id){
+        await homeDynamicF();
+        store.setHomeLoad(true,"homeBody");
+    }
 
-if(store.userId){
-    getEitListF();
-}
+    if(store.userId){
+        getEitListF();
+    }
 
-window.addEventListener("scroll",handleScroll);
-
+    window.addEventListener("scroll",handleScroll);
+    document.addEventListener("touchstart", touchStartF)
+    document.addEventListener("touchmove", touchMoveF)
+    document.addEventListener("touchend", touchEndF)
 })
 
 onUnmounted(()=>{
 
+    store.setHomeLoad(false,"homeBody");
 
-store.setHomeLoad(false,"homeBody");
-
+    window.removeEventListener("scroll",handleScroll);
+    document.removeEventListener("touchstart", touchStartF)
+    document.removeEventListener("touchmove", touchMoveF)
+    document.removeEventListener("touchend", touchEndF)
 })
+
   
 // 监听store变化
 let onceFlag=true;
@@ -100,6 +109,27 @@ watch(dynamicMenu,()=>{
     if(store.homeUserInformation.id)
         homeDynamicF();
 })
+
+function touchStartF(e){
+    touchStartY.value = e.touches[0].clientY
+}
+
+function touchMoveF(e){
+    touchMoveY.value = e.touches[0].clientY
+}
+
+function touchEndF(e){
+    touchEndY.value = e.changedTouches[0].clientY
+    const delta = touchStartY.value - touchEndY.value
+
+    if(delta > 50){
+        if(!loadMore2.value && !loadMore.value && !fotterFlag.value){
+            if((window.innerHeight + document.documentElement.scrollTop) >= document.documentElement.offsetHeight - 50){
+                homeDynamicF()
+            }
+        }
+    }
+}
 
 //获取动态列表
 async function homeDynamicF(){

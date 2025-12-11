@@ -194,13 +194,23 @@ oneYearLater.setFullYear(baseToday.getFullYear() + 1);
 const dataFlag=ref(false);
 const boxShadowFlag=ref(false);
 
+let touchStartY = 0;
+let touchEndY = 0;
+const SWIPE_THRESHOLD = 50;
+
 onMounted(()=>{
     document.title="历史记录";
     window.addEventListener('scroll', handleScroll);
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
 })
 
 onUnmounted(()=>{
     window.removeEventListener('scroll', handleScroll);
+    window.removeEventListener('touchstart', handleTouchStart);
+    window.removeEventListener('touchmove', handleTouchMove);
+    window.removeEventListener('touchend', handleTouchEnd);
 })
 
 //修改简介
@@ -461,6 +471,34 @@ function handleScroll(){
      if(scrollBottom >= scrollHeight - 300&&!dataFlag.value){
         selectHistoryListF();
     }
+}
+
+function handleTouchStart(e){
+    if(e.touches && e.touches[0]){
+        touchStartY = e.touches[0].clientY;
+        touchEndY = touchStartY;
+    }
+}
+
+function handleTouchMove(e){
+    if(e.touches && e.touches[0]){
+        touchEndY = e.touches[0].clientY;
+    }
+}
+
+function handleTouchEnd(){
+    const deltaY = touchStartY - touchEndY;
+    if(deltaY > SWIPE_THRESHOLD){
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight || document.body.clientHeight;
+        const scrollBottom = scrollTop + clientHeight;
+        if(scrollBottom >= scrollHeight - 300 && !dataFlag.value){
+            selectHistoryListF();
+        }
+    }
+    touchStartY = 0;
+    touchEndY = 0;
 }
 
 //删除选中的历史记录

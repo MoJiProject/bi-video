@@ -161,14 +161,23 @@ const pageNum=ref(1);
 const searchFlag=ref(false);
 const dataFlag=ref(false);
 const boxShadowFlag=ref(false);
+const touchStartY = ref(0)
+const touchMoveY = ref(0)
+const touchEndY = ref(0)
 
 onMounted(()=>{
     document.title="稍后再看";
     window.addEventListener('scroll', handleScroll);
+    document.addEventListener('touchstart', touchStartF);
+    document.addEventListener('touchmove', touchMoveF);
+    document.addEventListener('touchend', touchEndF);
 })
 
 onUnmounted(()=>{
     window.removeEventListener('scroll', handleScroll);
+    document.removeEventListener('touchstart', touchStartF);
+    document.removeEventListener('touchmove', touchMoveF);
+    document.removeEventListener('touchend', touchEndF);
 })
 
 
@@ -252,6 +261,31 @@ function deleteAllwaitWatchF(){
         }
     })
 }
+
+function touchStartF(e){
+    touchStartY.value = e.touches[0].clientY
+}
+
+function touchMoveF(e){
+    touchMoveY.value = e.touches[0].clientY
+}
+
+function touchEndF(e){
+    touchEndY.value = e.changedTouches[0].clientY
+    const delta = touchStartY.value - touchEndY.value
+
+    if(delta > 50){
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight || document.body.clientHeight;
+        const scrollBottom = scrollTop + clientHeight;
+
+        if(scrollBottom >= scrollHeight - 50 && !dataFlag.value){
+            selectwaitWatchListF();
+        }
+    }
+}
+
 
 //查询稍后再看
 let selectwaitWatchListFlag=true;
