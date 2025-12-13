@@ -608,8 +608,11 @@ watch(currentDialogue, async (newVal) => {
     messagePageNum.value = Math.ceil(newVal?.allMessageNumber / 20);
     await selectPrivateMessageF(newVal, 1);
     await selectPrivateMessageF(newVal, 2);
-    updateMessageNumber(-newVal.notReadNumber);
-    changeMessageStatusF(newVal);
+    if(socket&&socket.readyState === 1)
+    {
+      updateMessageNumber(-newVal.notReadNumber);
+      changeMessageStatusF(newVal);
+    }
   }
   if (messageInput?.value) messageInput.value.innerHTML = "";
 });
@@ -743,7 +746,9 @@ socket.onmessage = (event) => {
           setTimeout(() => nextTick(() => requestAnimationFrame(() => { if (messageContent?.value) messageContent.value.scrollTop = messageContent.value.scrollHeight; })), 700);
         }
       } else {
-        updateMessageNumber(1);
+        if(currentDialogue.value.dialogue.dialogueId !== data.senderId){
+          updateMessageNumber(1);
+        }
         if (messageContent?.value && messageContent.value.scrollHeight - messageContent.value.scrollTop <= messageContent.value.clientHeight + 1) {
           if (data.messageType === 1) {
             nextTick(() => requestAnimationFrame(() => { if (messageContent?.value) messageContent.value.scrollTop = messageContent.value.scrollHeight; }));
