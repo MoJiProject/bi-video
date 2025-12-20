@@ -2529,7 +2529,7 @@ export default {
       clickClassifyFlag20.value = true;
       clickClassifyFlag21.value = false;
       clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "记录片";
+      acceptSearchData.classify = "纪录片";
       videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
@@ -2653,7 +2653,7 @@ export default {
       try {
         const urlParams = new URLSearchParams(window.location.search);
         const keyWord = urlParams.get("keyword");
-        if(!keyWord)
+        if(!keyWord&&clickClassifyFlag1.value)
         {
           return;
         }
