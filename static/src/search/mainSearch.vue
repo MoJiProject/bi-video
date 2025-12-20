@@ -6,8 +6,10 @@
         style="width: 60px; transform: translate(24px, 18px); cursor: pointer"
       />
       <Searcha
+        ref="searcha"
         style="transform: translate(392px, -25px)"
         :mainSearchFlag="true"
+        :handleUrlChange="handleUrlChange"
       />
     </div>
     <div>
@@ -25,6 +27,8 @@
       </div>
       <div class="searchBox2">
         <Searcha
+        ref="searcha2"
+        :handleUrlChange="handleUrlChange"
           style="
             transform: translate(392px, 28px);
             z-index: 1000;
@@ -1612,6 +1616,8 @@ export default {
     const upImgFlag = ref(false);
     const windowWidth = ref(0);
     const Videos = reactive([]);
+    const searcha = ref(null);
+    const searcha2 = ref(null);
     function userContent(fansNumber, videoNumber, introduce) {
       if (introduce !== null)
         return `${fansNumber}粉丝 ·  ${videoNumber}个视频 · ${introduce}`;
@@ -1708,6 +1714,18 @@ export default {
         }
       }
     });
+
+   function handleUrlChange(keyword){
+      searcha.value.Content = keyword || '';
+      searcha2.value.Content = keyword || '';
+      if (clickFlag1.value || clickFlag2.value) {
+        videoPageNum.value = 1;
+        searchByKeyWordVideo();
+      }else if(clickFlag7.value){
+        userPageNum.value = 1;
+        selectUsersAxios();
+      }
+   }
 
     function ClickFlag1() {
       clickFlag1.value = true;
@@ -2606,7 +2624,7 @@ export default {
         const keyWord = urlParams.get("keyword");
         const classifyIndex = urlParams.get("classifyIndex");
         acceptSearchData.keyWord = keyWord;
-        if (classifyIndex.length > 0) {
+        if (classifyIndex && classifyIndex.length > 0) {
           acceptSearchData.classify = classifyIndex;
           clickClassifyFlag1.value = false;
         }
@@ -2633,10 +2651,14 @@ export default {
     //根据关键字搜索视频
     async function searchByKeyWordVideo() {
       try {
-        acceptSearchData.videoPageNum = videoPageNum.value;
-        userPageNum.value = 1;
         const urlParams = new URLSearchParams(window.location.search);
         const keyWord = urlParams.get("keyword");
+        if(!keyWord)
+        {
+          return;
+        }
+        acceptSearchData.videoPageNum = videoPageNum.value;
+        userPageNum.value = 1;
         acceptSearchData.keyWord = keyWord;
         const classifyIndex = urlParams.get("classifyIndex");
         acceptSearchData.classifyIndex = classifyIndex;
@@ -2662,15 +2684,24 @@ export default {
     //根据关键词搜索用户
     async function selectUsersAxios() {
       try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const keyWord = urlParams.get("keyword");
+        if(!keyWord)
+        {
+          return;
+        }
+        acceptSearchData.keyWord = keyWord;
         acceptSearchData.userPageNum = userPageNum.value;
         videoPageNum.value = 1;
         const response = await apiClient.post(
           "/search/selectUsers",
           acceptSearchData
         );
-        if (response.data.code === 1) searchUserList.length = 0;
-        acceptSearchData.userTotal = response.data.data.userTotal;
-        Object.assign(searchUserList, response.data.data.selectUserDtoList);
+        if (response.data.code === 1) {
+            searchUserList.length = 0;
+            acceptSearchData.userTotal = response.data.data.userTotal;
+            Object.assign(searchUserList, response.data.data.selectUserDtoList);
+          }
       } catch (error) {
         ElMessage({
           message: "未知错误",
@@ -3062,6 +3093,9 @@ export default {
       windowWidth,
       videoPageNum,
       userPageNum,
+      handleUrlChange,
+      searcha,
+      searcha2
     };
   },
 };
