@@ -1447,13 +1447,10 @@ export default {
       window.removeEventListener("keyup", deleteEit);
       window.removeEventListener("mouseover", handleMouseover);
     });
+    
 
     //下拉增加评论
     const handleScroll1 = () => {
-
-      if(scrollFooterFlag.value){
-        return;
-      }
 
       const scrollHeight = document.documentElement.scrollHeight; // 文档总高度
       const scrollTop = window.scrollY || document.documentElement.scrollTop; // 当前滚动高度
@@ -1463,6 +1460,11 @@ export default {
       
       const clientHeight =
         window.innerHeight || document.documentElement.clientHeight; // 可视区域高度
+
+
+      if(scrollFooterFlag.value){
+        return;
+      }
 
       if (scrollTop + clientHeight + 400 >= scrollHeight) {
         if(store.userId||pageNum.value===1)
@@ -2395,6 +2397,7 @@ export default {
     watch(commentSortFlag, () => {
       commentList.length = 0;
       pageNum.value = 1;
+      scrollFooterFlag.value=false;
       selectComment();
     });
 
@@ -2766,14 +2769,10 @@ export default {
         });
         if(res.data.code === 1)
         eitUserInfoTime=setTimeout(() => {
+          eitUserInfoLeft.value=event.clientX+15;
+          eitUserInfoTop.value=event.clientY+15;
           if(event.clientY>430)
-          {
-            eitUserInfoTop.value = -50 * (event.clientY / 100);
-          }else{
-            eitUserInfoTop.value = 0;
-          }
-          eitUserInfoLeft.value=event.clientX-120;
-          eitUserInfoTop.value=eitUserInfoTop.value + event.clientY+650;
+            eitUserInfoTop.value=event.clientY/2;
           store.setEitUserInfo(res.data.data);
         }, 300);
       }else{
@@ -4470,7 +4469,7 @@ export default {
 
 .comment-input-container2{
   position: fixed !important;
-  left: 172px !important;
+  left: 179px !important;
   bottom: 0px !important;
   width: 700px;
   border-top: 0.5px solid #e3e5e7;

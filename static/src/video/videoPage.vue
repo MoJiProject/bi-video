@@ -5432,8 +5432,8 @@ export default {
 .video-body {
   position: absolute;
   height: auto;
+  left: 169px;
   padding-bottom: 200px;
-  transform: translateX(-203px);
   top: 63.5px;
   z-index: -1000;
 }
