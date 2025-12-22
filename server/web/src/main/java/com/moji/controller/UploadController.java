@@ -93,9 +93,8 @@ public class UploadController {
                 }
                 if (contentType.startsWith("image/"))
                 {
-                    coverName = fileName + extension; // 新的文件名保留扩展名
-                    File dest = new File(uploadDir, coverName);
-                    file.transferTo(dest);
+                    coverName = fileName + ".webp"; // 新的文件名保留扩展名
+                    FilePathEnum.saveAsWebp(file.getBytes(),uploadDir, String.valueOf(fileName));
                 }
             } catch (Exception e) {
                 return R.error("文件上传失败: " );
@@ -222,9 +221,8 @@ public class UploadController {
                         file.transferTo(dest);
                     }
                     if (contentType.startsWith("image/")) {
-                        coverName = fileName + extension; // 新的文件名保留扩展名
-                        File dest = new File(uploadDir, coverName);
-                        file.transferTo(dest);
+                        coverName = fileName + ".webp"; // 新的文件名保留扩展名
+                        FilePathEnum.saveAsWebp(file.getBytes(), uploadDir, String.valueOf(fileName));
                     }
 
 

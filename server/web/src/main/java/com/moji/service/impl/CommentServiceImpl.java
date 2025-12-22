@@ -78,32 +78,25 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
         String[] imgBase64S = comments.getImgAddress()!=null?comments.getImgAddress().split(",,"):null;
         if(comments.getImgAddress()!=null) {
             for (String imgBase64 : imgBase64S) {
-                String imageFormat = getImageFormat(imgBase64);
-                if (imageFormat == null||imageFormat.equals(".gif"))
-                    continue;
                 if(FilePathEnum.canUpload()){
                     throw new RuntimeException("服务器存储空间不足，无法上传评论图片");
                 }
                 UUID commentImgName = UUID.randomUUID();
                 //添加图片地址
-                imgAddress.append("/upload/comment/").append(commentImgName).append(imageFormat).append(",");
+                imgAddress.append("/upload/comment/").append(commentImgName).append(".webp").append(",");
                 // 创建上传目录
                 File uploadDir;
                 uploadDir = new File(FilePathEnum.UPLOAD_COMMENT_IMG.getPath());
                 if (!uploadDir.exists())
                     uploadDir.mkdirs();
                 //上传
+                String base64Body = imgBase64.contains(",") ? imgBase64.split(",")[1] : imgBase64;
+                byte[] decodedBytes = Base64.getDecoder().decode(base64Body);
+                // 写入文件
                 try {
-                    String base64Body = imgBase64.contains(",") ? imgBase64.split(",")[1] : imgBase64;
-                    byte[] decodedBytes = Base64.getDecoder().decode(base64Body);
-                    // 写入文件
-                    File dest = new File(uploadDir, commentImgName + imageFormat);
-                    try (FileOutputStream fos = new FileOutputStream(dest)) {
-                        fos.write(decodedBytes);
-                    }
+                    FilePathEnum.saveAsWebp(decodedBytes,uploadDir, String.valueOf(commentImgName));
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    return null;
+                    throw new RuntimeException("保存评论图片失败", e);
                 }
             }
         }
@@ -557,20 +550,6 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
         }
         return null;
     }
-
-    //获取图片后缀
-    @Override
-    public String getImageFormat(String base64) {
-            if (base64.startsWith("data:image/")) {
-                // 提取 MIME 类型中的格式
-                String[] parts = base64.split(";");
-                if (parts.length > 0) {
-                    String mimeType = parts[0]; // e.g., "data:image/png"
-                    return "."+mimeType.substring(mimeType.indexOf("/") + 1); // 提取 ".png"
-                }
-            }
-            return null;
-        }
 
     @Override
     public List<SelectReplyComment> selectReplyAll(Integer userId, Integer pageNum) {

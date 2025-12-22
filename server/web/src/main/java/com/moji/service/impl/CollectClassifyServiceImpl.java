@@ -106,12 +106,7 @@ public class CollectClassifyServiceImpl extends ServiceImpl<CollectClassifyMappe
         if(StringUtil.notNullNorEmpty(collectsClassify.getCoverAddress())) {
 
             UUID coverName = UUID.randomUUID();
-            String imageFormat = commentService.getImageFormat(collectsClassify.getCoverAddress());
-            if(imageFormat == null||imageFormat.equals(".gif"))
-                return false;
-
-            try{
-                String base64 = null;
+            String base64 = null;
                 if(collectsClassify.getCoverAddress().contains(","))
                     base64=collectsClassify.getCoverAddress().split(",")[1];
                 else
@@ -123,15 +118,13 @@ public class CollectClassifyServiceImpl extends ServiceImpl<CollectClassifyMappe
 
                 File dir=new File(FilePathEnum.UPLOAD_IMG_COLLECT_CLASSIFY.getPath());
                 byte[] decode = Base64.getDecoder().decode(base64);
-                File dest=new File(dir,coverName+imageFormat);
-                try(FileOutputStream fos=new FileOutputStream(dest)){
-                    fos.write(decode);
+                try{
+                    FilePathEnum.saveAsWebp(decode,dir, String.valueOf(coverName));
                 }
-            }catch (IOException e){
-                e.printStackTrace();
-                return false;
+            catch (IOException e){
+               throw new RuntimeException("封面上传失败");
             }
-            collectsClassify.setCoverAddress("/upload/collectClassify/"+coverName+imageFormat);
+            collectsClassify.setCoverAddress("/upload/collectClassify/"+coverName+".webp");
         }
         if(collectsClassify.getId()==null)
             collectClassifyMapper.insert(collectsClassify);
@@ -190,26 +183,18 @@ public class CollectClassifyServiceImpl extends ServiceImpl<CollectClassifyMappe
                 if(StringUtil.notNullNorEmpty(collectsClassify.getCoverAddress())) {
 
                     UUID coverName = UUID.randomUUID();
-                    String imageFormat = commentService.getImageFormat(collectsClassify.getCoverAddress());
-                    if(imageFormat == null||imageFormat.equals(".gif"))
-                        return false;
+                    String base64 = null;
+                    if(collectsClassify.getCoverAddress().contains(","))
+                        base64=collectsClassify.getCoverAddress().split(",")[1];
 
+                    File dir=new File(FilePathEnum.UPLOAD_IMG_COLLECT_CLASSIFY.getPath());
+                    byte[] decode = Base64.getDecoder().decode(base64);
                     try{
-                        String base64 = null;
-                        if(collectsClassify.getCoverAddress().contains(","))
-                            base64=collectsClassify.getCoverAddress().split(",")[1];
-
-                        File dir=new File(FilePathEnum.UPLOAD_IMG_COLLECT_CLASSIFY.getPath());
-                        byte[] decode = Base64.getDecoder().decode(base64);
-                        File dest=new File(dir,coverName+imageFormat);
-                        try(FileOutputStream fos=new FileOutputStream(dest)){
-                            fos.write(decode);
-                        }
+                        FilePathEnum.saveAsWebp(decode,dir, String.valueOf(coverName));
                     }catch (IOException e){
-                        e.printStackTrace();
-                        return false;
+                        throw new RuntimeException("封面上传失败");
                     }
-                    collectsClassify.setCoverAddress("/upload/collectClassify/"+coverName+imageFormat);
+                    collectsClassify.setCoverAddress("/upload/collectClassify/"+coverName+".webp");
                 }
             }
         }

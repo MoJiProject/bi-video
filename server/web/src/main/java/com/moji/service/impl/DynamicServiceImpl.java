@@ -503,32 +503,25 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
             StringBuilder imgAddress= new StringBuilder();
             String[] imgBase64S = dynamic.getImgAddress().split(",,");
             for (String imgBase64 : imgBase64S) {
-                String imageFormat = commentService.getImageFormat(imgBase64);
-                if (imageFormat == null||imageFormat.equals(".gif"))
-                    continue;
                 if(FilePathEnum.canUpload()){
                     throw new RuntimeException("服务器存储空间不足，无法上传图片，请联系管理员！");
                 }
                 UUID dynamicImgName = UUID.randomUUID();
                 //添加图片地址
-                imgAddress.append("/upload/dynamic/").append(dynamicImgName).append(imageFormat).append(",");
+                imgAddress.append("/upload/dynamic/").append(dynamicImgName).append(".webp").append(",");
                 // 创建上传目录
                 File uploadDir;
                 uploadDir = new File(FilePathEnum.UPLOAD_IMG_DYNAMIC.getPath());
                 if (!uploadDir.exists())
                     uploadDir.mkdirs();
                 //上传
-                try {
-                    String base64Body = imgBase64.contains(",") ? imgBase64.split(",")[1] : imgBase64;
-                    byte[] decodedBytes = Base64.getDecoder().decode(base64Body);
-                    // 写入文件
-                    File dest = new File(uploadDir, dynamicImgName + imageFormat);
-                    try (FileOutputStream fos = new FileOutputStream(dest)) {
-                        fos.write(decodedBytes);
-                    }
+                String base64Body = imgBase64.contains(",") ? imgBase64.split(",")[1] : imgBase64;
+                byte[] decodedBytes = Base64.getDecoder().decode(base64Body);
+                // 写入文件
+                try{
+                    FilePathEnum.saveAsWebp(decodedBytes,uploadDir, String.valueOf(dynamicImgName));
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    return false;
+                   throw new RuntimeException("图片上传失败！");
                 }
             }
             dynamic.setImgAddress(imgAddress.toString());

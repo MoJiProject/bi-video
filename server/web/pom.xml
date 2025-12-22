@@ -150,7 +150,7 @@
             <artifactId>mybatis-spring</artifactId>
             <version>3.0.3</version>
         </dependency>
-        <!--        获取视频时长-->
+        <!-- 获取视频时长-->
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>javacv</artifactId>
@@ -182,6 +182,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <!--转webp-->
+        <dependency>
+            <groupId>org.sejda.imageio</groupId>
+            <artifactId>webp-imageio</artifactId>
+            <version>0.1.6</version>
+        </dependency>
+
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
@@ -192,7 +199,7 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
-        <!--        密码加密-->
+        <!--密码加密-->
         <dependency>
             <groupId>org.mindrot</groupId>
             <artifactId>jbcrypt</artifactId>

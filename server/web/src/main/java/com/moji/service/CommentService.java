@@ -23,8 +23,6 @@ public interface CommentService extends IService<Comments> {
     //处理删除评论后回复评论的数据
     void deleteReply(List<Comments> commentsList, boolean flag,boolean flag2);//第一个flag是是否更新数量 第二个flag是是否删除该评论
 
-    String getImageFormat(String base64);
-
     List<SelectReplyComment> selectReplyAll(Integer userId, Integer pageNum);
 
     Boolean deleteCommentNotification(Integer commentId, Integer userId, Integer messageMenu,Integer type);

@@ -232,7 +232,6 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
                 if(FilePathEnum.canUpload()){
                    throw new RuntimeException("服务器存储空间不足，无法上传图片，请联系管理员");
                 }
-            String imageFormat = commentService.getImageFormat(privateMessage.getContent());
             UUID messageImgName = UUID.randomUUID();
             // 创建上传目录
             File uploadDir;
@@ -244,15 +243,11 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
                 String base64Body = privateMessage.getContent().contains(",") ? privateMessage.getContent().split(",")[1] : privateMessage.getContent();
                 byte[] decodedBytes = Base64.getDecoder().decode(base64Body);
                 // 写入文件
-                File dest = new File(uploadDir, messageImgName + imageFormat);
-                try (FileOutputStream fos = new FileOutputStream(dest)) {
-                    fos.write(decodedBytes);
-                }
+                FilePathEnum.saveAsWebp(decodedBytes,uploadDir, String.valueOf(messageImgName));
             } catch (IOException e) {
-                e.printStackTrace();
-                return false;
+               throw new RuntimeException("图片发送失败");
             }
-            privateMessage.setContent("/upload/message/"+messageImgName+imageFormat);
+            privateMessage.setContent("/upload/message/"+messageImgName+".webp");
         }
         int insert = privateMessageMapper.insert(privateMessage);
             cacheService.deleteDialogueByUserId(privateMessage.getSenderId());

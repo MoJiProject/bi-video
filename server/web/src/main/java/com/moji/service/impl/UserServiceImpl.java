@@ -685,19 +685,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
                 }
             }
 
-            //上传文件
             UUID avatarName = UUID.randomUUID();
-            String imageFormat = commentService.getImageFormat(avatar);
             File dir=new File(FilePathEnum.UPLOAD_AVATAR.getPath());
             byte[] decode = Base64.getDecoder().decode(base64);
-            File dest=new File(dir,avatarName+imageFormat);
-            try(FileOutputStream fos=new FileOutputStream(dest)){
-                fos.write(decode);
-            }
-            users.setAvatarAddress("/upload/avatar/"+avatarName+imageFormat);
+            users.setAvatarAddress("/upload/avatar/"+avatarName+".webp");
+            //上传文件
+            FilePathEnum.saveAsWebp(decode,dir,String.valueOf(avatarName));
         }catch (IOException e){
-            e.printStackTrace();
-            return false;
+            throw new RuntimeException("头像上传失败");
         }
 
         cacheService.deleteMessageByUserId(userId,null);
@@ -717,40 +712,35 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
         if(users==null)
             return false;
 
-        try {
-            String base64=null;
-            if(background.contains(","))
-                base64=background.split(",")[1];
-            else
-                return false;
-
-            //删除之前的头像
-            if(users.getBackgroundAddress()!=null&&!users.getBackgroundAddress().isEmpty()){
-                String backgroundAddress=users.getBackgroundAddress();
-                int lastIndexOf = backgroundAddress.lastIndexOf("/");
-                String backgroundFile=(lastIndexOf!=-1)? backgroundAddress.substring(lastIndexOf+1):backgroundAddress;
-                Path backgroundPath= Paths.get(FilePathEnum.UPLOAD_IMG_BACKGROUND.getPath()+backgroundFile);
-                try {
-                    Files.delete(backgroundPath);
-                }catch (Exception e){
-                    System.out.println(e.getMessage());
-                    return false;
-                }
-            }
-
-            //上传文件
-            UUID backgroundName = UUID.randomUUID();
-            String imageFormat = commentService.getImageFormat(background);
-            File dir=new File(FilePathEnum.UPLOAD_IMG_BACKGROUND.getPath());
-            byte[] decode = Base64.getDecoder().decode(base64);
-            File dest=new File(dir,backgroundName+imageFormat);
-            try(FileOutputStream fos=new FileOutputStream(dest)){
-                fos.write(decode);
-            }
-            users.setBackgroundAddress("/upload/background/"+backgroundName+imageFormat);
-        }catch (IOException e){
-            e.printStackTrace();
+        String base64=null;
+        if(background.contains(","))
+            base64=background.split(",")[1];
+        else
             return false;
+
+        //删除之前的头像
+        if(users.getBackgroundAddress()!=null&&!users.getBackgroundAddress().isEmpty()){
+            String backgroundAddress=users.getBackgroundAddress();
+            int lastIndexOf = backgroundAddress.lastIndexOf("/");
+            String backgroundFile=(lastIndexOf!=-1)? backgroundAddress.substring(lastIndexOf+1):backgroundAddress;
+            Path backgroundPath= Paths.get(FilePathEnum.UPLOAD_IMG_BACKGROUND.getPath()+backgroundFile);
+            try {
+                Files.delete(backgroundPath);
+            }catch (Exception e){
+                System.out.println(e.getMessage());
+                return false;
+            }
+        }
+
+        //上传文件
+        UUID backgroundName = UUID.randomUUID();
+        File dir=new File(FilePathEnum.UPLOAD_IMG_BACKGROUND.getPath());
+        byte[] decode = Base64.getDecoder().decode(base64);
+        try{
+            FilePathEnum.saveAsWebp(decode,dir, String.valueOf(backgroundName));
+            users.setBackgroundAddress("/upload/background/"+backgroundName+".webp");
+        }catch (IOException e){
+            throw new RuntimeException("背景上传失败");
         }
 
         cacheService.deleteMessageByUserId(userId,null);
