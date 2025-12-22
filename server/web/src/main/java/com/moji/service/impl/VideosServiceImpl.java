@@ -459,6 +459,10 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
             return false;
 
         Videos video = videosMapper.selectById(videoId);
+
+        if(video==null)
+            return false;
+
         String coverAddress = video.getCoverAddress();
         String videoAddress = video.getVideoAddress();
 
@@ -520,7 +524,9 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
             List<Integer> scrollIds = scrollingList.stream()
                     .map(Scrolling::getId)
                     .collect(Collectors.toList());
-            scrollingMapper.deleteBatchIds(scrollIds);
+            if(!scrollIds.isEmpty()) {
+                scrollingMapper.deleteBatchIds(scrollIds);
+            }
             //删除评论
             LambdaQueryWrapper<Comments> commentsLambdaQueryWrapper=new LambdaQueryWrapper<>();
             commentsLambdaQueryWrapper.eq(Comments::getVideoId,videoId);
@@ -543,7 +549,7 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
 
             return true;
         }
-        else return i > 0;
+        else return false;
     }
 
     @Override
