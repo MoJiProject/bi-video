@@ -292,7 +292,6 @@ window.open(
 }
 
 .fans-container{
-    position: absolute;
     display: flex;
     top: 0px;
     padding: 30px 60px;

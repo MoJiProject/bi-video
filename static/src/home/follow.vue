@@ -297,7 +297,6 @@ if(res.data.code===1)
 }
 
 .follow-container{
-    position: absolute;
     display: flex;
     top: 0px;
     padding: 30px 60px;

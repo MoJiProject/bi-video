@@ -1,7 +1,7 @@
 <template>
   <div class="home-body">
     <keep-alive>
-      <component :is="currentComponent" />
+      <component class="home-component" :is="currentComponent" />
     </keep-alive>
   </div>
 </template>
@@ -52,5 +52,9 @@ const currentComponent = computed(() => {
 .home-body{
    position: relative;
    z-index: 1;
+}
+
+.home-component{
+  width: 100vw;
 }
 </style>

@@ -285,7 +285,6 @@ function openAccount(){
 }
 
 .home{
-    width: 1090px;
     top: 24px;
     padding-left: 60px;
     padding-bottom: 25px;
