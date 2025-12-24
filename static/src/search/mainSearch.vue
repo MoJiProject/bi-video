@@ -7,7 +7,10 @@
       />
       <Searcha
         ref="searcha"
-        style="transform: translate(392px, -25px)"
+        style="position: relative;
+            left: 50%;
+            transform: translate(-50%,-25px);
+            z-index: 1000;"
         :mainSearchFlag="true"
         :handleUrlChange="handleUrlChange"
       />
@@ -30,9 +33,10 @@
         ref="searcha2"
         :handleUrlChange="handleUrlChange"
           style="
-            transform: translate(392px, 28px);
-            z-index: 1000;
             position: relative;
+            left: 50%;
+            transform: translate(-50%,28px);
+            z-index: 1000;
           "
         />
       </div>
@@ -1538,6 +1542,7 @@
                   width: windowWidth + 'px',
                 }"
                 style="
+                  width: 100vw;
                   display: flex;
                   justify-content: center;
                   margin-top: 70px;
@@ -3120,10 +3125,6 @@ export default {
   transform: translate(-50%, 0);
 }
 
-.searchBox2 {
-  position: relative;
-  z-index: 1000;
-}
 
 .hiddenBox {
   width: 100%;
