@@ -197,7 +197,7 @@
                     }}</span>
                     &nbsp;粉丝</span
                   >
-                  <span style="margin-left: 25px; color: #95999f; cursor: pointer"
+                  <span style="margin-left: 25px; color: #95999f;"
                     ><span style="color: black">{{
                       SelectVideoByIdVo.upUser.likeNumber
                     }}</span>

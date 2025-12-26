@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="userInfo?.id&&(userInfo.isFollowFlag===0||userInfo.isFollowFlag===1)"
-    class="up-user-info">
+    class="up-user-info" @click.stop>
     <div v-if="!userInfo.backgroundAddress" :style="{backgroundImage:'url(../img/主页背景图.webp)'}" class="up-user-info-bg"></div>
     <div v-else :style="{backgroundImage:`url(${userInfo.backgroundAddress})`}" class="up-user-info-bg"></div>
     <div class="up-user-info-container">
@@ -48,7 +48,7 @@
         }}</span>
         &nbsp;粉丝</span
         >
-        <span style="margin-left: 25px; color: #95999f; cursor: pointer"
+        <span style="margin-left: 25px; color: #95999f;"
         ><span style="color: black">{{
             userInfo.likeNumber
         }}</span>
@@ -204,6 +204,7 @@ function openHome(menu,id){
   box-shadow: 1px 0px 5px #e5e5e5;
   overflow: hidden;
   padding-bottom: 40px;
+  cursor: default;
 }
 
 .up-user-avatar-container {
