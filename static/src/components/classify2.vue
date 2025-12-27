@@ -3,7 +3,7 @@
     <div class="classify2" @mouseover="classify2PartMouseover" @mouseleave="classify2PartMouseleave">
 
       <div class="classify2-part1">
-        <span @mouseover="dynamicHoverFlag=true" @mouseleave="dynamicHoverFlag=false"><img :src="dynamicHoverFlag?dynamicBlue:dynamicGray" class="img1">动 态</span>
+        <span @mouseover="dynamicHoverFlag=true" @mouseleave="dynamicHoverFlag=false" @click="openDynamic"><img :src="dynamicHoverFlag?dynamicBlue:dynamicGray" class="img1">动 态</span>
         <span @mousemove="fireHoverFlag=true" @mouseleave="fireHoverFlag=false"><img :src="fireHoverFlag?fireBlue:fireGray" class="img2">热 门</span> 
       </div>
 
@@ -971,6 +971,9 @@ export default {
    }
 
 
+   function openDynamic(){
+      window.open("./dynamic", "_blank");
+    }
 
 
 
@@ -986,7 +989,7 @@ export default {
       classify2Part,
       classify2PartMouseover,
       classify2PartMouseleave,
-
+      openDynamic,
 
     }
 
