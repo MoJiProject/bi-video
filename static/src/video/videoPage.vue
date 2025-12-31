@@ -3326,6 +3326,7 @@ export default {
 
     //卸载时移除事件监听
     onBeforeUnmount(() => {
+      window.removeEventListener("wheel",handleWheel);
       window.removeEventListener("click", handleClickCollectInputOutside);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("click", inputUpVideoTime);
@@ -4228,8 +4229,86 @@ export default {
       } catch (error) {}
     }
 
-    //连接websocket实时更新滚动弹幕
-    const socket = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/api/scrolling`);
+    //连接websocket实时更新滚动弹幕（支持断线重连）
+    class ReconnectingWebSocket {
+      constructor(url, protocols) {
+        this.url = url;
+        this.protocols = protocols;
+        this.reconnectAttempts = 0;
+        this.maxReconnectAttempts = 10;
+        this.messageQueue = [];
+        this.shouldReconnect = true;
+        this.ws = null;
+        this.onopen = null;
+        this.onmessage = null;
+        this.onclose = null;
+        this.onerror = null;
+        this.connect();
+      }
+
+      connect() {
+        try {
+          const ws = new WebSocket(this.url, this.protocols);
+          this.ws = ws;
+
+          ws.onopen = async (e) => {
+            this.reconnectAttempts = 0;
+            if (typeof this.onopen === 'function') this.onopen(e);
+            while (this.messageQueue.length > 0 && ws.readyState === WebSocket.OPEN) {
+              try {
+                ws.send(this.messageQueue.shift());
+              } catch (err) {
+                break;
+              }
+            }
+          };
+
+          ws.onmessage = (e) => {
+            if (typeof this.onmessage === 'function') this.onmessage(e);
+          };
+
+          ws.onclose = (e) => {
+            if (typeof this.onclose === 'function') this.onclose(e);
+            if (!this.shouldReconnect) return;
+            this.reconnectAttempts++;
+            if (this.maxReconnectAttempts && this.reconnectAttempts > this.maxReconnectAttempts) return;
+            const delay = Math.min(30000, 1000 * Math.pow(2, this.reconnectAttempts - 1));
+            setTimeout(() => this.connect(), delay);
+          };
+
+          ws.onerror = (e) => {
+            if (typeof this.onerror === 'function') this.onerror(e);
+          };
+        } catch (err) {
+          this.reconnectAttempts++;
+          const delay = Math.min(30000, 1000 * Math.pow(2, this.reconnectAttempts - 1));
+          setTimeout(() => this.connect(), delay);
+        }
+      }
+
+      send(data) {
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+          this.ws.send(data);
+        } else {
+          this.messageQueue.push(data);
+        }
+      }
+
+      close(code, reason) {
+        this.shouldReconnect = false;
+        if (this.ws) this.ws.close(code, reason);
+      }
+
+      addEventListener(...args) {
+        return this.ws && this.ws.addEventListener(...args);
+      }
+
+      removeEventListener(...args) {
+        return this.ws && this.ws.removeEventListener(...args);
+      }
+    }
+
+    const socket = new ReconnectingWebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/api/scrolling`);
     socket.onopen = async () => {
       await getVideoAndUser();
       if(SelectVideoByIdVo.upVideo?.id != null)

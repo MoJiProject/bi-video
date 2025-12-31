@@ -132,28 +132,38 @@ public class ScrollingServer implements WebSocketConfigurer {
         }
 
         /**
+         * 统一清理会话并更新观看数
+         * @param session
+         */
+        private void cleanupSession(WebSocketSession session) {
+            try {
+                Integer videoId = sessions.remove(session);
+                if (videoId == null) {
+                    Object attr = session.getAttributes().get("videoId");
+                    if (attr instanceof Integer) {
+                        videoId = (Integer) attr;
+                    }
+                }
+
+                if (videoId != null) {
+                    watchNumber.computeIfPresent(videoId, (k, count) -> {
+                        int newCount = count.decrementAndGet();
+                        return newCount > 0 ? count : null;
+                    });
+                    broadcastToAllSessionsWatch(videoId);
+                }
+            } finally {
+                // 保证属性清理，避免内存泄漏
+                session.getAttributes().remove("videoId");
+            }
+        }
+
+        /**
          * 会话关闭时：先移除会话，再处理观看数，避免广播时包含已关闭会话
          */
         @Override
         public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-            // 关键：先从sessions中移除，避免后续广播包含该会话
-            Integer videoId = sessions.remove(session);
-            if (videoId == null) {
-                videoId = (Integer) session.getAttributes().get("videoId");
-            }
-
-            // 处理观看数
-            if (videoId != null) {
-                watchNumber.computeIfPresent(videoId, (k, count) -> {
-                    int newCount = count.decrementAndGet();
-                    return newCount > 0 ? count : null;
-                });
-                // 广播观看数变化
-                broadcastToAllSessionsWatch(videoId);
-            }
-
-            // 清理属性
-            session.getAttributes().remove("videoId");
+            cleanupSession(session);
         }
 
         /**
@@ -161,20 +171,18 @@ public class ScrollingServer implements WebSocketConfigurer {
          */
         private void sendMessage(WebSocketSession session, String message) {
             try {
-                // 双重检查（非原子，但可减少无效发送）
                 if (session.isOpen()) {
                     session.sendMessage(new TextMessage(message));
                 }
             } catch (Exception e) {
-                // 精准捕获会话关闭类异常，仅记录trace级别
-                String errorMsg = e.getMessage();
-                if (errorMsg != null && (errorMsg.contains("transformer has been closed")
-                        || errorMsg.contains("Session is closed")
-                        || errorMsg.contains("IllegalStateException"))) {
-                } else {
+                // 遇到发送异常时只做统一清理并尝试关闭，不直接调用 afterConnectionClosed
+                cleanupSession(session);
+                try {
+                    if (session.isOpen()) {
+                        session.close(new CloseStatus(1011, "Error sending message"));
+                    }
+                } catch (Exception ignore) {
                 }
-                // 确保清理无效会话
-                sessions.remove(session);
             }
         }
 
@@ -183,8 +191,13 @@ public class ScrollingServer implements WebSocketConfigurer {
          */
         @Override
         public void handleTransportError(WebSocketSession session, Throwable exception) {
-            sessions.remove(session);
-            session.getAttributes().clear();
+            cleanupSession(session);
+            try {
+                if (session.isOpen()) {
+                    session.close(new CloseStatus(1011, "Transport error"));
+                }
+            } catch (Exception ignore) {
+            }
         }
     }
 }
