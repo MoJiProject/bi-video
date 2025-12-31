@@ -209,6 +209,7 @@
     </dependencies>
 
     <build>
+        <finalName>bi-video</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
