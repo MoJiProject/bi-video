@@ -174,6 +174,10 @@ async function homeDynamicF() {
   } else {
     loadMore2.value = true;
   }
+  if(pageNum2.value === 1) 
+  {
+    dynamicList.length = 0;
+  }
   let date = new Date();
   homeDynamic(
     store.homeUserInformation.id,
