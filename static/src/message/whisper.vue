@@ -559,7 +559,7 @@ async function selectPrivateMessageF(sDialogue, a) {
       nextTick(() => {
         requestAnimationFrame(() => {
           if (messageContent?.value) messageContent.value.scrollTop = messageContent.value.scrollHeight;
-          messageLoadingFlag.value = incoming.length === 20;
+          messageLoadingFlag.value = messagePageNum.value > 0;
           messageLoading.value = false;
         });
       });
@@ -587,13 +587,12 @@ const selectPrivateMessageF2 =async (sDialogue) => {
       if (incoming.length) {
         privateMessageList.unshift(...incoming);
       }
-      if (!incoming || incoming.length === 0) messageLoadingFlag.value = false;
+      messageLoadingFlag.value = messagePageNum.value > 0;
       messageLoading.value = false;
       dealyFlag = true;
     }
-  }).catch(() => {
-    messageLoading.value = false;
-    messageLoadingFlag.value = false;
+  }).catch((error) => {
+    console.log(error);
   });
 };
 
@@ -601,13 +600,13 @@ watch(currentDialogue, async (newVal) => {
   if (newVal !== null) {
     userInfo.value = null;
     messageNumber.value = 0;
-    dealyFlag = true;
     dialogueUserInfo.value = null;
     privateMessageList.length = 0;
     messageLoadingFlag.value = true;
     messagePageNum.value = Math.ceil(newVal?.allMessageNumber / 20);
     await selectPrivateMessageF(newVal, 1);
     await selectPrivateMessageF(newVal, 2);
+    dealyFlag = true;
     if(socket&&socket.readyState === 1)
     {
       updateMessageNumber(-newVal.notReadNumber);
@@ -859,13 +858,17 @@ function dialogueListScroll(e) {
 }
 
 let dealyFlag = true;
-function messageListScroll(e){
+async function messageListScroll(e){
     if(!e.target) return;
     if(!messageLoadingFlag.value) return;
-    messageLoading.value = e.target.scrollTop <= 250;
+    messageLoading.value = e.target.scrollTop === 0;
     if(messageLoading.value && dealyFlag){
         dealyFlag = false;
-        selectPrivateMessageF2(currentDialogue.value);
+        const oldScrollHeight = e.target.clientHeight;
+        await selectPrivateMessageF2(currentDialogue.value);
+        nextTick(()=>{
+          e.target.scrollTop = oldScrollHeight - 280;
+        })
     }
 }
 
