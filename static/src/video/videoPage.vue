@@ -3306,7 +3306,7 @@ export default {
         videoAudio.value = 100;
       } else {
         volume = volume / 100;
-        videoAudio.value = volume * 100;
+        videoAudio.value = parseInt(volume * 100);
       }
       upVideoPlayer.value.volume = volume;
       setVideoOpenAutoPlayFlag.value =
