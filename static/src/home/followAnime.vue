@@ -52,7 +52,7 @@
 </template>
 
 <script setup>
-import { ref,reactive, watch, onMounted, onUnmounted } from "vue";
+import { ref,reactive, watch, onMounted } from "vue";
 import followAnimeData from '@/utils/followAnimeData';
 import followAnimeList from '@/utils/followAnimeList';
 import { useGlobalStore } from "@/store/store";
@@ -67,12 +67,9 @@ const loadMore=ref(true);
 onMounted(()=>{
     setTimeout(() => {
         store.setHomeLoad(true,"homeBody");
+        store.setHomeLoadMenuList(6);
         loadMore.value=false;
     }, 300);
-})
-
-onUnmounted(()=>{
-    store.setHomeLoad(false,"homeBody");
 })
 
 //添加标签

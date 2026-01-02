@@ -87,7 +87,7 @@
 
 <script setup>
 import { useGlobalStore } from "@/store/store";
-import { onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import {fansOrFollow,putNewFans} from "@/api/user";
 import {addFollow,deleteFollow} from "@/api/user";
 import { ElMessage } from "element-plus";
@@ -106,20 +106,14 @@ const fansList=reactive([]);
 
 onMounted(async()=>{
     if(store.homeUserInformation.id&&store.userId){
-        fansOrFollowF();
-        await fansOrFollowF2();
+        await fansOrFollowF();
+         fansOrFollowF2();
         putNewFans(store.token,store.userId);
-        store.setHomeLoad(true,'homeBody');
     }
-    else{
-        setTimeout(() => {
-           store.setHomeLoad(true,'homeBody'); 
-        }, 300);
-    } 
-})
-
-onUnmounted(()=>{
-    store.setHomeLoad(false,"homeBody");
+    if(store.homeLoad.homeHead&&!store.userId){
+        store.setHomeLoad(true,'homeBody');
+        store.setHomeLoadMenuList(9);
+    }
 })
 
 // 监听搜索词
@@ -135,6 +129,13 @@ watch(searchWord,()=>{
 watch(pageNum,()=>{
     fansOrFollowF();
 })
+
+watch(()=>store.homeLoad.homeHead,(val=>{
+    if(val&&!store.userId){
+        store.setHomeLoad(true,'homeBody');
+        store.setHomeLoadMenuList(9);
+    }
+}))
 
 // 更改当前页
 function handleCurrentChange(val){
@@ -193,7 +194,9 @@ fansOrFollow(userId,store.userId,9,pageNum.value,searchWord.value,store.token).t
    }
     let date2=new Date();
     setTimeout(() => {
-            loadMore.value=false;
+        loadMore.value=false;
+        store.setHomeLoad(true,'homeBody');
+        store.setHomeLoadMenuList(9);
     }, date2 - date<300?300:date2 - date);
 })
 
@@ -204,10 +207,9 @@ let onceFlag=true;
 watch([()=>store.homeUserInformation.id,()=>store.userId],async()=>{
     if(onceFlag&&store.homeUserInformation.id&&store.userId){
         onceFlag=false;
-        fansOrFollowF();
-        await fansOrFollowF2();
+        await fansOrFollowF();
+         fansOrFollowF2();
         putNewFans(store.token,store.userId);
-        store.setHomeLoad(true,'homeBody');
     }
 })
 

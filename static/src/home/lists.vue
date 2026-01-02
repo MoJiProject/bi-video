@@ -14,7 +14,7 @@
 
 <script setup>
 import { useGlobalStore } from "@/store/store";
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 
 const loadMore=ref(true);
 const store = useGlobalStore();
@@ -23,12 +23,9 @@ const userId = parseInt(new URL(window.location).searchParams.get("userId")) || 
 onMounted(()=>{
     setTimeout(() => {
     store.setHomeLoad(true,'homeBody');
+    store.setHomeLoadMenuList(4);
     loadMore.value=false;
     }, 300);
-})
-
-onUnmounted(()=>{
-    store.setHomeLoad(false,"homeBody");
 })
 
 </script>

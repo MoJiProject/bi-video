@@ -90,7 +90,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import { useGlobalStore } from "../store/store";
 import dynamicC from "@/utils/dynamic.vue";
 import { homeDynamic,homeContributeVideos } from "@/api/home/index";
@@ -118,9 +118,8 @@ onMounted(async () => {
    
   store.setKeyword(keyword.value);
   if (store.homeUserInformation.id) {
-    homeContributeVideosF();
     await homeDynamicF();
-    store.setHomeLoad(true, "homeBody");
+    homeContributeVideosF();
   }
 
   if (store.userId) {
@@ -130,10 +129,6 @@ onMounted(async () => {
   window.addEventListener("scroll", handleScroll);
 });
 
-onUnmounted(() => {
-  store.setHomeLoad(false, "homeBody");
-});
-
 // 监听store变化
 let onceFlag = true;
 watch(
@@ -141,9 +136,8 @@ watch(
   async () => {
     if (onceFlag && store.homeUserInformation.id) {
       onceFlag = null;
-      homeContributeVideosF();
       await homeDynamicF();
-      store.setHomeLoad(true, "homeBody");
+      homeContributeVideosF();
     }
   },
 );
@@ -223,6 +217,8 @@ async function homeContributeVideosF() {
       setTimeout(
         () => {
           loadMore.value = false;
+          store.setHomeLoad(true, "homeBody");
+          store.setHomeLoadMenuList(10);
         },
         date2 - date < 300 ? 300 : date2 - date,
       );

@@ -1,6 +1,6 @@
 <template>
   <div v-if="userId" class="home-page">
-    <div v-if="!animationDelayFlag" class="home-loading" :class="{animationDelayFlag:animationDelayFlag}"></div>
+    <div v-if="!animationDelayFlag" class="home-loading"></div>
     <div v-else class="home-loading" :class="{animationDelayFlag:animationDelayFlag}"></div>
     <home-head/>
     <homeAside/>
@@ -45,7 +45,7 @@ onMounted(() => {
 });
 
 watch(()=>store.homeLoad,()=>{
-    animationDelayFlag.value=!store.homeLoad.homeHead||!store.homeLoad.homeAside||!store.homeLoad.homeBody;
+    animationDelayFlag.value=!(store.homeLoad.homeHead&&store.homeLoad.homeAside&&store.homeLoad.homeBody);
 },{deep:true});
 
 
@@ -80,7 +80,7 @@ watch(()=>store.homeLoad,()=>{
     width: 0px;
   }
   100%{
-    width: 100%;
+    width: 95%;
   }
 }
 

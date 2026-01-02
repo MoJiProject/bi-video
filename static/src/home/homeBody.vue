@@ -7,7 +7,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import home from './home.vue'
 import dynamic from './dynamic.vue';
 import contribute from './contribute.vue';
@@ -30,22 +30,31 @@ const currentComponent = computed(() => {
     case 4: return lists;
     case 5:
       return (store.homeUserInformation.publicCollect === 1 ||
-              (store.userId !== null && store.userId === userId)) ? collect : home;
+              (store.userId !== null && store.userId === userId)) ? collect : null;
     case 6:
       return (store.homeUserInformation.publicAnime === 1 ||
-              (store.userId !== null && store.userId === userId)) ? followAnime : home;
+              (store.userId !== null && store.userId === userId)) ? followAnime : null;
     case 7:
-      return (store.userId !== null && store.userId === userId) ? settings : home;
+      return (store.userId !== null && store.userId === userId) ? settings : null;
     case 8:
       return (store.homeUserInformation.publicFollowList === 1 ||
-              (store.userId !== null && store.userId === userId)) ? follow : home;
+              (store.userId !== null && store.userId === userId)) ? follow : null;
     case 9:
       return (store.homeUserInformation.publicFansList === 1 ||
-              (store.userId !== null && store.userId === userId)) ? fans : home;
+              (store.userId !== null && store.userId === userId)) ? fans : null;
     case 10: return search;
-    default: return home;
   }
 });
+
+watch(() => store.homeMenu, (newVal) => {
+  if (store.homeLoadMenuList.includes(newVal)) {
+    setTimeout(() => {
+      store.setHomeLoad(true,"homeBody");
+    }, 50);
+  }
+});
+
+
 </script>
 
 <style scoped lang="scss">

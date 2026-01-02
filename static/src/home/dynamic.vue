@@ -53,11 +53,10 @@ const touchStartY = ref(0)
 const touchMoveY = ref(0)
 const touchEndY = ref(0)
 
-onMounted(async()=>{
+onMounted(()=>{
 
     if(store.homeUserInformation.id){
-        await homeDynamicF();
-        store.setHomeLoad(true,"homeBody");
+        homeDynamicF();
     }
 
     if(store.userId){
@@ -71,9 +70,6 @@ onMounted(async()=>{
 })
 
 onUnmounted(()=>{
-
-    store.setHomeLoad(false,"homeBody");
-
     window.removeEventListener("scroll",handleScroll);
     document.removeEventListener("touchstart", touchStartF)
     document.removeEventListener("touchmove", touchMoveF)
@@ -83,12 +79,11 @@ onUnmounted(()=>{
   
 // 监听store变化
 let onceFlag=true;
-watch(()=>store.homeUserInformation.id,async()=>{
+watch(()=>store.homeUserInformation.id,()=>{
 
     if(onceFlag&&store.homeUserInformation.id){
         onceFlag=null;
-        await homeDynamicF();
-        store.setHomeLoad(true,"homeBody");
+        homeDynamicF();
     } 
 })
 
@@ -153,6 +148,8 @@ async function homeDynamicF(){
                 setTimeout(() => {
                 loadMore.value=false;
                 loadMore2.value=false;
+                store.setHomeLoad(true,"homeBody");
+                store.setHomeLoadMenuList(2);
             }, date2 - date<300?300:date2 - date);
         }
     })

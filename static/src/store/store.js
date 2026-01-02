@@ -32,7 +32,7 @@ export const useGlobalStore = defineStore('global', {
       selectUpVideo: {},//当前播放视频信息
       shareVideoFocusFlag: false,//分享视频输入框焦点标识
       shareHover: false,//分享按钮hover标识
-      homeMenu: 1,//1主页 2动态 3投稿 4合集 5收藏 6追番追剧 7设置 8关注 9粉丝 10搜索
+      homeMenu: 0,//1主页 2动态 3投稿 4合集 5收藏 6追番追剧 7设置 8关注 9粉丝 10搜索
       homeUserInformation: {},//home用户信息
       homeLoad:{
         homeHead: false,
@@ -49,7 +49,8 @@ export const useGlobalStore = defineStore('global', {
       collectIds: [],//收藏夹id
       accountMenu: 1,//1个人信息 2头像 3背景
       mouseX: 0,//鼠标x轴坐标
-      collectNumber: 0
+      collectNumber: 0,
+      homeLoadMenuList: [],//home加载菜单列表
     }
   },
   actions: {
@@ -147,6 +148,7 @@ export const useGlobalStore = defineStore('global', {
     },
     setHomeMenu(newValue,userId,flag,collectId) {
       this.homeMenu = newValue
+      this.homeLoad.homeBody = false;
       if(flag){
       const url = new URL(window.location);
       url.searchParams.set("homeMenu", newValue);
@@ -202,6 +204,9 @@ export const useGlobalStore = defineStore('global', {
     },
     setCollectNumber(newValue) {
       this.collectNumber = newValue
-    }
+    },
+    setHomeLoadMenuList(newValue) {
+      this.homeLoadMenuList.push(newValue)
+    },
   }
 })

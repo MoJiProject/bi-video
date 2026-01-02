@@ -130,7 +130,7 @@
 
 <script setup>
 import { useGlobalStore } from "@/store/store";
-import { onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import videoList3 from "@/utils/videoList3";
 import videoList4 from "@/utils/videoList4";
 import imgDynamic from "@/utils/imgDynamic.vue";
@@ -149,16 +149,11 @@ const imgSource = ref(1);
 const loadMore = ref(true);
 const pageNum = ref(1);
 
-onMounted(async () => {
+onMounted(() => {
   if (store.homeUserInformation.id) {
     homeContributeVideosF();
-    await dynamicImgF();
-    store.setHomeLoad(true, "homeBody");
+    dynamicImgF();
   }
-});
-
-onUnmounted(() => {
-  store.setHomeLoad(false, "homeBody");
 });
 
 // 获取用户主页投稿的视频
@@ -179,6 +174,8 @@ async function homeContributeVideosF() {
       setTimeout(
         () => {
           loadMore.value = false;
+          store.setHomeLoadMenuList(3);
+          store.setHomeLoad(true, "homeBody");
         },
         date2 - date < 300 ? 300 : date2 - date,
       );
@@ -217,12 +214,11 @@ watch(sort, () => {
 let onceFlag = true;
 watch(
   () => store.homeUserInformation.id,
-  async () => {
+   () => {
     if (onceFlag && store.homeUserInformation.id) {
       onceFlag = false;
       homeContributeVideosF();
-      await dynamicImgF();
-      store.setHomeLoad(true, "homeBody");
+      dynamicImgF();
     }
   },
 );

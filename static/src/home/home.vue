@@ -106,7 +106,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, reactive, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import {useGlobalStore} from "@/store/store";
 import videoList from '@/utils/videoList';
 import videoList2 from '@/utils/videoList2';
@@ -140,44 +140,34 @@ const divs = reactive([
 onMounted(async()=>{
     
     getSort();
-    let date=new Date();
     if(store.homeUserInformation.id)
     {
         homeMagnumVideosF();
-        homeContributeVideosF();
        if((store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicCoin===1)
         homeThrowCoinVideosF();
        if((store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicCollect===1)
         homeCollectF();
        if((store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicLove===1)
-        await homeLoveVideosF();
-         store.setHomeLoad(true,'homeBody');
+        homeLoveVideosF();
+       await homeContributeVideosF();
     }
-    let date2=new Date();
-    setTimeout(()=>{
-        loadMore.value=false;
-    },date2 - date<300?300:date2 - date) 
-})
-
-onUnmounted(()=>{
-    store.setHomeLoad(false,'homeBody');
 })
 
 watch([()=>store.homeUserInformation.id,()=>store.updateVideoInfoFlag],async()=>{
 
-    if(onceFlag&&store.homeUserInformation.id){
+    if(onceFlag&&store.homeUserInformation.id&&
+    (store.homeUserInformation.publicCoin===0||store.homeUserInformation.publicCoin===1)&&
+    (store.homeUserInformation.publicCollect===0||store.homeUserInformation.publicCollect===1)&&
+    (store.homeUserInformation.publicLove===0||store.homeUserInformation.publicLove===1)){
         onceFlag=false;
-       let date=new Date();
         homeMagnumVideosF();
+       if((store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicCoin===1)
         homeThrowCoinVideosF();
+       if((store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicCollect===1)
         homeCollectF();
-        homeContributeVideosF();
-       await homeLoveVideosF();
-       let date2=new Date();
-       setTimeout(()=>{
-        store.setHomeLoad(true,'homeBody');
-           loadMore.value=false;
-       },date2 - date<300?300:date2 - date)
+       if((store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicLove===1)
+        homeLoveVideosF();
+       await homeContributeVideosF();
     }
     if(store.updateVideoInfoFlag)
     {
@@ -196,7 +186,7 @@ watch([()=>store.homeUserInformation.id,()=>store.updateVideoInfoFlag],async()=>
         store.setUpdateVideoInfoFlag(false);
     }
 
-})
+},{deep: true,immediate: true});
 
 // 获取用户主页投稿的视频
 async function homeContributeVideosF(){
@@ -206,6 +196,13 @@ async function homeContributeVideosF(){
                 contributeVideos.length=0;
                 Object.assign(contributeVideos,res.data.data.records.slice(0,10));
                 contributeTotal.value=res.data.data.total;
+                let date=new Date();
+                let date2=new Date();
+                setTimeout(()=>{
+                    store.setHomeLoad(true,'homeBody');
+                    store.setHomeLoadMenuList(1);
+                    loadMore.value=false;
+                },date2 - date<300?300:date2 - date)
             }
     });
 }

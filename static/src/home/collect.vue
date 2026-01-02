@@ -338,19 +338,16 @@ const checkAll= ref(false);
 const collectTotal = ref(0);
 const loadMore = ref(true);
 
-onMounted(async()=>{
+onMounted(()=>{
 
 if (store.homeUserInformation.id) {
-    await getCollectsClassifyF();
-    store.setHomeLoad(true,'homeBody');
+     getCollectsClassifyF();
 }
 window.addEventListener('click',handleClickOutside);
 
 })
 
 onUnmounted(()=>{
-
-store.setHomeLoad(false,"homeBody");
 window.removeEventListener('click',handleClickOutside);
 })
 
@@ -366,11 +363,10 @@ function handleClickOutside(event) {
 let onceFlag = true;
 watch(
   () => store.homeUserInformation.id,
-  async () => {
+   () => {
     if (onceFlag && store.homeUserInformation.id) {
       onceFlag = false;
        getCollectsClassifyF();
-      store.setHomeLoad(true, "homeBody");
     }
   },
 );
@@ -410,6 +406,8 @@ function getCollectByNameF(){
             setTimeout(
                 () => {
                 loadMore.value = false;
+                store.setHomeLoad(true,'homeBody');
+                store.setHomeLoadMenuList(5);
                 },
                 date2 - date < 300 ? 300 : date2 - date,
             );

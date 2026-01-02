@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref,reactive, watch } from "vue";
+import { onMounted, ref,reactive, watch } from "vue";
 import { useGlobalStore } from "../store/store";
 import { putHomeSettings } from "../api/user/index";
 import { ElMessage } from "element-plus";
@@ -70,6 +70,7 @@ onMounted(()=>{
         onceFlag=false;
         setTimeout(() => {
         store.setHomeLoad(true,"homeBody");
+        store.setHomeLoadMenuList(7);
         loadMore.value=false;
         }, 300);  
     }
@@ -89,10 +90,6 @@ onMounted(()=>{
     });
     
 
-})
-
-onUnmounted(()=>{
-    store.setHomeLoad(false,"homeBody");
 })
 
 //更新设置
@@ -147,10 +144,12 @@ watch(()=>store.userInformation,()=>{
         onceFlag=false;
         setTimeout(() => {
         store.setHomeLoad(true,"homeBody");
+        store.setHomeLoadMenuList(7);
         loadMore.value=false;
         }, 300);  
     }
-})
+},{deep:true,immediate:true});
+
 
 //监听设置
 watch(publicCollect,()=>{
