@@ -34,7 +34,7 @@
                     <span :style="{fontWeight: store.homeMenu===7? 'bold' : 'normal', color: store.homeMenu==7? '#00AEEC' : '#18191C'}">设置</span>
                 </span>
                </div>
-               <div class="line" :style="{transform: 'translateX('+menuLinePositionX[store.homeMenu-1]+'px)', width: menuLineWidth[store.homeMenu-1]+'px'}"></div>
+               <div v-show="store.homeMenu!==8&&store.homeMenu!==9&&store.homeMenu!==10" class="line" :style="{transform: 'translateX('+menuLinePositionX[store.homeMenu-1]+'px)', width: menuLineWidth[store.homeMenu-1]+'px'}"></div>
                <div class="search-box">
                     <input class="left-part2" type="text" ref="searchInput" placeholder="搜索视频、动态" maxlength="50" v-model="searchContent" @keydown.enter="searchJumpPage" @blur="searchInputFoucsFlag=false">
                     <img
