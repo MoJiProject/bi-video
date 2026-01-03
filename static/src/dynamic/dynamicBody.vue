@@ -748,8 +748,10 @@ function cleanNewDynamicMessageF(){
    store.userInformation.dynamicNumber=0;
    dynamicPageNum.value=1;
    dynamicList.length=0;
+   upChecked.value=0;
    fotterFlag.value=false;
    newAllDynamicFlag.value=false;
+   cleanDynamicMessage(store.token,store.userId,0);
    getDynamicF();
 }
 

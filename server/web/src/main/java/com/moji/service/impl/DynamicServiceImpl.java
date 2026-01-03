@@ -1205,13 +1205,15 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
 
         LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
         dynamicLambdaQueryWrapper.eq(Dynamic::getFansId,userId)
-                .eq(Dynamic::getFollowId,dynamicUserId)
+                .eq(dynamicUserId!=0,Dynamic::getFollowId,dynamicUserId)
+                .eq(Dynamic::getFansFlag,1)
                 .isNotNull(Dynamic::getDynamicId);
         dynamicMapper.delete(dynamicLambdaQueryWrapper);
 
         LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper2=new LambdaQueryWrapper<>();
         dynamicLambdaQueryWrapper2.eq(Dynamic::getFansId,userId)
-                .eq(Dynamic::getFollowId,dynamicUserId)
+                .eq(dynamicUserId!=0,Dynamic::getFollowId,dynamicUserId)
+                .eq(Dynamic::getFansFlag,1)
                 .isNull(Dynamic::getDynamicId);
         List<Dynamic> dynamics = dynamicMapper.selectList(dynamicLambdaQueryWrapper2);
         if (!dynamics.isEmpty()) {
@@ -1313,9 +1315,11 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
         dynamicLambdaQueryWrapper.eq(Dynamic::getFansId,userId)
                 .and(wrapper->wrapper
                         .isNull(Dynamic::getDynamicId)
+                        .eq(Dynamic::getFansFlag,1)
                         .eq(Dynamic::getWaitWatch,0)
                         .or()
                         .isNotNull(Dynamic::getDynamicId)
+                        .eq(Dynamic::getFansFlag,1)
                 )
                 .last("LIMIT 1");
         return dynamicMapper.selectOne(dynamicLambdaQueryWrapper)!=null;
