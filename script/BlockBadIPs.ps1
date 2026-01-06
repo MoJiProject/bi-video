@@ -49,7 +49,7 @@ if (-not ($adminCheck.Groups -match "S-1-5-32-544")) {
 $logLines = Get-Content -Path $logFilePath -ErrorAction SilentlyContinue -Tail $maxEntries
 
 if ($logLines.Count -eq 0) {
-    Write-Host "[ERROR] Cannot read Nginx access.log !" -ForegroundColor Red
+    Write-Host "[ERROR] Cannot read Nginx access.log or the log is empty!" -ForegroundColor Red
     exit
 }
 
@@ -57,12 +57,14 @@ Write-Host "Scanning last $maxEntries log entries..."
 
 $ipHits = @{}
 
-foreach ($line in $logLines) {
+# Add a label to the outer loop
+:LineLoop foreach ($line in $logLines) {
 
     # Skip white-list API
     foreach ($api in $whiteApi) {
         if ($line -like "*$api*") {
-            continue 2   # Skip this log line entirely
+            # Use the label to continue the outer loop
+            continue LineLoop
         }
     }
 
@@ -78,15 +80,27 @@ foreach ($line in $logLines) {
                 } else {
                     $ipHits[$ip] = 1
                 }
+                # Break after the first pattern match for a given line
+                break
             }
-
-            break
         }
     }
 }
 
 Write-Host "Suspicious IP detection finished."
 Write-Host "------------------------------------"
+
+if ($ipHits.Count -eq 0) {
+    Write-Host "No suspicious IPs found."
+} else {
+    Write-Host "IP Hit Counts:"
+    $ipHits.GetEnumerator() | ForEach-Object {
+        Write-Host "  IP: $($_.Name), Hits: $($_.Value)"
+    }
+}
+
+Write-Host "------------------------------------"
+Write-Host "Blocking IPs that exceed threshold ($threshold)..."
 
 # ============================================
 # Block
@@ -102,9 +116,11 @@ foreach ($ip in $ipHits.Keys) {
 
         if (-not $existing) {
             New-NetFirewallRule -DisplayName $ruleName -Direction Inbound -Action Block -RemoteAddress $ip
-            Write-Host "Blocked IP: $ip   Hits: $count"
+            Write-Host "Blocked IP: $ip   Hits: $count" -ForegroundColor Green
         } else {
-            Write-Host "Already blocked: $ip"
+            Write-Host "Already blocked: $ip" -ForegroundColor Yellow
         }
     }
 }
+
+Write-Host "Script finished."
