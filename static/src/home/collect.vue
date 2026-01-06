@@ -345,6 +345,7 @@ if (store.homeUserInformation.id) {
 }
 window.addEventListener('click',handleClickOutside);
 
+
 })
 
 onUnmounted(()=>{
@@ -370,6 +371,17 @@ watch(
     }
   },
 );
+
+watch(()=>store.homeMenu,()=>{
+    if(store.homeMenu === 5){
+        const collectId=parseInt(new URL(window.location).searchParams.get('collectId'))||null;
+        if(!collectId)
+            return;
+        collectOpenFlag.value=collectNameList.find(item=>item.id===collectId);
+        collectAsideOpenFlag.value=true;
+        getCollectByNameF();
+    }
+})
 
 //获取所有收藏夹名称
 async function getCollectsClassifyF(){
