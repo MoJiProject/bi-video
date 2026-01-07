@@ -1145,9 +1145,9 @@ function openWaitWatch(){
                   }
                }
                .controls{
-                position: absolute;
-                right: 0px;
-                top: 77px;
+                position: relative;
+                left: 798px;
+                top: 15px;
                 height: 34px;
                 width: 100px;
                 padding: 0 12px;
@@ -1200,9 +1200,9 @@ function openWaitWatch(){
             background-color: #00aeec !important;
             }
             .search-container{
-                position: absolute;
+                position: relative;
                 display: inline-flex;
-                right: 0px;
+                left: 490px;
                 width: 310px;
                 height: 34px;
                 border-radius: 6px;
@@ -1391,11 +1391,11 @@ function openWaitWatch(){
                 margin-left: 12px;
             }
             .controls-item{
-            position: absolute;
+            position: relative;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            right: 0px;
+            left: 447.5px;
 
                 .controls{
                 height: 34px;

@@ -49,6 +49,7 @@ public class CollectClassifyServiceImpl extends ServiceImpl<CollectClassifyMappe
         if(!Objects.equals(userId, homeUserId))
             collectsClassifyLambdaQueryWrapper.eq(CollectsClassify::getStatus,1);
 
+        collectsClassifyLambdaQueryWrapper.orderByAsc(CollectsClassify::getId);
         List<CollectsClassify> collectsClassifies = collectClassifyMapper.selectList(collectsClassifyLambdaQueryWrapper);
 
         //设置收藏夹封面

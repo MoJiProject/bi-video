@@ -45,7 +45,8 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
         int waitWatchCollect=0;
         int collectId=0;
         LambdaQueryWrapper<CollectsClassify> collectsClassifyLambdaQueryWrapper=new LambdaQueryWrapper<>();
-        collectsClassifyLambdaQueryWrapper.eq(CollectsClassify::getUserId,userId);
+        collectsClassifyLambdaQueryWrapper.eq(CollectsClassify::getUserId,userId)
+                .orderByAsc(CollectsClassify::getId);
 
         List<CollectsClassify> collectsClassifies = collectClassifyMapper.selectList(collectsClassifyLambdaQueryWrapper);
 

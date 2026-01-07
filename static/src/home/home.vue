@@ -256,6 +256,13 @@ function homeMagnumVideosF(){
 
 }
 
+watch(()=>store.homeMenu,()=>{
+    if(store.homeMenu === 1){
+        getSort();
+    }
+})
+
+
 //获取排序
 function getSort(){
     const homeSort=JSON.parse(localStorage.getItem('homeSort'));
@@ -436,7 +443,7 @@ function openAccount(){
             }
             .more{
                     font-weight: normal;
-                    position: absolute;
+                    position: relative;
                     width: 100px;
                     height: 34px;
                     cursor: pointer;
@@ -444,7 +451,7 @@ function openAccount(){
                     justify-content: center;
                     align-items: center;
                     padding: 0 12px;
-                    right: 0px;
+                    left: 563px;
                     top: 0;
                     font-size: 14px;
                     color: #18191C;
@@ -599,7 +606,7 @@ function openAccount(){
             }
             .more{
                     font-weight: normal;
-                    position: absolute;
+                    position: relative;
                     width: 100px;
                     height: 34px;
                     cursor: pointer;
@@ -607,7 +614,7 @@ function openAccount(){
                     justify-content: center;
                     align-items: center;
                     padding: 0 12px;
-                    right: 0px;
+                    left: 820px;
                     top: 0;
                     font-size: 14px;
                     color: #18191C;
