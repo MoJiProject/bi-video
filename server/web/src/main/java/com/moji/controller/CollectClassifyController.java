@@ -6,6 +6,8 @@ import com.moji.po.CollectsClassify;
 import com.moji.serve.LoginLimiterServer;
 import com.moji.service.CollectClassifyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +24,7 @@ public class CollectClassifyController {
      * @param collectsClassify
      * @return
      */
+    @CacheEvict(value = "collect",key = "#collectsClassify.userId")
     @PostMapping("/addCollectClassify")
     public R<String> addCollectClassify(@RequestBody CollectsClassify collectsClassify,@RequestHeader("Authorization") String token){
 
@@ -43,6 +46,7 @@ public class CollectClassifyController {
      * @param token
      * @return
      */
+    @CacheEvict(value = "collect",key = "#userId")
     @DeleteMapping("/deleteCollectClassify")
     public R<String> deleteCollectClassify(@RequestParam Integer id,@RequestParam Integer userId,@RequestHeader("Authorization") String token){
 
@@ -63,6 +67,7 @@ public class CollectClassifyController {
      * @param token
      * @return
      */
+    @CacheEvict(value = "collect",key = "#collectsClassify.userId")
     @PutMapping("/putCollectClassify")
     public R<String> putCollectClassify(@RequestBody CollectsClassify collectsClassify,@RequestHeader("Authorization") String token){
 
