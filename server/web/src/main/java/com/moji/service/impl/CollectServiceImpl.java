@@ -348,11 +348,15 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
 
         //复制
         if (controls == 1) {
-            Set<String> existsKey = new HashSet<>();
-            for (Collects c : collects) {
-                existsKey.add(String.valueOf(c.getVideoId()));
-            }
             for (CollectsClassify cc : collectsClassifies) {
+                LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper = new LambdaQueryWrapper<>();
+                collectsLambdaQueryWrapper.eq(Collects::getCollectName,cc.getCollectName());
+                collectsLambdaQueryWrapper.eq(Collects::getUserId,cc.getUserId());
+                List<Collects> collectsByCc = collectMapper.selectList(collectsLambdaQueryWrapper);
+                Set<String> existsKey = new HashSet<>();
+                for (Collects c : collectsByCc) {
+                    existsKey.add(String.valueOf(c.getVideoId()));
+                }
                 int count = 0;
                 for (Collects c : collects) {
                     if (!c.getUserId().equals(userId))
@@ -374,11 +378,15 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
         }
         //移动
         else if (controls == 2) {
-            Set<String> existsKey = new HashSet<>();
-            for (Collects c : collects) {
-                existsKey.add(String.valueOf(c.getVideoId()));
-            }
             for (CollectsClassify cc : collectsClassifies) {
+                LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper = new LambdaQueryWrapper<>();
+                collectsLambdaQueryWrapper.eq(Collects::getCollectName,cc.getCollectName());
+                collectsLambdaQueryWrapper.eq(Collects::getUserId,cc.getUserId());
+                List<Collects> collectsByCc = collectMapper.selectList(collectsLambdaQueryWrapper);
+                Set<String> existsKey = new HashSet<>();
+                for (Collects c : collectsByCc) {
+                    existsKey.add(String.valueOf(c.getVideoId()));
+                }
                 int count = 0;
                 for (Collects c : collects) {
                     if (!c.getUserId().equals(userId))
