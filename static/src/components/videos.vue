@@ -9,8 +9,8 @@
         <div
           class="videoBox1"
           style="width: 245.39px"
-          @mouseover.stop="videoMouseover(Videos[index].videoId)"
-          @mouseleave="videoMouseleave(Videos[index].videoId)"
+          @mouseover.stop="videoMouseoverByVideo6(Videos[index].videoId)"
+          @mouseleave="videoMouseleaveByVideo6(Videos[index].videoId)"
         >
           <img
             class="coverAddress"
@@ -18,7 +18,7 @@
             :src="Videos[index].coverAddress"
           />
           <video
-            :id="Videos[index].videoId"
+            :id="Videos[index].videoId + 'video6'"
             preload="none"
             disablePictureInPicture
             muted
@@ -405,7 +405,7 @@
             <span
               class="videoBottomInfo"
               @mouseover="upImgFlag = index - 10"
-              @mouseleave="upImgFlag = -index - 10"
+              @mouseleave="upImgFlag = -index - 11"
               ><img
                 :src="upImgFlag === index - 10 ? upBlue : up"
                 style="
@@ -627,6 +627,30 @@ export default {
       window.open(`./video?videoId=BV${videoId}`, "videoWindow");
     }
 
+    function videoMouseoverByVideo6(id) {
+      if (videoAutoPlayTIme[id]) {
+        clearTimeout(videoAutoPlayTIme[id]);
+      }
+
+      videoAutoPlayTIme[id] = setTimeout(() => {
+        const video = document.getElementById(id+"video6");
+        if (video)
+          if (video.paused) {
+            video.play().catch(function (error) {});
+          }
+      }, 700);
+    }
+
+    function videoMouseleaveByVideo6(id) {
+      clearTimeout(videoAutoPlayTIme[id]);
+
+      const video = document.getElementById(id+"video6");
+      if (video)
+        if (!video.paused) {
+          video.pause();
+        }
+    }
+
     function videoMouseover(id) {
       if (videoAutoPlayTIme[id]) {
         clearTimeout(videoAutoPlayTIme[id]);
@@ -676,6 +700,8 @@ export default {
       selectVideos,
       waitWatch,
       locationHerfVideo,
+      videoMouseoverByVideo6,
+      videoMouseleaveByVideo6,
       videoMouseover,
       videoMouseleave,
       store,
