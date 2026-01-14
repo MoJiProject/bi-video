@@ -515,11 +515,11 @@ export default {
       const clientWidth = document.documentElement.clientWidth || document.body.clientWidth;
       if(clientWidth<=1400&&clientWidth>1130){
         displayVideoNumber.value = 4;
-      }else if(clientWidth<=1130)
-      {
+      }else if(clientWidth>=600&&clientWidth<=1130){
         displayVideoNumber.value = 2;
-      }
-      else{
+      }else if(clientWidth>=0&&clientWidth<600){
+        displayVideoNumber.value = 0;
+      }else{
         displayVideoNumber.value = 6;
       }
     };
