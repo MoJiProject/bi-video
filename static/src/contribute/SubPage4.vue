@@ -89,6 +89,11 @@
                 <a :href="'../home?userId='+scope.row.id+'&homeMenu=1'" target="_blank"><img :src="scope.row.avatarAddress" style="width: 50px;height: 50px;border-radius: 50%;" /></a>
             </template>
         </el-table-column>
+        <el-table-column prop="注册时间" label="注册时间">
+            <template #default="scope">
+                <span>{{ scope.row.createTime }}</span>
+            </template>
+        </el-table-column>
         <el-table-column prop="role" label="角色" align="center">
             <template #default="scope">
                 <span v-if="!scope.row.adminFlag">普通用户</span>
