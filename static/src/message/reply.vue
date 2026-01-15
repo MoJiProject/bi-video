@@ -141,9 +141,9 @@
                     :hide-after="0"
                   >
                   <template #content>
-                        <div v-html="addImgFlagF(reply.replyComments,false)"></div>
+                        <div v-html="addImgFlagF(reply.mainComments,false)"></div>
                   </template>
-                  <a v-if="reply.mainComments?.deleteSign===0&&reply.replyComments.videoId" class="comment-content" :href="'./video?videoId=BV'+reply.replyComments.videoId+'&commentId='+reply.replyComments.mainCommentId+'&replyId='+reply.replyComments.id" target="videoWindow"><span v-html="addImgFlagF(reply.mainComments,false)"></span></a>
+                  <a v-if="reply.mainComments?.deleteSign===0&&reply.replyComments.videoId" class="comment-content" :href="'./video?videoId=BV'+reply.replyComments.videoId+'&commentId='+reply.replyComments.mainCommentId+'&replyId='+reply.mainComments.id" target="videoWindow"><span v-html="addImgFlagF(reply.mainComments,false)"></span></a>
                   <a v-else-if="reply.mainComments?.deleteSign===1&&reply.replyComments.videoId" class="comment-content" :href="'./video?videoId=BV'+reply.replyComments.videoId" target="videoWindow"><span v-html="addImgFlagF(reply.mainComments,false)"></span></a>
                 </el-tooltip>
                 <div class="reply-line"></div>
