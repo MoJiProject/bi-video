@@ -763,7 +763,7 @@ export default {
     };
     // 判断视频是否符合
     const beforeUploadVideo = (file) => {
-      const maxSize = 300 * 1024 * 1024; // 300MB
+      const maxSize = 50 * 1024 * 1024; // 50MB
       const validTypes = [
         "video/mp4",
         "video/x-m4v",
@@ -775,7 +775,7 @@ export default {
       // 检查文件大小
       if (file.size > maxSize) {
         ElMessage({
-          message: "不能超过300MB哦",
+          message: "不能超过50MB哦",
           type: "info",
           plain: true,
           duration: 1700,

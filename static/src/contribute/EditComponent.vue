@@ -755,12 +755,143 @@ export default {
       }
     };
 
+    const generateThumbnailsFromUrl = async (srcUrl) => {
+      if (!srcUrl) return;
+
+      thumbnails.value = [];
+      selectedThumbnail.value = null;
+
+      const videoEl = document.createElement("video");
+      videoEl.preload = "auto";
+      videoEl.muted = true;
+      videoEl.playsInline = true;
+
+      try {
+        const urlObj = new URL(srcUrl, window.location.href);
+        if (urlObj.origin !== window.location.origin) {
+          videoEl.crossOrigin = "anonymous";
+        }
+      } catch (e) {
+        // ignore invalid URL
+      }
+
+      const waitEvent = (el, eventName) =>
+        new Promise((resolve, reject) => {
+          const onOk = () => {
+            cleanup();
+            resolve();
+          };
+          const onErr = () => {
+            cleanup();
+            reject(new Error("video load error"));
+          };
+          const cleanup = () => {
+            el.removeEventListener(eventName, onOk);
+            el.removeEventListener("error", onErr);
+          };
+          el.addEventListener(eventName, onOk, { once: true });
+          el.addEventListener("error", onErr, { once: true });
+        });
+
+      const seekTo = (time) =>
+        new Promise((resolve, reject) => {
+          const onSeeked = () => {
+            cleanup();
+        resolve();
+      };
+          const onErr = () => {
+            cleanup();
+            reject(new Error("seek error"));
+          };
+          const cleanup = () => {
+            videoEl.removeEventListener("seeked", onSeeked);
+            videoEl.removeEventListener("error", onErr);
+          };
+          videoEl.addEventListener("seeked", onSeeked, { once: true });
+          videoEl.addEventListener("error", onErr, { once: true });
+          try {
+            // 修正浮点数精度问题，避免seek到无效时间
+            videoEl.currentTime = Math.max(0, Math.min(videoEl.duration, time));
+          } catch (e) {
+            cleanup();
+            reject(e);
+          }
+        });
+
+      try {
+        videoEl.src = srcUrl;
+        // 先加载元数据，再加载足够的内容确保帧率准确
+        await waitEvent(videoEl, "loadedmetadata");
+        // 可选：等待视频加载更多数据，避免帧率获取不准确
+        await waitEvent(videoEl, "loadeddata");
+
+        const duration = Number.isFinite(videoEl.duration)
+          ? videoEl.duration // 保留小数，精准计算帧数
+          : 0;
+        if (duration <= 0) return;
+
+        
+        // 2. 计算总帧数 = 帧率 * 时长（精准到小数）
+        const totalFrames = Math.floor(10 * duration);
+        const step = 1 / 10;
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+      // 4. 循环遍历所有帧
+      for (let frameIdx = 0; frameIdx < totalFrames; frameIdx++) {
+        // 计算当前帧的时间点
+        const currentTime = frameIdx * step;
+        // 跳转到当前帧的时间位置
+        await seekTo(currentTime);
+
+        // 按视频实际尺寸绘制帧
+        canvas.width = videoEl.videoWidth;
+        canvas.height = videoEl.videoHeight;
+        ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+
+        let dataUrl = null;
+        try {
+          dataUrl = canvas.toDataURL("image/jpeg");
+        } catch (e) {
+        // CORS污染或其他错误，终止生成
+        console.warn("生成帧失败:", e);
+        break;
+      }
+
+        if (dataUrl) {
+          thumbnails.value.push(dataUrl);
+          // 第一帧初始化相关值
+          if (frameIdx === 0) {
+            temp.value = dataUrl;
+            if (!thumbnail.value) {
+              thumbnail.value = dataUrl;
+            }
+          }
+        }
+
+        // 可选：给浏览器一点喘息时间，避免卡死
+        // if (frameIdx % 100 === 0) await new Promise(r => setTimeout(r, 0));
+      }
+    } catch (e) {
+      console.error("生成所有帧缩略图失败:", e);
+    } finally {
+      try {
+        videoEl.pause();
+        videoEl.removeAttribute("src");
+        videoEl.load();
+      } catch (e) {
+        console.warn("清理视频元素失败:", e);
+      }
+    }
+    };
+
     const cancelLeave = () => {
       dialogVisible.value = false; // 关闭对话框
     };
     // 判断视频是否符合
     const beforeUploadVideo = (file) => {
-      const maxSize = 300 * 1024 * 1024; // 300MB
+      const maxSize = 50 * 1024 * 1024; // 50MB
       const validTypes = [
         "video/mp4",
         "video/x-m4v",
@@ -772,7 +903,7 @@ export default {
       // 检查文件大小
       if (file.size > maxSize) {
         ElMessage({
-          message: "不能超过300MB哦",
+          message: "不能超过50MB哦",
           type: "info",
           plain: true,
           duration: 1700,
@@ -894,6 +1025,7 @@ export default {
         if (response.data.code === 1) {
           Object.assign(video, response.data.data);
           fileListVideo.value.push({ url: video.videoAddress });
+          await generateThumbnailsFromUrl(video.videoAddress);
           dynamicTags.value = video.tag ? video.tag.split(",") : [];
 
           const inputDom = document.querySelector(".content-input");
