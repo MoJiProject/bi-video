@@ -234,7 +234,8 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
             LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
             dynamicLambdaQueryWrapper.eq(Dynamic::getFollowId,homeUserId)
                     .isNull(Dynamic::getFansId)
-                    .isNotNull(Dynamic::getImgAddress);
+                    .isNotNull(Dynamic::getImgAddress)
+                    .orderByDesc(Dynamic::getPublishTime);
             Page<Dynamic> page1 = dynamicMapper.selectPage(page,dynamicLambdaQueryWrapper);
             return page1;
             //评论
@@ -244,7 +245,8 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
             dynamicLambdaQueryWrapper.eq(Dynamic::getFollowId,homeUserId)
                     .isNotNull(Dynamic::getCommentId)
                     .isNull(Dynamic::getFansId)
-                    .isNotNull(Dynamic::getImgAddress);
+                    .isNotNull(Dynamic::getImgAddress)
+                    .orderByDesc(Dynamic::getPublishTime);
             Page<Dynamic> page1 = dynamicMapper.selectPage(page,dynamicLambdaQueryWrapper);
             return page1;
             //动态
@@ -254,7 +256,8 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
             dynamicLambdaQueryWrapper.eq(Dynamic::getFollowId,homeUserId)
                     .isNull(Dynamic::getCommentId)
                     .isNull(Dynamic::getFansId)
-                    .isNotNull(Dynamic::getImgAddress);
+                    .isNotNull(Dynamic::getImgAddress)
+                    .orderByDesc(Dynamic::getPublishTime);
             Page<Dynamic> page1 = dynamicMapper.selectPage(page,dynamicLambdaQueryWrapper);
             return page1;
         }
