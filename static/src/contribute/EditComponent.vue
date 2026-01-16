@@ -861,13 +861,6 @@ export default {
 
         if (dataUrl) {
           thumbnails.value.push(dataUrl);
-          // 第一帧初始化相关值
-          if (frameIdx === 0) {
-            temp.value = dataUrl;
-            if (!thumbnail.value) {
-              thumbnail.value = dataUrl;
-            }
-          }
         }
 
         // 可选：给浏览器一点喘息时间，避免卡死
@@ -1025,15 +1018,14 @@ export default {
         if (response.data.code === 1) {
           Object.assign(video, response.data.data);
           fileListVideo.value.push({ url: video.videoAddress });
-          await generateThumbnailsFromUrl(video.videoAddress);
           dynamicTags.value = video.tag ? video.tag.split(",") : [];
-
           const inputDom = document.querySelector(".content-input");
           inputDom.innerText = video.content;
           if(video.content.length>0)
-            placeholderFlag.value=false;
-          if (video.allowTwo === 1) video.allowTwo = true;
-          else video.allowTwo = false;
+          placeholderFlag.value=false;
+        if (video.allowTwo === 1) video.allowTwo = true;
+        else video.allowTwo = false;
+        await generateThumbnailsFromUrl(video.videoAddress);
         }
       } catch (error) {
         ElMessage({
