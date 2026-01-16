@@ -607,14 +607,21 @@ watch(currentDialogue, async (newVal) => {
     await selectPrivateMessageF(newVal, 1);
     await selectPrivateMessageF(newVal, 2);
     dealyFlag = true;
-    if(socket&&socket.readyState === 1)
-    {
-      updateMessageNumber(-newVal.notReadNumber);
-      changeMessageStatusF(newVal);
-    }
+    tryChangeMessageStatus(newVal);
   }
   if (messageInput?.value) messageInput.value.innerHTML = "";
 });
+  
+function tryChangeMessageStatus(newVal) {
+  if (socket && socket.ws.readyState === 1) {
+    updateMessageNumber(-newVal.notReadNumber);
+    changeMessageStatusF(newVal);
+  } else {
+    if (socket && socket.ws.readyState === 0) {
+      setTimeout(() => tryChangeMessageStatus(newVal), 100);
+    }
+  }
+}
 
 function revocationMessageF(privateMessage) {
   if (privateMessage.id === null) return;
