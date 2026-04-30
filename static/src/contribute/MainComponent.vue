@@ -172,7 +172,7 @@
                   过长或过大视频建议拆分后使用分p或合集功能进行投稿～"
           >
             <template #reference>
-              <el-button
+              <el-button v-debounce
                 class="m-2"
                 style="border: none; font-size: 12px; color: #9c9f9f;position: relative;"
                 >视频大小</el-button
@@ -189,7 +189,7 @@
                 其他允许上传的格式：mp4,flv,avi,wmv,mov,webm,mpeg4,ts,mpg,rm,rmvb,mkv,m4v"
           >
             <template #reference>
-              <el-button
+              <el-button v-debounce
                 class="m-2"
                 style="border: none; font-size: 12px; color: #9c9f9f;position: relative;"
                 >视频格式</el-button
@@ -211,7 +211,7 @@
                 智能识别全景视频"
           >
             <template #reference>
-              <el-button
+              <el-button v-debounce
                 class="m-2"
                 style="border: none; font-size: 12px; color: #9c9f9f;position: relative;"
                 >视频码率</el-button
@@ -629,7 +629,7 @@
         </span>
         <template #footer>
           <div class="dialog-footer" style="transform: translate(0px, 40px)">
-            <el-button
+            <el-button v-debounce
               @click="confirmLeave"
               style="
                 background-color: #00a1d6;
@@ -640,7 +640,7 @@
               "
               >确定</el-button
             >
-            <el-button
+            <el-button v-debounce
               type="primary"
               @click="cancelLeave"
               style="

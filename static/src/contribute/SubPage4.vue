@@ -102,7 +102,7 @@
         </el-table-column>
         <el-table-column label="操作" width="200" align="center">
             <template #default="scope">
-            <el-button size="small" @click="admin=scope.row,dialogVisible1=true">{{ scope.row.adminFlag?'取消管理员':'设为管理员' }}</el-button>
+            <el-button v-debounce size="small" @click="admin=scope.row,dialogVisible1=true">{{ scope.row.adminFlag?'取消管理员':'设为管理员' }}</el-button>
             </template>
         </el-table-column>
     </el-table>
@@ -144,8 +144,8 @@
       </span>
       <template #footer>
         <div class="dialog-footer" style="transform: translate(-10px, 50px)">
-          <el-button class="yesDelete" @click="putAdminF">确定</el-button>
-          <el-button
+          <el-button v-debounce class="yesDelete" @click="putAdminF">确定</el-button>
+          <el-button v-debounce
             type="primary"
             @click="dialogVisible1=false"
             style="

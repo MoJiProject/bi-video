@@ -213,6 +213,7 @@
                   <span
                     v-show="SelectVideoByIdVo.isFansFlag === 0"
                     class="up-user-info-container-footer-add-follow"
+                    v-debounce
                     @click="addFollowAxios(SelectVideoByIdVo.upUser.id)"
                     ><img
                       src="../img/加关注.png"
@@ -223,6 +224,7 @@
                     v-show="SelectVideoByIdVo.isFansFlag === 1"
                     class="up-user-info-container-footer-delete-follow"
                     @click="deleteFollowAxios(SelectVideoByIdVo.upUser.id)"
+                    v-debounce
                     @mouseover="isDeleteFollowFlag = 1"
                     @mouseleave="isDeleteFollowFlag = 0"
                   >
@@ -292,7 +294,7 @@
           </div>
           <div
             v-show="SelectVideoByIdVo.isFansFlag === 1"
-            v
+            v-debounce
             class="up-delete-follow-container"
             @click="deleteFollowAxios(SelectVideoByIdVo.upUser.id)"
           >
@@ -355,6 +357,7 @@
             v-if="SelectVideoByIdVo.isFansFlag === 0"
             @mouseover="handlerCleanTime(), (videoLeave = true)"
             @mouseleave="videoLeave = false"
+            v-debounce
             @click="addFollowAxios(SelectVideoByIdVo.upUser.id)"
             class="up-video-avatar-and-addFollow-container"
           >
@@ -2715,7 +2718,7 @@
                       <span>同时点赞内容</span>
                     </div>
 
-                    <el-button
+                    <el-button v-debounce
                       class="throw-coin-submit"
                       @click="videoThrowCoinAxios"
                     >

@@ -7,7 +7,7 @@
                 <span>·{{ store.collectNumber }}</span>
             </div>
             <div class="head-right">
-                <button>
+                <button v-debounce>
                     {{ sort2===1?"最近添加":"最早添加" }}
                     <svg data-v-69623c3f="" class="vui_icon option-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" width="12" height="12" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M5.91165 7.527550000000001C5.9604 7.478800000000001 6.0396 7.478800000000001 6.08835 7.527550000000001L2.405335 3.84452C2.1124300000000003 3.5516249999999996 1.6375599999999997 3.5516249999999996 1.344665 3.84452C1.051775 4.137410000000001 1.051775 4.612285 1.344665 4.905175000000001L5.0277 8.5882C5.564699999999999 9.125200000000003 6.435300000000001 9.125200000000003 6.9723 8.5882L10.655300000000002 4.905175000000001C10.9482 4.612285 10.9482 4.137410000000001 10.655300000000002 3.84452C10.362450000000003 3.5516249999999996 9.887549999999997 3.5516249999999996 9.594699999999998 3.84452L5.91165 7.527550000000001z" fill="currentColor"></path></svg>
                     <div class="dropdown-menu">
@@ -98,10 +98,10 @@
                 记录清空后将不可恢复
             </div>
             <div class="delete-dialog-btn-container">
-                <button class="delete-dialog-cancel-btn" @click="deleteAllwaitWatchDialogFlag=false">
+                <button v-debounce class="delete-dialog-cancel-btn" @click="deleteAllwaitWatchDialogFlag=false">
                 取消
             </button>
-            <button
+            <button v-debounce
                 class="delete-dialog-confirm-btn" @click="deleteAllwaitWatchF"
             >
                 确认
@@ -122,10 +122,10 @@
                 记录删除后将不可恢复
             </div>
             <div class="delete-dialog-btn-container">
-                <button class="delete-dialog-cancel-btn" @click="deleteCheckwaitWatchDialogFlag=false">
+                <button v-debounce class="delete-dialog-cancel-btn" @click="deleteCheckwaitWatchDialogFlag=false">
                 取消
             </button>
-            <button
+            <button v-debounce
                 class="delete-dialog-confirm-btn" @click="deleteCheckwaitWatchF"
             >
                 确认

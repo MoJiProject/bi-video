@@ -64,6 +64,7 @@
         <span
         v-show="store.eitUserInfo.isFansFlag===0"
         class="up-user-info-container-footer-add-follow"
+        v-debounce
         @click="addFollowAxios(store.eitUserInfo.id)"
         ><img
             src="../img/加关注.png"
@@ -74,6 +75,7 @@
         v-show="store.eitUserInfo.isFansFlag===1"
         class="up-user-info-container-footer-delete-follow"
         @click="deleteFollowAxios(store.eitUserInfo.id)"
+        v-debounce
         @mouseover="deleteFoolowFlag=true"
         @mouseleave="deleteFoolowFlag=false"
         >

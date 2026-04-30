@@ -34,7 +34,7 @@
         class="not-login-commit-comment-container"
       >
         <span
-          >请先<button @click="store.setLoginDialogVisibleFlag(true)">
+          >请先<button v-debounce @click="store.setLoginDialogVisibleFlag(true)">
             登录</button
           >后发表评论 (・ω・)</span
         >
@@ -299,7 +299,7 @@
               />
             </div>
             <div class="up-user-info-container-content">
-              <span @click="openHome(8,comment.userInfo.id)" style="color: #95999f; cursor: pointer"
+              <span @click="openHome(8,comment.userInfo.id)" v-debounce style="color: #95999f; cursor: pointer"
                 ><span style="color: black">{{
                   comment.userInfo.followNumber
                 }}</span>
@@ -324,8 +324,9 @@
               </span>
             </div>
             <div class="up-user-info-container-footer">
-              <span
+              <span 
                 v-show="comment.userInfo.isFansFlag===0"
+                v-debounce
                 class="up-user-info-container-footer-add-follow"
                 @click="addFollowAxios(comment)"
                 ><img
@@ -337,6 +338,7 @@
                 v-show="comment.userInfo.isFansFlag===1"
                 class="up-user-info-container-footer-delete-follow"
                 @click="deleteFollowAxios(comment)"
+                v-debounce
                 @mouseover="isDeleteFollowFlag = -comment.comments.id"
                 @mouseleave="isDeleteFollowFlag = comment.comments.id"
               >
@@ -498,7 +500,7 @@
         <div v-if="comment.upLikeFlag" class="up-like-comment" :style="{marginBottom: comment.replyFlag ? '0px' : '5px'}">UP主觉得很赞</div>
         <div v-show="comment.userInfo?.isFansFlag === 1 && comment.userInfo?.isFollowFlag === 1" class="up-like-comment" :style="{marginBottom: comment.replyFlag ? '0px' : '5px'}">互相关注</div>
         <div v-if="comment.replyNumber>0&&(!comment.replyFlag||comment.replyFlag2)" class="view-reply-btn">
-            共 {{ comment.replyNumber }} 条回复，<button
+            共 {{ comment.replyNumber }} 条回复，<button v-debounce
               @click="selectReplyComment(comment,1)"
             >
               点击查看
@@ -1326,13 +1328,13 @@
       <div class="delete-dialog-content">
         删除评论后，评论下所有回复都会被删除,是否继续?
       </div>
-      <button
+      <button v-debounce
         class="delete-dialog-cancel-btn"
         @click="deleteDialogVisible = false"
       >
         取消
       </button>
-      <button class="delete-dialog-confirm-btn" @click="deleteCommentAxios">
+      <button v-debounce class="delete-dialog-confirm-btn" @click="deleteCommentAxios">
         确定
       </button>
     </el-dialog>

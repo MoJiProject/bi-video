@@ -104,10 +104,10 @@
                 记录清空后将不可恢复
             </div>
             <div class="delete-dialog-btn-container">
-                <button class="delete-dialog-cancel-btn" @click="deleteAllHistoryDialogFlag=false">
+                <button v-debounce class="delete-dialog-cancel-btn" @click="deleteAllHistoryDialogFlag=false">
                 取消
             </button>
-            <button
+            <button v-debounce
                 class="delete-dialog-confirm-btn" @click="deleteAllHistoryF"
             >
                 确认
@@ -128,10 +128,10 @@
                 记录删除后将不可恢复
             </div>
             <div class="delete-dialog-btn-container">
-                <button class="delete-dialog-cancel-btn" @click="deleteCheckHistoryDialogFlag=false">
+                <button v-debounce class="delete-dialog-cancel-btn" @click="deleteCheckHistoryDialogFlag=false">
                 取消
             </button>
-            <button
+            <button v-debounce
                 class="delete-dialog-confirm-btn" @click="deleteCheckHistoryF"
             >
                 确认

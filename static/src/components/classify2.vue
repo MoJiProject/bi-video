@@ -18,7 +18,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 番 剧 </el-button>
+            <el-button v-debounce> 番 剧 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -63,7 +63,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 国 创 </el-button>
+            <el-button v-debounce> 国 创 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -107,7 +107,7 @@
           </el-dropdown>
         </a>
         <a href="./search?keyword=&classifyIndex=综艺" target="_blank">
-          <el-button> 综 艺 </el-button>
+          <el-button v-debounce> 综 艺 </el-button>
         </a>
         <a href="./search?keyword=&classifyIndex=动画" target="_blank">
           <el-dropdown
@@ -116,7 +116,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 动 画 </el-button>
+            <el-button v-debounce> 动 画 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -171,7 +171,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 鬼 畜 </el-button>
+            <el-button v-debounce> 鬼 畜 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -211,7 +211,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 舞 蹈 </el-button>
+            <el-button v-debounce> 舞 蹈 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -261,7 +261,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 娱 乐 </el-button>
+            <el-button v-debounce> 娱 乐 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -311,7 +311,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 科 技 </el-button>
+            <el-button v-debounce> 科 技 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -351,7 +351,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 美 食 </el-button>
+            <el-button v-debounce> 美 食 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -391,7 +391,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 汽 车 </el-button>
+            <el-button v-debounce> 汽 车 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -446,7 +446,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 运 动 </el-button>
+            <el-button v-debounce> 运 动 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -485,13 +485,13 @@
           </el-dropdown>
         </a>
         <a href="https://www.bilibili.com/read/home?spm_id_from=333.1007.0.0" target="_blank">
-            <el-button> 专 栏 </el-button>
+            <el-button v-debounce> 专 栏 </el-button>
         </a>
         <a href="https://www.bilibili.com/blackboard/activity-list.html?spm_id_from=333.1007.0.0" target="_blank">
-            <el-button> 活 动 </el-button>
+            <el-button v-debounce> 活 动 </el-button>
         </a>
         <a href="https://www.bilibili.com/blackboard/activity-5zJxM3spoS.html?spm_id_from=333.1007.0.0" target="_blank">
-            <el-button> 社区中心 </el-button>
+            <el-button v-debounce> 社区中心 </el-button>
         </a>
       </div>
       </div>
@@ -499,17 +499,17 @@
       <div class="classify2-part3-2" v-show="classify2Part">
         <div style="margin-top: 5px">
         <a href="./search?keyword=&classifyIndex=电影" target="_blank">
-          <el-button> 电 影 </el-button>
+          <el-button v-debounce> 电 影 </el-button>
         </a>
         <a
           href="./search?keyword=&classifyIndex=电视剧" target="_blank"
         >
-          <el-button> 电 视 剧 </el-button>
+          <el-button v-debounce> 电 视 剧 </el-button>
         </a>
         <a
           href="./search?keyword=&classifyIndex=纪录片" target="_blank"
         >
-          <el-button> 纪 录 片 </el-button>
+          <el-button v-debounce> 纪 录 片 </el-button>
         </a>
         <a href="./search?keyword=&classifyIndex=游戏" target="_blank">
           <el-dropdown
@@ -518,7 +518,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 游 戏 </el-button>
+            <el-button v-debounce> 游 戏 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -578,7 +578,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 音 乐 </el-button>
+            <el-button v-debounce> 音 乐 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -658,7 +658,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 影 视 </el-button>
+            <el-button v-debounce> 影 视 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -713,7 +713,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 知 识 </el-button>
+            <el-button v-debounce> 知 识 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -768,7 +768,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 资 讯 </el-button>
+            <el-button v-debounce> 资 讯 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -803,7 +803,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 生 活 </el-button>
+            <el-button v-debounce> 生 活 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -858,7 +858,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 时 尚 </el-button>
+            <el-button v-debounce> 时 尚 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -887,16 +887,16 @@
           </el-dropdown>
         </a>
         <a href="https://www.bilibili.com/v/animal?spm_id_from=333.1007.0.0" target="_blank">
-            <el-button> 动物圈 </el-button>
+            <el-button v-debounce> 动物圈 </el-button>
         </a>
         <a href="https://live.bilibili.com/?spm_id_from=333.1007.0.0" target="_blank">
-            <el-button> 直 播 </el-button>
+            <el-button v-debounce> 直 播 </el-button>
         </a>
         <a href="https://www.bilibili.com/cheese/?spm_id_from=333.1007.0.0" target="_blank">
-            <el-button> 课 堂 </el-button>
+            <el-button v-debounce> 课 堂 </el-button>
         </a>
         <a href="https://music.bilibili.com/pc/music-center/?spm_id_from=333.1007.0.0" target="_blank">
-            <el-button> 新歌热榜 </el-button>
+            <el-button v-debounce> 新歌热榜 </el-button>
         </a>
       </div>
       </div>
@@ -904,22 +904,22 @@
       <div class="classify2-part3-3" v-show="classify2Part">
         <div style="margin-top: 5px">
         <a href="https://www.bilibili.com/v/life/daily/?tag=530003&spm_id_from=333.1007.0.0" target="_blank">
-            <el-button> VLOG </el-button>
+            <el-button v-debounce> VLOG </el-button>
         </a>
         <a href="https://www.bilibili.com/v/life/funny?spm_id_from=333.1007.0.0" target="_blank">
-            <el-button> 搞 笑 </el-button>
+            <el-button v-debounce> 搞 笑 </el-button>
         </a>
         <a href="https://www.bilibili.com/v/game/stand_alone?spm_id_from=333.1007.0.0" target="_blank">
-            <el-button> 单机游戏 </el-button>
+            <el-button v-debounce> 单机游戏 </el-button>
         </a>
         <a href="https://www.bilibili.com/v/virtual?spm_id_from=333.1007.0.0" target="_blank">
-            <el-button> 虚拟UP主 </el-button>
+            <el-button v-debounce> 虚拟UP主 </el-button>
         </a>
         <a href="https://love.bilibili.com/?spm_id_from=333.1007.0.0" target="_blank">
-            <el-button> 公 益 </el-button>
+            <el-button v-debounce> 公 益 </el-button>
         </a>
         <a href="https://www.bilibili.com/mooc?spm_id_from=333.1007.0.0" target="_blank">
-            <el-button> 公开课 </el-button>
+            <el-button v-debounce> 公开课 </el-button>
         </a>
       </div>
       </div>

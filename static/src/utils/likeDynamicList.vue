@@ -8,8 +8,8 @@
           <div class="user-name">
               <div>{{ user.userName }} <div>赞了</div></div> 
           </div>
-          <button v-show="!user.isFollowFlag" class="follow-btn" @click.stop="addFollowF(user)">关注</button>
-          <button v-show="user.isFollowFlag" class="unfollow-btn" @click.stop>
+          <button v-debounce v-show="!user.isFollowFlag" class="follow-btn" @click.stop="addFollowF(user)">关注</button>
+          <button v-debounce v-show="user.isFollowFlag" class="unfollow-btn" @click.stop>
             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 16 16" width="16" height="16" style="width: 16px; height: 16px;"><path d="M2 8C2 7.723866666666667 2.2238599999999997 7.5 2.5 7.5L13.5 7.5C13.776133333333334 7.5 14 7.723866666666667 14 8C14 8.276133333333332 13.776133333333334 8.5 13.5 8.5L2.5 8.5C2.2238599999999997 8.5 2 8.276133333333332 2 8z" fill="currentColor"></path><path d="M2 4C2 3.72386 2.2238599999999997 3.5 2.5 3.5L13.5 3.5C13.776133333333334 3.5 14 3.72386 14 4C14 4.27614 13.776133333333334 4.5 13.5 4.5L2.5 4.5C2.2238599999999997 4.5 2 4.27614 2 4z" fill="currentColor"></path><path d="M2 12C2 11.723866666666666 2.2238599999999997 11.5 2.5 11.5L13.5 11.5C13.776133333333334 11.5 14 11.723866666666666 14 12C14 12.276133333333334 13.776133333333334 12.5 13.5 12.5L2.5 12.5C2.2238599999999997 12.5 2 12.276133333333334 2 12z" fill="currentColor"></path></svg>
             已关注
             <div @click.stop="deleteFollowF(user)">取消关注</div> 

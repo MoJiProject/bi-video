@@ -36,7 +36,7 @@
             </div>
         </div>
         <div class="btn-container">
-             <button @click="submitChange">保存</button>
+             <button v-debounce @click="submitChange">保存</button>
         </div>
     </div>
   </template>

@@ -384,7 +384,7 @@
             </ul>
             <div style="display: flex; width: 100%; justify-content: center">
               <div class="login">
-                <el-button
+                <el-button v-debounce
                   plain
                   @click="(loginDialogVisible = true), (flag = 1)"
                   class="el-bu"
@@ -572,7 +572,7 @@
           <span style="font-size: 14px; margin-top: 20px"
             >登录即可查看消息记录</span
           >
-          <el-button
+          <el-button v-debounce
             plain
             @click="sa"
             class="el-bu"
@@ -623,7 +623,7 @@
           <span style="font-size: 14px; margin-top: 20px"
             >登录即可查看关注动态</span
           >
-          <el-button
+          <el-button v-debounce
             plain
             @click="sa"
             class="el-bu"
@@ -967,7 +967,7 @@
           <span style="font-size: 14px; margin-top: 20px"
             >登录即可查看我的收藏</span
           >
-          <el-button
+          <el-button v-debounce
             plain
             @click="sa"
             class="el-bu"
@@ -1143,7 +1143,7 @@
           <span style="font-size: 14px; margin-top: 20px"
             >登录即可查看历史记录</span
           >
-          <el-button
+          <el-button v-debounce
             plain
             @click="sa"
             class="el-bu"
@@ -1579,7 +1579,7 @@
                     class="dialogin-title"
                     style="transform: translate(-50%, 20px);left:50%;position: absolute;"
                   >
-                    <button
+                    <button v-debounce
                       :class="{ active: flag === 1 }"
                       style="
                         margin-right: 24px;
@@ -1598,7 +1598,7 @@
                         color: darkgrey;
                       "
                       >|</span
-                    ><button
+                    ><button v-debounce
                       :class="{ active: flag === 2 }"
                       style="border: none; background-color: white; cursor: pointer"
                       @click="siginLogin"
@@ -1612,7 +1612,7 @@
                         color: darkgrey;
                       "
                       >|</span
-                    ><button
+                    ><button v-debounce
                       :class="{ active: flag === 3 }"
                       style="
                         border: none;
@@ -1680,7 +1680,7 @@
                         </div>
                       </el-form-item>
                       <div class="submit-div">
-                        <el-button
+                        <el-button v-debounce
                           @click="handlerSign"
                           class="zhu-ce"
                           style="
@@ -1690,7 +1690,7 @@
                           "
                           ><span style="color: black">注册</span></el-button
                         >
-                        <el-button
+                        <el-button v-debounce
                           :disabled="loginForm.userName.length===0 || loginForm.password.length===0"
                           @click="loginAxios"
                           class="deng-lu"
@@ -1809,7 +1809,7 @@
                       </el-form-item>
 
                       <div class="submit-div">
-                        <el-button
+                        <el-button v-debounce
                         :disabled="signinForm.userName.length===0
                           || signinForm.password.length ===0
                           || signinForm.againPassword.length ===0
@@ -1827,7 +1827,7 @@
                         >
                           <span style="color: white">注册</span>
                         </el-button>
-                        <el-button
+                        <el-button v-debounce
                           class="deng-lu"
                           style="
                             background-color: white;
@@ -1959,7 +1959,7 @@
                         />
                       </el-form-item>
                       <div class="submit-div">
-                        <el-button
+                        <el-button v-debounce
                           :disabled="forgetPasswordForm.userName.length===0
                           || forgetPasswordForm.password.length ===0
                           || forgetPasswordForm.againpassword.length ===0

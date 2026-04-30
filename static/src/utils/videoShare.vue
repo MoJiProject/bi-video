@@ -34,8 +34,8 @@
         >
         <img class="cover" :src="store.selectUpVideo.upVideo?.coverAddress">
       </el-tooltip>
-      <button v-if="shareUserList.length>0&&checkSelectUser()" class="share-btn" @click="shareVideoF">发送</button>
-      <button v-else-if="shareUserList.length===0||!checkSelectUser()" class="not-share-btn">发送</button>
+      <button v-debounce v-if="shareUserList.length>0&&checkSelectUser()" class="share-btn" @click="shareVideoF">发送</button>
+      <button v-debounce v-else-if="shareUserList.length===0||!checkSelectUser()" class="not-share-btn">发送</button>
   </div>
 </template>
 

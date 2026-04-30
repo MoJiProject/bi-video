@@ -231,7 +231,7 @@
             </div>
             <div class="message-footer-container">
                 <span>{{messageNumber}}/500</span>
-                <button :class="{sendMessageBtnClass: messageNumber===0}"  @click="sendMessageF">发送</button>
+                <button v-debounce :class="{sendMessageBtnClass: messageNumber===0}"  @click="sendMessageF">发送</button>
             </div>
          </div>
         </div>
@@ -264,10 +264,10 @@
         消息删除后不再显示在聊天记录里，确认删除吗？
       </div>
       <div class="delete-dialog-btn-container">
-        <button class="delete-dialog-confirm-btn" @click="deletePrivateMessageF(messageObj)">
+        <button v-debounce class="delete-dialog-confirm-btn" @click="deletePrivateMessageF(messageObj)">
         确定
       </button>
-      <button
+      <button v-debounce
         class="delete-dialog-cancel-btn"
         @click="deleteMessageDialogFlag=false"
       >

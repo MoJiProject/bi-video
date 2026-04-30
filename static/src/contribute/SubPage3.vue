@@ -403,8 +403,8 @@
       </span>
       <template #footer>
         <div class="dialog-footer" style="transform: translate(-10px, 50px)">
-          <el-button class="yesDelete" @click="deleteVideo">确定</el-button>
-          <el-button
+          <el-button v-debounce class="yesDelete" @click="deleteVideo">确定</el-button>
+          <el-button v-debounce
             type="primary"
             @click="dialogVisible = false"
             style="
@@ -440,8 +440,8 @@
       </span>
       <template #footer>
         <div class="dialog-footer" style="transform: translate(-10px, 50px)">
-          <el-button class="yesDelete" @click="examineVideo">确定</el-button>
-          <el-button
+          <el-button v-debounce class="yesDelete" @click="examineVideo">确定</el-button>
+          <el-button v-debounce
             type="primary"
             @click="videoExamineFailed()"
             style="

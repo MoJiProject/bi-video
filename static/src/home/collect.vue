@@ -140,10 +140,10 @@
                 是否一键清除当前文件夹所有失效内容？
             </div>
             <div class="delete-dialog-btn-container">
-                <button class="delete-dialog-cancel-btn" @click="deleteFailureCollectDialogFlag=false">
+                <button v-debounce class="delete-dialog-cancel-btn" @click="deleteFailureCollectDialogFlag=false">
                 取消
             </button>
-            <button
+            <button v-debounce
                 class="delete-dialog-confirm-btn" @click="deleteFailureCollectF"
             >
                 确认
@@ -165,10 +165,10 @@
                 确定删除这个收藏夹吗？
             </div>
             <div class="delete-dialog-btn-container">
-                <button class="delete-dialog-cancel-btn" @click="deleteCollectDialogFlag=false">
+                <button v-debounce class="delete-dialog-cancel-btn" @click="deleteCollectDialogFlag=false">
                 取消
             </button>
-            <button
+            <button v-debounce
                 class="delete-dialog-confirm-btn2" @click="deleteCollectClassifyF"
             >
                 确认
@@ -209,10 +209,10 @@
                 <el-input v-model="collectIntroduce" type="textarea" resize="none" :autosize="{ minRows: 5, maxRows: 5 }" style="width: 340px;height: 112px !important;" maxlength="200" placeholder="可以简单的描述下你的收藏夹" :show-word-limit="true"/>
             </div>
             <div class="add-dialog-fotter">
-                <button class="add-dialog-cancel-btn" @click="addCollectDialogFlag=false">
+                <button v-debounce class="add-dialog-cancel-btn" @click="addCollectDialogFlag=false">
                     取消
                 </button>
-                <button class="add-dialog-confirm-btn" :class="{ 'disabled': collectName.trim() === '' }" @click="addCollectClassifyF">
+                <button v-debounce class="add-dialog-confirm-btn" :class="{ 'disabled': collectName.trim() === '' }" @click="addCollectClassifyF">
                     创建
                 </button>
             </div>
@@ -251,10 +251,10 @@
                 <el-input v-model="collectIntroduce" type="textarea" resize="none" :autosize="{ minRows: 5, maxRows: 5 }" style="width: 340px;height: 112px !important;" maxlength="200" placeholder="可以简单的描述下你的收藏夹" :show-word-limit="true"/>
             </div>
             <div class="add-dialog-fotter">
-                <button class="add-dialog-cancel-btn" @click="editCollectDialogFlag=false">
+                <button v-debounce class="add-dialog-cancel-btn" @click="editCollectDialogFlag=false">
                     取消
                 </button>
-                <button class="add-dialog-confirm-btn" :class="{ 'disabled': collectName.trim() === '' }" @click="updateCollectClassifyF">
+                <button v-debounce class="add-dialog-confirm-btn" :class="{ 'disabled': collectName.trim() === '' }" @click="updateCollectClassifyF">
                     修改
                 </button>
             </div>
@@ -292,7 +292,7 @@
                </div>
             </div>
             <div class="control-dialog-fotter">
-                <button class="control-dialog-confirm-btn" @click="controlCollectF">
+                <button v-debounce class="control-dialog-confirm-btn" @click="controlCollectF">
                     确定
                 </button>
             </div>

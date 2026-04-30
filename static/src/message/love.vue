@@ -350,9 +350,9 @@
                     <span>赞了我</span>
                   </div>
                   <div class="love-right-content-center">
-                     <button v-show="love.isFansFlag===0" @click="addFollowAxios(love)">关注</button>
-                     <button style="background-color: #e5e9ef;" v-show="love.isFansFlag===1&&!deleteFollowHoverFlag!==love.id" @mouseover="deleteFollowHoverFlag=love.id" @click="deleteFollowAxios(love)">已关注</button>
-                     <button style="background-color: #e5e9ef;" v-show="love.isFansFlag===1&&deleteFollowHoverFlag===love.id"  @mouseleave="deleteFollowHoverFlag=null" @click="deleteFollowAxios(love)">取消关注</button>
+                     <button v-debounce v-show="love.isFansFlag===0" @click="addFollowAxios(love)">关注</button>
+                     <button v-debounce style="background-color: #e5e9ef;" v-show="love.isFansFlag===1&&!deleteFollowHoverFlag!==love.id" @mouseover="deleteFollowHoverFlag=love.id" @click="deleteFollowAxios(love)">已关注</button>
+                     <button v-debounce style="background-color: #e5e9ef;" v-show="love.isFansFlag===1&&deleteFollowHoverFlag===love.id"  @mouseleave="deleteFollowHoverFlag=null" @click="deleteFollowAxios(love)">取消关注</button>
                   </div>
                   <div class="love-right-content-bottom">
                     <span class="love-time">{{ love.likeTime }}</span>
@@ -375,10 +375,10 @@
         该条通知删除后，当有新点赞时会重新出现在列表，是否继续？
       </div>
       <div class="delete-dialog-btn-container">
-        <button class="delete-dialog-confirm-btn" @click="deleteLoveNotificationF">
+        <button v-debounce class="delete-dialog-confirm-btn" @click="deleteLoveNotificationF">
         确定
       </button>
-      <button
+      <button v-debounce
         class="delete-dialog-cancel-btn"
         @click="deleteLoveDialogFlag=false"
       >

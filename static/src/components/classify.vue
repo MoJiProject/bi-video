@@ -50,7 +50,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 番 剧 </el-button>
+            <el-button v-debounce> 番 剧 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -94,7 +94,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 国 创 </el-button>
+            <el-button v-debounce> 国 创 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -138,7 +138,7 @@
           </el-dropdown>
         </a>
         <a href="./search?keyword=&classifyIndex=综艺" target="_blank">
-          <el-button> 综 艺 </el-button>
+          <el-button v-debounce> 综 艺 </el-button>
         </a>
         <a href="./search?keyword=&classifyIndex=动画" target="_blank">
           <el-dropdown
@@ -146,7 +146,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 动 画 </el-button>
+            <el-button v-debounce> 动 画 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -200,7 +200,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 鬼 畜 </el-button>
+            <el-button v-debounce> 鬼 畜 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -239,7 +239,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 舞 蹈 </el-button>
+            <el-button v-debounce> 舞 蹈 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -288,7 +288,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 娱 乐 </el-button>
+            <el-button v-debounce> 娱 乐 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -337,7 +337,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 科 技 </el-button>
+            <el-button v-debounce> 科 技 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -376,7 +376,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 美 食 </el-button>
+            <el-button v-debounce> 美 食 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -415,7 +415,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 汽 车 </el-button>
+            <el-button v-debounce> 汽 车 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -469,7 +469,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 运 动 </el-button>
+            <el-button v-debounce> 运 动 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -510,17 +510,17 @@
       </div>
       <div style="margin-top: 5px">
         <a href="./search?keyword=&classifyIndex=电影" target="_blank">
-          <el-button> 电 影 </el-button>
+          <el-button v-debounce> 电 影 </el-button>
         </a>
         <a
           href="./search?keyword=&classifyIndex=电视剧" target="_blank"
         >
-          <el-button> 电 视 剧 </el-button>
+          <el-button v-debounce> 电 视 剧 </el-button>
         </a>
         <a
           href="./search?keyword=&classifyIndex=纪录片" target="_blank"
         >
-          <el-button> 纪 录 片 </el-button>
+          <el-button v-debounce> 纪 录 片 </el-button>
         </a>
         <a href="./search?keyword=&classifyIndex=游戏" target="_blank">
           <el-dropdown
@@ -528,7 +528,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 游 戏 </el-button>
+            <el-button v-debounce> 游 戏 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -587,7 +587,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 音 乐 </el-button>
+            <el-button v-debounce> 音 乐 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -666,7 +666,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 影 视 </el-button>
+            <el-button v-debounce> 影 视 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -720,7 +720,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 知 识 </el-button>
+            <el-button v-debounce> 知 识 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -774,7 +774,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 资 讯 </el-button>
+            <el-button v-debounce> 资 讯 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -808,7 +808,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 生 活 </el-button>
+            <el-button v-debounce> 生 活 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -862,7 +862,7 @@
             max-height="100px"
             :show-timeout="300"
           >
-            <el-button> 时 尚 </el-button>
+            <el-button v-debounce> 时 尚 </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <a
@@ -895,7 +895,7 @@
           max-height="100px"
           :show-timeout="300"
         >
-          <el-button
+          <el-button v-debounce
             class="gengduo"
             style="
               width: 73.5px;

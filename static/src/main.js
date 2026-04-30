@@ -6,10 +6,13 @@ import { createPinia } from 'pinia';
 import global from "./assets/css/global.css"
 import router from './router';
 import ExternalLinkDirective from './directives/external-link.js'//这是点击链接新增网页页面的自定义指令
+import buttonDebounce from './directives/buttonDebounce'
+
 
 createApp(App)
 .use(ElementPlus)
 .use(createPinia())
 .use(router)
+.directive('debounce', buttonDebounce)
 .directive('external-link', ExternalLinkDirective)
 .mount('#app')

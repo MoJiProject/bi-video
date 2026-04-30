@@ -147,10 +147,10 @@
             关闭将清除所有已添加图片，请确认
           </div>
           <div class="delete-dialog-btn-container">
-              <button class="delete-dialog-cancel-btn" @click="deleteImgDialogFlag=false">
+              <button v-debounce class="delete-dialog-cancel-btn" @click="deleteImgDialogFlag=false">
               点错了
           </button>
-          <button
+          <button v-debounce
               class="delete-dialog-confirm-btn" @click="deleteImgList"
           >
               清除图片

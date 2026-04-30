@@ -119,10 +119,10 @@
         真的要取消对 {{ dynamic.upUserInfo2.userName }} 的关注吗？
       </div>
       <div class="delete-dialog-btn-container">
-        <button class="delete-dialog-cancel-btn" @click="deleteFollowDialogFlag=false">
+        <button v-debounce class="delete-dialog-cancel-btn" @click="deleteFollowDialogFlag=false">
         点错了~
       </button>
-      <button
+      <button v-debounce
         class="delete-dialog-confirm-btn"
         @click="unFollowF(dynamic.upUserInfo2)"
       >
@@ -143,10 +143,10 @@
         动态删除后将无法恢复，请谨慎操作
       </div>
       <div class="delete-dialog-btn-container">
-        <button class="delete-dialog-cancel-btn" @click="deleteDynamicDialogFlag=false">
+        <button v-debounce class="delete-dialog-cancel-btn" @click="deleteDynamicDialogFlag=false">
         取消
       </button>
-      <button
+      <button v-debounce
         class="delete-dialog-confirm-btn2"
         @click="deleteDynamicF(dynamic)"
       >

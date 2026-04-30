@@ -40,9 +40,9 @@
             <input v-if="store.userId===store.homeUserInformation?.id" ref="introduceInput" v-show="introduceEditFlag" v-model="introduce" @focus="introduce=store.homeUserInformation.introduce" @blur="introduceEditFlag=false,putUserInfoF()" @keydown.enter="introduceEditFlag=false,putUserInfoF()" type="text" placeholder="编辑个性签名" maxlength="250">
         </div> 
         <div v-if="(store.userId!==null&&store.userId!==userId)||store.userId===null" class="control-container">
-            <div v-show="!store.homeUserInformation.isFollowFlag" class="follow" @click="followF"><img src="../img/加关注.png">关注</div>
-            <div v-show="store.homeUserInformation.isFollowFlag===1" class="delete-follow" @click="unFollowF"><img src="../img/取消关注白.png">已关注</div>
-            <div class="send-message" @click="addDialogueF">发消息</div>
+            <div v-show="!store.homeUserInformation.isFollowFlag" class="follow" v-debounce @click="followF"><img src="../img/加关注.png">关注</div>
+            <div v-show="store.homeUserInformation.isFollowFlag===1" class="delete-follow" v-debounce @click="unFollowF"><img src="../img/取消关注白.png">已关注</div>
+            <div class="send-message" v-debounce @click="addDialogueF">发消息</div>
         </div>
    </div>
 </template>

@@ -1525,6 +1525,7 @@
                 <div
                   v-if="user.follow === null"
                   class="follow"
+                  v-debounce
                   @click="addFollowAxios(user.userId)"
                 >
                   + 关注
@@ -1532,6 +1533,7 @@
                 <div
                   v-else
                   class="deleteFollow"
+                  v-debounce
                   @click="deleteFollowAxios(user.userId)"
                 >
                   已关注

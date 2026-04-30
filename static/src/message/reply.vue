@@ -102,7 +102,7 @@
                 <div v-show="reply?.replyFlag" class="reply-comment-container">
                   <img src="/默认头像.gif">
                   <textarea :id="'reply'+reply.replyComments.id" class="reply-comment-input" v-model="commentContent" placeholder="请自觉遵守互联网相关的政策法规，严禁发布色情、暴力、反动的言论。"></textarea>
-                  <button class="commit-comment" @click="replayCommentF(reply)">发表<br>评论</button>
+                  <button v-debounce class="commit-comment" @click="replayCommentF(reply)">发表<br>评论</button>
                 </div>
                 <el-tooltip
                     v-if="!reply.mainComments&&!reply.dynamic&&reply.replyComments.videoId"
@@ -170,10 +170,10 @@
         删除该条通知后将无法恢复，是否继续？
       </div>
       <div class="delete-dialog-btn-container">
-        <button class="delete-dialog-confirm-btn" @click="deleteCommentNotificationF">
+        <button v-debounce class="delete-dialog-confirm-btn" @click="deleteCommentNotificationF">
         确定
       </button>
-      <button
+      <button v-debounce
         class="delete-dialog-cancel-btn"
         @click="deleteCommentDialogFlag=false"
       >
