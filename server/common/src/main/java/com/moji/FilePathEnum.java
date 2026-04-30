@@ -29,7 +29,7 @@ public enum FilePathEnum {
     UPLOAD_IMG_BACKGROUND("C:\\Users\\13788\\IdeaProjects\\bi-video\\static\\public\\upload\\background\\"),
     /** 用户动态上传路径 */
     UPLOAD_IMG_DYNAMIC("C:\\Users\\13788\\IdeaProjects\\bi-video\\static\\public\\upload\\dynamic\\");
-    
+
     private String path;
     private Long size;
 
@@ -50,16 +50,6 @@ public enum FilePathEnum {
         File c = new File("C:/");
         long free = c.getFreeSpace();
         return free < limit;
-    }
-
-    /**
-     * 返回剩余空间（GB）
-     * @return
-     */
-    public static double getFreeSpaceGB() {
-        File c = new File("C:/");
-        long free = c.getFreeSpace();
-        return free / 1024.0 / 1024 / 1024;
     }
 
 

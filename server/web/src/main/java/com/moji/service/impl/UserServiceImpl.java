@@ -11,6 +11,7 @@ import com.moji.exception.AccountNotFoundException;
 import com.moji.exception.PasswordErrorException;
 import com.moji.mapper.*;
 import com.moji.po.*;
+import com.moji.serve.LoginLimiterServer;
 import com.moji.service.*;
 
 import org.mindrot.jbcrypt.BCrypt;
@@ -88,24 +89,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
     }
 
     @Override
-    public String sign(Users users) {
+    public String sign(LimiterLoginDto limiterLoginDto) {
+        Users users = limiterLoginDto.getUser();
+        String userIp = limiterLoginDto.getUserIp();
+        LoginLimiterServer limiterServer=new LoginLimiterServer();
+        // 1. 先调用封装好的限流校验
+        if (!limiterServer.checkRegisterLimit(userIp)) {
+            return "24小时内最多只能注册3个账号，请次日再试";
+        }
 
-        LambdaQueryWrapper<Users> wrapper=new LambdaQueryWrapper<>();
-         wrapper.eq(Users::getUserName,users.getUserName());
+        // 2. 原有注册逻辑不变
+        LambdaQueryWrapper<Users> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Users::getUserName, users.getUserName());
 
-         if (userMapper.selectOne(wrapper)!=null)
-             throw new AccountExistException(MessageConstant.ACCOUNT_EXIST);
+        if (userMapper.selectOne(wrapper) != null) {
+            throw new AccountExistException(MessageConstant.ACCOUNT_EXIST);
+        }
 
-         users.setCreateTime(LocalDateTime.now());
-         users.setAvatarAddress("/默认头像.gif");
-
-         //密码加密
+        users.setCreateTime(LocalDateTime.now());
+        users.setAvatarAddress("/默认头像.gif");
+        // 密码加密
         users.setPassword(BCrypt.hashpw(users.getPassword(), BCrypt.gensalt()));
 
-        if ( userMapper.insert(users)>0)
-        return "注册成功";
-         else
-             return "注册失败";
+        // 3. 注册成功才累加次数
+        if (userMapper.insert(users) > 0) {
+            // 调用计数方法
+            limiterServer.incrRegisterCount(userIp);
+            return "注册成功";
+        } else {
+            return "注册失败";
+        }
     }
 
     @Override

@@ -15,6 +15,7 @@ import com.moji.serve.LoginLimiterServer;
 import com.moji.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -68,6 +69,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/sign")
+    @Transactional(rollbackFor = Exception.class)
     public R<String> userSIgn(@RequestBody LimiterLoginDto limiterLoginDto){
 
         //增加限制登录的次数
@@ -79,7 +81,7 @@ public class UserController {
                 return R.error("操作频繁");
         }
 
-        return R.success(userService.sign(limiterLoginDto.getUser()));
+        return R.success(userService.sign(limiterLoginDto));
 
     }
 
@@ -89,6 +91,7 @@ public class UserController {
      * @return
      */
     @PutMapping("/forget")
+    @Transactional(rollbackFor = Exception.class)
     public R<String> userPutPassword(@RequestBody LimiterLoginDto limiterLoginDto){
 
         //增加限制登录的次数

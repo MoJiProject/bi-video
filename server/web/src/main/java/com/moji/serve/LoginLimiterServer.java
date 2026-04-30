@@ -16,12 +16,20 @@ public class LoginLimiterServer {
     private static final String ATTEMPTS_KEY_PREFIX_PUT = "put_attempts:";
     private static final String TIMESTAMP_KEY_PREFIX_PUT = "put_timestamp:";
     private static final String ATTEMPTS_KEY_PREFIX_AUTO_LOGIN = "auto_login_attempts:";
+
+    // 注册限流常量
+    private static final String ATTEMPTS_KEY_PREFIX_REG = "reg:attempts:";
+    private static final String TIMESTAMP_KEY_PREFIX_REG = "reg:timestamp:";
+    // 24小时 秒数
+    private static final int REG_TIME_WINDOW = 86400;
+    // 一天最多注册3次
+    private static final int MAX_REG_ATTEMPTS = 3;
     private static final int MAX_ATTEMPTS = 10;  // 最大尝试次数
     private static final int TIME_WINDOW = 300;  // 时间窗口，单位：秒 (1小时)
 
     private static final int AUTO_LOGIN_TIME_WINDOW = 604800;
 
-    private static final String PASS_WORD="";
+    private static final String PASS_WORD="1234";
 
     private Jedis jedis;
 
@@ -130,6 +138,67 @@ public class LoginLimiterServer {
             jedis.set(attemptsKey, "1", setParams);  // 初次尝试
             jedis.set(timestampKey, String.valueOf(currentTime), setParams);  // 设置当前时间戳
             return true;  // 允许登录
+        }
+    }
+
+
+    /**
+     * 校验IP是否允许注册
+     * 规则：同一IP 24小时内最多成功注册3次
+     * @param userIp 用户IP
+     * @return true=允许注册 false=禁止注册
+     */
+    public boolean checkRegisterLimit(String userIp) {
+        String attemptsKey = ATTEMPTS_KEY_PREFIX_REG + userIp;
+        String timestampKey = TIMESTAMP_KEY_PREFIX_REG + userIp;
+        long currentTime = System.currentTimeMillis() / 1000;
+
+        SetParams setParams = SetParams.setParams().ex(REG_TIME_WINDOW);
+
+        String attemptsStr = jedis.get(attemptsKey);
+        String timestampStr = jedis.get(timestampKey);
+
+        // 已有记录
+        if (attemptsStr != null && timestampStr != null) {
+            int attempts = Integer.parseInt(attemptsStr);
+            long timestamp = Long.parseLong(timestampStr);
+
+            // 还在24小时时间窗口内
+            if (currentTime - timestamp <= REG_TIME_WINDOW) {
+                // 超过3次，禁止注册
+                if (attempts >= MAX_REG_ATTEMPTS) {
+                    return false;
+                }
+            } else {
+                // 时间窗口已过，重置次数
+                jedis.set(attemptsKey, "1", setParams);
+                jedis.set(timestampKey, String.valueOf(currentTime), setParams);
+            }
+        }
+        // 没超限，允许注册
+        return true;
+    }
+
+    /**
+     * 注册成功后，增加IP注册次数计数
+     * @param userIp 用户IP
+     */
+    public void incrRegisterCount(String userIp) {
+        String attemptsKey = ATTEMPTS_KEY_PREFIX_REG + userIp;
+        String timestampKey = TIMESTAMP_KEY_PREFIX_REG + userIp;
+        long currentTime = System.currentTimeMillis() / 1000;
+
+        SetParams setParams = SetParams.setParams().ex(REG_TIME_WINDOW);
+        String attemptsStr = jedis.get(attemptsKey);
+
+        if (attemptsStr == null) {
+            // 首次注册
+            jedis.set(attemptsKey, "1", setParams);
+            jedis.set(timestampKey, String.valueOf(currentTime), setParams);
+        } else {
+            // 次数+1
+            int newCount = Integer.parseInt(attemptsStr) + 1;
+            jedis.set(attemptsKey, String.valueOf(newCount), setParams);
         }
     }
 

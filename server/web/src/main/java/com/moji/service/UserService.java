@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.moji.dto.AddFollowDto;
 import com.moji.dto.EitDto;
+import com.moji.dto.LimiterLoginDto;
 import com.moji.po.UserInfo;
 import com.moji.po.UserInfo2;
 import com.moji.po.Users;
@@ -16,7 +17,7 @@ public interface UserService extends IService<Users> {
 
     Users login(Users users);
 
-    String sign(Users users);
+    String sign(LimiterLoginDto limiterLoginDto);
 
     String putPassword(Users users);
 
