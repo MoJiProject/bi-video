@@ -31,7 +31,7 @@ public class LoginLimiterServer {
 
     private static final String PASS_WORD="1234";
 
-    private Jedis jedis;
+    private final Jedis jedis;
 
 
 
