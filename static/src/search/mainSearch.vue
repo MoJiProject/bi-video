@@ -3338,6 +3338,7 @@ video {
   border-radius: 5px;
   cursor: pointer;
   visibility: hidden; /* 隐藏 */
+  user-select: none;
 }
 
 .video-video:hover .waitWatch {
@@ -3609,6 +3610,7 @@ video {
 }
 
 .coverAddress {
+  user-select: none;
   cursor: pointer;
 }
 

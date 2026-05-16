@@ -41,6 +41,7 @@ export default {
 }
 
 .carousel-image {
+  user-select: none;
   width: 100%; /* 填满轮播项宽度 */
   height: 100%; /* 填满轮播项高度 */
   /* 保持比例填充 */

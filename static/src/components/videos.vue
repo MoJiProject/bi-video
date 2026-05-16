@@ -716,6 +716,7 @@ export default {
 <style lang="scss">
 video {
   cursor: pointer;
+  user-select: none;
   visibility: hidden;
   width: 245.39px; /* 视频宽度为100% */
   height: 100%; /* 视频高度为100% */
@@ -954,6 +955,7 @@ video {
 }
 
 .coverAddress {
+  user-select: none;
   cursor: pointer;
 }
 

@@ -635,10 +635,12 @@ function openDynamic(dynamicId){
                 }
                 .img{
                 margin-top: 12px;
-                max-width: 360px;
-                max-height: 280px;
+                max-width: 200px;
+                min-width: 150px;
+                max-height: 300px;
                 border-radius: 6px;
-                object-fit: cover;
+                object-fit: contain;
+                user-select: none;
                 background-color: #f1f2f3;
                 }
                 .video-info-container{

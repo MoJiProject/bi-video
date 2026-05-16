@@ -122,6 +122,7 @@
          height: 100%;
          z-index: 10;
          object-fit: cover;
+         user-select: none;
          background-color: black;
          transition: opacity 0.3s ease;
          }
@@ -130,6 +131,7 @@
          width: 100%;
          height: 100%;
          left: 0px;
+         user-select: none;
          object-fit: cover;
          }
          .wait-watch-c{ 

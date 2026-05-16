@@ -131,6 +131,7 @@ video{
         height: 100%;
         object-fit: cover;
         z-index: 10;
+        user-select: none;
         background-color: black;
         transition: opacity 0.3s ease;
         }
@@ -139,6 +140,7 @@ video{
         width: 100%;
         height: 100%;
         left: 0px;
+        user-select: none;
         object-fit: cover;
         }
         .wait-watch-c{ 

@@ -281,6 +281,7 @@ video{
         height: 100%;
         z-index: 10;
         object-fit: cover;
+        user-select: none;
         background-color: black;
         transition: opacity 0.3s ease;
         }
@@ -323,6 +324,7 @@ video{
         width: 100%;
         height: 100%;
         left: 0px;
+        user-select: none;
         object-fit: cover;
         }
         .wait-watch-c{ 
@@ -560,6 +562,7 @@ video{
     align-items: center;
     width: 100%;
     height: 100%;
+    user-select: none;
     cursor: pointer;
     background-color: #E3E5E7;
     border-radius: 6px;

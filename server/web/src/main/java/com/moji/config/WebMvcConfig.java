@@ -26,10 +26,6 @@ import java.util.List;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    private static final String ALLOWED_ORIGIN = "https://mojivideo.xyz," +
-            "https://www.mojivideo.xyz," +
-            "https://localhost:8080";
-
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
         MappingJackson2HttpMessageConverter httpMessageConverter = new MappingJackson2HttpMessageConverter();
@@ -59,7 +55,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
                             // ---------- 设置跨域响应头 ----------
                             // 允许指定域访问跨域资源
-                            .setHeader("Access-Control-Allow-Origin", ALLOWED_ORIGIN)
+                            .setHeader("Access-Control-Allow-Origin", "https://www.mojivideo.online")
                             // 允许所有请求方式
                             .setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
                             // 允许的header参数

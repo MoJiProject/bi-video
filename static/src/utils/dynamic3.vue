@@ -466,12 +466,15 @@ function deleteDynamicF(dynamic){
                 }
                 .img{
                 margin-top: 12px;
-                min-width: 114px;
-                min-height: 111px;
+                width: 100%;
+                max-width: 200px;
+                min-width: 150px;
+                max-height: 300px;
                 border-radius: 6px;
                 margin-right: 6px;
                 margin-bottom: 10px;
-                object-fit: cover;
+                user-select: none;
+                object-fit: contain;
                 background-color: #f1f2f3;
                 }
                 .video-info-container{

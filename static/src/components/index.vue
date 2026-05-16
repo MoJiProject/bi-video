@@ -111,7 +111,6 @@ export default {
  .index{
   position: relative;
   left: 24.5px;
-  user-select: none;
   height: auto;
   min-height: 110vh;
   padding-bottom: 200px;

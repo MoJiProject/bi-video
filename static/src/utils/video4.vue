@@ -127,6 +127,7 @@ return title.replace(regex, '<span class="highlight2">$1</span>');
         height: 100%;
         z-index: 10;
         object-fit: cover;
+        user-select: none;
         background-color: black;
         transition: opacity 0.3s ease;
         }
@@ -135,6 +136,7 @@ return title.replace(regex, '<span class="highlight2">$1</span>');
         width: 100%;
         height: 100%;
         left: 0px;
+        user-select: none;
         background-color: black;
         object-fit: cover;
         }

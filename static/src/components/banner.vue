@@ -151,6 +151,7 @@ body {
 }
 
 .logo {
+  user-select: none;
   margin-left: 135px;
   margin-top: 15px;
 }
