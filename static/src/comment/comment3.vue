@@ -455,11 +455,12 @@
         </div>
         <div v-if="comment.upLikeFlag" class="up-like-comment" :style="{marginBottom: comment.replyFlag ? '0px' : '5px'}">UP主觉得很赞</div>
         <div v-show="comment.userInfo?.isFansFlag === 1 && comment.userInfo?.isFollowFlag === 1" class="up-like-comment" :style="{marginBottom: comment.replyFlag ? '0px' : '5px'}">互相关注</div>
-        <div v-if="comment.replyNumber>0&&(!comment.replyFlag||comment.replyFlag2)" class="view-reply-btn">
-            共 {{ comment.replyNumber }} 条回复，<button v-debounce
-              @click="selectReplyComment(comment,1)"
+        <div v-if="comment.replyNumber>0" class="view-reply-btn">
+            共 {{ comment.replyNumber }} 条回复，
+            <button v-debounce
+              @click="comment.replyFlag ? (comment.replyFlag = false) : selectReplyComment(comment,1)"
             >
-              点击查看
+              {{ comment.replyFlag ? '收起' : '点击查看' }}
             </button>
         </div>
         <div
