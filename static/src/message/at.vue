@@ -63,8 +63,8 @@
                 <div class="at-right-content-bottom">
                     <span class="at-time">{{ at.comments.commentTime }}</span>
                     <span class="at-comment" @click="openReplyComment(at)" @mouseover="replyCommentHoverFlag=true" @mouseleave="replyCommentHoverFlag=false"><img :src="replyCommentHoverFlag?'../img/回复蓝.png':'../img/回复.png'"> <span>回复</span></span>
-                    <span v-show="at.commentControls?.controls!==1" class="love-comment" @click="commentControlesF(at)" @mouseover="loveCommentHoverFlag=true" @mouseleave="loveCommentHoverFlag=false"><img :src="loveCommentHoverFlag?'../img/评论点赞hover.png':'../img/评论点赞灰.png'"> <span>点赞</span></span>
-                    <span v-show="at.commentControls?.controls===1" class="love-comment2" @click="commentControlesF(at)"><img src="../img/评论点赞蓝.png"> <span>已赞</span></span>
+                    <span v-show="at.commentControls?.controls!==1" class="love-comment" v-debounce @click="commentControlesF(at)" @mouseover="loveCommentHoverFlag=true" @mouseleave="loveCommentHoverFlag=false"><img :src="loveCommentHoverFlag?'../img/评论点赞hover.png':'../img/评论点赞灰.png'"> <span>点赞</span></span>
+                    <span v-show="at.commentControls?.controls===1" class="love-comment2" v-debounce @click="commentControlesF(at)"><img src="../img/评论点赞蓝.png"> <span>已赞</span></span>
                     <span class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id" @mouseover="deleteCommentNotificaitonHoverFlag=true" @mouseleave="deleteCommentNotificaitonHoverFlag=false"><img :src="deleteCommentNotificaitonHoverFlag?'../img/删除通知蓝.png':'../img/删除通知.png'"> <span>删除该通知</span></span>
                 </div>
                 <div v-show="at?.replyFlag" class="at-comment-container">

@@ -387,6 +387,7 @@
           }}</span>
           <span
             @click="controlsCommentAxios(comment, 1)"
+            v-debounce
             class="comment-like-number-container"
           >
             <img
@@ -413,6 +414,7 @@
           </span>
           <span
             @click="controlsCommentAxios(comment, 0)"
+            v-debounce
             class="comment-dont-like-number-container"
           >
             <img
@@ -809,6 +811,7 @@
               }}</span>
               <span
                 @click="controlsCommentAxios(remark, 1)"
+                v-debounce
                 class="comment-like-number-container"
               >
                 <img
@@ -835,6 +838,7 @@
               </span>
               <span
                 @click="controlsCommentAxios(remark, 0)"
+                v-debounce
                 class="comment-dont-like-number-container"
               >
                 <img
