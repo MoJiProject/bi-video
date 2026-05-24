@@ -1279,9 +1279,6 @@ export default {
     //下拉增加评论
     const handleScroll1 = () => {
 
-    if(props.content3Menu===2||scrollFooterFlag.value)
-    return;
-
     const scrollHeight = document.documentElement.scrollHeight; // 文档总高度
     const scrollTop = window.scrollY || document.documentElement.scrollTop; // 当前滚动高度
     scrollInputCommentFlag.value=scrollTop;
@@ -1290,6 +1287,9 @@ export default {
     
     const clientHeight =
       window.innerHeight || document.documentElement.clientHeight; // 可视区域高度
+
+    if(props.content3Menu===2||scrollFooterFlag.value)
+    return;
 
     if (scrollTop + clientHeight + 400 >= scrollHeight) {
       if(store.userId!==null||pageNum.value===1)
@@ -4242,7 +4242,6 @@ export default {
 
 .comment-input-container2{
   position: fixed !important;
-  left: 415px !important;
   bottom: 1px !important;
   width: 600px;
   border-top: 0.5px solid #e3e5e7;

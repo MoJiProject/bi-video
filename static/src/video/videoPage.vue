@@ -5491,11 +5491,6 @@ export default {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.video-page {
-  position: relative;
-  height: auto;
-}
-
 .video-head {
   top: 0px;
   width: 101%;
@@ -5507,16 +5502,17 @@ export default {
 }
 
 .video-body-container{
+  position: relative;
   display: flex;
   justify-content: center;
+  left: -206px;
+  top: 63.5px;
 }
 
 .video-body {
   position: absolute;
   height: auto;
-  left: 169px;
   padding-bottom: 200px;
-  top: 63.5px;
   z-index: -1000;
 }
 

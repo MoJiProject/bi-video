@@ -4471,7 +4471,6 @@ export default {
 
 .comment-input-container2{
   position: fixed !important;
-  left: 179px !important;
   bottom: 0px !important;
   width: 700px;
   border-top: 0.5px solid #e3e5e7;
