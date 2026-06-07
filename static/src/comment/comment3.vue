@@ -122,7 +122,7 @@
             <span class="head-span">小黄脸</span>
             <span
               class="comment-emoji-content"
-              v-for="index in 76"
+              v-for="index in 176"
               :key="index"
               @click="commentRef.focus(), addEmoji(index)"
             >
@@ -545,7 +545,7 @@
                   <span class="head-span">小黄脸</span>
                   <span
                     class="comment-emoji-content"
-                    v-for="index in 76"
+                    v-for="index in 176"
                     :key="index"
                     @click="addEmoji2(index)"
                   >
@@ -935,7 +935,7 @@
                   <span class="head-span">小黄脸</span>
                   <span
                     class="comment-emoji-content"
-                    v-for="index in 76"
+                    v-for="index in 176"
                     :key="index"
                     @click="addEmoji2(index)"
                   >
