@@ -4708,20 +4708,35 @@ export default {
         target.classList.contains("collect-dialog") &&
         collectInputButtonFlag.value
       ) {
-        collectInputButtonFlag.value = false; // 修改 flag 的值
+        collectInputButtonFlag.value = false;
       }
       if (target.classList.contains("time-span")) {
         const timeText = event.target.getAttribute("data-time");
         const parts = timeText.split(/[：:]/).map(Number);
         let timeInSeconds = 0;
+        let isTimeValid = false;
 
+        // mm:ss 格式：分、秒 0~59
         if (parts.length === 2) {
-          timeInSeconds = parts[0] * 60 + parts[1]; // mm:ss
-        } else if (parts.length === 3) {
-          timeInSeconds = parts[0] * 3600 + parts[1] * 60 + parts[2]; // hh:mm:ss
+          const [min, sec] = parts;
+          if (min >= 0 && min < 60 && sec >= 0 && sec < 60) {
+            timeInSeconds = min * 60 + sec;
+            isTimeValid = true;
+          }
+        } 
+        // hh:mm:ss 格式：分、秒 0~59，小时仅限制非负
+        else if (parts.length === 3) {
+          const [h, min, sec] = parts;
+          if (h >= 0 && min >= 0 && min < 60 && sec >= 0 && sec < 60) {
+            timeInSeconds = h * 3600 + min * 60 + sec;
+            isTimeValid = true;
+          }
         }
-        upVideoPlayer.value.currentTime = timeInSeconds;
-        window.scrollTo({top: 0, behavior: "smooth"});
+
+        if (isTimeValid) {
+          upVideoPlayer.value.currentTime = timeInSeconds;
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
       }
     };
 

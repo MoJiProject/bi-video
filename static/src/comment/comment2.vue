@@ -1698,12 +1698,13 @@ export default {
 
       // 网址超链接
       commentContent.value = commentContent.value.replace(
-        /(https?:\/\/[^\s<>"]+?)(?=\s|&nbsp;|<div>|<\/div>|$)\b/g,
+        /(https?:\/\/[^\s<>"]+?)(?=\s|&nbsp;|<div>|<\/div>|$)/g,
         '<a href="$1" target="_blank"><img style="width: 14px;height: 14px;padding-right: 2px;" src="../img/网页链接.png">$1<br></a>',
       );
+
       // @样式
-      commentContent.value = commentContent.value.replace(
-        /color:#008ac5;/g,
+      commentContent.value = commentContent.value.replaceAll(
+        "color:#008ac5;",
         "color:#008ac5;cursor:pointer;",
       );
 
@@ -1713,8 +1714,10 @@ export default {
         `<span class="time-span" style="color:#008ac5;cursor:pointer;" data-time="$&">$&</span>`,
       );
 
-      commentContent.value = commentContent.value.replace(/m1a,s,a2/g,"");
-      commentContent.value = commentContent.value.replace(/data-eitt-userid/g,"data-eit-userid");
+      //href
+      commentContent.value = commentContent.value.replaceAll("m1a,s,a2", "");
+      //data-eit-userid
+      commentContent.value = commentContent.value.replaceAll("data-eitt-userid", "data-eit-userid");
 
       // 替换本站链接格式
       const container = document.createElement("div");
@@ -1814,12 +1817,13 @@ export default {
 
       // 网址超链接
       commentContent2.value = commentContent2.value.replace(
-        /(https?:\/\/[^\s<>"]+?)(?=\s|&nbsp;|<div>|<\/div>|$)\b/g,
+        /(https?:\/\/[^\s<>"]+?)(?=\s|&nbsp;|<div>|<\/div>|$)/g,
         '<a href="$1" target="_blank"><img style="width: 14px;height: 14px;padding-right: 2px;" src="../img/网页链接.png">$1<br></a>',
       );
+
       // @样式
-      commentContent2.value = commentContent2.value.replace(
-        /color:#008ac5;/g,
+      commentContent2.value = commentContent2.value.replaceAll(
+        "color:#008ac5;",
         "color:#008ac5;cursor:pointer;",
       );
 
@@ -1829,9 +1833,10 @@ export default {
         `<span class="time-span" style="color:#008ac5;cursor:pointer;" data-time="$&">$&</span>`,
       );
 
-      commentContent2.value = commentContent2.value.replace("m1a,s,a2","")
-      commentContent2.value = commentContent2.value.replace("data-eitt-userid","data-eit-userid")
-
+      //href
+      commentContent2.value = commentContent2.value.replaceAll("m1a,s,a2", "");
+      //data-eit-userid
+      commentContent2.value = commentContent2.value.replaceAll("data-eitt-userid", "data-eit-userid");
 
       // 替换本站链接格式
       const container = document.createElement("div");

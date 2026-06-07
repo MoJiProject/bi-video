@@ -1545,22 +1545,28 @@ export default {
     //转换成html
     async function publishComment() {
 
-
-      // 网址超链接
+    // 网址超链接
     video.contentHtml = video.contentHtml.replace(
-        /(https?:\/\/[^\s<>"]+?)(?=\s|&nbsp;|<div>|<\/div>|$)\b/g,
-        '<a href="$1" target="_blank"><img style="width: 14px;height: 14px;padding-right: 2px;" src="../img/网页链接.png">$1<br></a>'
+      /(https?:\/\/[^\s<>"]+?)(?=\s|&nbsp;|<div>|<\/div>|$)/g,
+      '<a href="$1" target="_blank"><img style="width: 14px;height: 14px;padding-right: 2px;" src="../img/网页链接.png">$1<br></a>',
     );
+
     // @样式
-    video.contentHtml = video.contentHtml.replace(/color:#008ac5;/g, "color:#008ac5;cursor:pointer;");
-    
+    video.contentHtml = video.contentHtml.replaceAll(
+      "color:#008ac5;",
+      "color:#008ac5;cursor:pointer;",
+    );
+
     // 替换时间样式
     video.contentHtml = video.contentHtml.replace(
       /(?<!<span[^>]*?>)\b\d{1,2}[：:]\d{2}(:\d{2})?(?!<\/span>)/g,
-        `<span class="time-span" style="color:#008ac5;cursor:pointer;" data-time="$&">$&</span>`
+      `<span class="time-span" style="color:#008ac5;cursor:pointer;" data-time="$&">$&</span>`,
     );
 
-    video.contentHtml = video.contentHtml.replace("m1a,s,a2","")
+    //href
+    video.contentHtml = video.contentHtml.replaceAll("m1a,s,a2", "");
+    //data-eit-userid
+    video.contentHtml = video.contentHtml.replaceAll("data-eitt-userid", "data-eit-userid");
     
 
     // 替换本站链接格式
