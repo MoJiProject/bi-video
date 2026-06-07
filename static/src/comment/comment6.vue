@@ -1870,10 +1870,31 @@ export default {
         "color:#008ac5;cursor:pointer;",
       );
 
-      // 替换时间样式
+      // 替换时间样式 + 时间合法性校验（非法时间不替换）
       commentContent.value = commentContent.value.replace(
         /(?<!<span[^>]*?>)\b\d{1,2}[：:]\d{2}(:\d{2})?(?!<\/span>)/g,
-        `<span class="time-span" style="color:#008ac5;cursor:pointer;" data-time="$&">$&</span>`,
+        (match) => {
+          // match = 匹配到的时间字符串，如 12:30、1:02:59、60:01 等
+          const parts = match.split(/[：:]/).map(Number);
+          let isValid = false;
+
+          // 两种格式：mm:ss  /  hh:mm:ss
+          if (parts.length === 2) {
+            const [min, sec] = parts;
+            // 分、秒：0 ≤ val ≤ 59
+            isValid = min >= 0 && min <= 59 && sec >= 0 && sec <= 59;
+          } else if (parts.length === 3) {
+            const [hour, min, sec] = parts;
+            // 小时不限上限，分、秒 0 ≤ val ≤ 59，所有字段非负
+            isValid = hour >= 0 && min >= 0 && min <= 59 && sec >= 0 && sec <= 59;
+          }
+
+          // 合法：返回带span标签；非法：返回原文本（不替换）
+          if (isValid) {
+            return `<span class="time-span" style="color:#008ac5;cursor:pointer;" data-time="${match}">${match}</span>`;
+          }
+          return match;
+        }
       );
 
       //href
@@ -1990,10 +2011,31 @@ export default {
         "color:#008ac5;cursor:pointer;",
       );
 
-      // 替换时间样式
+      // 替换时间样式 + 时间合法性校验（非法时间不替换）
       commentContent2.value = commentContent2.value.replace(
         /(?<!<span[^>]*?>)\b\d{1,2}[：:]\d{2}(:\d{2})?(?!<\/span>)/g,
-        `<span class="time-span" style="color:#008ac5;cursor:pointer;" data-time="$&">$&</span>`,
+        (match) => {
+          // match = 匹配到的时间字符串，如 12:30、1:02:59、60:01 等
+          const parts = match.split(/[：:]/).map(Number);
+          let isValid = false;
+
+          // 两种格式：mm:ss  /  hh:mm:ss
+          if (parts.length === 2) {
+            const [min, sec] = parts;
+            // 分、秒：0 ≤ val ≤ 59
+            isValid = min >= 0 && min <= 59 && sec >= 0 && sec <= 59;
+          } else if (parts.length === 3) {
+            const [hour, min, sec] = parts;
+            // 小时不限上限，分、秒 0 ≤ val ≤ 59，所有字段非负
+            isValid = hour >= 0 && min >= 0 && min <= 59 && sec >= 0 && sec <= 59;
+          }
+
+          // 合法：返回带span标签；非法：返回原文本（不替换）
+          if (isValid) {
+            return `<span class="time-span" style="color:#008ac5;cursor:pointer;" data-time="${match}">${match}</span>`;
+          }
+          return match;
+        }
       );
 
       //href
