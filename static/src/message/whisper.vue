@@ -218,7 +218,7 @@
                    <span
                         class="comment-emoji-content"
                         @click="addEmoji(index)"
-                        v-for="index in 76"
+                        v-for="index in 176"
                         :key="index"
                         >
                         <img class="comment-emoji-img" :src="'../img/emoji/' + index + '.png'" />
