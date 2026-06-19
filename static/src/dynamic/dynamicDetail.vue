@@ -319,7 +319,7 @@ padding-bottom: 1px;
         margin-left: 720px;
         transition: all .5s ease-in-out;
         top: 180px;
-        z-index: 10;
+        z-index: 0;
 
           .content{
           padding: 12px 6px;
