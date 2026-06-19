@@ -3154,7 +3154,7 @@ export default {
         border: 1px solid #e3e5e7;
         border-radius: 8px;
         padding-left: 11px;
-        padding-bottom: 120px;
+        padding-bottom: 45px;
         z-index: 1000;
         overflow-y: auto;
         cursor: default;
