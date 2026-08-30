@@ -186,6 +186,11 @@
                  <div v-if="messageIsImgFlag" @click="handleSaveImg(messageObj)">保存图片</div>
              </div>
          </div>
+
+         <div v-show="showScrollToBottom" class="scroll-to-bottom-btn" @click="scrollToBottomF" title="回到底部">
+           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+         </div>
+
          <div class="message-send-container">
             <div class="message-feature-container">
                 <el-tooltip
@@ -324,6 +329,7 @@ const userInfo = ref(null);
 const dialogueUserInfo = ref(null);
 const messageInput = ref(null);
 const messageContent = ref(null);
+const showScrollToBottom = ref(false);
 const messageNumber = ref(0);
 const copyMessage = ref(null);
 const messageIsImgFlag = ref(false);
@@ -558,7 +564,10 @@ async function selectPrivateMessageF(sDialogue, a) {
       dialogueUserInfo.value = res.data.data.dialogueUserInfo;
       nextTick(() => {
         requestAnimationFrame(() => {
-          if (messageContent?.value) messageContent.value.scrollTop = messageContent.value.scrollHeight;
+          if (messageContent?.value) {
+            messageContent.value.scrollTop = messageContent.value.scrollHeight;
+            showScrollToBottom.value = false;
+          }
           messageLoadingFlag.value = messagePageNum.value > 0;
           messageLoading.value = false;
         });
@@ -826,9 +835,9 @@ socket.onmessage = (event) => {
       }
       if (data.senderId === store.userId) {
         if (data.messageType === 1) {
-          nextTick(() => requestAnimationFrame(() => { if (messageContent?.value) messageContent.value.scrollTop = messageContent.value.scrollHeight; }));
+          nextTick(() => requestAnimationFrame(() => { if (messageContent?.value) { messageContent.value.scrollTop = messageContent.value.scrollHeight; showScrollToBottom.value = false; } }));
         } else if (data.messageType === 2) {
-          setTimeout(() => nextTick(() => requestAnimationFrame(() => { if (messageContent?.value) messageContent.value.scrollTop = messageContent.value.scrollHeight; })), 700);
+          setTimeout(() => nextTick(() => requestAnimationFrame(() => { if (messageContent?.value) { messageContent.value.scrollTop = messageContent.value.scrollHeight; showScrollToBottom.value = false; } })), 700);
         }
       } else {
         if(currentDialogue.value.dialogue.dialogueId !== data.senderId){
@@ -836,9 +845,9 @@ socket.onmessage = (event) => {
         }
         if (messageContent?.value && messageContent.value.scrollHeight - messageContent.value.scrollTop <= messageContent.value.clientHeight + 1) {
           if (data.messageType === 1) {
-            nextTick(() => requestAnimationFrame(() => { if (messageContent?.value) messageContent.value.scrollTop = messageContent.value.scrollHeight; }));
+            nextTick(() => requestAnimationFrame(() => { if (messageContent?.value) { messageContent.value.scrollTop = messageContent.value.scrollHeight; showScrollToBottom.value = false; } }));
           } else if (data.messageType === 2) {
-            setTimeout(() => nextTick(() => requestAnimationFrame(() => { if (messageContent?.value) messageContent.value.scrollTop = messageContent.value.scrollHeight; })), 700);
+            setTimeout(() => nextTick(() => requestAnimationFrame(() => { if (messageContent?.value) { messageContent.value.scrollTop = messageContent.value.scrollHeight; showScrollToBottom.value = false; } })), 700);
           }
         }
       }
@@ -946,6 +955,11 @@ function dialogueListScroll(e) {
 let dealyFlag = true;
 async function messageListScroll(e){
     if(!e.target) return;
+    try{
+      showScrollToBottom.value = e.target.scrollHeight - e.target.scrollTop > e.target.clientHeight + 50;
+    }catch(err){
+      showScrollToBottom.value = false;
+    }
     if(!messageLoadingFlag.value) return;
     messageLoading.value = e.target.scrollTop === 0;
     if(messageLoading.value && dealyFlag){
@@ -956,6 +970,17 @@ async function messageListScroll(e){
           e.target.scrollTop = oldScrollHeight - 280;
         })
     }
+}
+
+function scrollToBottomF(){
+  if(messageContent?.value){
+    try{
+      messageContent.value.scrollTo({ top: messageContent.value.scrollHeight, behavior: 'smooth' });
+    }catch(e){
+      messageContent.value.scrollTop = messageContent.value.scrollHeight;
+    }
+    showScrollToBottom.value = false;
+  }
 }
 
 function handleSaveImg(msg) {
@@ -1811,6 +1836,28 @@ function restoreBodyOverflow() {
             }
         }
     }
+
+      .scroll-to-bottom-btn{
+        position: absolute;
+        left: 650px;
+        top: 360px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: #00AEEC;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        cursor: pointer;
+        z-index: 25;
+        transition: transform 0.15s ease, opacity 0.15s ease;
+      }
+
+      .scroll-to-bottom-btn:hover{
+        transform: translateY(-4px);
+      }
 
 
 
