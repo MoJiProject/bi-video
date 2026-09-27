@@ -161,7 +161,7 @@ public class VideosController {
     public R<String> examineVideo(@RequestBody Videos video,@RequestHeader("Authorization") String token){
 
         Users users = userService.getById(video.getUserId());
-        if(users==null||(users.getAdminFlag()==0&&!users.getUserName().equals("MoJi")))
+        if(users==null||(users.getAdminFlag()==0))
             return R.error("操作失败");
 
         LoginLimiterServer limiterServer=new LoginLimiterServer();
@@ -184,7 +184,7 @@ public class VideosController {
     public R<String> examineVideoFiled(@RequestBody VideoExamineDto videoExamineDto,@RequestHeader("Authorization") String token){
 
         Users users = userService.getById(videoExamineDto.getUserId());
-        if(users==null||(users.getAdminFlag()==0&&!users.getUserName().equals("MoJi")))
+        if(users==null||(users.getAdminFlag()==0))
             return R.error("操作失败");
 
         LoginLimiterServer limiterServer=new LoginLimiterServer();

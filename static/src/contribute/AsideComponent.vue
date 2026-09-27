@@ -42,7 +42,7 @@
         </div>
       </router-link>
       <router-link
-        v-if="store.userInformation.adminFlag||store.userInformation.userName==='MoJi'"
+        v-if="store.userInformation.adminFlag"
         class="aside-link"
         to="/contribute/subpage3"
       >
@@ -57,7 +57,7 @@
         </div>
       </router-link>
       <router-link
-        v-if="store.userInformation.userName==='MoJi'"
+        v-if="store.userInformation.adminFlag"
         class="aside-link"
         to="/contribute/subpage4"
       >

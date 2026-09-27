@@ -298,6 +298,7 @@ function openAccount(){
     height: 125px;
     right: 85px;
     top: 30px;
+    z-index: 10;
     padding: 20px 16px 24px;
     background-color: #F6F7F8;
     border-radius: 6px;

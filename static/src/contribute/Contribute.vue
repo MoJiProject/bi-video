@@ -2,7 +2,7 @@
   <div
   v-if="store.userId!== null&&pageLoad"
     class="common-layout"
-    style="user-select: none"
+    style="user-select: none;"
   >
     <el-container>
       <el-header

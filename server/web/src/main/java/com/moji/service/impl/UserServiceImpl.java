@@ -1,6 +1,7 @@
 package com.moji.service.impl;
 import ch.qos.logback.core.util.StringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.moji.FilePathEnum;
@@ -558,10 +559,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
         if(type==8){
             Page<Follow> page=new Page<>(pageNum,24);
             LambdaQueryWrapper<Follow>  followLambdaQueryWrapper=new LambdaQueryWrapper<>();
-            if(keyWord==null||keyWord.isEmpty())
                 followLambdaQueryWrapper.eq(Follow::getUserId,homeUserId);
-            else
+            if(StringUtils.isNotEmpty(keyWord))
+            {
                 followLambdaQueryWrapper.like(Follow::getFollowUserName,keyWord);
+            }
 
             Page<Follow> page1 = followMapper.selectPage(page, followLambdaQueryWrapper);
             List<Follow> records = page1.getRecords();
@@ -606,10 +608,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
         else if (type == 9) {
             Page<Fans> page=new Page<>(pageNum,24);
             LambdaQueryWrapper<Fans> fansLambdaQueryWrapper=new LambdaQueryWrapper<>();
-            if(keyWord==null||keyWord.isEmpty())
                 fansLambdaQueryWrapper.eq(Fans::getUserId,homeUserId);
-            else
-                fansLambdaQueryWrapper.like(Fans::getFansUserName,keyWord);
+            if(StringUtils.isNotEmpty(keyWord)) {
+                fansLambdaQueryWrapper.like(Fans::getFansUserName, keyWord);
+            }
 
             Page<Fans> page1 = fansMapper.selectPage(page,fansLambdaQueryWrapper);
             List<Fans> records = page1.getRecords();

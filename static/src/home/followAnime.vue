@@ -9,7 +9,7 @@
                <span>拼命加载中...</span>
         </div>
         <div v-else class="content">
-            <div class="title">MoJi推荐的番剧</div>
+            <div class="title">Alice推荐的番剧</div>
             <div class="condition">
                 <span :class="{activeStatus:status===''}" @click="status=''">全部</span>
                 <span :class="{activeStatus:status==='更新至第'}" @click="status='更新至第'">未完结</span>

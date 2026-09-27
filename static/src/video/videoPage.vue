@@ -3279,7 +3279,7 @@ export default {
       autoPlayVideoFlag.value = urlParams.get("autoFlag");
       await getUserIp();
       await ChecklLogin();
-      getVideoAndUser();
+      getVideoAndUser(true);
       getHistory();
       getEitList();
       setTimeout(() => {
@@ -3530,7 +3530,7 @@ export default {
     }
 
     //根据id查询视频和用户
-    async function getVideoAndUser() {
+    async function getVideoAndUser(isInit = false) {
       try {
         const urlParams = new URLSearchParams(window.location.search);
         let videoId = urlParams.get("videoId");
@@ -3569,7 +3569,7 @@ export default {
           checkVideoTitle(response.data.data.upVideo.title);
           onloadPage.value = true;
           handleVideoContentHeight();
-        } else {
+        } else if (isInit) {
           setTimeout(() => {
             window.location.href = "./videoNotFound";
           }, 200);

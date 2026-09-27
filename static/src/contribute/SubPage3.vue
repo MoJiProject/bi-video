@@ -1,5 +1,5 @@
 <template>
-  <div v-if="store.userInformation.adminFlag||store.userInformation.userName==='MoJi'" class="main-content">
+  <div v-if="store.userInformation.adminFlag" class="main-content">
     <div class="white">
       <div
         style="
