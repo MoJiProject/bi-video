@@ -446,7 +446,7 @@ public class UserController {
 
         Users users = userMapper.selectById(userId);
         LoginLimiterServer limiterServer=new LoginLimiterServer();
-        if(users==null||!users.getUserName().equals("MoJi")||!limiterServer.checkUser(userId,token))
+        if(users==null||users.getAdminFlag()==0||!limiterServer.checkUser(userId,token))
             return R.error("查询失败");
 
         return R.success(userService.getUsers(pageNum,keyword,type));
@@ -465,7 +465,7 @@ public class UserController {
 
         Users users = userMapper.selectById(userId);
         LoginLimiterServer limiterServer = new LoginLimiterServer();
-        if (users == null || !users.getUserName().equals("MoJi") || !limiterServer.checkUser(userId, token))
+        if (users == null || users.getAdminFlag()==0 || !limiterServer.checkUser(userId, token))
             return R.error("查询失败");
 
         boolean b = userService.putAdmin(adminId);
