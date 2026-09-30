@@ -64,13 +64,13 @@
             <div v-show="fansTotal>0&&!loadMore" class="page-container">
                 <el-pagination
                 :current-page="pageNum"
-                :page-size="20"
+                :page-size="24"
                 layout="prev, pager, next"
                 :total="fansTotal"
                 :background="true"
                 @current-change="handleCurrentChange"
                 />
-                <span>共 {{ Math.ceil(fansTotal/20) }} 页 / {{ fansTotal }} 个，跳至<input type="number" @keydown.enter="handleCurrentChange2">页</span>
+                <span>共 {{ Math.ceil(fansTotal/24) }} 页 / {{ fansTotal }} 个，跳至<input type="number" @keydown.enter="handleCurrentChange2">页</span>
             </div>
         </div>
         <div v-else-if="store.userId&&fansTotal===0&&!loadMore" class="not-data-container">
@@ -145,7 +145,7 @@ function handleCurrentChange(val){
 // 更改当前页
 function handleCurrentChange2(event){
 
-    if(event.target.value!==''&&event.target.value<=Math.ceil(fansTotal.value/20)&&event.target.value>=1)
+    if(event.target.value!==''&&event.target.value<=Math.ceil(fansTotal.value/24)&&event.target.value>=1)
         {
             pageNum.value=parseInt(event.target.value);
         }
