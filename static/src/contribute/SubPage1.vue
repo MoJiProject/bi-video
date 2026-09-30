@@ -26,7 +26,7 @@
             ><div>
               <img
                 src="../img/新增粉丝.png"
-                style="transform: translate(3px, 3px)"
+                style="width: 18px; transform: translate(3px, 3px);margin-right: 8px"
               />净增粉丝
             </div>
             <div class="aa">{{ videoDto.newFansNumber }}</div>
@@ -35,7 +35,7 @@
             ><div>
               <img
                 src="../img/播放量.png"
-                style="width: 14px; transform: translate(6px, 2px)"
+                style="width: 14px; transform: translate(6px, 2px);margin-right: 8px"
               />
               播放量
             </div>
@@ -45,7 +45,7 @@
             ><div>
               <img
                 src="../img/评论.png"
-                style="transform: translate(6px, 3px)"
+                style="width: 18px; transform: translate(6px, 3px);margin-right: 8px"
               />
               评论
             </div>
@@ -55,7 +55,7 @@
             ><div>
               <img
                 src="../img/弹幕.png"
-                style="transform: translate(6px, 2px)"
+                style="width: 18px; transform: translate(6px, 2px);margin-right: 8px"
               />
               弹幕
             </div>
@@ -76,7 +76,7 @@
             ><div>
               <img
                 src="../img/点赞.png"
-                style="transform: translate(7px, 2px)"
+                style="width: 18px; transform: translate(7px, 2px);margin-right: 8px"
               />
               点赞
             </div>
@@ -86,7 +86,7 @@
             ><div>
               <img
                 src="../img/分享.png"
-                style="transform: translate(7px, 1px)"
+                style="width: 18px; transform: translate(7px, 1px);margin-right: 8px"
               />
               分享
             </div>
@@ -96,7 +96,7 @@
             ><div>
               <img
                 src="../img/真收藏.png"
-                style="transform: translate(6px, 3px)"
+                style="width: 18px; transform: translate(6px, 3px);margin-right: 8px"
               />
               收藏
             </div>
@@ -106,7 +106,7 @@
             ><div>
               <img
                 src="../img/投币.png"
-                style="transform: translate(5px, 4px)"
+                style="width: 18px; transform: translate(5px, 4px);margin-right: 8px"
               />
               投币
             </div>

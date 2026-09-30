@@ -46,9 +46,9 @@
         >
           <img
             src="../img/主站.png"
-            style="transform: translate(); height: 16px"
+            style="transform: translate(-13px, 4px); height: 16px"
           />
-          <span style="transform: translate(-15px, 3px)">主站</span>
+          <span style="transform: translate(-7px, 3px)">主站</span>
         </a>
        <div class="right">
           <div class="avatar">
@@ -98,7 +98,7 @@
               class="number-style">
               {{ store.userInformation.allMessageNumber>99? '99+' : store.userInformation.allMessageNumber }}
               </div>
-              <img src="../img/消息灰色.png" alt="消息" />
+              <img src="../img/消息灰色.png" alt="消息" style="width: 18px;transform: translate(-13px,4px);"/>
             </a>
             <div class="message-info" v-if="user.userName !== null">
               <span style="margin-top: 15px;" @click="openMessage(1)">

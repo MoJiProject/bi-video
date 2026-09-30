@@ -62,7 +62,7 @@
         <img
           @click="reVideo"
           src="../img/重新选择.png"
-          style="transform: translate(670px, 50px); position: absolute;cursor: pointer;"
+          style="width: 18px;transform: translate(670px, 50px); position: absolute;cursor: pointer;"
         />
         <img
           src="../img/uploadVideoImg.png"
@@ -163,6 +163,7 @@
             ></span
           >
           <el-popover
+            popper-class="contribute-upload-popover"
             :show-arrow="false"
             placement="top-start"
             :width="300"
@@ -181,6 +182,7 @@
             </template>
           </el-popover>
           <el-popover
+            popper-class="contribute-upload-popover"
             :show-arrow="false"
             placement="top-start"
             :width="300"
@@ -198,6 +200,7 @@
             </template>
           </el-popover>
           <el-popover
+            popper-class="contribute-upload-popover"
             :show-arrow="false"
             placement="top-start"
             :width="300"
@@ -250,7 +253,7 @@
             "
             ><img
               src="../img/小丸压.png"
-              style="transform: translate(2px, 3px); width: 16px"
+              style="transform: translate(2px, 3px); width: 16px;margin-right: 8px"
             />小丸压制工具原版</span
           >
           <span
@@ -262,7 +265,7 @@
             "
             ><img
               src="../img/小丸压定制版.png"
-              style="transform: translate(2px, 3px); width: 16px"
+              style="transform: translate(2px, 3px); width: 16px;margin-right: 8px"
             />小丸压制工具bilibili定制版</span
           >
         </div>
@@ -527,7 +530,7 @@
 
         <div
           style="
-            margin-left: 28px;
+            margin-left: 27px;
             margin-top: 20px;
             height: auto;
             width: 850px;
@@ -1834,19 +1837,6 @@ h1 {
   color: #333;
 }
 
-button {
-  padding: 10px 15px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
 .cover {
   width: 90px;
   position: absolute;
@@ -1945,9 +1935,9 @@ button:hover {
   color: #00a1d6 !important;
 }
 
-.el-popover {
+:global(.el-popover.contribute-upload-popover) {
   font-size: 12px !important;
-  color: black;
+  color: black !important;
   background-color: #fcfae2 !important;
   border: 1px solid #f3d2a0 !important;
 }

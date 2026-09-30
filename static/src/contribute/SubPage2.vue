@@ -227,7 +227,6 @@
               style="
                 width: 3px;
                 height: 12px;
-                transform: translate(4px);
                 position: absolute;
               "
             />
@@ -751,6 +750,7 @@ export default {
   width: 82px;
   height: 28px;
   font-size: 14px;
+  gap: 8px;
   transform: translate(800px, -33px);
   cursor: pointer;
   position: absolute;
@@ -770,6 +770,7 @@ export default {
   color: #6c6c6c;
   width: 82px;
   height: 28px;
+  gap: 8px;
   font-size: 14px;
   transform: translate(895px, -33px);
   cursor: pointer;
@@ -802,9 +803,9 @@ export default {
 .ai {
   font-size: 11px;
   color: #aaaaaa;
-}
-.ai span {
-  transform: translate(-2px);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .deleteUpload {

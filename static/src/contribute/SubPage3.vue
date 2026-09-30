@@ -228,7 +228,6 @@
               style="
                 width: 3px;
                 height: 12px;
-                transform: translate(4px);
                 position: absolute;
               "
             />
@@ -907,6 +906,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 8px;
   border-radius: 3px;
   border: 1px solid #dadada;
   color: #6c6c6c;
@@ -927,6 +927,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 8px;
   border-radius: 3px;
   border: 1px solid #dadada;
   color: #6c6c6c;
@@ -962,11 +963,11 @@ export default {
   transform: translate(0px, 1px);
 }
 .ai {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-size: 11px;
   color: #aaaaaa;
-}
-.ai span {
-  transform: translate(-2px);
 }
 
 .deleteUpload {

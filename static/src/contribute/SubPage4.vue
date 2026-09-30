@@ -86,7 +86,7 @@
         </el-table-column>
         <el-table-column prop="头像" label="头像">
             <template #default="scope">
-                <a :href="'../home?userId='+scope.row.id+'&homeMenu=1'" target="_blank"><img :src="scope.row.avatarAddress" style="width: 50px;height: 50px;border-radius: 50%;" /></a>
+                <a :href="'../home?userId='+scope.row.id+'&homeMenu=1'" target="_blank"><img :src="scope.row.avatarAddress" style="width: 50px;height: 50px;border-radius: 50%;margin-left: -12px;" /></a>
             </template>
         </el-table-column>
         <el-table-column prop="注册时间" label="注册时间">
