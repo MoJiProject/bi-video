@@ -345,10 +345,12 @@ function handleContentInput(){
     const selection = window.getSelection();
     if (!selection.rangeCount) return; // 如果没有选区，直接返回
 
-    const range = selection.getRangeAt(0);
-    if (range.endContainer.parentNode.className === "at-msg") return;
+    const currentRange = selection.getRangeAt(0);
+    if (!inputDom.contains(currentRange.commonAncestorContainer)) return;
+    range = currentRange.cloneRange();
+    if (currentRange.endContainer.parentNode.className === "at-msg") return;
     // 获取光标前的所有文本
-    const textBeforeCursor = getTextBeforeCursor(range);
+    const textBeforeCursor = getTextBeforeCursor(currentRange);
 
     // 检测是否包含 @ 并提取关键字
     const atIndex = textBeforeCursor.lastIndexOf("@");
@@ -452,6 +454,15 @@ function insertEit() {
 
   if(!eitFlag.value)
   return;
+  const selection = window.getSelection();
+  if (selection?.rangeCount) {
+    const currentRange = selection.getRangeAt(0);
+    if (contentInput.value?.contains(currentRange.commonAncestorContainer)) {
+      range = currentRange.cloneRange();
+    }
+  }
+  if (!range?.startContainer || !contentInput.value?.contains(range.startContainer)) return;
+
   // 找到最近的 `@` 并删除关键字
   const containerText = range.startContainer.textContent;
   const startOffset = range.startOffset;
