@@ -136,6 +136,7 @@ let clientToken = null;
 let attachedVideo = null;
 let applyingRemoteAction = false;
 let releaseRemoteTimer = null;
+let remoteSeekTarget = null;
 
 const currentUserId = computed(() => store.userId);
 const isOwner = computed(() => room.value?.ownerId === currentUserId.value);
@@ -264,6 +265,7 @@ function applyRoomState(nextRoom) {
   if (!props.videoElement || !nextRoom) return;
   runRemoteAction(() => {
     if (Math.abs(props.videoElement.currentTime - nextRoom.currentTime) > 0.75) {
+      remoteSeekTarget = nextRoom.currentTime;
       props.videoElement.currentTime = nextRoom.currentTime;
     }
     props.videoElement.playbackRate = nextRoom.playbackRate || 1;
@@ -279,6 +281,7 @@ function applyPlaybackMessage(message) {
   if (!props.videoElement) return;
   runRemoteAction(() => {
     if (Math.abs(props.videoElement.currentTime - message.currentTime) > 0.5) {
+      remoteSeekTarget = message.currentTime;
       props.videoElement.currentTime = message.currentTime;
     }
     props.videoElement.playbackRate = message.playbackRate || 1;
@@ -396,6 +399,7 @@ function detachVideo() {
   attachedVideo.removeEventListener('seeked', onSeeked);
   attachedVideo.removeEventListener('ratechange', onRateChange);
   attachedVideo = null;
+  remoteSeekTarget = null;
 }
 
 function onPlay() {
@@ -407,6 +411,11 @@ function onPause() {
 }
 
 function onSeeked() {
+  if (remoteSeekTarget !== null) {
+    const isRemoteSeek = Math.abs(attachedVideo.currentTime - remoteSeekTarget) <= 0.5;
+    remoteSeekTarget = null;
+    if (isRemoteSeek) return;
+  }
   sendPlayback('seek');
 }
 
