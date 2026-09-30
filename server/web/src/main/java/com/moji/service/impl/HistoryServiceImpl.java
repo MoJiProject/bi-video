@@ -1,5 +1,6 @@
 package com.moji.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import ch.qos.logback.core.util.StringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -15,7 +16,6 @@ import com.moji.po.History;
 import com.moji.po.UserInfo2;
 import com.moji.po.Users;
 import com.moji.po.Videos;
-import com.moji.serve.LoginLimiterServer;
 import com.moji.service.HistoryService;
 import com.moji.service.VideosService;
 import org.springframework.beans.BeanUtils;
@@ -122,9 +122,17 @@ public class HistoryServiceImpl extends ServiceImpl<HistoryMapper, History> impl
         }
 
         //如果没有登录的token则请求失败
-        LoginLimiterServer limiterServer=new LoginLimiterServer();
-        String token = limiterServer.isAutoLogin(acceptHistory.getUserIp());
-        if(!acceptHistory.getToken().equals(token))
+        if(acceptHistory.getToken()==null || acceptHistory.getHistory()==null)
+            return;
+
+        Object loginId;
+        try {
+            loginId = StpUtil.getLoginIdByToken(acceptHistory.getToken());
+        } catch (Exception e) {
+            return;
+        }
+
+        if(loginId==null || !String.valueOf(acceptHistory.getHistory().getUserId()).equals(String.valueOf(loginId)))
             return;
 
         Users users = userMapper.selectById(acceptHistory.getHistory().getUserId());

@@ -162,7 +162,6 @@ export default {
                 apiClient.post("/user/avatar/update", formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
-                        Authorization: "Bearer " + localStorage.getItem("teri_token"),
                     }
                 })
                 .then(res => {

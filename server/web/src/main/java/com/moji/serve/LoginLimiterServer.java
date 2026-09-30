@@ -2,44 +2,80 @@ package com.moji.serve;
 
 import cn.dev33.satoken.stp.StpUtil;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.params.SetParams;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 public class LoginLimiterServer {
 
 
     private static final String ATTEMPTS_KEY_PREFIX_LOGIN = "login_attempts:";
-    private static final String TIMESTAMP_KEY_PREFIX_LOGIN = "login_timestamp:";
     private static final String ATTEMPTS_KEY_PREFIX_SIGN = "sign_attempts:";
-    private static final String TIMESTAMP_KEY_PREFIX_SIGN = "sign_timestamp:";
     private static final String ATTEMPTS_KEY_PREFIX_PUT = "put_attempts:";
-    private static final String TIMESTAMP_KEY_PREFIX_PUT = "put_timestamp:";
     private static final String ATTEMPTS_KEY_PREFIX_AUTO_LOGIN = "auto_login_attempts:";
 
     // 注册限流常量
     private static final String ATTEMPTS_KEY_PREFIX_REG = "reg:attempts:";
-    private static final String TIMESTAMP_KEY_PREFIX_REG = "reg:timestamp:";
     // 24小时 秒数
     private static final int REG_TIME_WINDOW = 86400;
     // 一天最多注册3次
     private static final int MAX_REG_ATTEMPTS = 3;
     private static final int MAX_ATTEMPTS = 10;  // 最大尝试次数
-    private static final int TIME_WINDOW = 300;  // 时间窗口，单位：秒 (1小时)
+    private static final int TIME_WINDOW = 300;  // 时间窗口，单位：秒 (5分钟)
 
     private static final int AUTO_LOGIN_TIME_WINDOW = 604800;
 
     private static final String PASS_WORD="1234";
 
-    private final Jedis jedis;
+    private static final JedisPool JEDIS_POOL = createJedisPool();
 
 
 
 
     public LoginLimiterServer() {
+    }
 
-        this.jedis = new Jedis("localhost",6379);  // 创建连接
-        this.jedis.auth(PASS_WORD);
+    private static JedisPool createJedisPool() {
+        JedisPoolConfig poolConfig = new JedisPoolConfig();
+        poolConfig.setMaxTotal(50);
+        poolConfig.setMaxIdle(10);
+        poolConfig.setMinIdle(1);
+        poolConfig.setTestOnBorrow(true);
+        return new JedisPool(poolConfig, "localhost", 6379, 2000, PASS_WORD);
+    }
+
+    private <T> T execute(Function<Jedis, T> action) {
+        try (Jedis jedis = JEDIS_POOL.getResource()) {
+            return action.apply(jedis);
+        }
+    }
+
+    private boolean isAllowed(String prefix, int maxAttempts, int timeWindow, String... parts) {
+        String key = prefix + buildKey(parts);
+        Long attempts = execute(jedis -> {
+            Long count = jedis.incr(key);
+            if (count == 1) {
+                jedis.expire(key, (long) timeWindow);
+            }
+            return count;
+        });
+        return attempts <= maxAttempts;
+    }
+
+    private String buildKey(String... parts) {
+        StringBuilder key = new StringBuilder();
+        for (String part : parts) {
+            if (part == null || part.isBlank()) {
+                continue;
+            }
+            if (key.length() > 0) {
+                key.append(':');
+            }
+            key.append(part.trim().toLowerCase());
+        }
+        return key.length() == 0 ? "unknown" : key.toString();
     }
 
     /**
@@ -48,47 +84,13 @@ public class LoginLimiterServer {
      * @return
      */
     public boolean isAllowedToLogin(String userIp) {
-        String attemptsKey = ATTEMPTS_KEY_PREFIX_LOGIN + userIp;  // 登录尝试次数键
-        String timestampKey = TIMESTAMP_KEY_PREFIX_LOGIN + userIp;  // 登录时间戳键
+        return isAllowed(ATTEMPTS_KEY_PREFIX_LOGIN + "ip:", MAX_ATTEMPTS, TIME_WINDOW, userIp);
+    }
 
-        // 获取当前时间戳
-        long currentTime = System.currentTimeMillis() / 1000;  // 当前时间，单位：秒
-
-        // 获取当前的尝试次数和时间戳
-        String attemptsStr = jedis.get(attemptsKey);
-        String timestampStr = jedis.get(timestampKey);
-
-        // 初始化 SetParams，用于设置过期时间
-        SetParams setParams = new SetParams();
-        setParams.ex(TIME_WINDOW);  // 设置过期时间为 TIME_WINDOW 秒
-
-        // 判断用户的尝试次数和时间戳
-        if (attemptsStr != null && timestampStr != null) {
-            int attempts = Integer.parseInt(attemptsStr);
-            long timestamp = Long.parseLong(timestampStr);
-
-            // 如果时间窗口已过，重置尝试次数
-            if (currentTime - timestamp > TIME_WINDOW) {
-                // 重置尝试次数和时间戳，并设置过期时间
-                jedis.set(attemptsKey, "1", setParams);  // 重置为1次尝试
-                jedis.set(timestampKey, String.valueOf(currentTime), setParams);  // 更新时间戳
-                return true;  // 允许登录
-            } else {
-                // 时间窗口内，检查是否超出最大尝试次数
-                if (attempts >= MAX_ATTEMPTS) {
-                    return false;  // 达到最大尝试次数，拒绝登录
-                } else {
-                    // 增加尝试次数
-                    jedis.set(attemptsKey, String.valueOf(attempts + 1), setParams);  // 增加尝试次数
-                    return true;  // 允许登录
-                }
-            }
-        } else {
-            // 第一次尝试登录，初始化尝试次数和时间戳
-            jedis.set(attemptsKey, "1", setParams);  // 初次尝试
-            jedis.set(timestampKey, String.valueOf(currentTime), setParams);  // 设置当前时间戳
-            return true;  // 允许登录
-        }
+    public boolean isAllowedToLogin(String userIp, String userName) {
+        return isAllowedToLogin(userIp)
+                && isAllowed(ATTEMPTS_KEY_PREFIX_LOGIN + "user:", MAX_ATTEMPTS, TIME_WINDOW, userName)
+                && isAllowed(ATTEMPTS_KEY_PREFIX_LOGIN + "ip_user:", MAX_ATTEMPTS, TIME_WINDOW, userIp, userName);
     }
 
 
@@ -98,47 +100,13 @@ public class LoginLimiterServer {
      * @return
      */
     public boolean isAllowedToSign(String userIp) {
-        String attemptsKey = ATTEMPTS_KEY_PREFIX_SIGN + userIp;  // 登录尝试次数键
-        String timestampKey = TIMESTAMP_KEY_PREFIX_SIGN + userIp;  // 登录时间戳键
+        return isAllowed(ATTEMPTS_KEY_PREFIX_SIGN + "ip:", MAX_ATTEMPTS, TIME_WINDOW, userIp);
+    }
 
-        // 获取当前时间戳
-        long currentTime = System.currentTimeMillis() / 1000;  // 当前时间，单位：秒
-
-        // 获取当前的尝试次数和时间戳
-        String attemptsStr = jedis.get(attemptsKey);
-        String timestampStr = jedis.get(timestampKey);
-
-        // 初始化 SetParams，用于设置过期时间
-        SetParams setParams = new SetParams();
-        setParams.ex(TIME_WINDOW);  // 设置过期时间为 TIME_WINDOW 秒
-
-        // 判断用户的尝试次数和时间戳
-        if (attemptsStr != null && timestampStr != null) {
-            int attempts = Integer.parseInt(attemptsStr);
-            long timestamp = Long.parseLong(timestampStr);
-
-            // 如果时间窗口已过，重置尝试次数
-            if (currentTime - timestamp > TIME_WINDOW) {
-                // 重置尝试次数和时间戳，并设置过期时间
-                jedis.set(attemptsKey, "1", setParams);  // 重置为1次尝试
-                jedis.set(timestampKey, String.valueOf(currentTime), setParams);  // 更新时间戳
-                return true;  // 允许登录
-            } else {
-                // 时间窗口内，检查是否超出最大尝试次数
-                if (attempts >= MAX_ATTEMPTS) {
-                    return false;  // 达到最大尝试次数，拒绝登录
-                } else {
-                    // 增加尝试次数
-                    jedis.set(attemptsKey, String.valueOf(attempts + 1), setParams);  // 增加尝试次数
-                    return true;  // 允许登录
-                }
-            }
-        } else {
-            // 第一次尝试登录，初始化尝试次数和时间戳
-            jedis.set(attemptsKey, "1", setParams);  // 初次尝试
-            jedis.set(timestampKey, String.valueOf(currentTime), setParams);  // 设置当前时间戳
-            return true;  // 允许登录
-        }
+    public boolean isAllowedToSign(String userIp, String userName) {
+        return isAllowedToSign(userIp)
+                && isAllowed(ATTEMPTS_KEY_PREFIX_SIGN + "user:", MAX_ATTEMPTS, TIME_WINDOW, userName)
+                && isAllowed(ATTEMPTS_KEY_PREFIX_SIGN + "ip_user:", MAX_ATTEMPTS, TIME_WINDOW, userIp, userName);
     }
 
 
@@ -149,34 +117,9 @@ public class LoginLimiterServer {
      * @return true=允许注册 false=禁止注册
      */
     public boolean checkRegisterLimit(String userIp) {
-        String attemptsKey = ATTEMPTS_KEY_PREFIX_REG + userIp;
-        String timestampKey = TIMESTAMP_KEY_PREFIX_REG + userIp;
-        long currentTime = System.currentTimeMillis() / 1000;
-
-        SetParams setParams = SetParams.setParams().ex(REG_TIME_WINDOW);
-
-        String attemptsStr = jedis.get(attemptsKey);
-        String timestampStr = jedis.get(timestampKey);
-
-        // 已有记录
-        if (attemptsStr != null && timestampStr != null) {
-            int attempts = Integer.parseInt(attemptsStr);
-            long timestamp = Long.parseLong(timestampStr);
-
-            // 还在24小时时间窗口内
-            if (currentTime - timestamp <= REG_TIME_WINDOW) {
-                // 超过3次，禁止注册
-                if (attempts >= MAX_REG_ATTEMPTS) {
-                    return false;
-                }
-            } else {
-                // 时间窗口已过，重置次数
-                jedis.set(attemptsKey, "1", setParams);
-                jedis.set(timestampKey, String.valueOf(currentTime), setParams);
-            }
-        }
-        // 没超限，允许注册
-        return true;
+        String attemptsKey = ATTEMPTS_KEY_PREFIX_REG + buildKey(userIp);
+        String attemptsStr = execute(jedis -> jedis.get(attemptsKey));
+        return attemptsStr == null || Integer.parseInt(attemptsStr) < MAX_REG_ATTEMPTS;
     }
 
     /**
@@ -184,22 +127,14 @@ public class LoginLimiterServer {
      * @param userIp 用户IP
      */
     public void incrRegisterCount(String userIp) {
-        String attemptsKey = ATTEMPTS_KEY_PREFIX_REG + userIp;
-        String timestampKey = TIMESTAMP_KEY_PREFIX_REG + userIp;
-        long currentTime = System.currentTimeMillis() / 1000;
-
-        SetParams setParams = SetParams.setParams().ex(REG_TIME_WINDOW);
-        String attemptsStr = jedis.get(attemptsKey);
-
-        if (attemptsStr == null) {
-            // 首次注册
-            jedis.set(attemptsKey, "1", setParams);
-            jedis.set(timestampKey, String.valueOf(currentTime), setParams);
-        } else {
-            // 次数+1
-            int newCount = Integer.parseInt(attemptsStr) + 1;
-            jedis.set(attemptsKey, String.valueOf(newCount), setParams);
-        }
+        String attemptsKey = ATTEMPTS_KEY_PREFIX_REG + buildKey(userIp);
+        execute(jedis -> {
+            Long count = jedis.incr(attemptsKey);
+            if (count == 1) {
+                jedis.expire(attemptsKey, (long) REG_TIME_WINDOW);
+            }
+            return count;
+        });
     }
 
 
@@ -209,47 +144,13 @@ public class LoginLimiterServer {
      * @return
      */
     public boolean isAllowedToPut(String userIp) {
-        String attemptsKey = ATTEMPTS_KEY_PREFIX_PUT + userIp;  // 登录尝试次数键
-        String timestampKey = TIMESTAMP_KEY_PREFIX_PUT + userIp;  // 登录时间戳键
+        return isAllowed(ATTEMPTS_KEY_PREFIX_PUT + "ip:", MAX_ATTEMPTS, TIME_WINDOW, userIp);
+    }
 
-        // 获取当前时间戳
-        long currentTime = System.currentTimeMillis() / 1000;  // 当前时间，单位：秒
-
-        // 获取当前的尝试次数和时间戳
-        String attemptsStr = jedis.get(attemptsKey);
-        String timestampStr = jedis.get(timestampKey);
-
-        // 初始化 SetParams，用于设置过期时间
-        SetParams setParams = new SetParams();
-        setParams.ex(TIME_WINDOW);  // 设置过期时间为 TIME_WINDOW 秒
-
-        // 判断用户的尝试次数和时间戳
-        if (attemptsStr != null && timestampStr != null) {
-            int attempts = Integer.parseInt(attemptsStr);
-            long timestamp = Long.parseLong(timestampStr);
-
-            // 如果时间窗口已过，重置尝试次数
-            if (currentTime - timestamp > TIME_WINDOW) {
-                // 重置尝试次数和时间戳，并设置过期时间
-                jedis.set(attemptsKey, "1", setParams);  // 重置为1次尝试
-                jedis.set(timestampKey, String.valueOf(currentTime), setParams);  // 更新时间戳
-                return true;  // 允许登录
-            } else {
-                // 时间窗口内，检查是否超出最大尝试次数
-                if (attempts >= MAX_ATTEMPTS) {
-                    return false;  // 达到最大尝试次数，拒绝登录
-                } else {
-                    // 增加尝试次数
-                    jedis.set(attemptsKey, String.valueOf(attempts + 1), setParams);  // 增加尝试次数
-                    return true;  // 允许登录
-                }
-            }
-        } else {
-            // 第一次尝试登录，初始化尝试次数和时间戳
-            jedis.set(attemptsKey, "1", setParams);  // 初次尝试
-            jedis.set(timestampKey, String.valueOf(currentTime), setParams);  // 设置当前时间戳
-            return true;  // 允许登录
-        }
+    public boolean isAllowedToPut(String userIp, String userName) {
+        return isAllowedToPut(userIp)
+                && isAllowed(ATTEMPTS_KEY_PREFIX_PUT + "user:", MAX_ATTEMPTS, TIME_WINDOW, userName)
+                && isAllowed(ATTEMPTS_KEY_PREFIX_PUT + "ip_user:", MAX_ATTEMPTS, TIME_WINDOW, userIp, userName);
     }
 
 
@@ -259,12 +160,9 @@ public class LoginLimiterServer {
     public void setAutoLogin(String userIp,String token) {
 
         String attemptsKey = ATTEMPTS_KEY_PREFIX_AUTO_LOGIN + userIp;
-        jedis.del(attemptsKey);
+        execute(jedis -> jedis.del(attemptsKey));
 
-        // 初始化 SetParams，用于设置过期时间
-        SetParams setParams = new SetParams();
-        setParams.ex(AUTO_LOGIN_TIME_WINDOW);  // 设置过期时间
-        jedis.set(attemptsKey, token, setParams);
+        execute(jedis -> jedis.setex(attemptsKey, (long) AUTO_LOGIN_TIME_WINDOW, token));
     }
 
 
@@ -277,7 +175,7 @@ public class LoginLimiterServer {
 
         String attemptsKey = ATTEMPTS_KEY_PREFIX_AUTO_LOGIN + userIp;
 
-        return jedis.get(attemptsKey);
+        return execute(jedis -> jedis.get(attemptsKey));
 
     }
 
@@ -289,7 +187,7 @@ public class LoginLimiterServer {
     public void delAutoLogin(String userIp){
 
         String attemptsKey = ATTEMPTS_KEY_PREFIX_AUTO_LOGIN + userIp;
-        jedis.del(attemptsKey);
+        execute(jedis -> jedis.del(attemptsKey));
 
     }
 
@@ -329,13 +227,12 @@ public class LoginLimiterServer {
         else if(split.length==2)
             second=Integer.parseInt(split[0])*60+Integer.parseInt(split[1]);
 
-        if(Objects.equals(jedis.get(remoteAddr + videoId), "1"))
+        int expirationSecond = second;
+
+        if(Objects.equals(execute(jedis -> jedis.get(remoteAddr + videoId)), "1"))
          return false;
         else {
-            // 初始化 SetParams，用于设置过期时间
-            SetParams setParams = new SetParams();
-            setParams.ex(second);  // 设置过期时间
-            jedis.set(remoteAddr+videoId,"1",setParams);
+            execute(jedis -> jedis.setex(remoteAddr+videoId, (long) expirationSecond, "1"));
         }
         return true;
     }

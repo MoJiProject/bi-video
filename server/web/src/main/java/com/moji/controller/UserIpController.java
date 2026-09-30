@@ -26,9 +26,6 @@ public class UserIpController {
         String userIp = getClientIp(request);
         Map<String,String> map=new HashMap<>();
         map.put("userIp",userIp);
-        LoginLimiterServer limiterServer=new LoginLimiterServer();
-        String token = limiterServer.isAutoLogin(userIp);
-        map.put("token",token);
 
         return R.success(map);
     }

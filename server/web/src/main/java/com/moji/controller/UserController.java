@@ -45,7 +45,8 @@ public class UserController {
         LoginLimiterServer limiterServer=new LoginLimiterServer();
         if(limiterLoginDto.getUserIp()!=null)
         {
-            Boolean loginFlag = limiterServer.isAllowedToLogin(limiterLoginDto.getUserIp());
+            String userName = limiterLoginDto.getUser() == null ? null : limiterLoginDto.getUser().getUserName();
+            Boolean loginFlag = limiterServer.isAllowedToLogin(limiterLoginDto.getUserIp(), userName);
             if(!loginFlag)
                 return R.error("操作频繁");
         }
@@ -53,7 +54,6 @@ public class UserController {
         Users user = userService.login(limiterLoginDto.getUser());
         StpUtil.login(user.getId());
         SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
-        limiterServer.setAutoLogin(limiterLoginDto.getUserIp(),tokenInfo.tokenValue);
         user.setToken(tokenInfo.tokenValue);
 
         Users users1 = userService.updateUserInfo(user);
@@ -76,7 +76,8 @@ public class UserController {
         LoginLimiterServer limiterServer=new LoginLimiterServer();
         if(limiterLoginDto.getUserIp()!=null)
         {
-            Boolean loginFlag = limiterServer.isAllowedToSign(limiterLoginDto.getUserIp());
+            String userName = limiterLoginDto.getUser() == null ? null : limiterLoginDto.getUser().getUserName();
+            Boolean loginFlag = limiterServer.isAllowedToSign(limiterLoginDto.getUserIp(), userName);
             if(!loginFlag)
                 return R.error("操作频繁");
         }
@@ -98,7 +99,8 @@ public class UserController {
         LoginLimiterServer limiterServer=new LoginLimiterServer();
         if(limiterLoginDto.getUserIp()!=null)
         {
-            Boolean loginFlag = limiterServer.isAllowedToPut(limiterLoginDto.getUserIp());
+            String userName = limiterLoginDto.getUser() == null ? null : limiterLoginDto.getUser().getUserName();
+            Boolean loginFlag = limiterServer.isAllowedToPut(limiterLoginDto.getUserIp(), userName);
             if(!loginFlag)
                 return R.error("操作频繁");
         }
@@ -109,45 +111,49 @@ public class UserController {
 
     /**
      * 自动登录
-     * @param userIp
      * @return
      */
     @GetMapping("/checkLogin/{userIp}")
-    public R<UserInfo> onMounted(@PathVariable String userIp){
+    public R<UserInfo> onMounted(@RequestHeader(value = "Authorization", required = false) String token){
 
-        LoginLimiterServer limiterServer=new LoginLimiterServer();
-        String token = limiterServer.isAutoLogin(userIp);
+        return getLoginUserInfo(token, true);
 
-        if(StpUtil.getLoginIdByToken(token)==null)
-            return R.error(null);
+    }
 
-        LambdaQueryWrapper<Users> wrapper=new LambdaQueryWrapper<>();
-        wrapper.eq(Users::getToken,token);
-        Users users = userMapper.selectOne(wrapper);
-        if(users==null)
-            return R.error("未知错误");
+    /**
+     * 当前登录用户
+     * @return
+     */
+    @GetMapping("/me")
+    public R<UserInfo> me(@RequestHeader(value = "Authorization", required = false) String token){
 
-        Users users1 = userService.updateUserInfo(users);
-
-        UserInfo userInfo=new UserInfo();
-        BeanUtils.copyProperties(users1,userInfo);
-
-        return R.success(userInfo);
+        return getLoginUserInfo(token, true);
 
     }
 
     /**
      * 检查是否登录
-     * @param userIp
      * @return
      */
     @GetMapping("/checkLoginFlag/{userIp}")
-    public R<UserInfo> checkLogin(@PathVariable String userIp){
+    public R<UserInfo> checkLogin(@RequestHeader(value = "Authorization", required = false) String token){
 
-        LoginLimiterServer limiterServer=new LoginLimiterServer();
-        String token = limiterServer.isAutoLogin(userIp);
+        return getLoginUserInfo(token, false);
+    }
 
-        if(token==null)
+    private R<UserInfo> getLoginUserInfo(String token, boolean updateLoginInfo){
+
+        if(token==null || token.isBlank())
+            return R.error(null);
+
+        Object loginId;
+        try {
+            loginId = StpUtil.getLoginIdByToken(token);
+        } catch (Exception e) {
+            return R.error(null);
+        }
+
+        if(loginId==null)
             return R.error(null);
 
         LambdaQueryWrapper<Users> wrapper=new LambdaQueryWrapper<>();
@@ -156,8 +162,9 @@ public class UserController {
         if(users==null)
             return R.error("未知错误");
 
+        Users responseUser = updateLoginInfo ? userService.updateUserInfo(users) : users;
         UserInfo userInfo=new UserInfo();
-        BeanUtils.copyProperties(users,userInfo);
+        BeanUtils.copyProperties(responseUser,userInfo);
 
         return R.success(userInfo);
     }
@@ -207,8 +214,6 @@ public class UserController {
         LoginLimiterServer limiterServer=new LoginLimiterServer();
         if(!limiterServer.checkUser(limiterLoginDto.getUser().getId(),token))
             R.error("非法操作");
-
-        limiterServer.delAutoLogin(limiterLoginDto.getUserIp());
 
         StpUtil.logout(limiterLoginDto.getUser().getId());
 

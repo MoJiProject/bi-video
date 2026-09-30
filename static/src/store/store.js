@@ -1,6 +1,12 @@
 // store.js
 import { defineStore } from 'pinia'
 
+const TOKEN_KEY = 'bi_video_token'
+
+function getStoredToken() {
+  return typeof localStorage === 'undefined' ? null : localStorage.getItem(TOKEN_KEY)
+}
+
 export const useGlobalStore = defineStore('global', {
   state: () => {
     return {
@@ -12,7 +18,7 @@ export const useGlobalStore = defineStore('global', {
       loginDialogVisible: false,
       userId: null,
       loginLoadFlag: false,
-      token: null,
+      token: getStoredToken(),
       eitUserName: "", 
       eitUserId: null,
       eitList: [],//eit列表
@@ -82,7 +88,14 @@ export const useGlobalStore = defineStore('global', {
       this.loginLoadFlag = newValue
     },
     setToken(newValue) {
+      if (newValue === undefined) return
       this.token = newValue
+      if (typeof localStorage === 'undefined') return
+      if (newValue === null || newValue === '') {
+        localStorage.removeItem(TOKEN_KEY)
+      } else {
+        localStorage.setItem(TOKEN_KEY, newValue)
+      }
     },
     setEitUserName(newValue) {
       this.eitUserName = newValue
