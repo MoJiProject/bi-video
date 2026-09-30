@@ -1021,9 +1021,11 @@ function restoreBodyOverflow() {
 
 .whisper-container{
     position: absolute;
-    width: 67%;
-    min-width: 983px;
-    left: clamp(20.7vw, 2.4vw + 15.2%, 44vw);
+  --whisper-left: clamp(20.7vw, 2.4vw + 15.2%, 44vw);
+  left: var(--whisper-left);
+  width: calc(100vw - var(--whisper-left) - 24px);
+  max-width: 1286px;
+  min-width: 0;
     top: 74px;
     
     .head2{
@@ -1052,7 +1054,8 @@ function restoreBodyOverflow() {
 
     .body-left{
     position: relative;
-    width: 240px;
+    flex: 0 0 clamp(190px, 24%, 240px);
+    min-width: 180px;
     border-right: 1px solid #e9eaec;
     overflow: hidden;
 
@@ -1067,18 +1070,18 @@ function restoreBodyOverflow() {
     }
 
     .message-user-list{
-        width: 239px;
-        height: 93.6%;
+      width: 100%;
+      height: calc(100% - 36px);
         overflow-y: auto;
         overflow-x: hidden;
 
 
         .message-user-item{
         position: relative;
-        width: 239px;
+        width: 100%;
         height: 78px;
         flex-direction: row;
-        padding: 19px 24px;
+        padding: 19px clamp(14px, 2vw, 24px);
         background-color: var(--background-color);
         cursor: pointer;
         transition: background-color 0.3s ease;
@@ -1102,7 +1105,7 @@ function restoreBodyOverflow() {
 
         .message-user-name{
           position: relative;
-          width: 155px;
+          width: calc(100% - 58px);
           height: 20px;
           top: -43.5px;
           left: 48px;
@@ -1138,7 +1141,7 @@ function restoreBodyOverflow() {
 
         .message-user-content{
           position: relative;
-          width: 155px;
+          width: calc(100% - 58px);
           height: 28px;
           top: -40px;
           left: 48px;
@@ -1189,7 +1192,10 @@ function restoreBodyOverflow() {
 
     .body-right{
     position: relative;
-    width: calc(100% - 240px);
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
 
     .loading-icon-container{
         position: relative;
@@ -1231,22 +1237,30 @@ function restoreBodyOverflow() {
     .message-content-container{
         position: relative;
         width: 100%;
-        height: 366px;
+      flex: 1 1 auto;
+      min-height: 0;
+      height: auto;
         overflow-y: auto;
         overflow-x: hidden;
 
         .read-message{
             position: relative;
-            left: 652px;
+          display: block;
+          left: auto;
             top: -12px;
+          padding-right: 60px;
+          text-align: right;
             font-size: 12px;
             color: #999;
         }
 
         .read-message2{
             position: relative;
-            left: 652px;
+          display: block;
+          left: auto;
             top: -12px;
+          padding-right: 60px;
+          text-align: right;
             font-size: 12px;
             color: #424242;
         }
@@ -1296,7 +1310,7 @@ function restoreBodyOverflow() {
             }
 
             .message{
-                max-width: 480px;
+              max-width: min(480px, calc(100% - 70px));
                 margin: 0 10px;
                 position: relative;
                 display: inline-block;
@@ -1323,7 +1337,7 @@ function restoreBodyOverflow() {
                 }
 
                 .share-video-container{
-                    width: 360px;
+                  width: min(360px, 100%);
                     height: auto;
                     min-height: 273px;
                     max-height: 293px;
@@ -1335,7 +1349,7 @@ function restoreBodyOverflow() {
                     position: relative;
                     .share-video-cover{
                         border-radius: 0px 0px 0px 0px;
-                        width: 360px;
+                      width: 100%;
                         height: 200px;
                         object-fit: cover;
                     }
@@ -1421,7 +1435,7 @@ function restoreBodyOverflow() {
                 }
 
                 .delete-video{
-                    width: 360px;
+                  width: min(360px, 100%);
                     height: 40px;
                     border-radius: 6px;
                     font-size: 18px;
@@ -1461,9 +1475,8 @@ function restoreBodyOverflow() {
             }
 
             .message{
-                max-width: 480px;
+              max-width: min(480px, calc(100% - 70px));
                 margin: 0 10px;
-                display: inline-block;
                 position: relative;
                 overflow: hidden;
                 float: right;
@@ -1488,7 +1501,7 @@ function restoreBodyOverflow() {
                 }
 
                 .share-video-container{
-                    width: 360px;
+                  width: min(360px, 100%);
                     height: auto;
                     min-height: 273px;
                     max-height: 293px;
@@ -1500,7 +1513,7 @@ function restoreBodyOverflow() {
                         position: relative;
                         .share-video-cover{
                         border-radius: 16px 0px 0px 0px;
-                        width: 360px;
+                        width: 100%;
                         height: 200px;
                         object-fit: cover;
                     }
@@ -1585,7 +1598,7 @@ function restoreBodyOverflow() {
                 }
 
                 .delete-video{
-                    width: 360px;
+                  width: min(360px, 100%);
                     height: 40px;
                     border-radius: 6px;
                     font-size: 18px;
@@ -1840,8 +1853,10 @@ function restoreBodyOverflow() {
 
       .scroll-to-bottom-btn{
         position: absolute;
-        left: 650px;
-        top: 360px;
+        left: auto;
+        right: 24px;
+        top: auto;
+        bottom: 184px;
         width: 36px;
         height: 36px;
         border-radius: 50%;
@@ -1866,18 +1881,21 @@ function restoreBodyOverflow() {
 
     .no-message-container{
        position: relative;
+       flex: 1 1 auto;
        user-select: none;
+       display: flex;
+       flex-direction: column;
+       justify-content: center;
+       align-items: center;
+       gap: 18px;
        img{
-        position: absolute;
-        left: 170.5px;
-        top: 153.5px;
+        position: static;
+        max-width: min(260px, 70%);
        }
        div{
-        position: relative;
+        position: static;
         font-size: 14px;
         color: #8896b8;
-        left: 273.5px;
-        top: 390.5px;
        }
     }
 
@@ -1932,6 +1950,52 @@ function restoreBodyOverflow() {
 
 
 
+}
+
+@media (max-width: 900px){
+  .whisper-container{
+    --whisper-left: 132px;
+    width: calc(100vw - var(--whisper-left) - 12px);
+  }
+}
+
+@media (max-width: 720px){
+  .whisper-container{
+    --whisper-left: 120px;
+    width: calc(100vw - var(--whisper-left) - 8px);
+
+    .body{
+      .body-left{
+        flex-basis: 86px;
+        min-width: 86px;
+
+        .recent-message{
+          padding-left: 0;
+          text-align: center;
+        }
+
+        .message-user-list .message-user-item{
+          padding: 19px 23px;
+
+          .message-user-name,
+          .message-user-content,
+          .message-dnd{
+            display: none;
+          }
+
+          .message-unread-number{
+            top: 16px;
+            right: 12px;
+          }
+        }
+      }
+
+      .body-right .message-send-container .message-feature-container .message-emoji-list{
+        width: min(320px, calc(100vw - 150px));
+        left: -38px;
+      }
+    }
+  }
 }
 
 

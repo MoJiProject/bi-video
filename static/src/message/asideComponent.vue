@@ -47,7 +47,7 @@ function jumpPage(messageMenu){
   padding-top: 15px;
   top: 56px;
   left: clamp(10.5vw, 2.4vw + 7.2%, 34vw);
-  width: 9.5vw;
+    width: clamp(132px, 9.5vw, 182px);
   height: 100vh;
   background-color: rgba(255,255,255,0.7);
 
@@ -73,12 +73,12 @@ function jumpPage(messageMenu){
 
  ul{
     position: relative;
-    width: 100px;
+    width: calc(100% - 48px);
     top: 37.5px;
-    left: 37.5px;
+    left: 34px;
     user-select: none;
     li{
-        width: 100px;
+        width: 100%;
         font-weight: 600;
         color: #6b757b;
     }
@@ -111,8 +111,8 @@ function jumpPage(messageMenu){
  .msg-setting{
     
     position: relative;
-    width: 116px;
-    left: 24px;
+     width: calc(100% - 32px);
+     left: 24px;
     top: 40px;
     user-select: none;
     
@@ -161,9 +161,16 @@ img{
     border-radius: 10px;
     width: 28px;
     top: 12px;
-    right: 11px;
+        right: 0;
     text-align: center;
     color: #fff;
+}
+
+@media (max-width: 900px){
+    .aside-container{
+        left: 0;
+        width: 132px;
+    }
 }
 
 </style>
