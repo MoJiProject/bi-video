@@ -274,13 +274,13 @@
 
   //判断是否添加图片
   function addImgFlagF(comment){          
-      if(comment.deleteSign===1||!comment.content)
+      if(!comment||comment.deleteSign===1||!comment.content)
       return "[该评论已被删除]";
       let content=comment.content.replace("style='width: 24px;height: 24px;display: inline-block;","style='width: 24px;height: 24px;display: none;");
   
       if(comment.replyCommentId!==comment.mainCommentId)
        content=content.replace("&nbsp;&nbsp;","");
-      const imgArr=comment.imgAddress.split(',');
+      const imgArr=(comment.imgAddress||'').split(',');
       for(let i=0;i<imgArr.length-1;i++){
           content=content+"[图片]";
       }
