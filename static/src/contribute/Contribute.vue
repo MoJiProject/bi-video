@@ -8,7 +8,7 @@
       <el-header
         style="
           position: relative;
-          width: 110%;
+          width: 100%;
           z-index: 200;
           height: 50px;
           background-color: white;
@@ -476,8 +476,7 @@ export default {
 }
 
 .common-layout{
-  width: min(1425px, 100vw);
-  min-width: 1200px;
+  width: 98.3%;
   position: relative;
   left: 50%;
   transform: translateX(-50%);

@@ -264,14 +264,14 @@ export default {
 .main-content {
   background-color: #f8f8f8;
   border-radius: 5px;
-  transform: translate(-100px, -20px);
+  transform: translate(-20px, -20px);
   overflow: visible;
   min-height: 1500px;
   height: auto !important;
   width: 1500px;
 }
 .white {
-  transform: translate(120px, 20px);
+  transform: translate(40px, 20px);
   width: 1200px;
   min-height: 1500px;
   height: auto !important;

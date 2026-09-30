@@ -713,13 +713,12 @@ export default {
 .main-content {
   background-color: #f8f8f8;
   border-radius: 5px;
-  transform: translate(-100px, -20px);
-  width: 1500px;
+  transform: translate(-20px, -20px);
   min-height: 1500px;
   height: auto !important;
 }
 .white {
-  transform: translate(120px, 20px);
+  transform: translate(40px, 20px);
   width: 1200px;
   overflow: visible;
   z-index: 10;

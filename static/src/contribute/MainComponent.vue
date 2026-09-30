@@ -1815,14 +1815,14 @@ export default {
   background-color: #f8f8f8;
   border-radius: 5px;
   transform: translate(-20px, -20px);
-  width: 1500px;
+  width: 100%;
   min-height: 1500px;
   height: auto !important;
   overflow: visible;
 }
 .white {
   transform: translate(40px, 20px);
-  width: 1200px;
+  width: 100%;
   min-height: 1500px;
   height: auto !important;
   z-index: 10;
