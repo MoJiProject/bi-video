@@ -2953,6 +2953,10 @@
           >
         </div>
         <comment />
+        <WatchTogetherPanel
+          :video-element="upVideoPlayer"
+          :video-id="SelectVideoByIdVo.upVideo.id"
+        />
       </div>
       <div style="position: fixed;top: 800px;">
         <el-backtop :right="5"/>
@@ -3040,6 +3044,7 @@ import autoPlayVideo2 from "./autoPlayVideo2.vue";
 import comment from "../comment/comment.vue";
 import {addDialogue} from '../api/privateMessage/index';
 import videoShareC from '../utils/videoShare.vue';
+import WatchTogetherPanel from './WatchTogetherPanel.vue';
 export default {
   name: "videoPage",
   components: {
@@ -3048,6 +3053,7 @@ export default {
     autoPlayVideo2,
     comment,
     videoShareC,
+    WatchTogetherPanel,
   },
   setup() {
     const store = useGlobalStore();
