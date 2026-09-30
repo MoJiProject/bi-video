@@ -1907,7 +1907,7 @@
             <span v-show="parseInt(videoAudio) === 0">静音</span>
           </div>
         </div>
-        <div v-show="shareHover&&!store.shareHover" class="video-share-container" @mouseover="shareHoverF(true)" @mouseleave="shareHoverF(false)"><videoShareC :shareHover="shareHover"/></div>
+        <div v-show="shareHover&&store.shareHover" class="video-share-container" @mouseover="shareHoverF(true)" @mouseleave="shareHoverF(false)"><videoShareC :shareHover="shareHover"/></div>
         <!-- 发送弹幕 -->
         <div class="up-video-play-bottom-video-scrolling-container">
           <img
@@ -5216,7 +5216,7 @@ export default {
         clearTimeout(delayShareTime);
         delayShareTime=setTimeout(()=>{
           shareHover.value=true;
-          store.setShareHover(false); 
+          store.setShareHover(true); 
         },300)     
       }
         else{
@@ -5225,7 +5225,7 @@ export default {
             return;
           delayShareTime=setTimeout(() => {
             shareHover.value=false;
-            store.setShareHover(true);      
+            store.setShareHover(false);      
           },300);
         }
     
@@ -5235,12 +5235,12 @@ export default {
       if(store.shareHover)
           {
               store.setShareHover(false);
-              shareHover.value=true;
+              shareHover.value=false;
           }
       else
           {
               store.setShareHover(true);
-              shareHover.value=false;
+              shareHover.value=true;
           }
     }
 
