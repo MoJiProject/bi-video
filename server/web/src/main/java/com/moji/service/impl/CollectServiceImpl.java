@@ -41,8 +41,6 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
     public List<CollectVo> getAllCollect(Integer userId) {
 
         List<CollectVo> collectVos=new ArrayList<>();
-        int defaultCollect=0;
-        int waitWatchCollect=0;
         int collectId=0;
         LambdaQueryWrapper<CollectsClassify> collectsClassifyLambdaQueryWrapper=new LambdaQueryWrapper<>();
         collectsClassifyLambdaQueryWrapper.eq(CollectsClassify::getUserId,userId)
@@ -52,11 +50,6 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
 
         if(!collectsClassifies.isEmpty()) {
             for (CollectsClassify collectsClassify : collectsClassifies) {
-
-                if (collectsClassify.getCollectName().equals("默认收藏夹"))
-                    defaultCollect++;
-                if (collectsClassify.getCollectName().equals("稍后再看"))
-                    waitWatchCollect++;
 
                 LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper = new LambdaQueryWrapper<>();
                 collectsLambdaQueryWrapper.eq(Collects::getCollectName, collectsClassify.getCollectName())
@@ -93,24 +86,6 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
                 collectVos.add(collectVo);
             }
         }
-            if (defaultCollect==0)
-            {
-                CollectsClassify collectsClassify=CollectsClassify.builder()
-                        .collectName("默认收藏夹")
-                        .videoNumber(0)
-                        .userId(userId)
-                        .build();
-                collectClassifyMapper.insert(collectsClassify);
-            }
-            if (waitWatchCollect==0)
-            {
-                CollectsClassify collectsClassify=CollectsClassify.builder()
-                        .collectName("稍后再看")
-                        .videoNumber(0)
-                        .userId(userId)
-                        .build();
-                collectClassifyMapper.insert(collectsClassify);
-            }
             return collectVos;
     }
 

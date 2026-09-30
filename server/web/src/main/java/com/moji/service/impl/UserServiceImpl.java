@@ -56,10 +56,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
     private CollectService collectService;
 
     @Autowired
-    private VideosService videosService;
+    private CollectClassifyMapper collectClassifyMapper;
 
     @Autowired
-    private CommentService commentService;
+    private VideosService videosService;
 
     @Autowired
     private CacheService cacheService;
@@ -112,8 +112,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
         // 密码加密
         users.setPassword(BCrypt.hashpw(users.getPassword(), BCrypt.gensalt()));
 
-        // 3. 注册成功才累加次数
-        if (userMapper.insert(users) > 0) {
+        int insert = userMapper.insert(users);
+
+        // 3. 插入默认的收藏夹
+        CollectsClassify collectsClassify=CollectsClassify.builder()
+                        .collectName("默认收藏夹")
+                        .videoNumber(0)
+                        .userId(users.getId())
+                        .build();
+                collectClassifyMapper.insert(collectsClassify);
+        CollectsClassify collectsClassify2=CollectsClassify.builder()
+                        .collectName("稍后再看")
+                        .videoNumber(0)
+                        .userId(users.getId())
+                        .build();
+                collectClassifyMapper.insert(collectsClassify2); 
+
+        // 4. 注册成功才累加次数
+        if (insert > 0) {
             // 调用计数方法
             limiterServer.incrRegisterCount(userIp);
             return "注册成功";
