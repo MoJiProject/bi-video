@@ -1333,6 +1333,14 @@ export default {
     function insertEit() {
       if (eitKeyWord.value.trim() === "" && store.eitUserName === "") return;
 
+      const currentSelection = window.getSelection();
+      if (currentSelection?.rangeCount) {
+        const currentRange = currentSelection.getRangeAt(0);
+        if (commentRef.value?.contains(currentRange.commonAncestorContainer)) {
+          range = currentRange.cloneRange();
+        }
+      }
+      if (!range?.startContainer?.isConnected || !commentRef.value?.contains(range.startContainer)) return;
 
       // 找到最近的 `@` 并删除关键字
       const containerText = range.startContainer.textContent;
@@ -1403,6 +1411,21 @@ export default {
     //添加@用户
     function insertEit2() {
       if (eitKeyWord.value.trim() === "" && store.eitUserName === "") return;
+
+      const currentSelection = window.getSelection();
+      if (currentSelection?.rangeCount) {
+        const currentRange = currentSelection.getRangeAt(0);
+        const currentNode = currentRange.startContainer.nodeType === Node.TEXT_NODE
+          ? currentRange.startContainer.parentElement
+          : currentRange.startContainer;
+        if (currentNode?.closest(".reply-commit-comment-container")) {
+          range2 = currentRange.cloneRange();
+        }
+      }
+      const rangeNode = range2?.startContainer.nodeType === Node.TEXT_NODE
+        ? range2.startContainer.parentElement
+        : range2?.startContainer;
+      if (!range2?.startContainer?.isConnected || !rangeNode?.closest(".reply-commit-comment-container")) return;
 
       // 找到最近的 `@` 并删除关键字
       const containerText = range2.startContainer.textContent;

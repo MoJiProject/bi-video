@@ -1181,7 +1181,7 @@
               commentPlaceholderHoverFlag: commentPlaceholderHoverFlag,
             }"
             @click="commentRef2.focus(), handleContent()"
-            @focus="handleContent(),commentFocus2Flag=true"
+            @focus="commentFocus2Flag=true,handleContent()"
             @blur="getAfterBlurIndex(),commentFocus2Flag=false"
             @input="handleContent"
             @keyup.left="handleContent"
@@ -1533,10 +1533,18 @@ export default {
       const selection = window.getSelection();
       if (!selection.rangeCount) return; // 如果没有选区，直接返回
 
-      const range = selection.getRangeAt(0);
-      if (range.endContainer.parentNode.className === "at-msg") return;
+      const currentRange = selection.getRangeAt(0);
+      if (commentRef.value?.contains(currentRange.commonAncestorContainer)) {
+        commentFocus2Flag.value = false;
+      } else if (commentRef2.value?.contains(currentRange.commonAncestorContainer)) {
+        commentFocus2Flag.value = true;
+      } else {
+        return;
+      }
+      range = currentRange.cloneRange();
+      if (currentRange.endContainer.parentNode.className === "at-msg") return;
       // 获取光标前的所有文本
-      const textBeforeCursor = getTextBeforeCursor(range);
+      const textBeforeCursor = getTextBeforeCursor(currentRange);
 
       // 检测是否包含 @ 并提取关键字
       const atIndex = textBeforeCursor.lastIndexOf("@");
@@ -1582,6 +1590,8 @@ export default {
       if (!selection.rangeCount) return; // 如果没有选区，直接返回
 
       const range = selection.getRangeAt(0);
+      if (!inputDom.contains(range.commonAncestorContainer)) return;
+      range2 = range.cloneRange();
       if (range.endContainer.parentNode.className === "at-msg") return;
       // 获取光标前的所有文本
       const textBeforeCursor = getTextBeforeCursor(range);
@@ -1607,7 +1617,13 @@ export default {
       if (window.getSelection) {
         let sel = window.getSelection();
         if (sel.getRangeAt && sel.rangeCount) {
-          range = sel.getRangeAt(0);
+          const currentRange = sel.getRangeAt(0);
+          if (
+            commentRef.value?.contains(currentRange.commonAncestorContainer) ||
+            commentRef2.value?.contains(currentRange.commonAncestorContainer)
+          ) {
+            range = currentRange.cloneRange();
+          }
         }
       }
     }
@@ -1618,7 +1634,13 @@ export default {
       if (window.getSelection) {
         let sel = window.getSelection();
         if (sel.getRangeAt && sel.rangeCount) {
-          range2 = sel.getRangeAt(0);
+          const currentRange = sel.getRangeAt(0);
+          const currentNode = currentRange.startContainer.nodeType === Node.TEXT_NODE
+            ? currentRange.startContainer.parentElement
+            : currentRange.startContainer;
+          if (currentNode?.closest(".reply-commit-comment-container")) {
+            range2 = currentRange.cloneRange();
+          }
         }
       }
     }
@@ -1645,6 +1667,18 @@ export default {
     //添加@用户
     function insertEit() {
       if (eitKeyWord.value.trim() === "" && store.eitUserName === "") return;
+
+      const selection = window.getSelection();
+      const currentRange = selection?.rangeCount ? selection.getRangeAt(0) : null;
+      const isCommentRange = (candidate) => candidate && (
+        commentRef.value?.contains(candidate.startContainer) ||
+        commentRef2.value?.contains(candidate.startContainer)
+      );
+      if (isCommentRange(currentRange)) {
+        range = currentRange.cloneRange();
+      } else if (!isCommentRange(range)) {
+        return;
+      }
 
       // 找到最近的 `@` 并删除关键字
       const containerText = range.startContainer.textContent;
@@ -1723,6 +1757,21 @@ export default {
     //添加@用户
     function insertEit2() {
       if (eitKeyWord.value.trim() === "" && store.eitUserName === "") return;
+
+      const selection = window.getSelection();
+      const currentRange = selection?.rangeCount ? selection.getRangeAt(0) : null;
+      const getReplyInput = (candidate) => {
+        if (!candidate) return null;
+        const startNode = candidate.startContainer.nodeType === Node.TEXT_NODE
+          ? candidate.startContainer.parentElement
+          : candidate.startContainer;
+        return startNode?.closest(".reply-commit-comment-container") || null;
+      };
+      if (getReplyInput(currentRange)) {
+        range2 = currentRange.cloneRange();
+      } else if (!getReplyInput(range2)) {
+        return;
+      }
 
       // 找到最近的 `@` 并删除关键字
       const containerText = range2.startContainer.textContent;

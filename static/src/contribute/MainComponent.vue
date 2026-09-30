@@ -1535,6 +1535,7 @@ export default {
     }
 
      //简介输入框
+    let eitRange = null;
      function handleContent(){  
 
       const inputDom = document.querySelector(".content-input");
@@ -1556,18 +1557,20 @@ export default {
       const selection = window.getSelection();
       if (!selection.rangeCount) return; // 如果没有选区，直接返回
 
-      const range = selection.getRangeAt(0);
+      const currentRange = selection.getRangeAt(0);
+      if (!inputDom.contains(currentRange.commonAncestorContainer)) return;
+      eitRange = currentRange.cloneRange();
 
       // 获取光标的 X 坐标
-      eitLocationX.value = range.getBoundingClientRect().x;
+      eitLocationX.value = currentRange.getBoundingClientRect().x;
 
       // 根据光标 Y 坐标更新位置
-      eitLocationY.value = range.getBoundingClientRect().y > 350
+      eitLocationY.value = currentRange.getBoundingClientRect().y > 350
         ? 241
-        : range.getBoundingClientRect().y;
+        : currentRange.getBoundingClientRect().y;
 
       // 获取光标前的所有文本
-      const textBeforeCursor =  getTextBeforeCursor(range);
+      const textBeforeCursor =  getTextBeforeCursor(currentRange);
 
       // 检测是否包含 @ 并提取关键字
       const atIndex = textBeforeCursor.lastIndexOf("@");
@@ -1608,7 +1611,15 @@ export default {
 
         // 获取当前选区和光标位置
         const selection = window.getSelection();
-        const range = selection.getRangeAt(0);
+        const inputDom = document.querySelector(".content-input");
+        if (selection?.rangeCount) {
+          const currentRange = selection.getRangeAt(0);
+          if (inputDom?.contains(currentRange.commonAncestorContainer)) {
+            eitRange = currentRange.cloneRange();
+          }
+        }
+        if (!eitRange?.startContainer || !inputDom?.contains(eitRange.startContainer)) return;
+        const range = eitRange;
 
         // 找到最近的 `@` 并删除关键字
         const containerText = range.startContainer.textContent;
@@ -1803,14 +1814,14 @@ export default {
 .main-content4 {
   background-color: #f8f8f8;
   border-radius: 5px;
-  transform: translate(-100px, -20px);
+  transform: translate(-20px, -20px);
   width: 1500px;
   min-height: 1500px;
   height: auto !important;
   overflow: visible;
 }
 .white {
-  transform: translate(120px, 20px);
+  transform: translate(40px, 20px);
   width: 1200px;
   min-height: 1500px;
   height: auto !important;

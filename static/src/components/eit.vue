@@ -261,6 +261,14 @@ export default {
     }
 }
 
+.eit-empty {
+    position: absolute;
+    inset: 50% 0 auto;
+    transform: translateY(-50%);
+    text-align: center;
+    color: #9499a0;
+}
+
 .eit::-webkit-scrollbar {
     width: 3.5px; /* 滚动条的宽度 */
     border-radius: 30px; /* 滚动条滑块的圆角 */
