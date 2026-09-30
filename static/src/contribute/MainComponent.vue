@@ -88,6 +88,7 @@
         show-file-list
         drag
         accept="video/mp4,video/x-m4v,video/*"
+        :auto-upload="false"
         :file-list="fileListVideo"
         :before-upload="beforeUploadVideo"
         :on-change="handleChangeVideo"
@@ -382,6 +383,7 @@
               action="/api/upload/uploadVideo"
               :data="{ uId: 0 }"
               accept="image/jpeg,image/png,image/gif,image/bmp,image/webp"
+              :auto-upload="false"
               :file-list="fileListCover"
               :before-upload="beforeUploadCover"
               :on-change="handleChangeCover"
@@ -661,6 +663,7 @@
 
 <script>
 import apiClient from "../services/apiClient";
+import { uploadVideoByChunks } from "../utils/chunkUpload";
 import "element-plus/theme-chalk/el-message.css";
 import { reactive, onMounted, ref, computed, nextTick, watch, onUnmounted } from "vue";
 import { ElMessage } from "element-plus";
@@ -687,7 +690,12 @@ export default {
     const fileListCover = ref([]);
     const fileListVideo = ref([]);
     const fileVideoname = ref("");
-    const progress = ref(100);
+    const progress = ref(0);
+    const videoUploadPromise = ref(null);
+    const videoUploadId = ref("");
+    const uploadedVideoName = ref("");
+    const videoUploadAbortController = ref(null);
+    const isVideoUploading = ref(false);
     const videoSize = ref(0);
     const coverImg = ref(0);
     const content = ref("");
@@ -884,13 +892,93 @@ export default {
 
     //视频上传成功的处理
     function successUploadVideo() {
-      handleRemoveVideo();
+      handleRemoveVideo(null, false);
+      clearVideoUploadState();
       removeFileVideo(0);
       removeFileCover(0);
       cleanVideoData();
     }
+
+    function clearVideoUploadState() {
+      videoUploadPromise.value = null;
+      videoUploadId.value = "";
+      uploadedVideoName.value = "";
+      videoUploadAbortController.value = null;
+      isVideoUploading.value = false;
+    }
+
+    async function cleanVideoUpload(uploadId, videoName) {
+      if (!uploadId && !videoName) return;
+      try {
+        await apiClient.delete("/upload/cleanVideoUpload", {
+          params: {
+            uploadId,
+            videoName,
+            userId: store.userId,
+          },
+          headers: {
+            "Authorization": store.token,
+          },
+        });
+      } catch (error) {
+      }
+    }
+
+    function cancelAndCleanVideoUpload() {
+      const uploadId = videoUploadId.value;
+      const videoName = uploadedVideoName.value;
+      if (videoUploadAbortController.value) {
+        videoUploadAbortController.value.abort();
+      }
+      clearVideoUploadState();
+      cleanVideoUpload(uploadId, videoName);
+    }
+
+    function startVideoUpload(file) {
+      cancelAndCleanVideoUpload();
+      const abortController = new AbortController();
+      videoUploadAbortController.value = abortController;
+      isVideoUploading.value = true;
+      progress.value = 0;
+      videoUploadPromise.value = uploadVideoByChunks({
+        apiClient,
+        file,
+        userId: store.userId,
+        token: store.token,
+        signal: abortController.signal,
+        onUploadId: (uploadId) => {
+          videoUploadId.value = uploadId;
+        },
+        onProgress: (percentage) => {
+          progress.value = percentage;
+        },
+      }).then((videoName) => {
+        uploadedVideoName.value = videoName;
+        isVideoUploading.value = false;
+        videoUploadAbortController.value = null;
+        return videoName;
+      }).catch((error) => {
+        isVideoUploading.value = false;
+        videoUploadAbortController.value = null;
+        if (error.code === "ERR_CANCELED" || error.name === "CanceledError") {
+          return "";
+        }
+        ElMessage({
+          message: error.message || "视频上传失败",
+          type: "info",
+          offset: 300,
+        });
+        return "";
+      });
+    }
+
     //获取视频名字和获取视频缩略图
     const handleChangeVideo = (file, fileList) => {
+      if (!beforeUploadVideo(file.raw || file)) {
+        fileListVideo.value = [];
+        return;
+      }
+      progress.value = 0;
       fileVideoname.value = file.name;
       const fileVideoNamebefore = file.name;
       const lastDotIndex = fileVideoNamebefore.lastIndexOf(".");
@@ -904,6 +992,7 @@ export default {
 
       videoSize.value = file.size;
       fileListVideo.value = fileList;
+      startVideoUpload(file.raw);
       if (fileList.length > 0) {
         const videoFile = fileList[0].raw; // 获取原始文件对象
 
@@ -980,13 +1069,17 @@ export default {
       });
     };
     //清空视频数据
-    const handleRemoveVideo = (file) => {
+    const handleRemoveVideo = (file, cleanUpload = true) => {
+      if (cleanUpload) {
+        cancelAndCleanVideoUpload();
+      }
       // 当文件被移除时，从文件列表中删除该文件
       const index = fileListVideo.value.indexOf(file);
       removeFileVideo(index);
       thumbnails.value = [];
       selectedThumbnail.value = null;
       thumbnail.value = null;
+      progress.value = 0;
     };
     //清空视频数据
     const removeFileVideo = (index) => {
@@ -1004,6 +1097,10 @@ export default {
     };
 
     const handleChangeCover = (file, fileList) => {
+      if (!beforeUploadCover(file.raw || file) || fileList.length > 1) {
+        fileListCover.value = [];
+        return;
+      }
       // 更新文件列表
       fileListCover.value = fileList;
     };
@@ -1058,39 +1155,56 @@ export default {
       }
       const file = fileListVideo.value[0]; // 获取选中的视频文件
       const formData = new FormData();
-      formData.append("file", file.raw); // 使用 file.raw 获取视频文件
-
-      const dataImg = thumbnail.value.split(",")[1]; // 去掉前缀部分
-      const blob = await (
-        await fetch(`data:image/jpeg;base64,${dataImg}`)
-      ).blob();
-
-      // 使用了默认封面
-      if (fileListCover.value.length === 0) {
-        formData.append("file", blob, "thumbnail.jpg");
-      } else {
-        // 如果没有使用默认封面
-        const file2 = fileListCover.value[0];
-        formData.append("file", file2.raw);
-      }
-
-      await publishComment();
-      // 填充视频信息
-      video.userId = store.userId;
-      video.tag = dynamicTags.value;
-      if (video.allowTwo) {
-        video.allowTwo = 1;
-      } else video.allowTwo = 0;
-      // 将视频信息逐个属性添加到 FormData
-      for (const key in video) {
-        if (Array.isArray(video[key])) {
-          video[key].forEach((tag) => formData.append(`${key}[]`, tag)); // 处理数组属性
-        } else {
-          formData.append(key, video[key]); // 处理单一属性
-        }
-      }
-      loading.value = true;
       try {
+        if (!file || !videoUploadPromise.value) {
+          ElMessage({
+            message: "请先上传视频",
+            type: "info",
+            offset: 376,
+          });
+          return;
+        }
+        const videoName = uploadedVideoName.value || await videoUploadPromise.value;
+        if (!videoName) {
+          ElMessage({
+            message: "视频上传失败，请重新选择视频",
+            type: "info",
+            offset: 376,
+          });
+          return;
+        }
+        formData.append("videoName", videoName);
+
+        const dataImg = thumbnail.value.split(",")[1]; // 去掉前缀部分
+        const blob = await (
+          await fetch(`data:image/jpeg;base64,${dataImg}`)
+        ).blob();
+
+        // 使用了默认封面
+        if (fileListCover.value.length === 0) {
+          formData.append("file", blob, "thumbnail.jpg");
+        } else {
+          // 如果没有使用默认封面
+          const file2 = fileListCover.value[0];
+          formData.append("file", file2.raw);
+        }
+
+        await publishComment();
+        // 填充视频信息
+        video.userId = store.userId;
+        video.tag = dynamicTags.value;
+        if (video.allowTwo) {
+          video.allowTwo = 1;
+        } else video.allowTwo = 0;
+        // 将视频信息逐个属性添加到 FormData
+        for (const key in video) {
+          if (Array.isArray(video[key])) {
+            video[key].forEach((tag) => formData.append(`${key}[]`, tag)); // 处理数组属性
+          } else {
+            formData.append(key, video[key]); // 处理单一属性
+          }
+        }
+        loading.value = true;
         const response = await apiClient.post(
           "/upload/uploadVideo",
           formData,
@@ -1114,6 +1228,7 @@ export default {
           window.scrollTo({top: 0, behavior: "smooth"});
         } else {
           loading.value = false;
+          cancelAndCleanVideoUpload();
           ElMessage({
             message: response.data.msg,
             type: "info",
@@ -1123,8 +1238,9 @@ export default {
         }
       } catch (error) {
         loading.value = false;
+        cancelAndCleanVideoUpload();
         ElMessage({
-          message: "未知错误",
+          message: error.message || "未知错误",
           type: "info",
           offset: 300,
         });
