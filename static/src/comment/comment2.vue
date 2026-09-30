@@ -3142,31 +3142,26 @@ export default {
       .comment-user-name {
         position: relative;
         display: inline-block;
-        left: 0;
+        left: 80px;
         top: 4px;
-        margin-left: 80px;
         font-size: 12.5px;
         cursor: pointer;
         color: #61666d;
-        overflow-wrap: anywhere;
       }
 
       .comment-up-icon{
         position: relative;
         vertical-align: middle;
-        left: 0;
+        left: 95px;
         top: 3px;
-        margin-left: 6px;
-        height: 14px;
       }
 
       .comment-user-level {
         position: relative;
         width: 20px;
         height: 10px;
-        left: 0;
+        left: 88px;
         top: 4px;
-        margin-left: 6px;
       }
 
       .comment-content {
@@ -3578,88 +3573,72 @@ export default {
        
       }
 
-      .replyCommentClass,
-      .replyCommentClass2 {
+      .replyCommentClass {
         left: 60px;
-        top: 20px;
-        margin-bottom: 12px !important;
+        top: 32px;
 
-        .comment-item{
-          display: grid;
-          grid-template-columns: 24px minmax(0, 1fr);
-          column-gap: 8px;
-          padding-bottom: 0;
+        .comment-img-container{
+          top: 22.5px !important;
         }
 
         .comment-user-avatar {
           width: 24px;
           height: 24px;
-          left: 0;
-          top: 0;
           z-index: 30;
         }
 
         .comment-user-name{
-          display: inline;
-          margin-left: 0;
-          line-height: 20px;
           z-index: 30;
         }
 
         .reply-content{
           position: relative;
-          top: 0;
-          left: 0;
-          min-width: 0;
-
-          > .comment-user-level{
-            left: 0;
-            top: 1px;
-            margin-left: 6px;
-          }
-
-          > .comment-up-icon{
-            left: 0;
-            top: 2px;
-            margin-left: 6px;
-            height: 14px;
-          }
+          top: -5px;
+          left: -27px;
 
           .comment-content{
             color: #18191c;
-            width: 100%;
-            line-height: 1.8;
-            transform: none !important;
-            text-indent: 0 !important;
-            margin-top: 2px;
-          }
-
-          .reply-container{
-            top: 0;
-            left: 0 !important;
-            margin-top: 10px;
-          }
-
-          > .comment-note-img{
-            position: static;
-            display: block;
-            margin-top: 8px;
-          }
-
-          > .comment-img-container{
-            top: 0 !important;
-            margin-top: 8px;
-            margin-bottom: 8px;
-          }
-
-          > .comment-footer{
-            top: auto !important;
-            margin-top: 6px;
+            width: 710px;
+            line-height: 1.5;
+            transform: translate(78px,-18px);
           }
 
           .comment-delete-btn-container{
-            left: auto;
-            right: 0;
+            left: 710px;
+            width: 22.5px;
+            display: flex;
+            justify-content: center;
+          }
+
+        }
+      }
+
+      .replyCommentClass2 {
+        left: 60px;
+        top: 32px;
+
+        .comment-user-avatar {
+          width: 24px;
+          height: 24px;
+        }
+
+        .reply-content{
+          position: relative;
+          top: -5px;
+          left: -27px;
+
+          .comment-content{
+            color: #18191c;
+            width: 720px;
+            transform: translate(78px,10px);
+          }
+
+          .reply-container{
+            top: 30px;
+          }
+
+          .comment-delete-btn-container{
+            left: 710px;
             width: 22.5px;
             display: flex;
             justify-content: center;
@@ -3893,7 +3872,6 @@ export default {
   display: -webkit-box; /* 必须使用这个 */
   -webkit-box-orient: vertical; /* 垂直方向排列 */
   -webkit-line-clamp: 2;
-  line-clamp: 2;
   overflow: hidden; /* 隐藏超出部分 */
   word-wrap: break-word; /* 超出部分换行 */
   text-overflow: ellipsis; /* 显示省略号 */
