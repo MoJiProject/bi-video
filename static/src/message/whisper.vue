@@ -1024,7 +1024,7 @@ function restoreBodyOverflow() {
   --whisper-left: clamp(20.7vw, 2.4vw + 15.2%, 44vw);
   left: var(--whisper-left);
   width: calc(100vw - var(--whisper-left) - 24px);
-  max-width: 1286px;
+  max-width: 983px;
   min-width: 0;
     top: 74px;
     
