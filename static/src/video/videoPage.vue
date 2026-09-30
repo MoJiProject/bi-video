@@ -72,54 +72,6 @@
             <span style="margin-left: -2px">未经作者授权，禁止转载</span>
           </div>
         </div>
-        <div v-if="titleShowFlag" class="expand-icon-container">
-          <img src="../img/展开.png" class="expand-icon" />
-          <div class="show-up-videoTitle-container">
-            <div class="show-up-videoTitle">
-              {{ SelectVideoByIdVo.upVideo.title }}
-            </div>
-            <div style="transform: translate(0px, 5px); color: #95999f">
-              <img
-                src="../img/播放量灰.png"
-                style="
-                  width: 16.5px;
-                  height: 14px;
-                  transform: translate(0px, 2.5px);
-                  margin-right: 7px;
-                "
-              />
-              <span style="font-size: 12.5px; margin-right: 15px">{{
-                SelectVideoByIdVo.upVideo.playNumber
-              }}</span>
-              <img
-                src="../img/弹幕灰.png"
-                style="
-                  width: 16.5px;
-                  height: 14px;
-                  transform: translate(0px, 2.5px);
-                  margin-right: 6px;
-                "
-              />
-              <span style="font-size: 12.5px; margin-right: 12px">{{
-                SelectVideoByIdVo.upVideo.scrollingNumber
-              }}</span>
-              <span style="font-size: 12.5px">{{
-                SelectVideoByIdVo.upVideo.createTime
-              }}</span>
-              <div
-                v-if="SelectVideoByIdVo.upVideo.allowTwo === 0"
-                style="
-                  font-size: 12.5px;
-                  transform: translate(32px, 0px);
-                  display: inline-block;
-                "
-              >
-                <span class="prohibition-sign"></span>
-                <span style="margin-left: -2px">未经作者授权，禁止转载</span>
-              </div>
-            </div>
-          </div>
-        </div>
         <div
           style="
             transform: translate(0px, 22px);
@@ -385,8 +337,8 @@
           <!-- 进度条 -->
           <progress
             v-show="videoFeatureShowFlag && !intoVideoAllDisplayIngFlag"
-            @click="changeUpVideoTime"
-            @mousemove="updateupVideoProgressImgPosition"
+            @mousedown.prevent="startProgressDrag($event, false)"
+            @mousemove="updateupVideoProgressImgPosition($event, false)"
             @mouseover="
               (upVideoProgressImg = true), handlerCleanTime(), (videoLeave = true)
             "
@@ -401,8 +353,8 @@
               progressintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
             }"
             v-show="videoFeatureShowFlag && intoVideoAllDisplayIngFlag"
-            @click="changeUpVideoTime"
-            @mousemove="updateupVideoProgressImgPosition1"
+            @mousedown.prevent="startProgressDrag($event, true)"
+            @mousemove="updateupVideoProgressImgPosition($event, true)"
             @mouseover="
               (upVideoProgressImg = true), handlerCleanTime(), (videoLeave = true)
             "
@@ -414,13 +366,13 @@
           <!-- 进度条图片 -->
           <img
             v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
-            @click="startMoving"
+            @mousedown.prevent="startProgressDrag($event, false)"
             @mouseover="upVideoProgressImg = true"
             @mouseleave="upVideoProgressImg = false"
             src="../img/视频进度图片.png"
             class="up-video-progress-img"
             :style="{
-              left: `${upVideoProgress*676/100-6}px`,
+              left: `calc(${upVideoProgress}% - 6px)`,
             }"
           />
           <!-- 放大视频后的 -->
@@ -429,7 +381,7 @@
               progressImgintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
             }"
             v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
-            @click="startMoving1"
+            @mousedown.prevent="startProgressDrag($event, true)"
             @mouseover="upVideoProgressImg = true"
             @mouseleave="upVideoProgressImg = false"
             src="../img/视频进度图片.png"
@@ -441,8 +393,8 @@
           <!-- 指示器 -->
           <img
             v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
-            @click="upVideoPointerClickChangerTime"
-            @mousemove="updateupVideoProgressImgPosition"
+            @mousedown.prevent="startProgressDrag($event, false)"
+            @mousemove="updateupVideoProgressImgPosition($event, false)"
             @mouseover="upVideoProgressImg = true"
             @mouseleave="upVideoProgressImg = false"
             src="../img/指示器上.png"
@@ -454,15 +406,15 @@
           <div
             class="pointer-top-container"
             v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
-            @click="upVideoPointerClickChangerTime"
-            @mousemove="updateupVideoProgressImgPosition"
+            @mousedown.prevent="startProgressDrag($event, false)"
+            @mousemove="updateupVideoProgressImgPosition($event, false)"
             @mouseover="upVideoProgressImg = true"
             @mouseleave="upVideoProgressImg = false"
           ></div>
           <img
             v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
-            @click="upVideoPointerClickChangerTime"
-            @mousemove="updateupVideoProgressImgPosition"
+            @mousedown.prevent="startProgressDrag($event, false)"
+            @mousemove="updateupVideoProgressImgPosition($event, false)"
             @mouseover="upVideoProgressImg = true"
             @mouseleave="upVideoProgressImg = false"
             src="../img/指示器下.png"
@@ -474,8 +426,8 @@
           <div
             class="pointer-bottom-container"
             v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
-            @click="upVideoPointerClickChangerTime"
-            @mousemove="updateupVideoProgressImgPosition"
+            @mousedown.prevent="startProgressDrag($event, false)"
+            @mousemove="updateupVideoProgressImgPosition($event, false)"
             @mouseover="upVideoProgressImg = true"
             @mouseleave="upVideoProgressImg = false"
           ></div>
@@ -486,8 +438,8 @@
                 intoVideoAllDisplayIngFlag,
             }"
             v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
-            @click="upVideoPointerClickChangerTime"
-            @mousemove="updateupVideoProgressImgPosition1"
+            @mousedown.prevent="startProgressDrag($event, true)"
+            @mousemove="updateupVideoProgressImgPosition($event, true)"
             @mouseover="upVideoProgressImg = true"
             @mouseleave="upVideoProgressImg = false"
             src="../img/指示器上.png"
@@ -501,12 +453,9 @@
               topContainerintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
             }"
             class="pointer-top-container"
-            :style="{
-              width: `${innerWidth * 0.97}px`,
-            }"
             v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
-            @click="upVideoPointerClickChangerTime"
-            @mousemove="updateupVideoProgressImgPosition1"
+            @mousedown.prevent="startProgressDrag($event, true)"
+            @mousemove="updateupVideoProgressImgPosition($event, true)"
             @mouseover="upVideoProgressImg = true"
             @mouseleave="upVideoProgressImg = false"
           ></div>
@@ -516,8 +465,8 @@
                 intoVideoAllDisplayIngFlag,
             }"
             v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
-            @click="upVideoPointerClickChangerTime"
-            @mousemove="updateupVideoProgressImgPosition1"
+            @mousedown.prevent="startProgressDrag($event, true)"
+            @mousemove="updateupVideoProgressImgPosition($event, true)"
             @mouseover="upVideoProgressImg = true"
             @mouseleave="upVideoProgressImg = false"
             src="../img/指示器下.png"
@@ -532,12 +481,9 @@
                 intoVideoAllDisplayIngFlag,
             }"
             class="pointer-bottom-container"
-            :style="{
-              width: `${innerWidth * 0.97}px`,
-            }"
             v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
-            @click="upVideoPointerClickChangerTime"
-            @mousemove="updateupVideoProgressImgPosition1"
+            @mousedown.prevent="startProgressDrag($event, true)"
+            @mousemove="updateupVideoProgressImgPosition($event, true)"
             @mouseover="upVideoProgressImg = true"
             @mouseleave="upVideoProgressImg = false"
           ></div>
@@ -1605,9 +1551,8 @@
             >
               <div
                 v-show="
-                  scrolling.videoTime <= upVideoPlayer.currentTime &&
                   openOrCloseScrollingFlag &&
-                  scrollingDisplayTime(scrolling.videoTime) &&
+                  scrollingDisplayTime(scrolling.videoTime, false) &&
                   scrolling.location === 1 &&
                   !scrollingRollOpenFlag &&
                   scrollingDisplayFunction(scrolling.top)
@@ -1628,20 +1573,7 @@
                             (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
                         }px`,
                   top: `${scrolling.top}px`, //top是0-180px递增30 bottom 330-210px递增30 roll是0-330px随机
-                  animation: checkBoxOpenFlag
-                    ? `slideRight ${
-                        13 / sppedList[selectVideoSpped - 1]
-                      }s linear forwards`
-                    : `slideRight ${
-                        parseInt(scrollingDisplaySpeedValue) >= 50
-                          ? 13 /
-                            (1 + parseInt(scrollingDisplaySpeedValue - 50) / 100)
-                          : 13 /
-                            (1 + parseInt(scrollingDisplaySpeedValue - 50) / 100)
-                      }s linear forwards`,
-                  animationPlayState: !pausedOrPlayVideoFlag
-                    ? 'paused'
-                    : 'running',
+                  transform: scrollingTranslateX(scrolling.videoTime, false),
                   opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
                   padding: scrolling.userId === store.userId ? '1px' : '0px',
                   border:
@@ -1745,9 +1677,8 @@
             >
               <div
                 v-show="
-                  scrolling.videoTime <= upVideoPlayer.currentTime &&
                   openOrCloseScrollingFlag &&
-                  scrollingDisplayTime(scrolling.videoTime) &&
+                  scrollingDisplayTime(scrolling.videoTime, true) &&
                   scrolling.location === 1 &&
                   !scrollingRollOpenFlag &&
                   scrollingDisplayFunction(scrolling.allDisplayTop)
@@ -1768,20 +1699,7 @@
                             (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
                         }px`,
                   top: `${scrolling.allDisplayTop}px`, //top是0-360px递增30 bottom 是750-390px递增25 roll是0-750px随机
-                  animation: checkBoxOpenFlag
-                    ? `slideRight1 ${
-                        16 / sppedList[selectVideoSpped - 1]
-                      }s linear forwards`
-                    : `slideRight1 ${
-                        parseInt(scrollingDisplaySpeedValue) >= 50
-                          ? 16 /
-                            (1 + parseInt(scrollingDisplaySpeedValue - 50) / 100)
-                          : 16 /
-                            (1 + parseInt(scrollingDisplaySpeedValue - 50) / 100)
-                      }s linear forwards`,
-                  animationPlayState: !pausedOrPlayVideoFlag
-                    ? 'paused'
-                    : 'running',
+                  transform: scrollingTranslateX(scrolling.videoTime, true),
                   opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
                   padding: scrolling.userId === store.userId ? '1px' : '0px',
                   border:
@@ -3170,11 +3088,8 @@ export default {
     const videoPausedFlag = ref(false);
     const upVideoStartPlayFlag = ref(false);
     const upVideoTimeDuration = ref("00:00");
-    const upVideoTimes = ref([]);
-    const moveUpVideoTime = ref(0);
     const upVideoInputTimeFlag = ref(false);
     const upVideoPointerMoveTime = ref(null);
-    const clickUpVideoTime = ref(0);
     const inputUpVideoTimeValue = ref(null);
     const selectVideoSpped = ref(4);
     const videoCloseAudioOrOpenAudioFlag = ref(true);
@@ -3213,6 +3128,8 @@ export default {
     const ScrollingDataList = reactive([]);
     const ScrollingReocationFlag = ref(false);
     const sendScrollingInputStatus = ref(false);
+    const scrollingCurrentTime = ref(0);
+    let scrollingAnimationFrameId = null;
     const ScrollingReocationHoverFlag = ref(false);
     const videoLikeHoverFlag = ref(false);
     const videoThrowCoinHoverFlag = ref(false);
@@ -3329,6 +3246,9 @@ export default {
 
     //卸载时移除事件监听
     onBeforeUnmount(() => {
+      stopScrollingClock();
+      stopMoving();
+      socket.close();
       window.removeEventListener("wheel",handleWheel);
       window.removeEventListener("click", handleClickCollectInputOutside);
       window.removeEventListener("mousemove", handleMouseMove);
@@ -3417,100 +3337,53 @@ export default {
       videoContentFlag1.value=height>80;
     }
 
-    // 更新图片位置
-    const updateupVideoProgressImgPosition = (event) => {
-      let width = 676;
-      const container = event.currentTarget;
-      const { left } = container.getBoundingClientRect(); // 获取滚动容器的边界
-      const relativeX = event.clientX - left; // 计算相对于容器的 X 坐标
-      if (upVideoProgressImg.value)
-        upVideoProgressImgPosition.value = event.clientX - left -3; // 获取鼠标的 X 坐标
-      //获取视频总时长
-      if (SelectVideoByIdVo.upVideo.videoTime !== undefined)
-        upVideoTimes.value = SelectVideoByIdVo.upVideo.videoTime.split(":");
-      const videoTime =
-        parseInt(upVideoTimes.value[0]) * 60 + parseInt(upVideoTimes.value[1]);
-      //指示器移动到视频时间
-      if (event.target.className === "up-VideoProgress") {
-        const pointertime = parseInt((relativeX / (width - 5)) * videoTime);
-        const minutes = parseInt(pointertime / 60);
-        const seconds = pointertime % 60;
-        upVideoPointerMoveTime.value =
-          (minutes < 10 ? "0" + minutes : "" + minutes) +
-          ":" +
-          (seconds < 10 ? "0" + seconds : "" + seconds);
-      } else {
-        const pointertime = parseInt(
-          ((event.clientX - left) / (width - 5)) * videoTime,
-        );
-        const minutes = parseInt(pointertime / 60);
-        const seconds = pointertime % 60;
-        upVideoPointerMoveTime.value =
-          (minutes < 10 ? "0" + minutes : "" + minutes) +
-          ":" +
-          (seconds < 10 ? "0" + seconds : "" + seconds);
+    function clampNumber(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+    function getVideoDurationSeconds() {
+      if (upVideoPlayer.value && Number.isFinite(upVideoPlayer.value.duration)) {
+        return upVideoPlayer.value.duration;
       }
 
-      if (event.target.className === "up-VideoProgress")
-        clickUpVideoTime.value = parseInt(
-          (relativeX / (width - 5)) * videoTime,
-        );
+      if (!SelectVideoByIdVo.upVideo.videoTime) return 0;
+      const videoTime = SelectVideoByIdVo.upVideo.videoTime.split(":");
+      return Number(videoTime[0]) * 60 + Number(videoTime[1]);
+    }
 
-      //获取每百分之一的像素值
-      const pixelPerPercent = (relativeX / width) * 2.72;
-      //当前时间
-      if (
-        pixelPerPercent * videoTime < 0 &&
-        event.target.className === "up-VideoProgress"
-      )
-        moveUpVideoTime.value = 0;
-      else if (event.target.className === "up-VideoProgress")
-        moveUpVideoTime.value = parseInt(pixelPerPercent * videoTime);
-    };
+    function formatPointerTime(time) {
+      const safeTime = Math.max(parseInt(time), 0);
+      const minutes = parseInt(safeTime / 60);
+      const seconds = safeTime % 60;
 
-    const updateupVideoProgressImgPosition1 = (event) => {
-      let width = window.innerWidth*0.97+20;
-      const container = event.currentTarget;
-      const { left } = container.getBoundingClientRect(); // 获取滚动容器的边界
-      const relativeX = event.clientX - left; // 计算相对于容器的 X 坐标
-      if (upVideoProgressImg.value)
-        upVideoProgressImgPosition.value = event.clientX; // 获取鼠标的 X 坐标
-      //获取视频总时长
-      if (SelectVideoByIdVo.upVideo.videoTime !== undefined)
-        upVideoTimes.value = SelectVideoByIdVo.upVideo.videoTime.split(":");
-      const videoTime =
-        parseInt(upVideoTimes.value[0]) * 60 + parseInt(upVideoTimes.value[1]);
-      //指示器移动到视频时间
-      if (event.target.className === "up-VideoProgress") {
-        const pointertime = parseInt((relativeX / width) * videoTime);
-        clickUpVideoTime.value = pointertime;
-        const minutes = parseInt(pointertime / 60);
-        const seconds = pointertime % 60;
-        upVideoPointerMoveTime.value =
-          (minutes < 10 ? "0" + minutes : "" + minutes) +
-          ":" +
-          (seconds < 10 ? "0" + seconds : "" + seconds);
-      } else {
-        const pointertime = parseInt((event.clientX / width) * videoTime);
-        clickUpVideoTime.value = pointertime;
-        const minutes = parseInt(pointertime / 60);
-        const seconds = pointertime % 60;
-        upVideoPointerMoveTime.value =
-          (minutes < 10 ? "0" + minutes : "" + minutes) +
-          ":" +
-          (seconds < 10 ? "0" + seconds : "" + seconds);
-      }
+      return `${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+    }
 
-      //获取每百分之一的像素值
-      const pixelPerPercent = relativeX / width;
-      //当前时间
-      if (
-        pixelPerPercent * videoTime < 0 &&
-        event.target.className === "up-VideoProgress"
-      )
-        moveUpVideoTime.value = 0;
-      else if (event.target.className === "up-VideoProgress")
-        moveUpVideoTime.value = parseInt(pixelPerPercent * videoTime);
+    function getVisibleProgressRect() {
+      const progressList = Array.from(document.querySelectorAll(".up-VideoProgress"));
+      const progress = progressList.find((item) => item.offsetParent !== null);
+      return progress?.getBoundingClientRect() || null;
+    }
+
+    function updateProgressByPointer(event, isAllDisplay = intoVideoAllDisplayIngFlag.value) {
+      const rect = getVisibleProgressRect();
+      const duration = getVideoDurationSeconds();
+      if (!rect || !duration) return null;
+
+      const relativeX = clampNumber(event.clientX - rect.left, 0, rect.width);
+      const percent = relativeX / rect.width;
+      const pointerTime = percent * duration;
+
+      upVideoPointerMoveTime.value = formatPointerTime(pointerTime);
+      upVideoProgressImgPosition.value = isAllDisplay
+        ? rect.left + relativeX
+        : relativeX - 3;
+
+      return pointerTime;
+    }
+
+    const updateupVideoProgressImgPosition = (event, isAllDisplay = false) => {
+      updateProgressByPointer(event, isAllDisplay);
     };
 
     // 汉字的个数
@@ -3661,6 +3534,7 @@ export default {
     //更新视频进度条
     const updateProgress = () => {
       if (upVideoPlayer.value && upVideoPlayer.value.duration > 0) {
+        updateScrollingCurrentTime();
         upVideoProgress.value = Math.floor(
           (upVideoPlayer.value.currentTime / upVideoPlayer.value.duration) *
             100,
@@ -3749,78 +3623,50 @@ export default {
     }
 
     //更改视频时间进度
-    function changeUpVideoTime() {
-      isProgressImgMoving=false;
-      stopMoving();
-      upVideoPlayer.value.currentTime = clickUpVideoTime.value;
-      if (upVideoPlayer.value.paused) {
-        pausedOrPlayVideoFlag.value = true;
-        upVideoPlayer.value.play();
-      }
+    function seekUpVideo(time) {
+      const duration = getVideoDurationSeconds();
+      if (!upVideoPlayer.value || !duration) return;
+
+      const nextTime = clampNumber(Number(time || 0), 0, duration);
+      upVideoPlayer.value.currentTime = nextTime;
+      upVideoProgress.value = (nextTime / duration) * 100;
+      upVideoTimeDuration.value = Math.floor(nextTime);
+      updateScrollingCurrentTime();
     }
 
     let isProgressImgMoving = false;
-    //点击滑动时间进度条
-    function startMoving(event) {
-      if (event === undefined) return;
-      isProgressImgMoving = !isProgressImgMoving;
-      if (!isProgressImgMoving) {
-        stopMoving();
-        return;
-      }
+    let progressWasPlayingBeforeDrag = false;
+    //点击或拖动时间进度条
+    function startProgressDrag(event, isAllDisplay = false) {
+      if (!event) return;
+      const pointerTime = updateProgressByPointer(event, isAllDisplay);
+      if (pointerTime === null) return;
+
+      progressWasPlayingBeforeDrag = pausedOrPlayVideoFlag.value;
+      isProgressImgMoving = true;
+      seekUpVideo(pointerTime);
       pausedUpVideo();
       window.addEventListener("mousemove", changeUpVideoTimeImg);
-    }
-
-    function startMoving1(event) {
-      if (event === undefined) return;
-      isProgressImgMoving = !isProgressImgMoving;
-      if (!isProgressImgMoving) {
-        stopMoving();
-        return;
-      }
-      pausedUpVideo();
-      window.addEventListener("mousemove", changeUpVideoTimeImg1);
+      window.addEventListener("mouseup", stopMoving);
     }
 
     //跟随鼠标移动滑动时间进度条
     function changeUpVideoTimeImg(event) {
-      const containerWidth = 676; // 进度条宽度
-      const container = event.target;
-      if (!container || typeof container.getBoundingClientRect !== 'function' || event.target.className!== "up-user-video-player")
-      return;
-      const { left } = container.getBoundingClientRect(); // 获取滚动容器的边界
-      upVideoProgressImgPosition.value = event.clientX - left - 3;
-      upVideoProgress.value = ((upVideoProgressImgPosition.value) / containerWidth) * 100;
-      if (upVideoProgress.value > 0 && upVideoProgress.value < 100)
-        upVideoPlayer.value.currentTime =
-          (upVideoProgress.value * upVideoPlayer.value.duration) / 100;
-    }
-
-    function changeUpVideoTimeImg1(event) {
-      const containerWidth = window.innerWidth*0.97+20; // 进度条宽度
-      upVideoProgressImgPosition.value = event.clientX;
-      const relativeX = event.clientX;
-      upVideoProgress.value = (relativeX / containerWidth) * 100;
-      if (upVideoProgress.value > 0 && upVideoProgress.value < 100)
-        upVideoPlayer.value.currentTime =
-          (upVideoProgress.value * upVideoPlayer.value.duration) / 100;
+      if (!isProgressImgMoving) return;
+      const pointerTime = updateProgressByPointer(event, intoVideoAllDisplayIngFlag.value);
+      if (pointerTime !== null) seekUpVideo(pointerTime);
     }
 
     //点击关闭滑动时间进度条
     function stopMoving() {
+      if (isProgressImgMoving && progressWasPlayingBeforeDrag && upVideoPlayer.value?.paused) {
+        pausedOrPlayVideoFlag.value = true;
+        upVideoPlayer.value.play();
+      }
       isProgressImgMoving = false;
+      progressWasPlayingBeforeDrag = false;
       window.removeEventListener("mousemove", changeUpVideoTimeImg);
-      window.removeEventListener("mousemove", changeUpVideoTimeImg1);
-    }
-
-    //指示器范围点击也更新进度条
-    function upVideoPointerClickChangerTime() {
-      upVideoPlayer.value.currentTime = clickUpVideoTime.value;
-      pausedOrPlayVideoFlag.value = true;
-      isProgressImgMoving=false;
-      stopMoving();
-      changeUpVideoTime();
+      window.removeEventListener("mouseup", stopMoving);
     }
 
     //输入视频时间
@@ -3848,7 +3694,7 @@ export default {
       ) {
         // 如果输入值包含非数字字符，直接设置当前时间
         if (!regex1.test(inputUpVideoTimeValue.value)) {
-          upVideoPlayer.value.currentTime = Number(inputUpVideoTimeValue.value); // 确保转换为数字
+          seekUpVideo(Number(inputUpVideoTimeValue.value));
         }
         // 检查输入格式是否为 "mm:ss"
         else if (
@@ -3857,8 +3703,7 @@ export default {
         ) {
           const time = inputUpVideoTimeValue.value.split(":");
           // 确保时间数组有效
-          upVideoPlayer.value.currentTime =
-            Number(time[0]) * 60 + Number(time[1]); // 确保转换为数字
+          seekUpVideo(Number(time[0]) * 60 + Number(time[1]));
         } else {
           inputUpVideoTimeValue.value = upVideoPlayer.value.currentTime; // 输入格式不正确，清空输入框
         }
@@ -3876,7 +3721,7 @@ export default {
         // 如果输入值包含非数字字符，直接设置当前时间
         if (!regex1.test(inputUpVideoTimeValue.value)) {
           upVideoInputTimeFlag.value = false;
-          upVideoPlayer.value.currentTime = Number(inputUpVideoTimeValue.value); // 确保转换为数字
+          seekUpVideo(Number(inputUpVideoTimeValue.value));
         }
         // 检查输入格式是否为 "mm:ss"
         else if (
@@ -3886,8 +3731,7 @@ export default {
           const time = inputUpVideoTimeValue.value.split(":");
           // 确保时间数组有效
           upVideoInputTimeFlag.value = false;
-          upVideoPlayer.value.currentTime =
-            Number(time[0]) * 60 + Number(time[1]); // 确保转换为数字
+          seekUpVideo(Number(time[0]) * 60 + Number(time[1]));
         } else {
           upVideoInputTimeFlag.value = false;
           inputUpVideoTimeValue.value = upVideoPlayer.value.currentTime; // 输入格式不正确，清空输入框
@@ -4066,12 +3910,12 @@ export default {
       // →键 快进5秒
       else if (event.key === "ArrowRight" && !isInputField) {
         event.preventDefault();
-        upVideoPlayer.value.currentTime = upVideoPlayer.value.currentTime + 5;
+        seekUpVideo(upVideoPlayer.value.currentTime + 5);
       }
       // ←键 回退5秒
       else if (event.key === "ArrowLeft" && !isInputField) {
         event.preventDefault();
-        upVideoPlayer.value.currentTime = upVideoPlayer.value.currentTime - 5;
+        seekUpVideo(upVideoPlayer.value.currentTime - 5);
       }
       // ↑键 音量+10
       else if (event.key === "ArrowUp" && !isInputField) {
@@ -4174,6 +4018,11 @@ export default {
       if (newValue && !setVideoAutoRePlayFlag.value) upVideoPlayer.value.play();
       else if (!newValue && !setVideoAutoRePlayFlag.value)
         upVideoPlayer.value.pause();
+      if (newValue) startScrollingClock();
+      else {
+        updateScrollingCurrentTime();
+        stopScrollingClock();
+      }
       if (newValue) updateVideoPlayNumberAxios();
       else clearTimeout(playNumberTime);
     });
@@ -4320,13 +4169,22 @@ export default {
 
     //接收websocket实时更新滚动弹幕
     socket.onmessage = (event) => {
-      if (Array.isArray(JSON.parse(event.data)))
-        {
-          ScrollingDataList.length = 0;
-          Object.assign(ScrollingDataList, JSON.parse(event.data));
-          SelectVideoByIdVo.upVideo.scrollingNumber = ScrollingDataList.length;
-        }
-      if (event.data != null && !Array.isArray(JSON.parse(event.data)))
+      let data = event.data;
+      try {
+        data = JSON.parse(event.data);
+      } catch (error) {
+        watchingNumber.value = event.data;
+        return;
+      }
+
+      if (Array.isArray(data)) {
+        ScrollingDataList.length = 0;
+        Object.assign(ScrollingDataList, data);
+        SelectVideoByIdVo.upVideo.scrollingNumber = ScrollingDataList.length;
+        return;
+      }
+
+      if (event.data != null)
         watchingNumber.value = event.data;
     };
 
@@ -4408,19 +4266,61 @@ export default {
       } catch (error) {}
     }
 
+    function updateScrollingCurrentTime() {
+      if (!upVideoPlayer.value) return;
+      scrollingCurrentTime.value = upVideoPlayer.value.currentTime || 0;
+    }
+
+    function startScrollingClock() {
+      stopScrollingClock();
+
+      const tick = () => {
+        updateScrollingCurrentTime();
+        if (pausedOrPlayVideoFlag.value) {
+          scrollingAnimationFrameId = requestAnimationFrame(tick);
+        }
+      };
+
+      tick();
+    }
+
+    function stopScrollingClock() {
+      if (scrollingAnimationFrameId !== null) {
+        cancelAnimationFrame(scrollingAnimationFrameId);
+        scrollingAnimationFrameId = null;
+      }
+    }
+
+    function scrollingSpeedRate() {
+      if (checkBoxOpenFlag.value) {
+        return 1;
+      }
+
+      return 1 + (parseInt(scrollingDisplaySpeedValue.value) - 50) / 100;
+    }
+
+    function scrollingDuration(isAllDisplay) {
+      const baseDuration = isAllDisplay ? 16 : 13;
+      return baseDuration / Math.max(scrollingSpeedRate(), 0.1);
+    }
+
+    function scrollingElapsed(videoTime) {
+      return scrollingCurrentTime.value - Number(videoTime || 0);
+    }
+
+    function scrollingTranslateX(videoTime, isAllDisplay) {
+      const duration = scrollingDuration(isAllDisplay);
+      const elapsed = scrollingElapsed(videoTime);
+      const progress = Math.min(Math.max(elapsed / duration, 0), 1);
+      const distance = isAllDisplay ? 3100 : 2350;
+
+      return `translateX(${-distance * progress}px)`;
+    }
+
     //滚动弹幕显示时间
-    function scrollingDisplayTime(videoTime) {
-      if (
-        !intoVideoAllDisplayIngFlag.value &&
-        videoTime + 10 >= upVideoPlayer.value.currentTime
-      ) {
-        return true;
-      } else if (
-        intoVideoAllDisplayIngFlag.value &&
-        videoTime + 18 >= upVideoPlayer.value.currentTime
-      ) {
-        return true;
-      } else return false;
+    function scrollingDisplayTime(videoTime, isAllDisplay = intoVideoAllDisplayIngFlag.value) {
+      const elapsed = scrollingElapsed(videoTime);
+      return elapsed >= 0 && elapsed <= scrollingDuration(isAllDisplay);
     }
 
     //三连
@@ -4734,7 +4634,7 @@ export default {
         }
 
         if (isTimeValid) {
-          upVideoPlayer.value.currentTime = timeInSeconds;
+          seekUpVideo(timeInSeconds);
           window.scrollTo({ top: 0, behavior: "smooth" });
         }
       }
@@ -5153,11 +5053,12 @@ export default {
 
       if (response.data.code === 1) {
         Object.assign(history, response.data.data);
-        upVideoPlayer.value.currentTime =
+        seekUpVideo(
           history.watchCurrentTime !== undefined &&
-          upVideoPlayer.value.currentTime !== null
+          history.watchCurrentTime !== null
             ? history.watchCurrentTime
-            : 0;
+            : 0,
+        );
       }
     }
 
@@ -5334,19 +5235,14 @@ export default {
       pausedUpVideo,
       upVideoStartPlayFlag,
       pausedOrPlayUpVideo,
-      moveUpVideoTime,
       upVideoPlayerss,
-      changeUpVideoTime,
       changeUpVideoTimeImg,
-      startMoving,
-      startMoving1,
+      startProgressDrag,
       stopMoving,
       isProgressImgMoving,
       upVideoInputTimeFlag,
       upVideoPointerMoveTime,
       upVideoTimeDuration,
-      clickUpVideoTime,
-      upVideoPointerClickChangerTime,
       inputUpVideoTime,
       inputUpVideoTimeValue,
       enterUpVideoTime,
@@ -5363,7 +5259,6 @@ export default {
       intoVideoAllDisplayFlag,
       toggleFullscreen,
       intoVideoAllDisplayIngFlag,
-      updateupVideoProgressImgPosition1,
       closeScrollingBlue,
       closeScrollingGray,
       closeScrollingWhite,
@@ -5435,6 +5330,7 @@ export default {
       videoShareHoverFlag,
       videoCollectHoverFlag,
       scrollingDisplayTime,
+      scrollingTranslateX,
       startThree,
       endThree,
       threeAnmationBeforeFlag,
@@ -5539,6 +5435,7 @@ export default {
   color: #18191c;
   -webkit-box-orient: vertical; /* 垂直方向排列 */
   -webkit-line-clamp: 1; /* 限制为 1 行 */
+  line-clamp: 1;
   overflow: hidden; /* 隐藏超出部分 */
   word-wrap: break-word; /* 超出部分换行 */
   text-overflow: ellipsis; /* 显示省略号 */
@@ -5722,6 +5619,7 @@ export default {
   display: -webkit-box; /* 必须使用这个 */
   -webkit-box-orient: vertical; /* 垂直方向排列 */
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden; /* 隐藏超出部分 */
   word-wrap: break-word; /* 超出部分换行 */
   text-overflow: ellipsis; /* 显示省略号 */
@@ -6267,6 +6165,7 @@ export default {
 .volume-slider {
   margin-bottom: 15px;
   margin-left: 11px;
+  appearance: none;
   -webkit-appearance: none; /* Safari */
   width: 62px; /* 设置宽度 */
   height: 2px; /* 滑块高度 */
@@ -6561,6 +6460,7 @@ export default {
 .topContainerintoVideoAllDisplayIngFlag {
   position: absolute;
   transform: scale(3);
+  width: 97%;
   top: 89.5%;
   left: 1.5%;
 }
@@ -6568,6 +6468,7 @@ export default {
 .bottomContainerintoVideoAllDisplayIngFlag {
   position: absolute;
   transform: scale(3);
+  width: 97%;
   top: 90.3%;
   left: 1.5%;
 }
@@ -6923,6 +6824,7 @@ export default {
 }
 
 .scrolling-display-slider {
+  appearance: none;
   -webkit-appearance: none; /* Safari */
   position: absolute;
   transform: translate(10px, 3.5px);
@@ -7312,6 +7214,7 @@ export default {
   white-space: nowrap;
   text-overflow: ellipsis;
   -webkit-line-clamp: 1;
+  line-clamp: 1;
   -webkit-box-orient: vertical; /* 垂直方向排列 */
   overflow: hidden;
   transform: translate(0px, -4px);
