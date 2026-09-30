@@ -57,6 +57,7 @@
 <script>
 import { ElMessage } from 'element-plus';
 import CropperDefault from '@/components/cropper/CropperDefault.vue';
+import apiClient from '@/services/apiClient';
 
 export default {
     name: "AccountAvatar",
@@ -158,7 +159,7 @@ export default {
                 const formData = new FormData();
                 formData.append('file', avatar);
                 // 发送请求
-                this.$post("/user/avatar/update", formData, {
+                apiClient.post("/user/avatar/update", formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                         Authorization: "Bearer " + localStorage.getItem("teri_token"),

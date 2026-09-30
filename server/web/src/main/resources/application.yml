@@ -1,5 +1,9 @@
 server:
   port: 8081
+api:
+  crypto:
+    key: bi-video-api-key-32-byte-value!!
+    iv: bi-video-api-iv!
 spring:
   servlet:
     multipart:
