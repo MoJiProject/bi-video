@@ -234,22 +234,25 @@
           class="comment-user-avatar"
           :src="comment.userInfo.avatarAddress"
         />
-        <span
-          @click="openHome(1,comment.userInfo.id)"
-          class="comment-user-name"
-          :style="{ color: comment.userInfo.grade > 4 ? '#fb7299' : '#000' }"
-          @mouseover="
-            delayUserInfo(-comment.comments.id), selectFollow(comment)
-          "
-          @mouseleave="delayUserInfo(0)"
-          >{{ comment.userInfo.userName }}</span
-        >
-        <img
-          v-if="comment"
-          class="comment-user-level"
-          :src="'../img/' + comment.userInfo.grade + '级.png'"
-        />
-        <img v-if="comment.comments.userId===store.upUserId" class="comment-up-icon" src="../img/up_pb.svg">
+        <div class="comment-main">
+        <div class="comment-author-row">
+          <span
+            @click="openHome(1,comment.userInfo.id)"
+            class="comment-user-name"
+            :style="{ color: comment.userInfo.grade > 4 ? '#fb7299' : '#000' }"
+            @mouseover="
+              delayUserInfo(-comment.comments.id), selectFollow(comment)
+            "
+            @mouseleave="delayUserInfo(0)"
+            >{{ comment.userInfo.userName }}</span
+          >
+          <img
+            v-if="comment"
+            class="comment-user-level"
+            :src="'../img/' + comment.userInfo.grade + '级.png'"
+          />
+          <img v-if="comment.comments.userId===store.upUserId" class="comment-up-icon" src="../img/up_pb.svg">
+        </div>
         <div
           v-show="
             nameOrAvatarHoverFlag === -comment.comments.id ||
@@ -508,6 +511,7 @@
             >
               {{ comment.replyFlag ? '收起' : '点击查看' }}
             </button>
+        </div>
         </div>
         <div
             v-show="replyComment === comment.comments.id"
@@ -2205,7 +2209,6 @@ export default {
       commentFocusFlag.value = false;
       emojiFlag.value = false;
       emojiFlag3.value = false;
-
       const res = await apiClient.post("/comment/addComment", addComment, {
         headers: {
           "Content-Type": "application/json",
@@ -3584,13 +3587,22 @@ export default {
 
     .comment-list {
       position: relative;
-      margin-bottom: 52.5px;
+      margin-bottom: 0;
       img {
         user-select: none;
       }
 
+      .comment-item {
+        position: relative;
+        display: grid;
+        grid-template-columns: 64px minmax(0, 1fr);
+        column-gap: 16px;
+        padding: 0 0 16px 0;
+      }
+
       .comment-user-avatar {
-        position: absolute;
+        position: relative;
+        grid-column: 1;
         left: 19.5px;
         top: 0.5px;
         width: 40px;
@@ -3598,52 +3610,68 @@ export default {
         border-radius: 50%;
         cursor: pointer;
       }
+
+      .comment-main {
+        grid-column: 2;
+        min-width: 0;
+        padding-right: 16px;
+      }
+
+      .comment-author-row {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+        min-height: 20px;
+      }
+
       .comment-user-name {
-        position: relative;
-        display: inline-block;
-        left: 80px;
-        top: 4px;
+        display: inline-flex;
+        align-items: center;
+        min-width: 0;
         font-size: 12.5px;
         cursor: pointer;
         color: #61666d;
+        overflow-wrap: anywhere;
       }
 
       .comment-up-icon{
-        position: relative;
+        width: auto;
+        height: 14px;
         vertical-align: middle;
-        left: 95px;
-        top: 3px;
       }
 
       .comment-user-level {
-        position: relative;
         width: 20px;
         height: 10px;
-        left: 88px;
-        top: 4px;
+        flex: 0 0 auto;
       }
 
       .comment-content {
-        width: 620px;
+        width: 100%;
         display: block;
         word-wrap: break-word;
-        transform: translate(79.5px, 8px);
+        transform: none;
+        margin-top: 4px;
         line-height: 1.6;
         font-size: 14.5px;
       }
 
       .commentContent {
-        transform: translate(82.5px, 12px);
+        transform: none;
+        margin-top: 8px;
         text-indent: 3.5em;
       }
 
       .commentContent2 {
-        transform: translate(82.5px, 9px);
+        transform: none;
+        margin-top: 5px;
         text-indent: 2.4em;
       }
 
       .commentContent3 {
-        transform: translate(82.5px, 9px);
+        transform: none;
+        margin-top: 5px;
         text-indent: 5.9em;
       }
 
@@ -3672,23 +3700,25 @@ export default {
 
       .comment-footer {
         position: relative;
-        top: 14px;
-        left: 0px;
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        margin-top: 8px;
         color: #9499a0;
         font-size: 12.5px;
         .comment-time {
-          position: relative;
-          top: -1px;
-          left: 80px;
+          position: static;
         }
 
         .comment-like-number-container {
           position: relative;
-          top: 1px;
-          left: 102.5px;
+          display: inline-flex;
+          align-items: center;
+          min-width: 14px;
+          height: 16px;
           cursor: pointer;
           .comment-like-btn {
-            position: absolute;
+            position: static;
             width: 14px;
             height: 13px;
           }
@@ -3696,7 +3726,7 @@ export default {
           .comment-like-number {
             position: relative;
             top: -2px;
-            left: 20px;
+            left: 6px;
             font-size: 12.5px;
           }
         }
@@ -3709,21 +3739,19 @@ export default {
 
         .comment-dont-like-number-container {
           position: relative;
+          display: inline-flex;
+          align-items: center;
           margin: 0px;
-          top: 1.5px;
-          left: 143.5px;
           cursor: pointer;
           .comment-dont-like-btn {
-            position: absolute;
+            position: static;
             width: 14px;
             height: 13px;
           }
         }
 
         .comment-reply-btn {
-          position: relative;
-          top: -0.5px;
-          left: 178px;
+          position: static;
           font-size: 13px;
           user-select: none;
           cursor: pointer;
@@ -3794,13 +3822,13 @@ export default {
       }
 
       .commentFooter {
-        margin-top: 117px;
+        margin-top: 8px;
       }
 
       .up-like-comment{
         position: relative;
-        top: 22px;
-        left: 80px;
+        top: 0;
+        left: 0;
         color: #757575;
         display: inline-block;
         background-color: #f4f4f4;
@@ -3809,6 +3837,7 @@ export default {
         border-radius: 2px;
         z-index: 100;
         line-height: 1;
+        margin-top: 8px;
         margin-right: 5px;
       }
 
@@ -3831,34 +3860,36 @@ export default {
 
       .comment-note-img {
         position: absolute;
-        top: 34.5px;
-        left: 79.5px;
+        top: 28px;
+        left: 80px;
         width: 48px;
         height: 22px;
       }
 
       .comment-img-container {
         position: relative;
-        top: 15px;
-        left: 71.5px;
-        width: 610px;
+        top: 0;
+        left: 0;
+        width: 100%;
         height: auto;
-        padding-left: 8px;
-        height: 72px;
+        padding-left: 0;
+        min-height: 72px;
         display: flex;
         flex-wrap: wrap; /* 允许换行 */
         flex-direction: row;
         gap: 8px; /* 子元素之间的间距 */
-        margin-bottom: 24px;
+        margin-top: 12px;
+        margin-bottom: 8px;
       }
 
       .view-reply-btn {
         position: relative;
-        left: 80px;
+        left: 0;
         font-size: 12.5px;
         color: #9499a0;
-        margin-bottom: 8px;
-        top: 25px;
+        margin-top: 10px;
+        margin-bottom: 0;
+        top: 0;
 
         button {
           border: none;
@@ -4097,72 +4128,87 @@ export default {
        
       }
 
-      .replyCommentClass {
+      .replyCommentClass,
+      .replyCommentClass2 {
         left: 60px;
-        top: 32px;
+        top: 20px;
+        margin-bottom: 12px !important;
 
-        .comment-img-container{
-          top: 22.5px !important;
+        .comment-item{
+          grid-template-columns: 24px minmax(0, 1fr);
+          column-gap: 8px;
+          padding-bottom: 0;
         }
 
         .comment-user-avatar {
           width: 24px;
           height: 24px;
+          left: 0;
+          top: 0;
           z-index: 30;
         }
 
         .comment-user-name{
+          display: inline;
+          margin-left: 0;
+          line-height: 20px;
           z-index: 30;
         }
 
         .reply-content{
           position: relative;
-          top: -5px;
-          left: -27px;
+          top: 0;
+          left: 0;
+          min-width: 0;
+
+          > .comment-user-level{
+            left: 0;
+            top: 1px;
+            margin-left: 6px;
+          }
+
+          > .comment-up-icon{
+            left: 0;
+            top: 2px;
+            margin-left: 6px;
+            height: 14px;
+          }
 
           .comment-content{
             color: #18191c;
-            width: 580px;
-            line-height: 2;
-            transform: translate(78px,-20.5px);
-          }
-
-          .comment-delete-btn-container{
-            left: 605px;
-            width: 22.5px;
-            display: flex;
-            justify-content: center;
-          }
-
-        }
-      }
-
-      .replyCommentClass2 {
-        left: 60px;
-        top: 32px;
-
-        .comment-user-avatar {
-          width: 24px;
-          height: 24px;
-        }
-
-        .reply-content{
-          position: relative;
-          top: -5px;
-          left: -27px;
-
-          .comment-content{
-            color: #18191c;
-            width: 580px;
-            transform: translate(78px,9px);
+            width: 100%;
+            line-height: 1.8;
+            transform: none !important;
+            text-indent: 0 !important;
+            margin-top: 2px;
           }
 
           .reply-container{
-            top: 30px;
+            top: 0;
+            left: 0 !important;
+            margin-top: 10px;
+          }
+
+          > .comment-note-img{
+            position: static;
+            display: block;
+            margin-top: 8px;
+          }
+
+          > .comment-img-container{
+            top: 0 !important;
+            margin-top: 8px;
+            margin-bottom: 8px;
+          }
+
+          > .comment-footer{
+            top: auto !important;
+            margin-top: 6px;
           }
 
           .comment-delete-btn-container{
-            left: 605px;
+            left: auto;
+            right: 0;
             width: 22.5px;
             display: flex;
             justify-content: center;
@@ -4403,6 +4449,7 @@ export default {
   display: -webkit-box; /* 必须使用这个 */
   -webkit-box-orient: vertical; /* 垂直方向排列 */
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden; /* 隐藏超出部分 */
   word-wrap: break-word; /* 超出部分换行 */
   text-overflow: ellipsis; /* 显示省略号 */
