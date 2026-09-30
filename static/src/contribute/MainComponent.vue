@@ -1683,20 +1683,21 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .main-content4 {
   background-color: #f8f8f8;
   border-radius: 5px;
   transform: translate(-100px, -20px);
-  width: 1300px;
-  height: 1500px !important;
-  overflow-x: hidden;
-  overflow-y: hidden;
+  width: 1500px;
+  min-height: 1500px;
+  height: auto !important;
+  overflow: visible;
 }
 .white {
   transform: translate(120px, 20px);
   width: 1200px;
-  height: 2000px !important;
+  min-height: 1500px;
+  height: auto !important;
   z-index: 10;
   background-color: white;
   overflow-x: hidden;
@@ -1731,7 +1732,7 @@ button:hover {
   z-index: 10;
 }
 
-.el-dialog__title {
+:deep(.el-dialog__title) {
   font-size: 16px;
   color: #00a1d6; /* 文字颜色 */
 }

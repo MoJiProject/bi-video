@@ -184,17 +184,20 @@ export default {
   },
 };
 </script>
-<style>
+<style scoped>
 .main-content2 {
   background-color: #f8f8f8;
   border-radius: 5px;
   transform: translate(-100px, -20px);
   width: 1500px;
+  min-height: 1500px;
+  height: auto !important;
 }
 .white2 {
   transform: translate(120px, 20px);
   width: 1200px;
-  height: 1000px !important;
+  min-height: 1500px;
+  height: auto !important;
   z-index: 10;
   background-color: white;
 }

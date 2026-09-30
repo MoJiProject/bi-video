@@ -92,7 +92,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .aside-container {
   display: flex;
   flex-direction: column;
@@ -100,7 +100,7 @@ export default {
   position: absolute;
   box-shadow: 5px 0 8px rgba(0, 0, 0, 0.03); /* 阴影向右偏移 */
   width: 157px;
-  height: 1000px;
+  min-height: 1000px;
 }
 
 .upload {
@@ -127,7 +127,7 @@ export default {
   margin: 5px 0; /* 链接之间的间距 */
 }
 
-div img {
+.aside-container img {
   width: 18px;
   margin-right: 8px; /* 图标与文本之间的间距 */
   transform: translate(-13px, 4px);

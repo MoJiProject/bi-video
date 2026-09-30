@@ -59,12 +59,12 @@
                   <img src="../img/个人中心.png" /> <span>个人中心 </span>
                 </div>
               </a>
-              <a
-                href="/contribute/subpage2"
+              <router-link
+                to="/contribute/subpage2"
                 style="text-decoration: none; animation: none !important"
                 ><div>
                   <img src="../img/投稿管理.png" /> <span>投稿管理 </span>
-                </div></a
+                </div></router-link
               >
               <div style="cursor: pointer" @click="logout">
                 <img src="../img/退出登录.png" /> <span>退出登录</span>
@@ -125,11 +125,11 @@
        </div>
       </el-header>
       <el-container >
-        <el-aside width="200px">
-          <AsideComponent style="position: relative; z-index: 10;"/>
+        <el-aside width="200px" class="contribute-aside">
+          <AsideComponent />
         </el-aside>
-        <el-main>
-          <MainComponent style="position: relative;z-index: 10;"/>
+        <el-main class="contribute-main">
+          <component :is="currentContentComponent" class="contribute-content" />
         </el-main>
       </el-container>
     </el-container>
@@ -138,22 +138,39 @@
 
 <script>
 import { reactive, onMounted, computed, ref } from "vue";
+import { useRoute } from "vue-router";
 import apiClient from "../services/apiClient";
 import {useGlobalStore} from "../store/store";
 import "element-plus/theme-chalk/el-message.css";
 import { ElMessage } from "element-plus";
 import AsideComponent from './AsideComponent.vue';
 import MainComponent from "./MainComponent.vue";
+import SubPage1 from "./SubPage1.vue";
+import SubPage2 from "./SubPage2.vue";
+import SubPage3 from "./SubPage3.vue";
+import SubPage4 from "./SubPage4.vue";
 export default {
   name: "Contribute",
   components: {
     AsideComponent,
     MainComponent,
+    SubPage1,
+    SubPage2,
+    SubPage3,
+    SubPage4,
   },
   setup() {
     
     const pageLoad=ref(false);
     const store = useGlobalStore();
+    const route = useRoute();
+    const contentComponentMap = {
+      "/contribute/subpage1": SubPage1,
+      "/contribute/subpage2": SubPage2,
+      "/contribute/subpage3": SubPage3,
+      "/contribute/subpage4": SubPage4,
+    };
+    const currentContentComponent = computed(() => contentComponentMap[route.path] || MainComponent);
     const user = reactive({
       avatarAddress: "",
       coinNumber: 0,
@@ -294,6 +311,7 @@ export default {
       pageLoad,
       daysAsUP,
       openMessage,
+      currentContentComponent,
     };
   },
 };
@@ -458,10 +476,22 @@ export default {
 }
 
 .common-layout{
-  width: 1425px;
+  width: min(1425px, 100vw);
+  min-width: 1200px;
   position: relative;
   left: 50%;
   transform: translateX(-50%);
+}
+
+.contribute-aside,
+.contribute-main,
+.contribute-content{
+  position: relative;
+  z-index: 10;
+}
+
+.contribute-main{
+  overflow: visible;
 }
 
 </style>

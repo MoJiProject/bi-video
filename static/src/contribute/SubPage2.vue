@@ -709,21 +709,22 @@ export default {
   },
 };
 </script>
-<style>
+<style scoped>
 .main-content {
   background-color: #f8f8f8;
   border-radius: 5px;
   transform: translate(-100px, -20px);
   width: 1500px;
-  height: 1500px !important;
+  min-height: 1500px;
+  height: auto !important;
 }
 .white {
   transform: translate(120px, 20px);
   width: 1200px;
-  overflow-y: hidden;
-  overflow-x: hidden;
+  overflow: visible;
   z-index: 10;
-  height: 1500px;
+  min-height: 1500px;
+  height: auto !important;
   background-color: white;
 }
 

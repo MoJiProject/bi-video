@@ -34,22 +34,22 @@ const routes = [
       {
         path: '/contribute/subpage1',
         name:'subpage1',
-        component: () => import('./contribute/Page1.vue'),
+        component: () => import('./contribute/Contribute.vue'),
       },
       {
         path: '/contribute/subpage2',
         name:'subpage2',
-        component: () => import('./contribute/Page2.vue'),
+        component: () => import('./contribute/Contribute.vue'),
       },
       {
         path: '/contribute/subpage3',
         name:'subpage3',
-        component: () => import('./contribute/Page3.vue'),
+        component: () => import('./contribute/Contribute.vue'),
       },
       {
         path: '/contribute/subpage4',
         name:'subpage4',
-        component: () => import('./contribute/Page4.vue'),
+        component: () => import('./contribute/Contribute.vue'),
       },
       // 消息
       {
