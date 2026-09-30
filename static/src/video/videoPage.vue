@@ -372,7 +372,7 @@
             src="../img/视频进度图片.png"
             class="up-video-progress-img"
             :style="{
-              left: `calc(${upVideoProgress}% - 6px)`,
+              left: `${upVideoProgress*676/100-6}px`,
             }"
           />
           <!-- 放大视频后的 -->
