@@ -1815,6 +1815,7 @@ function restoreBodyOverflow() {
                 background-color: #1389bf;
                 border: 1px solid #1389bf;
                 color: #fff;
+                cursor: pointer;
                 transition: 200ms;
                 border-radius: 4px;
             }
