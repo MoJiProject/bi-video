@@ -27,14 +27,36 @@ public class LoginLimiterServer {
 
     private static final int AUTO_LOGIN_TIME_WINDOW = 604800;
 
-    private static final String PASS_WORD="1234";
+    private static String redisHost = "localhost";
 
-    private static final JedisPool JEDIS_POOL = createJedisPool();
+    private static int redisPort = 6379;
+
+    private static String redisPassword;
+
+    private static JedisPool jedisPool;
 
 
 
 
     public LoginLimiterServer() {
+    }
+
+    public static synchronized void configureRedis(String host, int port, String password) {
+        redisHost = host;
+        redisPort = port;
+        redisPassword = password;
+
+        if (jedisPool != null) {
+            jedisPool.close();
+            jedisPool = null;
+        }
+    }
+
+    private static synchronized JedisPool getJedisPool() {
+        if (jedisPool == null) {
+            jedisPool = createJedisPool();
+        }
+        return jedisPool;
     }
 
     private static JedisPool createJedisPool() {
@@ -43,11 +65,14 @@ public class LoginLimiterServer {
         poolConfig.setMaxIdle(10);
         poolConfig.setMinIdle(1);
         poolConfig.setTestOnBorrow(true);
-        return new JedisPool(poolConfig, "localhost", 6379, 2000, PASS_WORD);
+        if (redisPassword == null || redisPassword.isBlank()) {
+            return new JedisPool(poolConfig, redisHost, redisPort, 2000);
+        }
+        return new JedisPool(poolConfig, redisHost, redisPort, 2000, redisPassword);
     }
 
     private <T> T execute(Function<Jedis, T> action) {
-        try (Jedis jedis = JEDIS_POOL.getResource()) {
+        try (Jedis jedis = getJedisPool().getResource()) {
             return action.apply(jedis);
         }
     }
