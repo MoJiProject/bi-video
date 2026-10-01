@@ -145,6 +145,7 @@ import "element-plus/theme-chalk/el-message.css";
 import { ElMessage } from "element-plus";
 import AsideComponent from './AsideComponent.vue';
 import MainComponent from "./MainComponent.vue";
+import EditContribute from "./EditContribute.vue";
 import SubPage1 from "./SubPage1.vue";
 import SubPage2 from "./SubPage2.vue";
 import SubPage3 from "./SubPage3.vue";
@@ -154,6 +155,7 @@ export default {
   components: {
     AsideComponent,
     MainComponent,
+    EditContribute,
     SubPage1,
     SubPage2,
     SubPage3,
@@ -165,6 +167,7 @@ export default {
     const store = useGlobalStore();
     const route = useRoute();
     const contentComponentMap = {
+      "/contribute/edit": EditContribute,
       "/contribute/subpage1": SubPage1,
       "/contribute/subpage2": SubPage2,
       "/contribute/subpage3": SubPage3,

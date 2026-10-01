@@ -29,7 +29,7 @@ const routes = [
       {
         path: '/contribute/edit',
         name: 'edit',
-        component: () => import('./contribute/EditContribute.vue'),
+        component: () => import('./contribute/Contribute.vue'),
       },
       {
         path: '/contribute/subpage1',
