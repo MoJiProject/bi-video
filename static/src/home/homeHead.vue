@@ -68,12 +68,18 @@ const handleContextMenuVisible=ref(false);
 
 onMounted(async() => {
 
-    await getUserIpF();
-    await ChecklLoginF();
-    await selectUserInfoF();
-    await checkFollowF();
-    getCollectsClassifyF();
-    store.setHomeLoad(true,"homeHead");
+    try{
+        await getUserIpF();
+        await ChecklLoginF();
+        await selectUserInfoF();
+        await checkFollowF();
+        getCollectsClassifyF();
+    }catch(e){
+        console.error(e);
+    }finally{
+        // 无论请求是否失败都要结束加载，否则顶部进度条不会结束
+        store.setHomeLoad(true,"homeHead");
+    }
     window.addEventListener("click",()=>{
         handleContextMenuVisible.value=false;
     })

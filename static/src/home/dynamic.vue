@@ -14,10 +14,7 @@
             <div v-if="store.homeUserInformation.birthday"><img src="../img/birthday.png"> {{ store.homeUserInformation?.birthday?.split(' ')[0] }}</div>
         </div> 
         <div class="dynamic-list">
-            <div v-show="loadMore" class="class-loading">
-               <img src="../img/loading-blue.gif">
-               <span>拼命加载中...</span>
-            </div>
+            <loadingIndicator v-show="loadMore"/>
             <div v-show="!loadMore&&dynamicList.length" class="dynamic-item" v-for="dynamic in dynamicList" :key="dynamic.dynamic.id">
                 <dynamicC :dynamic="dynamic"/>
             </div>
@@ -25,10 +22,7 @@
                 <img src="../img/home_nodata.svg">
                 <div>好像没有东西诶</div>
             </div>
-            <div v-show="loadMore2" class="class-loading2">
-               <img src="../img/loading-blue.gif">
-               <span>拼命加载中...</span>
-            </div>
+            <loadingIndicator v-show="loadMore2" inline min-height="0px"/>
             <div v-if="fotterFlag&&dynamicList.length>0&&!loadMore2&&!loadMore" class="no-more">你已经到达世界的尽头</div>
         </div>
     </div>
@@ -38,6 +32,7 @@
 import { onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useGlobalStore } from '../store/store';
 import dynamicC from "@/utils/dynamic.vue";
+import loadingIndicator from "@/components/loadingIndicator.vue";
 import {homeDynamic} from "@/api/home/index";
 import {getEitList} from "@/api/user/index";
 
@@ -323,43 +318,8 @@ function openAccount(){
         display: flex;
         flex-direction: column;
 
-            .class-loading{
-                position: relative;
-                margin-top: 60px;
-                display: flex;
-                justify-content: center;
-
-                img{
-                    width: 30px;
-                    height: 30px;
-                }
-                span{
-                    position: relative;
-                    top: 5px;
-                    left: 5px;
-                    font-size: 14px;
-                    color: #61666D;
-                }
-            }
             .dynamic-item{
                 margin-bottom: 12px;
-            }
-            .class-loading2{
-                position: relative;
-                display: flex;
-                justify-content: center;
-
-                img{
-                    width: 30px;
-                    height: 30px;
-                }
-                span{
-                    position: relative;
-                    top: 5px;
-                    left: 5px;
-                    font-size: 14px;
-                    color: #61666D;
-                }
             }
             .no-data{
             user-select: none;

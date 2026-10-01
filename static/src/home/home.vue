@@ -14,10 +14,7 @@
             <div v-if="store.homeUserInformation.birthday"><img src="../img/birthday.png"> {{ store.homeUserInformation?.birthday?.split(' ')[0] }}</div>
         </div>
         <!-- 单独渲染加载中部分 -->
-        <div v-show="loadMore" class="class-loading">
-            <img src="../img/loading-blue.gif">
-            <span>拼命加载中...</span>
-        </div>
+        <loadingIndicator v-show="loadMore" min-height="180px"/>
         <!-- 使用 v-for 遍历排序后的数组来渲染其他 div -->
         <div class="home-div" v-for="(item, index) in divs" :key="index">
             <!-- 代表作部分 -->
@@ -113,6 +110,7 @@ import videoList2 from '@/utils/videoList2';
 import videoList5 from '@/utils/videoList5';
 import followAnimeData from '@/utils/followAnimeData';
 import followAnimeList from '@/utils/followAnimeList';
+import loadingIndicator from '@/components/loadingIndicator.vue';
 import {homeContributeVideos,homeThrowCoinVideos,getCollectsClassify,homeLoveVideos,homeMagnumVideos} from '@/api/home/index';
 
 const userId = parseInt(new URL(window.location).searchParams.get("userId"))|| null;
@@ -345,25 +343,6 @@ function openAccount(){
             height: 16px;
             margin-right: 8px;
         }
-    }
-    }
-
-    .class-loading{
-    position: relative;
-    margin-top: 90px;
-    display: flex;
-    justify-content: center;
-
-    img{
-        width: 30px;
-        height: 30px;
-    }
-    span{
-        position: relative;
-        top: 5px;
-        left: 5px;
-        font-size: 14px;
-        color: #61666D;
     }
     }
 

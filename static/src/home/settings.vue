@@ -1,10 +1,7 @@
 <template>
     <div class="settings">
         <div v-show="!loadMore" class="title">隐私设置</div>
-        <div v-if="loadMore" class="class-loading">
-               <img src="../img/loading-blue.gif">
-               <span>拼命加载中...</span>
-        </div>
+        <loadingIndicator v-if="loadMore" min-height="160px"/>
         <div class="content" v-show="checkValue&&!loadMore">
             <div class="item"><span>公开我的收藏</span><el-switch class="custom-switch1" v-model="publicCollect"/> </div>
             <div class="item"><span>公开我的追番追剧</span> <el-switch class="custom-switch1" v-model="publicAnime" /> </div>
@@ -34,6 +31,7 @@ import { useGlobalStore } from "../store/store";
 import { putHomeSettings } from "../api/user/index";
 import { ElMessage } from "element-plus";
 import Sortable from "sortablejs";
+import loadingIndicator from "@/components/loadingIndicator.vue";
 
 const store = useGlobalStore();
 const publicCollect = ref(false);
@@ -68,11 +66,9 @@ onMounted(()=>{
         publicFansList.value=store.userInformation.publicFansList?true:false;
         publicBirthday.value=store.userInformation.publicBirthday?true:false;
         onceFlag=false;
-        setTimeout(() => {
         store.setHomeLoad(true,"homeBody");
         store.setHomeLoadMenuList(7);
         loadMore.value=false;
-        }, 300);  
     }
     sort.value=Sortable.create(sort.value,{
         animation: 150,
@@ -142,11 +138,9 @@ watch(()=>store.userInformation,()=>{
         publicFansList.value=store.userInformation.publicFansList?true:false;
         publicBirthday.value=store.userInformation.publicBirthday?true:false;
         onceFlag=false;
-        setTimeout(() => {
         store.setHomeLoad(true,"homeBody");
         store.setHomeLoadMenuList(7);
         loadMore.value=false;
-        }, 300);  
     }
 },{deep:true,immediate:true});
 
@@ -229,25 +223,6 @@ function thumbName(name){
         font-weight: 600;
         color: #18191C;
         line-height: 34px;
-    }
-    .class-loading{
-            position: relative;
-            width: 100%;
-            margin-top: 60px;
-            display: flex;
-            justify-content: center;
-
-            img{
-                width: 30px;
-                height: 30px;
-            }
-            span{
-                position: relative;
-                top: 5px;
-                left: 5px;
-                font-size: 14px;
-                color: #61666D;
-            }
     }
     .content{
     margin-top: 30px;    

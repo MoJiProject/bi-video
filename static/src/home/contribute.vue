@@ -120,10 +120,7 @@
           >
         </div>
       </div>
-      <div v-show="loadMore" class="class-loading">
-        <img src="../img/loading-blue.gif" />
-        <span>拼命加载中...</span>
-      </div>
+      <loadingIndicator v-show="loadMore" min-height="160px"/>
     </div>
   </div>
 </template>
@@ -133,6 +130,7 @@ import { useGlobalStore } from "@/store/store";
 import { onMounted, reactive, ref, watch } from "vue";
 import videoList3 from "@/utils/videoList3";
 import videoList4 from "@/utils/videoList4";
+import loadingIndicator from "@/components/loadingIndicator.vue";
 import imgDynamic from "@/utils/imgDynamic.vue";
 import { homeContributeVideos, dynamicImg } from "@/api/home/index";
 
@@ -476,24 +474,6 @@ watch(imgSource, () => {
             -webkit-appearance: none;
           }
         }
-      }
-    }
-    .class-loading {
-      position: relative;
-      margin-top: 60px;
-      display: flex;
-      justify-content: center;
-
-      img {
-        width: 30px;
-        height: 30px;
-      }
-      span {
-        position: relative;
-        top: 5px;
-        left: 5px;
-        font-size: 14px;
-        color: #61666d;
       }
     }
   }

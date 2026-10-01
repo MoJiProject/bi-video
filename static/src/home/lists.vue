@@ -1,11 +1,7 @@
 <template>
     <div class="home-lists">
         <div class="title">{{ store.userId!==null&&store.userId==userId? "我的合集列表" : "TA的合集列表" }}</div>
-        <div v-if="loadMore" class="class-loading">
-               <img src="../img/loading-blue.gif">
-               <span>拼命加载中...</span>
-        </div>
-        <div v-else class="no-data">
+        <div class="no-data">
             <img src="../img/home_nodata.svg">
             <div>暂无数据</div>
         </div>
@@ -14,18 +10,14 @@
 
 <script setup>
 import { useGlobalStore } from "@/store/store";
-import { onMounted, ref } from "vue";
+import { onMounted } from "vue";
 
-const loadMore=ref(true);
 const store = useGlobalStore();
 const userId = parseInt(new URL(window.location).searchParams.get("userId")) || null;
 
 onMounted(()=>{
-    setTimeout(() => {
     store.setHomeLoad(true,'homeBody');
     store.setHomeLoadMenuList(4);
-    loadMore.value=false;
-    }, 300);
 })
 
 </script>
@@ -45,24 +37,6 @@ onMounted(()=>{
     font-weight: 600;
     color: #18191C;
     line-height: 34px;
-    }
-    .class-loading{
-            position: relative;
-            margin-top: 60px;
-            display: flex;
-            justify-content: center;
-
-            img{
-                width: 30px;
-                height: 30px;
-            }
-            span{
-                position: relative;
-                top: 5px;
-                left: 5px;
-                font-size: 14px;
-                color: #61666D;
-            }
     }
     .no-data{
         width: 100%;

@@ -100,10 +100,7 @@
                     <div class="controls" @click="copyOrMoveCollectF(2)"><img class="move" src="../img/移动.png">移动至</div>
                 </span>
             </div>
-            <div v-show="loadMore" class="class-loading">
-                <img src="../img/loading-blue.gif" />
-                <span>拼命加载中...</span>
-            </div>
+            <loadingIndicator v-show="loadMore" min-height="200px"/>
             <div v-show="!loadMore" class="video-list">
                 <videoList7 :data="collectList" :batchControls="batchControls" :searchContent="searchContent"/>
             </div>
@@ -308,6 +305,7 @@ import { addCollectClassify,deleteCollectClassify,updateCollectClassify } from '
 import { deleteFailure,deleteCollect,controlCollect } from '@/api/collect/index';
 import { ElMessage } from "element-plus";
 import videoList7 from "@/utils/videoList7.vue";
+import loadingIndicator from "@/components/loadingIndicator.vue";
 
 const store = useGlobalStore();
 const collectOpenFlag = ref(false);
@@ -1431,24 +1429,6 @@ function openWaitWatch(){
                     border: 1px solid #E3E5E7;
                 }
             }
-        }
-        .class-loading {
-        position: relative;
-        margin-top: 60px;
-        display: flex;
-        justify-content: center;
-
-        img {
-            width: 30px;
-            height: 30px;
-        }
-        span {
-            position: relative;
-            top: 5px;
-            left: 5px;
-            font-size: 14px;
-            color: #61666d;
-        }
         }
         .video-list{
             margin-top: 48px;

@@ -4,11 +4,7 @@
             <span>补番</span>
             <span>12</span>
         </div>
-        <div v-if="loadMore" class="class-loading">
-               <img src="../img/loading-blue.gif">
-               <span>拼命加载中...</span>
-        </div>
-        <div v-else class="content">
+        <div class="content">
             <div class="title">Alice推荐的番剧</div>
             <div class="condition">
                 <span :class="{activeStatus:status===''}" @click="status=''">全部</span>
@@ -62,14 +58,10 @@ const animeData=reactive([...followAnimeData.AnimeData]);
 const status = ref("");
 const tags=reactive(["全部"]);
 const typeSource=ref("");
-const loadMore=ref(true);
 
 onMounted(()=>{
-    setTimeout(() => {
-        store.setHomeLoad(true,"homeBody");
-        store.setHomeLoadMenuList(6);
-        loadMore.value=false;
-    }, 300);
+    store.setHomeLoad(true,"homeBody");
+    store.setHomeLoadMenuList(6);
 })
 
 //添加标签
@@ -194,25 +186,6 @@ watch(typeSource,()=>{
     align-items: center;
     justify-content: space-between;
     background-color: #00AEEC;
-    }
-    .class-loading{
-            position: relative;
-            width: 100%;
-            margin-top: 60px;
-            display: flex;
-            justify-content: center;
-
-            img{
-                width: 30px;
-                height: 30px;
-            }
-            span{
-                position: relative;
-                top: 5px;
-                left: 5px;
-                font-size: 14px;
-                color: #61666D;
-            }
     }
     .content{
         position: relative;

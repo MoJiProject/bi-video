@@ -7,7 +7,7 @@
 </template>
 
 <script setup>
-import { computed, watch } from 'vue';
+import { computed, onBeforeUnmount, watch } from 'vue';
 import home from './home.vue'
 import dynamic from './dynamic.vue';
 import contribute from './contribute.vue';
@@ -46,12 +46,32 @@ const currentComponent = computed(() => {
   }
 });
 
+// 请求失败或返回非 1 时子组件不会置位，超时兜底结束加载，避免进度条卡住
+const BODY_LOAD_TIMEOUT = 10000;
+let bodyTimer = null;
+
 watch(() => store.homeMenu, (newVal) => {
+  clearTimeout(bodyTimer);
+  bodyTimer = setTimeout(() => {
+    store.setHomeLoad(true,"homeBody");
+  }, BODY_LOAD_TIMEOUT);
+
   if (store.homeLoadMenuList.includes(newVal)) {
     setTimeout(() => {
       store.setHomeLoad(true,"homeBody");
     }, 50);
   }
+},{immediate:true});
+
+// 无权限时菜单对应组件为空，需要直接结束加载，避免顶部进度条一直挂着
+watch(currentComponent, (component) => {
+  if (!component && store.homeLoad.homeHead) {
+    store.setHomeLoad(true, "homeBody");
+  }
+});
+
+onBeforeUnmount(()=>{
+  clearTimeout(bodyTimer);
 });
 
 

@@ -77,10 +77,7 @@
             <div v-if="fotterFlag&&dynamicList.length>0&&!loadMore2&&!loadMore" class="no-more">你已经到达世界的尽头~</div>
         </div>
       </div>
-      <div v-show="loadMore" class="class-loading">
-        <img src="../img/loading-blue.gif" />
-        <span>拼命加载中...</span>
-      </div>
+      <loadingIndicator v-show="loadMore" min-height="160px"/>
       <div v-show="!loadMore&&(searchMenu===1?contributeVideos.length===0:dynamicList.length===0)" class="no-data">
             <img src="../img/home_nodata.svg">
             <div>{{'没有找到任何关于"'+keyword+(searchMenu===1?'"的视频':'"的动态')}}</div>
@@ -97,6 +94,7 @@ import { homeDynamic,homeContributeVideos } from "@/api/home/index";
 import { getEitList } from "@/api/user/index";
 import videoList4 from "@/utils/videoList4.vue";
 import videoList6 from "@/utils/videoList6.vue";
+import loadingIndicator from "@/components/loadingIndicator.vue";
 
 const store = useGlobalStore();
 const searchMenu = ref(1);
@@ -519,25 +517,6 @@ watch(()=>store.keyword,()=>{
         font-size: 14px;
         color: #9499A0;
         user-select: none;
-      }
-    }
-
-    .class-loading {
-      position: relative;
-      margin-top: 60px;
-      display: flex;
-      justify-content: center;
-
-      img {
-        width: 30px;
-        height: 30px;
-      }
-      span {
-        position: relative;
-        top: 5px;
-        left: 5px;
-        font-size: 14px;
-        color: #61666d;
       }
     }
 

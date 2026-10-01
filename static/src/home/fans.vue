@@ -20,10 +20,7 @@
                 <span>{{ fansTotal }}</span>
             </div>
         </div>
-        <div v-show="store.userId&&loadMore" class="class-loading">
-               <img src="../img/loading-blue.gif">
-               <span>拼命加载中...</span>
-        </div>
+        <loadingIndicator v-show="store.userId&&loadMore" min-height="200px"/>
         <div v-if="store.userId&&(fansTotal>0||searchWord.length>0)&&!loadMore" class="content">
             <div v-if="store.userId!==null&&store.userId!==userId" class="title">TA的粉丝</div>
             <div v-else class="title">我的粉丝</div>
@@ -92,6 +89,7 @@ import {fansOrFollow,putNewFans} from "@/api/user";
 import {addFollow,deleteFollow} from "@/api/user";
 import { ElMessage } from "element-plus";
 import userInfo2 from "@/utils/userInfo2";
+import loadingIndicator from "@/components/loadingIndicator.vue";
 import {addDialogue} from '../api/privateMessage/index';
 
 const store = useGlobalStore();
@@ -683,25 +681,6 @@ window.open(
                 -webkit-appearance: none;
                 }
             }
-        }
-    }
-    .class-loading{
-    position: relative;
-    width: 1099px;
-    margin-top: 60px;
-    display: flex;
-    justify-content: center;
-
-        img{
-            width: 30px;
-            height: 30px;
-        }
-        span{
-            position: relative;
-            top: 5px;
-            left: 5px;
-            font-size: 14px;
-            color: #61666D;
         }
     }
     .not-data-container{
