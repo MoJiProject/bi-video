@@ -39,6 +39,8 @@ public class SearchServiceImpl implements SearchService {
         ResponseSearchVo responseSearchVo = new ResponseSearchVo();
         List<SelectVideoDto> selectVideoDto;
         LambdaQueryWrapper<Videos> videosLambdaQueryWrapper=new LambdaQueryWrapper<>();
+        //搜索只返回审核通过的视频
+        videosLambdaQueryWrapper.eq(Videos::getStatus,1);
         if (!acceptSearchData.getKeyWord().isEmpty() || !acceptSearchData.getClassifyIndex().isEmpty())
         videosLambdaQueryWrapper.and(wrapper->wrapper
                 .like(Videos::getTitle,acceptSearchData.getKeyWord())
@@ -72,6 +74,7 @@ public class SearchServiceImpl implements SearchService {
 
         if(acceptSearchData.getClassify().equals("全部")){
             LambdaQueryWrapper<Videos> videosLambdaQueryWrapper1=new LambdaQueryWrapper<>();
+            videosLambdaQueryWrapper1.eq(Videos::getStatus,1);
             if(acceptSearchData.getDate()==1)
                 videosLambdaQueryWrapper1.between(Videos::getCreateTime, LocalDateTime.now().minusDays(1),LocalDateTime.now());
             else if (acceptSearchData.getDate()==2)

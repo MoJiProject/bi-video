@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moji.dto.WatchMessage;
 import com.moji.dto.WatchParticipant;
 import com.moji.mapper.UserMapper;
+import com.moji.mapper.VideosMapper;
 import com.moji.po.Users;
+import com.moji.po.Videos;
 import com.moji.vo.CreateWatchRoomRequest;
 import com.moji.vo.WatchRoom;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -28,17 +30,20 @@ public class WatchRoomService {
     private static final int MAX_HISTORY = 50;
     private static final int ROOM_LOCK_COUNT = 64;
 
-    private final StringRedisTemplate redisTemplate;
+private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
     private final UserMapper userMapper;
+    private final VideosMapper videosMapper;
     private final Object[] roomLocks = new Object[ROOM_LOCK_COUNT];
 
-    public WatchRoomService(StringRedisTemplate redisTemplate, ObjectMapper objectMapper, UserMapper userMapper) {
+    public WatchRoomService(StringRedisTemplate redisTemplate, ObjectMapper objectMapper, UserMapper userMapper,
+                            VideosMapper videosMapper) {
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
         this.userMapper = userMapper;
+        this.videosMapper = videosMapper;
         for (int index = 0; index < ROOM_LOCK_COUNT; index++) {
-            roomLocks[index] = new Object();
+            this.roomLocks[index] = new Object();
         }
     }
 
@@ -125,6 +130,26 @@ room.getParticipants().add(new WatchParticipant(
             room.setPlaybackRate(normalizeRate(message.getPlaybackRate()));
             if (message.getPaused() != null) room.setPaused(message.getPaused());
             save(room, ROOM_TTL, false);
+            return room;
+        });
+    }
+
+    public WatchRoom switchVideo(String roomId, Integer actorId, Integer videoId) {
+        return withRoomLock(roomId, () -> {
+            WatchRoom room = requireRoom(roomId);
+            if (!canManage(room, actorId)) throw new SecurityException("只有房主或管理员可以切换视频");
+            if (videoId == null) throw new IllegalArgumentException("请选择要切换的视频");
+            Videos video = videosMapper.selectById(videoId);
+            if (video == null || video.getStatus() == null || video.getStatus() != 1) {
+                throw new IllegalArgumentException("视频不存在或未通过审核");
+            }
+            if (room.getVideoId().equals(videoId)) return room;
+
+            room.setVideoId(videoId);
+            room.setCurrentTime(0);
+            room.setPaused(true);
+            room.setPlaybackRate(1.0);
+            save(room);
             return room;
         });
     }

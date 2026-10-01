@@ -72,6 +72,7 @@ public class WatchTogetherServer implements WebSocketConfigurer {
                     case "revoke_admin" -> changeAdmin(session, userId, message, false);
                     case "kick" -> kick(session, userId, message);
                     case "transfer_owner" -> transferOwner(session, userId, message);
+                    case "switch_video" -> switchVideo(session, userId, message);
                     case "blacklist" -> changeBlacklist(session, userId, message, true);
                     case "unblacklist" -> changeBlacklist(session, userId, message, false);
                     case "ping" -> send(session, Map.of("type", "pong"));
@@ -88,7 +89,9 @@ public class WatchTogetherServer implements WebSocketConfigurer {
             WatchRoom existingRoom = watchRoomService.findRoom(message.getRoomId());
             if (existingRoom == null) throw new IllegalArgumentException("房间不存在或已过期");
             if (message.getVideoId() != null && !existingRoom.getVideoId().equals(message.getVideoId())) {
-                throw new IllegalArgumentException("邀请链接与当前视频不匹配");
+                // 房间已切换过视频，让客户端直接跳到新视频再加入。
+                send(session, Map.of("type", "video_switched", "room", existingRoom));
+                return;
             }
 
             String currentRoomId = (String) session.getAttributes().get("roomId");
@@ -161,6 +164,13 @@ public class WatchTogetherServer implements WebSocketConfigurer {
             WatchRoom room = watchRoomService.transferOwner(roomId, userId, message.getTargetUserId());
             send(session, Map.of("type", "owner_transferred", "ownerName", room.getOwnerName()));
             broadcast(roomId, Map.of("type", "state", "room", room));
+        }
+
+        private void switchVideo(WebSocketSession session, Integer userId, WatchMessage message) {
+            String roomId = requireJoinedRoom(session, message.getRoomId());
+            WatchRoom room = watchRoomService.switchVideo(roomId, userId, message.getVideoId());
+            // 需要包含操作者本人，所有端都要跳转到新视频。
+            broadcast(roomId, Map.of("type", "video_switched", "room", room));
         }
 
         private void changeBlacklist(WebSocketSession session, Integer userId, WatchMessage message, boolean blocked) {

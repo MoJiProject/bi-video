@@ -33,7 +33,7 @@
         <button class="primary-button" type="button" :disabled="busy" @click="createRoom">
           创建房间
         </button>
-        <button
+<button
           class="secondary-button"
           :class="{ 'secondary-button-active': historyOpen }"
           type="button"
@@ -46,7 +46,14 @@
 
       <template v-else>
         <div class="watch-actions">
-          <button class="primary-button" type="button" @click="copyInvite">复制邀请链接</button>
+          <button
+            class="secondary-button"
+            :class="{ 'secondary-button-active': inviteOpen }"
+            type="button"
+            @click="toggleInvitePanel"
+          >
+            邀请好友
+          </button>
           <button
             v-if="canManage"
             class="secondary-button"
@@ -55,6 +62,15 @@
             @click="toggleHistory"
           >
             历史房间
+          </button>
+          <button
+            v-if="canManage"
+            class="secondary-button"
+            :class="{ 'secondary-button-active': switchOpen }"
+            type="button"
+            @click="toggleSwitchPanel"
+          >
+            切换视频
           </button>
           <button class="leave-button" type="button" @click="leaveRoom">退出</button>
         </div>
@@ -143,10 +159,95 @@
         </ul>
       </template>
 
+      <div v-if="inviteOpen" class="invite-section">
+        <div class="member-heading">
+          <span>邀请好友</span>
+          <button class="icon-button" type="button" title="关闭" @click="closeSections()">×</button>
+        </div>
+        <div v-if="!inviteFriends.length" class="empty-text">
+          {{ inviteLoading ? '好友加载中…' : '还没有互相关注的好友' }}
+        </div>
+        <div v-else class="invite-list" @scroll="onInviteScroll">
+          <button
+            v-for="friend in inviteFriends"
+            :key="friend.id"
+            class="invite-item"
+            :class="{ selected: inviteSelected.includes(friend.id) }"
+            type="button"
+            @click="toggleInviteSelect(friend)"
+          >
+            <img
+              class="invite-avatar"
+              :src="friend.avatarAddress || '/默认头像.gif'"
+              :alt="friend.userName"
+            />
+            <span class="invite-name">{{ friend.userName }}</span>
+            <img
+              v-if="inviteSelected.includes(friend.id)"
+              class="invite-check"
+              src="../img/选中.png"
+              alt="已选择"
+            />
+          </button>
+          <p v-if="inviteLoading" class="invite-loading">加载中…</p>
+        </div>
+        <div class="invite-footer">
+          <button class="invite-copy-btn" type="button" @click="copyInvite">复制邀请链接</button>
+          <button
+            class="invite-send-btn"
+            type="button"
+            :disabled="!inviteSelected.length || inviteSending"
+            @click="sendInvites"
+          >
+            {{ inviteSending ? '发送中' : `发送(${inviteSelected.length})` }}
+          </button>
+        </div>
+      </div>
+
+      <div v-if="switchOpen" class="switch-section">
+        <div class="member-heading">
+          <span>切换视频</span>
+          <button class="icon-button" type="button" title="关闭" @click="closeSections()">×</button>
+        </div>
+        <div class="switch-search">
+          <input
+            v-model="switchKeyword"
+            class="switch-search-input"
+            type="text"
+            maxlength="50"
+            placeholder="搜索视频标题、UP主或BV号"
+            @keyup.enter="searchSwitchVideos"
+          />
+          <button class="switch-search-btn" type="button" :disabled="searching" @click="searchSwitchVideos">
+            {{ searching ? '搜索中' : '搜索' }}
+          </button>
+        </div>
+        <p class="switch-tip">切换后房间内所有人会跳转到新视频，当前进度会重置</p>
+        <div v-if="switchVideos.length" class="switch-list">
+          <button
+            v-for="item in switchVideos"
+            :key="item.videoId"
+            class="switch-item"
+            type="button"
+            @click="confirmSwitchVideo(item)"
+          >
+            <span
+              class="switch-cover"
+              :style="item.coverAddress ? { backgroundImage: `url(${item.coverAddress})` } : null"
+            ></span>
+            <span class="switch-info">
+              <span class="switch-title">{{ item.videoTitle }}</span>
+              <small class="switch-meta">{{ item.userName }} · {{ item.videoTime }}</small>
+            </span>
+          </button>
+        </div>
+        <p v-else class="empty-text">{{ switchSearched ? '没有找到相关视频' : '暂无相关视频，换个关键词试试' }}</p>
+      </div>
+
       <div v-if="historyOpen" class="history-section">
         <div class="member-heading">
           <span>历史房间</span>
-          <button class="icon-button" type="button" title="关闭历史" @click="historyOpen = false">×</button>
+          <button class="icon-button" type="button" title="关闭历史" @click="closeSections()">×</button>
         </div>
         <button
           v-for="item in historyRooms"
@@ -197,6 +298,19 @@ const room = ref(null);
 const connected = ref(false);
 const busy = ref(false);
 const roomId = ref(initialRoomId);
+const switchOpen = ref(false);
+const switchKeyword = ref('');
+const switchVideos = ref([]);
+const switchSearched = ref(false);
+const searching = ref(false);
+const inviteOpen = ref(false);
+const inviteFriends = ref([]);
+const inviteSelected = ref([]);
+const inviteTitle = ref('');
+const invitePageNum = ref(1);
+const inviteHasMore = ref(true);
+const inviteLoading = ref(false);
+const inviteSending = ref(false);
 let client = null;
 let clientToken = null;
 let attachedVideo = null;
@@ -271,6 +385,7 @@ function togglePanel() {
 const STORAGE_KEY = 'watchTogetherPosition';
 const EDGE_GAP = 8;
 const SEEK_THROTTLE = 120;
+const INVITE_LIMIT = 10;
 
 function loadStoredPosition() {
   try {
@@ -518,6 +633,10 @@ function handleMessage(message) {
     notify('success', `房主已转让给 ${message.ownerName}`);
     return;
   }
+  if (message.type === 'video_switched') {
+    applyVideoSwitch(message.room);
+    return;
+  }
   if (message.type === 'error') {
     notify('error', message.message || '一起看操作失败');
   }
@@ -529,6 +648,23 @@ function closeClient() {
   client = null;
   clientToken = null;
   connected.value = false;
+}
+
+// 房间换了视频：所有端整页跳到新视频，进度由服务端 state 重新同步。
+function applyVideoSwitch(nextRoom) {
+  room.value = nextRoom;
+  switchVideos.value = [];
+  switchKeyword.value = '';
+  switchSearched.value = false;
+  const target = nextRoom?.videoId;
+  if (!target || target === props.videoId) {
+    if (nextRoom) applyRoomState(nextRoom);
+    return;
+  }
+  const url = new URL(window.location.href);
+  url.searchParams.set('videoId', `BV${target}`);
+  url.searchParams.set('room', roomId.value || nextRoom.roomId);
+  window.location.href = url.toString();
 }
 
 function applyRoomState(nextRoom) {
@@ -579,13 +715,117 @@ function runRemoteAction(action) {
 }
 
 async function copyInvite() {
-  const inviteUrl = new URL(window.location.href);
-  inviteUrl.searchParams.set('room', room.value.roomId);
   try {
-    await navigator.clipboard.writeText(inviteUrl.toString());
+    await navigator.clipboard.writeText(inviteUrl());
     notify('success', '邀请链接已复制');
   } catch {
-    window.prompt('复制邀请链接', inviteUrl.toString());
+    window.prompt('复制邀请链接', inviteUrl());
+  }
+}
+
+function inviteUrl() {
+  const url = new URL(window.location.href);
+  url.searchParams.set('room', room.value.roomId);
+  return url.toString();
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }[char]));
+}
+
+function toggleInvitePanel() {
+  if (inviteOpen.value) {
+    closeSections();
+    return;
+  }
+  switchOpen.value = false;
+  historyOpen.value = false;
+  inviteOpen.value = true;
+  if (!inviteFriends.value.length) loadInviteFriends();
+  loadInviteTitle();
+}
+
+async function loadInviteTitle() {
+  if (!props.videoId || inviteTitle.value) return;
+  try {
+    const response = await apiClient.get(`/video/getVideoTitle/${props.videoId}`);
+    if (response.data.code === 1) inviteTitle.value = response.data.data;
+  } catch {
+    // 标题获取失败时使用默认文案。
+  }
+}
+
+async function loadInviteFriends() {
+  if (inviteLoading.value || !inviteHasMore.value || !store.userId) return;
+  inviteLoading.value = true;
+  try {
+    const response = await apiClient.get('/user/selectFollowAndFans', {
+      params: { userId: store.userId, pageNum: invitePageNum.value },
+    });
+    const list = Array.isArray(response.data.data) ? response.data.data : [];
+    inviteFriends.value = [
+      ...inviteFriends.value,
+      ...list.filter(item => item?.id && item.id !== store.userId),
+    ];
+    inviteHasMore.value = list.length > 0;
+    invitePageNum.value += 1;
+  } catch {
+    notify('error', '好友列表加载失败');
+  } finally {
+    inviteLoading.value = false;
+  }
+}
+
+function onInviteScroll(event) {
+  const target = event.target;
+  if (!target) return;
+  if (target.scrollHeight - target.scrollTop <= target.clientHeight + 8) loadInviteFriends();
+}
+
+function toggleInviteSelect(friend) {
+  const selected = inviteSelected.value;
+  if (selected.includes(friend.id)) {
+    inviteSelected.value = selected.filter(id => id !== friend.id);
+    return;
+  }
+  if (selected.length >= INVITE_LIMIT) {
+    notify('info', `最多只能邀请${INVITE_LIMIT}位好友`);
+    return;
+  }
+  inviteSelected.value = [...selected, friend.id];
+}
+
+async function sendInvites() {
+  const targets = inviteSelected.value;
+  if (!targets.length || !room.value) return;
+  // 标题本身作为链接文案，私信按 HTML 渲染，点标题即可进房间
+  const title = escapeHtml(inviteTitle.value || '这个视频');
+  const content = `一起来一起看<a href="${escapeHtml(inviteUrl())}">《${title}》</a>`;
+  inviteSending.value = true;
+  try {
+    const results = await Promise.allSettled(targets.map(receiverId => apiClient.post('/privateMessage/sendMessage', {
+      senderId: store.userId,
+      receiverId,
+      content,
+      messageType: 1,
+    })));
+    const sent = results.filter(item => item.status === 'fulfilled' && item.value?.data?.code === 1).length;
+    if (sent > 0) {
+      notify('success', `已向${sent}位好友发送邀请`);
+      inviteSelected.value = [];
+    } else {
+      notify('error', '邀请发送失败，请稍后重试');
+    }
+  } catch {
+    notify('error', '邀请发送失败，请稍后重试');
+  } finally {
+    inviteSending.value = false;
   }
 }
 
@@ -685,12 +925,108 @@ async function toggleBlacklist(member) {
   }
 }
 
-function toggleHistory() {
-  if (historyOpen.value) {
-    historyOpen.value = false;
+function toggleSwitchPanel() {
+  if (switchOpen.value) {
+    closeSections();
     return;
   }
+  inviteOpen.value = false;
+  historyOpen.value = false;
+  switchOpen.value = true;
+  if (!switchVideos.value.length) loadRelatedVideos();
+}
+
+async function loadRelatedVideos() {
+  if (!props.videoId) return;
+  searching.value = true;
+  try {
+    const response = await apiClient.post('/video/getVideoPageByVideo', { id: props.videoId });
+    switchVideos.value = pickSwitchVideos(response.data.data);
+  } catch {
+    notify('error', '相关视频加载失败');
+  } finally {
+    searching.value = false;
+  }
+}
+
+async function searchSwitchVideos() {
+  const keyWord = switchKeyword.value.trim();
+  if (!keyWord) {
+    notify('info', '请输入要搜索的视频');
+    return;
+  }
+  const bvMatch = /^bv?(\d+)$/i.exec(keyWord);
+  if (bvMatch) {
+    confirmSwitchVideo({ videoId: Number(bvMatch[1]), videoTitle: keyWord.toUpperCase() });
+    return;
+  }
+  searching.value = true;
+  try {
+    const response = await apiClient.post('/search/searchVideoByKeyWord', {
+      userId: store.userId || 0,
+      keyWord,
+      classifyIndex: '',
+      classify: '全部',
+      date: 0,
+      time: 0,
+      sort: 0,
+      videoPageNum: 1,
+    });
+    switchVideos.value = pickSwitchVideos(response.data.data?.selectVideoDtoList);
+    switchSearched.value = true;
+  } catch {
+    notify('error', '搜索失败，请稍后重试');
+  } finally {
+    searching.value = false;
+  }
+}
+
+function pickSwitchVideos(list) {
+  return (Array.isArray(list) ? list : [])
+    .filter(item => item?.videoId && item.videoId !== props.videoId)
+    .slice(0, 20);
+}
+
+async function confirmSwitchVideo(item) {
+  if (!item?.videoId || !room.value) return;
+  try {
+    await ElMessageBox.confirm(
+      `确定把房间切换到《${item.videoTitle}》吗？切换后所有人会跳转到新视频，当前进度将重置。`,
+      '切换视频',
+      {
+        confirmButtonText: '切换',
+        cancelButtonText: '取消',
+        type: 'warning',
+        appendTo: overlayTarget(),
+      }
+    );
+  } catch {
+    // 用户取消时无需提示。
+    return;
+  }
+  client?.send({
+    type: 'switch_video',
+    roomId: room.value.roomId,
+    videoId: item.videoId,
+  });
+}
+
+function toggleHistory() {
+  if (historyOpen.value) {
+    closeSections();
+    return;
+  }
+  inviteOpen.value = false;
+  switchOpen.value = false;
+  historyOpen.value = true;
   loadHistory();
+}
+
+// 三个扩展区块互斥，关闭时统一走这里，避免状态分散跳动。
+function closeSections() {
+  inviteOpen.value = false;
+  switchOpen.value = false;
+  historyOpen.value = false;
 }
 
 async function loadHistory() {
@@ -701,7 +1037,6 @@ async function loadHistory() {
   try {
     const response = await apiClient.get('/watch-together/history');
     historyRooms.value = response.data.data || [];
-    historyOpen.value = true;
   } catch {
     notify('error', '历史房间加载失败');
   }
@@ -728,7 +1063,11 @@ function updateRoomQuery(value) {
 function resetRoom() {
   room.value = null;
   roomId.value = null;
-  historyOpen.value = false;
+  closeSections();
+  inviteSelected.value = [];
+  switchVideos.value = [];
+  switchKeyword.value = '';
+  switchSearched.value = false;
   updateRoomQuery(null);
 }
 
@@ -859,7 +1198,9 @@ onBeforeUnmount(() => {
 .secondary-button,
 .leave-button,
 .icon-button,
-.history-item {
+.history-item,
+.invite-item,
+.switch-item {
   border: 0;
   cursor: pointer;
 }
@@ -961,17 +1302,39 @@ onBeforeUnmount(() => {
   padding: 14px 16px;
 }
 
+.watch-actions {
+  gap: 6px;
+  padding: 14px 12px;
+  flex-wrap: nowrap;
+}
+
 .primary-button,
 .secondary-button,
 .leave-button {
-  min-height: 34px;
-  padding: 0 12px;
+  min-height: 32px;
+  padding: 0 10px;
   border-radius: 5px;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: color 0.16s ease, background-color 0.16s ease;
 }
 
 .primary-button {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: #fff;
   background: #00aeec;
+}
+
+.primary-button:hover {
+  background: #0a9fe0;
+}
+
+.secondary-button,
+.leave-button {
+  flex: 0 0 auto;
 }
 
 .secondary-button {
@@ -979,9 +1342,18 @@ onBeforeUnmount(() => {
   background: #edf1f4;
 }
 
+/* 只给未激活的按钮加 hover，激活态保持蓝底，避免悬停时颜色来回跳 */
+.secondary-button:not(.secondary-button-active):hover {
+  background: #dde4ea;
+}
+
 .secondary-button-active {
   color: #fff;
   background: #00aeec;
+}
+
+.secondary-button-active:hover {
+  background: #0a9fe0;
 }
 
 .leave-button {
@@ -990,10 +1362,23 @@ onBeforeUnmount(() => {
   background: #fff0f0;
 }
 
+.leave-button:hover {
+  background: #ffe0e0;
+}
+
 .primary-button:disabled,
 .secondary-button:disabled {
   opacity: 0.55;
   cursor: default;
+}
+
+.primary-button:disabled:hover,
+.secondary-button:disabled:hover {
+  background: #00aeec;
+}
+
+.secondary-button:disabled:not(.secondary-button-active):hover {
+  background: #edf1f4;
 }
 
 .member-heading {
@@ -1209,6 +1594,242 @@ onBeforeUnmount(() => {
 
 .history-section {
   border-top: 1px solid #edf0f2;
+}
+
+.invite-section {
+  border-top: 1px solid #edf0f2;
+}
+
+.invite-list {
+  max-height: 208px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.invite-item {
+  width: 100%;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.16s ease;
+}
+
+.invite-item:hover {
+  background: #f7fafb;
+}
+
+.invite-item.selected {
+  background: #eaf7fd;
+}
+
+.invite-avatar {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border: 1px solid #e4e9ed;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.invite-item.selected .invite-avatar {
+  border-color: #00aeec;
+}
+
+.invite-name {
+  min-width: 0;
+  flex: 1 1 auto;
+  color: #252b31;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.invite-check {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+}
+
+.invite-loading {
+  margin: 0;
+  padding: 6px 12px;
+  color: #a9b2ba;
+  font-size: 11px;
+  text-align: center;
+}
+
+.invite-footer {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px 12px;
+}
+
+.invite-copy-btn,
+.invite-send-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 32px;
+  border: 0;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: opacity 0.16s ease, background-color 0.16s ease;
+}
+
+.invite-copy-btn {
+  color: #3a424a;
+  background: #edf1f4;
+}
+
+.invite-copy-btn:hover {
+  background: #e3e9ee;
+}
+
+.invite-send-btn {
+  color: #fff;
+  background: #00aeec;
+}
+
+.invite-send-btn:hover {
+  background: #0a9fe0;
+}
+
+.invite-send-btn:disabled {
+  color: #fff;
+  background: #cfd6dc;
+  cursor: default;
+}
+
+.switch-section {
+  border-top: 1px solid #edf0f2;
+}
+
+.switch-search {
+  display: flex;
+  gap: 6px;
+  padding: 10px 12px 8px;
+}
+
+.switch-search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 30px;
+  padding: 0 12px;
+  color: #252b31;
+  background: #f4f6f8;
+  border: 1px solid #e3e7eb;
+  border-radius: 15px;
+  font-size: 12px;
+  outline: none;
+  user-select: text;
+  transition: background-color 0.16s ease, border-color 0.16s ease;
+}
+
+.switch-search-input::placeholder {
+  color: #a9b2ba;
+}
+
+.switch-search-input:focus {
+  background: #fff;
+  border-color: #00aeec;
+}
+
+.switch-search-btn {
+  flex: 0 0 auto;
+  height: 30px;
+  padding: 0 14px;
+  color: #fff;
+  background: #00aeec;
+  border: 0;
+  border-radius: 15px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: opacity 0.16s ease;
+}
+
+.switch-search-btn:hover {
+  opacity: 0.88;
+}
+
+.switch-search-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.switch-tip {
+  margin: 0;
+  padding: 0 12px 8px;
+  color: #98a1aa;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.switch-list {
+  max-height: 236px;
+  overflow-y: auto;
+}
+
+.switch-item {
+  width: 100%;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: #fff;
+  text-align: left;
+  transition: background-color 0.16s ease;
+}
+
+.switch-item:hover {
+  background: #f7fafb;
+}
+
+.switch-cover {
+  width: 78px;
+  height: 46px;
+  flex: 0 0 78px;
+  background-color: #eef2f5;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-radius: 4px;
+}
+
+.switch-info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.switch-title {
+  color: #252b31;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.switch-item:hover .switch-title {
+  color: #00aeec;
+}
+
+.switch-meta {
+  color: #98a1aa;
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .history-item {
