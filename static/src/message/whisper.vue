@@ -299,6 +299,7 @@ import {
   deletePrivateMessage,
   selectPrivateMessage
 } from "../api/privateMessage/index";
+import { ChecklLogin } from "../api/user/index";
 
 function throttle(fn, limit = 150) {
   let inThrottle = false;
@@ -545,9 +546,15 @@ function deleteDialogueF(sDialogue) {
   deleteDialogue(store.token, sDialogue.dialogue.id).then(res => {
     if (res.data.code === 1) {
       const index = dialogueList.findIndex(item => item.dialogue.id === sDialogue.dialogue.id);
+      //findIndex 未命中时返回 -1，直接 splice 会误删最后一条会话
+      if (index === -1) return;
       dialogueList.splice(index, 1);
-      privateMessageList.length = 0;
-      currentDialogue.value = null;
+      //会话里的未读数要一并扣掉，否则顶部消息数会一直残留
+      if (sDialogue.notReadNumber > 0) updateMessageNumber(-sDialogue.notReadNumber);
+      if (currentDialogue.value?.dialogue.id === sDialogue.dialogue.id) {
+        privateMessageList.length = 0;
+        currentDialogue.value = null;
+      }
     }
   });
 }
@@ -642,15 +649,17 @@ watch(currentDialogue, async (newVal) => {
   if (messageInput?.value) messageInput.value.innerHTML = "";
 });
   
+//打开会话即已读：本地未读数立即扣减，不依赖聊天 socket 是否连上
 function tryChangeMessageStatus(newVal) {
-  if (socket && socket.ws.readyState === 1) {
-    updateMessageNumber(-newVal.notReadNumber);
-    changeMessageStatusF(newVal);
-  } else {
-    if (socket && socket.ws.readyState === 0) {
-      setTimeout(() => tryChangeMessageStatus(newVal), 100);
-    }
+  if (!newVal?.dialogue?.id) return;
+  const unread = newVal.notReadNumber || 0;
+  if (unread > 0) {
+    updateMessageNumber(-unread);
+    newVal.notReadNumber = 0;
+    const index = dialogueList.findIndex(item => item.dialogue.id === newVal.dialogue.id);
+    if (index !== -1) dialogueList[index].notReadNumber = 0;
   }
+  changeMessageStatusF(newVal);
 }
 
 function revocationMessageF(privateMessage) {
@@ -680,12 +689,40 @@ function deletePrivateMessageF(privateMessage) {
     if (res.data.code === 1) {
       const index = privateMessageList.findIndex(item => item.id === privateMessage.id);
       if (index !== -1) privateMessageList.splice(index, 1);
+      //同步左侧会话预览，跟后端保持一致：取当前可见的最后一条
+      refreshDialoguePreview();
+      //通知对方同步删除状态
+      if (socket && socket.ws.readyState === 1) socket.send("put:" + privateMessage.id);
       ElMessage({ message: "删除成功", type: "info", plain: true, duration: 1700 });
       deleteMessageDialogFlag.value = false;
     } else {
       ElMessage({ message: res.data.msg, type: "info", plain: true, duration: 1700 });
     }
   });
+}
+
+//按后端规则重算当前会话的预览文案与消息总数
+function refreshDialoguePreview() {
+  if (!currentDialogue.value) return;
+  const index = dialogueList.findIndex(item => item.dialogue.id === currentDialogue.value.dialogue.id);
+  if (index === -1) return;
+  const visible = privateMessageList.filter(item => item.deleteSign !== store.userId);
+  const last = visible[visible.length - 1];
+  //allMessageNumber 由后端按可见消息统计，这里只用已加载的部分更新预览文案
+  if (!last) {
+    dialogueList[index].dialogue.newContent = null;
+    dialogueList[index].notReadNumber = 0;
+    return;
+  }
+  if (last.status === 2) {
+    dialogueList[index].dialogue.newContent = last.senderId === store.userId ? "您撤回一条消息" : "对方撤回一条消息";
+  } else if (last.messageType === 2) {
+    dialogueList[index].dialogue.newContent = "[图片]";
+  } else if (last.messageType === 3) {
+    dialogueList[index].dialogue.newContent = "[视频]";
+  } else {
+    dialogueList[index].dialogue.newContent = last.content;
+  }
 }
 
 function changeMessageStatusF(sDialogue) {
@@ -696,8 +733,27 @@ function changeMessageStatusF(sDialogue) {
       if (index !== -1) dialogueList[index].notReadNumber = 0;
       if (privateMessageList.length && privateMessageList[privateMessageList.length - 1].senderId !== store.userId)
         socket.send("put:" + privateMessageList[privateMessageList.length - 1].id);
+      //顶部/侧边的未读数会被头部组件的登录校验整体覆盖，这里用服务端最新值校正一次
+      syncUserMessageNumber();
     }
   });
+}
+
+//同步服务端最新的未读私信数
+function syncUserMessageNumber() {
+  if (!store.userIp) return;
+  ChecklLogin(store.userIp).then(response => {
+    if (response.data.code !== 1) return;
+    const serverInfo = response.data.data;
+    if (!serverInfo) return;
+    const userInformation = { ...store.userInformation };
+    userInformation.messageNumber = Math.max(0, serverInfo.messageNumber || 0);
+    userInformation.allMessageNumber = userInformation.messageNumber
+      + (userInformation.replyCommentNumber || 0)
+      + (userInformation.atNumber || 0)
+      + (userInformation.likeAllNumber || 0);
+    store.setUserInformation(userInformation);
+  }).catch(() => {});
 }
 
 function sendMessageF() {
@@ -874,7 +930,16 @@ socket.onmessage = (event) => {
       }
     } else {
       if (store.userId !== data.senderId) {
+        const wasUnread = privateMessageList[index]?.status === 0;
         privateMessageList.splice(index, 1, data);
+        //对方撤回未读消息时，本地未读数要一起扣掉
+        if (data.status === 2 && wasUnread) {
+          updateMessageNumber(-1);
+          const unreadIndex = dialogueList.findIndex(item => item.dialogue.sign === data.selectSign);
+          if (unreadIndex !== -1) {
+            dialogueList[unreadIndex].notReadNumber = Math.max(0, dialogueList[unreadIndex].notReadNumber - 1);
+          }
+        }
         if (privateMessageList[privateMessageList.length - 1]?.id === data.id && data.content.length === 0) {
           const index1 = dialogueList.findIndex(item => item.dialogue.dialogueId === data.senderId && item.dialogue.userId === data.receiverId);
           if (index1 !== -1) dialogueList[index1].dialogue.newContent = "对方撤回一条消息";
@@ -1015,7 +1080,7 @@ function handleSaveImg(msg) {
 
 function updateMessageNumber(sum) {
   let userInformation = store.userInformation;
-  userInformation.messageNumber = userInformation.messageNumber + sum;
+  userInformation.messageNumber = Math.max(0, (userInformation.messageNumber || 0) + sum);
   userInformation.allMessageNumber = userInformation.messageNumber + userInformation.replyCommentNumber + userInformation.atNumber + userInformation.likeAllNumber;
   store.setUserInformation(userInformation);
 }

@@ -80,14 +80,18 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
                 UserInfo2 userInfo2 = new UserInfo2();
                 BeanUtils.copyProperties(users, userInfo2);
                 SelectDialogue selectDialogue=new SelectDialogue();
-                //查询未读的数量
+                //查询未读的数量（跳过当前用户已删除的消息）
                 LambdaQueryWrapper<PrivateMessage> privateMessageLambdaQueryWrapper = new LambdaQueryWrapper<>();
                 privateMessageLambdaQueryWrapper.eq(PrivateMessage::getSenderId, dialogue.getDialogueId())
                         .eq(PrivateMessage::getReceiverId, dialogue.getUserId())
-                        .eq(PrivateMessage::getStatus, 0);
+                        .eq(PrivateMessage::getStatus, 0)
+                        .and(wrapper->wrapper.isNull(PrivateMessage::getDeleteSign)
+                                .or().ne(PrivateMessage::getDeleteSign, dialogue.getUserId()));
                 List<PrivateMessage> notReadMessage = privateMessageMapper.selectList(privateMessageLambdaQueryWrapper);
                 LambdaQueryWrapper<PrivateMessage> privateMessageLambdaQueryWrapper1 = new LambdaQueryWrapper<>();
-                privateMessageLambdaQueryWrapper1.eq(PrivateMessage::getSelectSign, dialogue.getSign());
+                privateMessageLambdaQueryWrapper1.eq(PrivateMessage::getSelectSign, dialogue.getSign())
+                        .and(wrapper->wrapper.isNull(PrivateMessage::getDeleteSign)
+                                .or().ne(PrivateMessage::getDeleteSign, dialogue.getUserId()));
                 List<PrivateMessage> privateMessages = privateMessageMapper.selectList(privateMessageLambdaQueryWrapper1);
                 selectDialogue.setDialogue(dialogue);
                 selectDialogue.setUserInfo(userInfo2);
@@ -270,6 +274,9 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             if (duration.toMinutes()>3&&flag==1)
                 return false;
 
+            //先记下是否未读，撤回会先把状态改成2
+            boolean unread=Objects.equals(privateMessage.getStatus(),0);
+
             //删除图片
             if(privateMessage.getMessageType()==2){
                 int lastIndexOf = privateMessage.getContent().lastIndexOf("/");
@@ -292,38 +299,14 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             else if(flag==2)
                 privateMessageMapper.deleteById(id);
 
-            //更新对话内容
-            String sign =String.valueOf(privateMessage.getReceiverId()>privateMessage.getSenderId()?privateMessage.getSenderId():privateMessage.getReceiverId())
+            //撤回/彻底删除未读消息时同步扣掉接收方的未读数，否则消息数会残留
+            if(unread)
+                this.reduceReceiverMessageNumber(privateMessage.getReceiverId());
+
+//更新对话内容
+            String sign=String.valueOf(privateMessage.getReceiverId()>privateMessage.getSenderId()?privateMessage.getSenderId():privateMessage.getReceiverId())
                     +String.valueOf(privateMessage.getReceiverId()<privateMessage.getSenderId()?privateMessage.getSenderId():privateMessage.getReceiverId());
-            LambdaQueryWrapper<Dialogue> dialogueLambdaQueryWrapper=new LambdaQueryWrapper<>();
-            dialogueLambdaQueryWrapper.eq(Dialogue::getSign,sign);
-            List<Dialogue> dialogues = dialogueMapper.selectList(dialogueLambdaQueryWrapper);
-
-            //查询上一句
-            LambdaQueryWrapper<PrivateMessage> privateMessageLambdaQueryWrapper=new LambdaQueryWrapper<>();
-            privateMessageLambdaQueryWrapper.eq(PrivateMessage::getSelectSign,sign)
-                    .orderByDesc(PrivateMessage::getSendTime)
-                    .last("LIMIT 1");
-            PrivateMessage privateMessage1 = privateMessageMapper.selectOne(privateMessageLambdaQueryWrapper);
-
-            if(!dialogues.isEmpty()) {
-                for (Dialogue dialogue : dialogues) {
-                    if (privateMessage1 != null) {
-                        if (privateMessage1.getStatus() == 2) {
-                            if (Objects.equals(dialogue.getUserId(), privateMessage1.getSenderId()))
-                                dialogue.setNewContent("您撤回一条消息");
-                            else dialogue.setNewContent("对方撤回一条消息");
-                        } else {
-                            if (privateMessage1.getMessageType() == 1)
-                                dialogue.setNewContent(privateMessage1.getContent());
-                            else if (privateMessage1.getMessageType() == 2)
-                                dialogue.setNewContent("[图片]");
-                        }
-                    } else
-                        dialogue.setNewContent(null);
-                }
-                dialogueService.updateBatchById(dialogues);
-            }
+            this.refreshDialoguePreview(sign);
         } else
             return false;
            cacheService.deleteDialogueByUserId(privateMessage.getSenderId());
@@ -374,12 +357,19 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         {
             if(!(userId.equals(privateMessage.getSenderId())||userId.equals(privateMessage.getReceiverId())))
                 return false;
+            //同一个人重复删除不做处理，避免把对方删掉的消息又标记回来
+            if(Objects.equals(privateMessage.getDeleteSign(),userId))
+                return true;
             //说明两个人都删除了该消息
             if(privateMessage.getDeleteSign()!=null&&!privateMessage.getDeleteSign().equals(userId))
                 this.revocationMessage(id,userId, 2);
             else {
                 privateMessage.setDeleteSign(userId);
                 privateMessageMapper.updateById(privateMessage);
+                //软删除也要刷新会话预览，否则左侧列表还留着已删内容
+                String sign=String.valueOf(privateMessage.getSenderId()>privateMessage.getReceiverId()?privateMessage.getReceiverId():privateMessage.getSenderId())
+                        +String.valueOf(privateMessage.getSenderId()<privateMessage.getReceiverId()?privateMessage.getReceiverId():privateMessage.getSenderId());
+                this.refreshDialoguePreview(sign);
             }
         }else return false;
         cacheService.deleteDialogueByUserId(privateMessage.getSenderId());
@@ -387,6 +377,61 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         cacheService.deleteMessageByUserId(privateMessage.getReceiverId(),privateMessage.getSenderId());
         cacheService.deleteMessageByUserId(privateMessage.getSenderId(),privateMessage.getReceiverId());
         return true;
+    }
+
+    //扣减接收方未读消息数并同步总消息数，避免撤回后红点残留
+    private void reduceReceiverMessageNumber(Integer receiverId) {
+
+        if (receiverId == null)
+            return;
+        Users receiver = userMapper.selectById(receiverId);
+        if (receiver == null)
+            return;
+        receiver.setMessageNumber(receiver.getMessageNumber() == null || receiver.getMessageNumber() <= 0
+                ? 0
+                : receiver.getMessageNumber() - 1);
+        receiver.setAllMessageNumber(receiver.getMessageNumber()
+                + (receiver.getReplyCommentNumber() == null ? 0 : receiver.getReplyCommentNumber())
+                + (receiver.getAtNumber() == null ? 0 : receiver.getAtNumber())
+                + (receiver.getLikeAllNumber() == null ? 0 : receiver.getLikeAllNumber()));
+        userMapper.updateById(receiver);
+    }
+
+    //按每个会话用户可见的最新消息刷新预览文案（跳过该用户已删除的消息）
+    private void refreshDialoguePreview(String sign) {
+
+        LambdaQueryWrapper<Dialogue> dialogueLambdaQueryWrapper=new LambdaQueryWrapper<>();
+        dialogueLambdaQueryWrapper.eq(Dialogue::getSign,sign);
+        List<Dialogue> dialogues = dialogueMapper.selectList(dialogueLambdaQueryWrapper);
+        if(dialogues.isEmpty())
+            return;
+
+        for (Dialogue dialogue : dialogues) {
+            LambdaQueryWrapper<PrivateMessage> privateMessageLambdaQueryWrapper=new LambdaQueryWrapper<>();
+            privateMessageLambdaQueryWrapper.eq(PrivateMessage::getSelectSign,sign)
+                    .and(wrapper->wrapper.isNull(PrivateMessage::getDeleteSign)
+                            .or().ne(PrivateMessage::getDeleteSign,dialogue.getUserId()))
+                    .orderByDesc(PrivateMessage::getSendTime)
+                    .last("LIMIT 1");
+            PrivateMessage latest = privateMessageMapper.selectOne(privateMessageLambdaQueryWrapper);
+            dialogue.setNewContent(buildDialoguePreview(latest,dialogue.getUserId()));
+        }
+        dialogueService.updateBatchById(dialogues);
+    }
+
+    private String buildDialoguePreview(PrivateMessage message,Integer viewerId) {
+
+        if (message == null)
+            return null;
+        if (Objects.equals(message.getStatus(),2))
+            return Objects.equals(viewerId,message.getSenderId())?"您撤回一条消息":"对方撤回一条消息";
+        if (Objects.equals(message.getMessageType(),1))
+            return message.getContent();
+        if (Objects.equals(message.getMessageType(),2))
+            return "[图片]";
+        if (Objects.equals(message.getMessageType(),3))
+            return "[视频]";
+        return message.getContent();
     }
 
     @Override
@@ -402,6 +447,9 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
 
         LambdaQueryWrapper<PrivateMessage> privateMessageLambdaQueryWrapper=new LambdaQueryWrapper<>();
         privateMessageLambdaQueryWrapper.eq(PrivateMessage::getSelectSign,sign)
+                //当前用户删除过的消息不再返回，避免删除后刷新又出现
+                .and(wrapper->wrapper.isNull(PrivateMessage::getDeleteSign)
+                        .or().ne(PrivateMessage::getDeleteSign,userId))
                 .orderByAsc(PrivateMessage::getSendTime);
 
         //查询用户信息
