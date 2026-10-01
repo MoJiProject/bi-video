@@ -192,22 +192,24 @@
           class="comment-user-avatar"
           :src="comment.userInfo.avatarAddress"
         />
-        <span
-          @click="openHome(1,comment.userInfo.id)"
-          class="comment-user-name"
-          :style="{ color: comment.userInfo.grade > 4 ? '#fb7299' : '#000' }"
-          @mouseover="
-            delayUserInfo(-comment.comments.id), selectFollow(comment)
-          "
-          @mouseleave="delayUserInfo(0)"
-          >{{ comment.userInfo.userName }}</span
-        >
-        <img
-          v-if="comment"
-          class="comment-user-level"
-          :src="'../img/' + comment.userInfo.grade + '级.png'"
-        />
-        <img v-if="comment.comments.userId===props.dynamic.dynamic.followId" class="comment-up-icon" src="../img/up_pb.svg">
+        <span class="comment-author-line">
+          <span
+            @click="openHome(1,comment.userInfo.id)"
+            class="comment-user-name"
+            :style="{ color: comment.userInfo.grade > 4 ? '#fb7299' : '#000' }"
+            @mouseover="
+              delayUserInfo(-comment.comments.id), selectFollow(comment)
+            "
+            @mouseleave="delayUserInfo(0)"
+            >{{ comment.userInfo.userName }}</span
+          >
+          <img
+            v-if="comment"
+            class="comment-user-level"
+            :src="'../img/' + comment.userInfo.grade + '级.png'"
+          />
+          <img v-if="comment.comments.userId===props.dynamic.dynamic.followId" class="comment-up-icon" src="../img/up_pb.svg">
+        </span>
         <div
           v-show="
             nameOrAvatarHoverFlag === -comment.comments.id ||
@@ -445,12 +447,12 @@
               "
               >删除</span>
               <span
-              v-if="deleteCommentHoverFlag2 === comment.comments.id && comment.comments.upFlag===0  && store.userId === store.upUserId"
+              v-if="deleteCommentHoverFlag2 === comment.comments.id && comment.comments.upFlag===0  && store.userId === props.dynamic.dynamic.followId"
               class="up-btn"
               @click="putUpStatusAxios(comment.comments.id,0)"
               >设为置顶</span>
               <span
-              v-if="deleteCommentHoverFlag2 === comment.comments.id && comment.comments.upFlag===1  && store.userId === store.upUserId"
+              v-if="deleteCommentHoverFlag2 === comment.comments.id && comment.comments.upFlag===1  && store.userId === props.dynamic.dynamic.followId"
               class="up-btn"
               @click="putUpStatusAxios(comment.comments.id,1)"
               >取消置顶</span>
@@ -608,17 +610,26 @@
               :src="remark.userInfo.avatarAddress"
             />
            <div class="reply-content" >
-            <span
-               @click="openHome(1,remark.userInfo.id)"
-              :id="'replyName'+remark.comments.id"
-              class="comment-user-name"
-              :style="{ color: remark.userInfo.grade > 4 ? '#fb7299' : '#000' }"
-              @mouseover="
-                delayUserInfo(-remark.comments.id), selectFollow(remark)
-              "
-              @mouseleave="delayUserInfo(0)"
-              >{{ remark.userInfo.userName }}</span
-            >
+            <div class="reply-line">
+            <span class="comment-author-line">
+              <span
+                 @click="openHome(1,remark.userInfo.id)"
+                :id="'replyName'+remark.comments.id"
+                class="comment-user-name"
+                :style="{ color: remark.userInfo.grade > 4 ? '#fb7299' : '#000' }"
+                @mouseover="
+                  delayUserInfo(-remark.comments.id), selectFollow(remark)
+                "
+                @mouseleave="delayUserInfo(0)"
+                >{{ remark.userInfo.userName }}</span
+              >
+              <img
+                v-if="remark"
+                class="comment-user-level"
+                :src="'../img/' + remark.userInfo.grade + '级.png'"
+              />
+              <img v-if="remark.comments.userId===props.dynamic.dynamic.followId&&remark.comments.imgAddress.split(',').length>1" class="comment-up-icon" src="../img/up_pb.svg">
+            </span>
             <div
           v-show="
             (nameOrAvatarHoverFlag === -remark.comments.id ||
@@ -720,21 +731,15 @@
             </div>
           </div>
            </div>
-            <img
-              v-if="remark"
-              class="comment-user-level"
-              :src="'../img/' + remark.userInfo.grade + '级.png'"
-            />
-            <img v-if="remark.comments.userId===props.dynamic.dynamic.followId&&remark.comments.imgAddress.split(',').length>1" class="comment-up-icon" src="../img/up_pb.svg">
             <span
               class="comment-content"
               :class="{
                 commentContent:
                   remark.comments.imgAddress.split(',').length > 1,
               }"
-              :style="{textIndent: remark.comments.imgAddress.split(',').length < 2? getUserNameIndent(remark.comments.userName)+3+'em' : '3.8em'}"
               v-html="remark.comments.content"
             ></span>
+            </div>
             <img
               class="comment-note-img"
               v-show="remark.comments.imgAddress.split(',').length > 1"
@@ -2116,8 +2121,8 @@ export default {
       }  
 
       //如果发布评论的是视频作者
-      if(store.upUserId===store.userId&&commentImg2.length === 0){
-        commentContent2.value = "<img style='width: 24px;height: 24px;display: inline-block;vertical-align: middle;transform: translateY(-1.5px);user-select: none;' src='../img/up_pb.svg'>&nbsp;"+commentContent2.value;
+      if(props.dynamic.dynamic.followId===store.userId&&commentImg2.length === 0){
+        commentContent2.value = "<img style='width: 24px;height: 24px;display: inline-block;vertical-align: middle;transform: translateY(-2px);user-select: none;' src='../img/up_pb.svg'>&nbsp;&nbsp;&nbsp;"+commentContent2.value;
       }
 
       let comments = {
@@ -2328,7 +2333,7 @@ export default {
           res.data.data.replyFlag=comment.replyFlag;
           res.data.data.userInfo.isFansFlag=comment.userInfo.isFansFlag;
           res.data.data.userInfo.isFollowFlag=comment.userInfo.isFollowFlag;
-          if(store.userId===store.upUserId)
+          if(store.userId===props.dynamic.dynamic.followId)
           res.data.data.upLikeFlag=res.data.data.commentControls?.controls;
           else
           res.data.data.upLikeFlag=comment.upLikeFlag;
@@ -2533,29 +2538,6 @@ export default {
         comment.page=1;
       }
       
-    }
-
-    // 获取用户名宽度的函数
-    function getUserNameIndent(userName){
-     // 创建临时元素
-     const tempElement = document.createElement('span');
-            tempElement.style.visibility = 'hidden';
-            tempElement.style.position = 'absolute';
-            tempElement.style.fontFamily = "微软雅黑";
-            tempElement.style.fontSize = "12.5px";
-            tempElement.style.padding = 0;
-            tempElement.textContent = userName;
-
-            // 将临时元素添加到文档中
-            document.body.appendChild(tempElement);
-
-            // 获取字符串的宽度
-            const width = tempElement.offsetWidth;
-
-            // 移除临时元素
-            document.body.removeChild(tempElement);
-
-            return width/12.5;
     }
 
     //更多回复评论
@@ -2969,7 +2951,6 @@ export default {
       replyComment,
       replyCommentF,
       selectReplyComment,
-      getUserNameIndent,
       moreReplyComment,
       eitUserInfoTop,
       eitUserInfoLeft,
@@ -3476,6 +3457,7 @@ export default {
 
     .comment-list {
       position: relative;
+      width: 597px;
       margin-bottom: 52.5px;
       img {
         user-select: none;
@@ -3490,29 +3472,31 @@ export default {
         border-radius: 50%;
         cursor: pointer;
       }
-      .comment-user-name {
+      .comment-author-line {
         position: relative;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         left: 80px;
         top: 4px;
+      }
+
+      .comment-user-name {
+        position: static;
+        display: inline-block;
         font-size: 12.5px;
         cursor: pointer;
         color: #61666d;
       }
 
       .comment-up-icon{
-        position: relative;
-        vertical-align: middle;
-        left: 95px;
-        top: 3px;
+        display: block;
       }
 
       .comment-user-level {
-        position: relative;
+        position: static;
         width: 20px;
         height: 10px;
-        left: 88px;
-        top: 4px;
       }
 
       .comment-content {
@@ -3521,6 +3505,30 @@ export default {
         word-wrap: break-word;
         transform: translate(79.5px, 8px);
         font-size: 14.5px;
+      }
+
+      .reply-line {
+        display: block;
+        width: 475px;
+        margin: 4px 0 11px 80px;
+      }
+
+      .replyCommentClass2 .reply-line {
+        width: 720px;
+      }
+
+      .reply-line .comment-author-line {
+        position: static;
+        margin-right: 8px;
+      }
+
+      .reply-line .comment-content {
+        display: inline;
+        width: auto;
+        transform: none;
+        text-indent: 0;
+        color: #18191c;
+        line-height: 1.5;
       }
 
       .commentContent {
@@ -3546,14 +3554,14 @@ export default {
         position: absolute;
         width: 288px;
         height: 48px;
-        right: 81.5px;
+        right: 9.5px;
         top: -14.5px;
       }
 
       .comment-id-number {
         position: absolute;
         width: 50px;
-        right: 79px;
+        right: 7px;
         top: -2.5px;
         font-size: 9.5px;
         cursor: default;
@@ -3627,7 +3635,7 @@ export default {
         .comment-delete-btn-container {
           position: absolute;
           top: -10px;
-          right: 101px;
+          right: 29px;
           padding: 10px;
           visibility: hidden;
           cursor: pointer;
@@ -3928,6 +3936,7 @@ export default {
       .replyCommentClass {
         left: 60px;
         top: 32px;
+        width: 537px;
 
         .comment-img-container{
           top: 22.5px !important;
@@ -3968,6 +3977,8 @@ export default {
       .replyCommentClass2 {
         left: 60px;
         top: 32px;
+        width: 537px;
+
 
         .comment-user-avatar {
           width: 24px;
@@ -4001,6 +4012,23 @@ export default {
 
       .commentAnimationClass{
           animation: commentAnimation 6s ease forwards;
+      }
+
+      .comment-list.replyCommentClass.commentAnimationClass {
+        isolation: isolate;
+      }
+
+      .comment-list.replyCommentClass.commentAnimationClass::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        bottom: -9px;
+        left: 0;
+        height: 9px;
+        z-index: -1;
+        pointer-events: none;
+        background-color: #dff6fd;
+        animation: commentAnimation 6s ease forwards;
       }
 
       .reply-page-container{
@@ -4068,6 +4096,12 @@ export default {
         visibility: visible;
       }
     }
+
+    .comment-list:not(.replyCommentClass) {
+      padding-bottom: 33px;
+      margin-bottom: 38.5px;
+    }
+
     .commentAnimationClass{
           animation: commentAnimation 6s ease forwards;
     }
