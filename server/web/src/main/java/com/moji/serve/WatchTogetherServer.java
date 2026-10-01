@@ -71,6 +71,9 @@ public class WatchTogetherServer implements WebSocketConfigurer {
                     case "grant_admin" -> changeAdmin(session, userId, message, true);
                     case "revoke_admin" -> changeAdmin(session, userId, message, false);
                     case "kick" -> kick(session, userId, message);
+                    case "transfer_owner" -> transferOwner(session, userId, message);
+                    case "blacklist" -> changeBlacklist(session, userId, message, true);
+                    case "unblacklist" -> changeBlacklist(session, userId, message, false);
                     case "ping" -> send(session, Map.of("type", "pong"));
                     default -> sendError(session, "不支持的房间操作");
                 }
@@ -93,7 +96,13 @@ public class WatchTogetherServer implements WebSocketConfigurer {
                 leaveCurrentRoom(session, true);
             }
 
-            WatchRoom room = watchRoomService.join(message.getRoomId(), userId);
+            WatchRoom room;
+            try {
+                room = watchRoomService.join(message.getRoomId(), userId);
+            } catch (SecurityException e) {
+                send(session, Map.of("type", "join_denied", "message", e.getMessage() == null ? "无法加入房间" : e.getMessage()));
+                return;
+            }
             session.getAttributes().put("roomId", room.getRoomId());
             roomSessions.compute(room.getRoomId(), (ignored, sessions) -> {
                 Set<WebSocketSession> currentSessions = sessions == null
@@ -142,6 +151,29 @@ public class WatchTogetherServer implements WebSocketConfigurer {
                     targetSession.getAttributes().put("kicked", true);
                     send(targetSession, Map.of("type", "kicked", "roomId", roomId));
                     close(targetSession, CloseStatus.POLICY_VIOLATION.withReason("已被移出房间"));
+                }
+            }
+            broadcast(roomId, Map.of("type", "state", "room", room));
+        }
+
+        private void transferOwner(WebSocketSession session, Integer userId, WatchMessage message) {
+            String roomId = requireJoinedRoom(session, message.getRoomId());
+            WatchRoom room = watchRoomService.transferOwner(roomId, userId, message.getTargetUserId());
+            send(session, Map.of("type", "owner_transferred", "ownerName", room.getOwnerName()));
+            broadcast(roomId, Map.of("type", "state", "room", room));
+        }
+
+        private void changeBlacklist(WebSocketSession session, Integer userId, WatchMessage message, boolean blocked) {
+            String roomId = requireJoinedRoom(session, message.getRoomId());
+            WatchRoom room = watchRoomService.setBlacklist(roomId, userId, message.getTargetUserId(), blocked);
+
+            if (blocked) {
+                for (WebSocketSession targetSession : Set.copyOf(roomSessions.getOrDefault(roomId, Set.of()))) {
+                    if (message.getTargetUserId().equals(targetSession.getAttributes().get("userId"))) {
+                        targetSession.getAttributes().put("kicked", true);
+                        send(targetSession, Map.of("type", "blacklisted", "roomId", roomId));
+                        close(targetSession, CloseStatus.POLICY_VIOLATION.withReason("已被拉黑"));
+                    }
                 }
             }
             broadcast(roomId, Map.of("type", "state", "room", room));

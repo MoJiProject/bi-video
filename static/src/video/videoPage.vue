@@ -256,7 +256,7 @@
             />已关注 {{ SelectVideoByIdVo.upUser.fansNumber }}
           </div>
         </div>
-        <div id="upvideocontainer" class="up-video-container">
+        <div id="upvideocontainer" ref="upVideoContainer" class="up-video-container">
           <video
             :class="{
               setVideoMirrorFlag: setVideoMirrorFlag,
@@ -2953,10 +2953,18 @@
           >
         </div>
         <comment />
-        <WatchTogetherPanel
-          :video-element="upVideoPlayer"
-          :video-id="SelectVideoByIdVo.upVideo.id"
-        />
+        <Teleport
+          :to="watchTogetherHost"
+          :disabled="intoVideoAllDisplayIngFlag && !upVideoContainer"
+        >
+          <WatchTogetherPanel
+            v-if="store.userInformation.id"
+            v-show="watchTogetherVisible"
+            :video-element="upVideoPlayer"
+            :video-id="SelectVideoByIdVo.upVideo.id"
+            :fullscreen="intoVideoAllDisplayIngFlag"
+          />
+        </Teleport>
       </div>
       <div style="position: fixed;top: 800px;">
         <el-backtop :right="5"/>
@@ -3107,6 +3115,32 @@ export default {
     const openOrCloseFullScreenExitFlag = ref(false);
     const intoVideoAllDisplayFlag = ref(false);
     const intoVideoAllDisplayIngFlag = ref(false);
+    const upVideoContainer = ref(null);
+    const watchTogetherHost = computed(
+      () => (intoVideoAllDisplayIngFlag.value ? upVideoContainer.value : null) || 'body'
+    );
+    //普通模式常驻显示；大屏模式下播放时隐藏、暂停后延迟淡入，避免点击进度条时闪现
+    const watchTogetherVisible = ref(true);
+    let watchTogetherVisibleTimer = null;
+    const WATCH_TOGGLE_DELAY = 280;
+    watch(
+      () => [intoVideoAllDisplayIngFlag.value, pausedOrPlayVideoFlag.value],
+      ([fullscreen, playing]) => {
+        window.clearTimeout(watchTogetherVisibleTimer);
+        if (!fullscreen) {
+          watchTogetherVisible.value = true;
+          return;
+        }
+        if (playing) {
+          watchTogetherVisible.value = false;
+          return;
+        }
+        watchTogetherVisibleTimer = window.setTimeout(() => {
+          watchTogetherVisible.value = true;
+        }, WATCH_TOGGLE_DELAY);
+      },
+      { immediate: true }
+    );
     const showScrollingSettingFlag = ref(false);
     const showScrollingColorFlag = ref(false);
     const showOpenScrollingFlag = ref(false);
@@ -3272,6 +3306,7 @@ export default {
         handlePictureInPictureChange,
       );
       window.removeEventListener("beforeunload", addHistoryAxios);
+      window.clearTimeout(watchTogetherVisibleTimer);
     });
 
     //获取用户ip和token
@@ -5265,6 +5300,9 @@ export default {
       intoVideoAllDisplayFlag,
       toggleFullscreen,
       intoVideoAllDisplayIngFlag,
+      watchTogetherVisible,
+      upVideoContainer,
+      watchTogetherHost,
       closeScrollingBlue,
       closeScrollingGray,
       closeScrollingWhite,

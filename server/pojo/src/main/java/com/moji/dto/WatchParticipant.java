@@ -12,7 +12,10 @@ public class WatchParticipant {
     private Integer userId;
     private String userName;
     private String avatarAddress;
+    private Integer gender;
+    private Integer grade;
     private boolean owner;
     private boolean admin;
     private boolean online;
+    private boolean blacklisted;
 }

@@ -47,10 +47,10 @@
                     :show-arrow="false"
                     :hide-after="0"
                     >
-                    <template #content>
-                        <div v-html="sDialogue.dialogue.newContent"></div>
-                    </template>
-                    <span v-html="sDialogue.dialogue.newContent"></span>
+<template #content>
+                         <div v-html="linkifyHtml(sDialogue.dialogue.newContent)"></div>
+                     </template>
+                     <span v-html="linkifyHtml(sDialogue.dialogue.newContent)"></span>
                     </el-tooltip>
                 </div>
             </div>
@@ -115,7 +115,7 @@
                 <img @click="openHome(1,message.senderId===store.userId ? userInfo.id : dialogueUserInfo.id)" class="message-user-avatar" :src="message.senderId===store.userId ? userInfo.avatarAddress : dialogueUserInfo.avatarAddress">
                 </el-tooltip>
                 <div class="message">
-                    <div v-if="message.messageType===1" v-html="message.content" @contextmenu="handleContextMenu($event,false),messageObj=message" class="message-content">
+                    <div v-if="message.messageType===1" v-html="linkifyHtml(message.content)" @contextmenu="handleContextMenu($event,false),messageObj=message" class="message-content">
                     </div>
                     <el-tooltip
                   popper-class="custom-tooltip"
@@ -341,6 +341,27 @@ const messageLoadingFlag = ref(true);
 const deleteMessageDialogFlag = ref(false);
 const loading = ref(false);
 let range = null;
+
+// 把消息里的 http/https 网址识别成可点击链接（新标签页打开）
+const URL_PATTERN = /https?:\/\/[^\s<>"'\u3000-\u303f\u4e00-\u9fa5\uff00-\uffef]+/gi;
+const TRAILING_PATTERN = /[.,;:!?)\]}>，。；：！？、）》】」』"'’”]+$/;
+
+function linkifyText(text) {
+  return text.replace(URL_PATTERN, raw => {
+    const trailing = (raw.match(TRAILING_PATTERN) || [""])[0];
+    const url = trailing ? raw.slice(0, raw.length - trailing.length) : raw;
+    if (!url) return raw;
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>${trailing}`;
+  });
+}
+
+function linkifyHtml(html) {
+  if (!html) return html;
+  return String(html)
+    .split(/(<a\b[^>]*>[\s\S]*?<\/a>)/gi)
+    .map(chunk => (chunk.toLowerCase().startsWith("<a") ? chunk : linkifyText(chunk)))
+    .join("");
+}
 
 onMounted(() => {
   window.addEventListener("click", outSideClick);
@@ -688,7 +709,7 @@ function sendMessageF() {
   let message = {
     senderId: store.userId,
     receiverId: currentDialogue.value.dialogue.dialogueId,
-    content: messageInput.value.innerHTML,
+    content: linkifyHtml(messageInput.value.innerHTML),
     messageType: 1
   };
   sendMessage(store.token, message).then(res => {
@@ -1149,6 +1170,11 @@ function restoreBodyOverflow() {
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+
+          :deep(a){
+          color: #fb7299;
+          text-decoration: none;
+          }
         }
         }
         
@@ -1327,6 +1353,15 @@ function restoreBodyOverflow() {
                     border-radius: 0px 16px 16px 16px;
                     overflow: hidden;
                     background: #fff;
+
+                    :deep(a){
+                    color: #fb7299;
+                    text-decoration: none;
+
+                    &:hover{
+                      text-decoration: underline;
+                    }
+                    }
                 }
 
                 .message-content-img{

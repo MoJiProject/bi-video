@@ -22,5 +22,6 @@ public class WatchRoom {
     private Instant createdAt = Instant.now();
     private Instant updatedAt = Instant.now();
     private Set<Integer> adminIds = new HashSet<>();
+    private Set<Integer> blacklistedIds = new HashSet<>();
     private List<WatchParticipant> participants = new ArrayList<>();
 }

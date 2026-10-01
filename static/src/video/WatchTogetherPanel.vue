@@ -1,15 +1,26 @@
 <template>
-  <div class="watch-together">
-    <button class="watch-trigger" type="button" title="一起看" @click="togglePanel">
+  <div
+    ref="panelRoot"
+    class="watch-together"
+    :class="{ 'in-fullscreen': fullscreen }"
+    :style="panelStyle"
+  >
+    <button
+      class="watch-trigger"
+      type="button"
+      title="一起看"
+      @pointerdown="startDrag"
+      @click="togglePanel"
+    >
       <span class="watch-trigger-icon">▶</span>
-      <span>一起看</span>
+      <span class="watch-trigger-text">一起看</span>
       <span v-if="room" class="watch-count">{{ onlineCount }}</span>
     </button>
 
     <section v-if="panelOpen" class="watch-panel">
       <header class="watch-header">
         <div>
-          <strong>{{ room ? `房间 ${room.roomId}` : '多人一起看' }}</strong>
+          <strong>{{ room ? `${room.ownerName}的房间` : '多人一起看' }}</strong>
           <small class="connection-status">
             <span v-if="room" class="connection-dot" :class="{ reconnecting: !connected }"></span>
             {{ statusText }}
@@ -30,7 +41,13 @@
       <template v-else>
         <div class="watch-actions">
           <button class="primary-button" type="button" @click="copyInvite">复制邀请链接</button>
-          <button v-if="canManage" class="secondary-button" type="button" @click="loadHistory">
+          <button
+            v-if="canManage"
+            class="secondary-button"
+            :class="{ 'secondary-button-active': historyOpen }"
+            type="button"
+            @click="toggleHistory"
+          >
             历史房间
           </button>
           <button class="leave-button" type="button" @click="leaveRoom">退出</button>
@@ -42,7 +59,7 @@
         </div>
         <ul class="member-list">
           <li v-for="member in sortedParticipants" :key="member.userId">
-            <div class="member-avatar-wrap">
+            <div class="member-avatar-wrap clickable" @click="openHome(member)">
               <img
                 class="member-avatar"
                 :src="member.avatarAddress || '/默认头像.gif'"
@@ -52,16 +69,43 @@
             </div>
             <div class="member-info">
               <span class="member-name">
-                {{ member.userName }}
+                <span class="member-name-text clickable" @click="openHome(member)">{{ member.userName }}</span>
+                <img
+                  class="member-level"
+                  :src="`../img/${member.grade ?? 0}级.png`"
+                  :alt="`${member.grade ?? 0}级`"
+                />
+                <img
+                  v-if="member.gender === 1"
+                  class="member-gender"
+                  src="../img/man2.png"
+                  alt="男"
+                />
+                <img
+                  v-else-if="member.gender === 2"
+                  class="member-gender"
+                  src="../img/woman2.png"
+                  alt="女"
+                />
                 <small v-if="member.userId === currentUserId">我</small>
               </span>
-              <span v-if="member.owner" class="role-label owner">房主</span>
+              <span v-if="member.blacklisted" class="role-label blocked">已拉黑</span>
+              <span v-else-if="member.owner" class="role-label owner">房主</span>
               <span v-else-if="member.admin" class="role-label">管理员</span>
               <span v-else class="member-status">{{ member.online ? '正在一起看' : '已离线' }}</span>
             </div>
             <div v-if="member.userId !== currentUserId" class="member-actions">
               <button
-                v-if="isOwner"
+                v-if="canTransferOwner(member)"
+                class="icon-button transfer"
+                type="button"
+                title="转让房主"
+                @click="transferOwner(member)"
+              >
+                ⇄
+              </button>
+              <button
+                v-if="isOwner && !member.owner && !member.blacklisted"
                 class="icon-button"
                 type="button"
                 :title="member.admin ? '收回管理权限' : '授予管理权限'"
@@ -71,12 +115,22 @@
               </button>
               <button
                 v-if="canKick(member)"
-                class="icon-button danger"
+                class="icon-button kick"
                 type="button"
                 title="移出房间"
                 @click="kick(member)"
               >
                 ×
+              </button>
+              <button
+                v-if="canBlacklist(member)"
+                class="icon-button block-action"
+                :class="{ blocked: member.blacklisted }"
+                type="button"
+                :title="member.blacklisted ? '解除拉黑' : '拉黑'"
+                @click="toggleBlacklist(member)"
+              >
+                {{ member.blacklisted ? '○' : '⊘' }}
               </button>
             </div>
           </li>
@@ -120,9 +174,14 @@ const props = defineProps({
     type: Number,
     default: null,
   },
+  fullscreen: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const store = useGlobalStore();
+const panelRoot = ref(null);
 const videoElement = shallowRef(null);
 const initialRoomId = new URLSearchParams(window.location.search).get('room');
 const panelOpen = ref(Boolean(initialRoomId));
@@ -137,9 +196,33 @@ let clientToken = null;
 let attachedVideo = null;
 let applyingRemoteAction = false;
 let releaseRemoteTimer = null;
-let remoteSeekTarget = null;
+let remoteSeekUntil = 0;
+let lastSeekSentAt = 0;
+let pendingSeekTimer = null;
+
+let position = ref(loadStoredPosition());
+let dragState = null;
+let suppressToggleClick = false;
 
 const currentUserId = computed(() => store.userId);
+const panelStyle = computed(() => {
+  if (props.fullscreen) {
+    if (!position.value) return { top: '4%', right: '2.5%' };
+    return {
+      top: `${Math.round((position.value.top / window.innerHeight) * 100)}%`,
+      left: `${Math.round((position.value.left / window.innerWidth) * 100)}%`,
+      right: 'auto',
+      '--watch-panel-max-height': 'calc(100vh - 110px)',
+    };
+  }
+  if (!position.value) return null;
+  return {
+    top: `${position.value.top}px`,
+    left: `${position.value.left}px`,
+    right: 'auto',
+    '--watch-panel-max-height': `${Math.max(160, window.innerHeight - position.value.top - 46)}px`,
+  };
+});
 const isOwner = computed(() => room.value?.ownerId === currentUserId.value);
 const canManage = computed(() => isOwner.value || room.value?.adminIds?.includes(currentUserId.value));
 const onlineCount = computed(() => room.value?.participants?.filter(member => member.online).length || 0);
@@ -152,8 +235,102 @@ const statusText = computed(() => {
   return connected.value ? '同步中' : '正在重连';
 });
 
+// 全屏时面板被传送到原生全屏节点内，弹窗必须挂到面板里才能显示在最上层。
+function overlayTarget() {
+  return panelRoot.value || 'body';
+}
+
+function notify(type, message) {
+  return ElMessage({ type, message, appendTo: overlayTarget() });
+}
+
 function togglePanel() {
+  if (suppressToggleClick) {
+    suppressToggleClick = false;
+    return;
+  }
   panelOpen.value = !panelOpen.value;
+}
+
+const STORAGE_KEY = 'watchTogetherPosition';
+const EDGE_GAP = 8;
+const SEEK_THROTTLE = 120;
+
+function loadStoredPosition() {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!Number.isFinite(parsed?.top) || !Number.isFinite(parsed?.left)) return null;
+    return clampPosition(parsed);
+  } catch {
+    return null;
+  }
+}
+
+function clampPosition(next) {
+  const trigger = document.querySelector('.watch-together .watch-trigger');
+  const width = trigger?.offsetWidth || 96;
+  const height = trigger?.offsetHeight || 38;
+  const maxLeft = Math.max(EDGE_GAP, window.innerWidth - width - EDGE_GAP);
+  const maxTop = Math.max(EDGE_GAP, window.innerHeight - height - EDGE_GAP);
+  return {
+    left: Math.min(Math.max(next.left, EDGE_GAP), maxLeft),
+    top: Math.min(Math.max(next.top, EDGE_GAP), maxTop),
+  };
+}
+
+function startDrag(event) {
+  if (event.button !== undefined && event.button !== 0) return;
+  const trigger = event.currentTarget;
+  const container = trigger.closest('.watch-together');
+  if (!container) return;
+  const rect = trigger.getBoundingClientRect();
+  if (!position.value) {
+    position.value = {
+      left: rect.left,
+      top: rect.top,
+    };
+  }
+  dragState = {
+    pointerId: event.pointerId,
+    offsetX: event.clientX - rect.left,
+    offsetY: event.clientY - rect.top,
+    startX: event.clientX,
+    startY: event.clientY,
+    moved: false,
+  };
+  container.classList.add('dragging');
+  window.addEventListener('pointermove', onDrag);
+  window.addEventListener('pointerup', endDrag);
+  window.addEventListener('pointercancel', endDrag);
+}
+
+function onDrag(event) {
+  if (!dragState || event.pointerId !== dragState.pointerId) return;
+  if (!dragState.moved && Math.hypot(event.clientX - dragState.startX, event.clientY - dragState.startY) < 4) {
+    return;
+  }
+  dragState.moved = true;
+  position.value = clampPosition({
+    left: event.clientX - dragState.offsetX,
+    top: event.clientY - dragState.offsetY,
+  });
+}
+
+function endDrag(event) {
+  if (!dragState || (event && event.pointerId !== dragState.pointerId)) return;
+  suppressToggleClick = dragState.moved;
+  dragState = null;
+  document.querySelector('.watch-together.dragging')?.classList.remove('dragging');
+  window.removeEventListener('pointermove', onDrag);
+  window.removeEventListener('pointerup', endDrag);
+  window.removeEventListener('pointercancel', endDrag);
+  try {
+    if (position.value) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(position.value));
+  } catch {
+    // 忽略存储失败，不影响拖动。
+  }
 }
 
 function ensureClient() {
@@ -168,7 +345,7 @@ function ensureClient() {
       if (status === 'open' && roomId.value && props.videoId) joinRoom();
       if (status === 'auth_failed') {
         resetRoom();
-        ElMessage.warning('登录已失效，请重新登录后加入房间');
+        notify('warning', '登录已失效，请重新登录后加入房间');
       }
     },
   });
@@ -177,7 +354,7 @@ function ensureClient() {
 
 async function createRoom() {
   if (!store.token || !store.userId) {
-    ElMessage.info('请先登录');
+    notify('info', '请先登录');
     return;
   }
   if (!props.videoId || !videoElement.value) return;
@@ -196,7 +373,7 @@ async function createRoom() {
     ensureClient();
     if (connected.value) joinRoom();
   } catch {
-    ElMessage.error('房间创建失败，请稍后重试');
+    notify('error', '房间创建失败，请稍后重试');
   } finally {
     busy.value = false;
   }
@@ -211,12 +388,23 @@ function joinRoom() {
   });
 }
 
-function leaveRoom() {
+async function leaveRoom() {
   if (!room.value) return;
+  try {
+    await ElMessageBox.confirm('退出后将不再同步播放进度，确定退出房间吗？', '退出一起看', {
+      confirmButtonText: '退出',
+      cancelButtonText: '取消',
+      type: 'warning',
+      appendTo: overlayTarget(),
+    });
+  } catch {
+    // 用户取消时无需提示。
+    return;
+  }
   client?.send({ type: 'leave', roomId: room.value.roomId });
   runRemoteAction(() => videoElement.value?.pause());
   resetRoom();
-  ElMessage.success('已退出一起看房间');
+  notify('success', '已退出一起看房间');
 }
 
 function sendPlayback(type) {
@@ -229,6 +417,26 @@ function sendPlayback(type) {
     playbackRate: videoElement.value.playbackRate || 1,
     paused: videoElement.value.paused,
   });
+}
+
+// 远程跳转后短时间内产生的 seeked 属于同步结果，不再回播，避免互相回声形成死循环。
+function markRemoteSeek() {
+  remoteSeekUntil = Date.now() + 600;
+}
+
+function sendSeek() {
+  const now = Date.now();
+  if (now - lastSeekSentAt >= SEEK_THROTTLE) {
+    lastSeekSentAt = now;
+    sendPlayback('seek');
+    return;
+  }
+  if (pendingSeekTimer) return;
+  pendingSeekTimer = window.setTimeout(() => {
+    pendingSeekTimer = null;
+    lastSeekSentAt = Date.now();
+    sendPlayback('seek');
+  }, SEEK_THROTTLE - (now - lastSeekSentAt));
 }
 
 function handleMessage(message) {
@@ -244,36 +452,56 @@ function handleMessage(message) {
   if (message.type === 'user_left') {
     room.value = message.room;
     applyRoomState(message.room);
-    ElMessage.info(`${message.userName} 已离开，一起看已暂停`);
+    notify('info', `${message.userName} 已离开，一起看已暂停`);
     return;
   }
   if (message.type === 'kicked') {
-    videoElement.value?.pause();
-    client?.close();
-    client = null;
-    clientToken = null;
-    connected.value = false;
+    closeClient();
     resetRoom();
-    ElMessage.warning('你已被移出一起看房间');
+    notify('warning', '你已被移出一起看房间');
+    return;
+  }
+  if (message.type === 'blacklisted') {
+    closeClient();
+    resetRoom();
+    notify('warning', '你已被拉黑，无法继续一起看');
+    return;
+  }
+  if (message.type === 'join_denied') {
+    closeClient();
+    resetRoom();
+    notify('warning', message.message || '无法加入一起看房间');
+    return;
+  }
+  if (message.type === 'owner_transferred') {
+    notify('success', `房主已转让给 ${message.ownerName}`);
     return;
   }
   if (message.type === 'error') {
-    ElMessage.error(message.message || '一起看操作失败');
+    notify('error', message.message || '一起看操作失败');
   }
+}
+
+function closeClient() {
+  videoElement.value?.pause();
+  client?.close();
+  client = null;
+  clientToken = null;
+  connected.value = false;
 }
 
 function applyRoomState(nextRoom) {
   if (!videoElement.value || !nextRoom) return;
   runRemoteAction(() => {
     if (Math.abs(videoElement.value.currentTime - nextRoom.currentTime) > 0.75) {
-      remoteSeekTarget = nextRoom.currentTime;
+      markRemoteSeek();
       videoElement.value.currentTime = nextRoom.currentTime;
     }
     videoElement.value.playbackRate = nextRoom.playbackRate || 1;
     if (nextRoom.paused) {
       videoElement.value.pause();
     } else {
-      videoElement.value.play().catch(() => ElMessage.info('点击视频开始同步播放'));
+      playRemote();
     }
   });
 }
@@ -282,14 +510,21 @@ function applyPlaybackMessage(message) {
   if (!videoElement.value) return;
   runRemoteAction(() => {
     if (Math.abs(videoElement.value.currentTime - message.currentTime) > 0.5) {
-      remoteSeekTarget = message.currentTime;
+      markRemoteSeek();
       videoElement.value.currentTime = message.currentTime;
     }
     videoElement.value.playbackRate = message.playbackRate || 1;
     if (message.type === 'pause') videoElement.value.pause();
-    if (message.type === 'play') {
-      videoElement.value.play().catch(() => ElMessage.info('点击视频开始同步播放'));
-    }
+    if (message.type === 'play') playRemote();
+  });
+}
+
+// 浏览器不允许自动播放时才提示，避免 play 被 pause 打断时反复弹提示。
+function playRemote() {
+  const pending = videoElement.value.play();
+  if (!pending?.catch) return;
+  pending.catch(error => {
+    if (error?.name === 'NotAllowedError') notify('info', '点击视频开始同步播放');
   });
 }
 
@@ -307,7 +542,7 @@ async function copyInvite() {
   inviteUrl.searchParams.set('room', room.value.roomId);
   try {
     await navigator.clipboard.writeText(inviteUrl.toString());
-    ElMessage.success('邀请链接已复制');
+    notify('success', '邀请链接已复制');
   } catch {
     window.prompt('复制邀请链接', inviteUrl.toString());
   }
@@ -327,6 +562,7 @@ async function kick(member) {
       confirmButtonText: '移出',
       cancelButtonText: '取消',
       type: 'warning',
+      appendTo: overlayTarget(),
     });
     client?.send({
       type: 'kick',
@@ -339,13 +575,86 @@ async function kick(member) {
 }
 
 function canKick(member) {
+  if (!canModerate(member) || member.blacklisted) return false;
+  return isOwner.value || !member.admin;
+}
+
+function canBlacklist(member) {
+  return canModerate(member);
+}
+
+function canTransferOwner(member) {
+  return isOwner.value && !member.owner && !member.blacklisted;
+}
+
+function openHome(member) {
+  if (!member?.userId) return;
+  window.open(`./home?homeMenu=1&userId=${member.userId}`, '_blank');
+}
+
+async function transferOwner(member) {
+  try {
+    await ElMessageBox.confirm(
+      `确定把房主转让给 ${member.userName} 吗？转让后你将不再是房主。`,
+      '转让房主',
+      {
+        confirmButtonText: '转让',
+        cancelButtonText: '取消',
+        type: 'warning',
+        appendTo: overlayTarget(),
+      }
+    );
+    client?.send({
+      type: 'transfer_owner',
+      roomId: room.value.roomId,
+      targetUserId: member.userId,
+    });
+  } catch {
+    // 用户取消时无需提示。
+  }
+}
+
+function canModerate(member) {
   if (!canManage.value || member.owner) return false;
   return isOwner.value || !member.admin;
 }
 
+async function toggleBlacklist(member) {
+  const block = !member.blacklisted;
+  try {
+    await ElMessageBox.confirm(
+      block
+        ? `确定将 ${member.userName} 拉黑吗？拉黑后对方无法再加入本房间。`
+        : `确定解除对 ${member.userName} 的拉黑吗？`,
+      block ? '拉黑成员' : '解除拉黑',
+      {
+        confirmButtonText: block ? '拉黑' : '解除拉黑',
+        cancelButtonText: '取消',
+        type: 'warning',
+        appendTo: overlayTarget(),
+      }
+    );
+    client?.send({
+      type: block ? 'blacklist' : 'unblacklist',
+      roomId: room.value.roomId,
+      targetUserId: member.userId,
+    });
+  } catch {
+    // 用户取消时无需提示。
+  }
+}
+
+function toggleHistory() {
+  if (historyOpen.value) {
+    historyOpen.value = false;
+    return;
+  }
+  loadHistory();
+}
+
 async function loadHistory() {
   if (!store.token) {
-    ElMessage.info('请先登录');
+    notify('info', '请先登录');
     return;
   }
   try {
@@ -353,7 +662,7 @@ async function loadHistory() {
     historyRooms.value = response.data.data || [];
     historyOpen.value = true;
   } catch {
-    ElMessage.error('历史房间加载失败');
+    notify('error', '历史房间加载失败');
   }
 }
 
@@ -400,7 +709,7 @@ function detachVideo() {
   attachedVideo.removeEventListener('seeked', onSeeked);
   attachedVideo.removeEventListener('ratechange', onRateChange);
   attachedVideo = null;
-  remoteSeekTarget = null;
+  remoteSeekUntil = 0;
 }
 
 function onPlay() {
@@ -408,16 +717,15 @@ function onPlay() {
 }
 
 function onPause() {
+  // 拖动进度条时页面会先暂停再恢复，这里不当作用户暂停同步给房间。
+  if (attachedVideo?.seeking) return;
   sendPlayback('pause');
 }
 
 function onSeeked() {
-  if (remoteSeekTarget !== null) {
-    const isRemoteSeek = Math.abs(attachedVideo.currentTime - remoteSeekTarget) <= 0.5;
-    remoteSeekTarget = null;
-    if (isRemoteSeek) return;
-  }
-  sendPlayback('seek');
+  // 远程跳转产生的时间窗内不再回播 seek，避免两个客户端互相回声。
+  if (Date.now() < remoteSeekUntil) return;
+  sendSeek();
 }
 
 function onRateChange() {
@@ -428,6 +736,7 @@ watch(() => props.videoElement, video => {
   videoElement.value = video;
   attachVideo(video);
 }, { immediate: true });
+window.addEventListener('resize', onWindowResize);
 watch(
   () => [store.token, store.userId, props.videoId],
   ([token, userId, videoId]) => {
@@ -447,9 +756,24 @@ watch(
   { immediate: true }
 );
 
+function onWindowResize() {
+  if (!position.value) return;
+  position.value = clampPosition(position.value);
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(position.value));
+  } catch {
+    // 忽略存储失败，不影响位置校正。
+  }
+}
+
 onBeforeUnmount(() => {
   detachVideo();
   window.clearTimeout(releaseRemoteTimer);
+  window.clearTimeout(pendingSeekTimer);
+  window.removeEventListener('resize', onWindowResize);
+  window.removeEventListener('pointermove', onDrag);
+  window.removeEventListener('pointerup', endDrag);
+  window.removeEventListener('pointercancel', endDrag);
   client?.close();
   client = null;
   clientToken = null;
@@ -461,9 +785,31 @@ onBeforeUnmount(() => {
   position: fixed;
   top: 108px;
   right: 24px;
-  z-index: 3000;
+  z-index: 100000;
+  user-select: none;
   color: #20242b;
   font-family: "Microsoft YaHei", sans-serif;
+  animation: watch-panel-appear 0.28s ease both;
+}
+
+/* 只做透明度过渡：避免 transform 让挂载在面板内的弹窗脱离视口定位 */
+@keyframes watch-panel-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.watch-together.dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.watch-together.in-fullscreen {
+  position: absolute;
+  z-index: 100000;
 }
 
 .watch-trigger,
@@ -486,10 +832,26 @@ onBeforeUnmount(() => {
   background: #00aeec;
   box-shadow: 0 5px 16px rgba(0, 174, 236, 0.24);
   border-radius: 6px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.watch-together.dragging .watch-trigger {
+  cursor: grabbing;
+}
+
+.watch-header {
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #edf0f2;
 }
 
 .watch-trigger-icon {
   font-size: 11px;
+}
+
+.watch-trigger-text {
+  white-space: nowrap;
 }
 
 .watch-count {
@@ -507,7 +869,7 @@ onBeforeUnmount(() => {
 
 .watch-panel {
   width: min(340px, calc(100vw - 32px));
-  max-height: calc(100vh - 170px);
+  max-height: var(--watch-panel-max-height, calc(100vh - 170px));
   margin-top: 8px;
   overflow: auto;
   background: #fff;
@@ -524,12 +886,6 @@ onBeforeUnmount(() => {
   align-items: center;
 }
 
-.watch-header {
-  justify-content: space-between;
-  padding: 14px 16px;
-  border-bottom: 1px solid #edf0f2;
-}
-
 .watch-header strong,
 .watch-header small {
   display: block;
@@ -543,6 +899,10 @@ onBeforeUnmount(() => {
   margin-top: 3px;
   color: #7a838c;
   font-size: 11px;
+}
+
+.watch-empty {
+  display: flex;
 }
 
 .watch-empty,
@@ -567,6 +927,11 @@ onBeforeUnmount(() => {
 .secondary-button {
   color: #3a424a;
   background: #edf1f4;
+}
+
+.secondary-button-active {
+  color: #fff;
+  background: #00aeec;
 }
 
 .leave-button {
@@ -631,6 +996,12 @@ onBeforeUnmount(() => {
   flex: 0 0 38px;
 }
 
+.member-avatar-wrap:hover .member-avatar {
+  border-color: #00aeec;
+  box-shadow: 0 0 0 3px rgba(0, 174, 236, 0.16);
+  transform: scale(1.06);
+}
+
 .member-avatar {
   width: 38px;
   height: 38px;
@@ -638,23 +1009,51 @@ onBeforeUnmount(() => {
   border: 1px solid #e4e9ed;
   border-radius: 50%;
   object-fit: cover;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
 }
 
 .member-name {
-  max-width: 150px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  max-width: 158px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   color: #252b31;
   font-size: 13px;
   font-weight: 600;
 }
 
+.member-name-text {
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .member-name small {
-  margin-left: 4px;
   color: #98a1aa;
   font-size: 10px;
   font-weight: 400;
+  white-space: nowrap;
+}
+
+.member-gender {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 12px;
+}
+
+.member-level {
+  width: 18px;
+  height: 9px;
+  flex: 0 0 18px;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.member-name-text.clickable:hover {
+  color: #00aeec;
 }
 
 .member-info {
@@ -675,6 +1074,11 @@ onBeforeUnmount(() => {
   background: #20b26b;
   border: 2px solid #fff;
   border-radius: 50%;
+  transition: transform 0.16s ease, background-color 0.16s ease;
+}
+
+.member-avatar-wrap:hover .online-dot {
+  transform: scale(1.2);
 }
 
 .online-dot.offline {
@@ -692,6 +1096,11 @@ onBeforeUnmount(() => {
 .role-label.owner {
   color: #b85d15;
   background: #fff1e5;
+}
+
+.role-label.blocked {
+  color: #8a3b3b;
+  background: #fdecec;
 }
 
 .member-status {
@@ -718,8 +1127,34 @@ onBeforeUnmount(() => {
   background: #eef2f5;
 }
 
-.icon-button.danger {
+.icon-button.kick {
+  color: #5b7c99;
+}
+
+.icon-button.kick:hover {
+  background: #eaf1f6;
+}
+
+.icon-button.block-action {
   color: #d84b4b;
+}
+
+.icon-button.block-action:hover {
+  background: #fdecec;
+}
+
+.icon-button.blocked {
+  color: #b85d15;
+  background: #fff1e5;
+}
+
+.icon-button.transfer {
+  color: #7a5cc4;
+  font-size: 16px;
+}
+
+.icon-button.transfer:hover {
+  background: #f1ecfd;
 }
 
 .history-section {

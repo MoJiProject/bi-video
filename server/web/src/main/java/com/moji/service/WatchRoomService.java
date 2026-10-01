@@ -56,8 +56,8 @@ public class WatchRoomService {
         room.setCurrentTime(Math.max(0, request.getCurrentTime()));
         room.setPaused(request.isPaused());
         room.setPlaybackRate(normalizeRate(request.getPlaybackRate()));
-        room.getParticipants().add(new WatchParticipant(
-            ownerId, owner.getUserName(), owner.getAvatarAddress(), true, true, false
+room.getParticipants().add(new WatchParticipant(
+                ownerId, owner.getUserName(), owner.getAvatarAddress(), owner.getGender(), owner.getGrade(), true, true, false, false
         ));
         save(room, EMPTY_ROOM_TTL);
         return room;
@@ -67,6 +67,9 @@ public class WatchRoomService {
         return withRoomLock(roomId, () -> {
             WatchRoom room = requireRoom(roomId);
             advancePlayingTime(room);
+            if (room.getBlacklistedIds().contains(userId)) {
+                throw new SecurityException("你已被拉黑，无法加入该房间");
+            }
             Users user = userMapper.selectById(userId);
             if (user == null) {
                 throw new IllegalArgumentException("用户不存在");
@@ -78,15 +81,21 @@ public class WatchRoomService {
                         userId,
                         user.getUserName(),
                         user.getAvatarAddress(),
+                        user.getGender(),
+                        user.getGrade(),
                         room.getOwnerId().equals(userId),
                         room.getOwnerId().equals(userId) || room.getAdminIds().contains(userId),
-                        true
+                        true,
+                        false
                 );
                 room.getParticipants().add(participant);
             } else {
                 participant.setUserName(user.getUserName());
                 participant.setAvatarAddress(user.getAvatarAddress());
+                participant.setGender(user.getGender());
+                participant.setGrade(user.getGrade());
                 participant.setOnline(true);
+                participant.setBlacklisted(false);
                 participant.setOwner(room.getOwnerId().equals(userId));
                 participant.setAdmin(participant.isOwner() || room.getAdminIds().contains(userId));
             }
@@ -130,6 +139,7 @@ public class WatchRoomService {
 
             WatchParticipant target = findParticipant(room, targetUserId);
             if (target == null) throw new IllegalArgumentException("成员不在房间中");
+            if (target.isBlacklisted()) throw new SecurityException("该成员已被拉黑，无法分配管理权限");
 
             if (grant) {
                 room.getAdminIds().add(targetUserId);
@@ -139,6 +149,38 @@ public class WatchRoomService {
                 redisTemplate.opsForZSet().remove(historyKey(targetUserId), roomId);
             }
             target.setAdmin(grant);
+            save(room);
+            return room;
+        });
+    }
+
+    public WatchRoom transferOwner(String roomId, Integer ownerId, Integer targetUserId) {
+        return withRoomLock(roomId, () -> {
+            WatchRoom room = requireRoom(roomId);
+            if (!room.getOwnerId().equals(ownerId)) {
+                throw new SecurityException("只有房主可以转让房间");
+            }
+            if (room.getOwnerId().equals(targetUserId)) return room;
+
+            WatchParticipant target = findParticipant(room, targetUserId);
+            if (target == null) throw new IllegalArgumentException("成员不在房间中");
+            if (target.isBlacklisted()) throw new SecurityException("该成员已被拉黑，无法转让房主");
+
+            Users newOwner = userMapper.selectById(targetUserId);
+            room.setOwnerId(targetUserId);
+            room.setOwnerName(newOwner == null ? target.getUserName() : newOwner.getUserName());
+            if (newOwner != null) {
+                target.setUserName(newOwner.getUserName());
+                target.setAvatarAddress(newOwner.getAvatarAddress());
+                target.setGender(newOwner.getGender());
+                target.setGrade(newOwner.getGrade());
+            }
+            room.getAdminIds().remove(ownerId);
+            room.getParticipants().forEach(participant -> {
+                boolean isOwner = participant.getUserId().equals(targetUserId);
+                participant.setOwner(isOwner);
+                participant.setAdmin(isOwner || room.getAdminIds().contains(participant.getUserId()));
+            });
             save(room);
             return room;
         });
@@ -157,6 +199,37 @@ public class WatchRoomService {
             room.getAdminIds().remove(targetUserId);
             redisTemplate.opsForZSet().remove(historyKey(targetUserId), roomId);
             room.setPaused(true);
+            save(room);
+            return room;
+        });
+    }
+
+    public WatchRoom setBlacklist(String roomId, Integer actorId, Integer targetUserId, boolean blocked) {
+        return withRoomLock(roomId, () -> {
+            WatchRoom room = requireRoom(roomId);
+            if (!canManage(room, actorId)) throw new SecurityException("没有管理权限");
+            if (room.getOwnerId().equals(targetUserId)) throw new SecurityException("不能拉黑房主");
+            if (!room.getOwnerId().equals(actorId) && room.getAdminIds().contains(targetUserId)) {
+                throw new SecurityException("管理员不能拉黑其他管理员");
+            }
+
+            if (blocked) {
+                room.getBlacklistedIds().add(targetUserId);
+                room.getAdminIds().remove(targetUserId);
+                redisTemplate.opsForZSet().remove(historyKey(targetUserId), roomId);
+                room.setPaused(true);
+            } else {
+                room.getBlacklistedIds().remove(targetUserId);
+            }
+
+            WatchParticipant target = findParticipant(room, targetUserId);
+            if (target != null) {
+                target.setBlacklisted(blocked);
+                if (blocked) {
+                    target.setOnline(false);
+                    target.setAdmin(false);
+                }
+            }
             save(room);
             return room;
         });
@@ -194,6 +267,7 @@ public class WatchRoomService {
 
     private WatchRoom requireMember(String roomId, Integer userId) {
         WatchRoom room = requireRoom(roomId);
+        if (room.getBlacklistedIds().contains(userId)) throw new SecurityException("你已被拉黑，无法继续一起看");
         if (findParticipant(room, userId) == null) throw new SecurityException("尚未加入房间");
         return room;
     }
