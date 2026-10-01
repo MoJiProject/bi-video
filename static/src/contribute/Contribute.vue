@@ -151,7 +151,7 @@ import SubPage2 from "./SubPage2.vue";
 import SubPage3 from "./SubPage3.vue";
 import SubPage4 from "./SubPage4.vue";
 export default {
-  name: "Contribute",
+  name: "ContributePage",
   components: {
     AsideComponent,
     MainComponent,

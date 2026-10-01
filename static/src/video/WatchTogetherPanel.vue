@@ -105,7 +105,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import apiClient from '../services/apiClient';
 import { createWatchTogetherClient } from '../services/watchTogetherClient';
@@ -123,6 +123,7 @@ const props = defineProps({
 });
 
 const store = useGlobalStore();
+const videoElement = shallowRef(null);
 const initialRoomId = new URLSearchParams(window.location.search).get('room');
 const panelOpen = ref(Boolean(initialRoomId));
 const historyOpen = ref(false);
@@ -179,15 +180,15 @@ async function createRoom() {
     ElMessage.info('请先登录');
     return;
   }
-  if (!props.videoId || !props.videoElement) return;
+  if (!props.videoId || !videoElement.value) return;
 
   busy.value = true;
   try {
     const response = await apiClient.post('/watch-together/rooms', {
       videoId: props.videoId,
-      currentTime: props.videoElement.currentTime || 0,
-      paused: props.videoElement.paused,
-      playbackRate: props.videoElement.playbackRate || 1,
+      currentTime: videoElement.value.currentTime || 0,
+      paused: videoElement.value.paused,
+      playbackRate: videoElement.value.playbackRate || 1,
     });
     room.value = response.data.data;
     roomId.value = room.value.roomId;
@@ -213,20 +214,20 @@ function joinRoom() {
 function leaveRoom() {
   if (!room.value) return;
   client?.send({ type: 'leave', roomId: room.value.roomId });
-  runRemoteAction(() => props.videoElement?.pause());
+  runRemoteAction(() => videoElement.value?.pause());
   resetRoom();
   ElMessage.success('已退出一起看房间');
 }
 
 function sendPlayback(type) {
-  if (!room.value || applyingRemoteAction || !props.videoElement) return;
+  if (!room.value || applyingRemoteAction || !videoElement.value) return;
   client?.send({
     type,
     roomId: room.value.roomId,
     videoId: props.videoId,
-    currentTime: props.videoElement.currentTime || 0,
-    playbackRate: props.videoElement.playbackRate || 1,
-    paused: props.videoElement.paused,
+    currentTime: videoElement.value.currentTime || 0,
+    playbackRate: videoElement.value.playbackRate || 1,
+    paused: videoElement.value.paused,
   });
 }
 
@@ -247,7 +248,7 @@ function handleMessage(message) {
     return;
   }
   if (message.type === 'kicked') {
-    props.videoElement?.pause();
+    videoElement.value?.pause();
     client?.close();
     client = null;
     clientToken = null;
@@ -262,32 +263,32 @@ function handleMessage(message) {
 }
 
 function applyRoomState(nextRoom) {
-  if (!props.videoElement || !nextRoom) return;
+  if (!videoElement.value || !nextRoom) return;
   runRemoteAction(() => {
-    if (Math.abs(props.videoElement.currentTime - nextRoom.currentTime) > 0.75) {
+    if (Math.abs(videoElement.value.currentTime - nextRoom.currentTime) > 0.75) {
       remoteSeekTarget = nextRoom.currentTime;
-      props.videoElement.currentTime = nextRoom.currentTime;
+      videoElement.value.currentTime = nextRoom.currentTime;
     }
-    props.videoElement.playbackRate = nextRoom.playbackRate || 1;
+    videoElement.value.playbackRate = nextRoom.playbackRate || 1;
     if (nextRoom.paused) {
-      props.videoElement.pause();
+      videoElement.value.pause();
     } else {
-      props.videoElement.play().catch(() => ElMessage.info('点击视频开始同步播放'));
+      videoElement.value.play().catch(() => ElMessage.info('点击视频开始同步播放'));
     }
   });
 }
 
 function applyPlaybackMessage(message) {
-  if (!props.videoElement) return;
+  if (!videoElement.value) return;
   runRemoteAction(() => {
-    if (Math.abs(props.videoElement.currentTime - message.currentTime) > 0.5) {
+    if (Math.abs(videoElement.value.currentTime - message.currentTime) > 0.5) {
       remoteSeekTarget = message.currentTime;
-      props.videoElement.currentTime = message.currentTime;
+      videoElement.value.currentTime = message.currentTime;
     }
-    props.videoElement.playbackRate = message.playbackRate || 1;
-    if (message.type === 'pause') props.videoElement.pause();
+    videoElement.value.playbackRate = message.playbackRate || 1;
+    if (message.type === 'pause') videoElement.value.pause();
     if (message.type === 'play') {
-      props.videoElement.play().catch(() => ElMessage.info('点击视频开始同步播放'));
+      videoElement.value.play().catch(() => ElMessage.info('点击视频开始同步播放'));
     }
   });
 }
@@ -423,7 +424,10 @@ function onRateChange() {
   sendPlayback('rate');
 }
 
-watch(() => props.videoElement, attachVideo, { immediate: true });
+watch(() => props.videoElement, video => {
+  videoElement.value = video;
+  attachVideo(video);
+}, { immediate: true });
 watch(
   () => [store.token, store.userId, props.videoId],
   ([token, userId, videoId]) => {
