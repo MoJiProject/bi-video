@@ -2,7 +2,7 @@
   <div
     ref="panelRoot"
     class="watch-together"
-    :class="{ 'in-fullscreen': fullscreen }"
+    :class="{ 'in-fullscreen': fullscreen, 'align-right': panelAlignRight }"
     :style="panelStyle"
   >
     <button
@@ -33,7 +33,13 @@
         <button class="primary-button" type="button" :disabled="busy" @click="createRoom">
           创建房间
         </button>
-        <button class="secondary-button" type="button" :disabled="busy" @click="loadHistory">
+        <button
+          class="secondary-button"
+          :class="{ 'secondary-button-active': historyOpen }"
+          type="button"
+          :disabled="busy"
+          @click="toggleHistory"
+        >
           我的房间
         </button>
       </div>
@@ -202,15 +208,25 @@ let pendingSeekTimer = null;
 
 let position = ref(loadStoredPosition());
 let dragState = null;
+let dragFrame = 0;
+let pendingDrag = null;
 let suppressToggleClick = false;
 
 const currentUserId = computed(() => store.userId);
+const PANEL_WIDTH = 340;
+
+// 面板靠右时改为右对齐，避免超出屏幕右边缘。
+const panelAlignRight = computed(() => {
+  if (!position.value) return false;
+  const width = Math.min(PANEL_WIDTH, window.innerWidth - 32);
+  return position.value.left + width > window.innerWidth - EDGE_GAP;
+});
 const panelStyle = computed(() => {
   if (props.fullscreen) {
     if (!position.value) return { top: '4%', right: '2.5%' };
     return {
-      top: `${Math.round((position.value.top / window.innerHeight) * 100)}%`,
-      left: `${Math.round((position.value.left / window.innerWidth) * 100)}%`,
+      top: `${position.value.top}px`,
+      left: `${position.value.left}px`,
       right: 'auto',
       '--watch-panel-max-height': 'calc(100vh - 110px)',
     };
@@ -268,12 +284,18 @@ function loadStoredPosition() {
   }
 }
 
-function clampPosition(next) {
+function measureTrigger() {
   const trigger = document.querySelector('.watch-together .watch-trigger');
-  const width = trigger?.offsetWidth || 96;
-  const height = trigger?.offsetHeight || 38;
-  const maxLeft = Math.max(EDGE_GAP, window.innerWidth - width - EDGE_GAP);
-  const maxTop = Math.max(EDGE_GAP, window.innerHeight - height - EDGE_GAP);
+  return {
+    width: trigger?.offsetWidth || 96,
+    height: trigger?.offsetHeight || 38,
+  };
+}
+
+function clampPosition(next, size = null) {
+  const measured = size || measureTrigger();
+  const maxLeft = Math.max(EDGE_GAP, window.innerWidth - measured.width - EDGE_GAP);
+  const maxTop = Math.max(EDGE_GAP, window.innerHeight - measured.height - EDGE_GAP);
   return {
     left: Math.min(Math.max(next.left, EDGE_GAP), maxLeft),
     top: Math.min(Math.max(next.top, EDGE_GAP), maxTop),
@@ -298,6 +320,9 @@ function startDrag(event) {
     offsetY: event.clientY - rect.top,
     startX: event.clientX,
     startY: event.clientY,
+    width: trigger.offsetWidth || 96,
+    height: trigger.offsetHeight || 38,
+    container,
     moved: false,
   };
   container.classList.add('dragging');
@@ -312,17 +337,33 @@ function onDrag(event) {
     return;
   }
   dragState.moved = true;
-  position.value = clampPosition({
+  pendingDrag = {
     left: event.clientX - dragState.offsetX,
     top: event.clientY - dragState.offsetY,
-  });
+  };
+  if (dragFrame) return;
+  dragFrame = window.requestAnimationFrame(applyDrag);
+}
+
+function applyDrag() {
+  dragFrame = 0;
+  if (!pendingDrag || !dragState) return;
+  position.value = clampPosition(pendingDrag, dragState);
 }
 
 function endDrag(event) {
   if (!dragState || (event && event.pointerId !== dragState.pointerId)) return;
   suppressToggleClick = dragState.moved;
+  if (dragFrame) {
+    window.cancelAnimationFrame(dragFrame);
+    dragFrame = 0;
+  }
+  if (pendingDrag) {
+    position.value = clampPosition(pendingDrag, dragState);
+    pendingDrag = null;
+  }
+  dragState.container?.classList.remove('dragging');
   dragState = null;
-  document.querySelector('.watch-together.dragging')?.classList.remove('dragging');
   window.removeEventListener('pointermove', onDrag);
   window.removeEventListener('pointerup', endDrag);
   window.removeEventListener('pointercancel', endDrag);
@@ -770,6 +811,7 @@ onBeforeUnmount(() => {
   detachVideo();
   window.clearTimeout(releaseRemoteTimer);
   window.clearTimeout(pendingSeekTimer);
+  if (dragFrame) window.cancelAnimationFrame(dragFrame);
   window.removeEventListener('resize', onWindowResize);
   window.removeEventListener('pointermove', onDrag);
   window.removeEventListener('pointerup', endDrag);
@@ -838,6 +880,7 @@ onBeforeUnmount(() => {
 
 .watch-together.dragging .watch-trigger {
   cursor: grabbing;
+  will-change: transform;
 }
 
 .watch-header {
@@ -868,14 +911,21 @@ onBeforeUnmount(() => {
 }
 
 .watch-panel {
+  position: absolute;
+  top: 46px;
+  left: 0;
   width: min(340px, calc(100vw - 32px));
   max-height: var(--watch-panel-max-height, calc(100vh - 170px));
-  margin-top: 8px;
   overflow: auto;
   background: #fff;
   border: 1px solid #e3e7eb;
   border-radius: 8px;
   box-shadow: 0 16px 42px rgba(24, 33, 43, 0.18);
+}
+
+.watch-together.align-right .watch-panel {
+  left: auto;
+  right: 0;
 }
 
 .watch-header,
