@@ -1,4 +1,4 @@
-package com.moji.watch;
+package com.moji.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

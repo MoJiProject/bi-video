@@ -1,7 +1,10 @@
-package com.moji.watch;
+package com.moji.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.moji.R;
+import com.moji.vo.CreateWatchRoomRequest;
+import com.moji.vo.WatchRoom;
+import com.moji.service.WatchRoomService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

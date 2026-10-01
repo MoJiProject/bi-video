@@ -1,5 +1,6 @@
-package com.moji.watch;
+package com.moji.vo;
 
+import com.moji.dto.WatchParticipant;
 import lombok.Data;
 
 import java.time.Instant;

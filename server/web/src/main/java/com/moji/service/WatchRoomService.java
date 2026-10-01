@@ -1,9 +1,13 @@
-package com.moji.watch;
+package com.moji.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moji.dto.WatchMessage;
+import com.moji.dto.WatchParticipant;
 import com.moji.mapper.UserMapper;
 import com.moji.po.Users;
+import com.moji.vo.CreateWatchRoomRequest;
+import com.moji.vo.WatchRoom;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 

@@ -1,8 +1,12 @@
-package com.moji.watch;
+package com.moji.serve;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moji.dto.WatchMessage;
+import com.moji.dto.WatchParticipant;
+import com.moji.service.WatchRoomService;
+import com.moji.vo.WatchRoom;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
