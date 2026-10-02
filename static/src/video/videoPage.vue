@@ -7221,6 +7221,7 @@ export default {
   font-size: 11.5px;
   width: 50px;
   border-radius: 2px;
+  user-select: none;
   height: 16px;
   transform: translate(235px, -29px);
   border: 1px solid #00aeec;
