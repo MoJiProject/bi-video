@@ -270,6 +270,7 @@ CREATE TABLE `scrolling`  (
   `video_time` double NOT NULL,
   `top` int(11) NOT NULL DEFAULT 0,
   `all_display_top` int(255) NOT NULL,
+  `colorful` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否彩色弹幕 1彩色 0普通',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_scrolling_uv`(`user_id`, `video_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 71 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;

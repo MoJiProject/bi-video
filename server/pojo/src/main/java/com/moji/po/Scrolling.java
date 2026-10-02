@@ -23,6 +23,8 @@ public class Scrolling implements Serializable {
    private Double videoTime;
    private Integer top;
    private Integer allDisplayTop;
+   //是否彩色弹幕：1 彩色，0 普通
+   private Integer colorful;
 
 
 }

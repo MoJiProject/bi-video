@@ -1217,7 +1217,15 @@
                     v-model="sendScrollingColor"
                     :sizeshow-alpha="false"
                     :predefine="predefineColors"
+                    @change="sendScrollingColorful = 0"
                   />
+                  <div
+                    class="scrolling-colorful-picker"
+                    :class="{ 'scrolling-colorful-picker-active': sendScrollingColorful === 1 }"
+                    @click="sendScrollingColorful = 1"
+                  >
+                    <span class="scrolling-colorful-picker-text"></span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1543,259 +1551,44 @@
           ></div>
           <!-- 弹幕 -->
           <div v-show="!intoVideoAllDisplayIngFlag">
-            <div
-              @click="pausedOrPlayUpVideo"
-              class="scrolling-container"
-              v-for="scrolling in ScrollingDataList"
-              :key="scrolling.id"
-            >
-              <div
-                v-show="
-                  openOrCloseScrollingFlag &&
-                  scrollingDisplayTime(scrolling.videoTime, false) &&
-                  scrolling.location === 1 &&
-                  !scrollingRollOpenFlag &&
-                  scrollingDisplayFunction(scrolling.top)
-                "
-                class="scrolling-boder"
-                :style="{
-                  color: `${scrolling.color}`,
-                  fontSize:
-                    parseInt(scrollingDisplayFontSizeValue) >= 50
-                      ? `${
-                          scrolling.size *
-                          (1 +
-                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                        }px`
-                      : `${
-                          scrolling.size *
-                          (1 +
-                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                        }px`,
-                  top: `${scrolling.top}px`, //top是0-180px递增30 bottom 330-210px递增30 roll是0-330px随机
-                  transform: scrollingTranslateX(scrolling.videoTime, false),
-                  opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
-                  padding: scrolling.userId === store.userId ? '1px' : '0px',
-                  border:
-                    scrolling.userId === store.userId
-                      ? `1px solid #a7dacc`
-                      : 'none',
-                }"
-                :class="{
-                  scrollingLocationRoll: scrolling.location === 1,
-                }"
-              >
-                <span
-                  class="scrolling-content-container"
-                  @click.stop="copyScrolling(scrolling.content)"
-                  >{{ scrolling.content }}
-                </span>
-              </div>
-              <div
-                v-show="
-                  scrolling.videoTime <= upVideoPlayer.currentTime &&
-                  openOrCloseScrollingFlag &&
-                  scrolling.videoTime + 5 >= upVideoPlayer.currentTime &&
-                  scrolling.location === 2 &&
-                  !scrollingFilexdOpenFlag &&
-                  scrollingDisplayFunction(scrolling.top)
-                "
-                class="scrolling-boder"
-                :style="{
-                  color: `${scrolling.color}`,
-                  fontSize:
-                    parseInt(scrollingDisplayFontSizeValue) >= 50
-                      ? `${
-                          scrolling.size *
-                          (1 +
-                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                        }px`
-                      : `${
-                          scrolling.size *
-                          (1 +
-                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                        }px`,
-                  transform: `translate(0px, ${scrolling.top}px)`, //top是0-180px递增30 bottom 330-210px递增30 roll是0-330px随机
-                  opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
-                }"
-                :class="{
-                  scrollingLocationTop: scrolling.location === 2,
-                }"
-              >
-                <span
-                  class="scrolling-content-container"
-                  @click.stop="copyScrolling(scrolling.content)"
-                  >{{ scrolling.content }}
-                </span>
-              </div>
-              <div
-                v-show="
-                  scrolling.videoTime <= upVideoPlayer.currentTime &&
-                  openOrCloseScrollingFlag &&
-                  scrolling.videoTime + 5 >= upVideoPlayer.currentTime &&
-                  scrolling.location === 3 &&
-                  !scrollingFilexdOpenFlag &&
-                  scrollingDisplayFunction(scrolling.top)
-                "
-                class="scrolling-boder"
-                :style="{
-                  color: `${scrolling.color}`,
-                  fontSize:
-                    parseInt(scrollingDisplayFontSizeValue) >= 50
-                      ? `${
-                          scrolling.size *
-                          (1 +
-                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                        }px`
-                      : `${
-                          scrolling.size *
-                          (1 +
-                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                        }px`,
-                  transform: `translate(0px, ${scrolling.top}px)`, //top是0-180px递增30 bottom 330-210px递增30 roll是0-330px随机
-                  opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
-                }"
-                :class="{
-                  scrollingLocationBottom: scrolling.location === 3,
-                }"
-              >
-                <span
-                  class="scrolling-content-container"
-                  @click.stop="copyScrolling(scrolling.content)"
-                  >{{ scrolling.content }}
-                </span>
-              </div>
-            </div>
+            <scrollingList
+              :list="ScrollingDataList"
+              :getCurrentTime="getScrollingCurrentTime"
+              :player="upVideoPlayer"
+              :innerWidth="innerWidth"
+              :openFlag="openOrCloseScrollingFlag"
+              :rollOpenFlag="scrollingRollOpenFlag"
+              :filexdOpenFlag="scrollingFilexdOpenFlag"
+              :displayAreaValue="scrollingDisplayAreaValue"
+              :displayFontSizeValue="scrollingDisplayFontSizeValue"
+              :displayOpacityValue="scrollingDisplayOpacityValue"
+              :speedValue="scrollingDisplaySpeedValue"
+              :checkBoxOpenFlag="checkBoxOpenFlag"
+              :userId="store.userId"
+              @videoClick="pausedOrPlayUpVideo"
+              @copyScrolling="copyScrolling"
+            />
           </div>
           <!-- 放大视频后的弹幕 -->
           <div v-show="intoVideoAllDisplayIngFlag">
-            <div
-              @click="pausedOrPlayUpVideo"
-              class="scrolling-container"
-              v-for="scrolling in ScrollingDataList"
-              :key="scrolling.id"
-            >
-              <div
-                v-show="
-                  openOrCloseScrollingFlag &&
-                  scrollingDisplayTime(scrolling.videoTime, true) &&
-                  scrolling.location === 1 &&
-                  !scrollingRollOpenFlag &&
-                  scrollingDisplayFunction(scrolling.allDisplayTop)
-                "
-                class="scrolling-boder"
-                :style="{
-                  color: `${scrolling.color}`,
-                  fontSize:
-                    parseInt(scrollingDisplayFontSizeValue) >= 50
-                      ? `${
-                          scrolling.size *
-                          (1 +
-                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                        }px`
-                      : `${
-                          scrolling.size *
-                          (1 +
-                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                        }px`,
-                  top: `${scrolling.allDisplayTop}px`, //top是0-360px递增30 bottom 是750-390px递增25 roll是0-750px随机
-                  transform: scrollingTranslateX(scrolling.videoTime, true),
-                  opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
-                  padding: scrolling.userId === store.userId ? '1px' : '0px',
-                  border:
-                    scrolling.userId === store.userId
-                      ? `1px solid #a7dacc`
-                      : 'none',
-                }"
-                :class="{
-                  scrollingLocationRoll1: scrolling.location === 1,
-                }"
-              >
-                <span
-                  class="scrolling-content-container"
-                  @click.stop="copyScrolling(scrolling.content)"
-                  >{{ scrolling.content }}
-                </span>
-              </div>
-              <div
-                v-show="
-                  scrolling.videoTime <= upVideoPlayer.currentTime &&
-                  openOrCloseScrollingFlag &&
-                  scrolling.videoTime + 5 >= upVideoPlayer.currentTime &&
-                  scrolling.location === 2 &&
-                  !scrollingFilexdOpenFlag &&
-                  scrollingDisplayFunction(scrolling.allDisplayTop)
-                "
-                class="scrolling-boder"
-                :style="{
-                  color: `${scrolling.color}`,
-                  fontSize:
-                    parseInt(scrollingDisplayFontSizeValue) >= 50
-                      ? `${
-                          scrolling.size *
-                          (1 +
-                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                        }px`
-                      : `${
-                          scrolling.size *
-                          (1 +
-                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                        }px`,
-                  transform: `translate(0, ${scrolling.allDisplayTop}px)`, //top是0-360px递增30 bottom 是750-390px递增25 roll是0-750px随机
-                  opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
-                  width: `${innerWidth}px`,
-                  left: `${-innerWidth}px`
-                }"
-                :class="{
-                  scrollingLocationTop1: scrolling.location === 2,
-                }"
-              >
-                <span
-                  class="scrolling-content-container"
-                  @click.stop="copyScrolling(scrolling.content)"
-                  >{{ scrolling.content }}
-                </span>
-              </div>
-              <div
-                v-show="
-                  scrolling.videoTime <= upVideoPlayer.currentTime &&
-                  openOrCloseScrollingFlag &&
-                  scrolling.videoTime + 5 >= upVideoPlayer.currentTime &&
-                  scrolling.location === 3 &&
-                  !scrollingFilexdOpenFlag &&
-                  scrollingDisplayFunction(scrolling.allDisplayTop)
-                "
-                class="scrolling-boder"
-                :style="{
-                  color: `${scrolling.color}`,
-                  fontSize:
-                    parseInt(scrollingDisplayFontSizeValue) >= 50
-                      ? `${
-                          scrolling.size *
-                          (1 +
-                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                        }px`
-                      : `${
-                          scrolling.size *
-                          (1 +
-                            (parseInt(scrollingDisplayFontSizeValue) - 50) / 250)
-                        }px`,
-                  transform: `translate(0px, ${scrolling.allDisplayTop}px)`, //top是0-360px递增30 bottom 是750-390px递增25 roll是0-750px随机
-                  opacity: `${parseFloat(scrollingDisplayOpacityValue) / 100}`,
-                  width: `${innerWidth}px`,
-                  left: `${-innerWidth}px`
-                }"
-                :class="{
-                  scrollingLocationBottom1: scrolling.location === 3,
-                }"
-              >
-                <span
-                  class="scrolling-content-container"
-                  @click.stop="copyScrolling(scrolling.content)"
-                  >{{ scrolling.content }}
-                </span>
-              </div>
-            </div>
+            <scrollingList
+              :list="ScrollingDataList"
+              :getCurrentTime="getScrollingCurrentTime"
+              :player="upVideoPlayer"
+              :allDisplay="true"
+              :innerWidth="innerWidth"
+              :openFlag="openOrCloseScrollingFlag"
+              :rollOpenFlag="scrollingRollOpenFlag"
+              :filexdOpenFlag="scrollingFilexdOpenFlag"
+              :displayAreaValue="scrollingDisplayAreaValue"
+              :displayFontSizeValue="scrollingDisplayFontSizeValue"
+              :displayOpacityValue="scrollingDisplayOpacityValue"
+              :speedValue="scrollingDisplaySpeedValue"
+              :checkBoxOpenFlag="checkBoxOpenFlag"
+              :userId="store.userId"
+              @videoClick="pausedOrPlayUpVideo"
+              @copyScrolling="copyScrolling"
+            />
           </div>
           <!-- 快捷键提示  -->
           <div
@@ -2383,7 +2176,15 @@
                     v-model="sendScrollingColor"
                     :sizeshow-alpha="false"
                     :predefine="predefineColors"
+                    @change="sendScrollingColorful = 0"
                   />
+                  <div
+                    class="scrolling-colorful-picker"
+                    :class="{ 'scrolling-colorful-picker-active': sendScrollingColorful === 1 }"
+                    @click="sendScrollingColorful = 1"
+                  >
+                    <span class="scrolling-colorful-picker-text"></span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2980,6 +2781,7 @@ import {
   reactive,
   ref,
   watch,
+  watchEffect,
   computed,
   nextTick,
 } from "vue";
@@ -3052,6 +2854,7 @@ import autoPlayVideo2 from "./autoPlayVideo2.vue";
 import comment from "../comment/comment.vue";
 import {addDialogue} from '../api/privateMessage/index';
 import videoShareC from '../utils/videoShare.vue';
+import scrollingList from '../utils/scrollingList.vue';
 import WatchTogetherPanel from './WatchTogetherPanel.vue';
 export default {
   name: "videoPage",
@@ -3061,6 +2864,7 @@ export default {
     autoPlayVideo2,
     comment,
     videoShareC,
+    scrollingList,
     WatchTogetherPanel,
   },
   setup() {
@@ -3145,7 +2949,13 @@ export default {
     const showScrollingColorFlag = ref(false);
     const showOpenScrollingFlag = ref(false);
     const showCloseScrollingFlag = ref(false);
-    const openOrCloseScrollingFlag = ref(false);
+    const openOrCloseScrollingFlag = ref(getLocalOpenOrCloseScrollingFlag());
+    //记录弹幕开关，刷新后保持
+    watch(openOrCloseScrollingFlag, (value) => {
+      try {
+        localStorage.setItem("videoOpenScrolling", value ? "1" : "0");
+      } catch (error) {}
+    });
     const openOrCloseScrollingInfoFlag = ref(false);
     const scrollingRollHoverFlag = ref(false);
     const scrollingRollOpenFlag = ref(false);
@@ -3162,6 +2972,7 @@ export default {
     const scrollingDisplaySpeedValue = ref(50);
     const sendScrollingFontSize = ref(20);
     const sendScrollingColor = ref("#ffffff");
+    const sendScrollingColorful = ref(0);
     const predefineColorsHoverFlag = ref(false);
     const sendScrollingText = ref("");
     const ScrollingData = ref([]);
@@ -3307,6 +3118,16 @@ export default {
       );
       window.removeEventListener("beforeunload", addHistoryAxios);
       window.clearTimeout(watchTogetherVisibleTimer);
+      //清理剩余的定时器与三连计时器
+      clearTimeout(timer);
+      clearTimeout(keyInfoTime);
+      clearTimeout(audioInfoTime);
+      clearTimeout(playNumberTime);
+      clearTimeout(delayUserInfoTime);
+      clearTimeout(delayUserInfoTime2);
+      clearTimeout(delayShareTime);
+      clearTimeout(AutoPlayVideoListTime);
+      clearInterval(intervalId);
     });
 
     //获取用户ip和token
@@ -3596,8 +3417,9 @@ export default {
       }
     };
 
-    //计算属性，用于格式化时间
-    const formattedTime = computed(() => {
+    //格式化时间（原来在 computed 里写状态，改为 watchEffect）
+    const formattedTime = ref("00:00");
+    watchEffect(() => {
       const minutes = Math.floor(upVideoTimeDuration.value / 60);
       const seconds = upVideoTimeDuration.value % 60;
       const videoTime = SelectVideoByIdVo.upVideo?.videoTime; // 使用可选链操作符
@@ -3610,16 +3432,16 @@ export default {
         }
       }
       if (upVideoTimeDuration.value !== "00:00")
-        return `${minutes < 10 ? "0" : ""}${minutes}:${
+        formattedTime.value = `${minutes < 10 ? "0" : ""}${minutes}:${
           seconds < 10 ? "0" : ""
         }${seconds} `;
-      else return "00:00";
+      else formattedTime.value = "00:00";
     });
 
     let timer = null; // 用于存储定时器
     let isMoving = false; // 标志位，指示是否正在移动
     const videoLeave = ref(false);
-    async function videoMove() {
+    function videoMove() {
       if (videoLeave.value) return;
 
       //如果是弹幕输入状态不会关闭
@@ -3651,16 +3473,25 @@ export default {
       isMoving = false; // 重新设置为可执行状态
     }
 
+    // 双击会先触发两次 click 再触发 dblclick，这里延迟处理并允许被双击取消，
+    // 避免双击进全屏时误触播放/暂停（也会触发 play() 被 pause() 打断的警告）
+    let upVideoClickToggleTimer = null;
+
     // 暂停或播放视频
     function pausedOrPlayUpVideo() {
-      if (upVideoPlayer.value.paused) {
-        stopMoving();
-        pausedOrPlayVideoFlag.value = true;
-        upVideoPlayer.value.play();
-      } else if (!upVideoPlayer.value.paused) {
-        pausedOrPlayVideoFlag.value = false;
-        upVideoPlayer.value.pause();
-      }
+      if (upVideoClickToggleTimer) clearTimeout(upVideoClickToggleTimer);
+      upVideoClickToggleTimer = setTimeout(() => {
+        upVideoClickToggleTimer = null;
+        if (!upVideoPlayer.value) return;
+        if (upVideoPlayer.value.paused) {
+          stopMoving();
+          pausedOrPlayVideoFlag.value = true;
+          upVideoPlayer.value.play();
+        } else {
+          pausedOrPlayVideoFlag.value = false;
+          upVideoPlayer.value.pause();
+        }
+      }, 250);
     }
 
     //更改视频时间进度
@@ -3837,6 +3668,11 @@ export default {
     };
     // 切换/退出 全屏模式
     function toggleFullscreen() {
+      // 双击进入全屏，取消尚未执行的单击播放/暂停切换
+      if (upVideoClickToggleTimer) {
+        clearTimeout(upVideoClickToggleTimer);
+        upVideoClickToggleTimer = null;
+      }
       const videoContainer = document.getElementById("upvideocontainer");
 
       if (document.fullscreenElement) {
@@ -4074,19 +3910,23 @@ export default {
     });
 
     //监视是否在取色器对话框上
+    let popperContainer = null;
     const handleMouseMove = (event) => {
-      const target = event.target;
-      const el = document.querySelector('[id^="el-popper-container-"]');
+      // 元素还在时复用，避免每次移动鼠标都查询整篇文档
+      if (popperContainer === null || !popperContainer.isConnected)
+        popperContainer = document.querySelector(
+          '[id^="el-popper-container-"]',
+        );
 
+      const el = popperContainer;
       if (el != null) {
-        if (el.contains(target)) {
+        if (el.contains(event.target)) {
           predefineColorsHoverFlag.value = true;
         } else {
           predefineColorsHoverFlag.value = false;
         }
       }
-
-    }
+    };
 
     //发送弹幕保存弹幕请求
     async function sendScrollingAxios() {
@@ -4105,6 +3945,7 @@ export default {
         ScrollingData.videoId = SelectVideoByIdVo.upVideo?.id;
         ScrollingData.videoTime = upVideoPlayer.value.currentTime;
         ScrollingData.location = scrollingPattern.value;
+        ScrollingData.colorful = sendScrollingColorful.value;
         const response = await apiClient.post(
           "/video/sendScrolling",
           ScrollingData,
@@ -4234,26 +4075,12 @@ export default {
       socket.send(SelectVideoByIdVo.upVideo?.id + ":" + store.userId);
     }
 
-    //显示弹幕区域
-    function scrollingDisplayFunction(top) {
-      if (!intoVideoAllDisplayIngFlag.value) {
-        if (parseInt(scrollingDisplayAreaValue.value) === 100) return true;
-        else if (parseInt(scrollingDisplayAreaValue.value) === 75 && top <= 240)
-          return true;
-        else if (parseInt(scrollingDisplayAreaValue.value) === 50 && top <= 150)
-          return true;
-        else if (parseInt(scrollingDisplayAreaValue.value) === 25 && top <= 60)
-          return true;
-        else return false;
-      } else {
-        if (parseInt(scrollingDisplayAreaValue.value) === 100) return true;
-        else if (parseInt(scrollingDisplayAreaValue.value) === 75 && top <= 600)
-          return true;
-        else if (parseInt(scrollingDisplayAreaValue.value) === 50 && top <= 390)
-          return true;
-        else if (parseInt(scrollingDisplayAreaValue.value) === 25 && top <= 210)
-          return true;
-        else return false;
+    //读取本地保存的弹幕开关
+    function getLocalOpenOrCloseScrollingFlag() {
+      try {
+        return localStorage.getItem("videoOpenScrolling") === "1";
+      } catch (error) {
+        return false;
       }
     }
 
@@ -4312,6 +4139,11 @@ export default {
       scrollingCurrentTime.value = upVideoPlayer.value.currentTime || 0;
     }
 
+    // 以函数形式传给弹幕组件，避免父组件渲染订阅 scrollingCurrentTime
+    function getScrollingCurrentTime() {
+      return scrollingCurrentTime.value;
+    }
+
     function startScrollingClock() {
       stopScrollingClock();
 
@@ -4330,38 +4162,6 @@ export default {
         cancelAnimationFrame(scrollingAnimationFrameId);
         scrollingAnimationFrameId = null;
       }
-    }
-
-    function scrollingSpeedRate() {
-      if (checkBoxOpenFlag.value) {
-        return 1;
-      }
-
-      return 1 + (parseInt(scrollingDisplaySpeedValue.value) - 50) / 100;
-    }
-
-    function scrollingDuration(isAllDisplay) {
-      const baseDuration = isAllDisplay ? 16 : 13;
-      return baseDuration / Math.max(scrollingSpeedRate(), 0.1);
-    }
-
-    function scrollingElapsed(videoTime) {
-      return scrollingCurrentTime.value - Number(videoTime || 0);
-    }
-
-    function scrollingTranslateX(videoTime, isAllDisplay) {
-      const duration = scrollingDuration(isAllDisplay);
-      const elapsed = scrollingElapsed(videoTime);
-      const progress = Math.min(Math.max(elapsed / duration, 0), 1);
-      const distance = isAllDisplay ? 3100 : 2350;
-
-      return `translateX(${-distance * progress}px)`;
-    }
-
-    //滚动弹幕显示时间
-    function scrollingDisplayTime(videoTime, isAllDisplay = intoVideoAllDisplayIngFlag.value) {
-      const elapsed = scrollingElapsed(videoTime);
-      return elapsed >= 0 && elapsed <= scrollingDuration(isAllDisplay);
     }
 
     //三连
@@ -4945,87 +4745,105 @@ export default {
 
     let AutoPlayVideoListTime = null;
     let loginLoadFlag = true;
-    //监视视频区中的操作
+    //监视自动播放列表
     watch(
-      store,
-      async () => {
-        if (!store.AutoPlayVideoList) clearTimeout(AutoPlayVideoListTime);
-        //重播按钮
-        if (store.reVideoPlayerFlag) playUpVideo();
-
-        //关注按钮
-        if (store.addFollowFlag === 1)
-          addFollowAxios(SelectVideoByIdVo.upUser.id);
-        else if (store.addFollowFlag === 2)
+      () => store.AutoPlayVideoList,
+      (value) => {
+        if (!value) clearTimeout(AutoPlayVideoListTime);
+      },
+    );
+    //重播按钮
+    watch(
+      () => store.reVideoPlayerFlag,
+      (value) => {
+        if (value) playUpVideo();
+      },
+    );
+    //关注按钮
+    watch(
+      () => store.addFollowFlag,
+      (value) => {
+        if (value === 1) addFollowAxios(SelectVideoByIdVo.upUser.id);
+        else if (value === 2)
           deleteFollowAxios(SelectVideoByIdVo.upUser.id);
-
-        //点赞 投币 收藏 按钮
-        if (store.LTCAFlag === 1) {
+      },
+    );
+    //点赞 投币 收藏 按钮
+    watch(
+      () => store.LTCAFlag,
+      async (value) => {
+        if (value === 1) {
           await likeVideoAxios();
           if (likeVideoClickFlag.value) {
             likeVideoImgFlag.value = true;
             ThreImgDisplay();
           }
-        } else if (store.LTCAFlag === 2) {
+        } else if (value === 2) {
           if (store.userId === null) {
-            store.setLTCAFlag(0);
             loginDialogVisibleFlag.value =
               loginDialogVisibleFlag.value === 0 ? 1 : 0;
-            return;
+          } else {
+            toggleFullscreen2();
+            collectDialogVisible.value = false;
+            throwCoinDialog.value = true;
           }
-          toggleFullscreen2();
-          collectDialogVisible.value = false;
-          throwCoinDialog.value = true;
-        } else if (store.LTCAFlag === 3) {
+        } else if (value === 3) {
           if (store.userId === null) {
-            store.setLTCAFlag(0);
             loginDialogVisibleFlag.value =
               loginDialogVisibleFlag.value === 0 ? 1 : 0;
-            return;
+          } else {
+            toggleFullscreen2();
+            throwCoinDialog.value = false;
+            collectDialogVisible.value = true;
           }
-          toggleFullscreen2();
-          throwCoinDialog.value = false;
-          collectDialogVisible.value = true;
         }
-        if (
-          parseInt(upVideoProgress.value) === 100 &&
-          store.AutoPlayVideoList
-        ) {
-          AutoPlayVideoListTime = setTimeout(() => {
-            if (store.AutoPlayVideoList)
-              window.location.href = `./video?videoId=BV${store.autoVideoList[0].videoId}&autoFlag=1`;
-          }, 4500);
-        }
-
-        if (store.loginDialogVisibleFlag) {
+        store.setLTCAFlag(0);
+      },
+    );
+    //登录弹窗
+    watch(
+      () => store.loginDialogVisibleFlag,
+      (value) => {
+        if (value) {
           loginDialogVisibleFlag.value =
             loginDialogVisibleFlag.value === 0 ? 1 : 0;
           store.setLoginDialogVisibleFlag(false);
         }
-
-        if (store.loginLoadFlag && loginLoadFlag&&store.userId!==null) {
+      },
+    );
+    //登录后刷新视频与eit列表
+    watch(
+      [() => store.loginLoadFlag, () => store.userId],
+      async ([loadFlag, userId]) => {
+        if (loadFlag && loginLoadFlag && userId !== null) {
           await getVideoAndUser();
           getEitList();
           loginLoadFlag = false;
         }
-
-        if (store.updateVideoInfoFlag) {
+      },
+    );
+    //视频信息更新
+    watch(
+      () => store.updateVideoInfoFlag,
+      (value) => {
+        if (value) {
           getVideoAndUser();
           store.setUpdateVideoInfoFlag(false);
         }
-        store.setLTCAFlag(0);
       },
-      { deep: true },
     );
-
-    //监视进度条
-    watch(upVideoProgress, (newValue) => {
-      if (parseInt(newValue) === 100 && store.AutoPlayVideoList)
-        AutoPlayVideoListTime = setTimeout(() => {
-          if (store.AutoPlayVideoList)
-            window.location.href = `./video?videoId=BV${store.autoVideoList[0].videoId}&autoFlag=1`;
-        }, 4500);
-    });
+    //监视进度条 播放完毕后自动播放下一个
+    watch(
+      [upVideoProgress, () => store.AutoPlayVideoList],
+      ([progress, autoPlayVideoList]) => {
+        clearTimeout(AutoPlayVideoListTime);
+        if (parseInt(progress) === 100 && autoPlayVideoList)
+          AutoPlayVideoListTime = setTimeout(() => {
+            if (store.AutoPlayVideoList)
+              window.location.href = `./video?videoId=BV${store.autoVideoList[0].videoId}&autoFlag=1`;
+          }, 4500);
+      },
+    );
 
     //点击标签跳转搜索页面
     function tagClick(tag) {
@@ -5350,12 +5168,13 @@ export default {
       scrollingDisplaySpeedValue,
       sendScrollingFontSize,
       sendScrollingColor,
+      sendScrollingColorful,
       predefineColors,
       predefineColorsHoverFlag,
       sendScrollingText,
       sendScrollingAxios,
       ScrollingDataList,
-      scrollingDisplayFunction,
+      getScrollingCurrentTime,
       sppedList,
       videoTimeFormat,
       ScrollingReocationHoverFlag,
@@ -5373,8 +5192,6 @@ export default {
       videoThrowCoinHoverFlag,
       videoShareHoverFlag,
       videoCollectHoverFlag,
-      scrollingDisplayTime,
-      scrollingTranslateX,
       startThree,
       endThree,
       threeAnmationBeforeFlag,
@@ -7015,6 +6832,7 @@ export default {
 .scrolling-pattern-roll-container {
   position: absolute;
   color: #cecbcc;
+  cursor: pointer;
   transform: translate(0px, 8px);
 }
 
@@ -7025,6 +6843,7 @@ export default {
 .scrolling-pattern-top-container {
   position: absolute;
   color: #cecbcc;
+  cursor: pointer;
   transform: translate(50px, 8px);
 }
 
@@ -7035,6 +6854,7 @@ export default {
 .scrolling-pattern-bottom-container {
   position: absolute;
   color: #cecbcc;
+  cursor: pointer;
   transform: translate(100px, 8px);
 }
 
@@ -7051,6 +6871,79 @@ export default {
 .scrolling-color-picker {
   position: absolute;
   transform: translate(0px, 68px);
+}
+
+/* 颜色选择器：外框 32x32 白色边框，内部色块 22x22 */
+.scrolling-color-picker .el-color-picker__trigger {
+  box-sizing: border-box;
+  width: 32px;
+  height: 32px;
+  padding: 4px;
+  border: 1px solid #ffffff;
+  border-radius: 4px;
+}
+
+.scrolling-color-picker .el-color-picker__color {
+  box-sizing: border-box;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 2px;
+}
+
+/* 颜色选择器旁的彩色弹幕按钮，与选择器间隔 8px
+   结构和颜色选择器一致：32x32 白色外框 + 4px 空隙 + 22x22 内盒 */
+.scrolling-colorful-picker {
+  position: absolute;
+  transform: translate(40px, 68px);
+  box-sizing: border-box;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #ffffff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.scrolling-colorful-picker::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 2px;
+  background-image: linear-gradient(
+    135deg,
+    #ff5fa2 0%,
+    #ffd166 25%,
+    #4dd4e6 50%,
+    #6aa8ff 72%,
+    #b18cff 88%,
+    #ff7ad9 100%
+  );
+}
+
+.scrolling-colorful-picker-text {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  line-height: 30px;
+  text-align: center;
+  font-size: 15px;
+  color: #ffffff;
+}
+
+.scrolling-colorful-picker:hover {
+  border-color: #cccccc;
+}
+
+/* 选中态保持 1px 边框，只换颜色；
+   写成双类选择器是为了在:hover 时也能压过上面的 hover 规则 */
+.scrolling-colorful-picker.scrolling-colorful-picker-active {
+  border-color: #00aeec;
 }
 
 .up-video-play-bottom-video-open-scrolling-color-container:hover
@@ -7094,6 +6987,8 @@ export default {
 
 .scrolling-container {
   position: relative;
+  /* 弹幕层浮在视频之上，默认不拦截鼠标事件，否则双击视频无法触发全屏 */
+  pointer-events: none;
 }
 
 .scrolling-boder {
@@ -7126,6 +7021,8 @@ export default {
 
 .scrollingLocationTop1 {
   position: absolute;
+  width: 100vw;
+  left: -100vw;
   top: 5px;
   z-index: -2;
 }
@@ -7138,6 +7035,8 @@ export default {
 
 .scrollingLocationBottom1 {
   top: 5px;
+  width: 100vw;
+  left: -100vw;
   position: absolute;
   z-index: -2;
 }
@@ -8408,6 +8307,41 @@ export default {
 
 .scrolling-content-container {
   cursor: pointer;
+  /* 仅文字可点击，保留点击复制弹幕的功能 */
+  pointer-events: auto;
+}
+
+/* 彩色弹幕：8 段霓虹渐变过渡柔和不刺眼。
+   渐变必须作用在文字 span 上而不是外层盒子——
+   顶部/底部弹幕的外层宽度是 700px，渐变铺满整条就会把颜色拉得很稀，
+   而滚动弹幕外层宽度就等于文字宽度，两种表现会不一致。 */
+.scrolling-boder.scrollingColorful {
+  color: transparent;
+}
+
+.scrolling-boder.scrollingColorful .scrolling-content-container {
+  background-image: linear-gradient(
+    100deg,
+    #ff5fa2 0%,
+    #ff9a6b 14%,
+    #ffd166 28%,
+    #8ce99a 42%,
+    #4dd4e6 56%,
+    #6aa8ff 70%,
+    #b18cff 84%,
+    #ff7ad9 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  text-shadow: none;
+  font-weight: 700;
+  /* 发光半径收到最小：1px 白色高光 + 3px 冷色辉光 + 暗色描边，
+     半径越小边缘越锐利，越大越容易在深色画面上糊成雾。 */
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.6))
+    drop-shadow(0 0 3px rgba(120, 200, 255, 0.3))
+    drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6));
 }
 
 .video-content-container {
