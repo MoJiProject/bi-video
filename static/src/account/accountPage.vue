@@ -101,7 +101,7 @@ store.setToken(response.data.data.token);
     .account-body-container{
         position: relative;
         z-index: 5;
-        margin-top: 116px;
+        margin-top: 50px;
         display: flex;
         justify-content: center;
         align-items: center;

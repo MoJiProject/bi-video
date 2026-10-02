@@ -334,7 +334,7 @@ top: 0px;
 width: 101%;
 height: 200px;
 background-size: cover;
-background-position: 50% 70%;
+background-position: 50% 50%;
 background-repeat: no-repeat;
 left: -23px;
 position: relative;

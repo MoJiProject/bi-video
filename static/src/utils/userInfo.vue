@@ -250,7 +250,7 @@ function openHome(menu,id){
   width: 100%;
   height: 40%;
   background-size: cover;
-  background-position: 50% 70%;
+  background-position: 50% 50%;
   background-repeat: no-repeat;
 }
 
