@@ -210,6 +210,10 @@ const loadMore=ref(false);
 const noDataFlag=ref(false);
 const newAllDynamicFlag=ref(false);
 const loading=ref(false);
+//新动态提醒轮询定时器
+let dynamicMessageTimer=null;
+//动态列表请求标识，用于丢弃过期响应
+let dynamicReqId=0;
 const startX = ref(0);
 const startY = ref(0);
 
@@ -240,6 +244,7 @@ onUnmounted(()=>{
   window.removeEventListener('touchstart', handleTouchStart);
   window.removeEventListener('touchmove', handleTouchMove);
   window.removeEventListener('touchend', handleTouchEnd);
+  stopDynamicMessageTimer();
 })
 
 const handleTouchStart = (e) => {
@@ -248,6 +253,8 @@ const handleTouchStart = (e) => {
 };
 
 const handleTouchMove = (e) => {
+  if(!store.userId)
+    return;
   if(!loadMore.value&&!fotterFlag.value){
     const currentY = e.touches[0].clientY;
     const deltaY = currentY - startY.value;
@@ -608,12 +615,23 @@ function deleteImgList(){
 
 //获取动态列表
 async function getDynamicF(){
-    
+
+    //未登录或登录信息未就绪时不请求，否则后端校验失败会返回code!==1
+    if(!store.userId||!store.token)
+        return;
     if(loadMore.value)
         return;
     loadMore.value=true;
     let date=new Date();
-    getDynamic(store.token,store.userId,upChecked.value,dynamicPageNum.value++,menu.value).then(res=>{
+    //记录本次查询标识，切换up/菜单后丢弃过期响应，避免脏数据残留
+    const reqId=++dynamicReqId;
+    const reqUpChecked=upChecked.value;
+    const reqMenu=menu.value;
+    const reqPage=dynamicPageNum.value++;
+    getDynamic(store.token,store.userId,reqUpChecked,reqPage,reqMenu).then(res=>{
+
+        if(reqId!==dynamicReqId||reqUpChecked!==upChecked.value||reqMenu!==menu.value)
+            return;
 
         if(res.data.code===1){
             pushData(res.data.data);
@@ -626,51 +644,133 @@ async function getDynamicF(){
             }
             const date2=new Date();
                 setTimeout(() => {
+                if(reqId!==dynamicReqId)
+                    return;
                 loadMore.value=false;
             }, date2 - date<300?300:date2 - date);
         }
+        else{
+            //请求失败时回退页码并释放加载状态，避免页码跳过且无法继续加载
+            dynamicPageNum.value=reqPage;
+            loadMore.value=false;
+        }
+    }).catch(()=>{
+        if(reqId!==dynamicReqId)
+            return;
+        dynamicPageNum.value=reqPage;
+        loadMore.value=false;
     })
+}
+
+//重置动态列表分页状态
+function resetDynamicList(){
+  dynamicReqId++;
+  dynamicPageNum.value=1;
+  loadMore.value=false;
+  fotterFlag.value=false;
+  noDataFlag.value=false;
+  dynamicList.length=0;
 }
 
 //监视菜单变化
 watch(menu,()=>{
-  dynamicPageNum.value=1;
-  dynamicList.length=0;
-  fotterFlag.value=false;
+  resetDynamicList();
   getDynamicF();
 })
 
 //监视upChecked变化
 watch(upChecked,()=>{
-  dynamicPageNum.value=1;
-  fotterFlag.value=false;
-  dynamicList.length=0;
+  resetDynamicList();
 
-  const index=upList.findIndex(item=>item.id===upChecked.value);
-  if(upChecked.value!==0&&upList[index].newDynamicFlag)
+  //清除该up的新动态提醒，列表中不存在该up时直接跳过
+  const up=upList.find(item=>item.id===upChecked.value);
+  if(upChecked.value!==0&&up&&up.newDynamicFlag)
   {
-    cleanDynamicMessage(store.token,store.userId,upChecked.value);
-    upList[index].newDynamicFlag=0;
-  }  
+    up.newDynamicFlag=0;
+    cleanDynamicMessage(store.token,store.userId,upChecked.value)
+      .then(()=>refreshUpFlagF())
+      .catch(()=>{});
+  }
   getDynamicF();
 })
 
 //初始化查询
-let onceFlag2=true;
 watch(()=>store.userId,()=>{
-    if(onceFlag2&&store.userId){
-        onceFlag2=null;
+    if(store.userId){
+        //切换账号时重置全部状态，避免残留上一个用户的提醒与列表
+        upPageNum.value=1;
+        scrolledFlag=true;
+        upList.length=0;
+        newAllDynamicFlag.value=false;
+        resetDynamicList();
         getDynamicF();
         usersDynamicF();
-        setInterval(()=>{
-          allDynamicMessage(store.token,store.userId).then(res=>{
-              if(res.data.code===1){
-                 newAllDynamicFlag.value=res.data.data;
-              }
-          })
-        },60000)
+        refreshNewDynamicFlagF();
+        startDynamicMessageTimer();
+    }
+    else{
+        stopDynamicMessageTimer();
     }
 })
+
+//token可能晚于userId就绪(mainHead.autoLogin先setUserId后setToken)，就绪后补一次初始化
+watch(()=>store.token,()=>{
+    if(store.token&&store.userId&&dynamicList.length===0&&!loadMore.value)
+        getDynamicF();
+})
+
+//启动新动态提醒轮询
+function startDynamicMessageTimer(){
+  stopDynamicMessageTimer();
+  dynamicMessageTimer=setInterval(()=>{
+    if(!store.userId)
+      return;
+    refreshNewDynamicFlagF();
+    refreshUpFlagF();
+  },60000);
+}
+
+//停止新动态提醒轮询
+function stopDynamicMessageTimer(){
+  if(dynamicMessageTimer){
+    clearInterval(dynamicMessageTimer);
+    dynamicMessageTimer=null;
+  }
+}
+
+//刷新"有新动态"提示
+function refreshNewDynamicFlagF(){
+  if(!store.userId)
+    return;
+  allDynamicMessage(store.token,store.userId).then(res=>{
+      if(res.data.code===1){
+         newAllDynamicFlag.value=!!res.data.data;
+      }
+  }).catch(()=>{});
+}
+
+//刷新已加载up的新动态红点，只改标记不重建列表
+function refreshUpFlagF(){
+  if(!store.userId||upList.length===0)
+    return;
+  const pageCount=upPageNum.value-1;
+  if(pageCount<=0)
+    return;
+  const requests=[];
+  for(let i=1;i<=pageCount;i++)
+    requests.push(usersDynamic(store.token,store.userId,i));
+  Promise.all(requests).then(list=>{
+    list.forEach(res=>{
+      if(!res||res.data.code!==1||!res.data.data)
+        return;
+      res.data.data.forEach(item=>{
+        const up=upList.find(user=>user.id===item.id);
+        if(up)
+          up.newDynamicFlag=item.newDynamicFlag?1:0;
+      });
+    });
+  }).catch(()=>{});
+}
 
 //去除重复数据
 function pushData(newData) {
@@ -683,6 +783,8 @@ if(newData===null)
 
 //滚动事件
 function handleScroll() {
+  if(!store.userId)
+    return;
   if(!loadMore.value&&!fotterFlag.value){
         if((window.innerHeight+document.documentElement.scrollTop)>=document.documentElement.offsetHeight-100){
             getDynamicF();
@@ -692,21 +794,28 @@ function handleScroll() {
 
 //查询用户关注的up
 function usersDynamicF(){
-  if(!scrolledFlag)
+  if(!scrolledFlag||!store.userId)
     return;
   scrolledFlag=false;
-  usersDynamic(store.token,store.userId,upPageNum.value++).then(res=>{
-      if(res.data.code===1){
-          upList.push(...res.data.data);
-        if(res.data.data===null||res.data.data.length===0){
-          scrolledFlag=false;
-        }
-        else{
-          scrolledFlag=true;
-        }
+  const page=upPageNum.value++;
+  usersDynamic(store.token,store.userId,page).then(res=>{
+      if(res.data.code===1&&res.data.data){
+          //按id去重，避免重复查询时出现重复up
+          res.data.data.forEach(item=>{
+            if(!upList.some(up=>up.id===item.id))
+              upList.push(item);
+          });
+        scrolledFlag=res.data.data.length>0;
       }
+      else{
+        //查询失败时回退页码，允许下次重试
+        upPageNum.value=page;
+        scrolledFlag=true;
+      }
+  }).catch(()=>{
+      upPageNum.value=page;
+      scrolledFlag=true;
   })
-
 }
 
 //横向滚动
@@ -756,20 +865,37 @@ const smoothScroll = () => {
 
 //点击查看新动态
 function cleanNewDynamicMessageF(){
-   store.userInformation.dynamicNumber=0;
-   dynamicPageNum.value=1;
-   dynamicList.length=0;
-   upChecked.value=0;
-   fotterFlag.value=false;
+   if(!store.userId)
+    return;
+   if(store.userInformation)
+    store.userInformation.dynamicNumber=0;
    newAllDynamicFlag.value=false;
-   cleanDynamicMessage(store.token,store.userId,0);
-   getDynamicF();
+   //同步清空所有up的红点
+   upList.forEach(item=>item.newDynamicFlag=0);
+   cleanDynamicMessage(store.token,store.userId,0)
+    .then(()=>{
+      //清除完成后以服务端状态为准
+      refreshNewDynamicFlagF();
+      refreshUpFlagF();
+    })
+    .catch(()=>{});
+   //upChecked的watcher会重置列表并重新加载，不在此处重复请求
+   if(upChecked.value!==0)
+    upChecked.value=0;
+   else{
+    resetDynamicList();
+    getDynamicF();
+   }
 }
 
 //监视置顶动态变化
 watch(()=>store.upFlag,()=>{
     if(store.upFlag){
         const index=dynamicList.findIndex(item=>item.dynamic.id===store.upFlag);
+        if(index===-1){
+            store.upFlag=null;
+            return;
+        }
         let temp=dynamicList[index];
         dynamicList.splice(index,1);
         dynamicList.unshift(temp);
@@ -785,7 +911,8 @@ watch(()=>store.upFlag,()=>{
 watch(()=>store.deleteFlag,()=>{
     if(store.deleteFlag){
         const index=dynamicList.findIndex(item=>item.dynamic.id===store.deleteFlag);
-        dynamicList.splice(index,1);
+        if(index!==-1)
+            dynamicList.splice(index,1);
         store.deleteFlag=null;
     }
 })
@@ -865,9 +992,7 @@ async function addDynamicF(){
           content.value="";
           imgList2.length=0;
           title.value="";
-          dynamicPageNum.value=1;
-          dynamicList.length=0;
-          fotterFlag.value=false;
+          resetDynamicList();
           contentInput.value.innerHTML="";
           contentLength.value=0;
           placeholder.value="有什么想和大家分享的？";

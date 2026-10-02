@@ -658,7 +658,7 @@
             <div
               class="dynamicContent-item"
               v-for="dynamic in notHistoryDynamic"
-              :key="dynamic.id"
+              :key="dynamic.videoId"
             >
               <div @click="locationHerfVideo(dynamic.videoId)">
                 <el-tooltip
@@ -819,7 +819,7 @@
             <div
               class="dynamicContent-item"
               v-for="dynamic in dynamicss"
-              :key="dynamic.id"
+              :key="dynamic.videoId"
             >
               <div
                 v-if="dynamic.newDynamicNumber === 0"
@@ -2754,8 +2754,14 @@ export default {
       } catch (error) {}
     }
 
+    //按真实发布时间降序，videoId是入库主键，与审核通过时间不一致，不能用于排序
     const sortItems = () => {
-      dynamics.sort((a, b) => b.videoId - a.videoId); // 降序排序
+      dynamics.sort((a, b) => {
+        if (a.sortTime == null && b.sortTime == null) return b.videoId - a.videoId;
+        if (a.sortTime == null) return 1;
+        if (b.sortTime == null) return -1;
+        return b.sortTime - a.sortTime;
+      });
     };
 
     //获取动态
@@ -2775,6 +2781,8 @@ export default {
           dynamics.length = 0;
           dynamicss.length = 0;
           notHistoryDynamic.length = 0;
+          //重置未看标识，避免清除后区块残留
+          notWatchDynamicFlag.value = false;
           Object.assign(dynamics, response.data.data);
           sortItems();
           dynamics.forEach((item) => {

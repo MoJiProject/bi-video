@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -68,13 +69,16 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
     public List<DynamicDto> getFollowDynamic(Integer userID) {
 
         List<DynamicDto> dynamicDtoList =new ArrayList<>();
+        List<DynamicDto> historyDynamicDtoList =new ArrayList<>();
 
+        //校验用户存在，避免非法userID导致后续空指针
         Users fansUser = userMapper.selectById(userID);
+        if(fansUser==null)
+            return dynamicDtoList;
 
         LambdaQueryWrapper<Follow> followLambdaQueryWrapper=new LambdaQueryWrapper<>();
         followLambdaQueryWrapper.eq(Follow::getUserId,userID);
         List<Follow> follows = followMapper.selectList(followLambdaQueryWrapper);
-        int historyDynamicNumber=0;
         if(!follows.isEmpty()){
             //查询到是关注列表的所有人
             for (Follow follow : follows) {
@@ -95,33 +99,35 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                                 .eq(Collects::getVideoId,dynamic.getVideoId())
                                 .eq(Collects::getCollectName,"稍后再看");
                         dynamic.setWaitWatch(collectMapper.selectOne(collectsLambdaQueryWrapper)!=null?1:0);
+
+                        Videos video = videosMapper.selectById(dynamic.getVideoId());
+                        //视频已被删除时跳过，避免空指针
+                        if(video==null||video.getCreateTime()==null)
+                            continue;
+
+                        Users followUser = userMapper.selectById(dynamic.getFollowId());
+                        if(followUser==null)
+                            continue;
+
                         //没有观看过该动态
-                        if(dynamic.getWatchDynamicFlag()==0){
-
-                            Videos video = videosMapper.selectById(dynamic.getVideoId());
-
-                            Users followUser = userMapper.selectById(dynamic.getFollowId());
-                            DynamicDto dynamicDto = DynamicDto.builder()
-                                    .newDynamicNumber(fansUser.getDynamicNumber())
+                        if(dynamic.getWatchDynamicFlag()!=null&&dynamic.getWatchDynamicFlag()==0){
+                            dynamicDtoList.add(DynamicDto.builder()
+                                    //非0表示新动态，前端据此分区；不再下发用户维度的总数
+                                    .newDynamicNumber(1)
                                     .userId(followUser.getId())
                                     .avatarAddress(followUser.getAvatarAddress())
                                     .userName(followUser.getUserName())
                                     .title(video.getTitle())
                                     .coverAddress(video.getCoverAddress())
                                     .createTime(getDynamicCreatTime(video.getCreateTime()))
+                                    .sortTime(toSortTime(video.getCreateTime()))
                                     .videoId(video.getId())
                                     .waitWatch(dynamic.getWaitWatch())
-                                    .build();
-                            dynamicDtoList.add(dynamicDto);
-
+                                    .build());
                         }
                         //观看过（历史动态）
-                        else if(dynamic.getWatchDynamicFlag()==1){
-
-                            Videos video = videosMapper.selectById(dynamic.getVideoId());
-
-                            Users followUser = userMapper.selectById(dynamic.getFollowId());
-                            DynamicDto dynamicDto = DynamicDto.builder()
+                        else if(dynamic.getWatchDynamicFlag()!=null&&dynamic.getWatchDynamicFlag()==1){
+                            historyDynamicDtoList.add(DynamicDto.builder()
                                     .newDynamicNumber(0)
                                     .avatarAddress(followUser.getAvatarAddress())
                                     .userName(followUser.getUserName())
@@ -129,19 +135,28 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                                     .title(video.getTitle())
                                     .coverAddress(video.getCoverAddress())
                                     .createTime(getDynamicCreatTime(video.getCreateTime()))
+                                    .sortTime(toSortTime(video.getCreateTime()))
                                     .videoId(video.getId())
                                     .waitWatch(dynamic.getWaitWatch())
-                                    .build();
-                            historyDynamicNumber++;
-                            if(historyDynamicNumber<46)
-                                dynamicDtoList.add(dynamicDto);
-                            else break;
+                                    .build());
                         }
                     }
                 }
             }
         }
+
+        //先按真实发布时间降序，再截取历史动态，保证留下的是最新的45条
+        dynamicDtoList.sort(Comparator.comparing(DynamicDto::getSortTime,Comparator.nullsLast(Comparator.reverseOrder())));
+        historyDynamicDtoList.sort(Comparator.comparing(DynamicDto::getSortTime,Comparator.nullsLast(Comparator.reverseOrder())));
+        dynamicDtoList.addAll(historyDynamicDtoList.size()>45?historyDynamicDtoList.subList(0,45):historyDynamicDtoList);
         return dynamicDtoList;
+    }
+
+    //将时间转换为时间戳，用于排序
+    private Long toSortTime(LocalDateTime localDateTime) {
+        if(localDateTime==null)
+            return null;
+        return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 
     @Override
@@ -1100,15 +1115,15 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                 substring=duration.toHours()+"小时前";
         }
 
-        else if (duration.toHours()<2) {
+        else if (duration.toDays()<2) {
 
             substring="昨天";
 
-        }else if (duration.toHours()<3) {
+        }else if (duration.toDays()<3) {
 
             substring="前天";
 
-        } else if (duration.toHours()<4) {
+        } else if (duration.toDays()<4) {
 
             substring="3天前";
         }
@@ -1149,15 +1164,15 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                 substring=duration.toHours()+"小时前";
         }
 
-        else if (duration.toHours()<2) {
+        else if (duration.toDays()<2) {
 
             substring="昨天";
 
-        }else if (duration.toHours()<3) {
+        }else if (duration.toDays()<3) {
 
             substring="前天";
 
-        } else if (duration.toHours()<4) {
+        } else if (duration.toDays()<4) {
 
             substring="3天前";
         }
@@ -1225,7 +1240,18 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                     .collect(Collectors.toList());
             Dynamic updateEntity = new Dynamic();
             updateEntity.setWaitWatch(1);
+            //同时置为已观看，保持与头部动态提醒面板的清除状态一致
+            updateEntity.setWatchDynamicFlag(1);
             dynamicMapper.update(updateEntity, new LambdaQueryWrapper<Dynamic>().in(Dynamic::getId, ids));
+        }
+
+        //清除全部提醒时同步重置用户的动态提醒数，否则头部角标会被下一次登录检查恢复
+        if (dynamicUserId==0) {
+            Users users = userMapper.selectById(userId);
+            if (users!=null&&users.getDynamicNumber()!=null&&users.getDynamicNumber()!=0) {
+                users.setDynamicNumber(0);
+                userMapper.updateById(users);
+            }
         }
     }
 
@@ -1256,10 +1282,11 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
             UserInfo2 userInfo2=new UserInfo2();
             BeanUtils.copyProperties(users,userInfo2);
 
-            //查询是否有新的动态
+            //查询是否有新的动态，必须与cleanDynamicMessage的清除条件保持一致，否则红点无法被清除
             LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
             dynamicLambdaQueryWrapper.eq(Dynamic::getFollowId,record.getFollowId())
                     .eq(Dynamic::getFansId,userId)
+                    .eq(Dynamic::getFansFlag,1)
                     .and(wrapper->wrapper
                             .isNull(Dynamic::getDynamicId)
                             .eq(Dynamic::getWaitWatch,0)

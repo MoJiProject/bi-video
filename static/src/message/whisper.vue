@@ -1106,13 +1106,13 @@ function restoreBodyOverflow() {
 }
 
 .whisper-container{
-    position: absolute;
+  position: absolute;
   --whisper-left: clamp(20.7vw, 2.4vw + 15.2%, 44vw);
   left: var(--whisper-left);
   width: calc(100vw - var(--whisper-left) - 24px);
   max-width: 983px;
-  min-width: 0;
-    top: 74px;
+  min-width: 300px;
+  top: 74px;
     
     .head2{
     height: 42px;
