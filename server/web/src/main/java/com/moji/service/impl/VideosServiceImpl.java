@@ -12,6 +12,7 @@ import com.moji.po.*;
 import com.moji.service.CacheService;
 import com.moji.service.CommentService;
 import com.moji.service.VideosService;
+import com.moji.util.RemoteVideoUtil;
 import com.moji.vo.SelectVideoByIdVo;
 import com.moji.vo.UsersVideosVo;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
@@ -75,27 +76,39 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
     @Override
     public Boolean insertVideo(String videoName, String coverName, Videos videos) {
 
-          String videoAddress="/upload/video/"+videoName;
-          String coverAddress="/upload/video/cover/"+coverName;
-        String durationString=null;
-        try {
-            try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(FilePathEnum.UPLOAD_VIDEO.getPath() + videoName)) {
-                grabber.start();
-                // 获取视频时长（以秒为单位）
-                double durationInSeconds = grabber.getLengthInTime() / 1000000.0; // 转换为秒
-                durationString = formatDuration(durationInSeconds);
-                grabber.stop();
-            }
-        } catch (Exception e) {
-        }
-
         Users users = userMapper.selectById(videos.getUserId());
-         videos.setUserName(users.getUserName());
-         videos.setVideoTime(durationString);
-         videos.setVideoAddress(videoAddress);
-         videos.setCoverAddress(coverAddress);
-         videos.setCreateTime(LocalDateTime.now());
-         videos.setStatus(0);
+        videos.setUserName(users.getUserName());
+        videos.setCreateTime(LocalDateTime.now());
+        videos.setStatus(0);
+
+        //远程视频：不落本地文件，只保存视频直链
+        if (videos.getVideoSource() != null && videos.getVideoSource() == 1) {
+            String remoteUrl = RemoteVideoUtil.parseRemoteUrl(videos.getRemoteUrl());
+            if (remoteUrl == null)
+                throw new RuntimeException("视频直链无效");
+            videos.setRemoteUrl(remoteUrl);
+            videos.setVideoAddress("");
+            if (videos.getVideoTime() == null || videos.getVideoTime().isBlank())
+                videos.setVideoTime("00:00");
+            videos.setCoverAddress("/upload/video/cover/" + coverName);
+        } else {
+            String videoAddress = "/upload/video/" + videoName;
+            String coverAddress = "/upload/video/cover/" + coverName;
+            String durationString = null;
+            try {
+                try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(FilePathEnum.UPLOAD_VIDEO.getPath() + videoName)) {
+                    grabber.start();
+                    // 获取视频时长（以秒为单位）
+                    double durationInSeconds = grabber.getLengthInTime() / 1000000.0; // 转换为秒
+                    durationString = formatDuration(durationInSeconds);
+                    grabber.stop();
+                }
+            } catch (Exception e) {
+            }
+            videos.setVideoTime(durationString);
+            videos.setVideoAddress(videoAddress);
+            videos.setCoverAddress(coverAddress);
+        }
 
         int insert = videosMapper.insert(videos);
         return insert > 0;
@@ -533,14 +546,17 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
             List<Comments> comments = commentsMapper.selectList(commentsLambdaQueryWrapper);
             commentService.deleteReply(comments,false,true);
 
-            int flag=0;
-            try{
-                Files.delete(coverPath);
-                Files.delete(videoPath);
-                flag=1;
-            }catch (IOException e){
+            //远程视频没有本地视频文件，只需删除封面
+            boolean remoteVideo = video.getVideoSource() != null && video.getVideoSource() == 1;
+            int flag = 0;
+            try {
+                Files.deleteIfExists(coverPath);
+                if (!remoteVideo)
+                    Files.deleteIfExists(videoPath);
+                flag = 1;
+            } catch (IOException e) {
             }
-            if (flag==0) {
+            if (flag == 0) {
                 throw new RuntimeException("视频或视频封面删除失败");
             }
 
@@ -559,6 +575,18 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
         String videoAddress="/upload/video/"+videoName;
         String coverAddress="/upload/video/cover/"+coverName;
         String durationString=null;
+        Videos videos1 = videosMapper.selectById(videos.getId());
+        //远程视频不解析本地文件时长
+        boolean remoteVideo = videos.getVideoSource()!=null&&videos.getVideoSource()==1;
+        if(remoteVideo){
+            String remoteUrl=RemoteVideoUtil.parseRemoteUrl(videos.getRemoteUrl());
+            if(remoteUrl==null)
+                throw new RuntimeException("视频直链无效");
+            videos.setRemoteUrl(remoteUrl);
+            videos.setVideoAddress("");
+            if(videos.getVideoTime()==null||videos.getVideoTime().isBlank())
+                videos.setVideoTime("00:00");
+        }else{
         try {
             try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(FilePathEnum.UPLOAD_VIDEO.getPath() + videoName)) {
                 grabber.start();
@@ -569,10 +597,10 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
             }
         } catch (Exception e) {
         }
-        Videos videos1 = videosMapper.selectById(videos.getId());
         videos.setVideoTime(durationString);
         if (vFlag)
          videos.setVideoAddress(videoAddress);
+        }
         if (cFlag)
          videos.setCoverAddress(coverAddress);
         videos.setExamineFiledMessage(null);
@@ -743,6 +771,8 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
                     .videoPlayNumber(video.getPlayNumber())
                     .videoScrollingNumber(video.getScrollingNumber())
                     .videoAddress(video.getVideoAddress())
+                    .videoSource(video.getVideoSource())
+                    .remoteUrl(video.getRemoteUrl())
                     .collectNumber(video.getCollectNumber())
                     .build();
 
@@ -846,6 +876,8 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
                     .videoPlayNumber(video.getPlayNumber())
                     .videoScrollingNumber(video.getScrollingNumber())
                     .videoAddress(video.getVideoAddress())
+                    .videoSource(video.getVideoSource())
+                    .remoteUrl(video.getRemoteUrl())
                     .collectNumber(video.getCollectNumber())
                     .build();
 
@@ -949,6 +981,8 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
                     .videoPlayNumber(video.getPlayNumber())
                     .videoScrollingNumber(video.getScrollingNumber())
                     .videoAddress(video.getVideoAddress())
+                    .videoSource(video.getVideoSource())
+                    .remoteUrl(video.getRemoteUrl())
                     .collectNumber(video.getCollectNumber())
                     .build();
 
@@ -1036,6 +1070,8 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
                     .videoPlayNumber(video.getPlayNumber())
                     .videoScrollingNumber(video.getScrollingNumber())
                     .videoAddress(video.getVideoAddress())
+                    .videoSource(video.getVideoSource())
+                    .remoteUrl(video.getRemoteUrl())
                     .collectNumber(video.getCollectNumber())
                     .build();
 

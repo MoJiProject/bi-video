@@ -21,6 +21,8 @@ public class Videos implements Serializable {
     private String content;
     private String contentHtml;
     private String videoAddress;
+    private Integer videoSource;//视频来源 0本地 1远程视频直链
+    private String remoteUrl;//远程视频直链
     private Integer likeNumber;
     private Integer commentNumber;
     private Integer collectNumber;//收藏数量

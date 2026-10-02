@@ -5,6 +5,7 @@ import com.moji.mapper.VideosMapper;
 import com.moji.po.Videos;
 import com.moji.serve.LoginLimiterServer;
 import com.moji.service.VideosService;
+import com.moji.util.RemoteVideoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
@@ -51,6 +52,15 @@ public class UploadController {
 
         String videoName=mergedVideoName;
         String coverName=null;
+        //远程视频投稿不需要上传视频文件
+        boolean remoteVideo=videos.getVideoSource()!=null&&videos.getVideoSource()==1;
+        if(remoteVideo){
+            videoName=null;
+            String remoteUrl=RemoteVideoUtil.parseRemoteUrl(videos.getRemoteUrl());
+            if(remoteUrl==null)
+                return R.error("视频直链无效");
+            videos.setRemoteUrl(remoteUrl);
+        }
         if(uid!=null)
             if (uid == 0) {
                 return R.success("");
@@ -112,6 +122,10 @@ public class UploadController {
                 return R.error("文件上传失败: " );
             }
         }
+
+        //远程视频投稿仍然必须有封面
+        if(remoteVideo&&coverName==null)
+            return R.error("请上传封面");
 
         Boolean b = videosService.insertVideo(videoName, coverName, videos);
         if (b) {
@@ -480,6 +494,9 @@ public class UploadController {
     private void deleteOldVideoFile(Integer videoId){
         Videos video = videosMapper.selectById(videoId);
         if(video==null||video.getVideoAddress()==null)
+            return;
+        //远程视频没有本地文件
+        if(video.getVideoSource()!=null&&video.getVideoSource()==1)
             return;
         String videoAddress = video.getVideoAddress();
         int indexOf = videoAddress.lastIndexOf('/');

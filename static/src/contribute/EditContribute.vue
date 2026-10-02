@@ -35,13 +35,13 @@
         ></div>
       </div>
       <div
-        v-if="fileListVideo.length === 1"
+        v-if="fileListVideo.length === 1 && video.videoSource === 0"
         style="font-weight: 800; margin-left: 40px; margin-top: 60px"
       >
         编辑视频
       </div>
       <div
-        v-if="fileListVideo.length === 1"
+        v-if="fileListVideo.length === 1 && video.videoSource === 0"
         style="
           width: 800px;
           height: 150px;
@@ -78,8 +78,72 @@
         />
       </div>
 
+      <!-- 视频来源选择 -->
+      <div
+        style="
+          transform: translate(130px, 40px);
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        "
+      >
+        <el-radio-group
+          v-model="video.videoSource"
+          class="contribute-type"
+          @change="handleSourceTypeChange"
+        >
+          <el-radio class="contribute-radio" :value="0">本地视频</el-radio>
+          <el-radio class="contribute-radio" :value="1">远程链接</el-radio>
+        </el-radio-group>
+        <span style="font-size: 12px; color: #9c9f9f">
+          远程链接只保存一条视频直链，播放时流量走源站CDN，本站不存储文件
+        </span>
+      </div>
+
+      <div
+        v-if="video.videoSource === 1"
+        style="
+          transform: translate(130px, 40px);
+          width: 850px;
+          background-color: #f8f8f8;
+          border-radius: 5px;
+          padding: 20px;
+          box-sizing: border-box;
+        "
+      >
+        <div style="font-size: 13px; color: #00a1d6; margin-bottom: 10px">
+          视频直链
+        </div>
+        <el-input
+          v-model="remoteVideoCode"
+          type="textarea"
+          :rows="4"
+          placeholder="支持 mp4 / webm 等可直连的视频地址"
+        />
+        <div
+          v-if="remoteVideoUrl"
+          style="
+            font-size: 12px;
+            color: #67c23a;
+            margin-top: 10px;
+            word-break: break-all;
+          "
+        >
+          链接可用：{{ remoteVideoUrl }}
+        </div>
+        <div
+          v-else-if="remoteVideoCode"
+          style="font-size: 12px; color: #f56c6c; margin-top: 10px"
+        >
+          链接无效，必须是以http://或https://开头的地址
+        </div>
+        <div style="font-size: 12px; color: #f0a020; margin-top: 10px">
+          注意：部分源站链接带有效期，过期后在此处粘贴新链接即可
+        </div>
+      </div>
+
       <el-upload
-        v-show="fileListVideo.length === 0"
+        v-show="fileListVideo.length === 0 && video.videoSource === 0"
         style="transform: translate(130px, 40px); width: 850px"
         ref="uploadRef2"
         :headers="{
@@ -136,7 +200,7 @@
       </el-upload>
 
       <div
-        v-if="fileListVideo.length === 1"
+        v-if="showEditor"
         style="
           font-weight: 800;
           margin-left: 40px;
@@ -148,7 +212,7 @@
       </div>
 
       <div
-        v-if="fileListVideo.length === 0"
+        v-if="!showEditor"
         style="
           transform: translate(275px, 200px);
           display: flex;
@@ -275,7 +339,7 @@
       </div>
 
       <el-form
-        v-show="fileListVideo.length !== 0"
+        v-show="showEditor"
         :model="video"
         label-width="auto"
         style="max-width: 600px"
@@ -296,7 +360,7 @@
           <div @click="centerDialogVisible = true" class="cover">选择封面</div>
           <img
             v-if="fileListCover.length === 0"
-            :src="thumbnail || selectedThumbnail || video.coverAddress"
+            :src="thumbnail || selectedThumbnail || video.coverAddress || defaultCoverSrc"
             alt="Video Thumbnail"
             style="
               width: 169px;
@@ -426,7 +490,7 @@
             <CropperCompVue
               v-if="coverImg === 0"
               @cut="handleCut"
-              :imgURL="thumbnail || selectedThumbnail"
+              :imgURL="thumbnail || selectedThumbnail || video.coverAddress || defaultCoverSrc"
               :title="fileNameWithoutExtension"
               style="transform: translate(20px, 20px)"
             />
@@ -673,6 +737,12 @@ import { ElMessage } from "element-plus";
 import CropperCompVue from "../contribute/CropperComp.vue";
 import { useRoute } from "vue-router";
 import {useGlobalStore} from "../store/store";
+import {
+  parseRemoteVideoUrl,
+  readRemoteDuration,
+  formatSecondsToVideoTime,
+  fetchDefaultRemoteCover,
+} from "../utils/remoteVideo";
 import eit from "../components/eit.vue";
 export default {
   name: "EditComponent",
@@ -715,6 +785,8 @@ export default {
     const video = reactive({
       id: 0,
       userId: 0,
+      videoSource: 0,
+      remoteUrl: "",
       tag: "",
       title: "",
       content: "",
@@ -739,6 +811,32 @@ export default {
     const uploadRef = ref(null);
     const uploadRef2 = ref(null);
     const thumbnail = ref(null);
+    const remoteVideoCode = ref("");
+    const remoteVideoUrl = computed(() => parseRemoteVideoUrl(remoteVideoCode.value));
+    const showEditor = computed(
+      () => fileListVideo.value.length === 1 || video.videoSource === 1
+    );
+    const handleSourceTypeChange = (value) => {
+      if (value === 1) {
+        cancelAndCleanVideoUpload();
+        handleRemoveVideo(null, false);
+      } else {
+        video.remoteUrl = "";
+      }
+      remoteVideoCode.value = "";
+    };
+    //远程视频自动取时长，封面沿用原封面或默认图
+    const defaultCoverSrc = "/img/pageBg7.webp";
+    let durationTimer = null;
+    watch(remoteVideoUrl, (url) => {
+      if (durationTimer) clearTimeout(durationTimer);
+      if (!url || video.videoSource !== 1) return;
+      durationTimer = setTimeout(async () => {
+        const duration = await readRemoteDuration(url);
+        if (!url || video.videoSource !== 1) return;
+        if (duration > 0) video.videoTime = formatSecondsToVideoTime(duration);
+      }, 800);
+    });
     const fileNameWithoutExtension = ref("");
     const thumbnails = ref([]);
     const selectedThumbnail = ref(null); // 用于保存选中的缩略图
@@ -1030,7 +1128,11 @@ export default {
         });
         if (response.data.code === 1) {
           Object.assign(video, response.data.data);
-          fileListVideo.value.push({ url: video.videoAddress });
+          //远程播放器视频没有本地视频文件
+          if (video.videoSource === 1) {
+            remoteVideoCode.value = video.remoteUrl || "";
+          } else
+            fileListVideo.value.push({ url: video.videoAddress });
           progress.value = 100;
           dynamicTags.value = video.tag ? video.tag.split(",") : [];
           const inputDom = document.querySelector(".content-input");
@@ -1298,12 +1400,24 @@ export default {
       }
     };
     const uploadFile = async () => {
-      // 确保有文件可上传
+      const isRemote = video.videoSource === 1;
+      if (isRemote) {
+        if (!remoteVideoUrl.value) {
+          ElMessage({
+            message: "请填写可用的视频直链",
+            type: "info",
+            offset: 376,
+          });
+          return;
+        }
+        video.remoteUrl = remoteVideoUrl.value;
+      }
 
       if (
         fileListCover.value.length === 0 &&
         thumbnail.value === null &&
-        video.coverAddress.length === 0
+        video.coverAddress.length === 0 &&
+        !isRemote
       ) {
         ElMessage({
           message: "请上传封面",
@@ -1315,7 +1429,7 @@ export default {
 
       if (video.content.length < 5) {
         ElMessage({
-          message: "内容太短了",
+          message: "简介太短了",
           type: "info",
           offset: 376,
         });
@@ -1325,7 +1439,7 @@ export default {
       const file = fileListVideo.value[0]; // 获取选中的视频文件
       const formData = new FormData();
       try {
-        if (file.raw) {
+        if (file && file.raw) {
           if (!videoUploadPromise.value) {
             ElMessage({
               message: "请先上传视频",
@@ -1359,12 +1473,14 @@ export default {
           ).blob();
           // 使用了默认封面
           if (blob !== null) formData.append("file", blob, "thumbnail.jpg");
-        } else {
+        } else if (fileListCover.value.length > 0) {
           // 如果没有使用默认封面
-          if (fileListCover.value.length > 0) {
-            const file2 = fileListCover.value[0];
-            if (file2 !== null) formData.append("file", file2.raw);
-          }
+          const file2 = fileListCover.value[0];
+          if (file2 !== null) formData.append("file", file2.raw);
+        } else if (isRemote) {
+          // 远程视频没有封面，用默认封面
+          const blob = await fetchDefaultRemoteCover();
+          formData.append("file", blob, "pageBg7.webp");
         }
         await publishComment();
         // 填充视频信息
@@ -1919,6 +2035,11 @@ export default {
     return {
       beforeUploadVideo,
       centerDialogVisible,
+      remoteVideoCode,
+      remoteVideoUrl,
+      defaultCoverSrc,
+      showEditor,
+      handleSourceTypeChange,
       video,
       beforeUploadCover,
       handleChangeCover,

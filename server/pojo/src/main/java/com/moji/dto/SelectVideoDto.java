@@ -32,6 +32,8 @@ public class SelectVideoDto implements Serializable {
     private String videoTitle;
     private String coverAddress;
     private String videoAddress;
+    private Integer videoSource;
+    private String remoteUrl;
     private Integer collectNumber;
     private Integer waitWatch;
     private String videoTime;

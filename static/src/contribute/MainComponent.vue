@@ -30,13 +30,13 @@
         ></div>
       </div>
       <div
-        v-if="fileListVideo.length === 1"
+        v-if="fileListVideo.length === 1 && video.videoSource === 0"
         style="font-weight: 800; margin-left: 40px; margin-top: 60px"
       >
         发布视频
       </div>
       <div
-        v-if="fileListVideo.length === 1"
+        v-if="fileListVideo.length === 1 && video.videoSource === 0"
         style="
           width: 800px;
           height: 150px;
@@ -75,8 +75,100 @@
        </div>
       </div>
 
+      <!-- 视频来源选择 -->
+      <div
+        style="
+          transform: translate(130px, 40px);
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        "
+      >
+        <el-radio-group
+          v-model="video.videoSource"
+          class="contribute-type"
+          @change="handleSourceTypeChange"
+        >
+          <el-radio class="contribute-radio" :value="0">本地视频</el-radio>
+          <el-radio class="contribute-radio" :value="1">远程链接</el-radio>
+        </el-radio-group>
+        <span style="font-size: 12px; color: #9c9f9f">
+          远程链接只保存一条视频直链，播放时流量走源站CDN，本站不存储文件
+        </span>
+      </div>
+
+      <div
+        v-if="video.videoSource === 1"
+        style="
+          transform: translate(130px, 40px);
+          width: 850px;
+          background-color: #f8f8f8;
+          border-radius: 5px;
+          padding: 20px;
+          box-sizing: border-box;
+        "
+      >
+        <div style="font-size: 13px; color: #00a1d6; margin-bottom: 10px">
+          粘贴视频直链
+        </div>
+        <el-input
+          v-model="remoteVideoCode"
+          type="textarea"
+          :rows="4"
+          placeholder="支持 mp4 / webm 等可直连的视频地址，例如&#10;https://xxx.cos.ap-guangzhou.myqcloud.com/xxx.mp4"
+        />
+        <div
+          v-if="remoteVideoUrl"
+          style="
+            font-size: 12px;
+            color: #67c23a;
+            margin-top: 10px;
+            word-break: break-all;
+          "
+        >
+          链接可用：{{ remoteVideoUrl }}
+        </div>
+        <div
+          v-else-if="remoteVideoCode"
+          style="font-size: 12px; color: #f56c6c; margin-top: 10px"
+        >
+          链接无效，必须是以http://或https://开头的地址
+        </div>
+        <div style="font-size: 12px; color: #f0a020; margin-top: 10px">
+          注意：部分源站链接带有效期，过期后需在编辑页手动更换
+        </div>
+        <div
+          v-if="remoteVideoUrl"
+          style="
+            margin-top: 15px;
+            font-size: 12px;
+            color: #9c9f9f;
+          "
+        >
+          预览
+          <div
+            style="
+              width: 480px;
+              height: 270px;
+              margin-top: 8px;
+              border-radius: 5px;
+              overflow: hidden;
+              background-color: #000;
+            "
+          >
+            <video
+              :src="remoteVideoUrl"
+              controls
+              preload="metadata"
+              referrerpolicy="no-referrer"
+              style="width: 100%; height: 100%; outline: none"
+            ></video>
+          </div>
+        </div>
+      </div>
+
       <el-upload
-        v-show="fileListVideo.length === 0"
+        v-show="fileListVideo.length === 0 && video.videoSource === 0"
         style="transform: translate(130px, 40px); width: 850px;"
         ref="uploadRef2"
         class="upload-demo"
@@ -133,7 +225,7 @@
       </el-upload>
 
       <div
-        v-if="fileListVideo.length === 1"
+        v-if="showEditor"
         style="
           font-weight: 800;
           margin-left: 40px;
@@ -145,7 +237,7 @@
       </div>
 
       <div
-        v-if="fileListVideo.length === 0"
+        v-if="!showEditor"
         style="
           transform: translate(275px, 200px);
           display: flex;
@@ -272,7 +364,7 @@
       </div>
 
       <el-form
-        v-show="fileListVideo.length !== 0"
+        v-show="showEditor"
         :model="video"
         label-width="auto"
         style="max-width: 600px"
@@ -293,7 +385,7 @@
           <div @click="centerDialogVisible = true" class="cover">选择封面</div>
           <img
             v-if="fileListCover.length === 0"
-            :src="thumbnail || selectedThumbnail"
+            :src="thumbnail || selectedThumbnail || defaultCoverSrc"
             alt="Video Thumbnail"
             style="
               width: 169px;
@@ -673,6 +765,12 @@ import "element-plus/theme-chalk/el-message.css";
 import { reactive, onMounted, ref, computed, nextTick, watch, onUnmounted } from "vue";
 import { ElMessage } from "element-plus";
 import {useGlobalStore} from "../store/store";
+import {
+  parseRemoteVideoUrl,
+  readRemoteDuration,
+  formatSecondsToVideoTime,
+  fetchDefaultRemoteCover,
+} from "../utils/remoteVideo";
 import CropperCompVue from "./CropperComp.vue";
 import eit from "../components/eit.vue";
 export default {
@@ -715,6 +813,8 @@ export default {
     const video = reactive({
       id: 0,
       userId: 0,
+      videoSource: 0,
+      remoteUrl: "",
       tag: [],
       title: "",
       content: "",
@@ -739,6 +839,39 @@ export default {
     const uploadRef = ref(null);
     const uploadRef2 = ref(null);
     const thumbnail = ref(null);
+    const remoteVideoCode = ref("");
+    //远程播放器地址，由用户粘贴的iframe代码/地址解析得到
+    const remoteVideoUrl = computed(() =>
+      parseRemoteVideoUrl(remoteVideoCode.value)
+    );
+    const showEditor = computed(
+      () => fileListVideo.value.length === 1 || video.videoSource === 1
+    );
+    //远程视频取不到首帧时投稿使用的默认封面
+    const defaultCoverSrc = "/img/pageBg7.webp";
+    const handleSourceTypeChange = (value) => {
+      if (value === 1) {
+        //远程视频无需本地文件，清理已选择的本地视频
+        cancelAndCleanVideoUpload();
+        handleRemoveVideo(null, false);
+        remoteVideoCode.value = "";
+      } else {
+        remoteVideoCode.value = "";
+        video.remoteUrl = "";
+      }
+    };
+    //远程视频自动取时长，封面由用户上传或用默认图
+    let durationTimer = null;
+    watch(remoteVideoUrl, (url) => {
+      if (durationTimer) clearTimeout(durationTimer);
+      if (!url || video.videoSource !== 1) return;
+      durationTimer = setTimeout(async () => {
+        const duration = await readRemoteDuration(url);
+        if (!url || video.videoSource !== 1) return;
+        //时长来自metadata，不需要跨域就能拿到
+        if (duration > 0) video.videoTime = formatSecondsToVideoTime(duration);
+      }, 800);
+    });
     const fileNameWithoutExtension = ref("");
     const thumbnails = ref([]);
     const selectedThumbnail = ref(null); // 用于保存选中的缩略图
@@ -1139,9 +1272,23 @@ export default {
     };
     //发送请求上传视频
     const uploadFile = async () => {
-      // 确保有文件可上传
+      const isRemote = video.videoSource === 1;
+      // 远程投稿必须有可用的播放器地址
+      if (isRemote && !remoteVideoUrl.value) {
+        ElMessage({
+          message: "请填写可用的视频直链",
+          type: "info",
+          offset: 376,
+        });
+        return;
+      }
 
-      if (fileListCover.value.length === 0 && thumbnail.value === null) {
+      // 封面必填；远程视频未手动上传时使用默认封面
+      if (
+        fileListCover.value.length === 0 &&
+        thumbnail.value === null &&
+        !isRemote
+      ) {
         ElMessage({
           message: "请上传封面",
           type: "info",
@@ -1152,7 +1299,7 @@ export default {
 
       if (video.content.length < 5) {
         ElMessage({
-          message: "内容太短了",
+          message: "简介太短了",
           type: "info",
           offset: 376,
         });
@@ -1161,37 +1308,48 @@ export default {
       const file = fileListVideo.value[0]; // 获取选中的视频文件
       const formData = new FormData();
       try {
-        if (!file || !videoUploadPromise.value) {
-          ElMessage({
-            message: "请先上传视频",
-            type: "info",
-            offset: 376,
-          });
-          return;
-        }
-        const videoName = uploadedVideoName.value || await videoUploadPromise.value;
-        if (!videoName) {
-          ElMessage({
-            message: "视频上传失败，请重新选择视频",
-            type: "info",
-            offset: 376,
-          });
-          return;
-        }
-        formData.append("videoName", videoName);
-
-        const dataImg = thumbnail.value.split(",")[1]; // 去掉前缀部分
-        const blob = await (
-          await fetch(`data:image/jpeg;base64,${dataImg}`)
-        ).blob();
-
-        // 使用了默认封面
-        if (fileListCover.value.length === 0) {
-          formData.append("file", blob, "thumbnail.jpg");
+        if (isRemote) {
+          //远程投稿只保存链接，不上传视频文件。
+          //这里必须同步写回video对象：下面的for循环会把video的所有字段再追加一次，
+          //若这里单独append，同一个key出现两次，Spring绑定会拼成"url,"这种带逗号的值
+          video.videoSource = 1;
+          video.remoteUrl = remoteVideoUrl.value;
         } else {
-          // 如果没有使用默认封面
+          if (!file || !videoUploadPromise.value) {
+            ElMessage({
+              message: "请先上传视频",
+              type: "info",
+              offset: 376,
+            });
+            return;
+          }
+          const videoName =
+            uploadedVideoName.value || (await videoUploadPromise.value);
+          if (!videoName) {
+            ElMessage({
+              message: "视频上传失败，请重新选择视频",
+              type: "info",
+              offset: 376,
+            });
+            return;
+          }
+          formData.append("videoName", videoName);
+        }
+
+        // 使用了默认封面（本地视频截帧）或用户上传的封面
+        if (fileListCover.value.length === 1) {
           const file2 = fileListCover.value[0];
           formData.append("file", file2.raw);
+        } else if (thumbnail.value) {
+          const dataImg = thumbnail.value.split(",")[1]; // 去掉前缀部分
+          const blob = await (
+            await fetch(`data:image/jpeg;base64,${dataImg}`)
+          ).blob();
+          formData.append("file", blob, "thumbnail.jpg");
+        } else {
+          // 远程视频未上传封面，用默认封面
+          const blob = await fetchDefaultRemoteCover();
+          formData.append("file", blob, "pageBg7.webp");
         }
 
         await publishComment();
@@ -1505,6 +1663,9 @@ export default {
     //清除上传后的视频数据
     function cleanVideoData() {
       video.allowTwo = false;
+      video.videoSource = 0;
+      video.remoteUrl = "";
+      remoteVideoCode.value = "";
       video.tag = [];
       dynamicTags.value = [];
       video.content = "";
@@ -1750,6 +1911,11 @@ export default {
     return {
       beforeUploadVideo,
       centerDialogVisible,
+      remoteVideoCode,
+      remoteVideoUrl,
+      defaultCoverSrc,
+      showEditor,
+      handleSourceTypeChange,
       video,
       beforeUploadCover,
       handleChangeCover,

@@ -348,6 +348,8 @@ CREATE TABLE `videos`  (
   `content_html` varchar(10000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   `content` varchar(2000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `video_address` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `video_source` int(1) NOT NULL DEFAULT 0 COMMENT '视频来源 0本地 1远程视频直链',
+  `remote_url` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '远程视频直链',
   `like_number` int(11) NOT NULL DEFAULT 0,
   `comment_number` int(11) NOT NULL DEFAULT 0,
   `collect_number` int(11) NOT NULL DEFAULT 0,

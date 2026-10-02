@@ -272,7 +272,8 @@
             @canplay="onVideoCanPlay"
             @waiting="videoWaitingF"
             @canplaythrough="onCanPlayThrough"
-            :src="SelectVideoByIdVo.upVideo.videoAddress"
+            :src="playVideoSrc"
+            referrerpolicy="no-referrer"
             class="up-user-video-player"
           ></video>
           <div
@@ -611,9 +612,7 @@
               "
               >/</span
             >
-            <span style="margin-left: 5px">{{
-              SelectVideoByIdVo.upVideo.videoTime
-            }}</span>
+            <span style="margin-left: 5px">{{ videoTotalTime }}</span>
           </div>
           <div
             :class="{
@@ -2920,6 +2919,21 @@ export default {
     const intoVideoAllDisplayFlag = ref(false);
     const intoVideoAllDisplayIngFlag = ref(false);
     const upVideoContainer = ref(null);
+    //远程视频：只存一条视频直链，用同一个video元素播放，流量走源站CDN
+    const isRemoteVideo = computed(
+      () =>
+        SelectVideoByIdVo.upVideo &&
+        SelectVideoByIdVo.upVideo.videoSource === 1 &&
+        !!SelectVideoByIdVo.upVideo.remoteUrl
+    );
+    const remoteVideoSrc = computed(() =>
+      isRemoteVideo.value ? SelectVideoByIdVo.upVideo.remoteUrl : ""
+    );
+    const playVideoSrc = computed(() =>
+      isRemoteVideo.value
+        ? remoteVideoSrc.value
+        : SelectVideoByIdVo.upVideo.videoAddress
+    );
     const watchTogetherHost = computed(
       () => (intoVideoAllDisplayIngFlag.value ? upVideoContainer.value : null) || 'body'
     );
@@ -3207,15 +3221,37 @@ export default {
       return Math.min(Math.max(value, min), max);
     }
 
+    //把"mm:ss"格式的时长转成秒，无法解析时返回0
+    function parseVideoTimeToSeconds(videoTime) {
+      if (!videoTime || typeof videoTime !== "string") return 0;
+      const parts = videoTime.split(":");
+      if (parts.length < 2) return 0;
+      const seconds = Number(parts[0]) * 60 + Number(parts[1]);
+      return Number.isFinite(seconds) && seconds > 0 ? seconds : 0;
+    }
+
     function getVideoDurationSeconds() {
+      //优先用播放器真实的duration，加载中duration为NaN时会走下面的兜底
       if (upVideoPlayer.value && Number.isFinite(upVideoPlayer.value.duration)) {
         return upVideoPlayer.value.duration;
       }
 
-      if (!SelectVideoByIdVo.upVideo.videoTime) return 0;
-      const videoTime = SelectVideoByIdVo.upVideo.videoTime.split(":");
-      return Number(videoTime[0]) * 60 + Number(videoTime[1]);
+      //远程视频库里的videoTime可能是"00:00"，用metadata里取到的真实时长兜底
+      if (videoDurationSeconds.value > 0) return videoDurationSeconds.value;
+
+      //都没有时返回0表示时长未知
+      return parseVideoTimeToSeconds(SelectVideoByIdVo.upVideo.videoTime);
     }
+
+    //播放器metadata就绪时缓存真实时长，远程视频没有本地文件，只能从这里拿到
+    const videoDurationSeconds = ref(0);
+    const videoTotalTime = computed(() => {
+      const seconds = getVideoDurationSeconds();
+      if (!seconds) return SelectVideoByIdVo.upVideo?.videoTime || "00:00";
+      const minutes = Math.floor(seconds / 60);
+      const rest = Math.floor(seconds % 60);
+      return `${minutes < 10 ? "0" : ""}${minutes}:${rest < 10 ? "0" : ""}${rest}`;
+    });
 
     function formatPointerTime(time) {
       const safeTime = Math.max(parseInt(time), 0);
@@ -3399,27 +3435,34 @@ export default {
 
     //更新视频进度条
     const updateProgress = () => {
-      if (upVideoPlayer.value && upVideoPlayer.value.duration > 0) {
+      const player = upVideoPlayer.value;
+      if (!player) return;
+      //duration为NaN/Infinity时（还在加载）不更新进度，避免算出NaN写进进度条
+      const realDuration =
+        Number.isFinite(player.duration) && player.duration > 0
+          ? player.duration
+          : 0;
+      if (realDuration > 0) {
         updateScrollingCurrentTime();
         upVideoProgress.value = Math.floor(
-          (upVideoPlayer.value.currentTime / upVideoPlayer.value.duration) *
-            100,
+          (player.currentTime / realDuration) * 100,
         );
-        upVideoTimeDuration.value = Math.floor(upVideoPlayer.value.currentTime);
+        upVideoTimeDuration.value = Math.floor(player.currentTime);
       }
+      //realDuration为0说明时长未知，此时currentTime与duration比较没有意义，
+      //NaN比较恒为false，交给watcher和ended事件处理
+      if (realDuration <= 0) return;
       if (setVideoAutoRePlayFlag.value) {
-        if (upVideoPlayer.value.currentTime === upVideoPlayer.value.duration) {
-          upVideoPlayer.value.currentTime = 0;
-          const playResult = upVideoPlayer.value.play();
+        if (player.ended || player.currentTime >= realDuration) {
+          player.currentTime = 0;
+          const playResult = player.play();
           if (playResult && typeof playResult.catch === "function") {
             playResult.catch(() => {});
           }
           pausedOrPlayVideoFlag.value = true;
         }
-      } else if (
-        upVideoPlayer.value.currentTime === upVideoPlayer.value.duration
-      ) {
-        upVideoPlayer.value.pause();
+      } else if (player.ended || player.currentTime >= realDuration) {
+        player.pause();
         pausedOrPlayVideoFlag.value = false;
       }
     };
@@ -3429,11 +3472,10 @@ export default {
     watchEffect(() => {
       const minutes = Math.floor(upVideoTimeDuration.value / 60);
       const seconds = upVideoTimeDuration.value % 60;
-      const videoTime = SelectVideoByIdVo.upVideo?.videoTime; // 使用可选链操作符
-      const duration = videoTime
-        ? Number(videoTime.split(":")[0]) * 60 + Number(videoTime.split(":")[1])
-        : 0; // 如果 videoTime 存在则计算，否则返回 0
-      if (minutes * 60 + seconds >= duration + 1) {
+      //用播放器真实时长判断是否播完；时长未知(远程视频未加载完)时不能判定为结束，
+      //否则每播放1秒就会被强制暂停，形成播放/暂停死循环
+      const duration = getVideoDurationSeconds();
+      if (duration > 0 && minutes * 60 + seconds >= duration) {
         if (!setVideoAutoRePlayFlag.value) {
           pausedOrPlayVideoFlag.value = false;
         }
@@ -3533,6 +3575,8 @@ export default {
       //否则250ms后自动play会与拖拽的pause竞争，触发
       //"play() request was interrupted by a call to pause()"
       cancelClickToggle();
+      //拖动开始就复位加载标记，避免加载中的waiting事件把加载动画留在屏幕上
+      videoLoadFlag = false;
       const pointerTime = updateProgressByPointer(event, isAllDisplay);
       if (pointerTime === null) return;
 
@@ -3930,15 +3974,22 @@ export default {
 
     //监视视频暂停或播放
     watch(pausedOrPlayVideoFlag, (newValue) => {
-      //该标志被多处修改(播放/暂停/拖拽/自动重播)，play与pause可能相互竞争，
-      //这里统一吞掉被中断的rejection，避免
-      //"play() request was interrupted by a call to pause()"报错
-      if (newValue && !setVideoAutoRePlayFlag.value) {
-        const playResult = upVideoPlayer.value.play();
-        if (playResult && typeof playResult.catch === "function") {
-          playResult.catch(() => {});
+      //该标志同时被play/pause事件和点击、拖拽、自动重播修改，
+      //这里只在播放器实际状态与标志不一致时才下发play/pause，
+      //否则加载中反复下发会触发"play() request was interrupted by a call to pause()"并让状态来回翻转
+      const player = upVideoPlayer.value;
+      if (player && !setVideoAutoRePlayFlag.value) {
+        if (newValue) {
+          if (player.paused) {
+            const playResult = player.play();
+            if (playResult && typeof playResult.catch === "function") {
+              playResult.catch(() => {});
+            }
+          }
+        } else if (!player.paused) {
+          player.pause();
         }
-      } else if (!newValue && !setVideoAutoRePlayFlag.value) upVideoPlayer.value.pause();
+      }
       if (newValue) startScrollingClock();
       else {
         updateScrollingCurrentTime();
@@ -4751,8 +4802,9 @@ export default {
     async function updateVideoPlayNumberAxios() {
       try {
         if (!SelectVideoByIdVo) return;
-        let time = SelectVideoByIdVo.upVideo.videoTime.split(":");
-        let videoTime = parseInt(time[0]) * 60 + parseInt(time[1]);
+        //时长未知时不再按0ms定时器疯狂触发播放量上报
+        let videoTime = getVideoDurationSeconds();
+        if (!videoTime) return;
 
         if (pausedOrPlayVideoFlag.value) {
           playNumberTime = setTimeout(async () => {
@@ -5059,7 +5111,10 @@ export default {
     //视频加载
     let videoLoadFlag=false;
     function videoWaitingF(){
-      if(upVideoPlayer.value&&!upVideoPlayer.value.readyState===4){
+      const player=upVideoPlayer.value;
+      //readyState小于4说明还没缓冲完，允许显示加载中；
+      //这里原先写成 !readyState===4 恒为false，导致videoLoadFlag永远解不掉
+      if(player&&player.readyState<4){
         videoLoadFlag=false;
       }
       if(videoLoadFlag)
@@ -5067,9 +5122,12 @@ export default {
       videoWaitingFlag.value=true;
     }
 
-    //可以播放但没有加载完毕
+//可以播放但没有加载完毕
     function onVideoCanPlay(){
-       videoWaitingFlag.value=false; 
+       //metadata已就绪，记录真实时长供进度条与时间显示使用
+       if(upVideoPlayer.value&&Number.isFinite(upVideoPlayer.value.duration)&&upVideoPlayer.value.duration>0)
+         videoDurationSeconds.value=upVideoPlayer.value.duration;
+       videoWaitingFlag.value=false;
     }
 
     //视频加载完毕
@@ -5083,6 +5141,10 @@ export default {
 
     
     return {
+      isRemoteVideo,
+      remoteVideoSrc,
+      playVideoSrc,
+      videoTotalTime,
       onloadPage,
       titleShowFlag,
       sendMessageGray,
