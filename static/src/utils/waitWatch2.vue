@@ -9,7 +9,7 @@
     >
       <img
         v-show="video.waitWatch === 0"
-        src="../img/稍后再看.png"
+        src="/img/稍后再看.png"
         style="
           width: 20px;
           height: 18px;
@@ -19,7 +19,7 @@
       />
       <img
         v-show="video.waitWatch === 1"
-        src="../img/添加成功.png"
+        src="/img/添加成功.png"
         style="
           width: 17px;
           height: 14px;

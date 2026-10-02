@@ -2,7 +2,7 @@
     <div class="home-lists">
         <div class="title">{{ store.userId!==null&&store.userId==userId? "我的合集列表" : "TA的合集列表" }}</div>
         <div class="no-data">
-            <img src="../img/home_nodata.svg">
+            <img src="/img/home_nodata.svg">
             <div>暂无数据</div>
         </div>
     </div>

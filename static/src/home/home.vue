@@ -10,8 +10,8 @@
                     </svg>
                 </span>
             </div>
-            <div><img src="../img/uid.png"> {{ store.homeUserInformation.id }}</div>
-            <div v-if="store.homeUserInformation.birthday"><img src="../img/birthday.png"> {{ store.homeUserInformation?.birthday?.split(' ')[0] }}</div>
+            <div><img src="/img/uid.png"> {{ store.homeUserInformation.id }}</div>
+            <div v-if="store.homeUserInformation.birthday"><img src="/img/birthday.png"> {{ store.homeUserInformation?.birthday?.split(' ')[0] }}</div>
         </div>
         <!-- 单独渲染加载中部分 -->
         <loadingIndicator v-show="loadMore" min-height="180px"/>
@@ -45,7 +45,7 @@
             <div :class="item.class" v-if="item.class === 'throw-coin-video'&&!loadMore && ((store.userId!== null && store.userId === userId) || store.homeUserInformation.publicCoin === 1)">
                 <div class="title">
                     <span>最近投币的视频</span>
-                    <span v-if="store.userId===store.homeUserInformation.id&&store.homeUserInformation.publicCoin===0" class="home-user-info-public"><img src="../img/隐藏.png">仅自己可见</span> 
+                    <span v-if="store.userId===store.homeUserInformation.id&&store.homeUserInformation.publicCoin===0" class="home-user-info-public"><img src="/img/隐藏.png">仅自己可见</span> 
                 </div>
                 <videoList2 :data="throwCoinVideos" :sign="'throwCoin'"/>
             </div>
@@ -54,7 +54,7 @@
                 <div class="title">
                     <div class="title-name" @click="store.setHomeMenu(5,userId,true)">收藏夹</div> · &nbsp;
                     <span class="contribute-total">{{ collectTotal }}</span>
-                    <span v-if="store.userId===store.homeUserInformation.id&&store.homeUserInformation.publicCollect===0" class="home-user-info-public"><img src="../img/隐藏.png">仅自己可见</span> 
+                    <span v-if="store.userId===store.homeUserInformation.id&&store.homeUserInformation.publicCollect===0" class="home-user-info-public"><img src="/img/隐藏.png">仅自己可见</span> 
                     <div class="more" @click="store.setHomeMenu(5,userId,true)">
                         查看更多
                         <svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
@@ -67,7 +67,7 @@
                         <div class="collect-back"></div>
                         <div class="collect-back2"></div>
                         <div class="content" @click="store.setHomeMenu(5,userId,true,collect.id)">
-                            <img :src="collect.coverAddress?collect.coverAddress:'../img/collect_cover.avif'">
+                            <img :src="collect.coverAddress?collect.coverAddress:'/img/collect_cover.avif'">
                             <svg v-if="collect.status === 0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
                                 <path fill="currentColor" d="M224 448a32 32 0 0 0-32 32v384a32 32 0 0 0 32 32h576a32 32 0 0 0 32-32V480a32 32 0 0 0-32-32zm0-64h576a96 96 0 0 1 96 96v384a96 96 0 0 1-96 96H224a96 96 0 0 1-96-96V480a96 96 0 0 1 96-96"></path>
                                 <path fill="currentColor" d="M512 544a32 32 0 0 1 32 32v192a32 32 0 1 1-64 0V576a32 32 0 0 1 32-32m192-160v-64a192 192 0 1 0-384 0v64zM512 64a256 256 0 0 1 256 256v128H256V320A256 256 0 0 1 512 64"></path>
@@ -86,7 +86,7 @@
                 <div class="title">
                     <div class="title-name" @click="store.setHomeMenu(6,userId,true)">订阅追番</div> · &nbsp;
                     <span class="contribute-total">12</span>
-                    <span v-if="store.userId===store.homeUserInformation.id&&store.homeUserInformation.publicAnime===0" class="home-user-info-public"><img src="../img/隐藏.png">仅自己可见</span> 
+                    <span v-if="store.userId===store.homeUserInformation.id&&store.homeUserInformation.publicAnime===0" class="home-user-info-public"><img src="/img/隐藏.png">仅自己可见</span> 
                 </div>
                 <followAnimeList :data="followAnimeData.AnimeData.slice(0,6)"/>
             </div>
@@ -94,7 +94,7 @@
             <div :class="item.class" v-if="item.class === 'love-video'&&!loadMore && ((store.userId!== null && store.userId === userId) || store.homeUserInformation.publicLove === 1)">
                 <div class="title">
                     <span>最近点赞的视频</span>
-                    <span v-if="store.userId===store.homeUserInformation.id&&store.homeUserInformation.publicLove===0" class="home-user-info-public"><img src="../img/隐藏.png">仅自己可见</span> 
+                    <span v-if="store.userId===store.homeUserInformation.id&&store.homeUserInformation.publicLove===0" class="home-user-info-public"><img src="/img/隐藏.png">仅自己可见</span> 
                 </div>
                 <videoList2 :data="loveVideos" :sign="'love'"/>
             </div>

@@ -40,8 +40,8 @@
                </div>
            </div>
             <div class="info">
-                <div><img src="../img/播放量灰.png"><span>{{ video.videoPlayNumber }}</span></div>
-                <div><img src="../img/弹幕灰.png"><span>{{ video.videoScrollingNumber }}</span></div>
+                <div><img src="/img/播放量灰.png"><span>{{ video.videoPlayNumber }}</span></div>
+                <div><img src="/img/弹幕灰.png"><span>{{ video.videoScrollingNumber }}</span></div>
                 <div>{{ video.createTime }}</div>
             </div>
       </div>

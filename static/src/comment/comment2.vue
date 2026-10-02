@@ -21,7 +21,7 @@
       <img
         class="comment-avatar"
         v-show="store.userId === null"
-        src="/默认头像.gif"
+        src="/img/默认头像.gif"
       />
       <img
         @click="openHome(1,store.userId)"
@@ -89,16 +89,16 @@
                 class="loading-span"
               >
                 <span @click="deleteCommentImg(index)"
-                  ><img src="../img/关闭视频定位.png"
+                  ><img src="/img/关闭视频定位.png"
                 /></span>
-                <img src="../img/loading-blue.gif" />
+                <img src="/img/loading-blue.gif" />
               </span>
               <span
                 v-show="file !== undefined && file !== null"
                 class="loading-before-span"
               >
                 <span @click="deleteCommentImg(index)"
-                  ><img src="../img/关闭视频定位.png"
+                  ><img src="/img/关闭视频定位.png"
                 /></span>
                 <img :src="file" />
               </span>
@@ -117,7 +117,7 @@
           class="comment-emoji-btn"
           @click.stop="commentRef.focus(), (emojiFlag = !emojiFlag)"
         >
-          <img class="comment-emoji-img" src="../img/emoji.png" />
+          <img class="comment-emoji-img" src="/img/emoji.png" />
           <div v-show="emojiFlag" class="comment-emoji-container" @click.stop>
             <span class="head-span">小黄脸</span>
             <span
@@ -126,12 +126,12 @@
               :key="index"
               @click="commentRef.focus(), addEmoji(index)"
             >
-              <img :src="'../img/emoji/' + index + '.png'" />
+              <img :src="'/img/emoji/' + index + '.png'" />
             </span>
           </div>
         </span>
         <span class="comment-at-btn" @click="addEit()">
-          <img src="../img/@.png" />
+          <img src="/img/@.png" />
           <eit
             v-show="eitFlag"
             :eitList="store.eitList"
@@ -148,7 +148,7 @@
             accept="image/jpeg,image/png,image/webp"
             style="display: none"
           />
-          <img src="../img/img.png" />
+          <img src="/img/img.png" />
         </span>
         <span
           class="comment-dynamic-btn"
@@ -157,12 +157,12 @@
         >
           <img
             class="dynamic-check-img1"
-            src="../img/投币复选框.svg"
+            src="/img/投币复选框.svg"
             :class="{ dynamicCheckFlag: dynamicCheckFlag === 0 }"
           />
           <img
             class="dynamic-check-img2"
-            src="../img/投币复选框选中.svg"
+            src="/img/投币复选框选中.svg"
             :class="{ dynamicCheckFlag: dynamicCheckFlag === 1 }"
           />
           <span>同时转发到我的动态</span>
@@ -221,9 +221,9 @@
           <img
             v-if="comment"
             class="comment-user-level"
-            :src="'../img/' + comment.userInfo.grade + '级.png'"
+            :src="'/img/' + comment.userInfo.grade + '级.png'"
           />
-          <img v-if="comment.comments.userId===props.dynamic.video.userId" class="comment-up-icon" src="../img/up_pb.svg">
+          <img v-if="comment.comments.userId===props.dynamic.video.userId" class="comment-up-icon" src="/img/up_pb.svg">
         </span>
         <div
           v-show="
@@ -240,7 +240,7 @@
           @mouseover="nameOrAvatarHoverFlag2 = true"
           @mouseleave="(nameOrAvatarHoverFlag2 = false), delayUserInfo(0)"
         >
-          <div v-if="!comment.userInfo.backgroundAddress" :style="{backgroundImage:'url(../img/主页背景图.webp)'}" class="up-user-info-bg"></div>
+          <div v-if="!comment.userInfo.backgroundAddress" :style="{backgroundImage:'url(/img/主页背景图.webp)'}" class="up-user-info-bg"></div>
           <div v-else :style="{backgroundImage:`url(${comment.userInfo.backgroundAddress})`}" class="up-user-info-bg"></div>
           <div class="up-user-info-container">
             <img
@@ -259,17 +259,17 @@
               >
               <img
                 v-if="comment.userInfo.gender === 1"
-                src="../img/man.png"
+                src="/img/man.png"
                 class="up-user-info-gender"
               />
               <img
                 v-if="comment.userInfo.gender === 2"
-                src="../img/man.png"
+                src="/img/man.png"
                 class="up-user-info-gender"
               />
               <img
                 v-if="comment.userInfo.grade"
-                :src="'../img/' + comment.userInfo.grade + '级.png'"
+                :src="'/img/' + comment.userInfo.grade + '级.png'"
                 class="up-user-info-level"
               />
             </div>
@@ -305,7 +305,7 @@
                 v-debounce
                 @click="addFollowAxios(comment)"
                 ><img
-                  src="../img/加关注.png"
+                  src="/img/加关注.png"
                   style="width: 14px; margin-right: 4px"
                 />关注</span
               >
@@ -342,7 +342,7 @@
           class="comment-note-img"
           :style="{left: comment.comments.upFlag===1?'115px':'79.5px'}"
           v-show="comment.comments.imgAddress.split(',').length > 1"
-          src="../img/笔记.png"
+          src="/img/笔记.png"
         />
         <span
           v-show="comment.comments.imgAddress.split(',').length > 1"
@@ -371,7 +371,7 @@
         </span>
         <img
           class="comment-id-icon"
-          :src="'../img/NOImg' + (comment.userInfo.id % 10) + '.webp'"
+          :src="'/img/NOImg' + (comment.userInfo.id % 10) + '.webp'"
         />
         <span
           class="comment-id-number"
@@ -399,14 +399,14 @@
               class="comment-like-btn"
               :src="
                 commentLikeHoverFlag === comment.comments.id
-                  ? '../img/评论点赞hover.png'
-                  : '../img/评论点赞灰.png'
+                  ? '/img/评论点赞hover.png'
+                  : '/img/评论点赞灰.png'
               "
             />
             <img
               v-show="comment.commentControls?.controls === 1"
               class="comment-like-btn"
-              src="../img/评论点赞蓝.png"
+              src="/img/评论点赞蓝.png"
             />
             <span
               v-show="comment.comments.likeCommentNumber > 0"
@@ -426,14 +426,14 @@
               class="comment-dont-like-btn"
               :src="
                 commentDislikeHoverFlag === comment.comments.id
-                  ? '../img/评论踩hover.png'
-                  : '../img/评论踩灰.png'
+                  ? '/img/评论踩hover.png'
+                  : '/img/评论踩灰.png'
               "
             />
             <img
               v-show="comment.commentControls?.controls === 0"
               class="comment-dont-like-btn"
-              src="../img/评论踩蓝.png"
+              src="/img/评论踩蓝.png"
             />
           </span>
           <span class="comment-reply-btn" @click="replyCommentF(comment,comment)"
@@ -449,8 +449,8 @@
             <img
               :src="
                 deleteCommentHoverFlag === comment.comments.id
-                  ? '../img/弹幕列表蓝.png'
-                  : '../img/弹幕列表.png'
+                  ? '/img/弹幕列表蓝.png'
+                  : '/img/弹幕列表.png'
               "
             />
             <div @mouseleave="deleteCommentHoverFlag2 = -1">
@@ -530,16 +530,16 @@
                     class="loading-span"
                   >
                     <span @click="deleteCommentImg2(index)"
-                      ><img src="../img/关闭视频定位.png"
+                      ><img src="/img/关闭视频定位.png"
                     /></span>
-                    <img src="../img/loading-blue.gif" />
+                    <img src="/img/loading-blue.gif" />
                   </span>
                   <span
                     v-show="file !== undefined && file !== null"
                     class="loading-before-span"
                   >
                     <span @click="deleteCommentImg2(index)"
-                      ><img src="../img/关闭视频定位.png"
+                      ><img src="/img/关闭视频定位.png"
                     /></span>
                     <img :src="file" />
                   </span>
@@ -555,7 +555,7 @@
                 class="comment-emoji-btn"
                 @click.stop="emojiFlag2 = !emojiFlag2"
               >
-                <img class="comment-emoji-img" src="../img/emoji.png" />
+                <img class="comment-emoji-img" src="/img/emoji.png" />
                 <div
                   v-show="emojiFlag2"
                   class="comment-emoji-container"
@@ -568,12 +568,12 @@
                     :key="index"
                     @click="addEmoji2(index)"
                   >
-                    <img :src="'../img/emoji/' + index + '.png'" />
+                    <img :src="'/img/emoji/' + index + '.png'" />
                   </span>
                 </div>
               </span>
               <span class="comment-at-btn" @click="addEit2()">
-                <img src="../img/@.png" />
+                <img src="/img/@.png" />
                 <eit
                   v-show="eitFlag2"
                   :eitList="store.eitList"
@@ -590,7 +590,7 @@
                   accept="image/jpeg,image/png,image/webp"
                   style="display: none"
                 />
-                <img src="../img/img.png" />
+                <img src="/img/img.png" />
               </span>
               <span
                 class="comment-dynamic-btn"
@@ -599,12 +599,12 @@
               >
                 <img
                   class="dynamic-check-img1"
-                  src="../img/投币复选框.svg"
+                  src="/img/投币复选框.svg"
                   :class="{ dynamicCheckFlag: dynamicCheckFlag2 === 0 }"
                 />
                 <img
                   class="dynamic-check-img2"
-                  src="../img/投币复选框选中.svg"
+                  src="/img/投币复选框选中.svg"
                   :class="{ dynamicCheckFlag: dynamicCheckFlag2 === 1 }"
                 />
                 <span>同时转发到我的动态</span>
@@ -658,9 +658,9 @@
               <img
                 v-if="remark"
                 class="comment-user-level"
-                :src="'../img/' + remark.userInfo.grade + '级.png'"
+                :src="'/img/' + remark.userInfo.grade + '级.png'"
               />
-              <img v-if="remark.comments.userId===props.dynamic.video.userId&&remark.comments.imgAddress.split(',').length>1" class="comment-up-icon" src="../img/up_pb.svg">
+              <img v-if="remark.comments.userId===props.dynamic.video.userId&&remark.comments.imgAddress.split(',').length>1" class="comment-up-icon" src="/img/up_pb.svg">
             </span>
             <div
           v-show="
@@ -677,7 +677,7 @@
           @mouseover="nameOrAvatarHoverFlag2 = true"
           @mouseleave="(nameOrAvatarHoverFlag2 = false), delayUserInfo(0)"
         >
-        <div v-if="!remark.userInfo.backgroundAddress" :style="{backgroundImage:'url(../img/主页背景图.webp)'}" class="up-user-info-bg"></div>
+        <div v-if="!remark.userInfo.backgroundAddress" :style="{backgroundImage:'url(/img/主页背景图.webp)'}" class="up-user-info-bg"></div>
         <div v-else :style="{backgroundImage:`url(${remark.userInfo.backgroundAddress})`}" class="up-user-info-bg"></div>
           <div class="up-user-info-container">
             <img
@@ -696,17 +696,17 @@
               >
               <img
                 v-if="remark.userInfo.gender === 1"
-                src="../img/man.png"
+                src="/img/man.png"
                 class="up-user-info-gender"
               />
               <img
                 v-if="remark.userInfo.gender === 2"
-                src="../img/man.png"
+                src="/img/man.png"
                 class="up-user-info-gender"
               />
               <img
                 v-if="remark.userInfo.grade"
-                :src="'../img/' + remark.userInfo.grade + '级.png'"
+                :src="'/img/' + remark.userInfo.grade + '级.png'"
                 class="up-user-info-level"
               />
             </div>
@@ -742,7 +742,7 @@
                 v-debounce
                 @click="addFollowAxios(remark)"
                 ><img
-                  src="../img/加关注.png"
+                  src="/img/加关注.png"
                   style="width: 14px; margin-right: 4px"
                 />关注</span
               >
@@ -777,7 +777,7 @@
             <img
               class="comment-note-img"
               v-show="remark.comments.imgAddress.split(',').length > 1"
-              src="../img/笔记.png"
+              src="/img/笔记.png"
             />
             <span
               v-show="remark.comments.imgAddress.split(',').length > 1"
@@ -826,14 +826,14 @@
                   class="comment-like-btn"
                   :src="
                     commentLikeHoverFlag === remark.comments.id
-                      ? '../img/评论点赞hover.png'
-                      : '../img/评论点赞灰.png'
+                      ? '/img/评论点赞hover.png'
+                      : '/img/评论点赞灰.png'
                   "
                 />
                 <img
                   v-show="remark.commentControls?.controls === 1"
                   class="comment-like-btn"
-                  src="../img/评论点赞蓝.png"
+                  src="/img/评论点赞蓝.png"
                 />
                 <span
                   v-show="remark.comments.likeCommentNumber > 0"
@@ -853,14 +853,14 @@
                   class="comment-dont-like-btn"
                   :src="
                     commentDislikeHoverFlag === remark.comments.id
-                      ? '../img/评论踩hover.png'
-                      : '../img/评论踩灰.png'
+                      ? '/img/评论踩hover.png'
+                      : '/img/评论踩灰.png'
                   "
                 />
                 <img
                   v-show="remark.commentControls?.controls === 0"
                   class="comment-dont-like-btn"
-                  src="../img/评论踩蓝.png"
+                  src="/img/评论踩蓝.png"
                 />
               </span>
               <span class="comment-reply-btn" @click="replyCommentF(remark,comment)"
@@ -876,8 +876,8 @@
                 <img
                   :src="
                     deleteCommentHoverFlag === remark.comments.id
-                      ? '../img/弹幕列表蓝.png'
-                      : '../img/弹幕列表.png'
+                      ? '/img/弹幕列表蓝.png'
+                      : '/img/弹幕列表.png'
                   "
                 />
                 <span
@@ -939,16 +939,16 @@
                     class="loading-span"
                   >
                     <span @click="deleteCommentImg2(index)"
-                      ><img src="../img/关闭视频定位.png"
+                      ><img src="/img/关闭视频定位.png"
                     /></span>
-                    <img src="../img/loading-blue.gif" />
+                    <img src="/img/loading-blue.gif" />
                   </span>
                   <span
                     v-show="file !== undefined && file !== null"
                     class="loading-before-span"
                   >
                     <span @click="deleteCommentImg2(index)"
-                      ><img src="../img/关闭视频定位.png"
+                      ><img src="/img/关闭视频定位.png"
                     /></span>
                     <img :src="file" />
                   </span>
@@ -965,7 +965,7 @@
                 class="comment-emoji-btn"
                 @click.stop="emojiFlag2 = !emojiFlag2"
               >
-                <img class="comment-emoji-img" src="../img/emoji.png" />
+                <img class="comment-emoji-img" src="/img/emoji.png" />
                 <div
                   v-show="emojiFlag2"
                   class="comment-emoji-container"
@@ -978,12 +978,12 @@
                     :key="index"
                     @click="addEmoji2(index)"
                   >
-                    <img :src="'../img/emoji/' + index + '.png'" />
+                    <img :src="'/img/emoji/' + index + '.png'" />
                   </span>
                 </div>
               </span>
               <span class="comment-at-btn" @click="addEit2()">
-                <img src="../img/@.png" />
+                <img src="/img/@.png" />
                 <eit
                   v-show="eitFlag2"
                   :eitList="store.eitList"
@@ -1000,7 +1000,7 @@
                   accept="image/jpeg,image/png,image/webp"
                   style="display: none"
                 />
-                <img src="../img/img.png" />
+                <img src="/img/img.png" />
               </span>
               <span
                 v-show="!props.dynamic.dynamic.commentId"
@@ -1009,12 +1009,12 @@
               >
                 <img
                   class="dynamic-check-img1"
-                  src="../img/投币复选框.svg"
+                  src="/img/投币复选框.svg"
                   :class="{ dynamicCheckFlag: dynamicCheckFlag2 === 0 }"
                 />
                 <img
                   class="dynamic-check-img2"
-                  src="../img/投币复选框选中.svg"
+                  src="/img/投币复选框选中.svg"
                   :class="{ dynamicCheckFlag: dynamicCheckFlag2 === 1 }"
                 />
                 <span>同时转发到我的动态</span>
@@ -1214,7 +1214,7 @@ export default {
         inputDom.innerText = inputDom.innerText.slice(0, 2000);
       if (
         inputDom.innerText.trim().length > 0 ||
-        inputDom.innerHTML.includes('<img src="../img/emoji/')
+        inputDom.innerHTML.includes('<img src="/img/emoji/')
       ) {
         commentContent.value = inputDom.innerHTML;
         commentLengthFlag.value = true;
@@ -1254,7 +1254,7 @@ export default {
         inputDom.innerText = inputDom.innerText.slice(0, 2000);
       if (
         inputDom.innerText.trim().length > 0 ||
-        inputDom.innerHTML.includes('<img src="../img/emoji/')
+        inputDom.innerHTML.includes('<img src="/img/emoji/')
       ) {
         commentContent2.value = inputDom.innerHTML;
         replyPlaceholderFlag.value = false;
@@ -1683,7 +1683,7 @@ export default {
       // 获取当前选区和光标位置
       const selection = window.getSelection();
       // 创建新的按钮元素
-      const button = `<img src="../img/emoji/${index}.png" style="width:21px;height:21px;display:inline-block;vertical-align:middle;transform:translateY(-3px);" class="comment-emoji-img" />`;
+      const button = `<img src="/img/emoji/${index}.png" style="width:21px;height:21px;display:inline-block;vertical-align:middle;transform:translateY(-3px);" class="comment-emoji-img" />`;
       // 插入新按钮到光标位置
       const fragment = range.createContextualFragment(button); // 创建 DOM 片段
       const lastChild = fragment.lastChild;
@@ -1702,7 +1702,7 @@ export default {
       // 获取当前选区和光标位置
       const selection = window.getSelection();
       // 创建新的按钮元素
-      const button = `<img src="../img/emoji/${index}.png" style="width:21px;height:21px;display:inline-block;vertical-align:middle;transform:translateY(-3px);" class="comment-emoji-img" />`;
+      const button = `<img src="/img/emoji/${index}.png" style="width:21px;height:21px;display:inline-block;vertical-align:middle;transform:translateY(-3px);" class="comment-emoji-img" />`;
       // 插入新按钮到光标位置
       const fragment = range2.createContextualFragment(button); // 创建 DOM 片段
       const lastChild = fragment.lastChild;
@@ -1727,7 +1727,7 @@ export default {
       // 网址超链接
       commentContent.value = commentContent.value.replace(
         /(https?:\/\/[^\s<>"]+?)(?=\s|&nbsp;|<div>|<\/div>|$)/g,
-        '<a href="$1" target="_blank"><img style="width: 14px;height: 14px;padding-right: 2px;" src="../img/网页链接.png">$1<br></a>',
+        '<a href="$1" target="_blank"><img style="width: 14px;height: 14px;padding-right: 2px;" src="/img/网页链接.png">$1<br></a>',
       );
 
       // @样式
@@ -1782,7 +1782,7 @@ export default {
             const res = await apiClient.get(`/video/getVideoTitle/${match[1]}`);
             if (res.data.code === 1) {
               // 动态替换 HTML 中的链接
-              link.innerHTML = `<img style="width: 14px;height: 14px;padding-right: 2px;transform: translateY(1px);" src="../img/视频标题.png">${res.data.data}<br>`;
+              link.innerHTML = `<img style="width: 14px;height: 14px;padding-right: 2px;transform: translateY(1px);" src="/img/视频标题.png">${res.data.data}<br>`;
               link.target = "_blank";
             }
           } catch (error) {}
@@ -1867,7 +1867,7 @@ export default {
       // 网址超链接
       commentContent2.value = commentContent2.value.replace(
         /(https?:\/\/[^\s<>"]+?)(?=\s|&nbsp;|<div>|<\/div>|$)/g,
-        '<a href="$1" target="_blank"><img style="width: 14px;height: 14px;padding-right: 2px;" src="../img/网页链接.png">$1<br></a>',
+        '<a href="$1" target="_blank"><img style="width: 14px;height: 14px;padding-right: 2px;" src="/img/网页链接.png">$1<br></a>',
       );
 
       // @样式
@@ -1921,7 +1921,7 @@ export default {
             const res = await apiClient.get(`/video/getVideoTitle/${match[1]}`);
             if (res.data.code === 1) {
               // 动态替换 HTML 中的链接
-              link.innerHTML = `<img style="width: 14px;height: 14px;padding-right: 2px;transform: translateY(1px);" src="../img/视频标题.png">${res.data.data}<br>`;
+              link.innerHTML = `<img style="width: 14px;height: 14px;padding-right: 2px;transform: translateY(1px);" src="/img/视频标题.png">${res.data.data}<br>`;
               link.target = "_blank";
             }
           } catch (error) {}
@@ -1948,7 +1948,7 @@ export default {
 
       //如果发布评论的是视频作者
       if(store.upUserId===store.userId&&commentImg2.length === 0){
-        commentContent2.value = "<img style='width: 24px;height: 24px;display: inline-block;vertical-align: middle;transform: translateY(-2px);user-select: none;' src='../img/up_pb.svg'>&nbsp;&nbsp;&nbsp;"+commentContent2.value;
+        commentContent2.value = "<img style='width: 24px;height: 24px;display: inline-block;vertical-align: middle;transform: translateY(-2px);user-select: none;' src='/img/up_pb.svg'>&nbsp;&nbsp;&nbsp;"+commentContent2.value;
       }
 
 

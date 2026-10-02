@@ -40,7 +40,7 @@
     />
 
     <div class="search2" @click="jumpSearch">
-      <img src="../img/搜索.png" alt="搜索" />
+      <img src="/img/搜索.png" alt="搜索" />
     </div>
     <!-- 显示的盒子-->
     <div v-if="showBox && keyWord.length === 0" class="box" @mousedown.stop>
@@ -75,7 +75,7 @@
             :key="index"
           >
             <img
-              src="../img/删除搜索记录.png"
+              src="/img/删除搜索记录.png"
               class="deleteSearchCss"
               @click="deleteSearchContent(index)"
             />
@@ -102,7 +102,7 @@
             :key="index"
           >
             <img
-              src="../img/删除搜索记录.png"
+              src="/img/删除搜索记录.png"
               class="deleteSearchCss"
               @click="deleteSearchContent(index)"
             />
@@ -149,19 +149,19 @@
           <li @click="sendSearchAxios(fireSearch[0]?.word)">
             <span class="aa">1</span>
             <span class="bb"
-              >{{ fireSearch[0]?.word }} <img src="../img/热门搜索.png"
+              >{{ fireSearch[0]?.word }} <img src="/img/热门搜索.png"
             /></span>
           </li>
           <li @click="sendSearchAxios(fireSearch[1]?.word)">
             <span class="aa">2</span>
             <span class="bb"
-              >{{ fireSearch[1]?.word }} <img src="../img/热门搜索.png"
+              >{{ fireSearch[1]?.word }} <img src="/img/热门搜索.png"
             /></span>
           </li>
           <li @click="sendSearchAxios(fireSearch[2]?.word)">
             <span class="aa">3</span>
             <span class="bb"
-              >{{ fireSearch[2]?.word }} <img src="../img/热门搜索.png"
+              >{{ fireSearch[2]?.word }} <img src="/img/热门搜索.png"
             /></span>
           </li>
           <li @click="sendSearchAxios(fireSearch[3]?.word)">
@@ -286,10 +286,10 @@ import {
   computed,
   watch,
 } from "vue";
-import showImg from "../img/展开更多.png";
-import fewerImg from "../img/展开更多蓝.png";
-import deleteAllSearch from "../img/删除搜索记录.png";
-import deleteAllSearchBalack from "../img/删除全部搜索hover.png";
+const showImg = "/img/展开更多.png"
+const fewerImg = "/img/展开更多蓝.png"
+const deleteAllSearch = "/img/删除搜索记录.png"
+const deleteAllSearchBalack = "/img/删除全部搜索hover.png"
 import {useGlobalStore} from "../store/store";
 export default {
   name: "search",

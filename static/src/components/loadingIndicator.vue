@@ -1,6 +1,6 @@
 <template>
     <div class="loading-indicator" :class="{inline:inline}" :style="{minHeight:minHeight}">
-        <img class="loading-icon" src="../img/loading-blue.gif" alt=""/>
+        <img class="loading-icon" src="/img/loading-blue.gif" alt=""/>
         <span v-if="text">{{ text }}</span>
     </div>
 </template>

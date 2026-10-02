@@ -3,10 +3,10 @@
     <ul class="v-header-ul" :class="{ head2Flag: head2Flag }">
       <li>
         <a class="head-li1" href="../">
-          <img v-show="!head2Flag" src="../img/首页.png" alt="首页" style="width: 18px;margin-top: 1px;" />
-          <img v-show="head2Flag" src="../img/bilibili蓝.png" alt="首页" style="width: 60px;margin-top: 2px;margin-right: 23px;animation: none;transform: translate(-2px);"/>
+          <img v-show="!head2Flag" src="/img/首页.png" alt="首页" style="width: 18px;margin-top: 1px;" />
+          <img v-show="head2Flag" src="/img/bilibili蓝.png" alt="首页" style="width: 60px;margin-top: 2px;margin-right: 23px;animation: none;transform: translate(-2px);"/>
             首页
-          <img v-show="head2Flag" src="../img/头首页.png" class="head-home" />
+          <img v-show="head2Flag" src="/img/头首页.png" class="head-home" />
           </a
         >
       </li>
@@ -45,13 +45,13 @@
           >
           <img
             v-show="!head2Flag"
-            src="../img/下载.png"
+            src="/img/下载.png"
             alt="下载客户端"
             height="14px"
           />
           <img
             v-show="head2Flag"
-            src="../img/下载黑.png"
+            src="/img/下载黑.png"
             height="14px"
           />
           下载客户端</a
@@ -89,14 +89,14 @@
               class="grade"
             >
               <span class="grade1" v-if="user.grade === 0">
-                <img class="exp" src="../img/0级.png" alt="0级" />
+                <img class="exp" src="/img/0级.png" alt="0级" />
                 <el-progress
                   :percentage="user.exp"
                   color="#edcc8e"
                   :show-text="false"
                   style="width: 180px; transform: translateX(-6%)" /><img
                   class="exp2"
-                  src="../img/1级.png"
+                  src="/img/1级.png"
                   alt="1级" /></span
               ><span
                 v-if="user.grade === 0"
@@ -111,14 +111,14 @@
                 }}</span
               >
               <span class="grade1" v-if="user.grade === 1">
-                <img class="exp" src="../img/1级.png" alt="1级" />
+                <img class="exp" src="/img/1级.png" alt="1级" />
                 <el-progress
                   :percentage="user.exp"
                   color="#edcc8e"
                   :show-text="false"
                   style="width: 180px; transform: translateX(-6%)" /><img
                   class="exp2"
-                  src="../img/2级灰色.png"
+                  src="/img/2级灰色.png"
                   alt="2级" /></span
               ><span
                 v-if="user.grade === 1"
@@ -133,14 +133,14 @@
                 }}</span
               >
               <span class="grade1" v-if="user.grade === 2">
-                <img class="exp" src="../img/2级.png" alt="2级" />
+                <img class="exp" src="/img/2级.png" alt="2级" />
                 <el-progress
                   :percentage="user.exp"
                   color="#edcc8e"
                   :show-text="false"
                   style="width: 180px; transform: translateX(-6%)" /><img
                   class="exp2"
-                  src="../img/3级灰色.png"
+                  src="/img/3级灰色.png"
                   alt="3级" /></span
               ><span
                 v-if="user.grade === 2"
@@ -155,14 +155,14 @@
                 }}</span
               >
               <span class="grade1" v-if="user.grade === 3">
-                <img class="exp" src="../img/3级.png" alt="3级" />
+                <img class="exp" src="/img/3级.png" alt="3级" />
                 <el-progress
                   :percentage="user.exp"
                   color="#edcc8e"
                   :show-text="false"
                   style="width: 180px; transform: translateX(-6%)" /><img
                   class="exp2"
-                  src="../img/4级灰色.png"
+                  src="/img/4级灰色.png"
                   alt="4级" /></span
               ><span
                 v-if="user.grade === 3"
@@ -177,14 +177,14 @@
                 }}</span
               >
               <span class="grade1" v-if="user.grade === 4">
-                <img class="exp" src="../img/4级.png" alt="4级" />
+                <img class="exp" src="/img/4级.png" alt="4级" />
                 <el-progress
                   :percentage="user.exp"
                   color="#edcc8e"
                   :show-text="false"
                   style="width: 180px; transform: translateX(-6%)" /><img
                   class="exp2"
-                  src="../img/5级灰色.png"
+                  src="/img/5级灰色.png"
                   alt="5级" /></span
               ><span
                 v-if="user.grade === 4"
@@ -199,14 +199,14 @@
                 }}</span
               >
               <span class="grade1" v-if="user.grade === 5">
-                <img class="exp" src="../img/5级.png" alt="5级" />
+                <img class="exp" src="/img/5级.png" alt="5级" />
                 <el-progress
                   :percentage="user.exp"
                   color="#edcc8e"
                   :show-text="false"
                   style="width: 180px; transform: translateX(-6%)" /><img
                   class="exp2"
-                  src="../img/6级灰色.png"
+                  src="/img/6级灰色.png"
                   alt="6级" /></span
               ><span
                 v-if="user.grade === 5"
@@ -221,7 +221,7 @@
                 }}</span
               >
               <span class="grade1" v-if="user.grade === 6">
-                <img class="exp" src="../img/6级.png" alt="6级" />
+                <img class="exp" src="/img/6级.png" alt="6级" />
                 <el-progress
                   :percentage="user.exp"
                   color="red"
@@ -317,7 +317,7 @@
               <a href="./account" target="_blank"
                 >
                 <div>
-                  <img src="../img/个人中心.png" style="animation: none !important"/> <span>个人中心 </span
+                  <img src="/img/个人中心.png" style="animation: none !important"/> <span>个人中心 </span
                   ><span style="transform: translateX(120px)"> > </span>
                 </div>
               </a>
@@ -325,12 +325,12 @@
                 href="/contribute/subpage2"
                 target="_blank"
                 ><div>
-                  <img src="../img/投稿管理.png" style="animation: none !important"/> <span>投稿管理 </span
+                  <img src="/img/投稿管理.png" style="animation: none !important"/> <span>投稿管理 </span
                   ><span style="transform: translateX(120px)"> > </span>
                 </div></a
               >
               <div>
-                <img src="../img/推荐服务.png" /> <span>推荐服务 </span
+                <img src="/img/推荐服务.png" /> <span>推荐服务 </span
                 ><span style="transform: translateX(120px)"> > </span>
               </div>
               <hr
@@ -342,7 +342,7 @@
                 "
               />
               <div style="margin-top: 10px; cursor: pointer" @click="logout">
-                <img src="../img/退出登录.png" /> <span>退出登录</span>
+                <img src="/img/退出登录.png" /> <span>退出登录</span>
               </div>
             </div>
           </div>
@@ -356,16 +356,16 @@
           <div v-if="loginDialogVisible === false" class="login-info">
             <div class="login-can">登录后你可以:</div>
             <ul class="fuli">
-              <li style="margin-left:11px;"><img src="../img/HD.png" alt="HD" />免费看高清视频</li>
+              <li style="margin-left:11px;"><img src="/img/HD.png" alt="HD" />免费看高清视频</li>
               <li>
                 <img
-                  src="../img/同步记录.png"
+                  src="/img/同步记录.png"
                   alt="多端同步播放记录"
                 />多端同步播放记录
               </li>
               <li style="margin-left:15px;">
                 <img
-                  src="../img/评论弹幕.png"
+                  src="/img/评论弹幕.png"
                   alt="发表弹幕/评论"
                 />发表弹幕/评论
               </li>
@@ -377,7 +377,7 @@
                 "
               >
                 <img
-                  src="../img/番剧影视.png"
+                  src="/img/番剧影视.png"
                   alt="热门番剧影视看不停"
                 />热门番剧影视看不停
               </li>
@@ -408,8 +408,8 @@
       </li>
       <li>
         <a href="#">
-          <img v-show="!head2Flag" style="width: 17px;height: 17px;" src="../img/大会员.png" alt="大会员" />
-          <img v-show="head2Flag" style="width: 17px;height: 17px;" src="../img/大会员黑.png" alt="大会员" />
+          <img v-show="!head2Flag" style="width: 17px;height: 17px;" src="/img/大会员.png" alt="大会员" />
+          <img v-show="head2Flag" style="width: 17px;height: 17px;" src="/img/大会员黑.png" alt="大会员" />
            大会员
         </a>
         <div class="transparent-div12"></div>
@@ -437,7 +437,7 @@
                 align-items: center;
               "
             >
-              <img src="../img/热剧抢先看.png" />
+              <img src="/img/热剧抢先看.png" />
               <a
                 style="color: black; font-size: 14px"
                 href="#"
@@ -450,7 +450,7 @@
                 justify-content: center;
                 align-items: center;
               "
-              ><img src="../img/会员免费看.png" /><a
+              ><img src="/img/会员免费看.png" /><a
                 style="color: black; margin-bottom: 2px; font-size: 14px"
                 href="#"
                 >会员免费看</a
@@ -467,7 +467,7 @@
                 align-items: center;
               "
             >
-              <img src="../img/4K超清画质.png" />
+              <img src="/img/4K超清画质.png" />
               <a
                 style="color: black; font-size: 14px"
                 href="#"
@@ -481,7 +481,7 @@
                 justify-content: center;
                 align-items: center;
               "
-              ><img src="../img/会员专属装扮.png" /><a
+              ><img src="/img/会员专属装扮.png" /><a
                 style="margin-bottom: 2px; color: black; font-size: 14px"
                 href="#"
                 >会员专属装扮
@@ -559,13 +559,13 @@
           >
             {{ store.userInformation.allMessageNumber>99? '99+' : store.userInformation.allMessageNumber }}
           </div>
-          <img v-show="!head2Flag" style="width:18px;" src="../img/消息.png" alt="消息" /> 
-          <img v-show="head2Flag" style="width:18px;" src="../img/消息黑.png" alt="消息" />
+          <img v-show="!head2Flag" style="width:18px;" src="/img/消息.png" alt="消息" /> 
+          <img v-show="head2Flag" style="width:18px;" src="/img/消息黑.png" alt="消息" />
           消息
         </a>
         <a v-if="!store.userId" @click="loginDialogVisible = true">
-          <img v-show="!head2Flag" style="width:18px;" src="../img/消息.png" alt="消息" />
-          <img v-show="head2Flag" style="width:18px;" src="../img/消息黑.png" alt="消息" />
+          <img v-show="!head2Flag" style="width:18px;" src="/img/消息.png" alt="消息" />
+          <img v-show="head2Flag" style="width:18px;" src="/img/消息黑.png" alt="消息" />
            消息
         </a>
         <div class="login-info2" v-if="!store.userId">
@@ -605,8 +605,8 @@
       </li>
       <li>
         <a v-if="!store.userId" @click="loginDialogVisible = true">
-          <img v-show="!head2Flag" style="width:18px;" src="../img/动态.png" alt="动态" />
-          <img v-show="head2Flag" style="width:18px;" src="../img/动态黑.png" alt="动态" /> 动态
+          <img v-show="!head2Flag" style="width:18px;" src="/img/动态.png" alt="动态" />
+          <img v-show="head2Flag" style="width:18px;" src="/img/动态黑.png" alt="动态" /> 动态
         </a>
         <a v-if="store.userId !== null" href="./dynamic" target="_blank">
           <div
@@ -615,8 +615,8 @@
           >
             {{ store.userInformation.dynamicNumber>99? '99+' : store.userInformation.dynamicNumber }}
           </div>
-          <img v-show="!head2Flag" style="width:18px;" src="../img/动态.png" alt="动态" />
-          <img v-show="head2Flag" style="width:18px;" src="../img/动态黑.png" alt="动态" />
+          <img v-show="!head2Flag" style="width:18px;" src="/img/动态.png" alt="动态" />
+          <img v-show="head2Flag" style="width:18px;" src="/img/动态黑.png" alt="动态" />
           动态
         </a>
         <div class="login-info2" v-if="!store.userId">
@@ -746,7 +746,7 @@
                   "
                 >
                   <img
-                    src="../img/稍后再看.png"
+                    src="/img/稍后再看.png"
                     style="
                       width: 20px;
                       height: 20px;
@@ -771,7 +771,7 @@
                   "
                 >
                   <img
-                    src="../img/添加成功.png"
+                    src="/img/添加成功.png"
                     style="
                       width: 18px;
                       height: 16px;
@@ -910,7 +910,7 @@
                   "
                 >
                   <img
-                    src="../img/稍后再看.png"
+                    src="/img/稍后再看.png"
                     style="
                       width: 20px;
                       height: 20px;
@@ -935,7 +935,7 @@
                   "
                 >
                   <img
-                    src="../img/添加成功.png"
+                    src="/img/添加成功.png"
                     style="
                       width: 18px;
                       height: 16px;
@@ -955,13 +955,13 @@
       </li>
       <li @mouseover="setCollectStore">
         <a v-if="!store.userId" @click="loginDialogVisible = true">
-          <img v-show="!head2Flag" style="width: 18px;height: 18px;" src="../img/收藏.png" alt="收藏" />
-          <img v-show="head2Flag" style="width: 18px;height: 18px;" src="../img/收藏黑.png" alt="收藏" />
+          <img v-show="!head2Flag" style="width: 18px;height: 18px;" src="/img/收藏.png" alt="收藏" />
+          <img v-show="head2Flag" style="width: 18px;height: 18px;" src="/img/收藏黑.png" alt="收藏" />
            收藏
         </a>
         <a v-if="store.userId !== null" :href="'./home?userId='+store.userInformation.id+'&homeMenu=5'" target="_blank">
-          <img v-show="!head2Flag" style="width: 18px;height: 18px;" src="../img/收藏.png" alt="收藏" />
-          <img v-show="head2Flag" style="width: 18px;height: 18px;" src="../img/收藏黑.png" alt="收藏" /> 收藏
+          <img v-show="!head2Flag" style="width: 18px;height: 18px;" src="/img/收藏.png" alt="收藏" />
+          <img v-show="head2Flag" style="width: 18px;height: 18px;" src="/img/收藏黑.png" alt="收藏" /> 收藏
         </a>
         <div class="login-info2" v-if="!store.userId">
           <span style="font-size: 14px; margin-top: 20px"
@@ -1090,7 +1090,7 @@
                   }}</span>
                 </el-tooltip>
                 <img
-                  src="../img/up.png"
+                  src="/img/up.png"
                   style="
                     width: 14px;
                     height: 12px;
@@ -1124,20 +1124,20 @@
           <div v-if="collectDtoList[changerCollect]?.collectNumber !== 0" class="collectFrature">
             <span class="checkAllCollect" @click="openHome(5,store.userInformation.id,collectDtoList[changerCollect])">查看全部</span>
             <span class="playAllCollect"
-              ><img src="../img/播放.png" /> 播放全部</span
+              ><img src="/img/播放.png" /> 播放全部</span
             >
           </div>
         </div>
       </li>
       <li>
         <a v-if="!store.userId" @click="loginDialogVisible = true">
-          <img v-show="!head2Flag" style="width:18px;" src="../img/历史.png" alt="历史" /> 
-          <img v-show="head2Flag" style="width:18px;" src="../img/历史黑.png" alt="历史" /> 
+          <img v-show="!head2Flag" style="width:18px;" src="/img/历史.png" alt="历史" /> 
+          <img v-show="head2Flag" style="width:18px;" src="/img/历史黑.png" alt="历史" /> 
           历史
         </a>
         <a v-if="store.userId !== null" href="/history" target="_blank" @mouseover="selectHistoryAxios" @mouseleave="historyAxiosTimeF">
-          <img v-show="!head2Flag" style="width:18px;" src="../img/历史.png" alt="历史" /> 
-          <img v-show="head2Flag" style="width:18px;" src="../img/历史黑.png" alt="历史" /> 历史
+          <img v-show="!head2Flag" style="width:18px;" src="/img/历史.png" alt="历史" /> 
+          <img v-show="head2Flag" style="width:18px;" src="/img/历史黑.png" alt="历史" /> 历史
         </a>
         <div class="login-info2" v-if="!store.userId">
           <span style="font-size: 14px; margin-top: 20px"
@@ -1269,14 +1269,14 @@
                     }}</span>
                   </el-tooltip>
                   <span class="history-system"
-                    ><img src="../img/电脑端.png" />
+                    ><img src="/img/电脑端.png" />
                     <span style="margin-right: 5px">{{
                       history.watchVideoDate
                     }}</span
                     ><span>{{ history.watchVideoDateTime }}</span>
                   </span>
                   <img
-                    src="../img/up.png"
+                    src="/img/up.png"
                     style="
                       width: 14px;
                       height: 12px;
@@ -1367,14 +1367,14 @@
                     }}</span>
                   </el-tooltip>
                   <span class="history-system"
-                    ><img src="../img/电脑端.png" />
+                    ><img src="/img/电脑端.png" />
                     <span style="margin-right: 5px">{{
                       history.watchVideoDate
                     }}</span
                     ><span>{{ history.watchVideoDateTime }}</span>
                   </span>
                   <img
-                    src="../img/up.png"
+                    src="/img/up.png"
                     style="
                       width: 14px;
                       height: 12px;
@@ -1465,14 +1465,14 @@
                     }}</span>
                   </el-tooltip>
                   <span class="history-system"
-                    ><img src="../img/电脑端.png" />
+                    ><img src="/img/电脑端.png" />
                     <span style="margin-right: 5px">{{
                       history.watchVideoDate
                     }}</span
                     ><span>{{ history.watchVideoDateTime }}</span>
                   </span>
                   <img
-                    src="../img/up.png"
+                    src="/img/up.png"
                     style="
                       width: 14px;
                       height: 12px;
@@ -1525,13 +1525,13 @@
       </li>
       <li>
         <a v-if="!store.userId" @click="loginDialogVisible = true">
-          <img v-show="!head2Flag" style="width:15px;height:18px;" src="../img/创作中心.png" alt="创作中心" />
-          <img v-show="head2Flag" style="width:15px;height:18px;" src="../img/创作中心黑.png" alt="创作中心" />
+          <img v-show="!head2Flag" style="width:15px;height:18px;" src="/img/创作中心.png" alt="创作中心" />
+          <img v-show="head2Flag" style="width:15px;height:18px;" src="/img/创作中心黑.png" alt="创作中心" />
           创作中心
         </a>
         <a v-if="store.userId !== null" href="./contribute" target="_blank">
-          <img v-show="!head2Flag" style="width:15px;height:18px;" src="../img/创作中心.png" alt="创作中心" />
-          <img v-show="head2Flag" style="width:15px;height:18px;" src="../img/创作中心黑.png" alt="创作中心" /> 创作中心
+          <img v-show="!head2Flag" style="width:15px;height:18px;" src="/img/创作中心.png" alt="创作中心" />
+          <img v-show="head2Flag" style="width:15px;height:18px;" src="/img/创作中心黑.png" alt="创作中心" /> 创作中心
         </a>
       </li>
       <li>
@@ -1547,7 +1547,7 @@
             "
             target="_blank"
           >
-            <img src="../img/投稿.png" alt="投稿" /> <span>投稿</span>
+            <img src="/img/投稿.png" alt="投稿" /> <span>投稿</span>
           </a>
         </div>
         <div
@@ -1556,7 +1556,7 @@
           @click="loginDialogVisible = true"
         >
           <a style="animation: none !important" target="_blank">
-            <img src="../img/投稿.png" alt="投稿" /> <span>投稿</span>
+            <img src="/img/投稿.png" alt="投稿" /> <span>投稿</span>
           </a>
         </div>
       </li>
@@ -2041,10 +2041,10 @@ import apiClient from "../services/apiClient";
 import { ElMessage } from "element-plus";
 import search from "./search.vue";
 import "element-plus/dist/index.css";
-import left1 from "../img/loginLeft.png";
-import left2 from "../img/loginPasswordLeft.png";
-import right1 from "../img/loginRight.png";
-import right2 from "../img/loginPasswordRight.png";
+const left1 = "/img/loginLeft.png"
+const left2 = "/img/loginPasswordLeft.png"
+const right1 = "/img/loginRight.png"
+const right2 = "/img/loginPasswordRight.png"
 import { ElLoading } from "element-plus";
 import {useGlobalStore} from "../store/store";
 import {ChecklLogin} from '../api/user/index'

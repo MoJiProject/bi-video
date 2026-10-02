@@ -4,7 +4,7 @@
       <router-link to="/contribute" style="text-decoration: none">
         <div class="upload">
           <img
-            src="../img/投稿.png"
+            src="/img/投稿.png"
             alt="投稿"
             style="width: 16px; transform: translate(1px, 1px)"
           />投稿
@@ -15,7 +15,7 @@
           v-if="!isActive('/contribute/subpage1')"
           style="margin-bottom: 10px"
         >
-          <img src="../img/投稿首页灰.png" alt="首页" /><span
+          <img src="/img/投稿首页灰.png" alt="首页" /><span
             style="margin-left: 4px"
             >首页</span
           >
@@ -24,7 +24,7 @@
           v-if="isActive('/contribute/subpage1')"
           style="margin-bottom: 10px"
         >
-          <img src="../img/投稿首页.png" alt="首页" /><span
+          <img src="/img/投稿首页.png" alt="首页" /><span
             style="margin-left: 4px; color: #479fd1"
             >首页</span
           >
@@ -32,13 +32,13 @@
       </router-link>
       <router-link class="aside-link" to="/contribute/subpage2">
         <div v-if="!isActive('/contribute/subpage2')" style="margin-top: 10px">
-          <img src="../img/稿件管理灰.png" alt="稿件管理" /> 稿件管理
+          <img src="/img/稿件管理灰.png" alt="稿件管理" /> 稿件管理
         </div>
         <div
           v-if="isActive('/contribute/subpage2')"
           style="color: #479fd1; margin-top: 10px"
         >
-          <img src="../img/稿件管理.png" alt="稿件管理" /> 稿件管理
+          <img src="/img/稿件管理.png" alt="稿件管理" /> 稿件管理
         </div>
       </router-link>
       <router-link
@@ -47,13 +47,13 @@
         to="/contribute/subpage3"
       >
         <div v-if="!isActive('/contribute/subpage3')" style="margin-top: 20px">
-          <img src="../img/数据中心灰.png" alt="数据中心" /> 审核视频
+          <img src="/img/数据中心灰.png" alt="数据中心" /> 审核视频
         </div>
         <div
           v-if="isActive('/contribute/subpage3')"
           style="margin-top: 20px; color: #479fd1"
         >
-          <img src="../img/数据中心.png" alt="数据中心" /> 审核视频
+          <img src="/img/数据中心.png" alt="数据中心" /> 审核视频
         </div>
       </router-link>
       <router-link
@@ -62,13 +62,13 @@
         to="/contribute/subpage4"
       >
         <div v-if="!isActive('/contribute/subpage4')" style="margin-top: 20px">
-          <img src="../img/数据中心灰.png" alt="数据中心" /> 管理用户
+          <img src="/img/数据中心灰.png" alt="数据中心" /> 管理用户
         </div>
         <div
           v-if="isActive('/contribute/subpage4')"
           style="margin-top: 20px; color: #479fd1"
         >
-          <img src="../img/数据中心.png" alt="数据中心" /> 管理用户
+          <img src="/img/数据中心.png" alt="数据中心" /> 管理用户
         </div>
       </router-link>
     </div>

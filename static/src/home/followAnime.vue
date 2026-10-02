@@ -39,7 +39,7 @@
             <div class="anime-list">
                 <followAnimeList :data="animeData"/>
                 <div v-show="animeData.length===0" class="no-data">
-                    <img src="../img/home_nodata.svg">
+                    <img src="/img/home_nodata.svg">
                     <div>没有该动漫啊━━━∑(ﾟ□ﾟ*川━</div>
                 </div>
             </div>

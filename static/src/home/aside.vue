@@ -4,33 +4,33 @@
            <div class="left">
                <div class="left-part1" >
                 <span @click="changeHomeMenu(1)" style="margin-left: 0px;">
-                    <img src="../img/主页.png">
+                    <img src="/img/主页.png">
                     <span :style="{fontWeight: store.homeMenu===1? 'bold' : 'normal', color: store.homeMenu===1? '#00AEEC' : '#18191C'}">主页</span>
                 </span>
                 <span @click="changeHomeMenu(2)">
-                    <img src="../img/主页动态.png">
+                    <img src="/img/主页动态.png">
                     <span :style="{fontWeight: store.homeMenu===2? 'bold' : 'normal', color: store.homeMenu===2? '#00AEEC' : '#18191C'}">动态</span>
                 </span>
                 <span @click="changeHomeMenu(3)">
-                    <img src="../img/主页投稿.png">
+                    <img src="/img/主页投稿.png">
                     <span :style="{fontWeight: store.homeMenu===3? 'bold' : 'normal', color: store.homeMenu===3? '#00AEEC' : '#18191C'}">投稿</span>
                     <span class="num" :style="{color: store.homeMenu===3? '#00AEEC':'#18191C' }">{{ contributeTotal }}</span>
                 </span>
                 <span @click="changeHomeMenu(4)">
-                    <img src="../img/主页合集.png">
+                    <img src="/img/主页合集.png">
                     <span :style="{fontWeight: store.homeMenu===4? 'bold' : 'normal', color: store.homeMenu===4? '#00AEEC' : '#18191C'}">合集</span>
                 </span>
                 <span v-if="(store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicCollect===1" @click="changeHomeMenu(5)">
-                    <img src="../img/主页收藏.png">
+                    <img src="/img/主页收藏.png">
                     <span :style="{fontWeight: store.homeMenu===5? 'bold' : 'normal', color: store.homeMenu===5? '#00AEEC' : '#18191C'}">收藏</span>
                     <span class="num" :style="{color: store.homeMenu===5? '#00AEEC':'#18191C' }">{{ store.collectClassifyNumber }}</span>
                 </span>
                 <span v-if="(store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicAnime===1" @click="changeHomeMenu(6)">
-                    <img src="../img/主页追番追剧.png">
+                    <img src="/img/主页追番追剧.png">
                     <span :style="{fontWeight: store.homeMenu===6? 'bold' : 'normal', color: store.homeMenu===6? '#00AEEC' : '#18191C'}">追番追剧</span>
                 </span>
                 <span v-if="store.userId!==null&&store.userId===userId" @click="changeHomeMenu(7)">
-                    <img src="../img/主页设置.png">
+                    <img src="/img/主页设置.png">
                     <span :style="{fontWeight: store.homeMenu===7? 'bold' : 'normal', color: store.homeMenu==7? '#00AEEC' : '#18191C'}">设置</span>
                 </span>
                </div>
@@ -42,10 +42,10 @@
                     @mouseover="deleteAllSearchFlag = false"
                     @mouseleave="deleteAllSearchFlag = true"
                     @click="searchContent = '',searchInputFoucsFlag=true"
-                    :src="deleteAllSearchFlag ? '../img/删除搜索记录.png' : '../img/删除全部搜索hover.png'"
+                    :src="deleteAllSearchFlag ? '/img/删除搜索记录.png' : '/img/删除全部搜索hover.png'"
                     class="deleteAllSearchImg"/>
-                    <img class="searchImg" :class="{searchImgHoverFlag: !searchImgHoverFlag}"  src="../img/主页搜索.png">         
-                    <img class="searchImg2" @click="searchJumpPage" :class="{searchImgHoverFlag: searchImgHoverFlag}" @mouseover="searchImgHoverFlag=true" @mouseleave="searchImgHoverFlag=false" src="../img/主页搜索蓝.png">         
+                    <img class="searchImg" :class="{searchImgHoverFlag: !searchImgHoverFlag}"  src="/img/主页搜索.png">         
+                    <img class="searchImg2" @click="searchJumpPage" :class="{searchImgHoverFlag: searchImgHoverFlag}" @mouseover="searchImgHoverFlag=true" @mouseleave="searchImgHoverFlag=false" src="/img/主页搜索蓝.png">         
                </div>
            </div>
            <div class="right">

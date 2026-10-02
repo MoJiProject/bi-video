@@ -1,7 +1,7 @@
 <template>
   <div class="aside-container">
     <div class="title">
-        <img src="../img/消息中心.png">
+        <img src="/img/消息中心.png">
         <span>消息中心</span>
     </div>
     <ul>
@@ -11,7 +11,7 @@
         <li :class="{liColor: store.messageMenu === 4}"><span @click="jumpPage(4)" class="active">收到的赞<span v-show="store?.userInformation.likeAllNumber > 0" class="message-num">{{ store.userInformation.likeAllNumber<100? store.userInformation.likeAllNumber : '99+' }}</span></span></li>
     </ul>
     <div :class="{liColor: store.messageMenu === 5}" @click="jumpPage(5)" class="msg-setting" @mouseover="msgSettingHoverFlag = true" @mouseleave="msgSettingHoverFlag = false">
-        <img :src="msgSettingHoverFlag||store.messageMenu===5 ?'../img/消息设置蓝.png' :  '../img/消息设置.png'">
+        <img :src="msgSettingHoverFlag||store.messageMenu===5 ?'/img/消息设置蓝.png' :  '/img/消息设置.png'">
         <span class="active" >消息设置</span>
     </div>
   </div>

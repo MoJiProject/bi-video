@@ -25,7 +25,7 @@
           <span
             ><div>
               <img
-                src="../img/新增粉丝.png"
+                src="/img/新增粉丝.png"
                 style="width: 18px; transform: translate(3px, 3px);margin-right: 8px"
               />净增粉丝
             </div>
@@ -34,7 +34,7 @@
           <span
             ><div>
               <img
-                src="../img/播放量.png"
+                src="/img/播放量.png"
                 style="width: 14px; transform: translate(6px, 2px);margin-right: 8px"
               />
               播放量
@@ -44,7 +44,7 @@
           <span
             ><div>
               <img
-                src="../img/评论.png"
+                src="/img/评论.png"
                 style="width: 18px; transform: translate(6px, 3px);margin-right: 8px"
               />
               评论
@@ -54,7 +54,7 @@
           <span
             ><div>
               <img
-                src="../img/弹幕.png"
+                src="/img/弹幕.png"
                 style="width: 18px; transform: translate(6px, 2px);margin-right: 8px"
               />
               弹幕
@@ -75,7 +75,7 @@
           <span style="transform: translate(-4px)"
             ><div>
               <img
-                src="../img/点赞.png"
+                src="/img/点赞.png"
                 style="width: 18px; transform: translate(7px, 2px);margin-right: 8px"
               />
               点赞
@@ -85,7 +85,7 @@
           <span style="transform: translate(-3px)"
             ><div>
               <img
-                src="../img/分享.png"
+                src="/img/分享.png"
                 style="width: 18px; transform: translate(7px, 1px);margin-right: 8px"
               />
               分享
@@ -95,7 +95,7 @@
           <span style="transform: translate(0px)"
             ><div>
               <img
-                src="../img/真收藏.png"
+                src="/img/真收藏.png"
                 style="width: 18px; transform: translate(6px, 3px);margin-right: 8px"
               />
               收藏
@@ -105,7 +105,7 @@
           <span style="transform: translate(-1px)"
             ><div>
               <img
-                src="../img/投币.png"
+                src="/img/投币.png"
                 style="width: 18px; transform: translate(5px, 4px);margin-right: 8px"
               />
               投币

@@ -54,14 +54,14 @@ import likeDynamicList from "@/utils/likeDynamicList.vue";
 
 
 const backgroundImgSrc=[
-  '/background.webp',
-  '/background2.webp',
-  '/background3.webp',
-  '/background4.webp',
-  '/background5.webp',
-  '/background6.webp',
-  '/background7.webp',
-  '/background8.webp',
+  '/img/pageBg1.webp',
+  '/img/pageBg2.webp',
+  '/img/pageBg3.webp',
+  '/img/pageBg4.webp',
+  '/img/pageBg5.webp',
+  '/img/pageBg6.webp',
+  '/img/pageBg7.webp',
+  '/img/pageBg8.webp',
 ];
 let bIndex=Math.floor(Math.random()*backgroundImgSrc.length);
 const store = useGlobalStore();

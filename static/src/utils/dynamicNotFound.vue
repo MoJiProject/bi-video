@@ -4,7 +4,7 @@
             <main-head :head2-flag="true"/>
         </div>
         <div class="not-found-content">
-            <div><img src="../img/404.png"></div>
+            <div><img src="/img/404.png"></div>
             <div class="not-found-title">啊叻？动态不见了？</div>
             <div class="not-found-desc">动态内容已被UP主删除，动态无法观看，敬请谅解。</div>
             <a href="./">前往首页</a>

@@ -17,7 +17,7 @@
         "
       >
         <img
-          src="../img/bilibili蓝.png"
+          src="/img/bilibili蓝.png"
           style="width: 55px; transform: translate(30px, 8px)"
         />
         <span
@@ -45,7 +45,7 @@
           "
         >
           <img
-            src="../img/主站.png"
+            src="/img/主站.png"
             style="transform: translate(-13px, 4px); height: 16px"
           />
           <span style="transform: translate(-7px, 3px)">主站</span>
@@ -56,18 +56,18 @@
             <div class="feature">
               <a href="/account" target="_blank">
                 <div style="cursor: pointer">
-                  <img src="../img/个人中心.png" /> <span>个人中心 </span>
+                  <img src="/img/个人中心.png" /> <span>个人中心 </span>
                 </div>
               </a>
               <router-link
                 to="/contribute/subpage2"
                 style="text-decoration: none; animation: none !important"
                 ><div>
-                  <img src="../img/投稿管理.png" /> <span>投稿管理 </span>
+                  <img src="/img/投稿管理.png" /> <span>投稿管理 </span>
                 </div></router-link
               >
               <div style="cursor: pointer" @click="logout">
-                <img src="../img/退出登录.png" /> <span>退出登录</span>
+                <img src="/img/退出登录.png" /> <span>退出登录</span>
               </div>
             </div>
           </div>
@@ -98,7 +98,7 @@
               class="number-style">
               {{ store.userInformation.allMessageNumber>99? '99+' : store.userInformation.allMessageNumber }}
               </div>
-              <img src="../img/消息灰色.png" alt="消息" style="width: 18px;transform: translate(-13px,4px);"/>
+              <img src="/img/消息灰色.png" alt="消息" style="width: 18px;transform: translate(-13px,4px);"/>
             </a>
             <div class="message-info" v-if="user.userName !== null">
               <span style="margin-top: 15px;" @click="openMessage(1)">

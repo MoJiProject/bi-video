@@ -38,7 +38,7 @@
           >
             <img
               v-show="Videos[index].waitWatch === 0"
-              src="../img/稍后再看.png"
+              src="/img/稍后再看.png"
               style="
                 width: 21px;
                 height: 18px;
@@ -48,7 +48,7 @@
             />
             <img
               v-show="Videos[index].waitWatch === 1"
-              src="../img/添加成功.png"
+              src="/img/添加成功.png"
               style="
                 width: 18px;
                 height: 15px;
@@ -83,7 +83,7 @@
           </div>
           <div class="videoContent1">
             <img
-              src="../img/播放量白.png"
+              src="/img/播放量白.png"
               style="
                 width: 15px;
                 height: 12px;
@@ -100,7 +100,7 @@
               >{{ Videos[index].videoPlayNumber }}</span
             >
             <img
-              src="../img/弹幕白.png"
+              src="/img/弹幕白.png"
               style="
                 width: 15px;
                 height: 12px;
@@ -215,7 +215,7 @@
       </div>
     </div>
     <div class="changer" @click="changeVideo">
-      <img src="../img/换一换.png" /><span>换 一 换</span>
+      <img src="/img/换一换.png" /><span>换 一 换</span>
     </div>
     <div class="bottomVideo">
       <div
@@ -255,7 +255,7 @@
           >
             <img
               v-show="video.waitWatch === 0"
-              src="../img/稍后再看.png"
+              src="/img/稍后再看.png"
               style="
                 width: 21px;
                 height: 18px;
@@ -265,7 +265,7 @@
             />
             <img
               v-show="video.waitWatch === 1"
-              src="../img/添加成功.png"
+              src="/img/添加成功.png"
               style="
                 width: 18px;
                 height: 15px;
@@ -300,7 +300,7 @@
           </div>
           <div class="videoContent1">
             <img
-              src="../img/播放量白.png"
+              src="/img/播放量白.png"
               style="
                 width: 15px;
                 height: 12px;
@@ -317,7 +317,7 @@
               >{{ video.videoPlayNumber }}</span
             >
             <img
-              src="../img/弹幕白.png"
+              src="/img/弹幕白.png"
               style="
                 width: 15px;
                 height: 12px;
@@ -432,8 +432,8 @@
 <script>
 import { ref, reactive, onMounted, onUnmounted, watch } from "vue";
 import apiClient from "../services/apiClient";
-import up from "../img/up.png";
-import upBlue from "../img/up蓝.png";
+const up = "/img/up.png"
+const upBlue = "/img/up蓝.png"
 import { useGlobalStore } from "../store/store";
 import { ElMessage } from "element-plus";
 import { selectVideo } from "@/api/video/index";

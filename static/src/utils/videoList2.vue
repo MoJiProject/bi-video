@@ -4,7 +4,7 @@
       <videoC2 :video="video" :sign="sign" />
     </div>
     <div class="no-data" v-if="data.length === 0">
-      <img src="../img/home_nodata.svg" />
+      <img src="/img/home_nodata.svg" />
       <div>暂无数据</div>
     </div>
   </div>

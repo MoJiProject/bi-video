@@ -2,7 +2,7 @@
     <div class="history-body">
         <div class="head">
             <div class="head-left">
-                <img src="../img/历史记录图标.png">
+                <img src="/img/历史记录图标.png">
                 历史记录
             </div>
             <div class="head-right">
@@ -24,12 +24,12 @@
                         @mouseover="deleteAllSearchFlag = false"
                         @mouseleave="deleteAllSearchFlag = true"
                         @click="keyWord = ''"
-                        :src="deleteAllSearchFlag ? '../img/删除搜索记录.png' : '../img/删除全部搜索hover.png'"
+                        :src="deleteAllSearchFlag ? '/img/删除搜索记录.png' : '/img/删除全部搜索hover.png'"
                         class="deleteAllSearchImg"/>
-                        <img class="searchImg" src="../img/搜索.png" @click="searchHistoryList">         
+                        <img class="searchImg" src="/img/搜索.png" @click="searchHistoryList">         
                     </div>
                     <div v-show="!batchManageFlag" class="clear-btn" @click="deleteAllHistoryDialogFlag=true">
-                    <img src="../img/清空历史记录.png">
+                    <img src="/img/清空历史记录.png">
                     清空历史
                     </div>
                     <div v-show="batchManageFlag" class="check-all" @click="checkAllF">
@@ -46,7 +46,7 @@
                         删除
                     </div>
                     <div class="batch-manage-btn" @click="batchManageFlag=!batchManageFlag">
-                    <img v-show="!batchManageFlag" src="../img/批量操作历史记录.png">
+                    <img v-show="!batchManageFlag" src="/img/批量操作历史记录.png">
                     {{ batchManageFlag?"退出管理":"批量管理" }}
                     </div>
                 </div>
@@ -85,7 +85,7 @@
                 </el-timeline-item>
             </el-timeline>
             <div v-show="!historyList.length&&dataFlag" class="no-data">
-                <img src="../img/home_nodata.svg">
+                <img src="/img/home_nodata.svg">
                 <div>还没有观看记录</div>
             </div>
         </div>

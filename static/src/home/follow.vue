@@ -14,7 +14,7 @@
             <span v-else class="aside-head">TA的粉丝</span>
             <div :class="{activeMenu: true}" @click="changeHomeMenu(9)">
                 <span class="aside-content">
-                    <img src="../img/粉丝黑.png">
+                    <img src="/img/粉丝黑.png">
                     <span>{{ store.userId!==null&&store.userId===userId? '我的粉丝' : 'TA的粉丝' }}</span>
                 </span>
                 <span>{{ fansTotal }}</span>
@@ -29,7 +29,7 @@
                     <div>
                         <input type="text" placeholder="输入关键词" maxlength="20" v-model="searchWord" @keydown.enter="fansOrFollowF">
                     </div>
-                    <img @click="fansOrFollowF" src="../img/搜索.png">
+                    <img @click="fansOrFollowF" src="/img/搜索.png">
                     <svg v-show="searchWord.length>0" @click="searchWord=''" class="vui_icon vui_input-clear-base__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M8 1.3333333333333333C4.318099999999999 1.3333333333333333 1.3333333333333333 4.318099999999999 1.3333333333333333 8C1.3333333333333333 11.681899999999999 4.318099999999999 14.666666666666666 8 14.666666666666666C11.681899999999999 14.666666666666666 14.666666666666666 11.681899999999999 14.666666666666666 8C14.666666666666666 4.318099999999999 11.681899999999999 1.3333333333333333 8 1.3333333333333333zM5.64258 6.3496C5.4473199999999995 6.1543399999999995 5.4473199999999995 5.837753333333333 5.64258 5.6424933333333325C5.837846666666666 5.447233333333333 6.154426666666667 5.447233333333333 6.349693333333333 5.6424933333333325L8 7.2928L9.650333333333332 5.6424933333333325C9.845566666666667 5.447233333333333 10.162166666666666 5.447233333333333 10.357433333333333 5.6424933333333325C10.552666666666667 5.837753333333333 10.552666666666667 6.1543399999999995 10.357433333333333 6.3496L8.7071 7.9999L10.357433333333333 9.650233333333333C10.552666666666667 9.845466666666667 10.552666666666667 10.162066666666666 10.357433333333333 10.357333333333333C10.162166666666666 10.5526 9.845566666666667 10.5526 9.650333333333332 10.357333333333333L8 8.706999999999999L6.349693333333333 10.357333333333333C6.154426666666667 10.5526 5.837846666666666 10.5526 5.64258 10.357333333333333C5.4473199999999995 10.162066666666666 5.4473199999999995 9.845466666666667 5.64258 9.650233333333333L7.2928999999999995 7.9999L5.64258 6.3496z" fill="currentColor"></path></svg>
                 </div>
             </div>
@@ -74,12 +74,12 @@
             </div>
         </div>
         <div v-else-if="store.userId&&followTotal===0&&!loadMore" class="not-data-container">
-                    <img src="../img/home_nodata.svg">
+                    <img src="/img/home_nodata.svg">
                     <div v-if="store.userId!==null&&store.userId===userId">你还没关注任何人</div>
                     <div v-else>TA还没关注任何人</div>
         </div>
         <div v-if="!store.userId" class="not-login-container">
-            <img src="../img/home_nodata.svg">
+            <img src="/img/home_nodata.svg">
             <div>请先登录</div>
         </div>
     </div>

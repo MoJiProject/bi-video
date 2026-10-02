@@ -48,15 +48,15 @@
                 <div v-else class="video-title">{{ video.videoTitle }}</div>
             </el-tooltip>
             <div class="delete-history" @click.stop="cancelCollect(history.id)">
-                <img src="../img/历史记录删除黑.png">
-                <img src="../img/历史记录删除蓝.png">
+                <img src="/img/历史记录删除黑.png">
+                <img src="/img/历史记录删除蓝.png">
             </div>
         </div>
         <div class="up-user-name-link" @click="openHome(1,video)">
              <div>
                 <div class="up-user-name">
-                    <img src="../img/up蓝.png">
-                    <img src="../img/up.png">
+                    <img src="/img/up蓝.png">
+                    <img src="/img/up.png">
                     <el-tooltip
                     popper-class="custom-tooltip"
                     :disabled="batchControls"
@@ -71,7 +71,7 @@
                     </el-tooltip>
                 </div>
                 <div class="watch-time">
-                    <img src="../img/电脑端.png">
+                    <img src="/img/电脑端.png">
                     {{ video.createTime }}
                 </div>
             </div>

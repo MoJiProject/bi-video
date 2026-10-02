@@ -6,7 +6,7 @@
                   <img class="avatar" @click="openHome(1,store.userId)" :src="store.userInformation.avatarAddress">
                   <div class="right">
                     <div class="user-name" @click="openHome(1,store.userId)">{{ store.userInformation.userName }}</div>
-                    <div class="level-container"><img v-if="store.userInformation?.grade" class="level-icon" :src="'../img/'+store.userInformation.grade+'级.png'"></div>
+                    <div class="level-container"><img v-if="store.userInformation?.grade" class="level-icon" :src="'/img/'+store.userInformation.grade+'级.png'"></div>
                   </div>
               </div>
               <div class="bottom">
@@ -67,7 +67,7 @@
                                 :key="index"
                                 @click="addEmoji(index)"
                               >
-                                <img :src="'../img/emoji/' + index + '.png'" />
+                                <img :src="'/img/emoji/' + index + '.png'" />
                               </span>
                           </div> 
                         </div>
@@ -122,11 +122,11 @@
                <dynamic2 :dynamic="dynamic" :check-up-id="upChecked"/>
             </div>
             <div v-show="loadMore" class="class-loading2">
-               <img src="../img/loading-blue.gif">
+               <img src="/img/loading-blue.gif">
                <span>拼命加载中...</span>
             </div>
             <div v-if="noDataFlag&&!loadMore&&dynamicList.length===0" class="no-data">
-                <img src="../img/home_nodata.svg">
+                <img src="/img/home_nodata.svg">
                 <div>好像没有东西诶</div>
             </div>
             <div v-show="fotterFlag&&!loadMore&&dynamicList.length>0" class="fotter">已经到底了</div>
@@ -175,14 +175,14 @@ const title=ref("");
 const contentInput=ref(null);
 const contentLength=ref(0);
 const backgroundImgSrc=[
-  '/background.webp',
-  '/background2.webp',
-  '/background3.webp',
-  '/background4.webp',
-  '/background5.webp',
-  '/background6.webp',
-  '/background7.webp',
-  '/background8.webp',
+  '/img/pageBg1.webp',
+  '/img/pageBg2.webp',
+  '/img/pageBg3.webp',
+  '/img/pageBg4.webp',
+  '/img/pageBg5.webp',
+  '/img/pageBg6.webp',
+  '/img/pageBg7.webp',
+  '/img/pageBg8.webp',
 ];
 let bIndex=Math.floor(Math.random()*backgroundImgSrc.length);
 const content=ref("");
@@ -330,7 +330,7 @@ function handleContentInput(){
       inputDom.innerText = inputDom.innerText.slice(0, 2000);
     if (
       inputDom.innerText.trim().length > 0 ||
-      inputDom.innerHTML.includes('<img src="../img/emoji/')
+      inputDom.innerHTML.includes('<img src="/img/emoji/')
     ) {
       content.value=inputDom.innerHTML;
       contentLength.value=inputDom.innerText.trim().length;
@@ -406,7 +406,7 @@ function addEmoji(index) {
   // 获取当前选区和光标位置
   const selection = window.getSelection();
   // 创建新的按钮元素
-  const button = `<img src="../img/emoji/${index}.png" style="width:21px;height:21px;display:inline-block;vertical-align:middle;transform:translateY(-3px);" class="comment-emoji-img" />`;
+  const button = `<img src="/img/emoji/${index}.png" style="width:21px;height:21px;display:inline-block;vertical-align:middle;transform:translateY(-3px);" class="comment-emoji-img" />`;
   // 插入新按钮到光标位置
   const fragment = range.createContextualFragment(button); // 创建 DOM 片段
   const lastChild = fragment.lastChild;
@@ -802,7 +802,7 @@ async function addDynamicF(){
     // 网址超链接
     content.value = content.value.replace(
         /(https?:\/\/[^\s<>"]+?)(?=\s|&nbsp;|<div>|<\/div>|$)\b/g,
-        '<a href="$1" target="_blank"><img style="width: 14px;height: 14px;padding-right: 2px;" src="../img/网页链接.png">$1<br></a>',
+        '<a href="$1" target="_blank"><img style="width: 14px;height: 14px;padding-right: 2px;" src="/img/网页链接.png">$1<br></a>',
       );
     // @样式
     content.value = content.value.replace(
@@ -827,7 +827,7 @@ async function addDynamicF(){
           const res = await apiClient.get(`/video/getVideoTitle/${match[1]}`);
           if (res.data.code === 1) {
             // 动态替换 HTML 中的链接
-            link.innerHTML = `<img style="width: 14px;height: 14px;padding-right: 2px;transform: translateY(1px);" src="../img/视频标题.png">${res.data.data}<br>`;
+            link.innerHTML = `<img style="width: 14px;height: 14px;padding-right: 2px;transform: translateY(1px);" src="/img/视频标题.png">${res.data.data}<br>`;
             link.target = "_blank"; 
           }
         } catch (error) {}

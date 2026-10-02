@@ -2,7 +2,7 @@
   <div
     v-if="userInfo?.id&&(userInfo.isFollowFlag===0||userInfo.isFollowFlag===1)"
     class="up-user-info" @click.stop>
-    <div v-if="!userInfo.backgroundAddress" :style="{backgroundImage:'url(../img/主页背景图.webp)'}" class="up-user-info-bg"></div>
+    <div v-if="!userInfo.backgroundAddress" :style="{backgroundImage:'url(/img/主页背景图.webp)'}" class="up-user-info-bg"></div>
     <div v-else :style="{backgroundImage:`url(${userInfo.backgroundAddress})`}" class="up-user-info-bg"></div>
     <div class="up-user-info-container">
     <img
@@ -21,17 +21,17 @@
         >
         <img
         v-if="userInfo.gender === 1"
-        src="../img/man.png"
+        src="/img/man.png"
         class="up-user-info-gender"
         />
         <img
         v-if="userInfo.gender === 2"
-        src="../img/man.png"
+        src="/img/man.png"
         class="up-user-info-gender"
         />
         <img
         v-if="userInfo.grade"
-        :src="'../img/' + userInfo.grade + '级.png'"
+        :src="'/img/' + userInfo.grade + '级.png'"
         class="up-user-info-level"
         />
     </div>
@@ -67,7 +67,7 @@
         v-debounce
         @click="addFollowAxios(userInfo)"
         ><img
-            src="../img/加关注.png"
+            src="/img/加关注.png"
             style="width: 14px; margin-right: 4px"
         />关注</span
         >

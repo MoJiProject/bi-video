@@ -61,11 +61,11 @@
         </div>
         <img
           @click="reVideo"
-          src="../img/重新选择.png"
+          src="/img/重新选择.png"
           style="width: 18px;transform: translate(670px, 50px); position: absolute;cursor: pointer;"
         />
         <img
-          src="../img/uploadVideoImg.png"
+          src="/img/uploadVideoImg.png"
           style="width: 28px; transform: translate(10px, 30px)"
         />
         <el-progress
@@ -98,7 +98,7 @@
         <el-icon class="el-icon--upload"><upload-filled /></el-icon>
         <div class="el-upload__text">
           <img
-            src="../img/upload.png"
+            src="/img/upload.png"
             style="
               width: 34px;
               transform: translate(-35px, -95px);
@@ -252,7 +252,7 @@
               cursor: pointer;
             "
             ><img
-              src="../img/小丸压.png"
+              src="/img/小丸压.png"
               style="transform: translate(2px, 3px); width: 16px;margin-right: 8px"
             />小丸压制工具原版</span
           >
@@ -264,7 +264,7 @@
               cursor: pointer;
             "
             ><img
-              src="../img/小丸压定制版.png"
+              src="/img/小丸压定制版.png"
               style="transform: translate(2px, 3px); width: 16px;margin-right: 8px"
             />小丸压制工具bilibili定制版</span
           >
@@ -396,7 +396,7 @@
               <el-icon class="el-icon--upload"><upload-filled /></el-icon>
               <div class="el-upload__text">
                 <img
-                  src="../img/uploadCover.png"
+                  src="/img/uploadCover.png"
                   style="width: 100px; transform: translate(-10px, -70px)"
                 />
                 <div
@@ -1678,7 +1678,7 @@ export default {
     // 网址超链接
     video.contentHtml = video.contentHtml.replace(
       /(https?:\/\/[^\s<>"]+?)(?=\s|&nbsp;|<div>|<\/div>|$)/g,
-      '<a href="$1" target="_blank"><img style="width: 14px;height: 14px;padding-right: 2px;" src="../img/网页链接.png">$1<br></a>',
+      '<a href="$1" target="_blank"><img style="width: 14px;height: 14px;padding-right: 2px;" src="/img/网页链接.png">$1<br></a>',
     );
 
     // @样式
@@ -1732,7 +1732,7 @@ export default {
             const res = await apiClient.get(`/video/getVideoTitle/${match[1]}`);
             if (res.data.code === 1) {
             // 动态替换 HTML 中的链接
-            link.innerHTML = `<img style="width: 14px;height: 14px;padding-right: 2px;transform: translateY(1px);" src="../img/视频标题.png">${res.data.data}<br>`;
+            link.innerHTML = `<img style="width: 14px;height: 14px;padding-right: 2px;transform: translateY(1px);" src="/img/视频标题.png">${res.data.data}<br>`;
             link.target = "_blank";
           }
         } catch (error) {

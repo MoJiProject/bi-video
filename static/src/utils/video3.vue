@@ -13,11 +13,11 @@
         <div v-if="video.createTime.includes('分钟前')||video.createTime.includes('小时前')" class="new-video">最新</div>
         <div class="video-info">
             <span class="video-info-item">
-                <img src="../img/播放量白.png">
+                <img src="/img/播放量白.png">
                 <span>{{ video.videoPlayNumber }}</span>
             </span>
             <span style="left: -22px;" class="video-info-item">
-                <img src="../img/弹幕白.png">
+                <img src="/img/弹幕白.png">
                 <span>{{ video.videoScrollingNumber }}</span>
             </span>
             <span style="left: 12px;" class="video-info-item">

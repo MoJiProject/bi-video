@@ -20,11 +20,11 @@
         <div v-if="video.createTime.includes('分钟前')||video.createTime.includes('小时前')" class="new-video">最新</div>
         <div class="video-info">
             <span class="video-info-item">
-                <img src="../img/播放量白.png">
+                <img src="/img/播放量白.png">
                 <span>{{ video.videoPlayNumber }}</span>
             </span>
             <span style="left: -22px;" class="video-info-item">
-                <img src="../img/弹幕白.png">
+                <img src="/img/弹幕白.png">
                 <span>{{ video.videoScrollingNumber }}</span>
             </span>
             <span style="left: 12px;" class="video-info-item">
@@ -53,8 +53,8 @@
        </div>
        <div class="up-user-name-link" @click="openHome(1,video)">
             <div class="up-user-name">
-                <img src="../img/up蓝.png">
-                <img src="../img/up.png">
+                <img src="/img/up蓝.png">
+                <img src="/img/up.png">
                 <el-tooltip
                 popper-class="custom-tooltip"
                 :disabled="batchControls"
@@ -68,8 +68,8 @@
                 <span>{{ video.userName }}&nbsp; ·&nbsp;{{ video.createTime }}</span>
                 </el-tooltip>
                 <div class="delete-btn" @click.stop="cancelCollect(collect.id)">
-                    <img src="../img/历史记录删除黑.png">
-                    <img src="../img/历史记录删除蓝.png">
+                    <img src="/img/历史记录删除黑.png">
+                    <img src="/img/历史记录删除蓝.png">
                 </div>
             </div>
        </div>
@@ -94,8 +94,8 @@
        </div>
        <div class="up-user-name-link">
             <div class="up-user-name">
-                <img src="../img/up蓝.png">
-                <img src="../img/up.png">
+                <img src="/img/up蓝.png">
+                <img src="/img/up.png">
                 <el-tooltip
                 popper-class="custom-tooltip"
                 :disabled="batchControls"
@@ -109,8 +109,8 @@
                 <span>未知&nbsp; ·&nbsp;{{ collect.collectTime.split(' ')[0] }}</span>
                 </el-tooltip>
                 <div class="delete-btn" @click.stop="cancelCollect(collect.id)">
-                    <img src="../img/历史记录删除黑.png">
-                    <img src="../img/历史记录删除蓝.png">
+                    <img src="/img/历史记录删除黑.png">
+                    <img src="/img/历史记录删除蓝.png">
                 </div>
             </div>
        </div>

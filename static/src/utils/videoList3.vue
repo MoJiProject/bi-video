@@ -4,7 +4,7 @@
       <videoC3 :video="video" :size="size" />
     </div>
     <div class="no-data" v-if="data.length === 0">
-      <img src="../img/home_nodata.svg" />
+      <img src="/img/home_nodata.svg" />
       <div v-if="store.userId !== null && store.userId == userId">
         你还没有发布视频内容
       </div>

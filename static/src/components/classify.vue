@@ -14,7 +14,7 @@
         @click="openDynamic"
         style="display: flex; flex-direction: column; align-items: center;cursor: pointer;"
       >
-        <div class="dynamic1"><img src="../img/动态.png" /></div>
+        <div class="dynamic1"><img src="/img/动态.png" /></div>
         <span>动态</span>
       </span>
       <span
@@ -27,7 +27,7 @@
           cursor: pointer;
         "
       >
-        <div class="fire1"><img src="../img/热门.png" /></div>
+        <div class="fire1"><img src="/img/热门.png" /></div>
         <span>热门</span>
       </span>
     </div>
@@ -908,7 +908,7 @@
               outline: none;
             "
           >
-            更多 <img src="../img/更多.png" class="more" />
+            更多 <img src="/img/更多.png" class="more" />
           </el-button>
           <template #dropdown>
             <el-dropdown-menu>
@@ -967,7 +967,7 @@
     >
       <div style="transform: translate(501px, 19px)">
         <a href="https://www.bilibili.com/read/home?spm_id_from=333.1007.0.0" target="_blank">
-          <img src="../img/专栏.png" />
+          <img src="/img/专栏.png" />
           <span
             style="
               color: #62666c;
@@ -981,7 +981,7 @@
           href="https://www.bilibili.com/blackboard/activity-list.html?spm_id_from=333.1007.0.0" target="_blank"
           style="display: flex; transform: translateX(28px)"
         >
-          <img src="../img/活动.png" />
+          <img src="/img/活动.png" />
           <span
             style="
               color: #62666c;
@@ -995,7 +995,7 @@
           href="https://www.bilibili.com/blackboard/activity-5zJxM3spoS.html?spm_id_from=333.1007.0.0" target="_blank"
           style="display: flex; transform: translateX(56px)"
         >
-          <img src="../img/社区中心.png" />
+          <img src="/img/社区中心.png" />
           <span
             style="
               color: #62666c;
@@ -1011,7 +1011,7 @@
           href="https://live.bilibili.com/?spm_id_from=333.1007.0.0" target="_blank"
           style="transform: translateX(-43px)"
         >
-              <img src="../img/直播.png" style="width: 15px" /><span
+              <img src="/img/直播.png" style="width: 15px" /><span
                 style="
                   font-size: 13px;
                   color: #62666c;
@@ -1023,7 +1023,7 @@
           href="https://www.bilibili.com/cheese/?csource=common_hp_channelclass_icon&spm_id_from=333.1007.0.0" target="_blank"
           style="transform: translateX(-16px)"
         >
-              <img src="../img/课堂.png" /><span
+              <img src="/img/课堂.png" /><span
                 style="
                   font-size: 13px;
                   color: #62666c;
@@ -1035,7 +1035,7 @@
           href="https://music.bilibili.com/pc/music-center/?spm_id_from=333.1007.0.0" target="_blank"
           style="transform: translateX(12px);"
         >
-          <img src="../img/新歌热榜.png" />
+          <img src="/img/新歌热榜.png" />
           <span style="position: absolute; transform: translate(43px, -1px);width: 56px;"
             >新歌热榜</span>
         </a>

@@ -50,7 +50,7 @@
                 <div class="left">
                     <div class="collect-back"></div>
                     <div class="collect-back2"></div>
-                    <img v-show="!collectOpenFlag.coverAddress" :src="'../img/collect_cover.avif'">
+                    <img v-show="!collectOpenFlag.coverAddress" :src="'/img/collect_cover.avif'">
                     <img v-show="collectOpenFlag.coverAddress" :src="collectOpenFlag.coverAddress">
                 </div>
                 <div class="right">
@@ -81,7 +81,7 @@
                     <span class="search-container-right">
                         <input type="text" maxlength="30" v-model="searchContent" placeholder="请输入关键词" @keydown.enter="searchCollect">
                         <svg v-show="searchContent.length>0" @click="searchContent=''" class="vui_icon vui_input-clear-base__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M8 1.3333333333333333C4.318099999999999 1.3333333333333333 1.3333333333333333 4.318099999999999 1.3333333333333333 8C1.3333333333333333 11.681899999999999 4.318099999999999 14.666666666666666 8 14.666666666666666C11.681899999999999 14.666666666666666 14.666666666666666 11.681899999999999 14.666666666666666 8C14.666666666666666 4.318099999999999 11.681899999999999 1.3333333333333333 8 1.3333333333333333zM5.64258 6.3496C5.4473199999999995 6.1543399999999995 5.4473199999999995 5.837753333333333 5.64258 5.6424933333333325C5.837846666666666 5.447233333333333 6.154426666666667 5.447233333333333 6.349693333333333 5.6424933333333325L8 7.2928L9.650333333333332 5.6424933333333325C9.845566666666667 5.447233333333333 10.162166666666666 5.447233333333333 10.357433333333333 5.6424933333333325C10.552666666666667 5.837753333333333 10.552666666666667 6.1543399999999995 10.357433333333333 6.3496L8.7071 7.9999L10.357433333333333 9.650233333333333C10.552666666666667 9.845466666666667 10.552666666666667 10.162066666666666 10.357433333333333 10.357333333333333C10.162166666666666 10.5526 9.845566666666667 10.5526 9.650333333333332 10.357333333333333L8 8.706999999999999L6.349693333333333 10.357333333333333C6.154426666666667 10.5526 5.837846666666666 10.5526 5.64258 10.357333333333333C5.4473199999999995 10.162066666666666 5.4473199999999995 9.845466666666667 5.64258 9.650233333333333L7.2928999999999995 7.9999L5.64258 6.3496z" fill="currentColor"></path></svg>
-                        <img @click="searchCollect" src="../img/搜索.png">
+                        <img @click="searchCollect" src="/img/搜索.png">
                     </span>
                 </div>
             </div>
@@ -96,8 +96,8 @@
                 <span class="controls-item">
                     <div class="controls" @click="deleteFailureCollectDialogFlag=!deleteFailureCollectDialogFlag">清除失效内容</div>
                     <div class="controls" @click="deleteCollectF">取消收藏</div>
-                    <div class="controls" @click="copyOrMoveCollectF(1)"><img class="copy" src="../img/复制.png">复制至</div>
-                    <div class="controls" @click="copyOrMoveCollectF(2)"><img class="move" src="../img/移动.png">移动至</div>
+                    <div class="controls" @click="copyOrMoveCollectF(1)"><img class="copy" src="/img/复制.png">复制至</div>
+                    <div class="controls" @click="copyOrMoveCollectF(2)"><img class="move" src="/img/移动.png">移动至</div>
                 </span>
             </div>
             <loadingIndicator v-show="loadMore" min-height="200px"/>

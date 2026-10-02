@@ -2,9 +2,25 @@ const { defineConfig } = require('@vue/cli-service')
 const webpack = require('webpack')
 const CompressionPlugin = require('compression-webpack-plugin')
 
+// /img/... 指向 public/img，由 copy-webpack-plugin 原样拷贝，不参与打包。
+// css-loader 默认会把根路径 url() 也当作模块去解析（Cannot find module '/img/xxx'），
+// 这里过滤掉根路径，字体等相对路径引用仍照常走 webpack。
+const skipRootRelativeUrl = {
+  url: {
+    filter: (url) => !url.startsWith('/'),
+  },
+}
+
 module.exports = defineConfig({
   transpileDependencies: true,
   lintOnSave: false,
+
+  css: {
+    loaderOptions: {
+      // loaderOptions.css 会作用于所有 css/scss/sass/less 规则（cli-service/lib/config/css.js:136）
+      css: skipRootRelativeUrl,
+    },
+  },
 
   // 本地开发代理后端 API
   devServer: {

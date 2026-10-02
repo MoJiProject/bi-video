@@ -33,7 +33,7 @@
                     <span>{{ sDialogue.userInfo.userName }}</span>
                     </el-tooltip>
                 </div>
-                <img v-show="sDialogue.dialogue.dnd===1" class="message-dnd" src="../img/dnd.svg">
+                <img v-show="sDialogue.dialogue.dnd===1" class="message-dnd" src="/img/dnd.svg">
                 <div v-show="sDialogue.dialogue.dnd===0&&sDialogue.notReadNumber>0" class="message-unread-number">
                       {{ sDialogue.notReadNumber<100 ? sDialogue.notReadNumber : '99+' }}
                 </div>
@@ -77,7 +77,7 @@
             <div class="message-setting-dialog-img-container" @mouseover="messageSettingHoverFlag = true" 
                 @mouseleave="messageSettingHoverFlag = false">
                 <img class="message-setting-dialog-img" 
-                :src="messageSettingHoverFlag? '../img/弹幕列表蓝.png' : '../img/弹幕列表.png'">
+                :src="messageSettingHoverFlag? '/img/弹幕列表蓝.png' : '/img/弹幕列表.png'">
             </div>
          </div>
          <div ref="messageContent" class="message-content-container" @scroll="messageListScroll">
@@ -150,11 +150,11 @@
                             <img class="share-video-cover" :src="message.videos?.coverAddress">
                             <span class="share-video-time">{{ message.videos?.videoTime }}</span>
                             <span class="share-video-scrolling-number">{{ message.videos?.scrollingNumber }}条弹幕</span>
-                            <img class="share-video-play-btn" src="../img/分享视频播放.svg">
+                            <img class="share-video-play-btn" src="/img/分享视频播放.svg">
                         </div>
                         <div class="share-video-title"><span>{{ message.videos?.title }}</span></div>
                         <div class="share-video-fotter">
-                            <img src="../img/up.png">
+                            <img src="/img/up.png">
                             <span class="share-video-user-name">{{ message.videos?.userName }}</span>
                             <span class="share-contribute-video">投稿视频</span>
                         </div>
@@ -203,7 +203,7 @@
                   :show-arrow="false"
                   :hide-after="0"
                 >
-                <img @click="addSendImg" @mouseover="imgFeatureHoverFlag = true" @mouseleave="imgFeatureHoverFlag = false" class="message-feature-img" :src="imgFeatureHoverFlag ? '../img/媒体按钮蓝.png' : '../img/媒体按钮.png'">
+                <img @click="addSendImg" @mouseover="imgFeatureHoverFlag = true" @mouseleave="imgFeatureHoverFlag = false" class="message-feature-img" :src="imgFeatureHoverFlag ? '/img/媒体按钮蓝.png' : '/img/媒体按钮.png'">
                 </el-tooltip>
                 <el-tooltip
                   popper-class="custom-tooltip"
@@ -215,7 +215,7 @@
                   :show-arrow="false"
                   :hide-after="0"
                 >
-                <img @mouseover="emojiHoverFlag = true" @mouseleave="emojiHoverFlag = false" class="message-feature-emoji" :src="emojiHoverFlag ? '../img/表情按钮蓝.png' : '../img/表情按钮.png'">
+                <img @mouseover="emojiHoverFlag = true" @mouseleave="emojiHoverFlag = false" class="message-feature-emoji" :src="emojiHoverFlag ? '/img/表情按钮蓝.png' : '/img/表情按钮.png'">
                 </el-tooltip>
                 <div v-show="emojiFlag" class="message-emoji-list">
                    <span class="emoji-title">表情</span>
@@ -226,7 +226,7 @@
                         v-for="index in 176"
                         :key="index"
                         >
-                        <img class="comment-emoji-img" :src="'../img/emoji/' + index + '.png'" />
+                        <img class="comment-emoji-img" :src="'/img/emoji/' + index + '.png'" />
                     </span>
                 </div>
                 <input type="file" class="message-file-input" style="display: none;" accept="image/*" @change="handleFileChange">
@@ -241,7 +241,7 @@
          </div>
         </div>
         <div v-show="!currentDialogue" class="no-message-container">
-            <img src="../img/no_message.png">
+            <img src="/img/no_message.png">
             <div>快找小伙伴聊天吧 ( ゜- ゜)つロ</div>
         </div>
     </div>
@@ -790,7 +790,7 @@ function getAfterBlurIndex() {
 
 function addEmoji(index) {
   const button = document.createElement("img");
-  button.src = `../img/emoji/${index}.png`;
+  button.src = `/img/emoji/${index}.png`;
   button.className = "message-emoji-img";
   button.style.width = "20px";
   button.style.height = "20px";

@@ -50,7 +50,7 @@
       />
       <img
         @click="getUsersF"
-        src="../img/搜索稿件.png"
+        src="/img/搜索稿件.png"
         style="transform: translate(768px, -3px); width: 14px;cursor: pointer;"
       />
       <div

@@ -46,11 +46,11 @@
                     <span class="delete-comment-notification" @click="deleteLoveNotificationDialogF(love)" 
                     @mouseover="deleteCommentNotificaitonHoverFlag=true" 
                     @mouseleave="deleteCommentNotificaitonHoverFlag=false">
-                    <img :src="deleteCommentNotificaitonHoverFlag?'../img/删除通知蓝.png':'../img/删除通知.png'"> <span>删除该通知</span></span>
-                    <span v-show="love.comments?.likeWarn===1||love.videos?.likeWarn===1||love.dynamic?.likeWarn===1" class="comment-notification" @click="dndLikeNotificationF(love)"><img :src="commentNotificationHoverFlag?'../img/屏蔽通知蓝.png':'../img/屏蔽通知灰.png'"> <span>不再通知</span></span>
-                    <span v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="comment-disable-notification" @click="dndLikeNotificationF(love)" @mouseover="commentDisableificationHoverFlag=true" @mouseleave="commentDisableificationHoverFlag=false"><img :src="commentDisableificationHoverFlag?'../img/开启通知蓝.png':'../img/开启通知灰.png'"> <span>接收通知</span></span>
+                    <img :src="deleteCommentNotificaitonHoverFlag?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除该通知</span></span>
+                    <span v-show="love.comments?.likeWarn===1||love.videos?.likeWarn===1||love.dynamic?.likeWarn===1" class="comment-notification" @click="dndLikeNotificationF(love)"><img :src="commentNotificationHoverFlag?'/img/屏蔽通知蓝.png':'/img/屏蔽通知灰.png'"> <span>不再通知</span></span>
+                    <span v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="comment-disable-notification" @click="dndLikeNotificationF(love)" @mouseover="commentDisableificationHoverFlag=true" @mouseleave="commentDisableificationHoverFlag=false"><img :src="commentDisableificationHoverFlag?'/img/开启通知蓝.png':'/img/开启通知灰.png'"> <span>接收通知</span></span>
                 </div>
-                <img v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="love-dnd" src="../img/dnd.svg">
+                <img v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="love-dnd" src="/img/dnd.svg">
                 <el-tooltip
                     v-if="love.comments!==null"
                     popper-class="custom-tooltip"
@@ -154,11 +154,11 @@
                 </div>
                 <div class="love-right-content-bottom">
                     <span class="love-time">{{ love.likeTime }}</span>
-                    <span class="delete-comment-notification" @click="deleteLoveNotificationDialogF(love)" @mouseover="deleteCommentNotificaitonHoverFlag=true" @mouseleave="deleteCommentNotificaitonHoverFlag=false"><img :src="deleteCommentNotificaitonHoverFlag?'../img/删除通知蓝.png':'../img/删除通知.png'"> <span>删除该通知</span></span>
-                    <span v-show="love.comments?.likeWarn===1||love.videos?.likeWarn===1||love.dynamic?.likeWarn===1" class="comment-notification" @click="dndLikeNotificationF(love)" @mouseover="commentNotificationHoverFlag=true" @mouseleave="commentNotificationHoverFlag=false"><img :src="commentNotificationHoverFlag?'../img/屏蔽通知蓝.png':'../img/屏蔽通知灰.png'"> <span>不再通知</span></span>
-                    <span v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="comment-disable-notification" @click="dndLikeNotificationF(love)" @mouseover="commentDisableificationHoverFlag=true" @mouseleave="commentDisableificationHoverFlag=false"><img :src="commentDisableificationHoverFlag?'../img/开启通知蓝.png':'../img/开启通知灰.png'"> <span>接收通知</span></span>
+                    <span class="delete-comment-notification" @click="deleteLoveNotificationDialogF(love)" @mouseover="deleteCommentNotificaitonHoverFlag=true" @mouseleave="deleteCommentNotificaitonHoverFlag=false"><img :src="deleteCommentNotificaitonHoverFlag?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除该通知</span></span>
+                    <span v-show="love.comments?.likeWarn===1||love.videos?.likeWarn===1||love.dynamic?.likeWarn===1" class="comment-notification" @click="dndLikeNotificationF(love)" @mouseover="commentNotificationHoverFlag=true" @mouseleave="commentNotificationHoverFlag=false"><img :src="commentNotificationHoverFlag?'/img/屏蔽通知蓝.png':'/img/屏蔽通知灰.png'"> <span>不再通知</span></span>
+                    <span v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="comment-disable-notification" @click="dndLikeNotificationF(love)" @mouseover="commentDisableificationHoverFlag=true" @mouseleave="commentDisableificationHoverFlag=false"><img :src="commentDisableificationHoverFlag?'/img/开启通知蓝.png':'/img/开启通知灰.png'"> <span>接收通知</span></span>
                 </div>
-                <img v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="love-dnd" src="../img/dnd.svg">
+                <img v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="love-dnd" src="/img/dnd.svg">
                 <el-tooltip
                     v-if="love.likes.likeType===2"
                     popper-class="custom-tooltip"
@@ -261,11 +261,11 @@
                 </div>
                 <div class="love-right-content-bottom">
                     <span class="love-time">{{ love.likeTime }}</span>
-                    <span class="delete-comment-notification" @click="deleteLoveNotificationDialogF(love)"><img :src="deleteCommentNotificaitonHoverFlag?'../img/删除通知蓝.png':'../img/删除通知.png'"> <span>删除该通知</span></span>
-                    <span v-show="love.comments?.likeWarn===1||love.videos?.likeWarn===1||love.dynamic?.likeWarn===1" class="comment-notification" @click="dndLikeNotificationF(love)" @mouseover="commentNotificationHoverFlag=true" @mouseleave="commentNotificationHoverFlag=false"><img :src="commentNotificationHoverFlag?'../img/屏蔽通知蓝.png':'../img/屏蔽通知灰.png'"> <span>不再通知</span></span>
-                    <span v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="comment-disable-notification" @click="dndLikeNotificationF(love)" @mouseover="commentDisableificationHoverFlag=true" @mouseleave="commentDisableificationHoverFlag=false"><img :src="commentDisableificationHoverFlag?'../img/开启通知蓝.png':'../img/开启通知灰.png'"> <span>接收通知</span></span>
+                    <span class="delete-comment-notification" @click="deleteLoveNotificationDialogF(love)"><img :src="deleteCommentNotificaitonHoverFlag?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除该通知</span></span>
+                    <span v-show="love.comments?.likeWarn===1||love.videos?.likeWarn===1||love.dynamic?.likeWarn===1" class="comment-notification" @click="dndLikeNotificationF(love)" @mouseover="commentNotificationHoverFlag=true" @mouseleave="commentNotificationHoverFlag=false"><img :src="commentNotificationHoverFlag?'/img/屏蔽通知蓝.png':'/img/屏蔽通知灰.png'"> <span>不再通知</span></span>
+                    <span v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="comment-disable-notification" @click="dndLikeNotificationF(love)" @mouseover="commentDisableificationHoverFlag=true" @mouseleave="commentDisableificationHoverFlag=false"><img :src="commentDisableificationHoverFlag?'/img/开启通知蓝.png':'/img/开启通知灰.png'"> <span>接收通知</span></span>
                 </div>
-                <img v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="love-dnd" src="../img/dnd.svg">
+                <img v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="love-dnd" src="/img/dnd.svg">
                 <el-tooltip
                     v-if="love.likes.likeType===2"
                     popper-class="custom-tooltip"
@@ -312,10 +312,10 @@
            </div>
         </div>
         <div v-show="loveList.length===0&&selectLikeCommentFFlag" class="no-love-data">
-          <img src="../img/没有消息数据.png">
+          <img src="/img/没有消息数据.png">
         </div>
         <div v-show="loveList.length===0&&!selectLikeCommentFFlag" class="love-loading">
-          <img src="../img/加载消息.gif">
+          <img src="/img/加载消息.gif">
         </div>
       </div>
       <div class="love-content" style="padding-bottom: 200px;" v-show="likeUserList.length>0" @scroll="handleScroll2">

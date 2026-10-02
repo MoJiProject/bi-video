@@ -94,13 +94,13 @@
                 </div>
                 <div class="reply-right-content-bottom">
                     <span class="reply-time">{{ reply.replyComments.commentTime }}</span>
-                    <span class="reply-comment" @click="openReplyComment(reply)" @mouseover="replyCommentHoverFlag=true" @mouseleave="replyCommentHoverFlag=false"><img :src="replyCommentHoverFlag?'../img/回复蓝.png':'../img/回复.png'"> <span>回复</span></span>
-                    <span v-show="reply.replyCommentControls?.controls!==1" class="love-comment" v-debounce @click="commentControlesF(reply)" @mouseover="loveCommentHoverFlag=true" @mouseleave="loveCommentHoverFlag=false"><img :src="loveCommentHoverFlag?'../img/评论点赞hover.png':'../img/评论点赞灰.png'"> <span>点赞</span></span>
-                    <span v-show="reply.replyCommentControls?.controls===1" class="love-comment2" v-debounce @click="commentControlesF(reply)"><img src="../img/评论点赞蓝.png"> <span>已赞</span></span>
-                    <span class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=reply.replyComments.id" @mouseover="deleteCommentNotificaitonHoverFlag=true" @mouseleave="deleteCommentNotificaitonHoverFlag=false"><img :src="deleteCommentNotificaitonHoverFlag?'../img/删除通知蓝.png':'../img/删除通知.png'"> <span>删除该通知</span></span>
+                    <span class="reply-comment" @click="openReplyComment(reply)" @mouseover="replyCommentHoverFlag=true" @mouseleave="replyCommentHoverFlag=false"><img :src="replyCommentHoverFlag?'/img/回复蓝.png':'/img/回复.png'"> <span>回复</span></span>
+                    <span v-show="reply.replyCommentControls?.controls!==1" class="love-comment" v-debounce @click="commentControlesF(reply)" @mouseover="loveCommentHoverFlag=true" @mouseleave="loveCommentHoverFlag=false"><img :src="loveCommentHoverFlag?'/img/评论点赞hover.png':'/img/评论点赞灰.png'"> <span>点赞</span></span>
+                    <span v-show="reply.replyCommentControls?.controls===1" class="love-comment2" v-debounce @click="commentControlesF(reply)"><img src="/img/评论点赞蓝.png"> <span>已赞</span></span>
+                    <span class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=reply.replyComments.id" @mouseover="deleteCommentNotificaitonHoverFlag=true" @mouseleave="deleteCommentNotificaitonHoverFlag=false"><img :src="deleteCommentNotificaitonHoverFlag?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除该通知</span></span>
                 </div>
                 <div v-show="reply?.replyFlag" class="reply-comment-container">
-                  <img src="/默认头像.gif">
+                  <img src="/img/默认头像.gif">
                   <textarea :id="'reply'+reply.replyComments.id" class="reply-comment-input" v-model="commentContent" placeholder="请自觉遵守互联网相关的政策法规，严禁发布色情、暴力、反动的言论。"></textarea>
                   <button v-debounce class="commit-comment" @click="replayCommentF(reply)">发表<br>评论</button>
                 </div>
@@ -151,10 +151,10 @@
            </div>
         </div>
         <div v-show="replyList.length===0&&selectReplayCommentFFlag" class="no-reply-data">
-          <img src="../img/没有消息数据.png">
+          <img src="/img/没有消息数据.png">
         </div>
         <div v-show="replyList.length===0&&!selectReplayCommentFFlag" class="reply-loading">
-          <img src="../img/加载消息.gif">
+          <img src="/img/加载消息.gif">
         </div>
       </div>
       <el-dialog
@@ -328,7 +328,7 @@
 
       commentContent.value=`&nbsp;回复 <a href='https://baidu.com' data-eit-userid='${reply.replyComments.userId}' class='at-msg' style='color:#008ac5;'>@${reply.replyComments.userName}</a> ：`+commentContent.value;
       if(reply.isAuthorFlag===1)
-      commentContent.value = "<img style='width: 24px;height: 24px;display: inline-block;vertical-align: middle;transform: translateY(-1.5px);user-select: none;' src='../img/up_pb.svg'>&nbsp;"+commentContent.value;
+      commentContent.value = "<img style='width: 24px;height: 24px;display: inline-block;vertical-align: middle;transform: translateY(-1.5px);user-select: none;' src='/img/up_pb.svg'>&nbsp;"+commentContent.value;
      
       let comments={
         content: commentContent.value,

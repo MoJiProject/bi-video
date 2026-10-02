@@ -7,7 +7,7 @@
       <div v-else-if="shareUserList.length>0" class="share-container"  ref="scrollContainer"  @wheel.prevent="handleWheel">
           <div class="share-item" v-for="user in shareUserList" :key="user.id" @click="clickUser(user)">
               <img class="avatar" :src="user.avatarAddress">
-              <img class="check" v-show="user?.checkFlag" src="../img/选中.png">
+              <img class="check" v-show="user?.checkFlag" src="/img/选中.png">
               <span style="color: #18191C;">{{ user.userName }}</span>
           </div>
       </div>

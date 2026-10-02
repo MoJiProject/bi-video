@@ -14,11 +14,11 @@
          <div class="video-info">
              <div>
                 <span>
-                    <img src="../img/播放量白.png">
+                    <img src="/img/播放量白.png">
                  <span>{{ video.videoPlayNumber }}</span>
                  </span>
                  <span>
-                    <img src="../img/弹幕白.png">
+                    <img src="/img/弹幕白.png">
                  <span>{{ video.videoScrollingNumber }}</span>
              </span>
              </div>

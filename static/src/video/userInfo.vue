@@ -5,7 +5,7 @@
     @mouseover="store.setEitUserInfoHover(true)"
     @mouseleave="store.setEitUserInfo(null),store.setEitUserInfoHover(false)"
     class="up-user-info">
-    <img src="../img/主页背景图.webp" class="up-user-info-bg" />
+    <img src="/img/主页背景图.webp" class="up-user-info-bg" />
     <div class="up-user-info-container">
     <img
         :src="store.eitUserInfo.avatarAddress"
@@ -21,17 +21,17 @@
         >
         <img
         v-if="store.eitUserInfo.gender === 1"
-        src="../img/man.png"
+        src="/img/man.png"
         class="up-user-info-gender"
         />
         <img
         v-if="store.eitUserInfo.gender === 2"
-        src="../img/man.png"
+        src="/img/man.png"
         class="up-user-info-gender"
         />
         <img
         v-if="store.eitUserInfo.grade"
-        :src="'../img/' + store.eitUserInfo.grade + '级.png'"
+        :src="'/img/' + store.eitUserInfo.grade + '级.png'"
         class="up-user-info-level"
         />
     </div>
@@ -67,7 +67,7 @@
         v-debounce
         @click="addFollowAxios(store.eitUserInfo.id)"
         ><img
-            src="../img/加关注.png"
+            src="/img/加关注.png"
             style="width: 14px; margin-right: 4px"
         />关注</span
         >

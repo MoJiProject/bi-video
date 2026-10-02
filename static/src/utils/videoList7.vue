@@ -4,7 +4,7 @@
            <video6 :video="video.selectVideoDto" :collect="video.collects" :batchControls="batchControls" :searchContent="searchContent"/>
        </div>
        <div class="no-data" v-if="data.length===0">
-           <img src="../img/home_nodata.svg">
+           <img src="/img/home_nodata.svg">
            <div>这里还什么都没有呢～</div>
        </div>
  </div>

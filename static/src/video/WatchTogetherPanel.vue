@@ -84,7 +84,7 @@
             <div class="member-avatar-wrap clickable" @click="openHome(member)">
               <img
                 class="member-avatar"
-                :src="member.avatarAddress || '/默认头像.gif'"
+                :src="member.avatarAddress || '/img/默认头像.gif'"
                 :alt="member.userName"
               />
               <span class="online-dot" :class="{ offline: !member.online }"></span>
@@ -94,19 +94,19 @@
                 <span class="member-name-text clickable" @click="openHome(member)">{{ member.userName }}</span>
                 <img
                   class="member-level"
-                  :src="`../img/${member.grade ?? 0}级.png`"
+                  :src="`/img/${member.grade ?? 0}级.png`"
                   :alt="`${member.grade ?? 0}级`"
                 />
                 <img
                   v-if="member.gender === 1"
                   class="member-gender"
-                  src="../img/man2.png"
+                  src="/img/man2.png"
                   alt="男"
                 />
                 <img
                   v-else-if="member.gender === 2"
                   class="member-gender"
-                  src="../img/woman2.png"
+                  src="/img/woman2.png"
                   alt="女"
                 />
                 <small v-if="member.userId === currentUserId">我</small>
@@ -178,14 +178,14 @@
           >
             <img
               class="invite-avatar"
-              :src="friend.avatarAddress || '/默认头像.gif'"
+              :src="friend.avatarAddress || '/img/默认头像.gif'"
               :alt="friend.userName"
             />
             <span class="invite-name">{{ friend.userName }}</span>
             <img
               v-if="inviteSelected.includes(friend.id)"
               class="invite-check"
-              src="../img/选中.png"
+              src="/img/选中.png"
               alt="已选择"
             />
           </button>

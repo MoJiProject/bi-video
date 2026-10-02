@@ -11,7 +11,7 @@
     <div class="avatar-container2" v-show="uploadFlag&&!avatarAddress">
          <div class="btn">
             <div @click="openFile">
-                <img src="../img/local_icon.png">
+                <img src="/img/local_icon.png">
                 <span>选择本地图片</span>
             </div>
          </div>

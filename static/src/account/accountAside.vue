@@ -3,20 +3,20 @@
       <div class="title">个人中心</div>
       <div class="menu-item" :class="{active:store.accountMenu===1}" @click="changeAccountMenu(1)">
        <span>
-          <img src="../img/修改.png">
-          <img src="../img/修改白.png"> 
+          <img src="/img/修改.png">
+          <img src="/img/修改白.png"> 
        </span>
         个人信息</div>  
       <div class="menu-item" :class="{active:store.accountMenu===2}" @click="changeAccountMenu(2)">
         <span>
-          <img src="../img/头像.png"> 
-          <img src="../img/头像白.png"> 
+          <img src="/img/头像.png"> 
+          <img src="/img/头像白.png"> 
         </span>
         我的头像</div>  
       <div class="menu-item" :class="{active:store.accountMenu===3}" @click="changeAccountMenu(3)">
        <span>
-          <img src="../img/背景图片.png"> 
-          <img src="../img/背景图片白.png"> 
+          <img src="/img/背景图片.png"> 
+          <img src="/img/背景图片白.png"> 
        </span>
         我的背景</div>  
   </div>

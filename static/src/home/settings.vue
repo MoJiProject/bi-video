@@ -14,12 +14,12 @@
         <div v-show="!loadMore" class="title">排序设置</div>
         <div v-show="!loadMore" class="sort">
             <div class="item" ref="sort">
-                <div><span :sortName="divs[0].class">{{ thumbName(divs[0].class) }}</span><img class="img1" src="../img/排序.png"><img class="img2" src="../img/取消关注白.png"></div>
-                <div><span :sortName="divs[1].class">{{ thumbName(divs[1].class) }}</span><img class="img1" src="../img/排序.png"><img class="img2" src="../img/取消关注白.png"></div>
-                <div><span :sortName="divs[2].class">{{ thumbName(divs[2].class) }}</span><img class="img1" src="../img/排序.png"><img class="img2" src="../img/取消关注白.png"></div>
-                <div><span :sortName="divs[3].class">{{ thumbName(divs[3].class) }}</span><img class="img1" src="../img/排序.png"><img class="img2" src="../img/取消关注白.png"></div>
-                <div><span :sortName="divs[4].class">{{ thumbName(divs[4].class) }}</span><img class="img1" src="../img/排序.png"><img class="img2" src="../img/取消关注白.png"></div>
-                <div><span :sortName="divs[5].class">{{ thumbName(divs[5].class) }}</span><img class="img1" src="../img/排序.png"><img class="img2" src="../img/取消关注白.png"></div>
+                <div><span :sortName="divs[0].class">{{ thumbName(divs[0].class) }}</span><img class="img1" src="/img/排序.png"><img class="img2" src="/img/取消关注白.png"></div>
+                <div><span :sortName="divs[1].class">{{ thumbName(divs[1].class) }}</span><img class="img1" src="/img/排序.png"><img class="img2" src="/img/取消关注白.png"></div>
+                <div><span :sortName="divs[2].class">{{ thumbName(divs[2].class) }}</span><img class="img1" src="/img/排序.png"><img class="img2" src="/img/取消关注白.png"></div>
+                <div><span :sortName="divs[3].class">{{ thumbName(divs[3].class) }}</span><img class="img1" src="/img/排序.png"><img class="img2" src="/img/取消关注白.png"></div>
+                <div><span :sortName="divs[4].class">{{ thumbName(divs[4].class) }}</span><img class="img1" src="/img/排序.png"><img class="img2" src="/img/取消关注白.png"></div>
+                <div><span :sortName="divs[5].class">{{ thumbName(divs[5].class) }}</span><img class="img1" src="/img/排序.png"><img class="img2" src="/img/取消关注白.png"></div>
             </div>
         </div>
     </div>

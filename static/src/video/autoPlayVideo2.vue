@@ -19,9 +19,9 @@
             <div v-show="video.waitWatch===1" class="auto-play-video-item-wait-watch-title">移除</div>
             <div v-show="waitWatchInfoFlag&&video.waitWatch===1"  class="auto-play-video-item-wait-watch-info1">已加稍后再看</div>  
             <div v-show="waitWatchInfoFlag&&video.waitWatch===0"  class="auto-play-video-item-wait-watch-info2">已从稍后再看列表中移除</div>
-            <img v-show="store.userId===null" src="../img/waitWatch.png"/>
-            <img v-show="video.waitWatch===0" src="../img/waitWatch.png"/>
-            <img v-show="video.waitWatch===1" src="../img/addWaitWatch.png"/>
+            <img v-show="store.userId===null" src="/img/waitWatch.png"/>
+            <img v-show="video.waitWatch===0" src="/img/waitWatch.png"/>
+            <img v-show="video.waitWatch===1" src="/img/addWaitWatch.png"/>
           </span>
          </span>
          <span class="autoPlayVideo2-item-right">
@@ -39,14 +39,14 @@
         <span @click="intoVideo(video.videoId)" class="autoPlayVideo2-item-title">{{ video.videoTitle }}</span>
         </el-tooltip>
         <span @click="openHome(1,video.userId)" class="autoPlayVideo2-item-right-username-container">
-            <img class="img1" src="../img/up.png">
-            <img class="img2" src="../img/up蓝.png">
+            <img class="img1" src="/img/up.png">
+            <img class="img2" src="/img/up蓝.png">
             <span class="autoPlayVideo2-item-right-username">{{ video.userName }}</span> 
         </span>
         <span class="autoPlayVideo2-item-right-videoinfo-container">
-            <img class="img1" src="../img/播放量灰.png">
+            <img class="img1" src="/img/播放量灰.png">
             <span class="autoPlayVideo2-item-right-playNumber">{{ video.videoPlayNumber }}</span>
-            <img class="img2" src="../img/弹幕灰.png">
+            <img class="img2" src="/img/弹幕灰.png">
             <span class="autoPlayVideo2-item-right-scrollNumber">{{ video.videoScrollingNumber }}</span>
         </span>
          </span>
@@ -70,9 +70,9 @@
             <div v-show="video.waitWatch===1" class="auto-play-video-item-wait-watch-title">移除</div>
             <div v-show="waitWatchInfoFlag&&video.waitWatch===1"  class="auto-play-video-item-wait-watch-info1">已加稍后再看</div>  
             <div v-show="waitWatchInfoFlag&&video.waitWatch===0"  class="auto-play-video-item-wait-watch-info2">已从稍后再看列表中移除</div>
-            <img v-show="store.userId===null" src="../img/waitWatch.png"/>
-            <img v-show="video.waitWatch===0" src="../img/waitWatch.png"/>
-            <img v-show="video.waitWatch===1" src="../img/addWaitWatch.png"/>
+            <img v-show="store.userId===null" src="/img/waitWatch.png"/>
+            <img v-show="video.waitWatch===0" src="/img/waitWatch.png"/>
+            <img v-show="video.waitWatch===1" src="/img/addWaitWatch.png"/>
           </span>
          </span>
          <span class="autoPlayVideo2-item-right">
@@ -90,14 +90,14 @@
         <span @click="intoVideo(video.videoId)" class="autoPlayVideo2-item-title">{{ video.videoTitle }}</span>
         </el-tooltip>
         <span @click="openHome(1,video.userId)" class="autoPlayVideo2-item-right-username-container">
-            <img class="img1" src="../img/up.png">
-            <img class="img2" src="../img/up蓝.png">
+            <img class="img1" src="/img/up.png">
+            <img class="img2" src="/img/up蓝.png">
             <span class="autoPlayVideo2-item-right-username">{{ video.userName }}</span> 
         </span>
         <span class="autoPlayVideo2-item-right-videoinfo-container">
-            <img class="img1" src="../img/播放量灰.png">
+            <img class="img1" src="/img/播放量灰.png">
             <span class="autoPlayVideo2-item-right-playNumber">{{ video.videoPlayNumber }}</span>
-            <img class="img2" src="../img/弹幕灰.png">
+            <img class="img2" src="/img/弹幕灰.png">
             <span class="autoPlayVideo2-item-right-scrollNumber">{{ video.videoScrollingNumber }}</span>
         </span>
          </span>

@@ -925,7 +925,7 @@
       </div>
 
       <div class="classify2-part4">
-         <img src="../img/头首页.png">
+         <img src="/img/头首页.png">
       </div>
   
 
@@ -934,10 +934,10 @@
 </template>
 
 <script>
-import dynamicGray from '../img/动态灰.png';
-import dynamicBlue from '../img/动态蓝.png';
-import fireGray from '../img/热门灰.png';
-import fireBlue from '../img/热门蓝.png';
+const dynamicGray = '/img/动态灰.png'
+const dynamicBlue = '/img/动态蓝.png'
+const fireGray = '/img/热门灰.png'
+const fireBlue = '/img/热门蓝.png'
 import { ref } from 'vue';
 export default {
   name: 'classify2',

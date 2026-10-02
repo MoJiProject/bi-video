@@ -34,7 +34,7 @@
           class="up-video-infos-container"
         >
           <img
-            src="../img/播放量灰.png"
+            src="/img/播放量灰.png"
             style="
               width: 16.5px;
               height: 14px;
@@ -46,7 +46,7 @@
             SelectVideoByIdVo.upVideo.playNumber
           }}</span>
           <img
-            src="../img/弹幕灰.png"
+            src="/img/弹幕灰.png"
             style="
               width: 16.5px;
               height: 14px;
@@ -102,7 +102,7 @@
               @mouseover="nameOrAvatarHoverFlag2=true"
               @mouseleave="nameOrAvatarHoverFlag2=false,delayUserInfo(0)"
             >
-              <div v-if="!SelectVideoByIdVo.upUser.backgroundAddress" :style="{backgroundImage:'url(../img/主页背景图.webp)'}" class="up-user-info-bg"></div>
+              <div v-if="!SelectVideoByIdVo.upUser.backgroundAddress" :style="{backgroundImage:'url(/img/主页背景图.webp)'}" class="up-user-info-bg"></div>
               <div v-else :style="{backgroundImage:`url(${SelectVideoByIdVo.upUser.backgroundAddress})`}" class="up-user-info-bg"></div>
               <div class="up-user-info-container">
                 <img
@@ -122,17 +122,17 @@
                   >
                   <img
                     v-if="SelectVideoByIdVo.upUser.gender === 1"
-                    src="../img/man.png"
+                    src="/img/man.png"
                     class="up-user-info-gender"
                   />
                   <img
                     v-if="SelectVideoByIdVo.upUser.gender === 2"
-                    src="../img/man.png"
+                    src="/img/man.png"
                     class="up-user-info-gender"
                   />
                   <img
                     v-if="SelectVideoByIdVo.upUser.grade"
-                    :src="'../img/' + SelectVideoByIdVo.upUser.grade + '级.png'"
+                    :src="'/img/' + SelectVideoByIdVo.upUser.grade + '级.png'"
                     class="up-user-info-level"
                   />
                 </div>
@@ -168,7 +168,7 @@
                     v-debounce
                     @click="addFollowAxios(SelectVideoByIdVo.upUser.id)"
                     ><img
-                      src="../img/加关注.png"
+                      src="/img/加关注.png"
                       style="width: 14px; margin-right: 4px"
                     />关注</span
                   >
@@ -231,7 +231,7 @@
             </div>
           </el-tooltip>
           <div id="up-power-container" class="up-power-container">
-            <img src="../img/充电.webp" />
+            <img src="/img/充电.webp" />
             <span style="margin-right: 2px">充</span><span>电</span>
           </div>
           <div
@@ -240,7 +240,7 @@
             @click="addFollowAxios(SelectVideoByIdVo.upUser.id)"
           >
             <img
-              src="../img/加关注.png"
+              src="/img/加关注.png"
               style="width: 12px; margin-right: 7px; margin-left: 3px"
             />关注 {{ SelectVideoByIdVo.upUser.fansNumber }}
           </div>
@@ -251,7 +251,7 @@
             @click="deleteFollowAxios(SelectVideoByIdVo.upUser.id)"
           >
             <img
-              src="../img/取消关注.png"
+              src="/img/取消关注.png"
               style="width: 12px; margin-right: 7px; margin-left: 3px"
             />已关注 {{ SelectVideoByIdVo.upUser.fansNumber }}
           </div>
@@ -318,7 +318,7 @@
               class="up-video-avatar-and-addFollow-avatar"
             />
             <img
-              src="../img/加关注.png"
+              src="/img/加关注.png"
               style="
                 width: 10px;
                 height: 10px;
@@ -369,7 +369,7 @@
             @mousedown.prevent="startProgressDrag($event, false)"
             @mouseover="upVideoProgressImg = true"
             @mouseleave="upVideoProgressImg = false"
-            src="../img/视频进度图片.png"
+            src="/img/视频进度图片.png"
             class="up-video-progress-img"
             :style="{
               left: `${upVideoProgress*676/100-6}px`,
@@ -384,7 +384,7 @@
             @mousedown.prevent="startProgressDrag($event, true)"
             @mouseover="upVideoProgressImg = true"
             @mouseleave="upVideoProgressImg = false"
-            src="../img/视频进度图片.png"
+            src="/img/视频进度图片.png"
             class="up-video-progress-img"
             :style="{
               left: `${upVideoProgress*0.97+1.3}%`,
@@ -397,7 +397,7 @@
             @mousemove="updateupVideoProgressImgPosition($event, false)"
             @mouseover="upVideoProgressImg = true"
             @mouseleave="upVideoProgressImg = false"
-            src="../img/指示器上.png"
+            src="/img/指示器上.png"
             class="pointer-top"
             :style="{
               left: `${upVideoProgressImgPosition}px`,
@@ -417,7 +417,7 @@
             @mousemove="updateupVideoProgressImgPosition($event, false)"
             @mouseover="upVideoProgressImg = true"
             @mouseleave="upVideoProgressImg = false"
-            src="../img/指示器下.png"
+            src="/img/指示器下.png"
             class="pointer-bottom"
             :style="{
               left: `${upVideoProgressImgPosition}px`,
@@ -442,7 +442,7 @@
             @mousemove="updateupVideoProgressImgPosition($event, true)"
             @mouseover="upVideoProgressImg = true"
             @mouseleave="upVideoProgressImg = false"
-            src="../img/指示器上.png"
+            src="/img/指示器上.png"
             class="pointer-top"
             :style="{
               left: `${upVideoProgressImgPosition - 3.5}px`,
@@ -469,7 +469,7 @@
             @mousemove="updateupVideoProgressImgPosition($event, true)"
             @mouseover="upVideoProgressImg = true"
             @mouseleave="upVideoProgressImg = false"
-            src="../img/指示器下.png"
+            src="/img/指示器下.png"
             class="pointer-bottom"
             :style="{
               left: `${upVideoProgressImgPosition - 3.5}px`,
@@ -516,7 +516,7 @@
             }"
             v-show="!pausedOrPlayVideoFlag && !upVideoStartPlayFlag"
             @mouseover="upVideoStartPlayFlag = true"
-            src="../img/开始播放灰.png"
+            src="/img/开始播放灰.png"
             class="up-video-start-play-white"
           />
           <img
@@ -527,7 +527,7 @@
             v-show="!pausedOrPlayVideoFlag && upVideoStartPlayFlag"
             @click="playUpVideo"
             @mouseleave="upVideoStartPlayFlag = false"
-            src="../img/开始播放白.png"
+            src="/img/开始播放白.png"
             class="up-video-start-play-white"
           />
           <img
@@ -578,7 +578,7 @@
               class="img1"
               @mouseover="closePostionHoverFlag = true"
               @mouseleave="closePostionHoverFlag = false"
-              src="../img/关闭视频定位.png"
+              src="/img/关闭视频定位.png"
               :class="{ closePostionHoverFlag: !closePostionHoverFlag }"
             />
             <img
@@ -586,7 +586,7 @@
               @click="closePostionFlag = false"
               @mouseover="closePostionHoverFlag = true"
               @mouseleave="closePostionHoverFlag = false"
-              src="../img/关闭视频定位粉.png"
+              src="/img/关闭视频定位粉.png"
               :class="{ closePostionHoverFlag: closePostionHoverFlag }"
             />
             <span>已为您定位至{{ history.watchVideoTime }}</span>
@@ -1623,7 +1623,7 @@
         <div class="up-video-play-bottom-video-scrolling-container">
           <img
             v-show="likeVideoImgFlag"
-            src="../img/视频点赞.gif"
+            src="/img/视频点赞.gif"
             class="up-video-controls-img0"
           />
           <span class="watch-num"
@@ -2403,7 +2403,7 @@
                       <img
                         class="img-static"
                         v-show="throwCoinNumber === 2"
-                        src="../img/22-coin-ani-static.png"
+                        src="/img/22-coin-ani-static.png"
                       />
                       <div class="overlay2"></div>
                     </div>
@@ -2420,7 +2420,7 @@
                       <img
                         class="img-static"
                         v-show="throwCoinNumber === 1"
-                        src="../img/33-coin-ani-static.png"
+                        src="/img/33-coin-ani-static.png"
                       />
                       <div class="overlay2"></div>
                     </div>
@@ -2429,10 +2429,10 @@
                       @click="likeVideoFlag = !likeVideoFlag"
                       class="throw-coin-check-box"
                     >
-                      <img v-show="!likeVideoFlag" src="../img/投币复选框.svg" />
+                      <img v-show="!likeVideoFlag" src="/img/投币复选框.svg" />
                       <img
                         v-show="likeVideoFlag"
-                        src="../img/投币复选框选中.svg"
+                        src="/img/投币复选框选中.svg"
                       />
                       <span>同时点赞内容</span>
                     </div>
@@ -2545,7 +2545,7 @@
                         <img
                           v-show="collectInfo.flag"
                           class="collect-list-item-img"
-                          src="../img/收藏复选框勾选.png"
+                          src="/img/收藏复选框勾选.png"
                         />
                         <span class="collect-list-item-name">{{
                           collectInfo.collectName
@@ -2564,7 +2564,7 @@
                     @click="collectInputButtonFlag = true"
                     class="dialog-footer-input-container"
                   >
-                    <img src="../img/新建收藏.png" />
+                    <img src="/img/新建收藏.png" />
                     <span>新建收藏夹</span>
                   </div>
                   <div
@@ -2639,7 +2639,7 @@
             :src="addWaitWatchHoverFlag ? addWaitWatchBlue : addWaitWatch"
           />
           <div class="wait-watch-info" @click="waitWatchAxios">
-            <img src="../img/稍后再看灰.png" />
+            <img src="/img/稍后再看灰.png" />
             <span>稍后再看</span>
           </div>
           <div v-show="waitWatchMsg.length > 0" class="waitWatchMsg">
@@ -2650,7 +2650,7 @@
           <!-- 弹幕列表 -->
           <div class="scrolling-list-container">
             <span class="scrolling-list-title">弹幕列表</span>
-            <img src="../img/弹幕列表.png" class="scrolling-list-img" />
+            <img src="/img/弹幕列表.png" class="scrolling-list-img" />
             <el-collapse class="scrolling-list">
               <el-collapse-item name="1">
                 <div class="scrolling-list-item">
@@ -2785,68 +2785,68 @@ import {
   computed,
   nextTick,
 } from "vue";
-import sendMessageGray from "../img/发消息灰.png";
-import sendMessageBlue from "../img/发消息蓝.png";
+const sendMessageGray = "/img/发消息灰.png"
+const sendMessageBlue = "/img/发消息蓝.png"
 import apiClient from "../services/apiClient";
 import { ElMessage } from "element-plus";
-import upVideoPlayGray from "../img/播放灰.png";
-import upVideoPlayWhite from "../img/播放白.png";
-import intoAllDisplayGray from "../img/进入全屏灰.png";
-import intoAllDisplayWhite from "../img/进入全屏白.png";
-import audioGray from "../img/音量灰.png";
-import audioWhite from "../img/音量白.png";
-import videoSettingGray from "../img/视频设置灰.png";
-import videoSettingWhite from "../img/视频设置白.png";
-import fullScreenGray from "../img/宽屏模式灰.png";
-import fullScreenWhite from "../img/宽屏模式白.png";
-import fullScreenExitGray from "../img/画中画灰.png";
-import fullScreenExitWhite from "../img/画中画白.png";
-import webFullScreenGray from "../img/网页全屏灰.png";
-import webFullScreenWhite from "../img/网页全屏白.png";
-import closeAudioGray from "../img/关闭音量灰.png";
-import closeAudioWhite from "../img/关闭音量白.png";
-import pausedVideoGray from "../img/暂停灰.png";
-import pausedVideoWhite from "../img/暂停白.png";
-import closeScrollingGray from "../img/关闭弹幕灰.png";
-import closeScrollingWhite from "../img/关闭弹幕白.png";
-import closeScrollingBlue from "../img/关闭弹幕蓝.png";
-import openScrollingGray from "../img/打开弹幕灰.png";
-import openScrollingWhite from "../img/打开弹幕白.png";
-import openScrollingBlue from "../img/打开弹幕蓝.png";
-import scrollingSettingGray from "../img/弹幕设置灰.png";
-import scrollingSettingWhite from "../img/弹幕设置白.png";
-import scrollingSettingBlue from "../img/弹幕设置蓝.png";
-import scrollingColorGray from "../img/弹幕颜色灰.png";
-import scrollingColorWhite from "../img/弹幕颜色白.png";
-import scrollingColorBlue from "../img/弹幕颜色蓝.png";
-import scrollingRollGray from "../img/滚动模式灰.png";
-import scrollingRollWhite from "../img/屏蔽滚动白.png";
-import scrollingRollBlue from "../img/滚动模式蓝.png";
-import hiddenRollScrollingBlue from "../img/屏蔽滚动蓝.png";
-import hiddenScrollingFiexdGray from "../img/屏蔽固定灰.png";
-import hiddenScrollingFiexdWhite from "../img/屏蔽固定白.png";
-import hiddenScrollingFiexdBlue from "../img/屏蔽固定蓝.png";
-import topScrollingBlue from "../img/顶部蓝.png";
-import bottomScrollingBlue from "../img/底部蓝.png";
-import bottomScrollingWhite from "../img/底部白.png";
-import bottomScrollingGray from "../img/底部灰.png";
-import checkBoxWhite from "../img/勾选框白.png";
-import checkBoxs from "../img/勾选框.png";
-import checkBoxBlue from "../img/勾选框蓝.png";
-import likeVideo from "../img/视频点赞.png";
-import likeVideoBlue from "../img/视频点赞蓝.png";
-import videoThrowCoin from "../img/视频投币.png";
-import videoThrowCoinBlue from "../img/视频投币蓝.png";
-import videoShare from "../img/视频分享.png";
-import videoShareBlue from "../img/视频分享蓝.png";
-import videoCollect from "../img/视频收藏.png";
-import videoCollectBlue from "../img/视频收藏蓝.png";
-import collectCheckBox from "../img/收藏复选框.png";
-import collectCheckBoxBlue from "../img/收藏复选框蓝.png";
-import addWaitWatch from "../img/弹幕列表.png";
-import addWaitWatchBlue from "../img/弹幕列表蓝.png";
-import audioBlack from "../img/音量黑.png";
-import closeAudioBlack from "../img/静音黑.png";
+const upVideoPlayGray = "/img/播放灰.png"
+const upVideoPlayWhite = "/img/播放白.png"
+const intoAllDisplayGray = "/img/进入全屏灰.png"
+const intoAllDisplayWhite = "/img/进入全屏白.png"
+const audioGray = "/img/音量灰.png"
+const audioWhite = "/img/音量白.png"
+const videoSettingGray = "/img/视频设置灰.png"
+const videoSettingWhite = "/img/视频设置白.png"
+const fullScreenGray = "/img/宽屏模式灰.png"
+const fullScreenWhite = "/img/宽屏模式白.png"
+const fullScreenExitGray = "/img/画中画灰.png"
+const fullScreenExitWhite = "/img/画中画白.png"
+const webFullScreenGray = "/img/网页全屏灰.png"
+const webFullScreenWhite = "/img/网页全屏白.png"
+const closeAudioGray = "/img/关闭音量灰.png"
+const closeAudioWhite = "/img/关闭音量白.png"
+const pausedVideoGray = "/img/暂停灰.png"
+const pausedVideoWhite = "/img/暂停白.png"
+const closeScrollingGray = "/img/关闭弹幕灰.png"
+const closeScrollingWhite = "/img/关闭弹幕白.png"
+const closeScrollingBlue = "/img/关闭弹幕蓝.png"
+const openScrollingGray = "/img/打开弹幕灰.png"
+const openScrollingWhite = "/img/打开弹幕白.png"
+const openScrollingBlue = "/img/打开弹幕蓝.png"
+const scrollingSettingGray = "/img/弹幕设置灰.png"
+const scrollingSettingWhite = "/img/弹幕设置白.png"
+const scrollingSettingBlue = "/img/弹幕设置蓝.png"
+const scrollingColorGray = "/img/弹幕颜色灰.png"
+const scrollingColorWhite = "/img/弹幕颜色白.png"
+const scrollingColorBlue = "/img/弹幕颜色蓝.png"
+const scrollingRollGray = "/img/滚动模式灰.png"
+const scrollingRollWhite = "/img/屏蔽滚动白.png"
+const scrollingRollBlue = "/img/滚动模式蓝.png"
+const hiddenRollScrollingBlue = "/img/屏蔽滚动蓝.png"
+const hiddenScrollingFiexdGray = "/img/屏蔽固定灰.png"
+const hiddenScrollingFiexdWhite = "/img/屏蔽固定白.png"
+const hiddenScrollingFiexdBlue = "/img/屏蔽固定蓝.png"
+const topScrollingBlue = "/img/顶部蓝.png"
+const bottomScrollingBlue = "/img/底部蓝.png"
+const bottomScrollingWhite = "/img/底部白.png"
+const bottomScrollingGray = "/img/底部灰.png"
+const checkBoxWhite = "/img/勾选框白.png"
+const checkBoxs = "/img/勾选框.png"
+const checkBoxBlue = "/img/勾选框蓝.png"
+const likeVideo = "/img/视频点赞.png"
+const likeVideoBlue = "/img/视频点赞蓝.png"
+const videoThrowCoin = "/img/视频投币.png"
+const videoThrowCoinBlue = "/img/视频投币蓝.png"
+const videoShare = "/img/视频分享.png"
+const videoShareBlue = "/img/视频分享蓝.png"
+const videoCollect = "/img/视频收藏.png"
+const videoCollectBlue = "/img/视频收藏蓝.png"
+const collectCheckBox = "/img/收藏复选框.png"
+const collectCheckBoxBlue = "/img/收藏复选框蓝.png"
+const addWaitWatch = "/img/弹幕列表.png"
+const addWaitWatchBlue = "/img/弹幕列表蓝.png"
+const audioBlack = "/img/音量黑.png"
+const closeAudioBlack = "/img/静音黑.png"
 import head1 from "../components/mainHead.vue";
 import { useGlobalStore } from "../store/store";
 import autoPlayVideo from "./autoPlayVideo.vue";
@@ -3726,8 +3726,22 @@ export default {
     let keyInfoTime;
     let audioInfoTime;
     let keyNoMoreClike = true;
+    // 音量、进度、弹幕、静音这几个键需要长按连发，节流比其它键更短
+    const FAST_REPEAT_KEYS = [
+      "ArrowUp",
+      "ArrowDown",
+      "ArrowRight",
+      "ArrowLeft",
+      "D",
+      "d",
+      "M",
+      "m",
+    ];
+    const FAST_REPEAT_THROTTLE = 100;
+    const NORMAL_REPEAT_THROTTLE = 500;
     // 监听键盘状态
     const handleKeydown = async (event) => {
+      const isFastRepeatKey = FAST_REPEAT_KEYS.includes(event.key);
       // 检查当前焦点元素
       var activeElement = document.activeElement;
       var isInputField =
@@ -3874,7 +3888,7 @@ export default {
       keyNoMoreClike = false;
       setTimeout(() => {
         keyNoMoreClike = true;
-      }, 500);
+      }, isFastRepeatKey ? FAST_REPEAT_THROTTLE : NORMAL_REPEAT_THROTTLE);
     };
 
     //监视音量
@@ -8143,7 +8157,7 @@ export default {
   left: 14%;
   transform: translate(-14%, 52px);
   border-radius: 5px;
-  background-image: url("../img/22-coin-ani.png");
+  background-image: url("/img/22-coin-ani.png");
   background-repeat: no-repeat;
   background-position: 20px 18px;
   background-size: auto 193px;
@@ -8196,7 +8210,7 @@ export default {
   left: 88.4%;
   transform: translate(-88.4%, 52px);
   border-radius: 5px;
-  background-image: url("../img/33-coin-ani.png");
+  background-image: url("/img/33-coin-ani.png");
   background-repeat: no-repeat;
   background-position: 19px 17.5px;
   background-size: auto 193px;

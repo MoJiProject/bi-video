@@ -62,13 +62,13 @@
                 </a>
                 <div class="at-right-content-bottom">
                     <span class="at-time">{{ at.comments.commentTime }}</span>
-                    <span class="at-comment" @click="openReplyComment(at)" @mouseover="replyCommentHoverFlag=true" @mouseleave="replyCommentHoverFlag=false"><img :src="replyCommentHoverFlag?'../img/回复蓝.png':'../img/回复.png'"> <span>回复</span></span>
-                    <span v-show="at.commentControls?.controls!==1" class="love-comment" v-debounce @click="commentControlesF(at)" @mouseover="loveCommentHoverFlag=true" @mouseleave="loveCommentHoverFlag=false"><img :src="loveCommentHoverFlag?'../img/评论点赞hover.png':'../img/评论点赞灰.png'"> <span>点赞</span></span>
-                    <span v-show="at.commentControls?.controls===1" class="love-comment2" v-debounce @click="commentControlesF(at)"><img src="../img/评论点赞蓝.png"> <span>已赞</span></span>
-                    <span class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id" @mouseover="deleteCommentNotificaitonHoverFlag=true" @mouseleave="deleteCommentNotificaitonHoverFlag=false"><img :src="deleteCommentNotificaitonHoverFlag?'../img/删除通知蓝.png':'../img/删除通知.png'"> <span>删除该通知</span></span>
+                    <span class="at-comment" @click="openReplyComment(at)" @mouseover="replyCommentHoverFlag=true" @mouseleave="replyCommentHoverFlag=false"><img :src="replyCommentHoverFlag?'/img/回复蓝.png':'/img/回复.png'"> <span>回复</span></span>
+                    <span v-show="at.commentControls?.controls!==1" class="love-comment" v-debounce @click="commentControlesF(at)" @mouseover="loveCommentHoverFlag=true" @mouseleave="loveCommentHoverFlag=false"><img :src="loveCommentHoverFlag?'/img/评论点赞hover.png':'/img/评论点赞灰.png'"> <span>点赞</span></span>
+                    <span v-show="at.commentControls?.controls===1" class="love-comment2" v-debounce @click="commentControlesF(at)"><img src="/img/评论点赞蓝.png"> <span>已赞</span></span>
+                    <span class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id" @mouseover="deleteCommentNotificaitonHoverFlag=true" @mouseleave="deleteCommentNotificaitonHoverFlag=false"><img :src="deleteCommentNotificaitonHoverFlag?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除该通知</span></span>
                 </div>
                 <div v-show="at?.replyFlag" class="at-comment-container">
-                  <img src="/默认头像.gif">
+                  <img src="/img/默认头像.gif">
                   <textarea :id="'at'+at.at.id" class="at-comment-input" v-model="commentContent" placeholder="请自觉遵守互联网相关的政策法规，严禁发布色情、暴力、反动的言论。"></textarea>
                   <button v-debounce class="commit-comment" @click="replayCommentF(at)">发表<br>评论</button>
                 </div>
@@ -145,7 +145,7 @@
                 </a>
                 <div class="at-right-content-bottom">
                     <span class="at-time">{{ at.dynamic?.publishTime }}</span>
-                    <span class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id" @mouseover="deleteCommentNotificaitonHoverFlag=true" @mouseleave="deleteCommentNotificaitonHoverFlag=false"><img :src="deleteCommentNotificaitonHoverFlag?'../img/删除通知蓝.png':'../img/删除通知.png'"> <span>删除该通知</span></span>
+                    <span class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id" @mouseover="deleteCommentNotificaitonHoverFlag=true" @mouseleave="deleteCommentNotificaitonHoverFlag=false"><img :src="deleteCommentNotificaitonHoverFlag?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除该通知</span></span>
                 </div>
                 <el-tooltip
                     v-if="at.dynamic?.imgAddress"
@@ -165,10 +165,10 @@
            </div>
         </div>
         <div v-show="atList.length===0&&selectAtCommentFFlag" class="no-at-data">
-          <img src="../img/没有消息数据.png">
+          <img src="/img/没有消息数据.png">
         </div>
         <div v-show="atList.length===0&&!selectAtCommentFFlag" class="at-loading">
-          <img src="../img/加载消息.gif">
+          <img src="/img/加载消息.gif">
         </div>
       </div>
       <el-dialog
@@ -353,7 +353,7 @@
       if(at.comments.mainCommentId!==null)
       commentContent.value=`&nbsp;回复 <a href='https://baidu.com' data-eit-userid='${at.comments.userId}' class='at-msg' style='color:#008ac5;'>@${at.comments.userName}</a> ：`+commentContent.value;
       if(at.isAuthorFlag===1)
-      commentContent.value = "<img style='width: 24px;height: 24px;display: inline-block;vertical-align: middle;transform: translateY(-1.5px);user-select: none;' src='../img/up_pb.svg'>&nbsp;"+commentContent.value;
+      commentContent.value = "<img style='width: 24px;height: 24px;display: inline-block;vertical-align: middle;transform: translateY(-1.5px);user-select: none;' src='/img/up_pb.svg'>&nbsp;"+commentContent.value;
      
       let comments={
         content: commentContent.value,

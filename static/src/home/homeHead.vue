@@ -1,5 +1,5 @@
 <template>
-   <div v-show="store.homeUserInformation.id" class="home-head" :style="{backgroundImage: store.homeUserInformation.backgroundAddress? `url(${store.homeUserInformation.backgroundAddress})`:'url(../img/主页背景图.webp)'}" @contextmenu="changeBackgroundMenu">
+   <div v-show="store.homeUserInformation.id" class="home-head" :style="{backgroundImage: store.homeUserInformation.backgroundAddress? `url(${store.homeUserInformation.backgroundAddress})`:'url(/img/主页背景图.webp)'}" @contextmenu="changeBackgroundMenu">
         <mainhead :head2-flag="false" :login-dialog-visible-flag="loginDialogVisibleFlag"/>
         <div class="overlay"></div>
         <div class="overlay2"></div>
@@ -17,9 +17,9 @@
             </div>
             <div class="user-info-top">
                 <span class="user-name">{{ store.homeUserInformation?.userName }}</span>
-                <img v-if="store.homeUserInformation.grade" class="level-icon" :src="'../img/'+store.homeUserInformation.grade+'级.png'">
-                <img v-if="store.homeUserInformation?.gender===1" class="gender-icon" src="../img/man2.png">
-                <img v-else-if="store.homeUserInformation?.gender===2" class="gender-icon" src="../img/woman2.png">
+                <img v-if="store.homeUserInformation.grade" class="level-icon" :src="'/img/'+store.homeUserInformation.grade+'级.png'">
+                <img v-if="store.homeUserInformation?.gender===1" class="gender-icon" src="/img/man2.png">
+                <img v-else-if="store.homeUserInformation?.gender===2" class="gender-icon" src="/img/woman2.png">
             </div>
             <div v-show="!introduceEditFlag&&store.userId!==store.homeUserInformation?.id" class="user-info-introduce">
                     <el-tooltip
@@ -40,8 +40,8 @@
             <input v-if="store.userId===store.homeUserInformation?.id" ref="introduceInput" v-show="introduceEditFlag" v-model="introduce" @focus="introduce=store.homeUserInformation.introduce" @blur="introduceEditFlag=false,putUserInfoF()" @keydown.enter="introduceEditFlag=false,putUserInfoF()" type="text" placeholder="编辑个性签名" maxlength="250">
         </div> 
         <div v-if="(store.userId!==null&&store.userId!==userId)||store.userId===null" class="control-container">
-            <div v-show="!store.homeUserInformation.isFollowFlag" class="follow" v-debounce @click="followF"><img src="../img/加关注.png">关注</div>
-            <div v-show="store.homeUserInformation.isFollowFlag===1" class="delete-follow" v-debounce @click="unFollowF"><img src="../img/取消关注白.png">已关注</div>
+            <div v-show="!store.homeUserInformation.isFollowFlag" class="follow" v-debounce @click="followF"><img src="/img/加关注.png">关注</div>
+            <div v-show="store.homeUserInformation.isFollowFlag===1" class="delete-follow" v-debounce @click="unFollowF"><img src="/img/取消关注白.png">已关注</div>
             <div class="send-message" v-debounce @click="addDialogueF">发消息</div>
         </div>
    </div>

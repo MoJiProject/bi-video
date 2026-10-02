@@ -16,10 +16,10 @@
 
 <script>
 import { reactive } from "vue";
-import banner1 from "@/img/banner1.webp";
-import banner2 from "../img/banner2.webp";
-import banner3 from "../img/banner3.webp";
-import banner4 from "../img/banner4.webp";
+const banner1 = "/img/banner1.webp"
+const banner2 = "/img/banner2.webp"
+const banner3 = "/img/banner3.webp"
+const banner4 = "/img/banner4.webp"
 
 export default {
   name: "Carousel",

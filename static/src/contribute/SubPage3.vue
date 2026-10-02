@@ -50,7 +50,7 @@
       />
       <img
         @click="searchVideo"
-        src="../img/搜索稿件.png"
+        src="/img/搜索稿件.png"
         style="transform: translate(768px, -3px); width: 14px;cursor: pointer;"
       />
       <div
@@ -250,7 +250,7 @@
               :show-arrow="false"
             >
               <span class="ai">
-                <img src="../img/真播放量.png" /><span>{{
+                <img src="/img/真播放量.png" /><span>{{
                   video.playNumber
                 }}</span></span
               >
@@ -263,7 +263,7 @@
               :show-arrow="false"
             >
               <span class="ai">
-                <img src="../img/点赞.png" /><span>{{ video.likeNumber }}</span>
+                <img src="/img/点赞.png" /><span>{{ video.likeNumber }}</span>
               </span>
             </el-tooltip>
             <el-tooltip
@@ -274,7 +274,7 @@
               :show-arrow="false"
             >
               <span class="ai">
-                <img src="../img/弹幕.png" /><span>{{
+                <img src="/img/弹幕.png" /><span>{{
                   video.scrollingNumber
                 }}</span>
               </span>
@@ -287,7 +287,7 @@
               :show-arrow="false"
             >
               <span class="ai">
-                <img src="../img/评论.png" /><span>{{
+                <img src="/img/评论.png" /><span>{{
                   video.commentNumber
                 }}</span>
               </span>
@@ -300,7 +300,7 @@
               :show-arrow="false"
             >
               <span class="ai">
-                <img src="../img/投币.png" /><span>{{
+                <img src="/img/投币.png" /><span>{{
                   video.coinThrowNumber
                 }}</span>
               </span>
@@ -313,7 +313,7 @@
               :show-arrow="false"
             >
               <span class="ai">
-                <img src="../img/真收藏.png" /><span
+                <img src="/img/真收藏.png" /><span
                   >{{ video.collectNumber }}
                 </span></span
               >
@@ -326,7 +326,7 @@
               :show-arrow="false"
             >
               <span class="ai">
-                <img src="../img/分享.png" /><span>{{
+                <img src="/img/分享.png" /><span>{{
                   video.shareNumber
                 }}</span>
               </span>
@@ -351,7 +351,7 @@
         "
         style="transform: translate(440px, 68px)"
       >
-        <img src="../img/没有稿件.png" style="width: 234px; height: 177px" />
+        <img src="/img/没有稿件.png" style="width: 234px; height: 177px" />
         <span
           style="
             transform: translate(-243px, 226px);
@@ -476,12 +476,12 @@
 import { ref, reactive, onMounted, watch, } from "vue";
 import apiClient from "../services/apiClient";
 import { ElMessage } from "element-plus";
-import editsBlue from "../img/编辑蓝.png";
-import edits from "../img/编辑.png";
-import datassBlue from "../img/数据蓝.png";
-import datass from "../img/数据.png";
-import more from "../img/删除.png";
-import moreBlue from "../img/删除蓝.png";
+const editsBlue = "/img/编辑蓝.png"
+const edits = "/img/编辑.png"
+const datassBlue = "/img/数据蓝.png"
+const datass = "/img/数据.png"
+const more = "/img/删除.png"
+const moreBlue = "/img/删除蓝.png"
 import {useGlobalStore} from "../store/store";
 export default {
   name: "SubPage3",

@@ -4,7 +4,7 @@
         <img class="dynamic-img" :src="props.dynamic.imgAddress.split(',')[0]">
         <div class="overlay">
                 <div>
-                    <img src="../img/点赞白.png"><span>{{ dynamic.likeNumber }}</span>
+                    <img src="/img/点赞白.png"><span>{{ dynamic.likeNumber }}</span>
                 </div>
         </div>
       </div>

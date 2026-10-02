@@ -2,7 +2,7 @@
   <div>
     <div id="fixedBox" class="hiddenBox" :class="{ showHiddenBox: isVisible }">
       <img
-        src="../img/bilibili蓝.png"
+        src="/img/bilibili蓝.png"
         style="width: 60px; transform: translate(24px, 18px); cursor: pointer"
       />
       <Searcha
@@ -303,7 +303,7 @@
             >最多收藏</span
           >
           <span class="screen" @click="expanded = !expanded"
-            ><span>更多筛选</span><img src="../img/更多.png"
+            ><span>更多筛选</span><img src="/img/更多.png"
           /></span>
 
           <div class="showBox" :class="{ expanded }">
@@ -1019,7 +1019,7 @@
           </div>
           <div v-if="Videos.length === 0">
             <img
-              src="../img/搜索空.png"
+              src="/img/搜索空.png"
               style="
                 width: 150px;
                 height: 160px;
@@ -1074,7 +1074,7 @@
                 >
                   <img
                     v-show="video.waitWatch === 0"
-                    src="../img/稍后再看.png"
+                    src="/img/稍后再看.png"
                     style="
                       width: 21px;
                       height: 18px;
@@ -1084,7 +1084,7 @@
                   />
                   <img
                     v-show="video.waitWatch === 1"
-                    src="../img/添加成功.png"
+                    src="/img/添加成功.png"
                     style="
                       width: 18px;
                       height: 15px;
@@ -1119,7 +1119,7 @@
                 </div>
                 <div class="videoContent1">
                   <img
-                    src="../img/播放量白.png"
+                    src="/img/播放量白.png"
                     style="
                       width: 15px;
                       height: 12px;
@@ -1136,7 +1136,7 @@
                     >{{ video.videoPlayNumber }}</span
                   >
                   <img
-                    src="../img/弹幕白.png"
+                    src="/img/弹幕白.png"
                     style="
                       width: 15px;
                       height: 12px;
@@ -1286,7 +1286,7 @@
           v-if="clickFlag3 || clickFlag4 || clickFlag5 || clickFlag6"
         >
           <img
-            src="../img/搜索空.png"
+            src="/img/搜索空.png"
             style="
               width: 150px;
               height: 160px;
@@ -1372,7 +1372,7 @@
           >
           <div v-if="searchUserList.length === 0">
             <img
-              src="../img/搜索空.png"
+              src="/img/搜索空.png"
               style="
                 width: 150px;
                 height: 160px;
@@ -1428,7 +1428,7 @@
                     >{{ user.userName }}
                     <img
                       v-if="user.grade === 0"
-                      src="../img/0级.png"
+                      src="/img/0级.png"
                       style="
                         width: 23.5px;
                         height: 12px;
@@ -1438,7 +1438,7 @@
                     />
                     <img
                       v-if="user.grade === 1"
-                      src="../img/1级.png"
+                      src="/img/1级.png"
                       style="
                         width: 23.5px;
                         height: 12px;
@@ -1448,7 +1448,7 @@
                     />
                     <img
                       v-if="user.grade === 2"
-                      src="../img/2级.png"
+                      src="/img/2级.png"
                       style="
                         width: 23.5px;
                         height: 12px;
@@ -1458,7 +1458,7 @@
                     />
                     <img
                       v-if="user.grade === 3"
-                      src="../img/3级.png"
+                      src="/img/3级.png"
                       style="
                         width: 23.5px;
                         height: 12px;
@@ -1468,7 +1468,7 @@
                     />
                     <img
                       v-if="user.grade === 4"
-                      src="../img/4级.png"
+                      src="/img/4级.png"
                       style="
                         width: 23.5px;
                         height: 12px;
@@ -1478,7 +1478,7 @@
                     />
                     <img
                       v-if="user.grade === 5"
-                      src="../img/5级.png"
+                      src="/img/5级.png"
                       style="
                         width: 23.5px;
                         height: 12px;
@@ -1488,7 +1488,7 @@
                     />
                     <img
                       v-if="user.grade === 6"
-                      src="../img/6级.png"
+                      src="/img/6级.png"
                       style="
                         width: 23.5px;
                         height: 12px;
@@ -1583,8 +1583,8 @@
 <script>
 import head1 from "../components/mainHead.vue";
 import Searcha from "./searcha";
-import up from "../img/up.png";
-import upBlue from "../img/up蓝.png";
+const up = "/img/up.png"
+const upBlue = "/img/up蓝.png"
 import { reactive, onMounted, ref, watch, onUnmounted } from "vue";
 import apiClient from "../services/apiClient";
 import { ElMessage } from "element-plus";

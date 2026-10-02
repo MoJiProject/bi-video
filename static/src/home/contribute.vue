@@ -39,10 +39,10 @@
         <div v-show="contributeVideos.length>0" class="video-grid"
           @click="display === 1 ? (display = 2) : (display = 1)"
         >
-          <img v-show="display === 2" src="../img/grid1.png" />
-          <img v-show="display === 2" src="../img/grid1蓝.png" />
-          <img v-show="display === 1" src="../img/grid5.png" />
-          <img v-show="display === 1" src="../img/grid5蓝.png" />
+          <img v-show="display === 2" src="/img/grid1.png" />
+          <img v-show="display === 2" src="/img/grid1蓝.png" />
+          <img v-show="display === 1" src="/img/grid5.png" />
+          <img v-show="display === 1" src="/img/grid5蓝.png" />
         </div>
         <div v-show="display == 1 && !loadMore" class="video-list-container">
           <videoList3 :data="contributeVideos" />
@@ -95,7 +95,7 @@
             />
           </div>
           <div v-if="imgDynamicTotal === 0" class="no-data">
-            <img src="../img/home_nodata.svg" />
+            <img src="/img/home_nodata.svg" />
             <div v-if="store.userId !== null && store.userId == userId">
               你还没有发布图文内容
             </div>

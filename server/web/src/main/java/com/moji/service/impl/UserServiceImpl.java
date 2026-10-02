@@ -108,7 +108,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
         }
 
         users.setCreateTime(LocalDateTime.now());
-        users.setAvatarAddress("/默认头像.gif");
+        users.setAvatarAddress("/img/默认头像.gif");
         // 密码加密
         users.setPassword(BCrypt.hashpw(users.getPassword(), BCrypt.gensalt()));
 
@@ -703,7 +703,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
                 return false;
 
             //删除之前的头像
-            if(users.getAvatarAddress()!=null&&!users.getAvatarAddress().isEmpty()&&!users.getAvatarAddress().equals("/默认头像.gif")){
+            if(users.getAvatarAddress()!=null&&!users.getAvatarAddress().isEmpty()&&!users.getAvatarAddress().equals("/img/默认头像.gif")){
                 String avatarAddress=users.getAvatarAddress();
                 int lastIndexOf = avatarAddress.lastIndexOf("/");
                 String avatarFile=(lastIndexOf!=-1)? avatarAddress.substring(lastIndexOf+1):avatarAddress;
