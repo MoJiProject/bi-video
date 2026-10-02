@@ -72,6 +72,54 @@
             <span style="margin-left: -2px">未经作者授权，禁止转载</span>
           </div>
         </div>
+        <div v-if="titleShowFlag" class="expand-icon-container">
+          <img src="/img/展开.png" class="expand-icon" />
+          <div class="show-up-videoTitle-container">
+            <div class="show-up-videoTitle">
+              {{ SelectVideoByIdVo.upVideo.title }}
+            </div>
+            <div style="transform: translate(0px, 5px); color: #95999f">
+              <img
+                src="/img/播放量灰.png"
+                style="
+                  width: 16.5px;
+                  height: 14px;
+                  transform: translate(0px, 2.5px);
+                  margin-right: 7px;
+                "
+              />
+              <span style="font-size: 12.5px; margin-right: 15px">{{
+                SelectVideoByIdVo.upVideo.playNumber
+              }}</span>
+              <img
+                src="/img/弹幕灰.png"
+                style="
+                  width: 16.5px;
+                  height: 14px;
+                  transform: translate(0px, 2.5px);
+                  margin-right: 6px;
+                "
+              />
+              <span style="font-size: 12.5px; margin-right: 12px">{{
+                SelectVideoByIdVo.upVideo.scrollingNumber
+              }}</span>
+              <span style="font-size: 12.5px">{{
+                SelectVideoByIdVo.upVideo.createTime
+              }}</span>
+              <div
+                v-if="SelectVideoByIdVo.upVideo.allowTwo === 0"
+                style="
+                  font-size: 12.5px;
+                  transform: translate(32px, 0px);
+                  display: inline-block;
+                "
+              >
+                <span class="prohibition-sign"></span>
+                <span style="margin-left: -2px">未经作者授权，禁止转载</span>
+              </div>
+            </div>
+          </div>
+        </div>
         <div
           style="
             transform: translate(0px, 22px);
