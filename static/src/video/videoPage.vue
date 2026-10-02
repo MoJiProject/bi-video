@@ -3159,7 +3159,11 @@ export default {
     function playUpVideo() {
       if (upVideoPlayer.value.paused) {
         pausedOrPlayVideoFlag.value = true;
-        upVideoPlayer.value.play();
+        //吞掉play()被快速pause打断时产生的rejection
+        const playResult = upVideoPlayer.value.play();
+        if (playResult && typeof playResult.catch === "function") {
+          playResult.catch(() => {});
+        }
         store.setReVideoPlayerFlag(false);
       }
     }
@@ -3406,7 +3410,10 @@ export default {
       if (setVideoAutoRePlayFlag.value) {
         if (upVideoPlayer.value.currentTime === upVideoPlayer.value.duration) {
           upVideoPlayer.value.currentTime = 0;
-          upVideoPlayer.value.play();
+          const playResult = upVideoPlayer.value.play();
+          if (playResult && typeof playResult.catch === "function") {
+            playResult.catch(() => {});
+          }
           pausedOrPlayVideoFlag.value = true;
         }
       } else if (
@@ -3486,12 +3493,23 @@ export default {
         if (upVideoPlayer.value.paused) {
           stopMoving();
           pausedOrPlayVideoFlag.value = true;
-          upVideoPlayer.value.play();
+          const playResult = upVideoPlayer.value.play();
+          if (playResult && typeof playResult.catch === "function") {
+            playResult.catch(() => {});
+          }
         } else {
           pausedOrPlayVideoFlag.value = false;
           upVideoPlayer.value.pause();
         }
       }, 250);
+    }
+
+    // 清除待执行的单击播放/暂停切换，避免与进度条拖拽、全屏切换互相打断
+    function cancelClickToggle() {
+      if (upVideoClickToggleTimer) {
+        clearTimeout(upVideoClickToggleTimer);
+        upVideoClickToggleTimer = null;
+      }
     }
 
     //更改视频时间进度
@@ -3511,6 +3529,10 @@ export default {
     //点击或拖动时间进度条
     function startProgressDrag(event, isAllDisplay = false) {
       if (!event) return;
+      //拖拽进度条前取消视频上待执行的单击播放/暂停切换，
+      //否则250ms后自动play会与拖拽的pause竞争，触发
+      //"play() request was interrupted by a call to pause()"
+      cancelClickToggle();
       const pointerTime = updateProgressByPointer(event, isAllDisplay);
       if (pointerTime === null) return;
 
@@ -3533,7 +3555,12 @@ export default {
     function stopMoving() {
       if (isProgressImgMoving && progressWasPlayingBeforeDrag && upVideoPlayer.value?.paused) {
         pausedOrPlayVideoFlag.value = true;
-        upVideoPlayer.value.play();
+        //play()返回Promise，若期间再次被pause打断会reject，
+        //此处吞掉异常避免控制台报错
+        const playResult = upVideoPlayer.value.play();
+        if (playResult && typeof playResult.catch === "function") {
+          playResult.catch(() => {});
+        }
       }
       isProgressImgMoving = false;
       progressWasPlayingBeforeDrag = false;
@@ -3669,10 +3696,7 @@ export default {
     // 切换/退出 全屏模式
     function toggleFullscreen() {
       // 双击进入全屏，取消尚未执行的单击播放/暂停切换
-      if (upVideoClickToggleTimer) {
-        clearTimeout(upVideoClickToggleTimer);
-        upVideoClickToggleTimer = null;
-      }
+      cancelClickToggle();
       const videoContainer = document.getElementById("upvideocontainer");
 
       if (document.fullscreenElement) {
@@ -3906,9 +3930,15 @@ export default {
 
     //监视视频暂停或播放
     watch(pausedOrPlayVideoFlag, (newValue) => {
-      if (newValue && !setVideoAutoRePlayFlag.value) upVideoPlayer.value.play();
-      else if (!newValue && !setVideoAutoRePlayFlag.value)
-        upVideoPlayer.value.pause();
+      //该标志被多处修改(播放/暂停/拖拽/自动重播)，play与pause可能相互竞争，
+      //这里统一吞掉被中断的rejection，避免
+      //"play() request was interrupted by a call to pause()"报错
+      if (newValue && !setVideoAutoRePlayFlag.value) {
+        const playResult = upVideoPlayer.value.play();
+        if (playResult && typeof playResult.catch === "function") {
+          playResult.catch(() => {});
+        }
+      } else if (!newValue && !setVideoAutoRePlayFlag.value) upVideoPlayer.value.pause();
       if (newValue) startScrollingClock();
       else {
         updateScrollingCurrentTime();
@@ -5710,6 +5740,7 @@ export default {
   height: 94%;
   z-index: -3;
   background-color: #000;
+  object-fit: contain;
 }
 
 .up-video-avatar-and-addFollow-container {
@@ -6226,6 +6257,7 @@ export default {
 .VideoAllDisplayIngFlagVideo {
   width: 100%;
   height: 100%;
+  object-fit: contain;
 }
 
 .playwhiteintoVideoAllDisplayIngFlag {
