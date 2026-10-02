@@ -12,7 +12,7 @@
                 scrollingDisplayTime(scrolling.videoTime, allDisplay) &&
                 scrolling.location === 1 &&
                 !rollOpenFlag &&
-                scrollingDisplayFunction(scrollingRow(scrolling))
+                scrollingDisplayFunction(scrolling)
             "
             class="scrolling-boder"
             :style="{
@@ -48,7 +48,7 @@
                 scrolling.videoTime + 5 >= scrollingCurrentTime() &&
                 scrolling.location === 2 &&
                 !filexdOpenFlag &&
-                scrollingDisplayFunction(scrollingRow(scrolling))
+                scrollingDisplayFunction(scrolling)
             "
             class="scrolling-boder"
             :style="{
@@ -70,16 +70,15 @@
                 >{{ scrolling.content }}
             </span>
         </div>
-        <!-- 底部弹幕，小屏不显示 -->
+        <!-- 底部弹幕，小屏压在下半 6 行(row 6~11)，全屏压在第 13~25 行 -->
         <div
             v-show="
-                allDisplay &&
                 scrolling.videoTime <= scrollingCurrentTime() &&
                 openFlag &&
                 scrolling.videoTime + 5 >= scrollingCurrentTime() &&
                 scrolling.location === 3 &&
                 !filexdOpenFlag &&
-                scrollingDisplayFunction(scrollingRow(scrolling))
+                scrollingDisplayFunction(scrolling)
             "
             class="scrolling-boder"
             :style="{
@@ -182,36 +181,29 @@ function scrollingCurrentTime() {
   return props.getCurrentTime();
 }
 
-// 轨道行数，必须与后端 ScrollingServiceImpl.SMALL_ROWS / FULL_ROWS 保持一致
-// 小屏 13 行(顶部0~12、滚动0~12、底部不显示)，全屏 26 行(顶部0~12、滚动0~25、底部13~25)
-const SMALL_ROWS = 13;
-const FULL_ROWS = 26;
-
-function totalRows() {
-  return props.allDisplay ? FULL_ROWS : SMALL_ROWS;
-}
+// 弹幕的纵向位置由后端下发的百分比决定，小屏和全屏各存一份：
+//   top             小屏用的位置
+//   all_display_top 全屏用的位置
+// 同一个行号按各自轨道的行数换算，所以小屏占的行数少、比例却和大屏对齐：
+//   全屏 26 行：顶部 0~12 行(0~50%)、底部 13~25 行(50~100%)、滚动 0~25 行
+//   小屏 12 行：顶部 0~5  行(0~50%)、底部 6~11 行(50~100%)、滚动 0~11 行
 
 // 是否彩色弹幕
 function isColorful(scrolling) {
   return Number(scrolling.colorful) === 1;
 }
 
-// 后端按模式分别下发 top(小屏) / allDisplayTop(全屏) 的轨道百分比(0-100)，这里换算成行号
-function scrollingRow(scrolling) {
-  const rows = totalRows();
-  const value = Number(
-    props.allDisplay ? scrolling.allDisplayTop : scrolling.top
-  );
+// 当前模式用的纵向位置百分比，钳到 0~100
+function scrollingPercent(scrolling) {
+  const value = Number(props.allDisplay ? scrolling.allDisplayTop : scrolling.top);
   if (!Number.isFinite(value)) return 0;
-  const percent = Math.min(Math.max(value, 0), 100);
-  return Math.min(Math.round((percent * rows) / 100), rows - 1);
+  return Math.min(Math.max(value, 0), 100);
 }
 
-// 行号按容器高度均分成行
+// 百分比乘播放器高度得到像素位置
 function scrollingTop(scrolling) {
   if (trackHeight.value <= 0) return 0;
-  const rowHeight = trackHeight.value / totalRows();
-  return Math.round(scrollingRow(scrolling) * rowHeight);
+  return Math.round((scrollingPercent(scrolling) / 100) * trackHeight.value);
 }
 
 function scrollingSpeedRate() {
@@ -267,15 +259,13 @@ function scrollingFontSize(size) {
   return `${size * (1 + (parseInt(props.displayFontSizeValue) - 50) / 250)}px`;
 }
 
-//显示弹幕区域，直接按所在行号判断，与容器实际高度无关
-function scrollingDisplayFunction(row) {
-  const area = parseInt(props.displayAreaValue);
-  if (Number.isNaN(area)) return true;
-  if (area >= 100) return true;
-  if (area <= 0) return false;
-  //显示区域百分比换算成行号上限
-  const maxRow = Math.ceil((area / 100) * totalRows()) - 1;
-  return row <= maxRow;
+//显示弹幕区域。位置是百分比，显示区域也是轨道高度的百分比，直接比大小即可
+function scrollingDisplayFunction(scrolling) {
+    const area = parseInt(props.displayAreaValue);
+    if (Number.isNaN(area)) return true;
+    if (area >= 100) return true;
+    if (area <= 0) return false;
+    return scrollingPercent(scrolling) <= area;
 }
 
 //只渲染时间窗口内的弹幕，窗口外的弹幕原本就是隐藏的
