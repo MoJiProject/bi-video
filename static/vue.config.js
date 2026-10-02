@@ -8,6 +8,9 @@ module.exports = defineConfig({
 
   // 本地开发代理后端 API
   devServer: {
+    // 启动后自动打开浏览器
+    open: true,
+    port: 8080,
     proxy: {
       '/api': {
         target: 'http://localhost:8081/',
