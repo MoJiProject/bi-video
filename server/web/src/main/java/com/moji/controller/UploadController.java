@@ -85,9 +85,9 @@ public class UploadController {
                     return R.error("只允许上传图片和视频文件");
                 }
 
-                // 创建目录（如果不存在）
-                if (!uploadDir.exists()) {
-                    uploadDir.mkdirs();
+                // 创建目录（如果不存在），并发下mkdirs可能返回false，需二次确认
+                if (!uploadDir.isDirectory() && (!uploadDir.mkdirs() && !uploadDir.isDirectory())) {
+                    return R.error("创建上传目录失败");
                 }
 
                 // 获取原文件名和扩展名
@@ -115,7 +115,9 @@ public class UploadController {
 
         Boolean b = videosService.insertVideo(videoName, coverName, videos);
         if (b) {
-            mergedVideoOwners.remove(videoName);
+            //videoName可能为空，直接remove会因null key抛NPE
+            if(videoName!=null)
+                mergedVideoOwners.remove(videoName);
             return R.success("上传成功");
         }
 
@@ -151,8 +153,8 @@ public class UploadController {
             return R.error("操作失败");
         }
 
-        File chunkDir = new File(FilePathEnum.UPLOAD_VIDEO.getPath() + "chunks" + File.separator + uploadId);
-        if (!chunkDir.exists()&&!chunkDir.mkdirs()) {
+        File chunkDir = ensureChunkDir(uploadId);
+        if (chunkDir == null) {
             return R.error("创建分片目录失败");
         }
 
@@ -188,13 +190,13 @@ public class UploadController {
             return R.error("操作失败");
         }
 
-        File chunkDir = new File(FilePathEnum.UPLOAD_VIDEO.getPath() + "chunks" + File.separator + uploadId);
+        File chunkDir = new File(getChunkRoot(), uploadId);
         if (!chunkDir.exists()||!chunkDir.isDirectory()) {
             return R.error("分片不存在");
         }
 
         File uploadDir = new File(FilePathEnum.UPLOAD_VIDEO.getPath());
-        if (!uploadDir.exists()&&!uploadDir.mkdirs()) {
+        if (!uploadDir.isDirectory() && (!uploadDir.mkdirs() && !uploadDir.isDirectory())) {
             return R.error("创建上传目录失败");
         }
 
@@ -209,12 +211,20 @@ public class UploadController {
             for (int i = 0; i < totalChunks; i++) {
                 Path chunkPath = Paths.get(chunkDir.getPath(), i + ".part");
                 if (!Files.exists(chunkPath)) {
+                    //分片不完整时删除半成品文件并清理残留分片，避免占用磁盘
                     Files.deleteIfExists(dest.toPath());
+                    cleanChunksQuietly(uploadId, chunkDir);
                     return R.error("分片不完整");
                 }
                 Files.copy(chunkPath, outputStream);
             }
         } catch (IOException e) {
+            //合并失败同样清理半成品与残留分片
+            try {
+                Files.deleteIfExists(dest.toPath());
+            } catch (IOException ignore) {
+            }
+            cleanChunksQuietly(uploadId, chunkDir);
             return R.error("分片合并失败");
         }
 
@@ -238,8 +248,7 @@ public class UploadController {
             return R.error("操作失败");
 
         if(uploadId!=null&&validUploadId(uploadId)&&uploadBelongsToUser(uploadId,userId)){
-            File chunkDir = new File(FilePathEnum.UPLOAD_VIDEO.getPath() + "chunks" + File.separator + uploadId);
-            deleteDirectory(chunkDir);
+            deleteDirectory(new File(getChunkRoot(), uploadId));
             uploadOwners.remove(uploadId);
         }
 
@@ -357,9 +366,9 @@ public class UploadController {
                         return R.error("只允许上传图片和视频文件");
                     }
 
-                    // 创建目录（如果不存在）
-                    if (!uploadDir.exists()) {
-                        uploadDir.mkdirs();
+                    // 创建目录（如果不存在），并发下mkdirs可能返回false，需二次确认
+                    if (!uploadDir.isDirectory() && (!uploadDir.mkdirs() && !uploadDir.isDirectory())) {
+                        return R.error("创建上传目录失败");
                     }
 
                     // 获取原文件名和扩展名
@@ -387,7 +396,9 @@ public class UploadController {
         }
         Boolean flag = videosService.updateVideo(videoName, coverName, videos,vFlag,cFlag);
         if (flag) {
-            mergedVideoOwners.remove(videoName);
+            //仅修改封面等场景不传videoName，此时key为null会导致ConcurrentHashMap抛NPE
+            if(videoName!=null)
+                mergedVideoOwners.remove(videoName);
             return R.success("修改成功");
         }
 
@@ -397,6 +408,59 @@ public class UploadController {
 
     private boolean validUploadId(String uploadId){
         return uploadId!=null&&uploadId.matches("[A-Za-z0-9_-]{1,80}");
+    }
+
+    /**
+     * 分片根目录，使用File构造器拼接，避免依赖路径末尾是否带分隔符
+     */
+    private File getChunkRoot(){
+        return new File(FilePathEnum.UPLOAD_VIDEO.getPath(),"chunks");
+    }
+
+    /**
+     * 分片根目录，供定时清理任务使用
+     */
+    public File getChunkRootForClean(){
+        return getChunkRoot();
+    }
+
+    /**
+     * 删除指定分片目录及其上传者记录，供定时清理任务使用
+     */
+    public void deleteChunkDirForClean(File chunkDir){
+        if(chunkDir==null)
+            return;
+        String uploadId=chunkDir.getName();
+        deleteDirectory(chunkDir);
+        if(uploadId!=null)
+            uploadOwners.remove(uploadId);
+    }
+
+    /**
+     * 静默清理分片目录及其上传者记录，失败不影响主流程
+     */
+    private void cleanChunksQuietly(String uploadId, File chunkDir){
+        deleteDirectory(chunkDir);
+        uploadOwners.remove(uploadId);
+    }
+
+    /**
+     * 确保分片目录存在。
+     * 并发上传时多个线程可能同时创建同一目录，mkdirs在目录已被其他线程创建时返回false，
+     * 因此失败后需要重新判断目录是否已存在，避免误报创建失败。
+     *
+     * @return 分片目录，创建失败返回null
+     */
+    private File ensureChunkDir(String uploadId){
+        File chunkDir=new File(getChunkRoot(),uploadId);
+        if(chunkDir.isDirectory())
+            return chunkDir;
+        if(chunkDir.exists())
+            return null;
+        //并发下mkdirs可能因其他线程已创建而返回false，需二次确认
+        if(!chunkDir.mkdirs()&&!chunkDir.isDirectory())
+            return null;
+        return chunkDir;
     }
 
     private boolean uploadBelongsToUser(String uploadId,Integer userId){

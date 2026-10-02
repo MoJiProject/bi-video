@@ -1,38 +1,22 @@
-server:
-  port: 8081
-api:
-  crypto:
-    key: bi-video-api-key-32-byte-value!!
-    iv: bi-video-api-iv!
+# 公共配置，环境相关配置见 application-dev.yml / application-prod.yml
+# 启动时指定环境：--spring.profiles.active=prod
 spring:
+  profiles:
+    active: dev
   servlet:
     multipart:
       max-file-size: 300MB
       max-request-size: 300MB
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/bi_video?useSSL=false&serverTimezone=UTC
-    username: MoJi
-    password:
   main:
     allow-circular-references: true
-  data:
-   redis:
-    host: localhost
-    port: 6379
-    password:
-    database: 0
-    timeout: 10s
-    lettuce:
-        pool:
-          # 连接池最大连接数
-          max-active: 200
-          # 连接池最大阻塞等待时间（使用负值表示没有限制）
-          max-wait: -1ms
-          # 连接池中的最大空闲连接
-          max-idle: 10
-          # 连接池中的最小空闲连接
-          min-idle: 0
+
+server:
+  port: 8081
+
+api:
+  crypto:
+    key: bi-video-api-key-32-byte-value!!
+    iv: bi-video-api-iv!
 
 logging:
   file:
@@ -41,6 +25,7 @@ logging:
 mybatis:
   mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.moji.po
+
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
@@ -48,6 +33,11 @@ mybatis-plus:
     db-config:
       id-type: auto # 这通常适用于主键的自动生成策略，具体值根据需求调整
 
+# 上传路径公共配置，root 由各环境自行指定
+file:
+  upload:
+    # 磁盘剩余空间低于该值时禁止上传，支持 5GB / 5000MB / 5368709120
+    safety-capacity: 5GB
 
 ############## Sa-Token 配置 (文档: https://sa-token.cc) ##############
 sa-token:
@@ -65,4 +55,3 @@ sa-token:
   token-style: uuid
   # 是否输出操作日志
   is-log: false
-

@@ -568,13 +568,15 @@
 
         <div
           style="
-            margin-left: 40px;
+            margin-left: 27px;
             margin-top: 60px;
             height: 200px;
             width: 200px;
           "
         >
-          <span style="font-size: 14px">简介</span>
+          <span style="font-size: 14px"
+            ><span style="color: red">*&nbsp;</span>简介</span
+          >
           <span v-show="placeholderFlag" class="placeholder">视频类型：动漫杂谈<br/>相关题材：可填写多个<br/>简介：...</span>
           <span class="content-length">{{ content.length }}/2000</span>
           <div class="content-input" @click="handleContent" @input="handleContent" contenteditable="true" 
@@ -2123,7 +2125,7 @@ h1 {
   border: 1px solid #ccc;
   padding: 10px 80px 10px 10px;
   font-size: 14px;
-  transform: translate(112px,-38px);
+  transform: translate(123px,-38px);
   overflow: hidden;
   overflow-y: auto;
 }

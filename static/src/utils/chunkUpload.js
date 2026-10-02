@@ -18,6 +18,19 @@ export async function uploadVideoByChunks({ apiClient, file, userId, token, onPr
   const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
   const chunkProgress = new Map();
   let nextChunkIndex = 0;
+  let merged = false;
+
+  //清理残留分片，失败不影响主流程，仅忽略
+  const cleanupChunks = async () => {
+    try {
+      await apiClient.delete("/upload/cleanVideoUpload", {
+        params: { uploadId, userId },
+        headers: { "Authorization": token },
+      });
+    } catch (e) {
+      //忽略清理失败
+    }
+  };
 
   const updateProgress = () => {
     if (!onProgress) return;
@@ -65,28 +78,39 @@ export async function uploadVideoByChunks({ apiClient, file, userId, token, onPr
     }
   };
 
-  onProgress?.(0);
-  const workerCount = Math.min(MAX_CONCURRENT_UPLOADS, totalChunks);
-  await Promise.all(Array.from({ length: workerCount }, () => uploadWorker()));
+  try {
+    onProgress?.(0);
+    const workerCount = Math.min(MAX_CONCURRENT_UPLOADS, totalChunks);
+    await Promise.all(Array.from({ length: workerCount }, () => uploadWorker()));
 
-  const mergeData = new FormData();
-  mergeData.append("uploadId", uploadId);
-  mergeData.append("totalChunks", totalChunks);
-  mergeData.append("originalFilename", file.name);
-  mergeData.append("userId", userId);
+    const mergeData = new FormData();
+    mergeData.append("uploadId", uploadId);
+    mergeData.append("totalChunks", totalChunks);
+    mergeData.append("originalFilename", file.name);
+    mergeData.append("userId", userId);
 
-  const response = await apiClient.post("/upload/mergeVideoChunks", mergeData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-      "Authorization": token,
-    },
-    signal,
-  });
+    const response = await apiClient.post("/upload/mergeVideoChunks", mergeData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "Authorization": token,
+      },
+      signal,
+    });
 
-  if (response.data.code !== 1) {
-    throw new Error(response.data.msg || "视频分片合并失败");
+    if (response.data.code !== 1) {
+      throw new Error(response.data.msg || "视频分片合并失败");
+    }
+
+    //合并成功，分片目录已由后端删除，无需清理
+    merged = true;
+    onProgress?.(100);
+    return response.data.data;
+  } catch (error) {
+    //分片或合并失败时清理已上传的分片，避免残留占用磁盘
+    //用户主动取消时同样需要清理
+    if (!merged) {
+      await cleanupChunks();
+    }
+    throw error;
   }
-
-  onProgress?.(100);
-  return response.data.data;
 }
