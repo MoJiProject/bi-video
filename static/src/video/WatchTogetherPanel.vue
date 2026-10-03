@@ -1285,6 +1285,24 @@ onBeforeUnmount(() => {
   right: 0;
 }
 
+/* 面板、成员、好友、历史房间、切换视频列表共用细滚动条 */
+.watch-panel::-webkit-scrollbar,
+.member-list::-webkit-scrollbar,
+.invite-list::-webkit-scrollbar,
+.switch-list::-webkit-scrollbar {
+  width: 5px;
+  border-radius: 30px;
+}
+
+.watch-panel::-webkit-scrollbar-thumb,
+.member-list::-webkit-scrollbar-thumb,
+.invite-list::-webkit-scrollbar-thumb,
+.switch-list::-webkit-scrollbar-thumb {
+  background: #bcbcbc;
+  height: 10px;
+  border-radius: 10px;
+}
+
 .watch-header,
 .member-heading,
 .member-list li,
