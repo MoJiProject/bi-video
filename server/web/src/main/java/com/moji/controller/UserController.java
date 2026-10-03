@@ -213,7 +213,7 @@ public class UserController {
 
         LoginLimiterServer limiterServer=new LoginLimiterServer();
         if(!limiterServer.checkUser(limiterLoginDto.getUser().getId(),token))
-            R.error("非法操作");
+            return R.error("非法操作");
 
         StpUtil.logout(limiterLoginDto.getUser().getId());
 
@@ -435,48 +435,4 @@ public class UserController {
             return R.success("背景更新成功");
         return R.error("背景更新失败");
     }
-
-
-    /**
-     * 获取所有用户
-     * @param userId
-     * @param pageNum
-     * @param type -1 0 1
-     * @param keyword
-     * @param token
-     * @return
-     */
-    @GetMapping("/getUsers")
-    public R<Page<UserInfo2>> getUsers(@RequestParam Integer userId,@RequestParam Integer type,@RequestParam Integer pageNum,@RequestParam(required = false) String keyword,@RequestHeader("Authorization") String token){
-
-        Users users = userMapper.selectById(userId);
-        LoginLimiterServer limiterServer=new LoginLimiterServer();
-        if(users==null||users.getAdminFlag()==0||!limiterServer.checkUser(userId,token))
-            return R.error("查询失败");
-
-        return R.success(userService.getUsers(pageNum,keyword,type));
-    }
-
-
-    /**
-     * 设置用户管理员
-     * @param userId
-     * @param adminId
-     * @param token
-     * @return
-     */
-    @PutMapping("/putAdmin")
-    public R<String> putAdmin(@RequestParam Integer userId,@RequestParam Integer adminId,@RequestHeader("Authorization") String token) {
-
-        Users users = userMapper.selectById(userId);
-        LoginLimiterServer limiterServer = new LoginLimiterServer();
-        if (users == null || users.getAdminFlag()==0 || !limiterServer.checkUser(userId, token))
-            return R.error("查询失败");
-
-        boolean b = userService.putAdmin(adminId);
-        if (b)
-            return R.success("修改成功");
-        return R.error("修改失败");
-    }
-
-    }
+}

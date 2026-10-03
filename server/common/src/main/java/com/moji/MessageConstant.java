@@ -10,5 +10,7 @@ public class MessageConstant {
     public static final String PHONE_ERROR="手机号错误";
     public static final String QUESTION_ERROR="密保错误";
     public static final String ACCOUNT_EXIST="账号已存在";
+    //账号被管理员封禁
+    public static final String ACCOUNT_BANNED="账号已被封禁";
 
 }

@@ -22,6 +22,9 @@ public class DynamicController {
     @Autowired
     private DynamicService dynamicService;
 
+    @Autowired
+    private com.moji.mapper.DynamicMapper dynamicMapper;
+
     /**
      * 根据用户id查询关注的人发布的动态
      * @param userId
@@ -141,6 +144,13 @@ public class DynamicController {
         LoginLimiterServer limiterServer=new LoginLimiterServer();
         if(!limiterServer.checkUser(userId,token))
             return R.error("删除失败");
+
+        //followId是动态的发布者，必须确认调用者就是发布者本人
+        Dynamic target=dynamicMapper.selectById(dynamicId);
+        if(target==null)
+            return R.error("删除失败");
+        if(target.getFollowId()==null||!target.getFollowId().equals(userId))
+            return R.error("无权删除他人的动态");
 
         Boolean b = dynamicService.deleteDynamic(dynamicId);
         if(b)

@@ -1,0 +1,271 @@
+// 系统管理后台通用样式，被各管理页面的 <style scoped lang="scss"> 引入
+$sys-primary: #00a1d6;
+$sys-text: #18191c;
+$sys-sub: #9499a0;
+$sys-border: #e5e7eb;
+$sys-bg: #f4f6f9;
+$sys-danger: #f56c6c;
+$sys-warning: #e6a23c;
+$sys-success: #67c23a;
+
+//白色卡片容器
+.sys-panel {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+//卡片标题行
+.sys-panel-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+
+  .title {
+    font-size: 16px;
+    font-weight: 600;
+    color: $sys-text;
+
+    &::before {
+      content: "";
+      display: inline-block;
+      width: 3px;
+      height: 14px;
+      background-color: $sys-primary;
+      border-radius: 2px;
+      margin-right: 8px;
+      vertical-align: -1px;
+    }
+  }
+
+  .title-tip {
+    font-size: 12px;
+    color: $sys-sub;
+    margin-left: 10px;
+    font-weight: 400;
+  }
+}
+
+//筛选栏
+.sys-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+//分页容器，复用收藏夹页(page-container)的样式与结构
+.page-container {
+  position: relative;
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  span {
+    color: #18191c;
+    font-size: 13px;
+    margin-left: 44px;
+
+    input {
+      width: 50px;
+      height: 34px;
+      outline: none;
+      padding: 0 10px;
+      margin: 0 4px;
+      background-color: white;
+      border: 1px solid #e3e5e7;
+      font-size: 14px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    input:hover {
+      border-color: $sys-primary;
+    }
+  }
+}
+
+//表格内所有操作按钮统一尺寸，避免大小不一
+.sys-table {
+  width: 100%;
+
+  :deep(.el-table__cell) {
+    padding: 8px 0;
+  }
+
+  :deep(.el-button) {
+    margin-left: 8px;
+    padding: 5px 11px;
+    font-size: 13px;
+    height: 28px;
+    line-height: 16px;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}
+
+//筛选栏按钮同样统一尺寸
+.sys-filter {
+  :deep(.el-button) {
+    height: 32px;
+    padding: 0 15px;
+    font-size: 14px;
+  }
+}
+
+//操作列：按钮强制单行，避免被挤到第二行
+.sys-actions {
+  white-space: nowrap;
+
+  :deep(.el-button) {
+    margin-left: 8px;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}
+
+//可点击跳转的头像/用户块
+.sys-user-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;//列已设为居中，flex容器要自己居中内容
+  min-width: 0;
+  cursor: pointer;
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #f0f2f5;
+    flex-shrink: 0;
+    object-fit: cover;
+    transition: opacity 0.2s ease;
+  }
+
+  &:hover .avatar {
+    opacity: 0.85;
+  }
+
+  .meta {
+    margin-left: 8px;
+    min-width: 0;
+  }
+
+  .name {
+    display: block;
+    font-size: 13px;
+    color: $sys-text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sub {
+    display: block;
+    font-size: 12px;
+    color: $sys-sub;
+  }
+
+  &:hover .name {
+    color: $sys-primary;
+  }
+}
+
+//评论正文渲染（评论内容本身是富文本HTML）
+.sys-comment-html {
+  font-size: 13px;
+  color: $sys-text;
+  word-break: break-word;
+  line-height: 1.7;
+  max-height: 96px;
+  overflow: hidden;
+
+  :deep(p),
+  :deep(div) {
+    margin: 0;
+  }
+
+  :deep(img) {
+    max-width: 100%;
+    vertical-align: middle;
+  }
+
+  :deep(a) {
+    color: $sys-primary;
+    text-decoration: none;
+  }
+}
+
+//内容超长时省略
+.sys-clip {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+//空状态
+.sys-empty {
+  padding: 40px 0;
+  text-align: center;
+  color: $sys-sub;
+  font-size: 14px;
+}
+
+//状态标签
+.sys-tag {
+  display: inline-block;
+  padding: 0 8px;
+  height: 22px;
+  line-height: 20px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid transparent;
+  //标签文字不允许折行，否则窄列里「普通用户」会被拆成两行
+  white-space: nowrap;
+
+  &.tag-danger {
+    color: $sys-danger;
+    background-color: #fef0f0;
+    border-color: #fde2e2;
+  }
+
+  &.tag-warning {
+    color: $sys-warning;
+    background-color: #fdf6ec;
+    border-color: #faecd8;
+  }
+
+  &.tag-success {
+    color: $sys-success;
+    background-color: #f0f9eb;
+    border-color: #e1f3d8;
+  }
+
+  &.tag-primary {
+    color: $sys-primary;
+    background-color: #eaf7fc;
+    border-color: #d3eef8;
+  }
+
+  &.tag-grey {
+    color: #909399;
+    background-color: #f4f4f5;
+    border-color: #e9e9eb;
+  }
+
+  //类型分类用色，和「无状态」的灰色区分开
+  &.tag-purple {
+    color: #6f42c1;
+    background-color: #f5f0ff;
+    border-color: #e9defd;
+  }
+}

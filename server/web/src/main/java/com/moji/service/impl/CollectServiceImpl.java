@@ -139,14 +139,23 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
                 closeCollectFlag++;
             if ((!collectss.isEmpty() || waitWatchFlag) &&
                     closeCollectFlag == acceptCollect.getAllInFlags().size()) {
-                videos.setCollectNumber(videos.getCollectNumber() - 1);
-                videosMapper.updateById(videos);
+                //收藏数用SQL自减，避免并发读改写丢计数，也兜住计数为null
+                videosMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update
+                        .LambdaUpdateWrapper<Videos>()
+                        .eq(Videos::getId,videos.getId())
+                        .setSql("collect_number = GREATEST(IFNULL(collect_number,0) - 1, 0)"));
             }
             Collects collects1 = oldCollectMap.get(allInFlag.getName());
+            //allInFlags 是前端传的收藏夹名，可能包含库里不存在的分类，
+            //原来直接 classifyMap.get(...).setVideoNumber(...) 会NPE
+            CollectsClassify collectsClassify = classifyMap.get(allInFlag.getName());
             if (allInFlag.getFlag() && collects1 == null) {
-                CollectsClassify collectsClassify = classifyMap.get(allInFlag.getName());
-                collectsClassify.setVideoNumber(collectsClassify.getVideoNumber() + 1);
-                collectClassifyMapper.updateById(collectsClassify);
+                if (collectsClassify != null) {
+                    collectClassifyMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update
+                            .LambdaUpdateWrapper<CollectsClassify>()
+                            .eq(CollectsClassify::getId, collectsClassify.getId())
+                            .setSql("video_number = IFNULL(video_number,0) + 1"));
+                }
                 Collects collects = Collects.builder()
                         .userId(acceptCollect.getUserId())
                         .collectName(allInFlag.getName())
@@ -155,9 +164,12 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
                         .build();
                 collectMapper.insert(collects);
             } else if (!allInFlag.getFlag() && collects1 != null) {
-                CollectsClassify collectsClassify = classifyMap.get(allInFlag.getName());
-                collectsClassify.setVideoNumber(collectsClassify.getVideoNumber() - 1);
-                collectClassifyMapper.updateById(collectsClassify);
+                if (collectsClassify != null) {
+                    collectClassifyMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update
+                            .LambdaUpdateWrapper<CollectsClassify>()
+                            .eq(CollectsClassify::getId, collectsClassify.getId())
+                            .setSql("video_number = GREATEST(IFNULL(video_number,0) - 1, 0)"));
+                }
                 collectMapper.deleteById(collects1);
             }
         }
@@ -262,46 +274,80 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
             return false;
 
         List<Collects> collects = collectMapper.selectBatchIds(ids);
-        Set<Integer> videoIds = new HashSet<>();
-        Set<String> classKeys = new HashSet<>();
+        if(collects.isEmpty())
+            return false;
+
+        //先整体校验归属与收藏夹是否存在，避免循环校验失败时前面已经改过的计数无法回滚
+        Set<String> collectNames = collects.stream()
+                .map(Collects::getCollectName)
+                .collect(Collectors.toSet());
         for (Collects c : collects) {
-            classKeys.add(c.getCollectName() + "_" + userId);
-            videoIds.add(c.getVideoId());
+            if (!userId.equals(c.getUserId()))
+                return false;
         }
+
         LambdaQueryWrapper<CollectsClassify> qw1 = new LambdaQueryWrapper<>();
         qw1.eq(CollectsClassify::getUserId, userId)
-                .in(CollectsClassify::getCollectName, collects.stream().map(Collects::getCollectName).collect(Collectors.toSet()));
+                .in(CollectsClassify::getCollectName, collectNames);
         List<CollectsClassify> classList = collectClassifyMapper.selectList(qw1);
         Map<String, CollectsClassify> classMap = new HashMap<>();
         for (CollectsClassify cc : classList) {
             classMap.put(cc.getCollectName() + "_" + userId, cc);
         }
+        for (String name : collectNames) {
+            if (!classMap.containsKey(name + "_" + userId))
+                return false;
+        }
+
+        Set<Integer> videoIds = collects.stream()
+                .map(Collects::getVideoId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        //videos.collect_number 的口径是「该用户至少收藏了一次（不含稍后再看与已删除的记录）」，
+        //所以这里只统计同样口径的记录，删完之后真正归零的视频才需要把计数减一
+        Set<Integer> deletingIds = collects.stream()
+                .map(Collects::getId)
+                .collect(Collectors.toSet());
         LambdaQueryWrapper<Collects> qw2 = new LambdaQueryWrapper<>();
         qw2.eq(Collects::getUserId, userId)
-                .in(Collects::getVideoId, videoIds);
-        List<Collects> collectList = collectMapper.selectList(qw2);
-        Map<Integer, Long> videoCountMap = collectList.stream()
+                .ne(Collects::getCollectName, "稍后再看")
+                .eq(Collects::getDeleteFlag, 0);
+        if(!videoIds.isEmpty())
+            qw2.in(Collects::getVideoId, videoIds);
+        List<Collects> countedList = collectMapper.selectList(qw2);
+
+        Map<Integer, Long> countedBefore = countedList.stream()
                 .collect(Collectors.groupingBy(Collects::getVideoId, Collectors.counting()));
-        List<Videos> videoList = videosMapper.selectBatchIds(videoIds);
-        Map<Integer, Videos> videoMap = videoList.stream().collect(Collectors.toMap(Videos::getId, v -> v));
-        for (Collects c : collects) {
-            if (!c.getUserId().equals(userId))
-                return false;
-            String k = c.getCollectName() + "_" + userId;
-            CollectsClassify cc = classMap.get(k);
+        Map<Integer, Long> countedDeleting = countedList.stream()
+                .filter(c -> deletingIds.contains(c.getId()))
+                .collect(Collectors.groupingBy(Collects::getVideoId, Collectors.counting()));
+
+        //收藏夹条数：按收藏夹聚合一次性自减，避免逐条updateById
+        Map<String, Long> nameCountMap = collects.stream()
+                .collect(Collectors.groupingBy(Collects::getCollectName, Collectors.counting()));
+        for (Map.Entry<String, Long> entry : nameCountMap.entrySet()) {
+            CollectsClassify cc = classMap.get(entry.getKey() + "_" + userId);
             if (cc == null)
-                return false;
-            cc.setVideoNumber(cc.getVideoNumber() - 1);
-            collectClassifyMapper.updateById(cc);
-            long cnt = videoCountMap.getOrDefault(c.getVideoId(), 0L);
-            if (cnt == 1) {
-                Videos v = videoMap.get(c.getVideoId());
-                if (v != null) {
-                    v.setCollectNumber(v.getCollectNumber() - 1);
-                    videosMapper.updateById(v);
-                }
+                continue;
+            collectClassifyMapper.update(null, new com.baomidou.mybatisplus.core.conditions.update
+                    .LambdaUpdateWrapper<CollectsClassify>()
+                    .eq(CollectsClassify::getId, cc.getId())
+                    .setSql("video_number = GREATEST(IFNULL(video_number,0) - " + entry.getValue() + ", 0)"));
+        }
+
+        //删除后该用户在这个视频上不再有收藏，才把视频的收藏数减一
+        for (Map.Entry<Integer, Long> entry : countedDeleting.entrySet()) {
+            long before = countedBefore.getOrDefault(entry.getKey(), 0L);
+            long removing = entry.getValue();
+            if (before - removing <= 0) {
+                videosMapper.update(null, new com.baomidou.mybatisplus.core.conditions.update
+                        .LambdaUpdateWrapper<Videos>()
+                        .eq(Videos::getId, entry.getKey())
+                        .setSql("collect_number = GREATEST(IFNULL(collect_number,0) - 1, 0)"));
             }
         }
+
         int i = collectMapper.deleteBatchIds(ids);
         return i>0;
     }

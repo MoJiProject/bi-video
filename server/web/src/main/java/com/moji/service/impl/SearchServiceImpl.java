@@ -32,6 +32,23 @@ public class SearchServiceImpl implements SearchService {
     @Autowired
     private FollowMapper followMapper;
 
+    //以下取数方法用于排序，计数/时间类字段在老数据里可能为null，统一兜底避免排序时NPE
+    private int playNumberOf(Videos videos) {
+        return videos.getPlayNumber()==null?0:videos.getPlayNumber();
+    }
+
+    private int scrollingNumberOf(Videos videos) {
+        return videos.getScrollingNumber()==null?0:videos.getScrollingNumber();
+    }
+
+    private int collectNumberOf(Videos videos) {
+        return videos.getCollectNumber()==null?0:videos.getCollectNumber();
+    }
+
+    private LocalDateTime createTimeOf(Videos videos) {
+        return videos.getCreateTime();
+    }
+
     @Override
     public ResponseSearchVo selectVideoByKeyWord(AcceptSearchDto acceptSearchData) {
 
@@ -41,15 +58,25 @@ public class SearchServiceImpl implements SearchService {
         LambdaQueryWrapper<Videos> videosLambdaQueryWrapper=new LambdaQueryWrapper<>();
         //搜索只返回审核通过的视频
         videosLambdaQueryWrapper.eq(Videos::getStatus,1);
+
+        //「全部分区」且不按时长过滤时，标签命中也算一次有效搜索。
+        //原来是把标签查询的结果整表selectList再与分页结果做并集，导致：
+        //每页都多带一份全量数据、翻页永远收敛不了、总数与实际返回对不上。
+        //这里直接把标签条件并入主查询的条件组，变成一次正常的分页查询。
+        boolean matchTag="全部".equals(acceptSearchData.getClassify())&&acceptSearchData.getTime()==0;
+
         if (!acceptSearchData.getKeyWord().isEmpty() || !acceptSearchData.getClassifyIndex().isEmpty())
-        videosLambdaQueryWrapper.and(wrapper->wrapper
-                .like(Videos::getTitle,acceptSearchData.getKeyWord())
-                .or()
-                .apply("LOWER({0}) LIKE CONCAT('%', LOWER(title), '%')",acceptSearchData.getKeyWord())
-                .or()
-                .like(Videos::getUserName,acceptSearchData.getKeyWord())
-                .or()
-                .apply("LOWER({0}) LIKE CONCAT('%', LOWER(user_name), '%')",acceptSearchData.getKeyWord()));
+            videosLambdaQueryWrapper.and(wrapper->{
+                wrapper.like(Videos::getTitle,acceptSearchData.getKeyWord())
+                        .or()
+                        .apply("LOWER({0}) LIKE CONCAT('%', LOWER(title), '%')",acceptSearchData.getKeyWord())
+                        .or()
+                        .like(Videos::getUserName,acceptSearchData.getKeyWord())
+                        .or()
+                        .apply("LOWER({0}) LIKE CONCAT('%', LOWER(user_name), '%')",acceptSearchData.getKeyWord());
+                if(matchTag)
+                    wrapper.or().like(Videos::getTag,acceptSearchData.getKeyWord());
+            });
         else return null;
 
         if(acceptSearchData.getDate()==1)
@@ -64,46 +91,25 @@ public class SearchServiceImpl implements SearchService {
             videosLambdaQueryWrapper.between(Videos::getCreateTime, startTime, endTime);
         }
 
-        List<Videos> videosList=new ArrayList<>();
-        if(!acceptSearchData.getClassify().equals("全部"))
+        if(!"全部".equals(acceptSearchData.getClassify()))
             videosLambdaQueryWrapper.eq(Videos::getSubZoneKey,acceptSearchData.getClassify());
 
         Page<Videos> videosPage = videosMapper.selectPage(page, videosLambdaQueryWrapper);
         List<Videos> videos = videosPage.getRecords();
         responseSearchVo.setVideoTotal(videosPage.getTotal());
 
-        if(acceptSearchData.getClassify().equals("全部")){
-            LambdaQueryWrapper<Videos> videosLambdaQueryWrapper1=new LambdaQueryWrapper<>();
-            videosLambdaQueryWrapper1.eq(Videos::getStatus,1);
-            if(acceptSearchData.getDate()==1)
-                videosLambdaQueryWrapper1.between(Videos::getCreateTime, LocalDateTime.now().minusDays(1),LocalDateTime.now());
-            else if (acceptSearchData.getDate()==2)
-                videosLambdaQueryWrapper1.between(Videos::getCreateTime, LocalDateTime.now().minusDays(7),LocalDateTime.now());
-            else if (acceptSearchData.getDate()==3)
-                videosLambdaQueryWrapper1.between(Videos::getCreateTime, LocalDateTime.now().minusDays(180),LocalDateTime.now());
-            else if (acceptSearchData.getDate()==4) {
-                LocalDateTime startTime = ZonedDateTime.parse(acceptSearchData.getStartTime()).toLocalDateTime();
-                LocalDateTime endTime = ZonedDateTime.parse(acceptSearchData.getEndTime()).toLocalDateTime();
-                videosLambdaQueryWrapper1.between(Videos::getCreateTime, startTime, endTime);
-            }
-            videosLambdaQueryWrapper1.like(Videos::getTag,acceptSearchData.getKeyWord());
-            videosList=videosMapper.selectList(videosLambdaQueryWrapper1);
-        }
+        List<Videos> videosList1=new ArrayList<>(videos);
 
-        Set<Videos> videosSet = new LinkedHashSet<>();
-        videosSet.addAll(videos);
-        videosSet.addAll(videosList);
-        List<Videos> videosList1=new ArrayList<>(videosSet);
-
-        //排序
+        //排序（计数类字段可能为null，比较器统一做空值兜底）
             if(acceptSearchData.getSort()==1)
-                videosList1.sort(Comparator.comparingInt(Videos::getPlayNumber).reversed());
+                videosList1.sort(Comparator.comparingInt(this::playNumberOf).reversed());
             else if (acceptSearchData.getSort()==2)
-                videosList1.sort(Comparator.comparing(Videos::getCreateTime).reversed());
+                videosList1.sort(Comparator.comparing(this::createTimeOf,
+                        Comparator.nullsLast(Comparator.reverseOrder())).reversed());
             else if (acceptSearchData.getSort()==3)
-                videosList1.sort(Comparator.comparingInt(Videos::getScrollingNumber).reversed());
+                videosList1.sort(Comparator.comparingInt(this::scrollingNumberOf).reversed());
             else if (acceptSearchData.getSort()==4)
-                videosList1.sort(Comparator.comparingInt(Videos::getCollectNumber).reversed());
+                videosList1.sort(Comparator.comparingInt(this::collectNumberOf).reversed());
 
         if (acceptSearchData.getTime()==0)
         {
@@ -116,21 +122,20 @@ public class SearchServiceImpl implements SearchService {
             return responseSearchVo;
         }
 
-        //添加标签搜索
-        Set<Videos> videosSet2 = new LinkedHashSet<>();
-        videosSet2.addAll(videos);
-        videosSet2.addAll(videosList);
+        //按时长过滤的场景不参与标签匹配，标签条件没有并入主查询，这里直接复用同一批数据
+        Set<Videos> videosSet2 = new LinkedHashSet<>(videos);
         List<Videos> videosList2=new ArrayList<>(videosSet2);
 
         //排序
         if(acceptSearchData.getSort()==1)
-            videosList2.sort(Comparator.comparingInt(Videos::getPlayNumber).reversed());
+            videosList2.sort(Comparator.comparingInt(this::playNumberOf).reversed());
         else if (acceptSearchData.getSort()==2)
-            videosList2.sort(Comparator.comparing(Videos::getCreateTime).reversed());
+            videosList2.sort(Comparator.comparing(this::createTimeOf,
+                    Comparator.nullsLast(Comparator.reverseOrder())).reversed());
         else if (acceptSearchData.getSort()==3)
-            videosList2.sort(Comparator.comparingInt(Videos::getScrollingNumber).reversed());
+            videosList2.sort(Comparator.comparingInt(this::scrollingNumberOf).reversed());
         else if (acceptSearchData.getSort()==4)
-            videosList2.sort(Comparator.comparingInt(Videos::getCollectNumber).reversed());
+            videosList2.sort(Comparator.comparingInt(this::collectNumberOf).reversed());
 
         List<SelectVideoDto> selectVideoDtos=videosService.getSelectVideoDto(videosList2,acceptSearchData.getUserId(),false);
         List<SelectVideoDto> selectVideoDtos1=new ArrayList<>();

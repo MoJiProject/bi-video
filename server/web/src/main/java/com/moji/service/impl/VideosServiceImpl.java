@@ -73,6 +73,25 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
     @Autowired
     private CacheService cacheService;
 
+    @Autowired
+    private org.springframework.cache.CacheManager cacheManager;
+
+    /**
+     * 视频信息变更后清理缓存，与 VideosController 上的 @CacheEvict 语义保持一致。
+     * 这里放在服务层，是为了让所有调用方（包括后台与创作中心）都能正确失效缓存。
+     */
+    private void evictVideoCache(Integer videoId) {
+
+        org.springframework.cache.Cache videoTitleCache = cacheManager.getCache("videoTitle");
+        if (videoTitleCache != null && videoId != null)
+            videoTitleCache.evict(videoId);
+
+        //收藏夹按 userId 聚合，视频状态变化会影响展示，整体失效
+        org.springframework.cache.Cache collectCache = cacheManager.getCache("collect");
+        if (collectCache != null)
+            collectCache.clear();
+    }
+
     @Override
     public Boolean insertVideo(String videoName, String coverName, Videos videos) {
 
@@ -310,161 +329,6 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
         return usersVideosVo;
     }
     @Override
-    public UsersVideosVo selectByUserExamineVideo(Integer userId, String videoTitle, String subZoneKey, String sortWay, Integer videoStatus,Integer pageNum) {
-
-        Page<Videos> videosPage=new Page<>(pageNum,5);
-
-        long videoAllNumber;
-        long videoSuccessNumber;
-        long videoErrorNumber;
-        long videoWaitNumber;
-        UsersVideosVo usersVideosVo=new UsersVideosVo();
-
-        Users user = userMapper.selectById(userId);
-
-        LambdaQueryWrapper<Videos> videoStatusWrapper0=new LambdaQueryWrapper<>();
-        if (videoTitle!=null){
-            videoStatusWrapper0.like(Videos::getTitle,videoTitle);
-        }
-        if (!subZoneKey.equals("全部分区")){
-            videoStatusWrapper0.eq(Videos::getSubZoneKey,subZoneKey);
-        }
-        if(userId!=1&&userId!=2)
-            videoStatusWrapper0.eq(Videos::getUserId,userId);
-
-        videoAllNumber=videosMapper.selectCount(videoStatusWrapper0);
-
-
-        LambdaQueryWrapper<Videos> videoStatusWrapper=new LambdaQueryWrapper<>();
-        if (videoTitle!=null){
-            videoStatusWrapper.like(Videos::getTitle,videoTitle);
-        }
-        if (!subZoneKey.equals("全部分区")){
-            videoStatusWrapper.eq(Videos::getSubZoneKey,subZoneKey);
-        }
-        if(userId!=1&&userId!=2)
-            videoStatusWrapper.eq(Videos::getUserId,userId);
-        videoStatusWrapper.eq(Videos::getStatus,0);
-
-        videoWaitNumber=videosMapper.selectCount(videoStatusWrapper);
-
-        LambdaQueryWrapper<Videos> videoStatusWrapper1=new LambdaQueryWrapper<>();
-        if (videoTitle!=null){
-            videoStatusWrapper1.like(Videos::getTitle,videoTitle);
-        }
-        if (!subZoneKey.equals("全部分区")){
-            videoStatusWrapper1.eq(Videos::getSubZoneKey,subZoneKey);
-        }
-        if(userId!=1&&userId!=2)
-            videoStatusWrapper1.eq(Videos::getUserId,userId);
-        videoStatusWrapper1.eq(Videos::getStatus,1);
-
-        videoSuccessNumber=videosMapper.selectCount(videoStatusWrapper1);
-
-        LambdaQueryWrapper<Videos> videoStatusWrapper2=new LambdaQueryWrapper<>();
-        if (videoTitle!=null){
-            videoStatusWrapper2.like(Videos::getTitle,videoTitle);
-        }
-        if (!subZoneKey.equals("全部分区")){
-            videoStatusWrapper2.eq(Videos::getSubZoneKey,subZoneKey);
-        }
-        if(userId!=1&&userId!=2)
-            videoStatusWrapper2.eq(Videos::getUserId,userId);
-        videoStatusWrapper2.eq(Videos::getStatus,2);
-
-        videoErrorNumber=videosMapper.selectCount(videoStatusWrapper2);
-
-
-        LambdaQueryWrapper<Videos> userByIdWrapper=new LambdaQueryWrapper<>();
-        if(userId!=1&&userId!=2)
-            userByIdWrapper.eq(Videos::getUserId,userId);
-        //判断查找作品的状态
-        if (videoStatus==-1){
-
-            if (videoTitle!=null){
-                userByIdWrapper.like(Videos::getTitle,videoTitle);
-            }
-            if (!subZoneKey.equals("全部分区")){
-                userByIdWrapper.eq(Videos::getSubZoneKey,subZoneKey);
-            }
-            switch (sortWay) {
-                case "投稿时间排序" -> userByIdWrapper.orderByDesc(Videos::getCreateTime);
-                case "播放数排序" -> userByIdWrapper.orderByDesc(Videos::getPlayNumber);
-                case "收藏数排序" -> userByIdWrapper.orderByDesc(Videos::getCollectNumber);
-                case "弹幕数排序" -> userByIdWrapper.orderByDesc(Videos::getScrollingNumber);
-                default -> userByIdWrapper.orderByDesc(Videos::getCommentNumber);
-            }
-        }
-
-        if (videoStatus==0){
-
-            userByIdWrapper.eq(Videos::getStatus,videoStatus);
-
-            if (videoTitle!=null){
-                userByIdWrapper.like(Videos::getTitle,videoTitle);
-            }
-            if (!subZoneKey.equals("全部分区")){
-                userByIdWrapper.eq(Videos::getSubZoneKey,subZoneKey);
-            }
-            switch (sortWay) {
-                case "投稿时间排序" -> userByIdWrapper.orderByDesc(Videos::getCreateTime);
-                case "播放数排序" -> userByIdWrapper.orderByDesc(Videos::getPlayNumber);
-                case "收藏数排序" -> userByIdWrapper.orderByDesc(Videos::getCollectNumber);
-                case "弹幕数排序" -> userByIdWrapper.orderByDesc(Videos::getScrollingNumber);
-                default -> userByIdWrapper.orderByDesc(Videos::getCommentNumber);
-            }
-        }
-
-        if (videoStatus==1){
-
-            userByIdWrapper.eq(Videos::getStatus,videoStatus);
-            if (videoTitle!=null){
-                userByIdWrapper.like(Videos::getTitle,videoTitle);
-            }
-            if (!subZoneKey.equals("全部分区")){
-                userByIdWrapper.eq(Videos::getSubZoneKey,subZoneKey);
-            }
-            switch (sortWay) {
-                case "投稿时间排序" -> userByIdWrapper.orderByDesc(Videos::getCreateTime);
-                case "播放数排序" -> userByIdWrapper.orderByDesc(Videos::getPlayNumber);
-                case "收藏数排序" -> userByIdWrapper.orderByDesc(Videos::getCollectNumber);
-                case "弹幕数排序" -> userByIdWrapper.orderByDesc(Videos::getScrollingNumber);
-                default -> userByIdWrapper.orderByDesc(Videos::getCommentNumber);
-            }
-        }
-
-        if (videoStatus==2){
-
-            userByIdWrapper.eq(Videos::getStatus,videoStatus);
-            if (videoTitle!=null){
-                userByIdWrapper.like(Videos::getTitle,videoTitle);
-            }
-            if (!subZoneKey.equals("全部分区")){
-                userByIdWrapper.eq(Videos::getSubZoneKey,subZoneKey);
-            }
-            switch (sortWay) {
-                case "投稿时间排序" -> userByIdWrapper.orderByDesc(Videos::getCreateTime);
-                case "播放数排序" -> userByIdWrapper.orderByDesc(Videos::getPlayNumber);
-                case "收藏数排序" -> userByIdWrapper.orderByDesc(Videos::getCollectNumber);
-                case "弹幕数排序" -> userByIdWrapper.orderByDesc(Videos::getScrollingNumber);
-                default -> userByIdWrapper.orderByDesc(Videos::getCommentNumber);
-            }
-        }
-        UserInfo2 userInfo=new UserInfo2();
-        BeanUtils.copyProperties(user,userInfo);
-        Page<Videos> videosPage1 = videosMapper.selectPage(videosPage, userByIdWrapper);
-        usersVideosVo.setVideos(videosPage1.getRecords());
-        usersVideosVo.setUsers(userInfo);
-        usersVideosVo.setVideoWaitNumber(videoWaitNumber);
-        usersVideosVo.setVideoSuccessNumber(videoSuccessNumber);
-        usersVideosVo.setVideoErrorNumber(videoErrorNumber);
-        usersVideosVo.setVideoAllNumber(videoAllNumber);
-        usersVideosVo.setTotal(videosPage1.getTotal());
-
-        return usersVideosVo;
-    }
-
-    @Override
     @Transactional
     public Boolean deleteVideo(Integer videoId) {
 
@@ -576,16 +440,21 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
         String coverAddress="/upload/video/cover/"+coverName;
         String durationString=null;
         Videos videos1 = videosMapper.selectById(videos.getId());
+        if(videos1==null)
+            return false;
+        //videos是由前端表单直接绑定的，不能整体落库，否则调用方可以顺带改写
+        //user_id/play_number/like_number/status 等任意字段，这里只取允许编辑的字段
+        Videos update = copyEditableFields(videos, videos1);
         //远程视频不解析本地文件时长
-        boolean remoteVideo = videos.getVideoSource()!=null&&videos.getVideoSource()==1;
+        boolean remoteVideo = update.getVideoSource()!=null&&update.getVideoSource()==1;
         if(remoteVideo){
-            String remoteUrl=RemoteVideoUtil.parseRemoteUrl(videos.getRemoteUrl());
+            String remoteUrl=RemoteVideoUtil.parseRemoteUrl(update.getRemoteUrl());
             if(remoteUrl==null)
                 throw new RuntimeException("视频直链无效");
-            videos.setRemoteUrl(remoteUrl);
-            videos.setVideoAddress("");
-            if(videos.getVideoTime()==null||videos.getVideoTime().isBlank())
-                videos.setVideoTime("00:00");
+            update.setRemoteUrl(remoteUrl);
+            update.setVideoAddress("");
+            if(update.getVideoTime()==null||update.getVideoTime().isBlank())
+                update.setVideoTime("00:00");
         }else{
         try {
             try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(FilePathEnum.UPLOAD_VIDEO.getPath() + videoName)) {
@@ -597,23 +466,22 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
             }
         } catch (Exception e) {
         }
-        videos.setVideoTime(durationString);
+        update.setVideoTime(durationString);
         if (vFlag)
-         videos.setVideoAddress(videoAddress);
+         update.setVideoAddress(videoAddress);
         }
         if (cFlag)
-         videos.setCoverAddress(coverAddress);
-        videos.setExamineFiledMessage(null);
-        videos.setCreateTime(LocalDateTime.now());
-        videos.setCreateTime(videos1.getCreateTime());
-        videos.setStatus(0);
-        videos.setId(videos1.getId());
+         update.setCoverAddress(coverAddress);
+        update.setCreateTime(videos1.getCreateTime());
+        update.setStatus(0);
 
         if(videos1.getStatus()==1){
-            Users users = userMapper.selectById(videos.getUserId());
-            users.setVideoNumber(users.getVideoNumber()-1);
-            users.setOwnDynamicNumber(users.getOwnDynamicNumber()-1);
-            userMapper.updateById(users);
+            Users users = userMapper.selectById(videos1.getUserId());
+            if(users!=null){
+                users.setVideoNumber(Math.max(0,nullToZero(users.getVideoNumber())-1));
+                users.setOwnDynamicNumber(Math.max(0,nullToZero(users.getOwnDynamicNumber())-1));
+                userMapper.updateById(users);
+            }
 
             //删除收藏
             LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
@@ -638,8 +506,54 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
             dynamicMapper.delete(dynamicLambdaQueryWrapper);
         }
 
-        int i = videosMapper.updateById(videos);
+        int i = videosMapper.updateById(update);
+        //updateById会忽略null字段，驳回原因必须用UpdateWrapper显式清空，否则UP会一直看到上一次的驳回理由
+        videosMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<Videos>()
+                .eq(Videos::getId,videos1.getId())
+                .set(Videos::getExamineFiledMessage,null));
+        evictVideoCache(videos1.getId());
         return i > 0;
+    }
+
+    /**
+     * 只拷贝允许UP主编辑的字段，归属与统计类字段一律以库里的记录为准
+     */
+    private Videos copyEditableFields(Videos form, Videos db) {
+
+        Videos update = Videos.builder()
+                .id(db.getId())
+                .userId(db.getUserId())
+                .userName(db.getUserName())
+                .title(form.getTitle())
+                .content(form.getContent())
+                .contentHtml(form.getContentHtml())
+                .tag(form.getTag())
+                .subZoneKey(form.getSubZoneKey())
+                .subZoneValue(form.getSubZoneValue())
+                .type(form.getType())
+                .allowTwo(form.getAllowTwo())
+                .videoSource(form.getVideoSource())
+                .remoteUrl(form.getRemoteUrl())
+                .videoAddress(db.getVideoAddress())
+                .coverAddress(db.getCoverAddress())
+                .videoTime(db.getVideoTime())
+                //统计类字段全部沿用库里的值，杜绝前端伪造
+                .playNumber(db.getPlayNumber())
+                .likeNumber(db.getLikeNumber())
+                .commentNumber(db.getCommentNumber())
+                .collectNumber(db.getCollectNumber())
+                .shareNumber(db.getShareNumber())
+                .coinThrowNumber(db.getCoinThrowNumber())
+                .newFansNumber(db.getNewFansNumber())
+                .scrollingNumber(db.getScrollingNumber())
+                .likeWarn(db.getLikeWarn())
+                .build();
+
+        return update;
+    }
+
+    private int nullToZero(Integer value) {
+        return value==null?0:value;
     }
 
     @Override
@@ -1084,51 +998,62 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
     }
 
     @Override
+    @Transactional
     public Boolean examineVideo(int videoId) {
 
         Videos videos = videosMapper.selectById(videoId);
+        if(videos==null)
+            return false;
+
         videos.setStatus(1);
+        //按既有约定：审核通过时间即为发布时间（创作中心与系统后台保持一致）
         videos.setCreateTime(LocalDateTime.now());
         int i = videosMapper.updateById(videos);
+        if(i<=0)
+            return false;
 
-        Users videoUser = userMapper.selectById(videos.getUserId());
-        videoUser.setOwnDynamicNumber(videoUser.getOwnDynamicNumber()+1);
-        videoUser.setVideoNumber(videoUser.getVideoNumber()+1);
-        int i1 = userMapper.updateById(videoUser);
+        //UP主计数改用SQL自增，避免读改写在并发下丢计数，也兜住计数为null的情况
+        userMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update
+                .LambdaUpdateWrapper<Users>()
+                .eq(Users::getId,videos.getUserId())
+                .setSql("own_dynamic_number = IFNULL(own_dynamic_number,0) + 1")
+                .setSql("video_number = IFNULL(video_number,0) + 1"));
 
+        //向所有粉丝推送动态：原来是对每个粉丝「查用户 + 改用户 + 插动态」三条SQL，
+        //粉丝多时是明显的N+1，这里改成按id集合批量更新 + 批量插入
         LambdaQueryWrapper<Fans> fansLambdaQueryWrapper=new LambdaQueryWrapper<>();
-        fansLambdaQueryWrapper.eq(Fans::getUserId,videoUser.getId());
-
+        fansLambdaQueryWrapper.eq(Fans::getUserId,videos.getUserId());
         List<Fans> fans = fansMapper.selectList(fansLambdaQueryWrapper);
-        for (Fans fan : fans) {
-            Users users = userMapper.selectById(fan.getFansId());
-            users.setDynamicNumber(users.getDynamicNumber()+1);
-            userMapper.updateById(users);
-            Dynamic dynamic=Dynamic.builder()
-                    .watchDynamicFlag(0)
-                    .videoId(videoId)
-                    .fansId(fan.getFansId())
-                    .followId(videoUser.getId())
-                    .fansFlag(1)
-                    .build();
-            dynamicMapper.insert(dynamic);
+        if(!fans.isEmpty()){
+
+            List<Integer> fansIds=fans.stream()
+                    .map(Fans::getFansId)
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            if(!fansIds.isEmpty()){
+                userMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update
+                        .LambdaUpdateWrapper<Users>()
+                        .in(Users::getId,fansIds)
+                        .setSql("dynamic_number = IFNULL(dynamic_number,0) + 1"));
+
+                List<Dynamic> fanDynamics=fansIds.stream()
+                        .map(fansId->Dynamic.builder()
+                                .watchDynamicFlag(0)
+                                .videoId(videoId)
+                                .fansId(fansId)
+                                .followId(videos.getUserId())
+                                .fansFlag(1)
+                                .build())
+                        .collect(Collectors.toList());
+                dynamicMapper.insertBatch(fanDynamics,videos.getCreateTime());
+            }
         }
 
         //更新收藏
-        LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
-        collectsLambdaQueryWrapper.eq(Collects::getVideoId,videoId);
-        List<Collects> collects = collectMapper.selectList(collectsLambdaQueryWrapper);
-        if(!collects.isEmpty()) {
-            List<Integer> collectIds = collects.stream()
-                    .map(Collects::getId)
-                    .collect(Collectors.toList());
-            Collects collectEntry = new Collects();
-            collectEntry.setDeleteFlag(0);
-            if (!collectIds.isEmpty()) {
-                collectMapper.update(collectEntry, new LambdaQueryWrapper<Collects>()
-                        .in(Collects::getId, collectIds));
-            }
-        }
+        collectMapper.update(Collects.builder().deleteFlag(0).build(),
+                new LambdaQueryWrapper<Collects>().eq(Collects::getVideoId,videoId));
 
         Dynamic dynamic=Dynamic
                 .builder()
@@ -1138,7 +1063,9 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
                 .build();
         dynamicMapper.insert(dynamic);
 
-        return i > 0 && i1 > 0;
+        evictVideoCache(videoId);
+
+        return true;
     }
 
     @Override
@@ -1211,141 +1138,134 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
     @Transactional
     public SelectVideoByIdVo getLTCAxios(SelectVideoByIdVo selectVideoByIdVo) {
 
-       if(selectVideoByIdVo.getControlsType()==1||selectVideoByIdVo.getControlsType()==3)
-       {
-           //点赞
-           if(selectVideoByIdVo.getLikeVideoClickFlag())
-           {
-               LambdaQueryWrapper<Likes> likesLambdaQueryWrapper=new LambdaQueryWrapper<>();
-               likesLambdaQueryWrapper.eq(Likes::getFondId,selectVideoByIdVo.getUpVideo().getId())
-                       .eq(Likes::getLikeType,1)
-                       .eq(Likes::getUserId,selectVideoByIdVo.getUserId());
-               if(likesMapper.selectOne(likesLambdaQueryWrapper)==null)
-               {
-                   Likes likes=Likes.builder()
-                           .fondId(selectVideoByIdVo.getUpVideo().getId())
-                           .userId(selectVideoByIdVo.getUserId())
-                           .likeTime(LocalDateTime.now())
-                           .likeType(1)
-                           .likeUserId(selectVideoByIdVo.getUpVideo().getUserId())
-                           .build();
-                   likesMapper.insert(likes);
+        Integer operatorId=selectVideoByIdVo.getUserId();
+        Integer controlsType=nullToZero(selectVideoByIdVo.getControlsType());
+        if(operatorId==null||operatorId<=0||selectVideoByIdVo.getUpVideo()==null)
+            return selectVideoByIdVo;
 
-                   Users users=userMapper.selectById(selectVideoByIdVo.getUpUser().getId());
-                   users.setLikeNumber(users.getLikeNumber()+1);
-                   //是否开启点赞提醒
-                   if(selectVideoByIdVo.getUpVideo().getLikeWarn()==1&&users.getLikeMessageWarn()==1&& !Objects.equals(users.getId(), selectVideoByIdVo.getUserId()))
-                   {
-                       users.setLikeAllNumber(users.getLikeAllNumber()+1);
-                       users.setAllMessageNumber(users.getAllMessageNumber()+1);
-                   }
-                   userMapper.updateById(users);
+        //upVideo/upUser 都是前端整体回传的实体，不能直接落库，否则调用方可以顺带改写
+        //任意字段(比如把status改成1、把播放量刷高)。这里只认videoId，其余全部以库为准。
+        Videos dbVideo=videosMapper.selectById(selectVideoByIdVo.getUpVideo().getId());
+        if(dbVideo==null)
+            return selectVideoByIdVo;
+        Integer videoId=dbVideo.getId();
+        //UP主一律取视频真正的归属，避免前端伪造upUser.id把点赞/硬币算到别人头上
+        Integer upUserId=dbVideo.getUserId();
 
-                   Videos videos=selectVideoByIdVo.getUpVideo();
-                   videos.setLikeNumber(videos.getLikeNumber()+1);
-                   videosMapper.updateById(videos);
-               }
-           }
-           else
-           {
-               LambdaQueryWrapper<Likes> likesLambdaQueryWrapper=new LambdaQueryWrapper<>();
-               likesLambdaQueryWrapper.eq(Likes::getFondId,selectVideoByIdVo.getUpVideo().getId())
-                       .eq(Likes::getLikeType,1)
-                       .eq(Likes::getUserId,selectVideoByIdVo.getUserId());
-               if(likesMapper.selectOne(likesLambdaQueryWrapper)!=null)
-               {
+        if(controlsType==1||controlsType==3)
+        {
+            //点赞
+            if(Boolean.TRUE.equals(selectVideoByIdVo.getLikeVideoClickFlag()))
+            {
+                LambdaQueryWrapper<Likes> likesLambdaQueryWrapper=new LambdaQueryWrapper<>();
+                likesLambdaQueryWrapper.eq(Likes::getFondId,videoId)
+                        .eq(Likes::getLikeType,1)
+                        .eq(Likes::getUserId,operatorId);
+                Likes existLike=likesMapper.selectOne(likesLambdaQueryWrapper);
+                if(existLike==null)
+                {
+                    likesMapper.insert(Likes.builder()
+                            .fondId(videoId)
+                            .userId(operatorId)
+                            .likeTime(LocalDateTime.now())
+                            .likeType(1)
+                            .likeUserId(upUserId)
+                            .build());
 
-                   likesMapper.deleteById(likesMapper.selectOne(likesLambdaQueryWrapper));
+                    Users upUsers=userMapper.selectById(upUserId);
+                    //是否开启点赞提醒，由视频与UP主的真实设置决定
+                    boolean warn=dbVideo.getLikeWarn()!=null&&dbVideo.getLikeWarn()==1
+                            &&upUsers!=null&&upUsers.getLikeMessageWarn()!=null&&upUsers.getLikeMessageWarn()==1
+                            &&!Objects.equals(upUserId,operatorId);
+                    if(upUsers!=null){
+                        addLikeNumber(upUserId,warn?1:0,warn?1:0);
+                    }
+                    addVideoCounter(videoId,"like_number",1);
+                }
+            }
+            else
+            {
+                LambdaQueryWrapper<Likes> likesLambdaQueryWrapper=new LambdaQueryWrapper<>();
+                likesLambdaQueryWrapper.eq(Likes::getFondId,videoId)
+                        .eq(Likes::getLikeType,1)
+                        .eq(Likes::getUserId,operatorId);
+                Likes existLike=likesMapper.selectOne(likesLambdaQueryWrapper);
+                if(existLike!=null)
+                {
+                    likesMapper.deleteById(existLike);
 
-                   Users users=userMapper.selectById(selectVideoByIdVo.getUpUser().getId());
-                   users.setLikeNumber(users.getLikeNumber()-1);
-                   if(selectVideoByIdVo.getUpVideo().getLikeWarn()==1&&users.getLikeMessageWarn()==1)
-                   {
-                       users.setLikeAllNumber(users.getLikeAllNumber()>0?users.getLikeAllNumber()-1:0);
-                       users.setAllMessageNumber(users.getAllMessageNumber()>0?users.getAllMessageNumber()-1:0);
-                   }
-                   userMapper.updateById(users);
-
-                   Videos videos=selectVideoByIdVo.getUpVideo();
-                   videos.setLikeNumber(videos.getLikeNumber()-1);
-                   videosMapper.updateById(videos);
-               }
-           }
-       }
-        if(selectVideoByIdVo.getControlsType()==2||selectVideoByIdVo.getControlsType()==3) {
+                    Users upUsers=userMapper.selectById(upUserId);
+                    boolean warn=dbVideo.getLikeWarn()!=null&&dbVideo.getLikeWarn()==1
+                            &&upUsers!=null&&upUsers.getLikeMessageWarn()!=null&&upUsers.getLikeMessageWarn()==1;
+                    if(upUsers!=null){
+                        addLikeNumber(upUserId,-1,warn?-1:0,warn?-1:0);
+                    }
+                    addVideoCounter(videoId,"like_number",-1);
+                }
+            }
+        }
+        if(controlsType==2||controlsType==3) {
             //投币
-            if (selectVideoByIdVo.getVideoThrowCoinClickFlag()) {
+            if (Boolean.TRUE.equals(selectVideoByIdVo.getVideoThrowCoinClickFlag())) {
+                //前端只会传1或2，这里做范围收敛，避免被构造超大值把硬币扣成负数
+                int coinCount=nullToZero(selectVideoByIdVo.getThrowCoinNumber());
+                if(coinCount<1)coinCount=1;
+                if(coinCount>2)coinCount=2;
+
                 LambdaQueryWrapper<ThrowCoin> throwCoinLambdaQueryWrapper = new LambdaQueryWrapper<>();
-                throwCoinLambdaQueryWrapper.eq(ThrowCoin::getVideoId, selectVideoByIdVo.getUpVideo().getId())
-                        .eq(ThrowCoin::getUserId, selectVideoByIdVo.getUserId());
-                //查询用户硬币是否够1
-                Users users = userMapper.selectById(selectVideoByIdVo.getUserId());
-                if (throwCoinMapper.selectOne(throwCoinLambdaQueryWrapper) == null && users.getCoinNumber() > 0) {
+                throwCoinLambdaQueryWrapper.eq(ThrowCoin::getVideoId,videoId)
+                        .eq(ThrowCoin::getUserId,operatorId);
+
+                Users users = userMapper.selectById(operatorId);
+                //必须是硬币够投的数量，否则不能扣
+                if (throwCoinMapper.selectOne(throwCoinLambdaQueryWrapper) == null
+                        && users!=null && nullToZero(users.getCoinNumber())>=coinCount) {
                     selectVideoByIdVo.setThrowCoinResult(1);
 
-                    ThrowCoin throwCoin = ThrowCoin.builder()
-                            .videoId(selectVideoByIdVo.getUpVideo().getId())
-                            .userId(selectVideoByIdVo.getUserId())
-                            .build();
-                    throwCoinMapper.insert(throwCoin);
+                    throwCoinMapper.insert(ThrowCoin.builder()
+                            .videoId(videoId)
+                            .userId(operatorId)
+                            .build());
 
-                    Videos videos = selectVideoByIdVo.getUpVideo();
-                    videos.setCoinThrowNumber(videos.getCoinThrowNumber() + selectVideoByIdVo.getThrowCoinNumber());
-                    videosMapper.updateById(videos);
-                    //用户的
-                    users.setCoinNumber(users.getCoinNumber() - selectVideoByIdVo.getThrowCoinNumber());
-                    //投币成功没有满级增加经验
-                    if (users.getGrade() < 6)
-                        users.setExp(users.getExp() + 2);
-                    if (users.getExp() >= 100 && users.getGrade() < 5)
-                        users.setExp(users.getExp() - 100);
-                    else if (users.getExp() >= 100 && users.getGrade() < 6) {
-                        users.setExp(100);
-                        users.setGrade(6);
-                    }
+                    addVideoCounter(videoId,"coin_throw_number",coinCount);
+                    //投币者扣硬币并加经验
+                    users.setCoinNumber(nullToZero(users.getCoinNumber())-coinCount);
+                    addExpAndLevelUp(users,2);
                     userMapper.updateById(users);
 
-                    //up的
-                    UserInfo2 upUserInfo = selectVideoByIdVo.getUpUser();
-                    Users upUser = userMapper.selectById(upUserInfo.getId());
-                    upUser.setCoinNumber(upUser.getCoinNumber() + selectVideoByIdVo.getThrowCoinNumber());
-
-                    if (users.getGrade() < 6)
-                        upUser.setExp(users.getExp() + 2);
-                    if (upUser.getExp() >= 100 && upUser.getGrade() < 5)
-                        upUser.setExp(upUser.getExp() - 100);
-                    else if (upUser.getExp() >= 100 && upUser.getGrade() < 6) {
-                        upUser.setExp(100);
-                        upUser.setGrade(6);
+                    //UP主收硬币并加经验
+                    Users upUser = userMapper.selectById(upUserId);
+                    if(upUser!=null){
+                        upUser.setCoinNumber(nullToZero(upUser.getCoinNumber())+coinCount);
+                        addExpAndLevelUp(upUser,2);
+                        userMapper.updateById(upUser);
                     }
-                    userMapper.updateById(upUser);
-
-                } else if (throwCoinMapper.selectOne(throwCoinLambdaQueryWrapper) == null && users.getCoinNumber() == 0)
+                } else if (throwCoinMapper.selectOne(throwCoinLambdaQueryWrapper) == null && users!=null && nullToZero(users.getCoinNumber())<coinCount)
                     selectVideoByIdVo.setThrowCoinResult(0);
                 else if (throwCoinMapper.selectOne(throwCoinLambdaQueryWrapper) != null)
                     selectVideoByIdVo.setThrowCoinResult(1);
             }
         }
-        if(selectVideoByIdVo.getControlsType()==3)
+        if(controlsType==3)
         {
             //收藏
-            if(selectVideoByIdVo.getVideoCollectClickFlag())
+            if(Boolean.TRUE.equals(selectVideoByIdVo.getVideoCollectClickFlag()))
             {
                 LambdaQueryWrapper<Collects> collectLambdaQueryWrapper=new LambdaQueryWrapper<>();
-                collectLambdaQueryWrapper.eq(Collects::getVideoId,selectVideoByIdVo.getUpVideo().getId())
+                collectLambdaQueryWrapper.eq(Collects::getVideoId,videoId)
                         .ne(Collects::getCollectName,"稍后再看")
-                        .eq(Collects::getUserId,selectVideoByIdVo.getUserId());
+                        .eq(Collects::getUserId,operatorId);
                 List<Collects> collects = collectMapper.selectList(collectLambdaQueryWrapper);
                 if(collects.isEmpty())
                 {
                     LambdaQueryWrapper<Collects> collectLambdaQueryWrapper2=new LambdaQueryWrapper<>();
-                    collectLambdaQueryWrapper2.eq(Collects::getVideoId,selectVideoByIdVo.getUpVideo().getId())
+                    collectLambdaQueryWrapper2.eq(Collects::getVideoId,videoId)
                             .eq(Collects::getCollectName,"默认收藏夹")
-                            .eq(Collects::getUserId,selectVideoByIdVo.getUserId());
+                            .eq(Collects::getUserId,operatorId);
                     if(collectMapper.selectOne(collectLambdaQueryWrapper2)==null) {
                         Collects collect = Collects.builder()
-                                .videoId(selectVideoByIdVo.getUpVideo().getId())
-                                .userId(selectVideoByIdVo.getUserId())
+                                .videoId(videoId)
+                                .userId(operatorId)
                                 .collectName("默认收藏夹")
                                 .collectTime(LocalDateTime.now())
                                 .build();
@@ -1353,40 +1273,40 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
                     }
                     LambdaQueryWrapper<CollectsClassify> collectsClassifyLambdaQueryWrapper=new LambdaQueryWrapper<>();
                     collectsClassifyLambdaQueryWrapper.eq(CollectsClassify::getCollectName,"默认收藏夹")
-                            .eq(CollectsClassify::getUserId,selectVideoByIdVo.getUserId());
+                            .eq(CollectsClassify::getUserId,operatorId);
 
                     CollectsClassify collectsClassify = collectClassifyMapper.selectOne(collectsClassifyLambdaQueryWrapper);
                     if(collectsClassify==null)
                     {
-                        CollectsClassify collectsClassify1=CollectsClassify.builder()
+                        collectClassifyMapper.insert(CollectsClassify.builder()
                                 .collectName("默认收藏夹")
                                 .videoNumber(1)
-                                .userId(selectVideoByIdVo.getUserId())
-                                .build();
-                        collectClassifyMapper.insert(collectsClassify1);
+                                .userId(operatorId)
+                                .build());
                     }
                     else {
-
-                        collectsClassify.setVideoNumber(collectsClassify.getVideoNumber()+1);
-                        collectClassifyMapper.updateById(collectsClassify);
+                        //收藏夹条数用SQL自增，避免并发下的读改写丢失
+                        collectClassifyMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update
+                                .LambdaUpdateWrapper<CollectsClassify>()
+                                .eq(CollectsClassify::getId,collectsClassify.getId())
+                                .setSql("video_number = IFNULL(video_number,0) + 1"));
                     }
-                    Videos videos = selectVideoByIdVo.getUpVideo();
-                    videos.setCollectNumber(videos.getCollectNumber() + 1);
-                    videosMapper.updateById(videos);
+                    addVideoCounter(videoId,"collect_number",1);
                 }
             }
         }
 
         //更新视频用户信息
-        Users upUser = userMapper.selectById(selectVideoByIdVo.getUpUser().getId());
+        Users upUser = userMapper.selectById(upUserId);
         UserInfo2 upUserInfo=new UserInfo2();
-        BeanUtils.copyProperties(upUser,upUserInfo);
-        Videos upVideo = videosMapper.selectById(selectVideoByIdVo.getUpVideo().getId());
+        if(upUser!=null)
+            BeanUtils.copyProperties(upUser,upUserInfo);
+        Videos upVideo = videosMapper.selectById(videoId);
 
         return SelectVideoByIdVo.builder()
                 .upVideo(upVideo)
                 .upUser(upUserInfo)
-                .userId(selectVideoByIdVo.getUserId())
+                .userId(operatorId)
                 .likeVideoClickFlag(selectVideoByIdVo.getLikeVideoClickFlag())
                 .videoThrowCoinClickFlag(selectVideoByIdVo.getVideoThrowCoinClickFlag())
                 .videoCollectClickFlag(selectVideoByIdVo.getVideoCollectClickFlag())
@@ -1394,6 +1314,73 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
                 .videoShareClickFlag(selectVideoByIdVo.getVideoShareClickFlag())
                 .throwCoinResult(selectVideoByIdVo.getThrowCoinResult())
                 .build();
+    }
+
+    /**
+     * 原子增减视频的计数字段，避免「读-改-写」在并发下丢计数，也顺带兜住字段为null的情况
+     * @param videoId 视频id
+     * @param column 计数字段名
+     * @param delta 增量
+     */
+    private void addVideoCounter(Integer videoId, String column, int delta) {
+
+        videosMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update
+                .LambdaUpdateWrapper<Videos>()
+                .eq(Videos::getId,videoId)
+                .setSql(column+" = GREATEST(IFNULL("+column+",0) + "+delta+", 0)"));
+    }
+
+    /**
+     * 原子增减UP主的获赞与互动计数
+     */
+    private void addLikeNumber(Integer upUserId, int likeDelta, int likeAllDelta) {
+        addLikeNumber(upUserId,likeDelta,likeAllDelta,0);
+    }
+
+    /**
+     * 原子增减UP主的获赞与互动计数
+     * @param likeDelta like_number增量
+     * @param likeAllDelta like_all_number增量
+     * @param allMessageDelta all_message_number增量
+     */
+    private void addLikeNumber(Integer upUserId, int likeDelta, int likeAllDelta, int allMessageDelta) {
+
+        com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<Users> wrapper
+                =new com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<Users>()
+                .eq(Users::getId,upUserId);
+
+        if(likeDelta!=0)
+            wrapper.setSql("like_number = GREATEST(IFNULL(like_number,0) + "+likeDelta+", 0)");
+        if(likeAllDelta!=0)
+            wrapper.setSql("like_all_number = GREATEST(IFNULL(like_all_number,0) + "+likeAllDelta+", 0)");
+        if(allMessageDelta!=0)
+            wrapper.setSql("all_message_number = GREATEST(IFNULL(all_message_number,0) + "+allMessageDelta+", 0)");
+
+        userMapper.update(null,wrapper);
+    }
+
+    /**
+     * 增加经验并按需升级。
+     * 原实现里「经验满100减100」没有提升等级，导致5级永远上不去；
+     * 并且给UP加经验时误用了投币者的exp，会把UP的经验改小。这里统一修正。
+     */
+    private void addExpAndLevelUp(Users users, int addExp) {
+
+        int grade=Math.max(1,nullToZero(users.getGrade()));
+        if(grade>=6)
+            return;
+
+        int exp=nullToZero(users.getExp())+addExp;
+        while(exp>=100&&grade<6){
+            exp-=100;
+            grade++;
+        }
+        //满级后经验条保持在满格，与原有展示一致
+        if(grade>=6)
+            exp=100;
+
+        users.setExp(exp);
+        users.setGrade(grade);
     }
 
     @Override

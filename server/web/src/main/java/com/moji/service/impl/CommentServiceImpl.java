@@ -31,6 +31,9 @@ import java.util.stream.Collectors;
 @Service
 public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> implements CommentService {
 
+    //评论软删除后的正文占位文案。comments.content 是 NOT NULL 列，不能置空
+    private static final String DELETED_COMMENT_CONTENT = "该评论已删除";
+
    @Autowired
    private CommentsMapper commentsMapper;
    @Autowired
@@ -63,15 +66,21 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
         if(comments==null)
             return null;
 
-        //更新评论数量
+        //更新评论数量（用SQL自增，规避计数为null导致拆箱NPE，也避免并发下丢计数）
         Videos videos = videosMapper.selectById(comments.getVideoId());
         if(videos!=null){
-            videos.setCommentNumber(videos.getCommentNumber()+1);
-            videosMapper.updateById(videos);
+            videosMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update
+                    .LambdaUpdateWrapper<Videos>()
+                    .eq(Videos::getId,videos.getId())
+                    .setSql("comment_number = IFNULL(comment_number,0) + 1"));
         }else {
             Dynamic dynamic = dynamicMapper.selectById(comments.getDynamicId());
-            dynamic.setCommentNumber(dynamic.getCommentNumber()+1);
-            dynamicMapper.updateById(dynamic);
+            if(dynamic==null)
+                throw new RuntimeException("评论目标不存在");
+            dynamicMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update
+                    .LambdaUpdateWrapper<Dynamic>()
+                    .eq(Dynamic::getId,dynamic.getId())
+                    .setSql("comment_number = IFNULL(comment_number,0) + 1"));
         }
         //上传图片
         StringBuilder imgAddress= new StringBuilder();
@@ -132,18 +141,24 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
         commentsMapper.insert(comments);
 
         //新增at
+        //ats是前端可选字段，不传时为null，原来的 ats.isEmpty() 会直接NPE
         List<At> ats = addComment.getAts();
-        if(!ats.isEmpty()){
+        if(ats!=null&&!ats.isEmpty()){
             for (At at : ats) {
+                if(at==null||at.getAtUserId()==null)
+                    continue;
                 at.setCommentId(comments.getId());
                 if(Objects.equals(at.getUserId(), at.getAtUserId()))
                     continue;
                 Users atUser = userMapper.selectById(at.getAtUserId());
+                if(atUser==null)
+                    continue;
                 //所有人
-                if(atUser.getAtMessageWarn()==1)
+                if(atUser.getAtMessageWarn()!=null&&atUser.getAtMessageWarn()==1)
                 {
-                    atUser.setAtNumber(atUser.getAtNumber()+1);
-                    atUser.setAllMessageNumber(atUser.getAllMessageNumber()+1);
+                    //计数为null时拆箱会NPE，这里统一按0起算
+                    atUser.setAtNumber((atUser.getAtNumber()==null?0:atUser.getAtNumber())+1);
+                    atUser.setAllMessageNumber((atUser.getAllMessageNumber()==null?0:atUser.getAllMessageNumber())+1);
                     userMapper.updateById(atUser);
                     atMapper.insert(at);
                 }
@@ -939,6 +954,20 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
         if(comments==null)
             return false;
 
+        //置顶是视频/动态作者的操作，必须校验归属，否则任何人都能置顶/取消他人视频的评论
+        if(comments.getVideoId()!=null)
+        {
+            Videos videos=videosMapper.selectById(comments.getVideoId());
+            if(videos==null||!Objects.equals(userId,videos.getUserId()))
+                return false;
+        }else if(comments.getDynamicId()!=null)
+        {
+            Dynamic dynamic=dynamicMapper.selectById(comments.getDynamicId());
+            if(dynamic==null||!Objects.equals(userId,dynamic.getFollowId()))
+                return false;
+        }else
+            return false;
+
         //必须是主评论才能置顶
         if(comments.getMainCommentId()!=null)
             return false;
@@ -1099,6 +1128,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
     public void deleteReply(List<Comments> commentsList,boolean flag,boolean flag2){
 
         int num=0;
+        //dynamicFlag==1 的评论删除时必须回退作者的「动态数」，
+        //否则用户删掉自己的公开评论后，个人主页动态数会永久虚高
+        Set<Integer> dynamicAuthorIds = new HashSet<>();
         for (Comments comment : commentsList) {
             //删除评论相关的操作（点赞、踩）
             LambdaQueryWrapper<CommentControls> commentControlsLambdaQueryWrapper=new LambdaQueryWrapper<>();
@@ -1109,7 +1141,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
             if(comment.getDynamicFlag()==0){
 
                 //删除评论图片
-                if(!comment.getImgAddress().isEmpty()){
+                if(comment.getImgAddress()!=null&&!comment.getImgAddress().isEmpty()){
                     String imgAddress = comment.getImgAddress();
                     String[] split = imgAddress.split(",");
                     for (String commentImg : split) {
@@ -1130,30 +1162,50 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
                 commentsMapper.deleteById(comment);
                 else {
                     comment.setDeleteSign(1);
-                    comment.setContent(null);
                     commentsMapper.updateById(comment);
+                    //comments.content 是 NOT NULL 列，不能置空：
+                    //原来 updateById 会静默忽略 null，导致已删除评论的原文一直对外可见；
+                    //改成 UpdateWrapper 显式置空又会抛 not-null 约束错误。
+                    //这里统一替换成占位文本，既隐藏原文又满足非空约束。
+                    commentsMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update
+                            .LambdaUpdateWrapper<Comments>()
+                            .eq(Comments::getId,comment.getId())
+                            .set(Comments::getContent,DELETED_COMMENT_CONTENT));
                 }
             }else if(comment.getDynamicFlag() ==1){
 
                 //更新评论动态标识
                 comment.setDynamicFlag(2);
                 commentsMapper.updateById(comment);
+                if(comment.getUserId()!=null)
+                    dynamicAuthorIds.add(comment.getUserId());
             }
+        }
+
+        //回退动态数，按作者聚合后一次性自减
+        for (Integer authorId : dynamicAuthorIds) {
+            userMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update
+                    .LambdaUpdateWrapper<Users>()
+                    .eq(Users::getId,authorId)
+                    .setSql("own_dynamic_number = GREATEST(IFNULL(own_dynamic_number,0) - 1, 0)"));
         }
 
         //更新视频评论数量
         if(flag&&!commentsList.isEmpty()) {
-            Videos videos = videosMapper.selectById(commentsList.get(0).getVideoId());
-            if(videos!=null) {
-                videos.setCommentNumber(videos.getCommentNumber() - num);
-                videosMapper.updateById(videos);
+            Integer videoId=commentsList.get(0).getVideoId();
+            Integer dynamicId=commentsList.get(0).getDynamicId();
+            //用SQL自减，避免并发下读改写丢计数，也兜住计数为null的情况
+            if(videoId!=null){
+                videosMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update
+                        .LambdaUpdateWrapper<Videos>()
+                        .eq(Videos::getId,videoId)
+                        .setSql("comment_number = GREATEST(IFNULL(comment_number,0) - "+num+", 0)"));
+            }else if(dynamicId!=null){
+                dynamicMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update
+                        .LambdaUpdateWrapper<Dynamic>()
+                        .eq(Dynamic::getId,dynamicId)
+                        .setSql("comment_number = GREATEST(IFNULL(comment_number,0) - "+num+", 0)"));
             }
-            else{
-                Dynamic dynamic = dynamicMapper.selectById(commentsList.get(0).getDynamicId());
-                dynamic.setCommentNumber(dynamic.getCommentNumber() - num);
-                dynamicMapper.updateById(dynamic);
-            }
-
         }
     }
 

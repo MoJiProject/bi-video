@@ -1352,7 +1352,7 @@
 </template>
 
 <script>
-import { onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { onMounted, onUnmounted, reactive, ref, watch, nextTick } from "vue";
 import eit from "../components/eit";
 import { ElMessage } from "element-plus";
 import apiClient from "../services/apiClient";
@@ -2446,13 +2446,15 @@ export default {
 
     //查询评论
     let selectFlag = true;
-    async function selectComment() {
+    //replace为true时表示这是「切换排序」触发的重新拉取，
+    //需要先把旧列表替换掉；普通下拉加载时为false，走pushData追加去重
+    async function selectComment(replace = false) {
 
       if(selectFlag){
         selectFlag=false;
       }
       else{
-        return;
+        return false;
       }
 
       let res = await apiClient.get(`/comment/selectCommentByVideoId`, {
@@ -2464,6 +2466,8 @@ export default {
         },
       });
       if (res.data.code === 1) {
+        if(replace)
+          commentList.length = 0;
         pushData(res.data.data.records);
         selectFlag=true;
         if(!res.data.data.records||res.data.data.records.length===0){
@@ -2503,11 +2507,20 @@ export default {
     }
 
     //更新评论排序
-    watch(commentSortFlag, () => {
-      commentList.length = 0;
+    watch(commentSortFlag, async () => {
+      //切换「最热/最新」会重新拉取整页评论。
+      //原来的写法是同步把 commentList 清空，DOM 立刻塌陷导致文档高度骤减，
+      //浏览器会把 scrollTop 截断到新的最大高度，页面就出现跳动；
+      //而且「最热」和「最新」两种排序下评论高度不同，渲染后又会再偏一次。
+      //这里改成：先记住位置 -> 拿到新数据再整体替换 -> 渲染完把位置放回去。
+      //页面上滚过评论区域时才会跳，是因为清空的是滚动位置下方/所在处的内容。
+      const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
       pageNum.value = 1;
-      scrollFooterFlag.value=false;
-      selectComment();
+      scrollFooterFlag.value = false;
+      await selectComment(true);
+      //等新列表渲染完再复位，否则会停在半路
+      await nextTick();
+      window.scrollTo({ top: currentScroll, behavior: "auto" });
     });
 
     //删除评论

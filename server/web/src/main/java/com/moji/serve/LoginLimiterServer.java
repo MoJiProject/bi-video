@@ -1,6 +1,8 @@
 package com.moji.serve;
 
 import cn.dev33.satoken.stp.StpUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -9,6 +11,11 @@ import java.util.Objects;
 import java.util.function.Function;
 
 public class LoginLimiterServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(LoginLimiterServer.class);
+
+    //播放量去重窗口的兜底时长(秒)，用于时长未知(如远程视频"00:00")的场景
+    private static final int DEFAULT_PLAY_DEDUPE_SECOND = 60;
 
 
     private static final String ATTEMPTS_KEY_PREFIX_LOGIN = "login_attempts:";
@@ -242,23 +249,45 @@ public class LoginLimiterServer {
      */
     public boolean updateVideoPlayer(String videoTime, String remoteAddr, Integer videoId) {
 
-        if(remoteAddr==null||videoId==null||videoTime==null)
+        if(remoteAddr==null||videoId==null||videoTime==null||videoTime.trim().isEmpty())
             return false;
 
-        String[] split = videoTime.split(":");
-        int second=0;
-        if(split.length==1)
-            second= Integer.parseInt(split[0]);
-        else if(split.length==2)
-            second=Integer.parseInt(split[0])*60+Integer.parseInt(split[1]);
+        //远程视频的时长是占位的"00:00"，解析出来是0。
+        //原来直接 setex(key,0,...) 会让Redis抛 invalid expire time，
+        //导致远程视频的播放量接口每次都500，播放量永远加不上。这里兜一个默认去重窗口。
+        int expirationSecond=parseVideoSeconds(videoTime);
+        if(expirationSecond<=0)
+            expirationSecond=DEFAULT_PLAY_DEDUPE_SECOND;
 
-        int expirationSecond = second;
-
-        if(Objects.equals(execute(jedis -> jedis.get(remoteAddr + videoId)), "1"))
-         return false;
-        else {
-            execute(jedis -> jedis.setex(remoteAddr+videoId, (long) expirationSecond, "1"));
+        String key=remoteAddr+"_"+videoId;
+        //lambda里只能引用 Effectively Final 的局部变量
+        final long expireSeconds=expirationSecond;
+        try {
+            if(Objects.equals(execute(jedis -> jedis.get(key)), "1"))
+                return false;
+            execute(jedis -> jedis.setex(key, expireSeconds, "1"));
+        }catch (Exception e){
+            //Redis异常不应该让播放量接口整体失败，放行本次计数
+            logger.warn("播放去重写入失败 videoId={} err={}",videoId,e.getMessage());
+            return true;
         }
         return true;
+    }
+
+    /**
+     * 把 mm:ss / ss 形式的时长解析成秒，解析不了返回0
+     */
+    private int parseVideoSeconds(String videoTime) {
+
+        String[] split = videoTime.trim().split(":");
+        try {
+            if(split.length==1)
+                return Integer.parseInt(split[0].trim());
+            if(split.length==2)
+                return Integer.parseInt(split[0].trim())*60+Integer.parseInt(split[1].trim());
+        }catch (NumberFormatException e){
+            return 0;
+        }
+        return 0;
     }
 }

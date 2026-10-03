@@ -17,7 +17,6 @@ public interface VideosService extends IService<Videos> {
     VideosDto selectDtoData(Integer userId);
 
     UsersVideosVo selectByUserIdVideo(Integer userId, String videoTitle, String subZoneKey, String sortWay, Integer videoStatus, Integer pageNum);
-    UsersVideosVo selectByUserExamineVideo(Integer userId, String videoTitle, String subZoneKey, String sortWay, Integer videoStatus, Integer pageNum);
 
     Boolean deleteVideo(Integer videoId);
 

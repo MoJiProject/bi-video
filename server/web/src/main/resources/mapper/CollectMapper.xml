@@ -10,7 +10,7 @@
         SELECT c.*
         FROM collects c
         LEFT JOIN videos v ON c.video_id = v.id
-        WHERE c.user_id = #{homeUserId} AND c.collect_name = #{collectName}
+        WHERE c.user_id = #{homeUserId} AND c.delete_flag = 0 AND c.collect_name = #{collectName}
         <if test="sort != null">
             ORDER BY
             <choose>
@@ -32,7 +32,7 @@
         SELECT c.*
         FROM collects c
         LEFT JOIN videos v ON c.video_id = v.id
-        WHERE c.user_id = #{homeUserId} AND c.collect_name = #{collectName}
+        WHERE c.user_id = #{homeUserId} AND c.delete_flag = 0 AND c.collect_name = #{collectName}
         AND (LOWER(#{keyWord}) LIKE CONCAT('%', LOWER(v.title), '%')
         OR LOWER(v.title) LIKE CONCAT('%',LOWER(#{keyWord}),'%')
         OR LOWER(#{keyWord}) LIKE CONCAT('%', LOWER(v.user_name), '%')
@@ -58,7 +58,7 @@
         SELECT c.*
         FROM collects c
         LEFT JOIN videos v ON c.video_id = v.id
-        WHERE c.user_id = #{homeUserId}
+        WHERE c.user_id = #{homeUserId} AND c.delete_flag = 0
         AND (LOWER(#{keyWord}) LIKE CONCAT('%', LOWER(v.title), '%')
         OR LOWER(v.title) LIKE CONCAT('%',LOWER(#{keyWord}),'%')
         OR LOWER(#{keyWord}) LIKE CONCAT('%', LOWER(v.user_name), '%')
@@ -84,14 +84,14 @@
         SELECT count(*)
         FROM collects c
                  LEFT JOIN videos v ON c.video_id = v.id
-        WHERE c.user_id = #{homeUserId} AND c.collect_name = #{collectName}
+        WHERE c.user_id = #{homeUserId} AND c.delete_flag = 0 AND c.collect_name = #{collectName}
     </select>
 
     <select id="getCollectByNameCount2" resultType="java.lang.Long">
         SELECT count(*)
         FROM collects c
                  LEFT JOIN videos v ON c.video_id = v.id
-        WHERE c.user_id = #{homeUserId} AND c.collect_name = #{collectName}
+        WHERE c.user_id = #{homeUserId} AND c.delete_flag = 0 AND c.collect_name = #{collectName}
           AND (LOWER(#{keyWord}) LIKE CONCAT('%', LOWER(v.title), '%')
             OR LOWER(v.title) LIKE CONCAT('%',LOWER(#{keyWord}),'%')
             OR LOWER(#{keyWord}) LIKE CONCAT('%', LOWER(v.user_name), '%')
@@ -102,7 +102,7 @@
         SELECT count(*)
         FROM collects c
                  LEFT JOIN videos v ON c.video_id = v.id
-        WHERE c.user_id = #{homeUserId}
+        WHERE c.user_id = #{homeUserId} AND c.delete_flag = 0
           AND (LOWER(#{keyWord}) LIKE CONCAT('%', LOWER(v.title), '%')
             OR LOWER(v.title) LIKE CONCAT('%',LOWER(#{keyWord}),'%')
             OR LOWER(#{keyWord}) LIKE CONCAT('%', LOWER(v.user_name), '%')
@@ -112,8 +112,9 @@
     <select id="selectWaitWatch" resultType="com.moji.po.Collects">
        SELECT c.* FROM collects c LEFT JOIN videos v
        ON c.video_id = v.id
-       where c.user_id = #{userId}
+        where c.user_id = #{userId}
        AND c.collect_name = '稍后再看'
+       AND c.delete_flag = 0
        AND (LOWER(v.title) LIKE CONCAT('%',LOWER(#{keyWord}),'%')
        OR LOWER(v.user_name) LIKE CONCAT('%',LOWER(#{keyWord}),'%'))
        <if test="sort != null">

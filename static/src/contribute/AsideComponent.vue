@@ -41,36 +41,6 @@
           <img src="/img/稿件管理.png" alt="稿件管理" /> 稿件管理
         </div>
       </router-link>
-      <router-link
-        v-if="store.userInformation.adminFlag"
-        class="aside-link"
-        to="/contribute/subpage3"
-      >
-        <div v-if="!isActive('/contribute/subpage3')" style="margin-top: 20px">
-          <img src="/img/数据中心灰.png" alt="数据中心" /> 审核视频
-        </div>
-        <div
-          v-if="isActive('/contribute/subpage3')"
-          style="margin-top: 20px; color: #479fd1"
-        >
-          <img src="/img/数据中心.png" alt="数据中心" /> 审核视频
-        </div>
-      </router-link>
-      <router-link
-        v-if="store.userInformation.adminFlag"
-        class="aside-link"
-        to="/contribute/subpage4"
-      >
-        <div v-if="!isActive('/contribute/subpage4')" style="margin-top: 20px">
-          <img src="/img/数据中心灰.png" alt="数据中心" /> 管理用户
-        </div>
-        <div
-          v-if="isActive('/contribute/subpage4')"
-          style="margin-top: 20px; color: #479fd1"
-        >
-          <img src="/img/数据中心.png" alt="数据中心" /> 管理用户
-        </div>
-      </router-link>
     </div>
   </div>
 </template>

@@ -9,6 +9,7 @@ import com.moji.MessageConstant;
 import com.moji.dto.*;
 import com.moji.exception.AccountExistException;
 import com.moji.exception.AccountNotFoundException;
+import com.moji.exception.BaseException;
 import com.moji.exception.PasswordErrorException;
 import com.moji.mapper.*;
 import com.moji.po.*;
@@ -50,6 +51,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
     private DynamicMapper dynamicMapper;
 
     @Autowired
+    private com.moji.mapper.CommentsMapper commentsMapper;
+
+    @Autowired
     private FansMapper fansMapper;
 
     @Autowired
@@ -67,6 +71,31 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
     @Autowired
     private FansService fansService;
 
+    @Autowired
+    private UserBanMapper userBanMapper;
+
+    /**
+     * 取某个UP已发布(status=1)的视频id，关注/取关都要用它，保证两边口径一致
+     */
+    private List<Integer> selectPublishedVideoIds(Integer userId) {
+
+        if (userId == null)
+            return List.of();
+
+        LambdaQueryWrapper<Videos> wrapper = new LambdaQueryWrapper<>();
+        wrapper.select(Videos::getId)
+                .eq(Videos::getUserId, userId)
+                .eq(Videos::getStatus, 1);
+        return videosMapper.selectList(wrapper).stream()
+                .map(Videos::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    private int nullToZero(Integer value) {
+        return value == null ? 0 : value;
+    }
+
     public Users login(Users users) {
 
         LambdaQueryWrapper<Users> wrapper = new LambdaQueryWrapper<>();
@@ -82,6 +111,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
         if (!BCrypt.checkpw(users.getPassword(),users2.getPassword())) {
 
             throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
+        }
+
+        //系统管理后台封禁校验，密码正确后再判断，避免向未通过验证的请求泄露账号状态
+        LambdaQueryWrapper<UserBan> userBanWrapper=new LambdaQueryWrapper<>();
+        userBanWrapper.eq(UserBan::getUserId,users2.getId())
+                .eq(UserBan::getStatus,1);
+        UserBan userBan=userBanMapper.selectOne(userBanWrapper);
+        if(userBan!=null){
+            String reason=userBan.getReason();
+            throw new BaseException(reason==null||reason.trim().isEmpty()
+                    ?MessageConstant.ACCOUNT_BANNED
+                    :MessageConstant.ACCOUNT_BANNED+"，原因："+reason);
         }
 
         collectService.getAllCollect(users2.getId());
@@ -198,48 +239,51 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
         fansUser.setFollowNumber(fansUser.getFollowNumber() + 1);
         followUser.setFansNumber(followUser.getFansNumber() + 1);
 
-        LambdaQueryWrapper<Videos> videosLambdaQueryWrapper=new LambdaQueryWrapper<>();
-        videosLambdaQueryWrapper.eq(Videos::getUserId, addFollowDto.getFollowId())
-                .eq(Videos::getStatus,1);
-
-
-        List<Videos> videos = videosMapper.selectList(videosLambdaQueryWrapper);
+        //原来这里是「取全部视频 -> 循环里每条视频再查一次动态」，关注一个投稿多的UP会产生N+1次查询。
+        //改为：一次取出已发布视频id，再用固定条数的聚合查询完成统计与标记。
         int dynamicNumber=0;
-        if(!videos.isEmpty()){
+        List<Integer> publishedVideoIds=selectPublishedVideoIds(addFollowDto.getFollowId());
+        if(!publishedVideoIds.isEmpty()){
 
-            for (Videos video : videos) {
+            LambdaQueryWrapper<Dynamic> existWrapper=new LambdaQueryWrapper<>();
+            existWrapper.eq(Dynamic::getFollowId,addFollowDto.getFollowId())
+                    .eq(Dynamic::getFansId,addFollowDto.getFansId())
+                    .in(Dynamic::getVideoId,publishedVideoIds)
+                    .isNull(Dynamic::getCommentId);
 
-                //查询是否存在该记录
-                LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
-                dynamicLambdaQueryWrapper.eq(Dynamic::getFollowId, addFollowDto.getFollowId())
-                        .eq(Dynamic::getFansId, addFollowDto.getFansId())
-                        .eq(Dynamic::getVideoId,video.getId())
-                        .isNull(Dynamic::getCommentId);
-                Dynamic dynamic1 = dynamicMapper.selectOne(dynamicLambdaQueryWrapper);
-                //如过存在
-                if(dynamic1!=null){
+            //已存在且未读的动态条数
+            Long unreadCount=dynamicMapper.selectCount(existWrapper.clone().eq(Dynamic::getWatchDynamicFlag,0));
+            dynamicNumber+=(unreadCount==null?0:unreadCount.intValue());
 
-                    dynamic1.setFansFlag(1);
-                    if(dynamic1.getWatchDynamicFlag()==0)
-                     dynamicNumber++;
-                    dynamicMapper.updateById(dynamic1);
-                }
-                else
-                {
-                    Dynamic dynamic=Dynamic.builder()
-                            .followId(addFollowDto.getFollowId())
-                            .videoId(video.getId())
-                            .fansId(addFollowDto.getFansId())
-                            .watchDynamicFlag(0)
-                            .fansFlag(1).build();
-                    dynamicMapper.insert(dynamic);
-                    dynamicNumber++;
+            //已存在的动态统一置为「已关注」，一条SQL搞定
+            dynamicMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update
+                    .LambdaUpdateWrapper<Dynamic>()
+                    .eq(Dynamic::getFollowId,addFollowDto.getFollowId())
+                    .eq(Dynamic::getFansId,addFollowDto.getFansId())
+                    .in(Dynamic::getVideoId,publishedVideoIds)
+                    .isNull(Dynamic::getCommentId)
+                    .set(Dynamic::getFansFlag,1));
 
-                }
+            Set<Integer> existVideoIds=dynamicMapper.selectList(existWrapper).stream()
+                    .map(Dynamic::getVideoId)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+
+            //只对还没推过的视频补动态
+            for (Integer videoId : publishedVideoIds) {
+                if(existVideoIds.contains(videoId))
+                    continue;
+                dynamicMapper.insert(Dynamic.builder()
+                        .followId(addFollowDto.getFollowId())
+                        .videoId(videoId)
+                        .fansId(addFollowDto.getFansId())
+                        .watchDynamicFlag(0)
+                        .fansFlag(1).build());
+                dynamicNumber++;
             }
         }
 
-        fansUser.setDynamicNumber(fansUser.getDynamicNumber()+dynamicNumber);
+        fansUser.setDynamicNumber(nullToZero(fansUser.getDynamicNumber())+dynamicNumber);
         userMapper.updateById(fansUser);
         userMapper.updateById(followUser);
 
@@ -286,39 +330,34 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
         Users fansUser = userMapper.selectById(addFollowDto.getFansId());
         Users followUser = userMapper.selectById(addFollowDto.getFollowId());
 
-        fansUser.setFollowNumber(fansUser.getFollowNumber()-1);
-        followUser.setFansNumber(followUser.getFansNumber()-1);
+        fansUser.setFollowNumber(Math.max(0,nullToZero(fansUser.getFollowNumber())-1));
+        followUser.setFansNumber(Math.max(0,nullToZero(followUser.getFansNumber())-1));
 
-        LambdaQueryWrapper<Videos> videosLambdaQueryWrapper=new LambdaQueryWrapper<>();
-        videosLambdaQueryWrapper.eq(Videos::getUserId, addFollowDto.getFollowId());
-
-        List<Videos> videos = videosMapper.selectList(videosLambdaQueryWrapper);
+        //与关注保持对称：只看已发布(status=1)的视频，并同样用聚合查询替代逐条查询
         int dynamicNumber=0;
-        if(!videos.isEmpty()){
+        List<Integer> publishedVideoIds=selectPublishedVideoIds(addFollowDto.getFollowId());
+        if(!publishedVideoIds.isEmpty()){
 
-            for (Videos video : videos) {
+            LambdaQueryWrapper<Dynamic> unwatchWrapper=new LambdaQueryWrapper<>();
+            unwatchWrapper.eq(Dynamic::getFollowId,addFollowDto.getFollowId())
+                    .eq(Dynamic::getFansId,addFollowDto.getFansId())
+                    .in(Dynamic::getVideoId,publishedVideoIds)
+                    .isNull(Dynamic::getCommentId)
+                    .eq(Dynamic::getWatchDynamicFlag,0);
 
-                //查询是否存在该记录
-                LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
-                dynamicLambdaQueryWrapper.eq(Dynamic::getFollowId, addFollowDto.getFollowId())
-                        .eq(Dynamic::getFansId, addFollowDto.getFansId())
-                        .eq(Dynamic::getVideoId,video.getId())
-                        .isNull(Dynamic::getCommentId);
-                Dynamic dynamic1 = dynamicMapper.selectOne(dynamicLambdaQueryWrapper);
-                //如过存在
-                if(dynamic1!=null){
+            Long unreadCount=dynamicMapper.selectCount(unwatchWrapper);
+            dynamicNumber=(unreadCount==null?0:unreadCount.intValue());
 
-                    dynamic1.setFansFlag(0);
-                    if(dynamic1.getWatchDynamicFlag()==0)
-                        dynamicNumber++;
-                    dynamicMapper.updateById(dynamic1);
-
-                }
-
-            }
-
+            dynamicMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update
+                    .LambdaUpdateWrapper<Dynamic>()
+                    .eq(Dynamic::getFollowId,addFollowDto.getFollowId())
+                    .eq(Dynamic::getFansId,addFollowDto.getFansId())
+                    .in(Dynamic::getVideoId,publishedVideoIds)
+                    .isNull(Dynamic::getCommentId)
+                    .set(Dynamic::getFansFlag,0));
         }
-        fansUser.setDynamicNumber(fansUser.getDynamicNumber()==0?0:fansUser.getDynamicNumber()-dynamicNumber);
+
+        fansUser.setDynamicNumber(Math.max(0,nullToZero(fansUser.getDynamicNumber())-dynamicNumber));
         userMapper.updateById(fansUser);
         userMapper.updateById(followUser);
 
@@ -505,6 +544,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
                 if(userMapper.selectOne(usersLambdaQueryWrapper)!=null){
                     throw new AccountExistException("昵称已存在");
                 }
+                //原来只做了唯一性校验却没落库，改完昵称全站还是旧名字
+                users.setUserName(userInfo2.getUserName());
+                //videos/comments上冗余了user_name，这里同步一次，否则历史内容会一直显示旧昵称
+                videosMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update
+                        .LambdaUpdateWrapper<Videos>()
+                        .eq(Videos::getUserId,users.getId())
+                        .set(Videos::getUserName,userInfo2.getUserName()));
+                commentsMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update
+                        .LambdaUpdateWrapper<Comments>()
+                        .eq(Comments::getUserId,users.getId())
+                        .set(Comments::getUserName,userInfo2.getUserName()));
             }
 
            if(!userInfo2.getPassword1().isEmpty()){
@@ -779,45 +829,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
         cacheService.deleteCommentCacheByVideoId(null,null,userId);
         cacheService.deleteReplyCommentCacheByCommentId(null,null,null,userId);
 
-        int i = userMapper.updateById(users);
-        return i>0;
-    }
-
-    @Override
-    public Page<UserInfo2> getUsers(Integer pageNum, String keyword, Integer type) {
-
-        Page<Users> usersPage=new Page<>(pageNum,10);
-        LambdaQueryWrapper<Users> usersLambdaQueryWrapper=new LambdaQueryWrapper<>();
-        if(StringUtil.notNullNorEmpty(keyword))
-                usersLambdaQueryWrapper
-                        .apply("LOWER({0}) LIKE CONCAT('%', LOWER(user_name), '%')",keyword)
-                        .or()
-                        .like(Users::getUserName,keyword);
-        if(type!=-1)
-            usersLambdaQueryWrapper.eq(Users::getAdminFlag,type);
-        usersLambdaQueryWrapper.orderByDesc(Users::getCreateTime);
-        Page<Users> usersPage1 = userMapper.selectPage(usersPage, usersLambdaQueryWrapper);
-        List<Users> records = usersPage1.getRecords();
-        List<UserInfo2> userInfo2List=new ArrayList<>();
-        for (Users record : records) {
-            UserInfo2 userInfo2=new UserInfo2();
-            BeanUtils.copyProperties(record,userInfo2);
-            userInfo2List.add(userInfo2);
-        }
-        Page<UserInfo2> userInfo2Page=new Page<>();
-        userInfo2Page.setRecords(userInfo2List);
-        userInfo2Page.setTotal(usersPage.getTotal());
-        return userInfo2Page;
-    }
-
-    @Override
-    @Transactional
-    public boolean putAdmin(Integer adminId) {
-
-        Users users = userMapper.selectById(adminId);
-        if(users==null)
-            return false;
-        users.setAdminFlag(users.getAdminFlag()==0?1:0);
         int i = userMapper.updateById(users);
         return i>0;
     }

@@ -87,7 +87,7 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref, watch } from "vue";
+import { onMounted, reactive, ref, watch, nextTick } from "vue";
 import { useGlobalStore } from "../store/store";
 import dynamicC from "@/utils/dynamic.vue";
 import { homeDynamic,homeContributeVideos } from "@/api/home/index";
@@ -155,8 +155,14 @@ watch(searchMenu, () => {
   pageNum.value = 1;
   fotterFlag.value = false;
   store.commentOpenFlag = false;
+  //切换tab时同样保留滚动位置：先清空列表会让文档高度骤减，
+  //浏览器把 scrollTop 截断到新的最大高度，页面就跳动
+  const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
   dynamicList.length = 0;
   if (store.homeUserInformation.id) homeDynamicF();
+  nextTick(() => {
+    window.scrollTo({ top: currentScroll, behavior: "auto" });
+  });
 });
 
 //获取动态列表

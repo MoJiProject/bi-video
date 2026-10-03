@@ -11,12 +11,17 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Objects;
+
 @RestController
 @RequestMapping("/collectClassify")
 public class CollectClassifyController {
 
     @Autowired
     private CollectClassifyService collectClassifyService;
+
+    @Autowired
+    private com.moji.mapper.CollectClassifyMapper collectClassifyMapper;
 
 
     /**
@@ -52,6 +57,11 @@ public class CollectClassifyController {
 
         LoginLimiterServer limiterServer=new LoginLimiterServer();
         if(!limiterServer.checkUser(userId,token))
+            return R.error("删除失败");
+
+        //收藏夹必须属于自己，否则可以删掉他人的收藏夹（含封面文件）
+        CollectsClassify classify=collectClassifyMapper.selectById(id);
+        if(classify==null||!Objects.equals(classify.getUserId(),userId))
             return R.error("删除失败");
 
         boolean b = collectClassifyService.deleteCollectClassify(id);

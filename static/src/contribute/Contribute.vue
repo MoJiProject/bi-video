@@ -148,8 +148,6 @@ import MainComponent from "./MainComponent.vue";
 import EditContribute from "./EditContribute.vue";
 import SubPage1 from "./SubPage1.vue";
 import SubPage2 from "./SubPage2.vue";
-import SubPage3 from "./SubPage3.vue";
-import SubPage4 from "./SubPage4.vue";
 export default {
   name: "ContributePage",
   components: {
@@ -158,8 +156,6 @@ export default {
     EditContribute,
     SubPage1,
     SubPage2,
-    SubPage3,
-    SubPage4,
   },
   setup() {
     
@@ -170,8 +166,6 @@ export default {
       "/contribute/edit": EditContribute,
       "/contribute/subpage1": SubPage1,
       "/contribute/subpage2": SubPage2,
-      "/contribute/subpage3": SubPage3,
-      "/contribute/subpage4": SubPage4,
     };
     const currentContentComponent = computed(() => contentComponentMap[route.path] || MainComponent);
     const user = reactive({

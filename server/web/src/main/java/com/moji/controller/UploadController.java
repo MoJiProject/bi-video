@@ -303,15 +303,19 @@ public class UploadController {
         }
 
         LoginLimiterServer limiterServer=new LoginLimiterServer();
-        if(!limiterServer.checkUser(videos.getUserId(),token))
+        //videos由表单绑定，videos.getUserId()不可信，必须以库里视频的真实归属为准
+        Videos dbVideo=videosMapper.selectById(videos.getId());
+        if(dbVideo==null)
+            return R.error("视频不存在");
+        if(!limiterServer.checkUser(dbVideo.getUserId(),token))
             return R.error("操作失败");
 
-        if(videoName!=null&&!validMergedVideo(videoName,videos.getUserId())){
+        if(videoName!=null&&!validMergedVideo(videoName,dbVideo.getUserId())){
             return R.error("视频文件不存在");
         }
 
         if(vFlag){
-            deleteOldVideoFile(videos.getId());
+            deleteOldVideoFile(dbVideo.getId());
         }
 
         if (files != null) {

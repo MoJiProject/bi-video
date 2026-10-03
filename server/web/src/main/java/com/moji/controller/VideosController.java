@@ -2,7 +2,6 @@ package com.moji.controller;
 import com.moji.R;
 import com.moji.dto.AddFollowDto;
 import com.moji.dto.SelectVideoDto;
-import com.moji.dto.VideoExamineDto;
 import com.moji.dto.VideosDto;
 import com.moji.mapper.VideosMapper;
 import com.moji.po.*;
@@ -73,25 +72,6 @@ public class VideosController {
     }
 
     /**
-     * 查询用户总视频进行管理
-     * @param userId
-     * @param videoTitle
-     * @param subZoneKey
-     * @param sortWay
-     * @param videoStatus
-     * @return
-     */
-    @GetMapping("/userExamineVideo")
-    public R<UsersVideosVo> selectByUserIExaminedVideo(@RequestParam Integer userId,@RequestParam String videoTitle,@RequestParam String subZoneKey,@RequestParam String sortWay,@RequestParam Integer videoStatus,@RequestParam Integer pageNum,@RequestHeader("Authorization") String token){
-
-        LoginLimiterServer limiterServer=new LoginLimiterServer();
-        if(!limiterServer.checkUser(userId,token))
-            return R.error("操作失败");
-
-        return R.success(videosService.selectByUserExamineVideo(userId,videoTitle,subZoneKey,sortWay,videoStatus,pageNum));
-    }
-
-    /**
      * 删除视频
      * @param videoId
      * @param videoStatus
@@ -107,6 +87,15 @@ public class VideosController {
         LoginLimiterServer limiterServer=new LoginLimiterServer();
         if(!limiterServer.checkUser(userId,token))
             return R.error("操作失败");
+
+        //userId只是调用者身份，必须再确认这个视频确实是他的，或者是管理员在审核页删他人稿件
+        Videos videos=videosMapper.selectById(videoId);
+        if(videos==null)
+            return R.error("删除失败");
+        Users currentUser=userService.getById(userId);
+        boolean isAdmin=currentUser!=null&&currentUser.getAdminFlag()!=null&&currentUser.getAdminFlag()==1;
+        if(!isAdmin&&!videos.getUserId().equals(userId))
+            return R.error("无权删除他人的视频");
 
         Boolean flag = videosService.deleteVideo(videoId);
         if (flag)
@@ -146,62 +135,6 @@ public class VideosController {
 
         List<SelectVideoDto> videoDtos = videosService.getVideo(userId,sort,pageNum);
         return R.success(videoDtos);
-    }
-
-    /**
-     * 审核视频通过
-     * @param video
-     * @return
-     */
-    @Caching(evict = {
-            @CacheEvict(value = "collect", allEntries = true),
-            @CacheEvict(value = "videoTitle",key = "#video.id",condition = "#video.status == 1")
-    })
-    @PutMapping("/examineVideo")
-    public R<String> examineVideo(@RequestBody Videos video,@RequestHeader("Authorization") String token){
-
-        Users users = userService.getById(video.getUserId());
-        if(users==null||(users.getAdminFlag()==0))
-            return R.error("操作失败");
-
-        LoginLimiterServer limiterServer=new LoginLimiterServer();
-        if(!limiterServer.checkUser(video.getUserId(),token))
-            return R.error("操作失败");
-
-        Boolean b = videosService.examineVideo(video.getId());
-
-        if (b)
-         return R.success("审核成功");
-        return R.error("审核失败");
-    }
-
-    /**
-     * 视频退回
-     * @param videoExamineDto
-     * @return
-     */
-    @PostMapping("/examineVideoFiled")
-    public R<String> examineVideoFiled(@RequestBody VideoExamineDto videoExamineDto,@RequestHeader("Authorization") String token){
-
-        Users users = userService.getById(videoExamineDto.getUserId());
-        if(users==null||(users.getAdminFlag()==0))
-            return R.error("操作失败");
-
-        LoginLimiterServer limiterServer=new LoginLimiterServer();
-        if(!limiterServer.checkUser(videoExamineDto.getUserId(),token))
-            return R.error("操作失败");
-
-        Videos videos = videosMapper.selectById(videoExamineDto.getVideoId());
-        videos.setExamineFiledMessage(videoExamineDto.getExamineFiledMessage());
-        videos.setStatus(2);
-        int i = videosMapper.updateById(videos);
-
-        if (i>0)
-            return R.success("审核成功");
-
-        return R.error("审核失败");
-
-
     }
 
     /**
@@ -337,19 +270,21 @@ public class VideosController {
      * @param videoId
      */
     @PutMapping("/updateVideoPlay")
-    @Transactional
     public void updateVideoPlay(HttpServletRequest httpServletRequest, @RequestParam Integer videoId){
 
         Videos videos = videosMapper.selectById(videoId);
-        if(videos!=null)
-        {
+        if(videos==null)
+            return;
 
-            LoginLimiterServer limiterServer=new LoginLimiterServer();
-            boolean b=limiterServer.updateVideoPlayer(videos.getVideoTime(),httpServletRequest.getRemoteAddr(),videoId);
-            if(b) {
-               videos.setPlayNumber(videos.getPlayNumber() + 1);
-               videosMapper.updateById(videos);
-           }
+        LoginLimiterServer limiterServer=new LoginLimiterServer();
+        //同一个观看者在一个时长窗口内只计一次，Redis不可用时也不应该影响播放量统计
+        boolean b=limiterServer.updateVideoPlayer(videos.getVideoTime(),httpServletRequest.getRemoteAddr(),videoId);
+        if(b) {
+            //用SQL自增替代「查出来+1再updateById」，播放量是高频写，读改写会互相覆盖丢数据
+            videosMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update
+                    .LambdaUpdateWrapper<Videos>()
+                    .eq(Videos::getId,videoId)
+                    .setSql("play_number = IFNULL(play_number,0) + 1"));
         }
     }
 

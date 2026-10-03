@@ -199,7 +199,24 @@ public class CollectClassifyServiceImpl extends ServiceImpl<CollectClassifyMappe
                 }
             }
         }
-        collectClassifyMapper.updateById(collectsClassify);
+        //只允许修改归属本用户的收藏夹，且只落库可编辑字段
+        //user_id/video_number 这类归属与统计字段以库里的记录为准，避免被前端改写
+        CollectsClassify dbClassify=collectClassifyMapper.selectById(collectsClassify.getId());
+        if(dbClassify==null||!Objects.equals(dbClassify.getUserId(),collectsClassify.getUserId()))
+            return false;
+
+        CollectsClassify update=CollectsClassify.builder()
+                .id(dbClassify.getId())
+                .userId(dbClassify.getUserId())
+                .collectName(collectsClassify.getCollectName())
+                .content(collectsClassify.getContent())
+                .status(collectsClassify.getStatus())
+                .coverAddress(collectsClassify.getCoverAddress()!=null
+                        ?collectsClassify.getCoverAddress():dbClassify.getCoverAddress())
+                .videoNumber(dbClassify.getVideoNumber())
+                .build();
+
+        collectClassifyMapper.updateById(update);
         return true;
     }
 

@@ -41,15 +41,55 @@ const routes = [
         name:'subpage2',
         component: () => import('./contribute/Contribute.vue'),
       },
+      // 系统管理后台
       {
-        path: '/contribute/subpage3',
-        name:'subpage3',
-        component: () => import('./contribute/Contribute.vue'),
+        path: '/systemManagement',
+        redirect: '/systemManagement/overview',
       },
       {
-        path: '/contribute/subpage4',
-        name:'subpage4',
-        component: () => import('./contribute/Contribute.vue'),
+        path: '/systemManagement/overview',
+        name: 'systemOverview',
+        component: () => import('./systemManagement/SystemManagement.vue'),
+      },
+      {
+        path: '/systemManagement/user',
+        name: 'systemUser',
+        component: () => import('./systemManagement/SystemManagement.vue'),
+      },
+      {
+        path: '/systemManagement/video',
+        name: 'systemVideo',
+        component: () => import('./systemManagement/SystemManagement.vue'),
+      },
+      {
+        path: '/systemManagement/comment',
+        name: 'systemComment',
+        component: () => import('./systemManagement/SystemManagement.vue'),
+      },
+      {
+        path: '/systemManagement/dynamic',
+        name: 'systemDynamic',
+        component: () => import('./systemManagement/SystemManagement.vue'),
+      },
+      {
+        path: '/systemManagement/message',
+        name: 'systemMessage',
+        component: () => import('./systemManagement/SystemManagement.vue'),
+      },
+      {
+        path: '/systemManagement/keyWord',
+        name: 'systemKeyWord',
+        component: () => import('./systemManagement/SystemManagement.vue'),
+      },
+      {
+        path: '/systemManagement/log',
+        name: 'systemLog',
+        component: () => import('./systemManagement/SystemManagement.vue'),
+      },
+      {
+        path: '/systemManagement/recycle',
+        name: 'systemRecycle',
+        component: () => import('./systemManagement/SystemManagement.vue'),
       },
       // 消息
       {

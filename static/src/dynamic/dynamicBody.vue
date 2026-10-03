@@ -214,6 +214,8 @@ const loading=ref(false);
 let dynamicMessageTimer=null;
 //动态列表请求标识，用于丢弃过期响应
 let dynamicReqId=0;
+//切换菜单/UP时为true，表示下一次请求结果要整体替换旧列表而不是追加
+let pendingReplace=false;
 const startX = ref(0);
 const startY = ref(0);
 
@@ -628,12 +630,23 @@ async function getDynamicF(){
     const reqUpChecked=upChecked.value;
     const reqMenu=menu.value;
     const reqPage=dynamicPageNum.value++;
-    getDynamic(store.token,store.userId,reqUpChecked,reqPage,reqMenu).then(res=>{
+    //切换菜单/UP触发的整页替换，下拉加载时为false走追加
+    const reqReplace=pendingReplace;
+    pendingReplace=false;
+    try{
+        const res=await getDynamic(store.token,store.userId,reqUpChecked,reqPage,reqMenu);
 
         if(reqId!==dynamicReqId||reqUpChecked!==upChecked.value||reqMenu!==menu.value)
             return;
 
         if(res.data.code===1){
+            //整页替换：先拿到新数据再清旧列表。
+            //如果先清空再请求，DOM会立刻塌陷使文档高度骤减，
+            //浏览器把 scrollTop 截断到新的最大高度，页面就出现跳动。
+            if(reqReplace){
+                dynamicList.length=0;
+                noDataFlag.value=false;
+            }
             pushData(res.data.data);
             if(!res.data.data||res.data.data.length===0)
             {
@@ -643,7 +656,7 @@ async function getDynamicF(){
                 }
             }
             const date2=new Date();
-                setTimeout(() => {
+            setTimeout(() => {
                 if(reqId!==dynamicReqId)
                     return;
                 loadMore.value=false;
@@ -654,33 +667,44 @@ async function getDynamicF(){
             dynamicPageNum.value=reqPage;
             loadMore.value=false;
         }
-    }).catch(()=>{
+    }catch(e){
         if(reqId!==dynamicReqId)
             return;
         dynamicPageNum.value=reqPage;
         loadMore.value=false;
-    })
+    }
 }
 
-//重置动态列表分页状态
+//重置动态列表分页状态。
+//注意：这里不同步清空 dynamicList，否则切换瞬间文档高度塌陷会导致页面跳动，
+//改为打上 pendingReplace 标记，等新数据到手后再整体替换。
 function resetDynamicList(){
   dynamicReqId++;
   dynamicPageNum.value=1;
   loadMore.value=false;
   fotterFlag.value=false;
   noDataFlag.value=false;
-  dynamicList.length=0;
+  pendingReplace=true;
+}
+
+//切换动态列表（菜单或UP），保留滚动位置避免跳动
+async function switchDynamicList(){
+  const currentScroll=window.scrollY||document.documentElement.scrollTop||0;
+  resetDynamicList();
+  await getDynamicF();
+  //等新列表渲染完再把位置放回去，否则会停在半路
+  await nextTick();
+  window.scrollTo({top:currentScroll,behavior:"auto"});
 }
 
 //监视菜单变化
 watch(menu,()=>{
-  resetDynamicList();
-  getDynamicF();
+  switchDynamicList();
 })
 
 //监视upChecked变化
 watch(upChecked,()=>{
-  resetDynamicList();
+  switchDynamicList();
 
   //清除该up的新动态提醒，列表中不存在该up时直接跳过
   const up=upList.find(item=>item.id===upChecked.value);
@@ -691,7 +715,6 @@ watch(upChecked,()=>{
       .then(()=>refreshUpFlagF())
       .catch(()=>{});
   }
-  getDynamicF();
 })
 
 //初始化查询

@@ -187,7 +187,8 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             LambdaQueryWrapper<Dialogue> dialogueLambdaQueryWrapper2=new LambdaQueryWrapper<>();
             dialogueLambdaQueryWrapper2.eq(Dialogue::getUserId,privateMessage.getReceiverId())
                     .eq(Dialogue::getDialogueId,privateMessage.getSenderId());
-        Dialogue dialogue2 = dialogueMapper.selectOne(dialogueLambdaQueryWrapper2);
+        //历史数据里可能已经存在重复会话行，这里取第一条而不是抛TooManyResultsException
+        Dialogue dialogue2 = dialogueMapper.selectOne(dialogueLambdaQueryWrapper2,false);
         if(dialogue2==null)
         {
             Dialogue dialogue1 = new Dialogue();
@@ -196,15 +197,17 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
             dialogue1.setSign(sign);
             dialogueMapper.insert(dialogue1);
         }
+        //发送方的会话行，与上面的接收方行是两条独立的记录
+        //这里原来误插成了接收方的行，会导致同一会话出现两条重复数据，selectOne随后抛TooManyResultsException
         LambdaQueryWrapper<Dialogue> dialogueLambdaQueryWrapper3=new LambdaQueryWrapper<>();
-            dialogueLambdaQueryWrapper3.eq(Dialogue::getUserId,privateMessage.getSenderId())
-                    .eq(Dialogue::getDialogueId,privateMessage.getReceiverId());
-            Dialogue dialogue3 = dialogueMapper.selectOne(dialogueLambdaQueryWrapper3);
+        dialogueLambdaQueryWrapper3.eq(Dialogue::getUserId,privateMessage.getSenderId())
+                .eq(Dialogue::getDialogueId,privateMessage.getReceiverId());
+        Dialogue dialogue3 = dialogueMapper.selectOne(dialogueLambdaQueryWrapper3,false);
         if(dialogue3==null)
         {
             Dialogue dialogue1 = new Dialogue();
-            dialogue1.setUserId(privateMessage.getReceiverId());
-            dialogue1.setDialogueId(privateMessage.getSenderId());
+            dialogue1.setUserId(privateMessage.getSenderId());
+            dialogue1.setDialogueId(privateMessage.getReceiverId());
             dialogue1.setSign(sign);
             dialogueMapper.insert(dialogue1);
         }

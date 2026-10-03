@@ -7,6 +7,7 @@ import com.moji.dto.SelectPrivateMessage;
 import com.moji.dto.ShareVideo;
 import com.moji.po.Dialogue;
 import com.moji.po.PrivateMessage;
+import com.moji.po.Users;
 import com.moji.serve.LoginLimiterServer;
 import com.moji.service.PrivateMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/privateMessage")
@@ -21,6 +23,12 @@ public class PrivateMessageController {
 
     @Autowired
     private PrivateMessageService privateMessageService;
+
+    @Autowired
+    private com.moji.mapper.DialogueMapper dialogueMapper;
+
+    @Autowired
+    private com.moji.mapper.UserMapper userMapper;
 
 
     /**
@@ -118,6 +126,11 @@ public class PrivateMessageController {
         if(!limiterServer.checkUser(userId,token))
             return R.error("新增对话失败");
 
+        //会话行归属必须是自己，否则可以删掉别人的会话
+        Dialogue dialogue=dialogueMapper.selectById(id);
+        if(dialogue==null||!Objects.equals(dialogue.getUserId(),userId))
+            return R.error("删除失败");
+
         Boolean b = privateMessageService.deleteDialogue(id);
         if(b)
             return R.success("删除成功");
@@ -138,14 +151,30 @@ public class PrivateMessageController {
         if(!limiterServer.checkUser(privateMessage.getSenderId(),token))
             return R.error("发送失败");
 
-        Boolean b1 = privateMessageService.checkFollowAndFans(privateMessage);
-        if(!b1)
-            return R.error("对方主动回复或关注你前，最多发送1条消息");
+        //管理员不受「对方回复前最多发1条」的限制，便于后台联系用户
+        if(!isAdmin(privateMessage.getSenderId())){
+            Boolean b1 = privateMessageService.checkFollowAndFans(privateMessage);
+            if(!b1)
+                return R.error("对方主动回复或关注你前，最多发送1条消息");
+        }
 
         Boolean b = privateMessageService.sendMessage(privateMessage);
         if(b)
             return R.success("发送成功");
         return R.error("发送失败");
+    }
+
+    /**
+     * 是否管理员
+     * @param userId 用户id
+     * @return
+     */
+    private boolean isAdmin(Integer userId) {
+
+        if (userId == null)
+            return false;
+        Users users = userMapper.selectById(userId);
+        return users != null && users.getAdminFlag() != null && users.getAdminFlag() == 1;
     }
 
 

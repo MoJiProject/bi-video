@@ -1022,7 +1022,7 @@
 </template>
 
 <script>
-import { onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { onMounted, onUnmounted, reactive, ref, watch, nextTick } from "vue";
 import eit from "../components/eit";
 import { ElMessage } from "element-plus";
 import apiClient from "../services/apiClient";
@@ -1958,7 +1958,8 @@ export default {
     }
 
     //查询评论
-    async function selectComment() {
+    //replace为true表示切换排序触发的整页替换，下拉加载时为false走追加去重
+    async function selectComment(replace = false) {
       let res = await apiClient.get(`/comment/selectCommentByVideoId`, {
         params: {
           dynamicId: props.dynamic.dynamic.id,
@@ -1968,6 +1969,8 @@ export default {
         },
       });
       if (res.data.code === 1) {
+        if(replace)
+          commentList.length = 0;
         pushData(res.data.data.records);
         commentTotal.value = res.data.data.total;
       } else {
@@ -2004,10 +2007,16 @@ export default {
     }
 
     //更新评论排序
-    watch(commentSortFlag, () => {
-      commentList.length = 0;
+    watch(commentSortFlag, async () => {
+      //切换「最热/最新」会重新拉取整页评论。原来是同步清空 commentList，
+      //DOM 立刻塌陷使文档高度骤减，浏览器把 scrollTop 截断到新的最大高度，页面就跳动；
+      //两种排序下评论高度不同，渲染完成后还会再偏一次。
+      //改为：先记位置 -> 新数据到手再整体替换 -> 渲染完把位置放回去。
+      const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
       pageNum.value = 1;
-      selectComment();
+      await selectComment(true);
+      await nextTick();
+      window.scrollTo({ top: currentScroll, behavior: "auto" });
     });
 
     //删除评论

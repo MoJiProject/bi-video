@@ -27,6 +27,9 @@ module.exports = defineConfig({
     // 启动后自动打开浏览器
     open: true,
     port: 8080,
+    // history 模式的路由（/video、/systemManagement/* 等）直接访问时
+    // 回退到 index.html，行为与生产环境 nginx 的 try_files 保持一致
+    historyApiFallback: true,
     proxy: {
       '/api': {
         target: 'http://localhost:8081/',

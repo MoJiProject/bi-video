@@ -260,6 +260,11 @@ public class CommentController {
     @GetMapping("/selectOneComment")
     public R<SelectComment> selectOneComment(@RequestParam Integer userId,@RequestParam Integer mainCommentId,@RequestParam(required = false) Integer replyCommentId,@RequestHeader("Authorization") String token){
 
+        //userId只是入参，必须确认调用者确实是该userId，否则可以越权探测他人的互动状态
+        LoginLimiterServer limiterServer=new LoginLimiterServer();
+        if(!limiterServer.checkUser(userId,token))
+            return R.error("查询失败");
+
         return R.success(commentService.selectOneComment(userId,mainCommentId,replyCommentId));
     }
 
