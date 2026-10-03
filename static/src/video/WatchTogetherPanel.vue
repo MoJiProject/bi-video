@@ -821,7 +821,7 @@ async function sendInvites() {
   if (!targets.length || !room.value) return;
   // 标题本身作为链接文案，私信按 HTML 渲染，点标题即可进房间
   const title = escapeHtml(inviteTitle.value || '这个视频');
-  const content = `一起来一起看<a href="${escapeHtml(inviteUrl())}">《${title}》</a>`;
+  const content = `一起来一起看<a href="${escapeHtml(inviteUrl())}" target="_blank">《${title}》</a>`;
   inviteSending.value = true;
   try {
     const results = await Promise.allSettled(targets.map(receiverId => apiClient.post('/privateMessage/sendMessage', {
