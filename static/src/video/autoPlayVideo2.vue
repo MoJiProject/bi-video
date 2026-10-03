@@ -3,7 +3,7 @@
        <div class="autoPlayVideo2-title">接下来播放</div>
        <div class="autoPlayVideo2-videoList"><span @click="setAutoPlayVideoList=!setAutoPlayVideoList">自动连播</span> <el-switch class="custom-switch1" v-model="setAutoPlayVideoList"/></div>
        <div class="autoPlayVideo2-item" v-for="video in store.autoVideoList.slice(0,10)" :key="video.videoId" :class="{lineFlag: video.videoId===store.autoVideoList[0].videoId}">
-         <span class="autoPlayVideo2-item-left" @click="intoVideo(video.videoId)" @mousemove="videoMouseover(video.videoId)" @mouseleave="videoMouseleave(video.videoId)">
+         <span class="autoPlayVideo2-item-left" @click="intoVideo(video)" @mousemove="videoMouseover(video.videoId)" @mouseleave="videoMouseleave(video.videoId)">
           <img class="autoPlayVideo2-cover" :src="video.coverAddress">
           <video :src="video.videoAddress"
           :id="video.videoId"
@@ -36,7 +36,7 @@
           :show-arrow="false"
           :hide-after="0"
         >
-        <span @click="intoVideo(video.videoId)" class="autoPlayVideo2-item-title">{{ video.videoTitle }}</span>
+        <span @click="intoVideo(video)" class="autoPlayVideo2-item-title">{{ video.videoTitle }}</span>
         </el-tooltip>
         <span @click="openHome(1,video.userId)" class="autoPlayVideo2-item-right-username-container">
             <img class="img1" src="/img/up.png">
@@ -54,7 +54,7 @@
        </div>
         <div v-if="store.autoVideoList.length>10" v-show="!showMoreVideoFlag" class="show-video-btn" @click="showMoreVideoFlag=true">展开</div>
         <div  v-show="showMoreVideoFlag" class="autoPlayVideo2-item" v-for="video in store.autoVideoList.slice(10,20)" :key="video.videoId" :class="{lineFlag: video.videoId===store.autoVideoList[0].videoId}">
-         <span class="autoPlayVideo2-item-left" @click="intoVideo(video.videoId)" @mousemove="videoMouseover(video.videoId)" @mouseleave="videoMouseleave(video.videoId)">
+         <span class="autoPlayVideo2-item-left" @click="intoVideo(video)" @mousemove="videoMouseover(video.videoId)" @mouseleave="videoMouseleave(video.videoId)">
           <img class="autoPlayVideo2-cover" :src="video.coverAddress">
           <video :src="video.videoAddress"
           :id="video.videoId"
@@ -87,7 +87,7 @@
           :show-arrow="false"
           :hide-after="0"
         >
-        <span @click="intoVideo(video.videoId)" class="autoPlayVideo2-item-title">{{ video.videoTitle }}</span>
+        <span @click="intoVideo(video)" class="autoPlayVideo2-item-title">{{ video.videoTitle }}</span>
         </el-tooltip>
         <span @click="openHome(1,video.userId)" class="autoPlayVideo2-item-right-username-container">
             <img class="img1" src="/img/up.png">
@@ -111,6 +111,7 @@
 import { onMounted, ref, watch } from 'vue';
 import apiClient from "../services/apiClient";
 import {useGlobalStore} from "../store/store";
+import { navigateToVideo } from "../services/watchTogetherBridge";
 export default {
     name: "autoPlayVideo2",
     setup(){
@@ -218,10 +219,10 @@ export default {
             }
         }
 
-         //进入视频播放页面
-         function intoVideo(videoId){
-            window.location.href = `./video?videoId=BV${videoId}`;
-        }    
+//进入视频播放页面，房内则由一起看面板统一处理切换
+        function intoVideo(video){
+            navigateToVideo(video);
+        }
 
         //打开我的主页
         function openHome(menu,id){

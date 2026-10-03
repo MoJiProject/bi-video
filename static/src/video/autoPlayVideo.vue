@@ -31,7 +31,7 @@
        </div>
        <div class="auto-play-video-body">
         <div v-show="propss.intoVideoAllDisplayIngFlag" class="auto-play-video-body-video-recommend">相关推荐</div>
-           <div v-show="!propss.intoVideoAllDisplayIngFlag" class="auto-play-video-item"  v-for="video in store.autoVideoList.slice(0,6)" :key="video.videoId" @click="intoVideo(video.videoId)">
+           <div v-show="!propss.intoVideoAllDisplayIngFlag" class="auto-play-video-item"  v-for="video in store.autoVideoList.slice(0,6)" :key="video.videoId" @click="intoVideo(video)">
                <span @mousemove="videoMouseover(video.videoId+'auto1')" @mouseleave="videoMouseleave(video.videoId+'auto1')">
                 <div v-show="video.videoId===store.autoVideoList[0].videoId&&store.AutoPlayVideoList" class="cancel-auto-play-video" @click.stop="cancelAutoPlayVideo">
                    取消连播
@@ -68,7 +68,7 @@
                 <span class="auto-play-video-item-title">{{ video.videoTitle }}</span>
                </span>
            </div>
-           <div v-show="propss.intoVideoAllDisplayIngFlag" class="auto-play-video-item" v-for="video in store.autoVideoList.slice(0,8)" :key="video.videoId" @click="intoVideo(video.videoId)">
+           <div v-show="propss.intoVideoAllDisplayIngFlag" class="auto-play-video-item" v-for="video in store.autoVideoList.slice(0,8)" :key="video.videoId" @click="intoVideo(video)">
                <span @mousemove="videoMouseover(video.videoId+'auto2')" @mouseleave="videoMouseleave(video.videoId+'auto2')">
                 <div v-show="video.videoId===store.autoVideoList[0].videoId&&store.AutoPlayVideoList" class="cancel-auto-play-video" @click.stop="cancelAutoPlayVideo">
                    取消连播
@@ -113,8 +113,9 @@
 <script>
 import { reactive, onMounted, ref, watch } from "vue";
 import apiClient from "../services/apiClient";
-import {useGlobalStore} from "../store/store";
+import { useGlobalStore } from "../store/store";
 import videoShareC from '../utils/videoShare.vue';
+import { navigateToVideo } from '../services/watchTogetherBridge';
 export default {
     name: "autoPlayVideo",
     props:{
@@ -273,9 +274,9 @@ export default {
             }
         }
 
-        //进入视频播放页面
-        function intoVideo(videoId){
-            window.location.href = `./video?videoId=BV${videoId}`;
+        //进入视频播放页面，房内则由一起看面板统一处理切换
+        function intoVideo(video){
+            navigateToVideo(video);
         }    
 
         //取消连播

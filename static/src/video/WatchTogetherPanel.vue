@@ -270,6 +270,10 @@ import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import apiClient from '../services/apiClient';
 import { createWatchTogetherClient } from '../services/watchTogetherClient';
+import {
+  registerWatchTogetherBridge,
+  unregisterWatchTogetherBridge,
+} from '../services/watchTogetherBridge';
 import { useGlobalStore } from '../store/store';
 
 const props = defineProps({
@@ -364,6 +368,17 @@ const statusText = computed(() => {
   if (!room.value) return '创建房间并邀请好友';
   return connected.value ? '同步中' : '正在重连';
 });
+
+// 相关推荐、自动连播等组件共用这条房间连接，暴露统一的切换入口，
+// 由这里负责确认弹窗与 socket 发送，调用方只管跳转意图。
+const watchTogetherBridge = {
+  inRoom: () => Boolean(room.value),
+  canSwitch: () => canManage.value,
+  currentVideoId: () => room.value?.videoId ?? null,
+  switchVideo: video => confirmSwitchVideo(video),
+  notify: (type, message) => notify(type, message),
+};
+registerWatchTogetherBridge(watchTogetherBridge);
 
 // 全屏时面板被传送到原生全屏节点内，弹窗必须挂到面板里才能显示在最上层。
 function overlayTarget() {
@@ -1148,6 +1163,7 @@ function onWindowResize() {
 
 onBeforeUnmount(() => {
   detachVideo();
+  unregisterWatchTogetherBridge(watchTogetherBridge);
   window.clearTimeout(releaseRemoteTimer);
   window.clearTimeout(pendingSeekTimer);
   if (dragFrame) window.cancelAnimationFrame(dragFrame);
