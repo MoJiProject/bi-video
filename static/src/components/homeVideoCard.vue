@@ -2,56 +2,58 @@
   <article class="vcard" @mouseenter="onEnter" @mouseleave="onLeave">
     <div class="vcard-cover" @click="open">
       <img
+        v-show="!previewing"
         class="vcard-cover-img"
         :src="coverSrc"
-        :alt="video.videoTitle"
+        :alt="video.title"
         loading="lazy"
-        @error="onCoverError"
+        @error="coverSrc = FALLBACK_COVER"
       />
       <video
-        v-show="previewing"
-        class="vcard-cover-img vcard-preview"
-        :id="'pv' + video.videoId"
-        :src="video.videoAddress"
+        v-if="previewing && video.playUrl"
+        class="vcard-cover-img"
+        :src="video.playUrl"
         preload="none"
         muted
         loop
         playsinline
         disablePictureInPicture
+        ref="previewEl"
       ></video>
 
-      <span class="vcard-duration" v-show="durationText">{{ durationText }}</span>
+      <span class="vcard-duration">{{ durationText }}</span>
 
       <button
         class="vcard-mark"
-        :class="{ 'is-done': video.waitWatch === 1 }"
-        :title="markTitle"
+        :class="{ 'is-done': inWatchLater }"
+        :title="inWatchLater ? '已加入待看清单' : '加入待看清单'"
         @click.stop="toggleMark"
       >
-        <img class="icon icon-sm" :src="markIcon" alt="" />
+        <img class="icon icon-sm" :src="inWatchLater ? '/img/添加成功.png' : '/img/待看清单.png'" alt="" />
       </button>
     </div>
 
     <div class="vcard-body">
-      <h3 class="vcard-title" :title="video.videoTitle">{{ video.videoTitle }}</h3>
+      <h3 class="vcard-title" :title="video.title">{{ video.title }}</h3>
 
       <div class="vcard-meta">
         <span class="vcard-author" @click.stop="openUser">
-          <img class="vcard-avatar icon" :src="avatarSrc" alt="" @error="onAvatarError" />
-          <span class="vcard-author-name">{{ video.userName }}</span>
+          <img
+            class="vcard-avatar"
+            :src="video.ownerAvatar || DEFAULT_AVATAR"
+            alt=""
+            @error="(e) => (e.target.src = DEFAULT_AVATAR)"
+          />
+          <span class="vcard-author-name">{{ video.ownerNickname }}</span>
         </span>
-        <span class="vcard-date">{{ video.createTime }}</span>
       </div>
 
       <div class="vcard-stats">
         <span class="vcard-stat">
-          <img class="icon icon-sm" src="/img/播放量灰.png" alt="" />{{ video.videoPlayNumber }}
+          <img class="icon icon-sm" src="/img/播放量灰.png" alt="" />{{ formatCount(video.playCount) }}
         </span>
         <span class="vcard-stat">
-          <img class="icon icon-sm" src="/img/弹幕灰.png" alt="" />{{ video.videoScrollingNumber }}
-        </span>
-        <span class="vcard-stat" v-show="video.videoLikeNumber">
-          <img class="icon icon-sm" src="/img/评论点赞灰.png" alt="" />{{ video.videoLikeNumber }}
+          <img class="icon icon-sm" src="/img/弹幕灰.png" alt="" />{{ formatCount(video.danmakuCount) }}
         </span>
       </div>
     </div>
@@ -61,7 +63,7 @@
 <script setup>
 import { computed, ref, watch } from "vue";
 import { useGlobalStore } from "../store/store";
-import { updateWaitWatch } from "../api/video";
+import { videoApi } from "../api/product";
 
 const props = defineProps({
   video: { type: Object, required: true },
@@ -69,71 +71,57 @@ const props = defineProps({
 
 const store = useGlobalStore();
 const previewing = ref(false);
-const coverBroken = ref(false);
-const avatarBroken = ref(false);
+const previewEl = ref(null);
+const coverSrc = ref(props.video.coverUrl || "/img/cover-fallback.png");
+/** 待看清单状态本地维护：props 是只读的，操作成功后由自己更新 */
+const inWatchLater = ref(!!props.video.watchLater);
 let timer = null;
 
-const FALLBACK_COVER = "/img/cover-fallback.png";
 const DEFAULT_AVATAR = "/img/avatar-default.png";
-
-const coverSrc = computed(() => (coverBroken.value ? FALLBACK_COVER : props.video.coverAddress));
-const avatarSrc = computed(() => (avatarBroken.value ? DEFAULT_AVATAR : DEFAULT_AVATAR));
-
-const durationText = computed(() => {
-  const { hour, minutes, second } = props.video;
-  const pad = (n) => String(n ?? 0).padStart(2, "0");
-  if (hour !== null && hour !== undefined && hour !== "") {
-    return `${hour}:${pad(minutes)}:${pad(second)}`;
-  }
-  return `${minutes ?? "00"}:${pad(second)}`;
-});
-
-const markIcon = computed(() => (props.video.waitWatch === 1 ? "/img/添加成功.png" : "/img/待看清单.png"));
-const markTitle = computed(() =>
-  props.video.waitWatch === 1 ? "已加入待看清单" : "加入待看清单"
-);
+const FALLBACK_COVER = "/img/cover-fallback.png";
 
 watch(
-  () => props.video.videoId,
+  () => props.video.id,
   () => {
-    coverBroken.value = false;
-    avatarBroken.value = false;
+    coverSrc.value = props.video.coverUrl || FALLBACK_COVER;
+    inWatchLater.value = !!props.video.watchLater;
   }
 );
 
-function onCoverError() {
-  coverBroken.value = true;
-}
+const durationText = computed(() => {
+  const total = props.video.durationSeconds || 0;
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${pad(m)}:${pad(s)}`;
+});
 
-function onAvatarError() {
-  avatarBroken.value = true;
+function formatCount(n) {
+  const v = Number(n) || 0;
+  if (v >= 100000000) return (v / 100000000).toFixed(1).replace(/\.0$/, "") + "亿";
+  if (v >= 10000) return (v / 10000).toFixed(1).replace(/\.0$/, "") + "万";
+  return String(v);
 }
 
 function open() {
-  window.open("/video?vId=" + props.video.videoId, "_blank");
+  window.open("/video?vId=" + props.video.id, "_blank");
 }
 
 function openUser() {
-  window.open("/home?userId=" + props.video.userId, "_blank");
+  window.open("/home?userId=" + props.video.ownerId, "_blank");
 }
 
 function onEnter() {
+  if (!props.video.playUrl) return;
   clearTimeout(timer);
-  timer = setTimeout(async () => {
-    if (!props.video.videoAddress) return;
+  timer = setTimeout(() => {
     previewing.value = true;
-    await new Promise((r) => setTimeout(r, 30));
-    const el = document.getElementById("pv" + props.video.videoId);
-    if (el) {
-      el.currentTime = 0;
-      el.play().catch(() => {});
-    }
-  }, 420);
+  }, 400);
 }
 
 function onLeave() {
   clearTimeout(timer);
-  const el = document.getElementById("pv" + props.video.videoId);
+  const el = previewEl.value;
   if (el) {
     el.pause();
     el.removeAttribute("src");
@@ -147,10 +135,12 @@ async function toggleMark() {
     store.loginDialogVisible = true;
     return;
   }
-  const next = props.video.waitWatch === 1 ? 0 : 1;
-  const res = await updateWaitWatch(store.token, { videoId: props.video.videoId, userId: store.userId });
-  if (res && res.data && res.data.code === 1) {
-    props.video.waitWatch = next;
+  const next = !inWatchLater.value;
+  inWatchLater.value = next;
+  try {
+    await videoApi.watchLater(props.video.id);
+  } catch (e) {
+    inWatchLater.value = !next;
   }
 }
 </script>
@@ -176,12 +166,6 @@ async function toggleMark() {
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: opacity .25s ease;
-}
-
-.vcard-preview {
-  position: absolute;
-  inset: 0;
 }
 
 .vcard-duration {
@@ -220,10 +204,7 @@ async function toggleMark() {
   opacity: 1;
 }
 
-.vcard-mark:hover {
-  background: var(--brand);
-}
-
+.vcard-mark:hover,
 .vcard-mark.is-done {
   background: var(--brand);
 }
@@ -256,7 +237,6 @@ async function toggleMark() {
 .vcard-meta {
   display: flex;
   align-items: center;
-  gap: var(--gap-2);
   font-size: 12.5px;
   color: var(--ink-3);
   min-width: 0;
@@ -271,8 +251,12 @@ async function toggleMark() {
 }
 
 .vcard-avatar {
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
+  object-fit: cover;
   background: var(--fill);
+  flex: none;
 }
 
 .vcard-author-name {
@@ -284,10 +268,6 @@ async function toggleMark() {
 
 .vcard-author:hover .vcard-author-name {
   color: var(--brand);
-}
-
-.vcard-date {
-  flex: none;
 }
 
 .vcard-stats {

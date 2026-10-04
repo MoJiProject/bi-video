@@ -2028,6 +2028,8 @@
 import { ref, reactive, onMounted,watch } from "vue";
 import "element-plus/theme-chalk/el-message.css";
 import apiClient from "../services/apiClient";
+import { authApi } from "../api/product";
+import { getToken, setToken } from "../services/http";
 import { ElMessage } from "element-plus";
 import search from "./search.vue";
 import "element-plus/dist/index.css";
@@ -2349,27 +2351,25 @@ export default {
           return (loginDialogVisible.value = true);
         }
        
-        let limiterLoginDto={
-           user: loginForm,
-           userIp: store.userIp,
-        };
-        const response = await apiClient.post("/user/login", limiterLoginDto);
-
-        if (response.data.code === 0) {
-          ElMessage({
-            message: response.data.msg,
-            type: "info",
-            plain: true,
-            duration: 1700,
+        let res;
+        try {
+          res = await authApi.login({
+            username: loginForm.username,
+            password: loginForm.password,
           });
-        } else {
-          openFullScreen2();
-          Object.assign(user, response.data.data);
-          store.setUserInformation(response.data.data);
-          await getUserIp();
-          timewait();
-          loginDialogVisible.value = false;
+        } catch (err) {
+          ElMessage({ message: err.message || "登录失败", type: "info", plain: true, duration: 1700 });
+          return;
         }
+        setToken(res.token);
+        store.setUserId(res.userId);
+        openFullScreen2();
+        const me = await authApi.me();
+        Object.assign(user, me);
+        store.setUserInformation(me);
+await getUserIp();
+        timewait();
+        loginDialogVisible.value = false;
       } catch (error) {
         ElMessage({
           message: "未知错误",
@@ -2382,44 +2382,16 @@ export default {
       }
     }
 
-    //登出
+//登出
     async function logout() {
-
-      let limiterLoginDto={
-           user: user,
-           userIp: store.userIp,
-        };
       try {
-        const response = await apiClient.post("/user/signOut",limiterLoginDto,{
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": store.token,
-          },          
-        });
-        if(response.data.code === 1){
-          location.reload(); 
-        }
-        else{
-          ElMessage({
-            message: response.data.msg,
-            type: "info",
-            plain: true,
-            duration: 1700,
-          });
-          if(response.data.msg==="您还没有登录")
-          location.reload(); 
-        }
-
-      } catch (error) {
-        ElMessage({
-          message: "未知错误",
-          type: "info",
-          plain: true,
-          duration: 1700,
-        });
+        await authApi.logout();
+      } catch (e) {
+        // 会话可能已过期，本地状态照样清
       }
-       
-     
+      setToken("");
+      store.setUserId(null);
+      location.reload();
     }
     //加载动画
     const openFullScreen2 = () => {
@@ -2539,29 +2511,25 @@ export default {
           return (loginDialogVisible.value = true);
         }
 
-        let limiterLoginDto={
-           user: signinForm,
-           userIp: store.userIp,
-        };
-        const response = await apiClient.post("/user/sign", limiterLoginDto);
-
-        if (response.data.code === 0) {
-          ElMessage({
-            message: response.data.msg,
-            type: "info",
-            plain: true,
-            duration: 1700,
+        let res;
+        try {
+          res = await authApi.register({
+            username: signinForm.username,
+            password: signinForm.password,
+            nickname: signinForm.nickname || signinForm.username,
+            phone: signinForm.phone || "",
           });
-        } else {
-          flag.value = 1;
-          handleClose();
-          ElMessage({
-            message: response.data.data,
-            type: "info",
-            plain: true,
-            duration: 1700,
-          });
+        } catch (err) {
+          ElMessage({ message: err.message || "注册失败", type: "info", plain: true, duration: 1700 });
+          return;
         }
+        setToken(res.token);
+        store.setUserId(res.userId);
+        const me = await authApi.me();
+        Object.assign(user, me);
+        store.setUserInformation(me);
+flag.value = 1;
+        handleClose();
       } catch (error) {
         ElMessage({
           message: "未知错误",
@@ -2570,9 +2538,6 @@ export default {
           duration: 1700,
         });
       }
-
-    
-      
     }
 
     function togglePasswordVisibility() {
@@ -2675,16 +2640,18 @@ export default {
     async function autoLogin() {
       try {
 
-        const response = await apiClient.get(`/user/checkLogin/${store.userIp}`);
-        if (response.data.code === 1) {
-          store.setUserId(response.data.data.id);
-          Object.assign(user, response.data.data);
-          store.setUserInformation(response.data.data)
+        if (!getToken()) {
+          return;
+        }
+        const me = await authApi.me();
+        if (me && me.userId) {
+          store.setUserId(me.userId);
+          Object.assign(user, me);
+          store.setUserInformation(me);
           dynamics.length = 0;
           await getDynamicAxiso();
           await getNewFansNumberAxiso();
           await selectCollect();
-          store.setToken(response.data.data.token);
           if(collectDtoList.length!==0)
           changerCollect.value=collectDtoList[0].id;
           selectHistoryAxios();
@@ -2712,13 +2679,11 @@ export default {
     //刷新user
     async function refreshUser() {
       try {
-
-        const response = await apiClient.get(`/user/checkLoginFlag/${store.userIp}`);
-        if (response.data.code === 1) {
+        const me = await authApi.me();
+        if (me && me.userId) {
           user.length = 0;
-          Object.assign(user, response.data.data);
-          store.setUserInformation(response.data.data)
-          store.setToken(response.data.data.token);
+          Object.assign(user, me);
+          store.setUserInformation(me);
         }
       } catch (error) {
 
@@ -2952,15 +2917,16 @@ export default {
       changerCollect.value=store.collectSelect;
     }
 
-    //获取用户ip和token
+    // 用户 IP。新后端不再用它下发 token，token 由 /auth/login 返回后存在本地。
     async function getUserIp(){
-      
-      const response = await apiClient.get("/userIp/getUserIp");
-
-      if(response.data.code === 1)
-        store.setUserIp(response.data.data.userIp);
-        store.setToken(response.data.data.token);
-
+      try {
+        const response = await apiClient.get("/userIp/getUserIp");
+        if (response.data.code === 1) {
+          store.setUserIp(response.data.data.userIp);
+        }
+      } catch (e) {
+        // IP 拿不到不影响主流程
+      }
     }
 
     watch(loginDialogVisible,(newValue)=>{

@@ -71,10 +71,10 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import head1 from "./mainHead.vue";
 import homeVideoCard from "./homeVideoCard.vue";
-import { selectVideo } from "../api/video";
+import { videoApi } from "../api/product";
 import { useGlobalStore } from "../store/store";
 
 const store = useGlobalStore();
@@ -86,14 +86,12 @@ const categories = [
 const activeCategory = ref("推荐");
 
 const videos = ref([]);
-const pageNum = ref(1);
+const cursorId = ref(null);
 const loading = ref(false);
 const hasMore = ref(true);
 const refreshing = ref(false);
 const sticky = ref(false);
 const feedRef = ref(null);
-
-const FALLBACK_COVER = "/img/cover-fallback.png";
 
 function onMouseMove(e) {
   store.setMouseX(e.clientX);
@@ -104,30 +102,43 @@ function scrollToFeed() {
 }
 
 function goCategory(name) {
-  if (name === activeCategory.value) return;
-  activeCategory.value = name;
-  window.open("/search?keyword=&classifyIndex=" + encodeURIComponent(name), "_blank");
+  if (name === "推荐") {
+    scrollToFeed();
+    refresh();
+    return;
+  }
+  // 分类名对应后端的 categoryId，先查一次再带 id 跳搜索页
+  searchByCategory(name);
+}
+
+async function searchByCategory(name) {
+  try {
+    const list = await videoApi.categories();
+    const hit = list.find((c) => c.name === name);
+    window.location.href = "/search?keyword=&categoryId=" + (hit ? hit.id : "");
+  } catch (e) {
+    window.location.href = "/search?keyword=" + encodeURIComponent(name);
+  }
 }
 
 async function load(reset) {
-  if (loading.value || (!hasMore.value && !reset)) return;
+  if (loading.value) return;
+  if (!reset && !hasMore.value) return;
   loading.value = true;
   try {
-    const sort = Math.floor(Math.random() * 6) + 1;
-    const res = await selectVideo(store.userId ?? 0, pageNum.value, sort);
-    if (res.data.code !== 1) {
-      hasMore.value = false;
-      return;
-    }
-    const list = res.data.data || [];
-    // 封面文件丢失的历史数据统一换成占位图，避免首页出现一堆破图
-    list.forEach((v) => {
-      if (!v.coverAddress) v.coverAddress = FALLBACK_COVER;
+    const sort = activeCategory.value === "推荐" ? "hot" : "latest";
+    const data = await videoApi.list({
+      sort,
+      cursorId: reset ? undefined : cursorId.value || undefined,
+      pageSize: 20,
     });
+    const list = data?.records || [];
     videos.value = reset ? list : videos.value.concat(list);
-    if (!list.length || list.length < 10) hasMore.value = false;
-    pageNum.value += 1;
+    cursorId.value = data?.cursorId ?? list.length ? list[list.length - 1]?.id : null;
+    hasMore.value = list.length > 0 && (data?.hasMore ?? false);
+    if (!list.length) hasMore.value = false;
   } catch (e) {
+    if (reset) videos.value = [];
     hasMore.value = false;
   } finally {
     loading.value = false;
@@ -136,31 +147,23 @@ async function load(reset) {
 
 async function refresh() {
   refreshing.value = true;
-  pageNum.value = 1;
+  cursorId.value = null;
   hasMore.value = true;
   await load(true);
   refreshing.value = false;
 }
 
-async function loadPlaceholder() {
-  try {
-    const res = await apiClient.get("/keyWord/placeholder");
-    if (res.data.code === 1) store.setPlaceholderWord(res.data.data.word);
-  } catch (e) {
-    /* 忽略 */
-  }
-}
-
 function onScroll() {
   sticky.value = window.scrollY >= 120;
-  if (!hasMore.value || loading.value) return;
-  if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 600) load(false);
+  if (hasMore.value && !loading.value) {
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 600) load(false);
+  }
 }
 
 onMounted(async () => {
   window.scrollTo(0, 0);
   window.addEventListener("scroll", onScroll, { passive: true });
-  await Promise.all([load(true), loadPlaceholder()]);
+  await load(true);
 });
 
 onUnmounted(() => {

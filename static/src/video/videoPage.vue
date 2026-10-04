@@ -2495,46 +2495,6 @@
                   </div>
                 </template>
 
-<!-- 视频页布局 pass1：外层壳子改 grid + 自适应 + 图标尺寸统一 -->
-<style>
-/* 页头图标统一成正方形占位，任何比例的图都不会被拉变形 */
-.video-page .v-header-ul li a img:not(.h-logo) {
-  width: 18px !important;
-  height: 18px !important;
-  object-fit: contain;
-}
-
-/* 白底页头上的搜索框要自己有底，否则白底白框看不见 */
-.video-page .search {
-  background: var(--fill);
-  border: 1px solid var(--line);
-}
-
-/* 主栏 + 侧栏：宽屏两列，窄屏单列。原来的 left/top 偏移已经去掉了。 */
-.video-page .video-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 350px;
-  gap: var(--gap-5);
-  align-items: start;
-}
-
-.video-page .video-body > * {
-  min-width: 0;
-}
-
-@media (max-width: 1400px) {
-  .video-page .video-body {
-    grid-template-columns: minmax(0, 1fr) 300px;
-  }
-}
-
-@media (max-width: 1100px) {
-  .video-page .video-body {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-</style>
-<!-- /video-layout-pass1 -->
 
               </el-dialog>
             </span>
@@ -8751,3 +8711,44 @@ a:hover {
 
 
 </style>
+
+<!-- 视频页布局 pass1：外层壳子改 grid + 自适应 + 图标尺寸统一 -->
+<style>
+/* 页头图标统一成正方形占位，任何比例的图都不会被拉变形 */
+.video-page .v-header-ul li a img:not(.h-logo) {
+  width: 18px !important;
+  height: 18px !important;
+  object-fit: contain;
+}
+
+/* 白底页头上的搜索框要自己有底，否则白底白框看不见 */
+.video-page .search {
+  background: var(--fill);
+  border: 1px solid var(--line);
+}
+
+/* 主栏 + 侧栏：宽屏两列，窄屏单列。原来的 left/top 偏移已经去掉了。 */
+.video-page .video-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 350px;
+  gap: var(--gap-5);
+  align-items: start;
+}
+
+.video-page .video-body > * {
+  min-width: 0;
+}
+
+@media (max-width: 1400px) {
+  .video-page .video-body {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .video-page .video-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+</style>
+<!-- /video-layout-pass1 -->

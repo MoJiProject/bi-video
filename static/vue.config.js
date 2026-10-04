@@ -31,10 +31,11 @@ module.exports = defineConfig({
     // 回退到 index.html，行为与生产环境 nginx 的 try_files 保持一致
     historyApiFallback: true,
     proxy: {
+      // product-app 的接口本身就带 /api 前缀，这里原样透传，不要再 pathRewrite 剥掉。
+      // 老版后端是不带前缀的，所以以前需要重写；切到 product-app 后必须去掉。
       '/api': {
         target: 'http://localhost:8081/',
         changeOrigin: true,
-        pathRewrite: { '^/api': '' },
       },
     },
   },
