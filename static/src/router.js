@@ -145,6 +145,18 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  //导航前就把页面瞬间归位。
+  //放在 beforeEach 而不是 scrollBehavior，是因为 beforeEach 触发时
+  //旧组件还没卸载、文档高度没有塌陷，此时不会触发浏览器的滚动锚定补偿，
+  //也就不会出现「先跳上去又被弹回来」的抖动。
+  beforeEach(to, from, next) {
+    window.scrollTo(0, 0);
+    next();
+  },
+  scrollBehavior(to, from, savedPosition) {
+    //浏览器前进/后退时恢复历史位置，其余情况保持顶部
+    return savedPosition || { top: 0, left: 0 };
+  },
 });
 
 

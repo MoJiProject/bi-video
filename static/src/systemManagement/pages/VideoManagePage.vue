@@ -75,7 +75,7 @@
       >
         <el-table-column type="selection" width="46" />
 
-        <el-table-column label="UP主" width="110" align="left">
+        <el-table-column label="UP主" width="150" align="left">
           <template #default="scope">
             <div class="sys-user-link" @click="goUserHome(scope.row.userId)">
               <img :src="scope.row.userAvatar" class="avatar" referrerpolicy="no-referrer" />
