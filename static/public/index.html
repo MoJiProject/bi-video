@@ -1,19 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="icon" href="<%= BASE_URL %>img/bilibili.ico">
+    <link rel="icon" href="<%= BASE_URL %>img/favicon.ico">
+    <meta name="theme-color" content="#0FA68E">
+    <meta name="description" content="青芒视频 —— 看视频、发弹幕、追创作者，分享每一次观看">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="青芒视频">
+    <meta property="og:description" content="看视频、发弹幕、追创作者 —— 分享每一次观看">
+    <meta property="og:image" content="<%= BASE_URL %>img/og-cover.png">
     <title><%= htmlWebpackPlugin.options.title %></title>
     <style>
 
-       
+
        a{
         text-decoration: none;
        }
+       html{
+        /* 主色，跟 src/assets/css/global.css 里的 --brand 保持一致 */
+        background: #F4F7F6;
+       }
        body{
-        min-width: 1450px;  
+        /* 原来写的是 1450px，页面按 1500px 设计，导致比这窄的屏幕一律出横向滚动条。
+           放宽到 1280px：既保留原本的最小可用宽度，也不再挤掉滚动条。 */
+        min-width: 1280px;
         overflow-y: scroll;
         margin: 0;
         padding: 0;
