@@ -86,7 +86,6 @@ export const MODULE_LABEL = {
   dynamic: "动态管理",
   message: "私信管理",
   keyWord: "搜索热词",
-  recycleBin: "回收站",
 };
 
 //操作动作中文名
@@ -96,7 +95,7 @@ export const ACTION_LABEL = {
   unbanUser: "解除封禁",
   examineVideo: "审核通过",
   rejectVideo: "审核退回",
-  takeDownVideo: "强制下架",
+  takeDownVideo: "下架",
   deleteVideo: "删除视频",
   deleteComment: "删除评论",
   deleteDynamic: "删除动态",
@@ -105,14 +104,6 @@ export const ACTION_LABEL = {
   putKeyWord: "修改搜索词",
   putKeyWordCount: "修改搜索次数",
   deleteKeyWord: "删除搜索词",
-  recycleVideo: "视频移入回收站",
-  restoreVideo: "还原视频",
-  recycleComment: "评论移入回收站",
-  restoreComment: "还原评论",
-  recycleDynamic: "动态移入回收站",
-  restoreDynamic: "还原动态",
-  purgeRecycleBin: "彻底清除",
-  cleanRestoredRecycleBin: "清理已还原记录",
 };
 
 //视频状态中文名与配色

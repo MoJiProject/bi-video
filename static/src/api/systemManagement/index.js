@@ -194,6 +194,53 @@ export async function searchLogs(token, params) {
   return response;
 }
 
+//视频管理 - 删除视频(真删不可恢复，支持批量)
+export async function deleteVideo(token, params) {
+  const response = await apiClient.post("/system/video/deleteVideo", params, {
+    headers: authHeaders(token),
+  });
+  return response;
+}
+
+//评论下架 / 取消下架
+export async function switchCommentOffShelf(token, params, offShelf) {
+  const response = await apiClient.post(
+    "/system/content/switchCommentOffShelf",
+    params,
+    {
+      headers: authHeaders(token),
+      params: { offShelf },
+    }
+  );
+  return response;
+}
+
+//动态下架 / 取消下架
+export async function switchDynamicOffShelf(token, params, offShelf) {
+  const response = await apiClient.post(
+    "/system/content/switchDynamicOffShelf",
+    params,
+    {
+      headers: authHeaders(token),
+      params: { offShelf },
+    }
+  );
+  return response;
+}
+
+//视频管理 - 把已下架/已退回的视频恢复为已通过
+export async function restoreVideo(token, params, videoId) {
+  const response = await apiClient.put(
+    "/system/video/restoreVideo",
+    params,
+    {
+      headers: authHeaders(token),
+      params: { videoId },
+    }
+  );
+  return response;
+}
+
 //视频管理 - 分页查询(含各状态数量)
 export async function searchVideos(token, params) {
   const response = await apiClient.post("/system/video/searchVideos", params, {
@@ -237,7 +284,7 @@ export async function rejectVideo(token, params, videoId) {
   return response;
 }
 
-//视频管理 - 强制下架已通过的视频
+//视频管理 - 下架已通过的视频
 export async function takeDownVideo(token, params, videoId) {
   const response = await apiClient.post(
     "/system/video/takeDownVideo",
@@ -250,74 +297,3 @@ export async function takeDownVideo(token, params, videoId) {
   return response;
 }
 
-//回收站 - 分页查询
-export async function searchRecycleBin(token, params) {
-  const response = await apiClient.post("/system/recycle/searchRecycleBin", params, {
-    headers: authHeaders(token),
-  });
-  return response;
-}
-
-//回收站 - 视频移入回收站
-export async function recycleVideo(token, params) {
-  const response = await apiClient.post("/system/recycle/recycleVideo", params, {
-    headers: authHeaders(token),
-  });
-  return response;
-}
-
-//回收站 - 还原视频
-export async function restoreVideo(token, params) {
-  const response = await apiClient.post("/system/recycle/restoreVideo", params, {
-    headers: authHeaders(token),
-  });
-  return response;
-}
-
-//回收站 - 评论移入回收站
-export async function recycleComment(token, params) {
-  const response = await apiClient.post("/system/recycle/recycleComment", params, {
-    headers: authHeaders(token),
-  });
-  return response;
-}
-
-//回收站 - 动态移入回收站
-export async function recycleDynamic(token, params) {
-  const response = await apiClient.post("/system/recycle/recycleDynamic", params, {
-    headers: authHeaders(token),
-  });
-  return response;
-}
-
-//回收站 - 还原动态
-export async function restoreDynamic(token, params) {
-  const response = await apiClient.post("/system/recycle/restoreDynamic", params, {
-    headers: authHeaders(token),
-  });
-  return response;
-}
-
-//回收站 - 还原评论
-export async function restoreComment(token, params) {
-  const response = await apiClient.post("/system/recycle/restoreComment", params, {
-    headers: authHeaders(token),
-  });
-  return response;
-}
-
-//回收站 - 彻底清除
-export async function purgeRecycleBin(token, params) {
-  const response = await apiClient.post("/system/recycle/purgeRecycleBin", params, {
-    headers: authHeaders(token),
-  });
-  return response;
-}
-
-//回收站 - 清理已还原记录
-export async function cleanRestored(token, params) {
-  const response = await apiClient.post("/system/recycle/cleanRestored", params, {
-    headers: authHeaders(token),
-  });
-  return response;
-}

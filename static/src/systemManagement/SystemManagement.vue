@@ -69,7 +69,6 @@ import {
   Message,
   Key,
   Document,
-  DeleteFilled,
 } from "@element-plus/icons-vue";
 import { useGlobalStore } from "../store/store";
 import apiClient from "../services/apiClient";
@@ -82,7 +81,6 @@ import DynamicManagePage from "./pages/DynamicManagePage.vue";
 import MessageManagePage from "./pages/MessageManagePage.vue";
 import KeyWordManagePage from "./pages/KeyWordManagePage.vue";
 import SystemLogPage from "./pages/SystemLogPage.vue";
-import RecycleBinPage from "./pages/RecycleBinPage.vue";
 
 export default {
   name: "SystemManagement",
@@ -95,7 +93,6 @@ export default {
     MessageManagePage,
     KeyWordManagePage,
     SystemLogPage,
-    RecycleBinPage,
   },
   setup() {
     const store = useGlobalStore();
@@ -114,7 +111,6 @@ export default {
       { path: "/systemManagement/message", label: "私信管理", icon: Message, component: MessageManagePage },
       { path: "/systemManagement/keyWord", label: "搜索热词", icon: Key, component: KeyWordManagePage },
       { path: "/systemManagement/log", label: "操作日志", icon: Document, component: SystemLogPage },
-      { path: "/systemManagement/recycle", label: "回收站", icon: DeleteFilled, component: RecycleBinPage },
     ];
 
     const currentComponent = computed(() => {

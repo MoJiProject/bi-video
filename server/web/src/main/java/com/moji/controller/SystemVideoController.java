@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,6 +43,28 @@ public class SystemVideoController {
             return R.error("查询失败");
 
         return R.success(systemService.searchVideos(dto));
+    }
+
+    /**
+     * 上架：把已下架/已退回的视频恢复为已通过
+     * @param dto
+     * @param videoId
+     * @param request
+     * @param token
+     * @return
+     */
+    @PutMapping("/restoreVideo")
+    public R<String> restoreVideo(@RequestBody SystemOperateDto dto,
+                                 @RequestParam Integer videoId,
+                                 HttpServletRequest request,
+                                 @RequestHeader("Authorization") String token) {
+
+        if (!systemService.checkAdmin(dto.getOperatorId(), token))
+            return R.error("操作失败");
+
+        dto.setIp(resolveIp(request));
+        systemService.restoreVideo(dto, videoId);
+        return R.success("已上架");
     }
 
     /**
@@ -105,7 +128,7 @@ public class SystemVideoController {
     }
 
     /**
-     * 强制下架已通过的视频
+     * 下架已通过的视频
      * @param dto
      * @param videoId
      * @param request
@@ -123,7 +146,7 @@ public class SystemVideoController {
 
         dto.setIp(resolveIp(request));
         systemService.takeDownVideo(dto, videoId);
-        return R.success("已强制下架，相关动态与计数已同步回滚");
+        return R.success("已下架，相关动态与计数已同步回滚");
     }
 
     /**

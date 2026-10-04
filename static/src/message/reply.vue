@@ -35,7 +35,7 @@
                   <span v-else>对我的视频发表了评论</span>
                 </div>
                 <div class="reply-right-content-center">
-                 <a v-if="reply.mainComments&&!reply.dynamic&&reply.replyComments.videoId&&reply.replyComments.deleteSign===0" class="reply-message-content" :href="'./video?videoId=BV'+reply.mainComments?.videoId+'&commentId='+reply.replyComments.mainCommentId+'&replyId='+reply.replyComments.id" target="videoWindow">
+                 <a v-if="reply.mainComments&&!reply.dynamic&&reply.replyComments.videoId&&(reply.replyComments.deleteSign===0&&reply.replyComments.status===0)" class="reply-message-content" :href="'./video?videoId=BV'+reply.mainComments?.videoId+'&commentId='+reply.replyComments.mainCommentId+'&replyId='+reply.replyComments.id" target="videoWindow">
                   <div class="reply-message-content">
                     <span v-if="reply.replyComments.replyCommentId!==reply.replyComments.mainCommentId">回复 </span>
                     <el-tooltip
@@ -58,7 +58,7 @@
                        <span class="reply-message-content1" v-html="addImgFlagF(reply.mainComments,true)"></span>
                    </div>
                  </a>
-                 <a v-else-if="reply.mainComments&&!reply.dynamic&&reply.replyComments.videoId&&reply.replyComments.deleteSign===1" class="reply-message-content" :href="'./video?videoId=BV'+reply.mainComments?.videoId" target="videoWindow">
+                 <a v-else-if="reply.mainComments&&!reply.dynamic&&reply.replyComments.videoId&&(reply.replyComments.deleteSign===1||reply.replyComments.status===1)" class="reply-message-content" :href="'./video?videoId=BV'+reply.mainComments?.videoId" target="videoWindow">
                   <div class="reply-message-content">
                     <span v-if="reply.replyComments.replyCommentId!==reply.replyComments.mainCommentId">回复 </span>
                     <el-tooltip
@@ -143,8 +143,8 @@
                   <template #content>
                         <div v-html="addImgFlagF(reply.mainComments,false)"></div>
                   </template>
-                  <a v-if="reply.mainComments?.deleteSign===0&&reply.replyComments.videoId" class="comment-content" :href="'./video?videoId=BV'+reply.replyComments.videoId+'&commentId='+reply.replyComments.mainCommentId+'&replyId='+reply.mainComments.id" target="videoWindow"><span v-html="addImgFlagF(reply.mainComments,false)"></span></a>
-                  <a v-else-if="reply.mainComments?.deleteSign===1&&reply.replyComments.videoId" class="comment-content" :href="'./video?videoId=BV'+reply.replyComments.videoId" target="videoWindow"><span v-html="addImgFlagF(reply.mainComments,false)"></span></a>
+                  <a v-if="(reply.mainComments?.deleteSign===0&&reply.mainComments?.status===0)&&reply.replyComments.videoId" class="comment-content" :href="'./video?videoId=BV'+reply.replyComments.videoId+'&commentId='+reply.replyComments.mainCommentId+'&replyId='+reply.mainComments.id" target="videoWindow"><span v-html="addImgFlagF(reply.mainComments,false)"></span></a>
+                  <a v-else-if="(reply.mainComments?.deleteSign===1||reply.mainComments?.status===1)&&reply.replyComments.videoId" class="comment-content" :href="'./video?videoId=BV'+reply.replyComments.videoId" target="videoWindow"><span v-html="addImgFlagF(reply.mainComments,false)"></span></a>
                 </el-tooltip>
                 <div class="reply-line"></div>
               </div>
@@ -249,8 +249,8 @@
 
    //判断是否添加图片
   function addImgFlagF(comment,flag){
-    if(comment.deleteSign===1||!comment.content)
-    return "[该评论已被删除]";
+    if((comment.deleteSign===1||comment.status===1)||!comment.content)
+    return "[该评论已被下架]";
     let content=comment.content.replace("style='width: 24px;height: 24px;display: inline-block;","style='width: 24px;height: 24px;display: none;");
     if(flag)
     content = content.replace(/width:21px;height:21px;display:inline-block;/g, "width:16px;height:16px;display:inline-block;");

@@ -222,6 +222,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
         // 构造查询条件
         LambdaQueryWrapper<Comments> commentsLambdaQueryWrapper = new LambdaQueryWrapper<>();
         commentsLambdaQueryWrapper
+                //已被管理员下架的评论对用户不可见
+                .eq(Comments::getStatus,0)
+                .eq(Comments::getDeleteSign,0)
                 .lt(Comments::getDynamicFlag,2)
                 .isNull(Comments::getMainCommentId)
                 .orderByDesc(Comments::getUpFlag);
@@ -271,6 +274,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
             LambdaQueryWrapper<Comments> lambdaQueryWrapper=new LambdaQueryWrapper<>();
             lambdaQueryWrapper.eq(Comments::getMainCommentId,comment.getId())
                     .eq(Comments::getDeleteSign,0)
+                        .eq(Comments::getStatus,0)
                     .lt(Comments::getDynamicFlag,2);
             Long commentsCount = commentsMapper.selectCount(lambdaQueryWrapper);
             selectComment.setReplyNumber(commentsCount);
@@ -347,7 +351,10 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
                 return false;
         }
 
-            //删除主评论 判断是否是回复评论
+            //删除主评论 A：连带删掉它下面所有回复(B、C...)
+            //注意：回复的 main_comment_id 永远指向根评论A(不是它的父评论)，
+            //所以按 main_comment_id=A 一次性查出B和C，全部一起删。
+            //删除回复(B或C)时只删自己，它下面的回复不动。
             if(comments.getMainCommentId()==null){
                 List<Comments> commentsList=new ArrayList<>();
                 commentsList.add(comments);
@@ -575,6 +582,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
                 .eq(Comments::getNotificationReplyFlag,1)
                 .ne(Comments::getUserId,userId)
                 .eq(Comments::getReplyUserId,userId)
+                //已被删除或下架的评论不再产生回复通知
+                .eq(Comments::getDeleteSign,0)
+                .eq(Comments::getStatus,0)
                 .orderByDesc(Comments::getCommentTime);
 
         Page<Comments> commentsPage1 = commentsMapper.selectPage(commentsPage, commentsLambdaQueryWrapper);
@@ -984,6 +994,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
                     .eq(Comments::getUpFlag,1)
                     .isNull(Comments::getMainCommentId)
                     .eq(Comments::getDeleteSign,0)
+                        .eq(Comments::getStatus,0)
                     .ne(Comments::getId,comments.getId());
             Comments comments1 = commentsMapper.selectOne(commentsLambdaQueryWrapper);
             if(comments1!=null) {
@@ -1004,7 +1015,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
     public SelectComment selectOneComment(Integer userId, Integer mainCommentId, Integer replyCommentId) {
 
         Comments comments = commentsMapper.selectById(mainCommentId);
-        if(comments==null||comments.getDeleteSign()==1||comments.getMainCommentId()!=null)
+        // 主评论被删除或下架后整条楼中楼都会删掉(B、C随A一起删)，因此这里仍需拦截
+        if(comments==null||comments.getDeleteSign()==1
+                ||comments.getStatus()==1||comments.getMainCommentId()!=null)
             return null;
 
         Users users = userMapper.selectById(comments.getUserId());
@@ -1020,7 +1033,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
 
         LambdaQueryWrapper<Comments> commentsLambdaQueryWrapper=new LambdaQueryWrapper<>();
         commentsLambdaQueryWrapper.eq(Comments::getMainCommentId,mainCommentId)
-                .eq(Comments::getDeleteSign,0);
+                .eq(Comments::getDeleteSign,0)
+                        .eq(Comments::getStatus,0);
         Long replyCount = commentsMapper.selectCount(commentsLambdaQueryWrapper);
 
         ReplyComment replyComment = this.replyComment(userId,mainCommentId,replyCommentId);
@@ -1044,7 +1058,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
 
         Comments replyComment = commentsMapper.selectById(replyCommentId);
 
-        if(replyComment==null||replyComment.getDeleteSign()==1||!Objects.equals(replyComment.getMainCommentId(), mainCommentId))
+        if(replyComment==null||replyComment.getDeleteSign()==1||replyComment.getStatus()==1
+            ||!Objects.equals(replyComment.getMainCommentId(), mainCommentId))
             return null;
 
         Users users = userMapper.selectById(replyComment.getUserId());
@@ -1080,6 +1095,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentsMapper, Comments> im
          commentsLambdaQueryWrapper.eq(Comments::getMainCommentId,commentId)
                  .lt(Comments::getDynamicFlag,2)
                  .ne(Comments::getDeleteSign,1)
+                 .eq(Comments::getStatus,0)
                  .orderByDesc(Comments::getLikeCommentNumber)
                  .orderByDesc(Comments::getCommentTime);
         // 执行分页查询

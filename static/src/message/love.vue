@@ -3,10 +3,10 @@
       <div v-show="likeUserList.length===0" class="head2">收到的赞</div>
       <div v-show="likeUserList.length>0" class="head2"><span class="detail" @click="likeUserList.length=0">收到的赞</span> > 点赞详情</div>
       <a v-if="likeUserList.length!==0&&loves&&loves.likes.likeType===1" :href="'./video?videoId=BV'+loves.videos?.id" target="videoWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">视频：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.videos.title"></span></span></div></a>
-      <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===2&&loves.comments.deleteSign===0&&!loves.comments.dynamicId" :href="'./video?videoId=BV'+loves.comments.videoId+'&commentId='+`${loves.comments.mainCommentId?loves.comments.mainCommentId:loves.comments?.id}`+'&replyId='+loves.comments?.id" target="videoWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">评论：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.videos.title"></span></span></div></a>
-      <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===2&&loves.comments.deleteSign===1&&!loves.comments.dynamicId" :href="'./video?videoId=BV'+loves.comments.videoId" target="videoWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">评论：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.videos.title"></span></span></div></a>
-      <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===2&&loves.comments.deleteSign===0&&loves.comments.dynamicId" :href="'./dynamicDetail?dynamicId='+loves.comments.dynamicId+'&commentId='+`${loves.comments.mainCommentId?loves.comments.mainCommentId:loves.comments?.id}`+'&replyId='+loves.comments?.id" target="dynamicWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">评论：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.dynamic.title"></span></span></div></a>
-      <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===2&&loves.comments.deleteSign===1&&loves.comments.dynamicId" :href="'./dynamicDetail?dynamicId='+loves.comments.dynamicId" target="dynamicWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">评论：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.dynamic.title"></span></span></div></a>
+      <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===2&&(loves.comments.deleteSign===0&&loves.comments.status===0)&&!loves.comments.dynamicId" :href="'./video?videoId=BV'+loves.comments.videoId+'&commentId='+`${loves.comments.mainCommentId?loves.comments.mainCommentId:loves.comments?.id}`+'&replyId='+loves.comments?.id" target="videoWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">评论：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.videos.title"></span></span></div></a>
+      <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===2&&(loves.comments.deleteSign===1||loves.comments.status===1)&&!loves.comments.dynamicId" :href="'./video?videoId=BV'+loves.comments.videoId" target="videoWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">评论：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.videos.title"></span></span></div></a>
+      <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===2&&(loves.comments.deleteSign===0&&loves.comments.status===0)&&loves.comments.dynamicId" :href="'./dynamicDetail?dynamicId='+loves.comments.dynamicId+'&commentId='+`${loves.comments.mainCommentId?loves.comments.mainCommentId:loves.comments?.id}`+'&replyId='+loves.comments?.id" target="dynamicWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">评论：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.dynamic.title"></span></span></div></a>
+      <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===2&&(loves.comments.deleteSign===1||loves.comments.status===1)&&loves.comments.dynamicId" :href="'./dynamicDetail?dynamicId='+loves.comments.dynamicId" target="dynamicWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">评论：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.dynamic.title"></span></span></div></a>
       <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===3" :href="'./dynamicDetail?dynamicId='+loves.dynamic?.id" target="dynamicWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">动态：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.dynamic.title"></span></span></div></a>
       <div v-show="likeUserList.length===0" class="love-content" @scroll="handleScroll">
         <div v-show="loveList.length>0 && love.id" class="love-item" v-for="love in loveList" :key="love.id">
@@ -64,8 +64,8 @@
                   <template #content>
                       <div v-if="love.comments!==null" v-html="addImgFlagF(love.comments)"></div>
                   </template>
-                  <a v-if="love.comments!==null&&love.comments.deleteSign===0" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId+'&commentId='+`${love.comments.mainCommentId?love.comments.mainCommentId:love.comments.id}`+'&replyId='+love.comments.id" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
-                  <a v-else-if="love.comments!==null&&love.comments.deleteSign===1" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
+                  <a v-if="love.comments!==null&&(love.comments.deleteSign===0&&love.comments.status===0)" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId+'&commentId='+`${love.comments.mainCommentId?love.comments.mainCommentId:love.comments.id}`+'&replyId='+love.comments.id" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
+                  <a v-else-if="love.comments!==null&&(love.comments.deleteSign===1||love.comments.status===1)" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
                 </el-tooltip>
                 <el-tooltip
                     v-if="love.likes.likeType===1"
@@ -172,8 +172,8 @@
                   <template #content>
                       <div v-if="love.likes.likeType===2" v-html="addImgFlagF(love.comments)"></div>
                   </template>
-                  <a v-if="love.comments!==null&&love.comments.deleteSign===0" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId+'&commentId='+`${love.comments.mainCommentId?love.comments.mainCommentId:love.comments.id}`+'&replyId='+love.comments.id" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
-                  <a v-else-if="love.comments!==null&&love.comments.deleteSign===1" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>                </el-tooltip>
+                  <a v-if="love.comments!==null&&(love.comments.deleteSign===0&&love.comments.status===0)" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId+'&commentId='+`${love.comments.mainCommentId?love.comments.mainCommentId:love.comments.id}`+'&replyId='+love.comments.id" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
+                  <a v-else-if="love.comments!==null&&(love.comments.deleteSign===1||love.comments.status===1)" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>                </el-tooltip>
                 <el-tooltip
                     v-if="love.likes.likeType===1"
                     popper-class="custom-tooltip"
@@ -279,8 +279,8 @@
                   <template #content>
                       <div v-if="love.likes.likeType===2" v-html="addImgFlagF(love.comments)"></div>
                   </template>
-                  <a v-if="love.comments!==null&&love.comments.deleteSign===0" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId+'&commentId='+`${love.comments.mainCommentId?love.comments.mainCommentId:love.comments.id}`+'&replyId='+love.comments.id" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
-                  <a v-else-if="love.comments!==null&&love.comments.deleteSign===1" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>                </el-tooltip>
+                  <a v-if="love.comments!==null&&(love.comments.deleteSign===0&&love.comments.status===0)" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId+'&commentId='+`${love.comments.mainCommentId?love.comments.mainCommentId:love.comments.id}`+'&replyId='+love.comments.id" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
+                  <a v-else-if="love.comments!==null&&(love.comments.deleteSign===1||love.comments.status===1)" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>                </el-tooltip>
                 <el-tooltip
                     v-if="love.likes.likeType===1"
                     popper-class="custom-tooltip"
@@ -473,8 +473,8 @@
 
   //判断是否添加图片
   function addImgFlagF(comment){  
-      if(comment.deleteSign===1||!comment.content)
-      return "[该评论已被删除]";
+      if((comment.deleteSign===1||comment.status===1)||!comment.content)
+      return "[该评论已被下架]";
       let content=comment.content.replace("style='width: 24px;height: 24px;display: inline-block;","style='width: 24px;height: 24px;display: none;");
   
       if(comment.replyCommentId!==comment.mainCommentId)

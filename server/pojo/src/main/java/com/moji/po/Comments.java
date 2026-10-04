@@ -25,7 +25,8 @@ public class Comments implements Serializable {
     private String dislike;
     private Integer replyCommentId;//回复的评论id
     private Integer mainCommentId;//在哪条评论回复的
-    private Integer deleteSign;//删除回复评论标识
+    private Integer deleteSign;//用户删除自己的评论标记 0正常 1已删除
+    private Integer status;//管理员下架标记 0正常 1已下架
     private Integer replyUserId;
     private Integer notificationReplyFlag;//用于通知回复评论 0否 1是
     private Integer likeWarn;//是否消息提示

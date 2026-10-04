@@ -86,11 +86,6 @@ const routes = [
         name: 'systemLog',
         component: () => import('./systemManagement/SystemManagement.vue'),
       },
-      {
-        path: '/systemManagement/recycle',
-        name: 'systemRecycle',
-        component: () => import('./systemManagement/SystemManagement.vue'),
-      },
       // 消息
       {
         path: '/message',

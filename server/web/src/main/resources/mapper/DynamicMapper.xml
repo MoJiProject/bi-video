@@ -11,6 +11,7 @@
                           SELECT *
                           FROM dynamic
                           WHERE follow_id = #{homeUserId}
+                            AND status = 0
                             AND fans_id IS NULL
                             AND dynamic_id IS NULL
                             AND video_id IS NOT NULL
@@ -22,6 +23,7 @@
                           SELECT *
                           FROM dynamic
                           WHERE follow_id = #{homeUserId}
+                            AND status = 0
                             AND fans_id IS NULL
                             AND dynamic_id IS NULL
                             AND comment_id IS NOT NULL
@@ -31,6 +33,7 @@
                           SELECT *
                           FROM dynamic
                           WHERE follow_id = #{homeUserId}
+                            AND status = 0
                             AND fans_id IS NULL
                             AND video_id IS NULL
                             AND dynamic_id IS NULL
@@ -47,6 +50,7 @@
                  FROM dynamic d
                           LEFT JOIN follow f ON f.follow_id = d.follow_id
                  WHERE d.fans_id IS NULL
+                   AND d.status = 0
                    AND (f.user_id = #{userId} OR d.follow_id = #{userId})
                    AND d.video_id IS NOT NULL
                    AND d.dynamic_id IS NULL
@@ -59,6 +63,7 @@
                  FROM dynamic d
                           LEFT JOIN follow f ON f.follow_id = d.follow_id
                  WHERE d.fans_id IS NULL
+                   AND d.status = 0
                    AND (f.user_id = #{userId} OR d.follow_id = #{userId})
                    AND d.dynamic_id IS NULL
                    AND d.comment_id IS NOT NULL
@@ -69,6 +74,7 @@
                  FROM dynamic d
                           LEFT JOIN follow f ON f.follow_id = d.follow_id
                  WHERE d.fans_id IS NULL
+                   AND d.status = 0
                    AND (f.user_id = #{userId} OR d.follow_id = #{userId})
                    AND d.dynamic_id IS NULL
                    AND d.video_id IS NULL
@@ -83,6 +89,7 @@
         FROM dynamic d LEFT JOIN follow f
         ON f.follow_id = d.follow_id
         WHERE (f.user_id = #{userId} OR d.follow_id = #{userId})
+          AND d.status = 0
           AND d.video_id IS NOT NULL
           AND d.comment_id IS NULL
           AND d.dynamic_id IS NULL
@@ -97,6 +104,7 @@
         FROM dynamic d LEFT JOIN follow f
         ON d.follow_id = f.follow_id
         WHERE (f.user_id = #{userId} OR d.follow_id = #{userId})
+          AND d.status = 0
           AND (
                 d.content IS NOT NULL
                 OR d.img_address IS NOT NULL

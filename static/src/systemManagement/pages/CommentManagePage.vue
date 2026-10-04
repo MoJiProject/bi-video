@@ -120,8 +120,36 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" width="88" align="center" fixed="right" class-name="sys-actions">
+        <el-table-column label="状态" width="88" align="center">
           <template #default="scope">
+            <span v-if="scope.row.deleteSign === 1" class="sys-tag tag-grey">已删除</span>
+            <span v-else-if="scope.row.status === 1" class="sys-tag tag-warning">已下架</span>
+            <span v-else class="sys-tag tag-success">正常</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column
+          label="操作"
+          width="176"
+          align="center"
+          fixed="right"
+          class-name="sys-actions"
+        >
+          <template #default="scope">
+            <el-button
+              v-if="scope.row.status !== 1"
+              size="small"
+              type="warning"
+              @click="handleOffShelf(scope.row, 1)"
+              >下架</el-button
+            >
+            <el-button
+              v-else
+              size="small"
+              type="success"
+              @click="handleOffShelf(scope.row, 0)"
+              >上架</el-button
+            >
             <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -139,18 +167,18 @@
       />
     </div>
 
-    <!-- 删除原因弹窗 -->
-    <el-dialog v-model="deleteDialogVisible" title="移入回收站" width="450px" align-center>
+<!-- 删除弹窗 -->
+    <el-dialog v-model="deleteDialogVisible" title="删除评论" width="450px" align-center>
       <el-alert
         type="warning"
         :closable="false"
         show-icon
-        title="可以随时还原"
-        description="评论移入回收站后内容会被清空并对其他人隐藏，误删可在回收站一键还原。"
+        title="评论为软删除"
+        description="评论不会被物理移除，会标记为已删除并对其他人隐藏。需要保留数据时也可以使用「下架」，随时可以再上架。"
         style="margin-bottom: 14px"
       />
       <div class="warn-text">
-        即将移入回收站 <strong>{{ pendingIds.length }}</strong> 条评论。
+        即将删除 <strong>{{ pendingIds.length }}</strong> 条评论。
       </div>
       <el-input
         v-model="deleteReason"
@@ -162,8 +190,8 @@
       />
       <template #footer>
         <el-button @click="deleteDialogVisible = false">取消</el-button>
-        <el-button type="warning" :loading="submitting" @click="submitDelete">
-          确定移入回收站
+        <el-button type="danger" :loading="submitting" @click="submitDelete">
+          确定删除
         </el-button>
       </template>
     </el-dialog>
@@ -175,8 +203,14 @@ import { onMounted, reactive, ref } from "vue";
 import { VideoCamera, Promotion, TopRight } from "@element-plus/icons-vue";
 import { useGlobalStore } from "../../store/store";
 import SystemPagination from "../components/SystemPagination.vue";
-import { recycleComment, searchComments } from "../../api/systemManagement/index";
-import { goUserHome, msgOf, shortTime, toast } from "../systemCommon";
+import { deleteComment, searchComments, switchCommentOffShelf } from "../../api/systemManagement/index";
+import {
+  confirmDanger,
+  goUserHome,
+  msgOf,
+  shortTime,
+  toast,
+} from "../systemCommon";
 
 export default {
   name: "CommentManagePage",
@@ -238,18 +272,27 @@ export default {
       loadComments();
     }
 
-    //跳转到动态详情
+    //拼出定位到具体评论所需的参数。
+    //与站内消息页(at.vue/love.vue/reply.vue)的约定保持一致：
+    //commentId 传所属主评论id，replyId 传当前这条评论的id，
+    //页面据此自动展开楼中楼并滚动、高亮到该条评论。
+    function buildCommentAnchor(row) {
+      const mainCommentId = row.mainCommentId || row.id;
+      return `commentId=${mainCommentId}&replyId=${row.id}`;
+    }
+
+    //跳转到动态详情并定位到该评论
     function goDynamicDetail(row) {
       const dynamicId = row.dynamicId;
       if (!dynamicId) return;
-      window.open(`/dynamicDetail?dynamicId=${dynamicId}`, "_blank");
+      window.open(`/dynamicDetail?dynamicId=${dynamicId}&${buildCommentAnchor(row)}`, "_blank");
     }
 
-    //跳转到视频详情
+    //跳转到视频详情并定位到该评论
     function goVideoComment(row) {
       const videoId = row.videoId;
       if (!videoId) return;
-      window.open(`/video?videoId=BV${videoId}`, "_blank");
+      window.open(`/video?videoId=BV${videoId}&${buildCommentAnchor(row)}`, "_blank");
     }
 
     //评论正文点击：有归属就跳到对应位置，没有归属就提示
@@ -296,22 +339,51 @@ export default {
     async function submitDelete() {
       submitting.value = true;
       try {
-        const res = await recycleComment(store.token, {
+        const res = await deleteComment(store.token, {
           operatorId: store.userId,
           reason: deleteReason.value.trim(),
           ids: pendingIds.value,
         });
         if (res.data.code === 1) {
-          toast(`已将 ${res.data.data.number} 条评论移入回收站，可在回收站还原`, "success");
+          toast(`已删除 ${res.data.data.deleteNumber} 条评论`, "success");
           deleteDialogVisible.value = false;
           loadComments();
         } else {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("操作失败");
+        toast("删除失败");
       } finally {
         submitting.value = false;
+      }
+    }
+
+    //下架 / 取消下架
+    async function handleOffShelf(row, offShelf) {
+      try {
+        await confirmDanger(
+          offShelf === 1
+            ? `确定下架这条评论吗？下架后用户将看不到它。`
+            : `确定取消下架吗？取消后评论会重新显示。`,
+          offShelf === 1 ? "确定下架" : "确定上架"
+        );
+      } catch (error) {
+        return;
+      }
+      try {
+        const res = await switchCommentOffShelf(
+          store.token,
+          { operatorId: store.userId, ids: [row.id] },
+          offShelf
+        );
+        if (res.data.code === 1) {
+          toast(msgOf(res), "success");
+          loadComments();
+        } else {
+          toast(msgOf(res));
+        }
+      } catch (error) {
+        toast("操作失败");
       }
     }
 
@@ -337,8 +409,10 @@ export default {
       handleDelete,
       handleBatchDelete,
       submitDelete,
+      handleOffShelf,
       goUserHome,
       shortTime,
+      confirmDanger,
     };
   },
 };

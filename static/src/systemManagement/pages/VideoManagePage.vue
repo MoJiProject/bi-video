@@ -19,7 +19,7 @@
         <span class="title">
           视频管理
           <span class="title-tip">
-            审核通过会按创作中心规则重置发布时间并向粉丝推送动态；强制下架会同步回滚这些影响
+            审核通过会按创作中心规则重置发布时间并向粉丝推送动态；下架会同步回滚这些影响
           </span>
         </span>
       </div>
@@ -180,7 +180,15 @@
               size="small"
               type="warning"
               @click="openTakeDown(scope.row)"
-              >强制下架</el-button
+              >下架</el-button
+            >
+            <!-- 已下架/已退回的视频可以恢复到已通过 -->
+            <el-button
+              v-if="scope.row.status === 2"
+              size="small"
+              type="success"
+              @click="handleRestore(scope.row)"
+              >上架</el-button
             >
             <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
           </template>
@@ -240,18 +248,18 @@
       </template>
     </el-dialog>
 
-    <!-- 移入回收站弹窗 -->
-    <el-dialog v-model="deleteDialogVisible" title="移入回收站" width="470px" align-center>
+    <!-- 删除确认弹窗 -->
+    <el-dialog v-model="deleteDialogVisible" title="删除视频" width="470px" align-center>
       <el-alert
-        type="warning"
+        type="error"
         :closable="false"
         show-icon
-        title="可以随时还原"
-        description="视频记录、磁盘文件以及弹幕/评论/收藏/观看历史/点赞/投币都会先备份进回收站，误删可在回收站还原。如果只是想隐藏，请使用「强制下架」。"
+        title="此操作不可恢复"
+        description="将永久删除视频记录、磁盘上的封面与视频文件，并级联清理该视频下的弹幕、评论、收藏、观看历史、点赞与投币记录。如果只是想隐藏，请使用「下架」。"
         style="margin-bottom: 14px"
       />
       <div class="warn-text">
-        即将移入回收站 <strong>{{ pendingIds.length }}</strong> 个视频。
+        即将删除 <strong>{{ pendingIds.length }}</strong> 个视频。
       </div>
       <el-input
         v-model="deleteReason"
@@ -263,8 +271,8 @@
       />
       <template #footer>
         <el-button @click="deleteDialogVisible = false">取消</el-button>
-        <el-button type="warning" :loading="submitting" @click="submitDelete">
-          确定移入回收站
+        <el-button type="danger" :loading="submitting" @click="submitDelete">
+          确定删除
         </el-button>
       </template>
     </el-dialog>
@@ -276,10 +284,11 @@ import { computed, onMounted, reactive, ref } from "vue";
 import { useGlobalStore } from "../../store/store";
 import SystemPagination from "../components/SystemPagination.vue";
 import {
+  deleteVideo,
   examineVideo,
   getSubZoneKeys,
-  recycleVideo,
   rejectVideo,
+  restoreVideo,
   searchVideos,
   takeDownVideo,
 } from "../../api/systemManagement/index";
@@ -434,6 +443,39 @@ export default {
       }
     }
 
+    //上架：把已下架/已退回的视频恢复为已通过。
+    //必须与下架严格互逆——下架时回退了UP计数、删除了粉丝动态副本、软删了收藏，
+    //这里要一并还原，否则计数会和实际数据对不上。
+    async function handleRestore(row) {
+      try {
+        await confirmDanger(
+          `确定将「${row.title}」重新上架吗？上架后会重新对外展示。`,
+          "确定上架"
+        );
+      } catch (error) {
+        return;
+      }
+
+      submitting.value = true;
+      try {
+        const res = await restoreVideo(
+          store.token,
+          { operatorId: store.userId, reason: "管理员重新上架" },
+          row.id
+        );
+        if (res.data.code === 1) {
+          toast(msgOf(res), "success");
+          loadVideos();
+        } else {
+          toast(msgOf(res));
+        }
+      } catch (error) {
+        toast("上架失败");
+      } finally {
+        submitting.value = false;
+      }
+    }
+
     function openReject(row) {
       currentTarget.value = row;
       reasonAction.value = "reject";
@@ -445,7 +487,7 @@ export default {
     function openTakeDown(row) {
       currentTarget.value = row;
       reasonAction.value = "takeDown";
-      reasonDialogTitle.value = "强制下架";
+      reasonDialogTitle.value = "下架";
       reasonText.value = "";
       reasonDialogVisible.value = true;
     }
@@ -500,20 +542,20 @@ export default {
     async function submitDelete() {
       submitting.value = true;
       try {
-        const res = await recycleVideo(store.token, {
+        const res = await deleteVideo(store.token, {
           operatorId: store.userId,
           reason: deleteReason.value.trim(),
           ids: pendingIds.value,
         });
         if (res.data.code === 1) {
-          toast(`已将 ${res.data.data.number} 个视频移入回收站，可在回收站还原`, "success");
+          toast(`已删除 ${res.data.data.deleteNumber} 个视频，此操作不可恢复`);
           deleteDialogVisible.value = false;
           loadVideos();
         } else {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("操作失败");
+        toast("删除失败");
       } finally {
         submitting.value = false;
       }
@@ -546,6 +588,7 @@ export default {
       handleSelectionChange,
       handleExamine,
       openReject,
+      handleRestore,
       openTakeDown,
       submitReasonAction,
       handleDelete,

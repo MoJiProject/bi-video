@@ -34,6 +34,7 @@ public class SystemDynamicVo implements Serializable {
     private Integer commentNumber;
     private Integer shareNumber;
     private Integer upFlag;
+    private Integer status;//0正常 1已下架
     private LocalDateTime publishTime;
     private Integer dynamicFlag;//0视频动态 1评论动态 2图文动态
 

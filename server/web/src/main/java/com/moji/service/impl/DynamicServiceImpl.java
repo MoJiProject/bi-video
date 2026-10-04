@@ -86,6 +86,7 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                 //查询粉id根关注id对应并且现在是粉丝状态的
                 dynamicLambdaQueryWrapper1.eq(Dynamic::getFollowId,follow.getFollowId())
                         .eq(Dynamic::getFansId,userID)
+                        .eq(Dynamic::getStatus,0)
                         .isNotNull(Dynamic::getVideoId)
                         .isNull(Dynamic::getDynamicId)
                         .eq(Dynamic::getFansFlag,1);
@@ -170,6 +171,7 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
             userMapper.updateById(users);
             LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
             dynamicLambdaQueryWrapper.eq(Dynamic::getFansId,userId)
+                    .eq(Dynamic::getStatus,0)
                     .eq(Dynamic::getWatchDynamicFlag,0)
                     .eq(Dynamic::getFansFlag,1);
 
@@ -248,6 +250,7 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
         if(type==1){
             LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
             dynamicLambdaQueryWrapper.eq(Dynamic::getFollowId,homeUserId)
+                    .eq(Dynamic::getStatus,0)
                     .isNull(Dynamic::getFansId)
                     .isNotNull(Dynamic::getImgAddress)
                     .orderByDesc(Dynamic::getPublishTime);
@@ -258,6 +261,7 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
         else if (type == 2) {
             LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
             dynamicLambdaQueryWrapper.eq(Dynamic::getFollowId,homeUserId)
+                    .eq(Dynamic::getStatus,0)
                     .isNotNull(Dynamic::getCommentId)
                     .isNull(Dynamic::getFansId)
                     .isNotNull(Dynamic::getImgAddress)
@@ -269,6 +273,7 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
         else if (type == 3) {
             LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
             dynamicLambdaQueryWrapper.eq(Dynamic::getFollowId,homeUserId)
+                    .eq(Dynamic::getStatus,0)
                     .isNull(Dynamic::getCommentId)
                     .isNull(Dynamic::getFansId)
                     .isNotNull(Dynamic::getImgAddress)
@@ -294,6 +299,7 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                 Page<Dynamic> dynamicPage=new Page<>(pageNum,10);
                 LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
                 dynamicLambdaQueryWrapper.eq(Dynamic::getFollowId,homeUserId)
+                        .eq(Dynamic::getStatus,0)
                         .isNull(Dynamic::getFansId)
                         .isNull(Dynamic::getDynamicId)
                         .and(wrapper->wrapper
@@ -315,6 +321,7 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
             Page<Dynamic> dynamicPage=new Page<>(pageNum,10);
             LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
             dynamicLambdaQueryWrapper.eq(Dynamic::getFollowId,homeUserId)
+                    .eq(Dynamic::getStatus,0)
                     .isNotNull(Dynamic::getVideoId)
                     .isNull(Dynamic::getDynamicId)
                     .isNull(Dynamic::getCommentId)
@@ -333,6 +340,7 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
             Page<Dynamic> dynamicPage=new Page<>(pageNum,10);
             LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
             dynamicLambdaQueryWrapper.eq(Dynamic::getFollowId,homeUserId)
+                    .eq(Dynamic::getStatus,0)
                     .and(wrapper -> wrapper
                             .isNotNull(Dynamic::getContent)
                             .or()
@@ -639,6 +647,7 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                     LambdaQueryWrapper<Comments> commentsLambdaQueryWrapper=new LambdaQueryWrapper<>();
                     commentsLambdaQueryWrapper.eq(Comments::getDynamicId,record.getId())
                             .eq(Comments::getDeleteSign,0)
+                        .eq(Comments::getStatus,0)
                             .isNull(Comments::getMainCommentId)
                             .orderByDesc(Comments::getCommentTime)
                             .last("LIMIT 1");
@@ -718,6 +727,7 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                     LambdaQueryWrapper<Comments> commentsLambdaQueryWrapper=new LambdaQueryWrapper<>();
                     commentsLambdaQueryWrapper.eq(Comments::getVideoId,record.getVideoId())
                             .eq(Comments::getDeleteSign,0)
+                        .eq(Comments::getStatus,0)
                             .isNull(Comments::getMainCommentId)
                             .orderByDesc(Comments::getCommentTime)
                             .last("LIMIT 1");
@@ -788,6 +798,7 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                     LambdaQueryWrapper<Comments> commentsLambdaQueryWrapper=new LambdaQueryWrapper<>();
                     commentsLambdaQueryWrapper.eq(Comments::getDynamicId,record.getId())
                             .eq(Comments::getDeleteSign,0)
+                        .eq(Comments::getStatus,0)
                             .isNull(Comments::getMainCommentId)
                             .orderByDesc(Comments::getCommentTime)
                             .last("LIMIT 1");
@@ -896,6 +907,7 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                 LambdaQueryWrapper<Comments> commentsLambdaQueryWrapper=new LambdaQueryWrapper<>();
                 commentsLambdaQueryWrapper.eq(Comments::getDynamicId,record.getId())
                         .eq(Comments::getDeleteSign,0)
+                        .eq(Comments::getStatus,0)
                         .isNull(Comments::getMainCommentId)
                         .orderByDesc(Comments::getCommentTime)
                         .last("LIMIT 1");
@@ -977,6 +989,7 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                 LambdaQueryWrapper<Comments> commentsLambdaQueryWrapper=new LambdaQueryWrapper<>();
                 commentsLambdaQueryWrapper.eq(Comments::getVideoId,record.getVideoId())
                         .eq(Comments::getDeleteSign,0)
+                        .eq(Comments::getStatus,0)
                         .isNull(Comments::getMainCommentId)
                         .orderByDesc(Comments::getCommentTime)
                         .last("LIMIT 1");
@@ -1048,6 +1061,7 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                 LambdaQueryWrapper<Comments> commentsLambdaQueryWrapper=new LambdaQueryWrapper<>();
                 commentsLambdaQueryWrapper.eq(Comments::getDynamicId,record.getId())
                         .eq(Comments::getDeleteSign,0)
+                        .eq(Comments::getStatus,0)
                         .isNull(Comments::getMainCommentId)
                         .orderByDesc(Comments::getCommentTime)
                         .last("LIMIT 1");
@@ -1285,6 +1299,7 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
             //查询是否有新的动态，必须与cleanDynamicMessage的清除条件保持一致，否则红点无法被清除
             LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
             dynamicLambdaQueryWrapper.eq(Dynamic::getFollowId,record.getFollowId())
+                    .eq(Dynamic::getStatus,0)
                     .eq(Dynamic::getFansId,userId)
                     .eq(Dynamic::getFansFlag,1)
                     .and(wrapper->wrapper
@@ -1343,6 +1358,7 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
 
         LambdaQueryWrapper<Dynamic> dynamicLambdaQueryWrapper=new LambdaQueryWrapper<>();
         dynamicLambdaQueryWrapper.eq(Dynamic::getFansId,userId)
+                .eq(Dynamic::getStatus,0)
                 .and(wrapper->wrapper
                         .isNull(Dynamic::getDynamicId)
                         .eq(Dynamic::getFansFlag,1)
@@ -1370,7 +1386,8 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
     public HomeDynamicDto selectDynamicById(Integer dynamicId) {
 
         Dynamic dynamic = dynamicMapper.selectById(dynamicId);
-        if(dynamic==null)
+        //已下架的动态用户侧不可见
+        if(dynamic==null||dynamic.getStatus()!=null&&dynamic.getStatus()==1)
             return null;
 
         HomeDynamicDto homeDynamicDto=new HomeDynamicDto();

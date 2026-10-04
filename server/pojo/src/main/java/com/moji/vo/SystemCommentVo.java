@@ -32,6 +32,8 @@ public class SystemCommentVo implements Serializable {
     private String replyUserName;//被回复人用户名
     private Integer mainCommentId;
     private Integer upFlag;
+    private Integer deleteSign;//用户自己删除标记 0正常 1已删除
+    private Integer status;//管理员下架标记 0正常 1已下架
     private Integer dynamicFlag;
 
 }

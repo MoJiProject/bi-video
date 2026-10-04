@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
@@ -136,6 +137,48 @@ public class SystemContentController {
         dto.setIp(resolveIp(request));
         Integer number = systemService.deleteMessages(dto, dto.getIds());
         return R.success(Map.of("deleteNumber", number));
+    }
+
+    /**
+     * 评论下架 / 取消下架
+     * @param dto     ids为评论id集合，offShelf 1下架 0上架
+     * @param request
+     * @param token
+     * @return
+     */
+    @PostMapping("/switchCommentOffShelf")
+    public R<String> switchCommentOffShelf(@RequestBody SystemOperateDto dto,
+                                           @RequestParam Integer offShelf,
+                                           HttpServletRequest request,
+                                           @RequestHeader("Authorization") String token) {
+
+        if (!systemService.checkAdmin(dto.getOperatorId(), token))
+            return R.error("操作失败");
+
+        dto.setIp(resolveIp(request));
+        systemService.switchCommentOffShelf(dto, dto.getIds(), offShelf);
+        return R.success(offShelf == 1 ? "已下架" : "已取消下架");
+    }
+
+    /**
+     * 动态下架 / 取消下架
+     * @param dto     ids为动态id集合，offShelf 1下架 0上架
+     * @param request
+     * @param token
+     * @return
+     */
+    @PostMapping("/switchDynamicOffShelf")
+    public R<String> switchDynamicOffShelf(@RequestBody SystemOperateDto dto,
+                                           @RequestParam Integer offShelf,
+                                           HttpServletRequest request,
+                                           @RequestHeader("Authorization") String token) {
+
+        if (!systemService.checkAdmin(dto.getOperatorId(), token))
+            return R.error("操作失败");
+
+        dto.setIp(resolveIp(request));
+        systemService.switchDynamicOffShelf(dto, dto.getIds(), offShelf);
+        return R.success(offShelf == 1 ? "已下架" : "已取消下架");
     }
 
     /**

@@ -7,18 +7,15 @@ import com.moji.dto.SystemKeyWordSearchDto;
 import com.moji.dto.SystemLogSearchDto;
 import com.moji.dto.SystemMessageSearchDto;
 import com.moji.dto.SystemOperateDto;
-import com.moji.dto.SystemRecycleSearchDto;
 import com.moji.dto.SystemUserSearchDto;
 import com.moji.dto.SystemVideoSearchDto;
 import com.moji.po.KeyWord;
-import com.moji.po.RecycleBin;
 import com.moji.po.SystemOperationLog;
 import com.moji.po.UserBan;
 import com.moji.vo.SystemCommentVo;
 import com.moji.vo.SystemDynamicVo;
 import com.moji.vo.SystemMessageVo;
 import com.moji.vo.SystemOverviewVo;
-import com.moji.vo.SystemRecycleBinVo;
 import com.moji.vo.SystemUserVo;
 import com.moji.vo.SystemVideoListVo;
 
@@ -150,7 +147,7 @@ public interface SystemService {
     Boolean rejectVideo(SystemOperateDto dto, Integer videoId);
 
     /**
-     * 视频管理 - 强制下架已通过的视频，并回滚UP主计数与已推送的粉丝动态
+     * 视频管理 - 下架已通过的视频，并回滚UP主计数与已推送的粉丝动态
      */
     Boolean takeDownVideo(SystemOperateDto dto, Integer videoId);
 
@@ -159,51 +156,19 @@ public interface SystemService {
      */
     Integer deleteVideos(SystemOperateDto dto, List<Integer> videoIds);
 
-    // ==================== 回收站 ====================
+    /**
+     * 视频管理 - 把已下架/已退回的视频恢复为已通过
+     */
+    Boolean restoreVideo(SystemOperateDto dto, Integer videoId);
 
     /**
-     * 回收站 - 分页查询
+     * 评论管理 - 设为下架 / 取消下架
      */
-    Page<SystemRecycleBinVo> searchRecycleBin(SystemRecycleSearchDto dto);
+    Boolean switchCommentOffShelf(SystemOperateDto dto, List<Integer> commentIds, Integer offShelf);
 
     /**
-     * 回收站 - 彻底清除(不可恢复)
+     * 动态管理 - 设为下架 / 取消下架
      */
-    Integer purgeRecycleBin(SystemOperateDto dto, List<Integer> recycleIds);
-
-    /**
-     * 回收站 - 清空已还原的记录
-     */
-    Integer cleanRestoredRecycleBin(SystemOperateDto dto);
-
-    /**
-     * 回收站 - 把视频移入回收站(可还原)
-     */
-    Integer recycleVideos(SystemOperateDto dto, List<Integer> videoIds);
-
-    /**
-     * 回收站 - 还原视频
-     */
-    Integer restoreVideos(SystemOperateDto dto, List<Integer> videoIds);
-
-    /**
-     * 回收站 - 把评论移入回收站(可还原)
-     */
-    Integer recycleComments(SystemOperateDto dto, List<Integer> commentIds);
-
-    /**
-     * 回收站 - 还原评论
-     */
-    Integer restoreComments(SystemOperateDto dto, List<Integer> commentIds);
-
-    /**
-     * 回收站 - 把动态移入回收站(可还原)
-     */
-    Integer recycleDynamics(SystemOperateDto dto, List<Integer> dynamicIds);
-
-    /**
-     * 回收站 - 还原动态
-     */
-    Integer restoreDynamics(SystemOperateDto dto, List<Integer> dynamicIds);
+    Boolean switchDynamicOffShelf(SystemOperateDto dto, List<Integer> dynamicIds, Integer offShelf);
 
 }

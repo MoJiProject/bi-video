@@ -13,7 +13,6 @@ import com.moji.dto.SystemKeyWordSearchDto;
 import com.moji.dto.SystemLogSearchDto;
 import com.moji.dto.SystemMessageSearchDto;
 import com.moji.dto.SystemOperateDto;
-import com.moji.dto.SystemRecycleSearchDto;
 import com.moji.dto.SystemUserSearchDto;
 import com.moji.dto.SystemVideoSearchDto;
 import com.moji.exception.BaseException;
@@ -25,7 +24,6 @@ import com.moji.mapper.HistoryMapper;
 import com.moji.mapper.KeyWordMapper;
 import com.moji.mapper.LikesMapper;
 import com.moji.mapper.PrivateMessageMapper;
-import com.moji.mapper.RecycleBinMapper;
 import com.moji.mapper.ScrollingMapper;
 import com.moji.mapper.SystemOperationLogMapper;
 import com.moji.mapper.ThrowCoinMapper;
@@ -40,7 +38,6 @@ import com.moji.po.History;
 import com.moji.po.KeyWord;
 import com.moji.po.Likes;
 import com.moji.po.PrivateMessage;
-import com.moji.po.RecycleBin;
 import com.moji.po.Scrolling;
 import com.moji.po.SystemOperationLog;
 import com.moji.po.ThrowCoin;
@@ -58,7 +55,6 @@ import com.moji.vo.SystemHotKeyWordVo;
 import com.moji.vo.SystemHotVideoVo;
 import com.moji.vo.SystemMessageVo;
 import com.moji.vo.SystemOverviewVo;
-import com.moji.vo.SystemRecycleBinVo;
 import com.moji.vo.SystemTrendVo;
 import com.moji.vo.SystemUserVo;
 import com.moji.vo.SystemVideoListVo;
@@ -119,15 +115,6 @@ public class SystemServiceImpl implements SystemService {
     private static final String RECYCLE_BIZ_COMMENT = "comment";
     private static final String RECYCLE_BIZ_DYNAMIC = "dynamic";
 
-    //回收站状态 0在回收站 1已还原
-    private static final int RECYCLE_STATUS_IN_BIN = 0;
-    private static final int RECYCLE_STATUS_RESTORED = 1;
-
-    //回收站备份目录(位于 upload/video 下)
-    private static final String RECYCLE_SUBDIR_ROOT = "recycle_bin/";
-    private static final String RECYCLE_SUBDIR_VIDEO = "video";
-    private static final String RECYCLE_SUBDIR_COVER = "cover";
-
     //批量删除单次最大条数
     private static final int MAX_BATCH_SIZE = 200;
 
@@ -175,21 +162,6 @@ public class SystemServiceImpl implements SystemService {
 
     @Autowired
     private CacheManager cacheManager;
-
-    @Autowired
-    private RecycleBinMapper recycleBinMapper;
-
-    @Autowired
-    private ThrowCoinMapper throwCoinMapper;
-
-    @Autowired
-    private ScrollingMapper scrollingMapper;
-
-    @Autowired
-    private HistoryMapper historyMapper;
-
-    @Autowired
-    private com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
     @Autowired
     private com.moji.service.CommentService commentService;
@@ -501,6 +473,8 @@ public class SystemServiceImpl implements SystemService {
                     .replyCommentId(record.getReplyCommentId())
                     .mainCommentId(record.getMainCommentId())
                     .upFlag(record.getUpFlag())
+                    .deleteSign(record.getDeleteSign())
+                    .status(record.getStatus())
                     .dynamicFlag(record.getDynamicFlag())
                     .build();
             records.add(vo);
@@ -529,12 +503,34 @@ public class SystemServiceImpl implements SystemService {
         if (commentList.isEmpty())
             throw new BaseException("选中的评论可能已不存在");
 
+// 删除规则：
+//   删主评论A  -> A 以及它下面所有回复(B、C)一起删
+//   删回复B/C  -> 只删自己
+// 只有「本次选中的评论本身是主评论」才级联；
+// 选中的是回复时绝不能带上它所在楼的所有回复，否则删B会把C也删掉。
+List<Comments> targetList = new ArrayList<>(commentList);
+List<Integer> selectedMainIds = commentList.stream()
+                .filter(c -> c.getMainCommentId() == null)
+                .map(Comments::getId)
+                .collect(Collectors.toList());
+
+        if (!selectedMainIds.isEmpty()) {
+            Set<Integer> alreadyIn = commentList.stream().map(Comments::getId).collect(Collectors.toSet());
+            List<Comments> replies = commentsMapper.selectList(new LambdaQueryWrapper<Comments>()
+                    .in(Comments::getMainCommentId, selectedMainIds));
+            for (Comments reply : replies) {
+                //已被本次选中的一并处理，不重复计数
+                if (!alreadyIn.contains(reply.getId()))
+                    targetList.add(reply);
+            }
+        }
+
         //按视频/动态分组计数，保证评论数只被扣减一次且数量准确
         Map<Integer, Integer> videoCountMap = new LinkedHashMap<>();
         Map<Integer, Integer> dynamicCountMap = new LinkedHashMap<>();
 
         int deleteNumber = 0;
-        for (Comments comment : commentList) {
+        for (Comments comment : targetList) {
             //dynamicFlag 1表示已经生成过动态，删除评论时保留动态只隐藏评论内容
             if (Objects.equals(comment.getDynamicFlag(), 1)) {
                 comment.setDynamicFlag(2);
@@ -581,9 +577,13 @@ public class SystemServiceImpl implements SystemService {
             cacheService.deleteCommentCacheByVideoId(null, dynamicId, 0);
         });
 
-        String targetNames = commentList.stream().map(c -> "#" + c.getId()).limit(10).collect(Collectors.joining(","));
+        //被级联删除的回复所在的楼中楼缓存也要失效，否则回复列表仍显示旧内容
+        for (Integer mainCommentId : selectedMainIds)
+            cacheService.deleteReplyCommentCacheByCommentId(null, null, mainCommentId, 0);
+
+        String targetNames = targetList.stream().map(c -> "#" + c.getId()).limit(10).collect(Collectors.joining(","));
         systemLogService.write(dto, "comment", "deleteComment", "comment", ids.get(0),
-                targetNames + (ids.size() > 10 ? " 等" : ""),
+                targetNames + (targetList.size() > 10 ? " 等" : ""),
                 "删除评论 " + deleteNumber + " 条" + (StringUtils.hasText(dto.getReason()) ? "，原因：" + dto.getReason() : ""), 1);
         return deleteNumber;
     }
@@ -639,6 +639,7 @@ public class SystemServiceImpl implements SystemService {
                     .commentNumber(record.getCommentNumber())
                     .shareNumber(record.getShareNumber())
                     .upFlag(record.getUpFlag())
+                    .status(record.getStatus())
                     .publishTime(record.getPublishTime())
                     .dynamicFlag(dynamicFlag)
                     .build());
@@ -1093,8 +1094,8 @@ public class SystemServiceImpl implements SystemService {
 
         if (Objects.equals(videos.getStatus(), VIDEO_STATUS_PASS)) {
             systemLogService.write(dto, "video", "rejectVideo", "video", videoId, videos.getTitle(),
-                    "已通过审核的视频不能直接退回，请使用强制下架", 0);
-            throw new BaseException("该视频已审核通过，如需下架请使用「强制下架」");
+                    "已通过审核的视频不能直接退回，请使用下架", 0);
+            throw new BaseException("该视频已审核通过，如需下架请使用「下架」");
         }
 
         if (!StringUtils.hasText(dto.getReason()))
@@ -1119,8 +1120,8 @@ public class SystemServiceImpl implements SystemService {
 
         if (!Objects.equals(videos.getStatus(), VIDEO_STATUS_PASS)) {
             systemLogService.write(dto, "video", "takeDownVideo", "video", videoId, videos.getTitle(),
-                    "非已通过状态无需强制下架", 0);
-            throw new BaseException("只有已通过审核的视频才能强制下架");
+                    "非已通过状态无需下架", 0);
+            throw new BaseException("只有已通过审核的视频才能下架");
         }
 
         if (!StringUtils.hasText(dto.getReason()))
@@ -1136,7 +1137,7 @@ public class SystemServiceImpl implements SystemService {
 
         evictVideoCache(videoId);
         systemLogService.write(dto, "video", "takeDownVideo", "video", videoId, videos.getTitle(),
-                "强制下架：" + dto.getReason(), 1);
+                "下架：" + dto.getReason(), 1);
         return true;
     }
 
@@ -1221,803 +1222,165 @@ public class SystemServiceImpl implements SystemService {
         if (videos == null)
             throw new BaseException("该视频不存在或已被删除");
 
-        return videos;
-    }
+return videos;
+      }
 
-    // ==================== 回收站 ====================
+    // ==================== 下架 / 上架 ====================
 
     @Override
-    public Page<SystemRecycleBinVo> searchRecycleBin(SystemRecycleSearchDto dto) {
+    @Transactional
+    public Boolean restoreVideo(SystemOperateDto dto, Integer videoId) {
 
-        Page<RecycleBin> page = buildPage(dto.getPageNum());
-        LambdaQueryWrapper<RecycleBin> wrapper = new LambdaQueryWrapper<>();
+        Videos videos = requireVideo(videoId);
+        if (Objects.equals(videos.getStatus(), VIDEO_STATUS_PASS))
+            throw new BaseException("该视频已是已通过状态，无需上架");
 
-        if (StringUtils.hasText(dto.getBizType()))
-            wrapper.eq(RecycleBin::getBizType, dto.getBizType());
-        if (dto.getStatus() != null && dto.getStatus() >= 0)
-            wrapper.eq(RecycleBin::getStatus, dto.getStatus());
-        if (StringUtils.hasText(dto.getKeyword()))
-            wrapper.like(RecycleBin::getTitle, dto.getKeyword().trim());
+        // 必须与「强制下架」严格互逆：下架时把UP的投稿数/动态数减了、
+        //删掉了推给粉丝的动态副本、软删了收藏，这里逐一还原。
+        boolean wasPublished = Objects.equals(videos.getStatus(), VIDEO_STATUS_REJECT)
+                && videos.getCreateTime() != null;
 
-        wrapper.orderByDesc(RecycleBin::getDeleteTime);
-        Page<RecycleBin> binPage = recycleBinMapper.selectPage(page, wrapper);
+        videos.setStatus(VIDEO_STATUS_PASS);
+        videos.setExamineFiledMessage(null);
+        //updateById会忽略null，驳回原因要用UpdateWrapper显式清空
+        videosMapper.update(null, new LambdaUpdateWrapper<Videos>()
+                .eq(Videos::getId, videos.getId())
+                .set(Videos::getStatus, VIDEO_STATUS_PASS)
+                .set(Videos::getExamineFiledMessage, null));
 
-        List<SystemRecycleBinVo> records = new ArrayList<>();
-        for (RecycleBin record : binPage.getRecords()) {
-            SystemRecycleBinVo vo = SystemRecycleBinVo.builder()
-                    .id(record.getId())
-                    .bizType(record.getBizType())
-                    .bizId(record.getBizId())
-                    .title(record.getTitle())
-                    .coverAddress(record.getCoverAddress())
-                    .videoAddress(record.getVideoAddress())
-                    .reason(record.getReason())
-                    .status(record.getStatus())
-                    .deleteTime(record.getDeleteTime())
-                    .operatorId(record.getOperatorId())
-                    .operatorName(record.getOperatorName())
-                    .restoreTime(record.getRestoreTime())
-                    .build();
-            fillRecycleBinExtra(vo);
-            records.add(vo);
-        }
-
-        Page<SystemRecycleBinVo> voPage = new Page<>(binPage.getCurrent(), binPage.getSize());
-        voPage.setRecords(records);
-        voPage.setTotal(binPage.getTotal());
-        return voPage;
-    }
-
-    /**
-     * 补充回收站列表的归属用户名与关联数据量
-     */
-    private void fillRecycleBinExtra(SystemRecycleBinVo vo) {
-
-        if (RECYCLE_BIZ_VIDEO.equals(vo.getBizType())) {
-            Map<String, Object> payload = readPayload(vo);
-            Object ownerName = payload.get("ownerName");
-            if (ownerName != null)
-                vo.setOwnerName(String.valueOf(ownerName));
-
-            Object video = payload.get("video");
-            if (video instanceof Map) {
-                Object userId = ((Map<?, ?>) video).get("userId");
-                if (userId instanceof Number)
-                    vo.setRelatedNumber(
-                            commentsMapper.selectCount(new LambdaQueryWrapper<Comments>().eq(Comments::getVideoId, vo.getBizId())).intValue());
+        if (wasPublished) {
+            Users owner = userMapper.selectById(videos.getUserId());
+            if (owner != null) {
+                owner.setVideoNumber(nullToZero(owner.getVideoNumber()) + 1);
+                owner.setOwnDynamicNumber(nullToZero(owner.getOwnDynamicNumber()) + 1);
+                userMapper.updateById(owner);
             }
-        } else if (RECYCLE_BIZ_COMMENT.equals(vo.getBizType()) || RECYCLE_BIZ_DYNAMIC.equals(vo.getBizType())) {
-            Map<String, Object> payload = readPayload(vo);
-            Object ownerName = payload.get("ownerName");
-            if (ownerName != null)
-                vo.setOwnerName(String.valueOf(ownerName));
         }
+
+        //恢复UP主自己的动态
+        List<Dynamic> ownDynamics = dynamicMapper.selectList(new LambdaQueryWrapper<Dynamic>()
+                .eq(Dynamic::getVideoId, videoId)
+                .isNull(Dynamic::getFansId)
+                .isNull(Dynamic::getCommentId));
+        if (ownDynamics.isEmpty()) {
+            dynamicMapper.insert(Dynamic.builder()
+                    .videoId(videoId)
+                    .followId(videos.getUserId())
+                    .publishTime(LocalDateTime.now())
+                    .build());
+        }
+
+        //恢复收藏可见性
+        collectMapper.update(null, new LambdaUpdateWrapper<Collects>()
+                .eq(Collects::getVideoId, videoId)
+                .set(Collects::getDeleteFlag, 0));
+
+        evictVideoCache(videoId);
+        systemLogService.write(dto, "video", "restoreVideo", "video", videoId, videos.getTitle(), "重新上架", 1);
+        return true;
     }
 
     @Override
     @Transactional
-    public Integer recycleVideos(SystemOperateDto dto, List<Integer> videoIds) {
-
-        List<Integer> ids = normalizeIds(videoIds);
-        if (ids.isEmpty())
-            throw new BaseException("请先选择要删除的视频");
-
-        List<Videos> videoList = videosMapper.selectList(new LambdaQueryWrapper<Videos>().in(Videos::getId, ids));
-        if (videoList.isEmpty())
-            throw new BaseException("选中的视频可能已不存在");
-
-        int recycleNumber = 0;
-        List<Integer> doneIds = new ArrayList<>();
-        for (Videos video : videoList) {
-
-            //已经进过回收站的先清掉旧快照，避免唯一键冲突
-            recycleBinMapper.delete(new LambdaQueryWrapper<RecycleBin>()
-                    .eq(RecycleBin::getBizType, RECYCLE_BIZ_VIDEO)
-                    .eq(RecycleBin::getBizId, video.getId()));
-
-            Map<String, Object> payload = buildVideoPayload(video);
-            try {
-                recycleBinMapper.insert(RecycleBin.builder()
-                        .bizType(RECYCLE_BIZ_VIDEO)
-                        .bizId(video.getId())
-                        .title(video.getTitle())
-                        .coverAddress(video.getCoverAddress())
-                        .videoAddress(video.getVideoAddress())
-                        .payload(writeJson(payload))
-                        .reason(dto.getReason())
-                        .status(RECYCLE_STATUS_IN_BIN)
-                        .deleteTime(LocalDateTime.now())
-                        .operatorId(dto.getOperatorId())
-                        .operatorName(operatorName(dto.getOperatorId()))
-                        .build());
-            } catch (Exception e) {
-                log.error("写入回收站快照失败 videoId={} err={}", video.getId(), e.getMessage());
-                continue;
-            }
-
-            //文件先挪到回收站目录，还原时再挪回来
-            moveFileToRecycleBin(video.getVideoAddress(), RECYCLE_SUBDIR_VIDEO);
-            moveFileToRecycleBin(video.getCoverAddress(), RECYCLE_SUBDIR_COVER);
-
-            //删除视频的同时评论缓存也要失效，否则页面还会显示已被删的评论
-            cacheService.deleteCommentCacheByVideoId(video.getId(), null, 0);
-
-            //复用现有级联删除，把弹幕/评论/收藏/历史/点赞/投币一并清掉
-            if (Objects.equals(videosService.deleteVideo(video.getId()), true)) {
-                recycleNumber++;
-                doneIds.add(video.getId());
-            }
-        }
-
-        if (recycleNumber == 0)
-            throw new BaseException("移入回收站失败，请稍后重试");
-
-        evictVideoCache(doneIds);
-        String targetNames = videoList.stream().map(Videos::getTitle).limit(5).collect(Collectors.joining(" / "));
-        systemLogService.write(dto, "recycleBin", "recycleVideo", "video", doneIds.get(0), targetNames,
-                "移入回收站 " + recycleNumber + " 个视频"
-                        + (StringUtils.hasText(dto.getReason()) ? "，原因：" + dto.getReason() : ""), 1);
-        return recycleNumber;
-    }
-
-    @Override
-    @Transactional
-    public Integer restoreVideos(SystemOperateDto dto, List<Integer> videoIds) {
-
-        List<Integer> ids = normalizeIds(videoIds);
-        if (ids.isEmpty())
-            throw new BaseException("请先选择要还原的视频");
-
-        int restoreNumber = 0;
-        for (Integer videoId : ids) {
-
-            LambdaQueryWrapper<RecycleBin> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(RecycleBin::getBizType, RECYCLE_BIZ_VIDEO)
-                    .eq(RecycleBin::getBizId, videoId)
-                    .eq(RecycleBin::getStatus, RECYCLE_STATUS_IN_BIN);
-            RecycleBin bin = recycleBinMapper.selectOne(wrapper);
-            if (bin == null)
-                continue;
-
-            Map<String, Object> payload = readPayload(bin);
-            Map<String, Object> videoMap = asMap(payload.get("video"));
-            if (videoMap == null)
-                continue;
-
-            Videos videos = mapToEntity(videoMap, Videos.class);
-            if (videos == null || videos.getId() == null)
-                continue;
-
-            //主键可能已被占用(例如同id被重新占用)，此时跳过避免覆盖别人的数据
-            if (videosMapper.selectById(videos.getId()) != null)
-                continue;
-
-            restoreVideoRelated(videoId, payload);
-            videosMapper.insert(videos);
-
-            //视频自身的计数字段随快照一起回来了，
-            //但删除时扣减过UP主的投稿数/动态数，这里要补回来
-            if (Objects.equals(videos.getStatus(), VIDEO_STATUS_PASS) && videos.getUserId() != null) {
-                userMapper.update(null, new LambdaUpdateWrapper<Users>()
-                        .eq(Users::getId, videos.getUserId())
-                        .setSql("video_number = IFNULL(video_number,0) + 1")
-                        .setSql("own_dynamic_number = IFNULL(own_dynamic_number,0) + 1"));
-            }
-
-            moveFileFromRecycleBin(videos.getVideoAddress(), RECYCLE_SUBDIR_VIDEO);
-            moveFileFromRecycleBin(videos.getCoverAddress(), RECYCLE_SUBDIR_COVER);
-
-            markRestored(bin);
-            evictVideoCache(videoId);
-            //视频的评论是随快照一起插回来的，Redis里的评论列表缓存必须按视频维度全量失效，
-            //否则观看者还会看到移走之前的旧评论列表
-            cacheService.deleteCommentCacheByVideoId(videoId, null, 0);
-            restoreNumber++;
-        }
-
-        if (restoreNumber == 0)
-            throw new BaseException("还原失败，记录可能已被还原或数据不完整");
-
-        systemLogService.write(dto, "recycleBin", "restoreVideo", "video", ids.get(0), null,
-                "从回收站还原 " + restoreNumber + " 个视频", 1);
-        return restoreNumber;
-    }
-
-    /**
-     * 还原视频的关联数据
-     */
-    private void restoreVideoRelated(Integer videoId, Map<String, Object> payload) {
-
-        //评论(删除视频时是物理删除，直接插回)
-        List<Comments> comments = toEntities(payload.get("comments"), Comments.class);
-        if (!comments.isEmpty())
-            insertInBatches(comments, commentsMapper::insert);
-
-        //收藏(删除视频时只是软删除 delete_flag=1，行还在)
-        //这里必须先判断哪些行还在，否则直接insert会撞主键，导致整个还原回滚
-        List<Collects> collects = toEntities(payload.get("collects"), Collects.class);
-        if (!collects.isEmpty()) {
-            List<Integer> ids = collects.stream().map(Collects::getId).filter(Objects::nonNull).collect(Collectors.toList());
-            Set<Integer> existingIds = ids.isEmpty() ? Set.of()
-                    : collectMapper.selectBatchIds(ids).stream().map(Collects::getId).collect(Collectors.toSet());
-            if (!existingIds.isEmpty())
-                collectMapper.update(null, new LambdaUpdateWrapper<Collects>()
-                        .in(Collects::getId, existingIds)
-                        .set(Collects::getDeleteFlag, 0));
-            List<Collects> missing = collects.stream()
-                    .filter(c -> !existingIds.contains(c.getId()))
-                    .collect(Collectors.toList());
-            if (!missing.isEmpty())
-                insertInBatches(missing, collectMapper::insert);
-        }
-
-        //投币
-        List<ThrowCoin> throwCoins = toEntities(payload.get("throwCoins"), ThrowCoin.class);
-        if (!throwCoins.isEmpty())
-            insertInBatches(throwCoins, throwCoinMapper::insert);
-
-        //弹幕
-        List<Scrolling> scrollings = toEntities(payload.get("scrollings"), Scrolling.class);
-        if (!scrollings.isEmpty())
-            insertInBatches(scrollings, scrollingMapper::insert);
-
-        //观看历史
-        List<History> historys = toEntities(payload.get("historys"), History.class);
-        if (!historys.isEmpty())
-            insertInBatches(historys, historyMapper::insert);
-
-        //点赞
-        List<Likes> likes = toEntities(payload.get("likes"), Likes.class);
-        if (!likes.isEmpty())
-            insertInBatches(likes, likesMapper::insert);
-
-        //注意：评论数/收藏数/播放数等计数字段已经包含在还原回来的 videos 行里，
-        //这里再累加会造成重复计数，所以不做任何 +1
-    }
-
-    /**
-     * 把快照里的对象列表转成实体列表
-     */
-    private <T> List<T> toEntities(Object value, Class<T> clazz) {
-
-        List<Map<String, Object>> list = asMapList(value);
-        List<T> result = new ArrayList<>();
-        for (Map<String, Object> item : list) {
-            T entity = mapToEntity(item, clazz);
-            if (entity != null)
-                result.add(entity);
-        }
-        return result;
-    }
-
-    /**
-     * 逐条插入实体。
-     * MyBatis-Plus 3.5.6 的 BaseMapper 还没有 insertOrBatch，这里统一走循环插入，
-     * 语义与批量插入一致，也避免一次性拼超长SQL。
-     */
-    private <T> void insertInBatches(List<T> list, java.util.function.Consumer<T> inserter) {
-        for (T item : list)
-            inserter.accept(item);
-    }
-
-    /**
-     * 组装视频的完整快照，包含所有会被级联删除的关联数据
-     */
-    private Map<String, Object> buildVideoPayload(Videos video) {
-
-        Integer videoId = video.getId();
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("video", video);
-        payload.put("ownerName", video.getUserName());
-
-        List<Comments> comments = commentsMapper.selectList(new LambdaQueryWrapper<Comments>()
-                .eq(Comments::getVideoId, videoId));
-        payload.put("comments", comments);
-
-        List<Collects> collects = collectMapper.selectList(new LambdaQueryWrapper<Collects>()
-                .eq(Collects::getVideoId, videoId));
-        payload.put("collects", collects);
-
-        List<ThrowCoin> throwCoins = throwCoinMapper.selectList(new LambdaQueryWrapper<ThrowCoin>()
-                .eq(ThrowCoin::getVideoId, videoId));
-        payload.put("throwCoins", throwCoins);
-
-        List<Scrolling> scrollings = scrollingMapper.selectList(new LambdaQueryWrapper<Scrolling>()
-                .eq(Scrolling::getVideoId, videoId));
-        payload.put("scrollings", scrollings);
-
-        List<History> historys = historyMapper.selectList(new LambdaQueryWrapper<History>()
-                .eq(History::getVideoId, videoId));
-        payload.put("historys", historys);
-
-        List<Likes> likes = likesMapper.selectList(new LambdaQueryWrapper<Likes>()
-                .eq(Likes::getFondId, videoId)
-                .eq(Likes::getLikeType, 1));
-        payload.put("likes", likes);
-
-        return payload;
-    }
-
-    @Override
-    @Transactional
-    public Integer recycleComments(SystemOperateDto dto, List<Integer> commentIds) {
+    public Boolean switchCommentOffShelf(SystemOperateDto dto, List<Integer> commentIds, Integer offShelf) {
 
         List<Integer> ids = normalizeIds(commentIds);
         if (ids.isEmpty())
-            throw new BaseException("请先选择要删除的评论");
+            throw new BaseException("请先选择要操作的评论");
 
         List<Comments> commentList = commentsMapper.selectList(new LambdaQueryWrapper<Comments>()
-                .in(Comments::getId, ids)
-                .eq(Comments::getDeleteSign, 0));
+                .in(Comments::getId, ids));
         if (commentList.isEmpty())
-            throw new BaseException("选中的评论可能已不存在或已被删除");
+            throw new BaseException("选中的评论可能已不存在");
 
-        int recycleNumber = 0;
-        List<Integer> doneIds = new ArrayList<>();
+        boolean target = Objects.equals(offShelf, 1);
+        int number = 0;
         for (Comments comment : commentList) {
 
-            recycleBinMapper.delete(new LambdaQueryWrapper<RecycleBin>()
-                    .eq(RecycleBin::getBizType, RECYCLE_BIZ_COMMENT)
-                    .eq(RecycleBin::getBizId, comment.getId()));
-
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("comment", comment);
-            payload.put("ownerName", comment.getUserName());
-
-            try {
-                recycleBinMapper.insert(RecycleBin.builder()
-                        .bizType(RECYCLE_BIZ_COMMENT)
-                        .bizId(comment.getId())
-                        .title(ellipsisForBin(comment.getContent(), 200))
-                        .payload(writeJson(payload))
-                        .reason(dto.getReason())
-                        .status(RECYCLE_STATUS_IN_BIN)
-                        .deleteTime(LocalDateTime.now())
-                        .operatorId(dto.getOperatorId())
-                        .operatorName(operatorName(dto.getOperatorId()))
-                        .build());
-            } catch (Exception e) {
-                log.error("写入评论回收站快照失败 commentId={} err={}", comment.getId(), e.getMessage());
+            Integer status = comment.getStatus() == null ? 0 : comment.getStatus();
+            //已经是目标状态就直接跳过，避免重复操作把计数改乱
+            if (status == (target ? 1 : 0))
                 continue;
-            }
-
-            //评论必须走软删除(delete_sign=1)才能还原。
-            //这里原来复用了 deleteComments(物理删除)，导致行直接消失，还原时查不到记录。
-            commentService.deleteReply(Collections.singletonList(comment), true, false);
-            recycleNumber++;
-            doneIds.add(comment.getId());
-        }
-
-        if (recycleNumber == 0)
-            throw new BaseException("移入回收站失败，请稍后重试");
-
-        String targetNames = commentList.stream().map(c -> "#" + c.getId()).limit(10).collect(Collectors.joining(","));
-        systemLogService.write(dto, "recycleBin", "recycleComment", "comment", doneIds.get(0), targetNames,
-                "移入回收站 " + recycleNumber + " 条评论"
-                        + (StringUtils.hasText(dto.getReason()) ? "，原因：" + dto.getReason() : ""), 1);
-        return recycleNumber;
-    }
-
-    @Override
-    @Transactional
-    public Integer restoreComments(SystemOperateDto dto, List<Integer> commentIds) {
-
-        List<Integer> ids = normalizeIds(commentIds);
-        if (ids.isEmpty())
-            throw new BaseException("请先选择要还原的评论");
-
-        int restoreNumber = 0;
-        for (Integer commentId : ids) {
-
-            LambdaQueryWrapper<RecycleBin> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(RecycleBin::getBizType, RECYCLE_BIZ_COMMENT)
-                    .eq(RecycleBin::getBizId, commentId)
-                    .eq(RecycleBin::getStatus, RECYCLE_STATUS_IN_BIN);
-            RecycleBin bin = recycleBinMapper.selectOne(wrapper);
-            if (bin == null)
-                continue;
-
-            Comments comment = commentsMapper.selectById(commentId);
-            //已经被物理删除(比如UP删了视频)的评论无法还原
-            if (comment == null)
-                continue;
-
-            Map<String, Object> payload = readPayload(bin);
-            Map<String, Object> commentMap = asMap(payload.get("comment"));
-            String content = commentMap == null ? null : String.valueOf(commentMap.get("content"));
 
             commentsMapper.update(null, new LambdaUpdateWrapper<Comments>()
-                    .eq(Comments::getId, commentId)
-                    .set(Comments::getDeleteSign, 0)
-                    .set(Comments::getContent, content));
+                    .eq(Comments::getId, comment.getId())
+                    .set(Comments::getStatus, target ? 1 : 0));
+            number++;
 
-            //把评论数加回去
-            if (comment.getVideoId() != null) {
-                videosMapper.update(null, new LambdaUpdateWrapper<Videos>()
-                        .eq(Videos::getId, comment.getVideoId())
-                        .setSql("comment_number = IFNULL(comment_number,0) + 1"));
-                cacheService.deleteCommentCacheByVideoId(comment.getVideoId(), null, comment.getUserId());
-            } else if (comment.getDynamicId() != null) {
-                dynamicMapper.update(null, new LambdaUpdateWrapper<Dynamic>()
-                        .eq(Dynamic::getId, comment.getDynamicId())
-                        .setSql("comment_number = IFNULL(comment_number,0) + 1"));
-                cacheService.deleteCommentCacheByVideoId(null, comment.getDynamicId(), comment.getUserId());
+            //下架/上架都只改 status，不动 content。
+            //之前下架时把正文替换成占位文字，导致上架后原文找不回来；
+            //可见性完全由各处查询里的 status=0 控制，无需篡改原文。
+            if (target) {
+                adjustCommentCount(comment, -1);
+            } else {
+                adjustCommentCount(comment, 1);
             }
 
-            markRestored(bin);
-            restoreNumber++;
+            //评论缓存必须失效，否则观看者还能看到下架内容
+            cacheService.deleteCommentCacheByVideoId(comment.getVideoId(), comment.getDynamicId(), comment.getUserId());
         }
 
-        if (restoreNumber == 0)
-            throw new BaseException("还原失败，记录可能已被还原或原数据已不存在");
-
-        systemLogService.write(dto, "recycleBin", "restoreComment", "comment", ids.get(0), null,
-                "从回收站还原 " + restoreNumber + " 条评论", 1);
-        return restoreNumber;
+        systemLogService.write(dto, "comment", target ? "commentOffShelf" : "commentOnShelf",
+                "comment", ids.get(0), null,
+                (target ? "下架 " : "取消下架 ") + number + " 条评论", 1);
+        return true;
     }
 
-    @Override
-    @Transactional
-    public Integer purgeRecycleBin(SystemOperateDto dto, List<Integer> recycleIds) {
+    /**
+     * 调整评论数（视频或动态上的）
+     */
+    private void adjustCommentCount(Comments comment, int delta) {
 
-        List<Integer> ids = normalizeIds(recycleIds);
-        if (ids.isEmpty())
-            throw new BaseException("请先选择要清除的记录");
-
-        List<RecycleBin> binList = recycleBinMapper.selectBatchIds(ids);
-        if (binList.isEmpty())
-            throw new BaseException("选中的记录可能已不存在");
-
-        int purgeNumber = recycleBinMapper.deleteBatchIds(ids);
-
-        //视频已不在业务表里，这里把备份文件一并清掉，避免磁盘残留
-        for (RecycleBin bin : binList) {
-            if (RECYCLE_BIZ_VIDEO.equals(bin.getBizType())) {
-                moveFileToRecycleBin(bin.getVideoAddress(), RECYCLE_SUBDIR_VIDEO);
-                moveFileToRecycleBin(bin.getCoverAddress(), RECYCLE_SUBDIR_COVER);
-            }
+        if (comment.getVideoId() != null) {
+            videosMapper.update(null, new LambdaUpdateWrapper<Videos>()
+                    .eq(Videos::getId, comment.getVideoId())
+                    .setSql("comment_number = GREATEST(IFNULL(comment_number,0) + " + delta + ", 0)"));
+        } else if (comment.getDynamicId() != null) {
+            dynamicMapper.update(null, new LambdaUpdateWrapper<Dynamic>()
+                    .eq(Dynamic::getId, comment.getDynamicId())
+                    .setSql("comment_number = GREATEST(IFNULL(comment_number,0) + " + delta + ", 0)"));
         }
-
-        String targetNames = binList.stream().map(RecycleBin::getTitle).limit(5).collect(Collectors.joining(" / "));
-        systemLogService.write(dto, "recycleBin", "purgeRecycleBin", "recycleBin", ids.get(0), targetNames,
-                "彻底清除 " + purgeNumber + " 条回收站记录（不可恢复）"
-                        + (StringUtils.hasText(dto.getReason()) ? "，原因：" + dto.getReason() : ""), 1);
-        return purgeNumber;
     }
 
     @Override
     @Transactional
-    public Integer cleanRestoredRecycleBin(SystemOperateDto dto) {
-
-        int number = recycleBinMapper.delete(new LambdaQueryWrapper<RecycleBin>()
-                .eq(RecycleBin::getStatus, RECYCLE_STATUS_RESTORED));
-        systemLogService.write(dto, "recycleBin", "cleanRestoredRecycleBin", "recycleBin", null, null,
-                "清理已还原的回收站记录 " + number + " 条", 1);
-        return number;
-    }
-
-    @Override
-    @Transactional
-    public Integer recycleDynamics(SystemOperateDto dto, List<Integer> dynamicIds) {
+    public Boolean switchDynamicOffShelf(SystemOperateDto dto, List<Integer> dynamicIds, Integer offShelf) {
 
         List<Integer> ids = normalizeIds(dynamicIds);
         if (ids.isEmpty())
-            throw new BaseException("请先选择要删除的动态");
+            throw new BaseException("请先选择要操作的动态");
 
-        //与现有删除规则保持一致：只处理UP主自己发布的动态(fans_id为空)
         List<Dynamic> dynamicList = dynamicMapper.selectList(new LambdaQueryWrapper<Dynamic>()
-                .in(Dynamic::getId, ids)
-                .isNull(Dynamic::getFansId));
+                .in(Dynamic::getId, ids));
         if (dynamicList.isEmpty())
-            throw new BaseException("选中的动态可能已不存在，或属于用户收到的动态副本，只允许删除UP主自己发布的动态");
+            throw new BaseException("选中的动态可能已不存在");
 
-        int recycleNumber = 0;
-        List<Integer> doneIds = new ArrayList<>();
+        boolean target = Objects.equals(offShelf, 1);
+        int number = 0;
         for (Dynamic dynamic : dynamicList) {
 
-            recycleBinMapper.delete(new LambdaQueryWrapper<RecycleBin>()
-                    .eq(RecycleBin::getBizType, RECYCLE_BIZ_DYNAMIC)
-                    .eq(RecycleBin::getBizId, dynamic.getId()));
-
-            Map<String, Object> payload = buildDynamicPayload(dynamic);
-            try {
-                recycleBinMapper.insert(RecycleBin.builder()
-                        .bizType(RECYCLE_BIZ_DYNAMIC)
-                        .bizId(dynamic.getId())
-                        .title(ellipsisForBin(dynamicTitle(dynamic), 200))
-                        .payload(writeJson(payload))
-                        .reason(dto.getReason())
-                        .status(RECYCLE_STATUS_IN_BIN)
-                        .deleteTime(LocalDateTime.now())
-                        .operatorId(dto.getOperatorId())
-                        .operatorName(operatorName(dto.getOperatorId()))
-                        .build());
-            } catch (Exception e) {
-                log.error("写入动态回收站快照失败 dynamicId={} err={}", dynamic.getId(), e.getMessage());
-                continue;
-            }
-
-            //动态下的评论一并清理，并把上级(videoId/dynamicId)的评论数扣掉
-            int commentNumber = deleteDynamicWithComments(dynamic);
-            recycleNumber++;
-            doneIds.add(dynamic.getId());
-            evictDynamicCache(dynamic, commentNumber);
-        }
-
-        if (recycleNumber == 0)
-            throw new BaseException("移入回收站失败，请稍后重试");
-
-        String targetNames = dynamicList.stream()
-                .map(this::dynamicTitle).limit(5).collect(Collectors.joining(" / "));
-        systemLogService.write(dto, "recycleBin", "recycleDynamic", "dynamic", doneIds.get(0), targetNames,
-                "移入回收站 " + recycleNumber + " 条动态"
-                        + (StringUtils.hasText(dto.getReason()) ? "，原因：" + dto.getReason() : ""), 1);
-        return recycleNumber;
-    }
-
-    @Override
-    @Transactional
-    public Integer restoreDynamics(SystemOperateDto dto, List<Integer> dynamicIds) {
-
-        List<Integer> ids = normalizeIds(dynamicIds);
-        if (ids.isEmpty())
-            throw new BaseException("请先选择要还原的动态");
-
-        int restoreNumber = 0;
-        for (Integer dynamicId : ids) {
-
-            LambdaQueryWrapper<RecycleBin> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(RecycleBin::getBizType, RECYCLE_BIZ_DYNAMIC)
-                    .eq(RecycleBin::getBizId, dynamicId)
-                    .eq(RecycleBin::getStatus, RECYCLE_STATUS_IN_BIN);
-            RecycleBin bin = recycleBinMapper.selectOne(wrapper);
-            if (bin == null)
+            Integer status = dynamic.getStatus() == null ? 0 : dynamic.getStatus();
+            if (status == (target ? 1 : 0))
                 continue;
 
-            Map<String, Object> payload = readPayload(bin);
-            Map<String, Object> dynamicMap = asMap(payload.get("dynamic"));
-            if (dynamicMap == null)
-                continue;
+            dynamicMapper.update(null, new LambdaUpdateWrapper<Dynamic>()
+                    .eq(Dynamic::getId, dynamic.getId())
+                    .set(Dynamic::getStatus, target ? 1 : 0));
+            number++;
 
-            Dynamic dynamic = mapToEntity(dynamicMap, Dynamic.class);
-            if (dynamic == null || dynamic.getId() == null)
-                continue;
-            //主键被占用时跳过，避免覆盖别人的数据
-            if (dynamicMapper.selectById(dynamic.getId()) != null)
-                continue;
-
-            List<Comments> comments = toEntities(payload.get("comments"), Comments.class);
-            if (!comments.isEmpty())
-                insertInBatches(comments, commentsMapper::insert);
-
-            dynamicMapper.insert(dynamic);
-
-            //评论数加回去
-            if (!comments.isEmpty()) {
-                if (dynamic.getVideoId() != null) {
-                    videosMapper.update(null, new LambdaUpdateWrapper<Videos>()
-                            .eq(Videos::getId, dynamic.getVideoId())
-                            .setSql("comment_number = IFNULL(comment_number,0) + " + comments.size()));
-                } else if (dynamic.getCommentId() != null) {
-                    Dynamic parent = dynamicMapper.selectById(dynamic.getCommentId());
-                    if (parent != null) {
-                        dynamicMapper.update(null, new LambdaUpdateWrapper<Dynamic>()
-                                .eq(Dynamic::getId, parent.getId())
-                                .setSql("comment_number = IFNULL(comment_number,0) + " + comments.size()));
-                    }
-                }
-            }
-
-            markRestored(bin);
-            evictDynamicCache(dynamic, comments.size());
-            restoreNumber++;
-        }
-
-        if (restoreNumber == 0)
-            throw new BaseException("还原失败，记录可能已被还原或数据不完整");
-
-        systemLogService.write(dto, "recycleBin", "restoreDynamic", "dynamic", ids.get(0), null,
-                "从回收站还原 " + restoreNumber + " 条动态", 1);
-        return restoreNumber;
-    }
-
-    /**
-     * 组装动态快照，包含该动态下的评论
-     */
-    private Map<String, Object> buildDynamicPayload(Dynamic dynamic) {
-
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("dynamic", dynamic);
-
-        List<Comments> comments = commentsMapper.selectList(new LambdaQueryWrapper<Comments>()
-                .eq(Comments::getDynamicId, dynamic.getId()));
-        payload.put("comments", comments);
-
-        Users owner = userMapper.selectById(dynamic.getFollowId());
-        payload.put("ownerName", owner == null ? null : owner.getUserName());
-
-        return payload;
-    }
-
-    /**
-     * 删除动态及其评论，返回删除的评论数
-     */
-    private int deleteDynamicWithComments(Dynamic dynamic) {
-
-        Integer dynamicId = dynamic.getId();
-        List<Comments> comments = commentsMapper.selectList(new LambdaQueryWrapper<Comments>()
-                .eq(Comments::getDynamicId, dynamicId));
-        if (!comments.isEmpty()) {
-            for (Comments comment : comments) {
-                commentControlsMapper.delete(new LambdaQueryWrapper<CommentControls>()
-                        .eq(CommentControls::getCommentId, comment.getId()));
-                likesMapper.delete(new LambdaQueryWrapper<Likes>()
-                        .eq(Likes::getFondId, comment.getId())
-                        .eq(Likes::getLikeType, 2));
-            }
-            commentsMapper.delete(new LambdaQueryWrapper<Comments>().eq(Comments::getDynamicId, dynamicId));
-
-            if (dynamic.getVideoId() != null) {
-                videosMapper.update(null, new LambdaUpdateWrapper<Videos>()
-                        .eq(Videos::getId, dynamic.getVideoId())
-                        .setSql("comment_number = GREATEST(IFNULL(comment_number,0) - " + comments.size() + ", 0)"));
-            } else if (dynamic.getCommentId() != null) {
-                dynamicMapper.update(null, new LambdaUpdateWrapper<Dynamic>()
-                        .eq(Dynamic::getId, dynamic.getCommentId())
-                        .setSql("comment_number = GREATEST(IFNULL(comment_number,0) - " + comments.size() + ", 0)"));
+            //下架动态要同时把UP主的动态数扣掉，动态流里不再出现；上架再加回来
+            Users owner = userMapper.selectById(dynamic.getFollowId());
+            if (owner != null) {
+                int own = nullToZero(owner.getOwnDynamicNumber());
+                owner.setOwnDynamicNumber(target ? Math.max(0, own - 1) : own + 1);
+                userMapper.updateById(owner);
             }
         }
 
-        dynamicMapper.deleteById(dynamicId);
-        return comments.size();
-    }
-
-    private String dynamicTitle(Dynamic dynamic) {
-
-        if (dynamic == null)
-            return "(无标题)";
-        if (dynamic.getVideoId() != null) {
-            Videos videos = videosMapper.selectById(dynamic.getVideoId());
-            if (videos != null && StringUtils.hasText(videos.getTitle()))
-                return videos.getTitle();
-        }
-        return StringUtils.hasText(dynamic.getContent()) ? dynamic.getContent() : "动态 #" + dynamic.getId();
-    }
-
-    /**
-     * 动态删除/还原后清理评论缓存，避免还原后仍看到删除前的评论列表
-     */
-    private void evictDynamicCache(Dynamic dynamic, int commentNumber) {
-
-        if (dynamic == null)
-            return;
-        if (dynamic.getVideoId() != null)
-            cacheService.deleteCommentCacheByVideoId(dynamic.getVideoId(), null, 0);
-        else if (dynamic.getCommentId() != null)
-            cacheService.deleteCommentCacheByVideoId(null, dynamic.getCommentId(), 0);
-    }
-
-    private void markRestored(RecycleBin bin) {
-        recycleBinMapper.update(null, new LambdaUpdateWrapper<RecycleBin>()
-                .eq(RecycleBin::getId, bin.getId())
-                .set(RecycleBin::getStatus, RECYCLE_STATUS_RESTORED)
-                .set(RecycleBin::getRestoreTime, LocalDateTime.now()));
-    }
-
-    /**
-     * 把业务文件挪到回收站目录(同目录下的recycle_bin子目录)
-     */
-    private void moveFileToRecycleBin(String address, String subDir) {
-
-        if (!StringUtils.hasText(address))
-            return;
-
-        try {
-            String fileName = address.substring(address.lastIndexOf('/') + 1);
-            if (fileName.isEmpty())
-                return;
-            Path source = Paths.get(FilePathEnum.UPLOAD_VIDEO.getPath() + fileName);
-            Path target = Paths.get(FilePathEnum.UPLOAD_VIDEO.getPath() + RECYCLE_SUBDIR_ROOT + subDir + "/" + fileName);
-            Files.createDirectories(target.getParent());
-            Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
-        } catch (Exception e) {
-            //文件可能本来就不存在，不影响数据本身的快照与还原
-            log.warn("移动文件到回收站失败 address={} err={}", address, e.getMessage());
-        }
-    }
-
-    /**
-     * 把文件从回收站目录挪回原位
-     */
-    private void moveFileFromRecycleBin(String address, String subDir) {
-
-        if (!StringUtils.hasText(address))
-            return;
-
-        try {
-            String fileName = address.substring(address.lastIndexOf('/') + 1);
-            if (fileName.isEmpty())
-                return;
-            Path source = Paths.get(FilePathEnum.UPLOAD_VIDEO.getPath() + RECYCLE_SUBDIR_ROOT + subDir + "/" + fileName);
-            Path target = Paths.get(FilePathEnum.UPLOAD_VIDEO.getPath() + fileName);
-            if (Files.exists(source))
-                Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
-        } catch (Exception e) {
-            log.warn("从回收站还原文件失败 address={} err={}", address, e.getMessage());
-        }
-    }
-
-    private String writeJson(Object value) {
-        try {
-            return objectMapper.writeValueAsString(value);
-        } catch (Exception e) {
-            throw new BaseException("序列化失败，操作已终止");
-        }
-    }
-
-    private Map<String, Object> readPayload(SystemRecycleBinVo vo) {
-        return vo == null ? Map.of() : readPayloadById(vo.getId());
-    }
-
-    private Map<String, Object> readPayload(RecycleBin bin) {
-
-        if (bin == null || !StringUtils.hasText(bin.getPayload()))
-            return Map.of();
-        try {
-            return objectMapper.readValue(bin.getPayload(), new TypeReference<Map<String, Object>>() {
-            });
-        } catch (Exception e) {
-            log.warn("回收站快照解析失败 id={} err={}", bin.getId(), e.getMessage());
-            return Map.of();
-        }
-    }
-
-    private Map<String, Object> readPayloadById(Integer recycleId) {
-
-        RecycleBin bin = recycleBinMapper.selectById(recycleId);
-        if (bin == null || !StringUtils.hasText(bin.getPayload()))
-            return Map.of();
-        try {
-            return objectMapper.readValue(bin.getPayload(), new TypeReference<Map<String, Object>>() {
-            });
-        } catch (Exception e) {
-            return Map.of();
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private Map<String, Object> asMap(Object value) {
-        if (value instanceof Map)
-            return (Map<String, Object>) value;
-        return null;
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<Map<String, Object>> asMapList(Object value) {
-        if (value instanceof List)
-            return (List<Map<String, Object>>) value;
-        return List.of();
-    }
-
-    /**
-     * 把快照里的Map还原成实体对象
-     */
-    private <T> T mapToEntity(Map<String, Object> map, Class<T> clazz) {
-
-        if (map == null || map.isEmpty())
-            return null;
-        try {
-            return objectMapper.convertValue(map, clazz);
-        } catch (Exception e) {
-            log.warn("快照转换失败 clazz={} err={}", clazz.getSimpleName(), e.getMessage());
-            return null;
-        }
-    }
-
-    private String ellipsisForBin(String value, int max) {
-        if (value == null)
-            return "(无标题)";
-        return value.length() > max ? value.substring(0, max) : value;
+        systemLogService.write(dto, "dynamic", target ? "dynamicOffShelf" : "dynamicOnShelf",
+                "dynamic", ids.get(0), null,
+                (target ? "下架 " : "取消下架 ") + number + " 条动态", 1);
+        return true;
     }
 
     /**

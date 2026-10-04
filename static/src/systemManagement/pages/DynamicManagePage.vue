@@ -79,8 +79,8 @@
 
         <el-table-column label="标题" min-width="240" align="center">
           <template #default="scope">
-            <!-- 整块内容都可点，跳到该动态的详情页（视频/评论/图文三类都跳这里） -->
-            <div class="title-cell" @click="goDynamicDetail(scope.row.id)">
+            <!-- 视频动态跳视频页，评论/图文动态跳动态详情页 -->
+            <div class="title-cell" @click="goDynamicTarget(scope.row)">
               <!-- 视频动态显示视频标题 -->
               <span v-if="scope.row.videoId" class="title-link sys-clip">
                 {{ scope.row.videoTitle || "视频已删除" }}
@@ -107,8 +107,35 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" width="88" align="center" fixed="right" class-name="sys-actions">
+        <el-table-column label="状态" width="88" align="center">
           <template #default="scope">
+            <span v-if="scope.row.status === 1" class="sys-tag tag-warning">已下架</span>
+            <span v-else class="sys-tag tag-success">正常</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column
+          label="操作"
+          width="176"
+          align="center"
+          fixed="right"
+          class-name="sys-actions"
+        >
+          <template #default="scope">
+            <el-button
+              v-if="scope.row.status !== 1"
+              size="small"
+              type="warning"
+              @click="handleOffShelf(scope.row, 1)"
+              >下架</el-button
+            >
+            <el-button
+              v-else
+              size="small"
+              type="success"
+              @click="handleOffShelf(scope.row, 0)"
+              >上架</el-button
+            >
             <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -126,17 +153,17 @@
       />
     </div>
 
-    <el-dialog v-model="deleteDialogVisible" title="移入回收站" width="460px" align-center>
+    <el-dialog v-model="deleteDialogVisible" title="删除动态" width="460px" align-center>
       <el-alert
-        type="warning"
+        type="error"
         :closable="false"
         show-icon
-        title="可以随时还原"
-        description="动态及其下评论会先备份进回收站，误删可在回收站一键还原，还原时评论缓存会同步刷新。"
+        title="此操作不可恢复"
+        description="将永久删除该条动态及其下的评论记录。如果只是想隐藏，请使用「下架」，之后可以随时再上架。"
         style="margin-bottom: 14px"
       />
       <div class="warn-text">
-        即将移入回收站 <strong>{{ pendingIds.length }}</strong> 条动态。
+        即将删除 <strong>{{ pendingIds.length }}</strong> 条动态。
       </div>
       <el-input
         v-model="deleteReason"
@@ -148,8 +175,8 @@
       />
       <template #footer>
         <el-button @click="deleteDialogVisible = false">取消</el-button>
-        <el-button type="warning" :loading="submitting" @click="submitDelete">
-          确定移入回收站
+        <el-button type="danger" :loading="submitting" @click="submitDelete">
+          确定删除
         </el-button>
       </template>
     </el-dialog>
@@ -160,8 +187,18 @@
 import { onMounted, reactive, ref } from "vue";
 import { useGlobalStore } from "../../store/store";
 import SystemPagination from "../components/SystemPagination.vue";
-import { recycleDynamic, searchDynamics } from "../../api/systemManagement/index";
-import { goUserHome, msgOf, shortTime, toast } from "../systemCommon";
+import {
+  deleteDynamic,
+  searchDynamics,
+  switchDynamicOffShelf,
+} from "../../api/systemManagement/index";
+import {
+  confirmDanger,
+  goUserHome,
+  msgOf,
+  shortTime,
+  toast,
+} from "../systemCommon";
 
 export default {
   name: "DynamicManagePage",
@@ -237,6 +274,17 @@ export default {
       selected.value = rows;
     }
 
+    //按动态类型决定跳转目标：
+    //  视频动态 -> 视频页（/video?videoId=BVxxx）
+    //  评论/图文动态 -> 动态详情页（/dynamicDetail?dynamicId=xxx）
+    function goDynamicTarget(row) {
+      if (row.videoId) {
+        window.open(`/video?videoId=BV${row.videoId}`, "_blank");
+        return;
+      }
+      goDynamicDetail(row.id);
+    }
+
     //跳转到动态详情
     function goDynamicDetail(dynamicId) {
       if (!dynamicId) {
@@ -268,7 +316,7 @@ export default {
           ids: pendingIds.value,
         });
         if (res.data.code === 1) {
-          toast(`已将 ${res.data.data.number} 条动态移入回收站，可在回收站还原`, "success");
+          toast(`已删除 ${res.data.data.deleteNumber} 条动态，此操作不可恢复`, "success");
           deleteDialogVisible.value = false;
           loadDynamics();
         } else {
@@ -278,6 +326,35 @@ export default {
         toast("删除失败");
       } finally {
         submitting.value = false;
+      }
+    }
+
+    //下架 / 取消下架
+    async function handleOffShelf(row, offShelf) {
+      try {
+        await confirmDanger(
+          offShelf === 1
+            ? "确定下架这条动态吗？下架后用户将看不到它。"
+            : "确定取消下架吗？取消后动态会重新显示。",
+          offShelf === 1 ? "确定下架" : "确定上架"
+        );
+      } catch (error) {
+        return;
+      }
+      try {
+        const res = await switchDynamicOffShelf(
+          store.token,
+          { operatorId: store.userId, ids: [row.id] },
+          offShelf
+        );
+        if (res.data.code === 1) {
+          toast(msgOf(res), "success");
+          loadDynamics();
+        } else {
+          toast(msgOf(res));
+        }
+      } catch (error) {
+        toast("操作失败");
       }
     }
 
@@ -298,10 +375,12 @@ export default {
       handlePageChange,
       goUserHome,
       goDynamicDetail,
+      goDynamicTarget,
       handleSelectionChange,
       handleDelete,
       handleBatchDelete,
       submitDelete,
+      handleOffShelf,
       shortTime,
     };
   },

@@ -30,6 +30,7 @@ public class Dynamic implements Serializable {
     private Integer shareNumber;
     private LocalDateTime publishTime;
     private Integer upFlag;//是否置顶
+    private Integer status;//0正常 1已下架(管理员操作，下架后用户侧不可见)
     private String title;
     private Integer likeWarn;
 

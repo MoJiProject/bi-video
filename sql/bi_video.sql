@@ -102,6 +102,7 @@ CREATE TABLE `comments`  (
   `reply_comment_id` int(11) NULL DEFAULT NULL,
   `main_comment_id` int(11) NULL DEFAULT NULL,
   `delete_sign` int(11) NOT NULL DEFAULT 0,
+  `status` int(11) NOT NULL DEFAULT 0 COMMENT '0正常 1已下架',
   `reply_user_id` int(11) NULL DEFAULT NULL,
   `notification_reply_flag` int(11) NOT NULL DEFAULT 1,
   `like_warn` int(11) NOT NULL DEFAULT 1,
@@ -147,6 +148,7 @@ CREATE TABLE `dynamic`  (
   `img_address` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   `content` varchar(10000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   `up_flag` int(11) NOT NULL DEFAULT 0,
+  `status` int(11) NOT NULL DEFAULT 0 COMMENT '0正常 1已下架',
   `like_number` int(11) NOT NULL DEFAULT 0,
   `comment_number` int(11) NOT NULL DEFAULT 0,
   `share_number` int(11) NOT NULL DEFAULT 0,
@@ -376,5 +378,49 @@ CREATE TABLE `videos`  (
   INDEX `idx_videos_status`(`status`) USING BTREE,
   INDEX `idx_videos_sub_zone_key`(`sub_zone_key`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Table structure for system_operation_log
+-- 后台操作审计日志（系统管理后台）
+-- ----------------------------
+DROP TABLE IF EXISTS `system_operation_log`;
+CREATE TABLE `system_operation_log`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `operator_id` int(11) NOT NULL COMMENT '操作人id(管理员)',
+  `operator_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '操作人用户名快照',
+  `module` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '所属模块 user/video/comment/dynamic/message/keyWord/recycleBin',
+  `action` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '操作动作 如 deleteComment',
+  `target_type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '操作对象类型',
+  `target_id` int(11) NULL DEFAULT NULL COMMENT '操作对象id',
+  `target_name` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '操作对象描述快照',
+  `detail` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '补充说明 如删除原因',
+  `success` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1成功 0失败',
+  `ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '操作来源ip',
+  `create_time` datetime NOT NULL COMMENT '操作时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_syslog_operator_id`(`operator_id`) USING BTREE,
+  INDEX `idx_syslog_module`(`module`) USING BTREE,
+  INDEX `idx_syslog_create_time`(`create_time`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Table structure for user_ban
+-- 用户封禁记录（系统管理后台）
+-- ----------------------------
+DROP TABLE IF EXISTS `user_ban`;
+CREATE TABLE `user_ban`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `user_id` int(11) NOT NULL COMMENT '被封禁用户id',
+  `user_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '被封禁用户名快照',
+  `reason` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '封禁原因',
+  `status` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1封禁中 0已解除',
+  `operator_id` int(11) NOT NULL COMMENT '操作管理员id',
+  `operator_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '操作管理员名快照',
+  `ban_time` datetime NOT NULL COMMENT '封禁时间',
+  `unban_time` datetime NULL DEFAULT NULL COMMENT '解除时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `idx_user_ban_user_id`(`user_id`) USING BTREE,
+  INDEX `idx_user_ban_status`(`status`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 SET FOREIGN_KEY_CHECKS = 1;
