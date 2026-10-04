@@ -36,9 +36,13 @@
 
     <!-- 设置子模块 -->
     <modules>
-        <module>common</module> <!-- 子模块：common -->
-        <module>pojo</module>   <!-- 子模块：pojo -->
-        <module>web</module>    <!-- 子模块：web -->
+        <!-- 新结构（product 库） -->
+        <module>product-common</module> <!-- 通用基础设施：响应/分页/异常/枚举/常量 -->
+        <module>product-domain</module> <!-- 领域模型：实体与 Mapper -->
+        <!-- 旧结构（bi_video 库），迁移完成后整体删除 -->
+        <module>common</module>
+        <module>pojo</module>
+        <module>web</module>
     </modules>
 
     <!-- 依赖项 -->
