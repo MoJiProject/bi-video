@@ -2494,6 +2494,48 @@
                     <div class="throw-coin-fotter">经验值+20</div>
                   </div>
                 </template>
+
+<!-- 视频页布局 pass1：外层壳子改 grid + 自适应 + 图标尺寸统一 -->
+<style>
+/* 页头图标统一成正方形占位，任何比例的图都不会被拉变形 */
+.video-page .v-header-ul li a img:not(.h-logo) {
+  width: 18px !important;
+  height: 18px !important;
+  object-fit: contain;
+}
+
+/* 白底页头上的搜索框要自己有底，否则白底白框看不见 */
+.video-page .search {
+  background: var(--fill);
+  border: 1px solid var(--line);
+}
+
+/* 主栏 + 侧栏：宽屏两列，窄屏单列。原来的 left/top 偏移已经去掉了。 */
+.video-page .video-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 350px;
+  gap: var(--gap-5);
+  align-items: start;
+}
+
+.video-page .video-body > * {
+  min-width: 0;
+}
+
+@media (max-width: 1400px) {
+  .video-page .video-body {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .video-page .video-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+</style>
+<!-- /video-layout-pass1 -->
+
               </el-dialog>
             </span>
           </el-tooltip>
@@ -5413,39 +5455,55 @@ export default {
 </script>
 
 <style lang="scss">
-* {
-  transition: background-color 0.3s ease, color 0.3s ease;
+/*
+  原来这里是 `* { transition: background-color .3s, color .3s }`。
+  这是非 scoped 的全局规则，会让整个应用每一个元素在变色时都产生过渡动画：
+  既拖慢渲染，又让 hover 出现拖影。只保留真正需要过渡的交互元素。
+*/
+a,
+button,
+.el-button,
+input,
+textarea,
+.el-input__wrapper {
+  transition: color .2s ease, background-color .2s ease, border-color .2s ease;
 }
 
 .video-head {
-  top: 0px;
-  width: 101%;
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  width: 100%;
   height: 64px;
-  left: -13px;
-  position: fixed;
-  background-color: white;
-  box-shadow: 2px 0px 4px #d3d3d3;
+  background-color: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .08);
 }
 
-.video-body-container{
+/*
+  原来是 `left:-206px; top:63.5px` 这种魔法偏移来假装居中，
+  再给 .video-body 加 `position:absolute; z-index:-1000` 躲开页头。
+  改成正常的文档流 + 容器居中，页面宽度变化时不会再错位。
+*/
+.video-body-container {
   position: relative;
-  display: flex;
-  justify-content: center;
-  left: -206px;
-  top: 63.5px;
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: var(--gap-4) var(--page-pad) 80px;
+  box-sizing: border-box;
 }
 
 .video-body {
-  position: absolute;
+  position: relative;
+  z-index: 1;
+  width: 100%;
   height: auto;
-  padding-bottom: 200px;
-  z-index: -1000;
+  padding-bottom: 0;
 }
 
 .up-videoTitle {
   max-width: 672px;
   display: -webkit-box;
-  transform: translate(8px, 23px);
   font-size: 19px;
   color: #1C2321;
   -webkit-box-orient: vertical; /* 垂直方向排列 */
