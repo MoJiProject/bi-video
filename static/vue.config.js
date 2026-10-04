@@ -62,7 +62,7 @@ module.exports = defineConfig({
       entry: 'src/main.js',
       template: 'public/index.html',
       filename: 'index.html',
-      title: '哔哩哔哩(゜- ゜)つロ 干杯~-bilibili',
+      title: '青芒视频 · 分享每一次观看',
     },
   },
 })
