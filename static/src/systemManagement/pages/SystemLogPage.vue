@@ -26,7 +26,7 @@
       </div>
       
       <el-table :data="logs" class="sys-table" row-key="id">
-        <el-table-column label="操作人" width="164" align="center">
+        <el-table-column label="操作人" width="164" align="left">
           <template #default="scope">
             <div class="sys-user-link" @click="goUserHome(scope.row.operatorId)">
               <img :src="scope.row.operatorAvatar" class="avatar" referrerpolicy="no-referrer" />

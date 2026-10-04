@@ -38,7 +38,7 @@
 
       <!-- 列表 -->
       <el-table :data="users" class="sys-table" row-key="id">
-        <el-table-column label="用户" min-width="180" align="center">
+        <el-table-column label="用户" min-width="180" align="left">
           <template #default="scope">
             <div class="sys-user-link" @click="goUserHome(scope.row.id)">
               <img :src="scope.row.avatarAddress" class="avatar" referrerpolicy="no-referrer" />

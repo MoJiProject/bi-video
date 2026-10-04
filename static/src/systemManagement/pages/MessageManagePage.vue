@@ -53,7 +53,7 @@
       >
         <el-table-column type="selection" width="46" />
 
-        <el-table-column label="发送人" min-width="150" align="center">
+        <el-table-column label="发送人" min-width="150" align="left">
           <template #default="scope">
             <div class="sys-user-link" @click="goUserHome(scope.row.senderId)">
               <img :src="scope.row.senderAvatar" class="avatar" referrerpolicy="no-referrer" />
@@ -65,7 +65,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="接收人" min-width="150" align="center">
+        <el-table-column label="接收人" min-width="150" align="left">
           <template #default="scope">
             <div class="sys-user-link" @click="goUserHome(scope.row.receiverId)">
               <img :src="scope.row.receiverAvatar" class="avatar" referrerpolicy="no-referrer" />

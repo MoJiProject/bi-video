@@ -136,7 +136,8 @@ $sys-success: #67c23a;
 .sys-user-link {
   display: flex;
   align-items: center;
-  justify-content: center;//列已设为居中，flex容器要自己居中内容
+  //列已设为左对齐，flex 容器也要靠左，否则头像和文字会挤在中间
+  justify-content: flex-start;
   min-width: 0;
   cursor: pointer;
 

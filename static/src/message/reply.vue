@@ -248,9 +248,17 @@
    }
 
    //判断是否添加图片
-  function addImgFlagF(comment,flag){
-    if((comment.deleteSign===1||comment.status===1)||!comment.content)
-    return "[该评论已被下架]";
+function addImgFlagF(comment,flag){
+      if(!comment)
+      return "[该评论已被删除]";
+      //用户自己删除的评论
+      if(comment.deleteSign===1)
+      return "[该评论已被删除]";
+      //被管理员下架的评论
+      if(comment.status===1)
+      return "[该评论已被下架]";
+      if(!comment.content)
+      return "[该评论已被删除]";
     let content=comment.content.replace("style='width: 24px;height: 24px;display: inline-block;","style='width: 24px;height: 24px;display: none;");
     if(flag)
     content = content.replace(/width:21px;height:21px;display:inline-block;/g, "width:16px;height:16px;display:inline-block;");

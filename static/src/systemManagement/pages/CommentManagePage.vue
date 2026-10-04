@@ -58,7 +58,7 @@
       >
         <el-table-column type="selection" width="46" />
 
-        <el-table-column label="评论人" width="150" align="center">
+        <el-table-column label="评论人" width="150" align="left">
           <template #default="scope">
             <div class="sys-user-link" @click="goUserHome(scope.row.userId)">
               <img :src="scope.row.userAvatar" class="avatar" referrerpolicy="no-referrer" />
