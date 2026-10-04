@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qingmang.infrastructure.mapper.SearchQueryMapper">
+
+    <select id="searchVideos" resultType="com.qingmang.interfaces.vo.VideoListItemVO">
+        SELECT v.id, v.title, v.cover_url, v.duration_seconds, v.published_at,
+               u.id AS owner_id, u.nickname AS owner_nickname, u.avatar_url AS owner_avatar,
+               COALESCE(s.play_count, 0)     AS play_count,
+               COALESCE(s.danmaku_count, 0)  AS danmaku_count,
+               COALESCE(s.like_count, 0)     AS like_count,
+               COALESCE(s.coin_count, 0)     AS coin_count,
+               COALESCE(s.favorite_count, 0) AS favorite_count,
+               COALESCE(s.comment_count, 0)  AS comment_count
+        FROM video v
+        JOIN `user` u ON u.id = v.owner_id AND u.deleted_at IS NULL
+        LEFT JOIN video_stats s ON s.video_id = v.id
+        WHERE v.status = 1 AND v.deleted_at IS NULL
+          AND MATCH (v.title, v.description) AGAINST (#{keyword} IN BOOLEAN MODE)
+        <if test="categoryId != null">
+          AND v.category_id = #{categoryId}
+        </if>
+        <if test="cursorId != null">
+          AND v.id &lt; #{cursorId}
+        </if>
+        <choose>
+            <when test="sort == 'newest'">
+              ORDER BY v.published_at DESC, v.id DESC
+            </when>
+            <otherwise>
+              ORDER BY s.play_count DESC, v.id DESC
+            </otherwise>
+        </choose>
+        LIMIT #{limit}
+    </select>
+
+    <select id="hotKeywords" resultType="com.qingmang.interfaces.vo.KeywordVO">
+        SELECT keyword, search_count AS searchCount
+        FROM search_keyword
+        WHERE search_count &gt; 0
+        ORDER BY search_count DESC, keyword ASC
+        LIMIT #{limit}
+    </select>
+</mapper>

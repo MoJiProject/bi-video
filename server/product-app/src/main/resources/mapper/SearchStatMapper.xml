@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qingmang.infrastructure.mapper.SearchStatMapper">
+
+    <update id="bumpDaily">
+        UPDATE search_keyword_daily
+        SET search_count = search_count + 1
+        WHERE stat_date = #{statDate} AND keyword = #{keyword}
+    </update>
+
+    <insert id="insertDaily">
+        INSERT INTO search_keyword_daily (stat_date, keyword, search_count)
+        VALUES (#{statDate}, #{keyword}, 1)
+    </insert>
+
+    <update id="bumpTotal">
+        UPDATE search_keyword
+        SET search_count = search_count + 1, last_searched_at = #{at}
+        WHERE keyword = #{keyword}
+    </update>
+
+    <insert id="insertTotal">
+        INSERT INTO search_keyword (keyword, search_count, last_searched_at)
+        VALUES (#{keyword}, 1, #{at})
+    </insert>
+</mapper>
