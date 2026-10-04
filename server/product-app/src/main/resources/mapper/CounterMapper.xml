@@ -30,4 +30,11 @@
         SET coin_balance = coin_balance + #{delta}
         WHERE id = #{userId}
     </update>
+
+    <!-- 余额判断和扣减放在同一条 SQL 里，避免「先查余额再扣」被并发超扣 -->
+    <update id="deductCoinBalance">
+        UPDATE `user`
+        SET coin_balance = coin_balance - #{delta}
+        WHERE id = #{userId} AND coin_balance &gt;= #{delta}
+    </update>
 </mapper>

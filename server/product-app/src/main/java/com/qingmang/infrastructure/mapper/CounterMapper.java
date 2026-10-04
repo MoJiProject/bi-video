@@ -26,4 +26,11 @@ public interface CounterMapper {
 
     /** 硬币余额 +delta，投币扣币时用 delta 传负数。 */
     int addCoinBalance(@Param("userId") Long userId, @Param("delta") int delta);
+
+    /**
+     * 扣硬币，余额不足时一条都不扣。
+     *
+     * @return 1 扣成功，0 余额不足
+     */
+    int deductCoinBalance(@Param("userId") Long userId, @Param("delta") int delta);
 }
