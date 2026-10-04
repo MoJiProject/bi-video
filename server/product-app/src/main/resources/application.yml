@@ -47,9 +47,11 @@ mybatis-plus:
     banner: false
     db-config:
       id-type: auto
+      # deleted_at 是 DATETIME 软删除位，删除时写 now()，未删除为 NULL。
+      # 这两个值必须加引号：写成裸 null 会被 YAML 解析成空值，拼出 `AND deleted_at=` 这种坏 SQL。
       logic-delete-field: deletedAt
-      logic-delete-value: 1970-01-01 00:00:00
-      logic-not-delete-value: null
+      logic-delete-value: "now()"
+      logic-not-delete-value: "null"
 
 sa-token:
   token-name: token

@@ -24,4 +24,10 @@
         SET ${column} = ${column} + #{delta}
         WHERE user_id = #{userId}
     </update>
+
+    <update id="addCoinBalance">
+        UPDATE `user`
+        SET coin_balance = coin_balance + #{delta}
+        WHERE id = #{userId}
+    </update>
 </mapper>

@@ -3,7 +3,6 @@ package com.qingmang.domain.user;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -65,7 +64,6 @@ public class User implements Serializable {
     @TableField("last_login_at")
     private LocalDateTime lastLoginAt;
 
-    @TableLogic
     @TableField("deleted_at")
     private LocalDateTime deletedAt;
 }

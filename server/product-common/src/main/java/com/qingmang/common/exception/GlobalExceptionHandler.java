@@ -81,7 +81,18 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Throwable.class)
     public ApiResponse<Void> handleUnexpected(Throwable e, HttpServletRequest request) {
-        log.error("[unexpected] {} {}", request.getMethod(), request.getRequestURI(), e);
+        // 只留根因 + 前几帧：MyBatis 的 BadSqlGrammar 能刷出上百行堆栈，没人看得下去
+        Throwable root = e;
+        while (root.getCause() != null && root.getCause() != root) {
+            root = root.getCause();
+        }
+        StackTraceElement[] trace = root.getStackTrace();
+        StringBuilder frames = new StringBuilder();
+        for (int i = 0; i < Math.min(6, trace.length); i++) {
+            frames.append("\n\tat ").append(trace[i]);
+        }
+        log.error("[unexpected] {} {} -> {}: {}{}", request.getMethod(), request.getRequestURI(),
+                root.getClass().getSimpleName(), root.getMessage(), frames);
         return ApiResponse.<Void>fail(ErrorCode.INTERNAL_ERROR.getCode(), ErrorCode.INTERNAL_ERROR.getMessage())
                 .withTraceId(MDC.get(TRACE_ID));
     }

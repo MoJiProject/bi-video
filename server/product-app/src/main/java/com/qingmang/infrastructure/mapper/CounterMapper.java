@@ -23,4 +23,7 @@ public interface CounterMapper {
     /** user_stats 某列 +delta。 */
     int increaseUserStat(@Param("userId") Long userId, @Param("column") String column,
                          @Param("delta") int delta);
+
+    /** 硬币余额 +delta，投币扣币时用 delta 传负数。 */
+    int addCoinBalance(@Param("userId") Long userId, @Param("delta") int delta);
 }

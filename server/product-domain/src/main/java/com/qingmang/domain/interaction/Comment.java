@@ -3,7 +3,6 @@ package com.qingmang.domain.interaction;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -58,7 +57,6 @@ public class Comment implements Serializable {
     @TableField("updated_at")
     private LocalDateTime updatedAt;
 
-    @TableLogic
     @TableField("deleted_at")
     private LocalDateTime deletedAt;
 }
