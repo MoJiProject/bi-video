@@ -3,12 +3,11 @@ package com.qingmang.interfaces;
 import com.qingmang.application.UserContentService;
 import com.qingmang.common.api.ApiResponse;
 import com.qingmang.common.api.PageResult;
+import com.qingmang.interfaces.dto.FolderRequest;
 import com.qingmang.interfaces.vo.FolderVO;
 import com.qingmang.interfaces.vo.VideoListItemVO;
 import com.qingmang.support.AuthContext;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.Data;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,13 +48,13 @@ public class UserContentController {
     }
 
     @PostMapping("/folder")
-    public ApiResponse<FolderVO> createFolder(@RequestBody FolderBody body) {
+    public ApiResponse<FolderVO> createFolder(@Valid @RequestBody FolderRequest body) {
         return ApiResponse.ok(service.createFolder(AuthContext.requireUserId(),
                 body.getName(), body.getDescription(), body.getVisibility()));
     }
 
     @PutMapping("/folder/{folderId}")
-    public ApiResponse<Void> renameFolder(@PathVariable Long folderId, @RequestBody FolderBody body) {
+    public ApiResponse<Void> renameFolder(@PathVariable Long folderId, @Valid @RequestBody FolderRequest body) {
         service.renameFolder(AuthContext.requireUserId(), folderId, body.getName(), body.getDescription());
         return ApiResponse.ok();
     }
@@ -125,19 +124,5 @@ public class UserContentController {
         data.put("hasMore", hasMore);
         data.put("cursorId", page.isEmpty() ? null : page.get(page.size() - 1).getId());
         return data;
-    }
-
-    @Data
-    public static class FolderBody {
-
-        @NotBlank(message = "收藏夹名称不能为空")
-        @Size(max = 64, message = "收藏夹名称最长 64 字")
-        private String name;
-
-        @Size(max = 255, message = "简介最长 255 字")
-        private String description;
-
-        /** 0私密 1公开 */
-        private Integer visibility = 1;
     }
 }

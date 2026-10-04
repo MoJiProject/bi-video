@@ -2,10 +2,8 @@ package com.qingmang.interfaces;
 
 import com.qingmang.application.VideoInteractionService;
 import com.qingmang.common.api.ApiResponse;
+import com.qingmang.interfaces.dto.CoinRequest;
 import com.qingmang.support.AuthContext;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import lombok.Data;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +31,7 @@ public class InteractionController {
 
     @PostMapping("/{videoId}/coin")
     public ApiResponse<Map<String, Object>> coin(@PathVariable Long videoId,
-                                                 @RequestBody(required = false) CoinBody body) {
+                                                 @RequestBody(required = false) CoinRequest body) {
         int n = body == null ? 1 : body.getCoinCount();
         return ApiResponse.ok(interaction.throwCoin(AuthContext.requireUserId(), videoId, n));
     }
@@ -59,13 +57,5 @@ public class InteractionController {
     @GetMapping("/{videoId}/state")
     public ApiResponse<Map<String, Object>> state(@PathVariable Long videoId) {
         return ApiResponse.ok(interaction.stateOf(AuthContext.currentUserIdOrNull(), videoId));
-    }
-
-    @Data
-    public static class CoinBody {
-
-        @Min(1)
-        @Max(2)
-        private int coinCount = 1;
     }
 }
