@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qingmang.infrastructure.mapper.InteractionQueryMapper">
+
+    <resultMap id="commentMap" type="com.qingmang.interfaces.vo.CommentVO">
+        <id column="id" property="id"/>
+        <result column="video_id" property="videoId"/>
+        <result column="author_id" property="authorId"/>
+        <result column="author_nickname" property="authorNickname"/>
+        <result column="author_avatar" property="authorAvatar"/>
+        <result column="author_level" property="authorLevel"/>
+        <result column="root_id" property="rootId"/>
+        <result column="reply_to_user_id" property="replyToUserId"/>
+        <result column="reply_to_nickname" property="replyToNickname"/>
+        <result column="content" property="content"/>
+        <result column="image_urls" property="imageUrlsJson"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="like_count" property="likeCount"/>
+        <result column="reply_count" property="replyCount"/>
+        <result column="liked" property="liked"/>
+        <result column="disliked" property="disliked"/>
+    </resultMap>
+
+    <!--
+      当前用户的赞/踩状态用两个 EXISTS 子查询直接算出来，
+      比「先查评论再按 comment_id IN (...) 查一遍赞踩」少一次往返。
+      点赞数已经冗余在 comment.like_count 上，赞踩明细只在写时维护。
+    -->
+    <sql id="commentColumns">
+        c.id, c.video_id, c.author_id,
+        u.nickname AS author_nickname, u.avatar_url AS author_avatar, u.level AS author_level,
+        c.root_id, c.reply_to_user_id,
+        ru.nickname AS reply_to_nickname,
+        c.content, c.image_urls, c.created_at, c.like_count, c.reply_count,
+        CASE WHEN EXISTS (SELECT 1 FROM comment_like cl
+                          WHERE cl.comment_id = c.id AND cl.user_id = #{viewerId}
+                            AND cl.is_dislike = 0) THEN TRUE ELSE FALSE END AS liked,
+        CASE WHEN EXISTS (SELECT 1 FROM comment_like cl
+                          WHERE cl.comment_id = c.id AND cl.user_id = #{viewerId}
+                            AND cl.is_dislike = 1) THEN TRUE ELSE FALSE END AS disliked
+    </sql>
+
+    <select id="selectComments" resultMap="commentMap">
+        SELECT <include refid="commentColumns"/>
+        FROM comment c
+        JOIN `user` u ON u.id = c.author_id
+        LEFT JOIN `user` ru ON ru.id = c.reply_to_user_id
+        WHERE c.video_id = #{videoId}
+          AND c.root_id IS NULL
+          AND c.status = 1
+          AND c.deleted_at IS NULL
+        <if test="cursorId != null">
+          AND c.id &lt; #{cursorId}
+        </if>
+        ORDER BY c.id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectReplies" resultMap="commentMap">
+        SELECT <include refid="commentColumns"/>
+        FROM comment c
+        JOIN `user` u ON u.id = c.author_id
+        LEFT JOIN `user` ru ON ru.id = c.reply_to_user_id
+        WHERE c.root_id IN
+        <foreach collection="rootIds" item="rid" open="(" separator="," close=")">
+            #{rid}
+        </foreach>
+          AND c.status = 1
+          AND c.deleted_at IS NULL
+        ORDER BY c.id ASC
+    </select>
+
+    <select id="countComments" resultType="long">
+        SELECT COUNT(*) FROM comment
+        WHERE video_id = #{videoId} AND status = 1 AND deleted_at IS NULL
+    </select>
+
+    <select id="selectDanmaku" resultType="com.qingmang.interfaces.vo.DanmakuVO">
+        SELECT d.id, d.video_id, d.content, d.color, d.font_size, d.mode, d.video_time_ms,
+               d.user_id, u.nickname AS user_nickname
+        FROM danmaku d
+        LEFT JOIN `user` u ON u.id = d.user_id
+        WHERE d.video_id = #{videoId}
+        ORDER BY d.video_time_ms ASC, d.id ASC
+        LIMIT #{limit}
+    </select>
+</mapper>
