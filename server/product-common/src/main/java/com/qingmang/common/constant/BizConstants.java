@@ -1,12 +1,6 @@
 package com.qingmang.common.constant;
 
-/**
- * 业务常量。
- *
- * <p>老代码里散落着 {@code "全部"}、{@code "发布时间排序"}、{@code "稍后再看"} 这类中文魔法值，
- * 前后端各写一遍，改一次漏一处就出线上故障。这里集中收口，
- * 需要进数据库的值请改用外键，不要再用字符串。</p>
- */
+/** 业务常量。老代码里散落着中文魔法值，这里集中收口；要进库的值请改用外键。 */
 public final class BizConstants {
 
     private BizConstants() {

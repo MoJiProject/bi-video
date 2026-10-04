@@ -21,29 +21,19 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.stream.Collectors;
 
-/**
- * 全局异常处理。
- *
- * <p>目标是：任何异常都不允许把堆栈或 SQL 泄漏给前端，
- * 而且同一种异常在任何接口返回的结构都一样。</p>
- *
- * <p>老代码里大部分 Controller 各自 try-catch 后 {@code R.error(e.getMessage())}，
- * 数据库异常会把 SQL 原文带出去，参数异常也是一段 Java 类型名。这里统一收口。</p>
- */
+/** 全局异常处理：任何异常都不把堆栈或 SQL 泄漏给前端，同一种异常返回结构一致。 */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     private static final String TRACE_ID = "traceId";
 
-    /** 可预期的业务失败：记 WARN，不打堆栈。 */
     @ExceptionHandler(BizException.class)
     public ApiResponse<Void> handleBiz(BizException e, HttpServletRequest request) {
         log.warn("[biz] {} {} -> {} {}", request.getMethod(), request.getRequestURI(), e.getCode(), e.getMessage());
         return ApiResponse.<Void>fail(e.getCode(), e.getMessage()).withTraceId(MDC.get(TRACE_ID));
     }
 
-    /** @Valid 校验失败：把出错字段名回给前端。 */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ApiResponse<Void> handleValid(MethodArgumentNotValidException e) {
         String msg = e.getBindingResult().getFieldErrors().stream()
@@ -83,14 +73,12 @@ public class GlobalExceptionHandler {
         return ApiResponse.fail(ErrorCode.NOT_FOUND.getCode(), "接口不存在");
     }
 
-    /** 唯一键冲突：多数是并发下的重复提交，转成友好提示而不是 500。 */
     @ExceptionHandler(DuplicateKeyException.class)
     public ApiResponse<Void> handleDuplicateKey(DuplicateKeyException e, HttpServletRequest request) {
         log.warn("[dup] {} {} -> {}", request.getMethod(), request.getRequestURI(), e.getMessage());
         return ApiResponse.fail(ErrorCode.OPERATION_FAILED.getCode(), "重复操作，请勿提交过快");
     }
 
-    /** 兜底：任何没被上面接住的异常。堆栈只进日志，不进响应体。 */
     @ExceptionHandler(Throwable.class)
     public ApiResponse<Void> handleUnexpected(Throwable e, HttpServletRequest request) {
         log.error("[unexpected] {} {}", request.getMethod(), request.getRequestURI(), e);
@@ -98,7 +86,6 @@ public class GlobalExceptionHandler {
                 .withTraceId(MDC.get(TRACE_ID));
     }
 
-    /** 保留一个把分页结果包成统一响应体的入口，避免每个 Controller 各写一遍。 */
     public static <T> ApiResponse<PageResult<T>> page(PageResult<T> pageResult) {
         return ApiResponse.ok(pageResult);
     }

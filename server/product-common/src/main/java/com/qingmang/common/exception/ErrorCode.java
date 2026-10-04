@@ -1,20 +1,7 @@
 package com.qingmang.common.exception;
 
 /**
- * 业务错误码。
- *
- * <p>code 前三位代表分类，便于前端按段做统一处理（例如 4xx 直接跳登录）：
- * <ul>
- *   <li>1xxxx 通用/参数</li>
- *   <li>2xxxx 账号与权限</li>
- *   <li>3xxxx 内容（视频/评论/动态）</li>
- *   <li>4xxxx 社交（关注/私信/一起看）</li>
- *   <li>5xxxx 收藏与观看记录</li>
- *   <li>9xxxx 服务端</li>
- * </ul>
- * </p>
- *
- * <p>新增错误码请追加，不要复用已有值。</p>
+ * 业务错误码。前三位分段：1通用 2账号 3内容 4社交 5收藏 9服务端。新增只追加，不复用。
  */
 public enum ErrorCode {
 

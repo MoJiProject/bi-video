@@ -2,12 +2,7 @@ package com.qingmang.common.enums;
 
 import lombok.Getter;
 
-/**
- * 视频状态。
- *
- * <p>对应 {@code video.status}。老代码里 0/1 各表示什么在不同方法里不一样，
- * 这里定死一份含义，DB 注释与本枚举保持一致。</p>
- */
+/** 视频状态，对应 video.status。与库里的注释保持一致。 */
 @Getter
 public enum VideoStatus {
 
@@ -35,7 +30,6 @@ public enum VideoStatus {
         return DRAFT;
     }
 
-    /** 是否对外可见。 */
     public boolean isPublic() {
         return this == PUBLISHED;
     }

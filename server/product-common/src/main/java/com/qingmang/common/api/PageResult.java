@@ -5,17 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
-/**
- * 统一分页结果。
- *
- * <p>老代码里分页返回体有四种写法（Map 套 list、只返回 list 让前端自己算页码、
- * 一半返回 total 一半不返回），前端到处判断。这里收敛成一种。</p>
- *
- * <p>深分页（offset 很大）不要用这个类，见
- * {@code CursorPageResult} —— 那种场景请用游标分页。</p>
- *
- * @param <T> 列表元素类型
- */
+/** 统一分页返回体。老代码里分页有四种写法，这里收敛成一种。offset 很大的深分页请用游标分页。 */
 public class PageResult<T> implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -45,7 +35,6 @@ public class PageResult<T> implements Serializable {
         return new PageResult<>(Collections.emptyList(), 0L, pageNum, pageSize);
     }
 
-    /** 对列表做一次映射，保持分页元数据不变。 */
     public <R> PageResult<R> map(Function<T, R> mapper) {
         List<R> mapped = records.stream().map(mapper).toList();
         return new PageResult<>(mapped, total, pageNum, pageSize);

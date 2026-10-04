@@ -2,12 +2,7 @@ package com.qingmang.common.enums;
 
 import lombok.Getter;
 
-/**
- * 通知类型与通知对象类型。
- *
- * <p>对应 {@code notification.type} / {@code notification.target_type}。
- * 旧的 {@code at} 表只能表示「@我」，这里扩展成完整的通知体系。</p>
- */
+/** 通知类型与对象类型，对应 notification.type / target_type。 */
 public final class NotifyType {
 
     private NotifyType() {

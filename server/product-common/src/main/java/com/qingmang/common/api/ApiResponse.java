@@ -6,14 +6,7 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * 统一响应体。
- *
- * <p>约定：{@code code == 1} 表示成功，其余为失败。字段名（{@code code} / {@code msg} / {@code data}）
- * 与历史接口保持一致，前端无需改动；在此基础上补了 {@code traceId} 与 {@code timestamp}，
- * 便于把线上问题按 traceId 串起来。</p>
- *
- * <p>禁止在 Controller 里手工 new 这个类，一律用 {@link #ok()} / {@link #ok(Object)} / {@link #fail}，
- * 更不要再像老代码那样用一个裸 {@code Map} 往外塞数据。</p>
+ * 统一响应体。code == 1 成功，字段名与历史接口保持一致，前端无需改动。
  *
  * @param <T> 业务数据类型
  */
@@ -62,7 +55,6 @@ public class ApiResponse<T> implements Serializable {
         return r;
     }
 
-    /** 业务失败时把 traceId 一起带回去，方便用户截图反馈后直接定位日志。 */
     public ApiResponse<T> withTraceId(String traceId) {
         this.traceId = traceId;
         return this;

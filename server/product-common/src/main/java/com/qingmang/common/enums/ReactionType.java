@@ -2,12 +2,7 @@ package com.qingmang.common.enums;
 
 import lombok.Getter;
 
-/**
- * 视频互动类型。
- *
- * <p>对应 {@code video_reaction.reaction_type}。点赞与投币合并成一张表后，
- * 用这个枚举替代散落的 {@code 1=点赞 2=投币 3=收藏} 注释。</p>
- */
+/** 视频互动类型，对应 video_reaction.reaction_type。 */
 @Getter
 public enum ReactionType {
 
