@@ -66,3 +66,5 @@ logging:
   level:
     root: info
     com.qingmang: info
+    # 排查 SQL 时临时改成 debug
+    # com.qingmang.infrastructure.mapper: debug
