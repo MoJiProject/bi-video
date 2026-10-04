@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qingmang.infrastructure.mapper.CounterMapper">
+
+    <!--
+      列名用 ${} 拼而不是 #{}：MyBatis 的 #{} 会把值当字符串参数，
+      列名不能当参数传。调用方必须只传白名单里的列名（见 CounterMapper 注释）。
+    -->
+    <update id="increaseVideoStat">
+        UPDATE video_stats
+        SET ${column} = ${column} + #{delta}
+        WHERE video_id = #{videoId}
+    </update>
+
+    <update id="decreaseVideoStat">
+        UPDATE video_stats
+        SET ${column} = CASE WHEN ${column} &lt; #{delta} THEN 0 ELSE ${column} - #{delta} END
+        WHERE video_id = #{videoId}
+    </update>
+
+    <update id="increaseUserStat">
+        UPDATE user_stats
+        SET ${column} = ${column} + #{delta}
+        WHERE user_id = #{userId}
+    </update>
+</mapper>

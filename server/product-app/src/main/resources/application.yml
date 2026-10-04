@@ -1,0 +1,66 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: product-app
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/product?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true&useSSL=false
+    username: MoJi
+    password: 1535889816
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initial-size: 5
+      min-idle: 5
+      max-active: 30
+      max-wait: 5000
+      validation-query: SELECT 1
+      test-while-idle: true
+      keep-alive: true
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: 1234
+      database: 0
+      timeout: 3s
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+  jackson:
+    default-property-inclusion: non_null
+    time-zone: Asia/Shanghai
+    date-format: yyyy-MM-dd HH:mm:ss
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 520MB
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    default-enum-type-handler: org.apache.ibatis.type.EnumOrdinalTypeHandler
+  global-config:
+    banner: false
+    db-config:
+      id-type: auto
+      logic-delete-field: deletedAt
+      logic-delete-value: 1970-01-01 00:00:00
+      logic-not-delete-value: null
+
+sa-token:
+  token-name: token
+  timeout: 604800
+  active-timeout: -1
+  is-concurrent: true
+  is-share: false
+  token-style: uuid
+  is-log: false
+
+logging:
+  level:
+    root: info
+    com.qingmang: info

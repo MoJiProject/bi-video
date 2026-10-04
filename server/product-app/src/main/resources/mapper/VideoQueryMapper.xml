@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qingmang.infrastructure.mapper.VideoQueryMapper">
+
+    <resultMap id="listItemMap" type="com.qingmang.interfaces.vo.VideoListItemVO">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="cover_url" property="coverUrl"/>
+        <result column="duration_seconds" property="durationSeconds"/>
+        <result column="published_at" property="publishedAt"/>
+        <result column="owner_id" property="ownerId"/>
+        <result column="owner_nickname" property="ownerNickname"/>
+        <result column="owner_avatar" property="ownerAvatar"/>
+        <result column="play_count" property="playCount"/>
+        <result column="danmaku_count" property="danmakuCount"/>
+        <result column="like_count" property="likeCount"/>
+        <result column="coin_count" property="coinCount"/>
+        <result column="favorite_count" property="favoriteCount"/>
+        <result column="comment_count" property="commentCount"/>
+    </resultMap>
+
+    <select id="selectEnabledCategories" resultType="com.qingmang.interfaces.vo.CategoryVO">
+        SELECT id, code, name, sort_order
+        FROM category
+        WHERE is_enabled = 1
+        ORDER BY sort_order ASC
+    </select>
+
+    <!--
+      视频列表。视频 + 作者 + 计数一次 join 出来，避免逐条再查。
+      排序字段全部走 video_stats 上的索引列；cursorId 为空时退化成普通第一页。
+    -->
+    <select id="selectVideoList" resultMap="listItemMap">
+        SELECT v.id, v.title, v.cover_url, v.duration_seconds, v.published_at,
+               u.id AS owner_id, u.nickname AS owner_nickname, u.avatar_url AS owner_avatar,
+               COALESCE(s.play_count, 0)    AS play_count,
+               COALESCE(s.danmaku_count, 0) AS danmaku_count,
+               COALESCE(s.like_count, 0)    AS like_count,
+               COALESCE(s.coin_count, 0)    AS coin_count,
+               COALESCE(s.favorite_count, 0) AS favorite_count,
+               COALESCE(s.comment_count, 0) AS comment_count
+        FROM video v
+        JOIN `user` u ON u.id = v.owner_id AND u.deleted_at IS NULL
+        LEFT JOIN video_stats s ON s.video_id = v.id
+        WHERE v.status = 1
+          AND v.deleted_at IS NULL
+        <if test="categoryId != null">
+          AND v.category_id = #{categoryId}
+        </if>
+        <if test="ownerId != null">
+          AND v.owner_id = #{ownerId}
+        </if>
+        <if test="cursorId != null">
+          AND v.id &lt; #{cursorId}
+        </if>
+        <choose>
+            <when test="sort == 'hot'">
+              ORDER BY s.play_count DESC, v.id DESC
+            </when>
+            <otherwise>
+              ORDER BY v.published_at DESC, v.id DESC
+            </otherwise>
+        </choose>
+        LIMIT #{limit}
+    </select>
+
+    <!-- 一次 IN 拿回当前用户对这一页视频的全部互动状态，替掉 N 次单查 -->
+    <select id="selectUserReactions" resultType="com.qingmang.interfaces.vo.UserReactionVO">
+        SELECT video_id, reaction_type, coin_count
+        FROM video_reaction
+        WHERE user_id = #{userId}
+          AND video_id IN
+        <foreach collection="videoIds" item="vid" open="(" separator="," close=")">
+            #{vid}
+        </foreach>
+    </select>
+
+    <select id="selectVideoDetail" resultType="com.qingmang.interfaces.vo.VideoDetailVO">
+        SELECT v.id, v.title, v.description, v.cover_url, v.play_url, v.source, v.remote_url,
+               v.duration_seconds, v.published_at,
+               u.id AS owner_id, u.nickname AS owner_nickname, u.avatar_url AS owner_avatar,
+               u.signature AS owner_signature,
+               COALESCE(us.follower_count, 0) AS follower_count,
+               CASE WHEN f.id IS NULL THEN FALSE ELSE TRUE END AS owner_followed,
+               COALESCE(s.play_count, 0)     AS play_count,
+               COALESCE(s.danmaku_count, 0)  AS danmaku_count,
+               COALESCE(s.like_count, 0)     AS like_count,
+               COALESCE(s.coin_count, 0)     AS coin_count,
+               COALESCE(s.favorite_count, 0) AS favorite_count,
+               COALESCE(s.comment_count, 0)  AS comment_count,
+               COALESCE(s.share_count, 0)    AS share_count,
+               COALESCE(h.progress_seconds, -1) AS watch_progress
+        FROM video v
+        JOIN `user` u ON u.id = v.owner_id AND u.deleted_at IS NULL
+        LEFT JOIN video_stats s ON s.video_id = v.id
+        LEFT JOIN user_stats us ON us.user_id = v.owner_id
+        LEFT JOIN user_follow f ON f.follower_id = #{userId} AND f.followee_id = v.owner_id
+        LEFT JOIN watch_history h ON h.user_id = #{userId} AND h.video_id = v.id
+        WHERE v.id = #{videoId}
+          AND v.deleted_at IS NULL
+        LIMIT 1
+    </select>
+</mapper>
