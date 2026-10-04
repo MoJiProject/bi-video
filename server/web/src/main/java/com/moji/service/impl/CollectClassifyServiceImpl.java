@@ -43,7 +43,7 @@ public class CollectClassifyServiceImpl extends ServiceImpl<CollectClassifyMappe
 
         LambdaQueryWrapper<CollectsClassify> collectsClassifyLambdaQueryWrapper=new LambdaQueryWrapper<>();
         collectsClassifyLambdaQueryWrapper.eq(CollectsClassify::getUserId,homeUserId)
-                .ne(CollectsClassify::getCollectName,"稍后再看");
+                .ne(CollectsClassify::getCollectName,"待看清单");
 
         //判断是否是自己的主页
         if(!Objects.equals(userId, homeUserId))

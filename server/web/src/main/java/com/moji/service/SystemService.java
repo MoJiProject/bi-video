@@ -147,7 +147,7 @@ public interface SystemService {
     Boolean rejectVideo(SystemOperateDto dto, Integer videoId);
 
     /**
-     * 视频管理 - 下架已通过的视频，并回滚UP主计数与已推送的粉丝动态
+     * 视频管理 - 下架已通过的视频，并回滚创作者计数与已推送的粉丝动态
      */
     Boolean takeDownVideo(SystemOperateDto dto, Integer videoId);
 

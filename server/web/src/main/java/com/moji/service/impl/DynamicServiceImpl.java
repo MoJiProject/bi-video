@@ -98,7 +98,7 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
                         LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
                         collectsLambdaQueryWrapper.eq(Collects::getUserId,userID)
                                 .eq(Collects::getVideoId,dynamic.getVideoId())
-                                .eq(Collects::getCollectName,"稍后再看");
+                                .eq(Collects::getCollectName,"待看清单");
                         dynamic.setWaitWatch(collectMapper.selectOne(collectsLambdaQueryWrapper)!=null?1:0);
 
                         Videos video = videosMapper.selectById(dynamic.getVideoId());
@@ -201,21 +201,21 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
             LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
             collectsLambdaQueryWrapper.eq(Collects::getVideoId,videoId)
                     .eq(Collects::getUserId,userId)
-                    .eq(Collects::getCollectName,"稍后再看");
+                    .eq(Collects::getCollectName,"待看清单");
             Collects collects = collectMapper.selectOne(collectsLambdaQueryWrapper);
             if(collects==null){
 
                 Collects collects1=Collects.builder()
                         .videoId(videoId)
                         .userId(userId)
-                        .collectName("稍后再看")
+                        .collectName("待看清单")
                         .collectTime(LocalDateTime.now())
                         .build();
                 collectMapper.insert(collects1);
 
                 LambdaQueryWrapper<CollectsClassify> collectsClassifyLambdaQueryWrapper=new LambdaQueryWrapper<>();
                 collectsClassifyLambdaQueryWrapper.eq(CollectsClassify::getUserId,userId)
-                        .eq(CollectsClassify::getCollectName,"稍后再看");
+                        .eq(CollectsClassify::getCollectName,"待看清单");
                 CollectsClassify collectsClassify = collectClassifyMapper.selectOne(collectsClassifyLambdaQueryWrapper);
                 collectsClassify.setVideoNumber(collectsClassify.getVideoNumber()+1);
                 collectClassifyMapper.updateById(collectsClassify);
@@ -223,13 +223,13 @@ public class DynamicServiceImpl extends ServiceImpl<DynamicMapper, Dynamic> impl
             else {
                 LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper1=new LambdaQueryWrapper<>();
                 collectsLambdaQueryWrapper1.eq(Collects::getUserId,userId)
-                        .eq(Collects::getCollectName,"稍后再看")
+                        .eq(Collects::getCollectName,"待看清单")
                         .eq(Collects::getVideoId,videoId);
                 collectMapper.delete(collectsLambdaQueryWrapper1);
 
                 LambdaQueryWrapper<CollectsClassify> collectsClassifyLambdaQueryWrapper=new LambdaQueryWrapper<>();
                 collectsClassifyLambdaQueryWrapper.eq(CollectsClassify::getUserId,userId)
-                        .eq(CollectsClassify::getCollectName,"稍后再看");
+                        .eq(CollectsClassify::getCollectName,"待看清单");
                 CollectsClassify collectsClassify = collectClassifyMapper.selectOne(collectsClassifyLambdaQueryWrapper);
                 collectsClassify.setVideoNumber(collectsClassify.getVideoNumber()-1);
                 collectClassifyMapper.updateById(collectsClassify);

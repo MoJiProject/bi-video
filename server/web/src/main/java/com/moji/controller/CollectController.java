@@ -129,7 +129,7 @@ public class CollectController {
 
 
     /**
-     * 查询稍后再看的视频
+     * 查询待看清单的视频
      * @param userId
      * @param sort
      * @param sort2
@@ -158,7 +158,7 @@ public class CollectController {
 
 
     /**
-     * 清除所有稍后再看
+     * 清除所有待看清单
      * @param userId
      * @param token
      * @return

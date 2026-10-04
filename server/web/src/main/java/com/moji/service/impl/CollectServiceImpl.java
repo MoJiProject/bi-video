@@ -101,7 +101,7 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
         List<Collects> collectss = collectMapper.selectList(collectsLambdaQueryWrapper);
         boolean waitWatchFlag;
         if(collectss.size()==1)
-            waitWatchFlag= !collectss.get(0).getCollectName().equals("稍后再看");
+            waitWatchFlag= !collectss.get(0).getCollectName().equals("待看清单");
         else waitWatchFlag=true;
 
         if((collectss.isEmpty() || !waitWatchFlag)&&!acceptCollect.getAllInFlags().isEmpty()){
@@ -304,14 +304,14 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
-        //videos.collect_number 的口径是「该用户至少收藏了一次（不含稍后再看与已删除的记录）」，
+        //videos.collect_number 的口径是「该用户至少收藏了一次（不含待看清单与已删除的记录）」，
         //所以这里只统计同样口径的记录，删完之后真正归零的视频才需要把计数减一
         Set<Integer> deletingIds = collects.stream()
                 .map(Collects::getId)
                 .collect(Collectors.toSet());
         LambdaQueryWrapper<Collects> qw2 = new LambdaQueryWrapper<>();
         qw2.eq(Collects::getUserId, userId)
-                .ne(Collects::getCollectName, "稍后再看")
+                .ne(Collects::getCollectName, "待看清单")
                 .eq(Collects::getDeleteFlag, 0);
         if(!videoIds.isEmpty())
             qw2.in(Collects::getVideoId, videoIds);
@@ -483,13 +483,13 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collects> imp
     public int cleanAllWaitWatch(Integer userId) {
 
         LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
-        collectsLambdaQueryWrapper.eq(Collects::getCollectName,"稍后再看")
+        collectsLambdaQueryWrapper.eq(Collects::getCollectName,"待看清单")
                 .eq(Collects::getUserId,userId);
         int delete = collectMapper.delete(collectsLambdaQueryWrapper);
 
         LambdaQueryWrapper<CollectsClassify> collectsClassifyLambdaQueryWrapper=new LambdaQueryWrapper<>();
         collectsClassifyLambdaQueryWrapper.eq(CollectsClassify::getUserId,userId)
-                .eq(CollectsClassify::getCollectName,"稍后再看");
+                .eq(CollectsClassify::getCollectName,"待看清单");
         CollectsClassify collectsClassify = collectClassifyMapper.selectOne(collectsClassifyLambdaQueryWrapper);
         if(collectsClassify==null)
             throw new RuntimeException();

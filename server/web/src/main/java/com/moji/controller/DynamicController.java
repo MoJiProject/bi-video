@@ -61,7 +61,7 @@ public class DynamicController {
 
 
     /**
-     * 更新稍后再看
+     * 更新待看清单
      * @param dynamicDto
      * @return
      */

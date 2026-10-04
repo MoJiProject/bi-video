@@ -59,7 +59,7 @@ public class SearchServiceImpl implements SearchService {
         //搜索只返回审核通过的视频
         videosLambdaQueryWrapper.eq(Videos::getStatus,1);
 
-        //「全部分区」且不按时长过滤时，标签命中也算一次有效搜索。
+        //「全部分类」且不按时长过滤时，标签命中也算一次有效搜索。
         //原来是把标签查询的结果整表selectList再与分页结果做并集，导致：
         //每页都多带一份全量数据、翻页永远收敛不了、总数与实际返回对不上。
         //这里直接把标签条件并入主查询的条件组，变成一次正常的分页查询。

@@ -149,7 +149,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
         }
 
         users.setCreateTime(LocalDateTime.now());
-        users.setAvatarAddress("/img/默认头像.gif");
+        users.setAvatarAddress("/img/avatar-default.png");
         // 密码加密
         users.setPassword(BCrypt.hashpw(users.getPassword(), BCrypt.gensalt()));
 
@@ -163,7 +163,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
                         .build();
                 collectClassifyMapper.insert(collectsClassify);
         CollectsClassify collectsClassify2=CollectsClassify.builder()
-                        .collectName("稍后再看")
+                        .collectName("待看清单")
                         .videoNumber(0)
                         .userId(users.getId())
                         .build();
@@ -753,7 +753,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
                 return false;
 
             //删除之前的头像
-            if(users.getAvatarAddress()!=null&&!users.getAvatarAddress().isEmpty()&&!users.getAvatarAddress().equals("/img/默认头像.gif")){
+            if(users.getAvatarAddress()!=null&&!users.getAvatarAddress().isEmpty()&&!users.getAvatarAddress().equals("/img/avatar-default.png")){
                 String avatarAddress=users.getAvatarAddress();
                 int lastIndexOf = avatarAddress.lastIndexOf("/");
                 String avatarFile=(lastIndexOf!=-1)? avatarAddress.substring(lastIndexOf+1):avatarAddress;

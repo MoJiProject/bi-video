@@ -98,7 +98,7 @@ public class HomeController {
 
 
     /**
-     * 查询up主的代表作
+     * 查询创作者的代表作
      * @param homeUserId
      * @param userId
      * @return

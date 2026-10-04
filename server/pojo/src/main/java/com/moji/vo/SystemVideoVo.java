@@ -20,7 +20,7 @@ public class SystemVideoVo implements Serializable {
     private Integer id;
     private Integer userId;
     private String userName;
-    private String userAvatar;//UP主头像
+    private String userAvatar;//创作者头像
     private String title;
     private String content;//简介
     private String tag;//标签 逗号分隔

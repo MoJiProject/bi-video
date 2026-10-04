@@ -113,7 +113,7 @@
        SELECT c.* FROM collects c LEFT JOIN videos v
        ON c.video_id = v.id
         where c.user_id = #{userId}
-       AND c.collect_name = '稍后再看'
+       AND c.collect_name = '待看清单'
        AND c.delete_flag = 0
        AND (LOWER(v.title) LIKE CONCAT('%',LOWER(#{keyWord}),'%')
        OR LOWER(v.user_name) LIKE CONCAT('%',LOWER(#{keyWord}),'%'))

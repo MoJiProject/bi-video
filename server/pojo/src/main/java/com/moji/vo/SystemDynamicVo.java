@@ -21,7 +21,7 @@ public class SystemDynamicVo implements Serializable {
     private Integer followId;//发布者id
     private String followUserName;//发布者用户名
     private String followUserAvatar;//发布者头像
-    private Integer fansId;//粉丝id 为空表示是up主自己的动态
+    private Integer fansId;//粉丝id 为空表示是创作者自己的动态
     private Integer videoId;
     private String videoTitle;//关联视频标题
     private String videoCover;//关联视频封面

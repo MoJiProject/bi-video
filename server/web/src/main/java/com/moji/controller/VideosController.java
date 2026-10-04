@@ -231,7 +231,7 @@ public class VideosController {
     }
 
     /**
-     * 三连
+     * 连击
      * @param selectVideoByIdVo
      * @return
      */

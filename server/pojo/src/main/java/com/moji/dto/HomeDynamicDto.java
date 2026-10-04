@@ -17,7 +17,7 @@ public class HomeDynamicDto implements Serializable {
 
     private Comments comment;
     private Dynamic dynamic;
-    private UserInfo2 upUserInfo2;//视频的UP主信息
+    private UserInfo2 upUserInfo2;//视频的创作者信息
     private SelectVideoDto video;
     private String publishTime;
     private Integer likeFlag;

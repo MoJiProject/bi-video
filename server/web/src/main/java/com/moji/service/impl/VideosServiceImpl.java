@@ -190,7 +190,7 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
         if (videoTitle!=null){
             videoStatusWrapper0.like(Videos::getTitle,videoTitle);
         }
-        if (!subZoneKey.equals("全部分区")){
+        if (!subZoneKey.equals("全部分类")){
             videoStatusWrapper0.eq(Videos::getSubZoneKey,subZoneKey);
         }
 
@@ -203,7 +203,7 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
         if (videoTitle!=null){
             videoStatusWrapper.like(Videos::getTitle,videoTitle);
         }
-        if (!subZoneKey.equals("全部分区")){
+        if (!subZoneKey.equals("全部分类")){
             videoStatusWrapper.eq(Videos::getSubZoneKey,subZoneKey);
         }
 
@@ -216,7 +216,7 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
         if (videoTitle!=null){
             videoStatusWrapper1.like(Videos::getTitle,videoTitle);
         }
-        if (!subZoneKey.equals("全部分区")){
+        if (!subZoneKey.equals("全部分类")){
             videoStatusWrapper1.eq(Videos::getSubZoneKey,subZoneKey);
         }
 
@@ -229,7 +229,7 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
         if (videoTitle!=null){
             videoStatusWrapper2.like(Videos::getTitle,videoTitle);
         }
-        if (!subZoneKey.equals("全部分区")){
+        if (!subZoneKey.equals("全部分类")){
             videoStatusWrapper2.eq(Videos::getSubZoneKey,subZoneKey);
         }
 
@@ -248,14 +248,14 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
             if (videoTitle!=null){
                 userByIdWrapper.like(Videos::getTitle,videoTitle);
             }
-            if (!subZoneKey.equals("全部分区")){
+            if (!subZoneKey.equals("全部分类")){
                 userByIdWrapper.eq(Videos::getSubZoneKey,subZoneKey);
             }
             switch (sortWay) {
-                case "投稿时间排序" -> userByIdWrapper.orderByDesc(Videos::getCreateTime);
-                case "播放数排序" -> userByIdWrapper.orderByDesc(Videos::getPlayNumber);
-                case "收藏数排序" -> userByIdWrapper.orderByDesc(Videos::getCollectNumber);
-                case "弹幕数排序" -> userByIdWrapper.orderByDesc(Videos::getScrollingNumber);
+                case "发布时间排序" -> userByIdWrapper.orderByDesc(Videos::getCreateTime);
+                case "播放量排序" -> userByIdWrapper.orderByDesc(Videos::getPlayNumber);
+                case "收藏量排序" -> userByIdWrapper.orderByDesc(Videos::getCollectNumber);
+                case "弹幕量排序" -> userByIdWrapper.orderByDesc(Videos::getScrollingNumber);
                 default -> userByIdWrapper.orderByDesc(Videos::getCommentNumber);
             }
         }
@@ -267,14 +267,14 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
             if (videoTitle!=null){
                 userByIdWrapper.like(Videos::getTitle,videoTitle);
             }
-            if (!subZoneKey.equals("全部分区")){
+            if (!subZoneKey.equals("全部分类")){
                 userByIdWrapper.eq(Videos::getSubZoneKey,subZoneKey);
             }
             switch (sortWay) {
-                case "投稿时间排序" -> userByIdWrapper.orderByDesc(Videos::getCreateTime);
-                case "播放数排序" -> userByIdWrapper.orderByDesc(Videos::getPlayNumber);
-                case "收藏数排序" -> userByIdWrapper.orderByDesc(Videos::getCollectNumber);
-                case "弹幕数排序" -> userByIdWrapper.orderByDesc(Videos::getScrollingNumber);
+                case "发布时间排序" -> userByIdWrapper.orderByDesc(Videos::getCreateTime);
+                case "播放量排序" -> userByIdWrapper.orderByDesc(Videos::getPlayNumber);
+                case "收藏量排序" -> userByIdWrapper.orderByDesc(Videos::getCollectNumber);
+                case "弹幕量排序" -> userByIdWrapper.orderByDesc(Videos::getScrollingNumber);
                 default -> userByIdWrapper.orderByDesc(Videos::getCommentNumber);
             }
         }
@@ -285,14 +285,14 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
             if (videoTitle!=null){
                 userByIdWrapper.like(Videos::getTitle,videoTitle);
             }
-            if (!subZoneKey.equals("全部分区")){
+            if (!subZoneKey.equals("全部分类")){
                 userByIdWrapper.eq(Videos::getSubZoneKey,subZoneKey);
             }
             switch (sortWay) {
-                case "投稿时间排序" -> userByIdWrapper.orderByDesc(Videos::getCreateTime);
-                case "播放数排序" -> userByIdWrapper.orderByDesc(Videos::getPlayNumber);
-                case "收藏数排序" -> userByIdWrapper.orderByDesc(Videos::getCollectNumber);
-                case "弹幕数排序" -> userByIdWrapper.orderByDesc(Videos::getScrollingNumber);
+                case "发布时间排序" -> userByIdWrapper.orderByDesc(Videos::getCreateTime);
+                case "播放量排序" -> userByIdWrapper.orderByDesc(Videos::getPlayNumber);
+                case "收藏量排序" -> userByIdWrapper.orderByDesc(Videos::getCollectNumber);
+                case "弹幕量排序" -> userByIdWrapper.orderByDesc(Videos::getScrollingNumber);
                 default -> userByIdWrapper.orderByDesc(Videos::getCommentNumber);
             }
         }
@@ -303,14 +303,14 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
             if (videoTitle!=null){
                 userByIdWrapper.like(Videos::getTitle,videoTitle);
             }
-            if (!subZoneKey.equals("全部分区")){
+            if (!subZoneKey.equals("全部分类")){
                 userByIdWrapper.eq(Videos::getSubZoneKey,subZoneKey);
             }
             switch (sortWay) {
-                case "投稿时间排序" -> userByIdWrapper.orderByDesc(Videos::getCreateTime);
-                case "播放数排序" -> userByIdWrapper.orderByDesc(Videos::getPlayNumber);
-                case "收藏数排序" -> userByIdWrapper.orderByDesc(Videos::getCollectNumber);
-                case "弹幕数排序" -> userByIdWrapper.orderByDesc(Videos::getScrollingNumber);
+                case "发布时间排序" -> userByIdWrapper.orderByDesc(Videos::getCreateTime);
+                case "播放量排序" -> userByIdWrapper.orderByDesc(Videos::getPlayNumber);
+                case "收藏量排序" -> userByIdWrapper.orderByDesc(Videos::getCollectNumber);
+                case "弹幕量排序" -> userByIdWrapper.orderByDesc(Videos::getScrollingNumber);
                 default -> userByIdWrapper.orderByDesc(Videos::getCommentNumber);
             }
         }
@@ -516,7 +516,7 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
     }
 
     /**
-     * 只拷贝允许UP主编辑的字段，归属与统计类字段一律以库里的记录为准
+     * 只拷贝允许创作者编辑的字段，归属与统计类字段一律以库里的记录为准
      */
     private Videos copyEditableFields(Videos form, Videos db) {
 
@@ -658,7 +658,7 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
           LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
           collectsLambdaQueryWrapper.eq(Collects::getVideoId,video.getId())
                   .eq(Collects::getUserId,userId)
-                  .eq(Collects::getCollectName,"稍后再看");
+                  .eq(Collects::getCollectName,"待看清单");
 
             Collects collects = collectMapper.selectOne(collectsLambdaQueryWrapper);
             int waitWatch=0;
@@ -763,7 +763,7 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
             LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
             collectsLambdaQueryWrapper.eq(Collects::getVideoId,video.getId())
                     .eq(Collects::getUserId,userId)
-                    .eq(Collects::getCollectName,"稍后再看");
+                    .eq(Collects::getCollectName,"待看清单");
 
             Collects collects = collectMapper.selectOne(collectsLambdaQueryWrapper);
             int waitWatch=0;
@@ -867,7 +867,7 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
                 LambdaQueryWrapper<Collects> collectsLambdaQueryWrapper=new LambdaQueryWrapper<>();
                 collectsLambdaQueryWrapper.eq(Collects::getVideoId,video.getId())
                         .eq(Collects::getUserId,userId)
-                        .eq(Collects::getCollectName,"稍后再看");
+                        .eq(Collects::getCollectName,"待看清单");
 
                 Collects collects = collectMapper.selectOne(collectsLambdaQueryWrapper);
 
@@ -1012,7 +1012,7 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
         if(i<=0)
             return false;
 
-        //UP主计数改用SQL自增，避免读改写在并发下丢计数，也兜住计数为null的情况
+        //创作者计数改用SQL自增，避免读改写在并发下丢计数，也兜住计数为null的情况
         userMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update
                 .LambdaUpdateWrapper<Users>()
                 .eq(Users::getId,videos.getUserId())
@@ -1112,7 +1112,7 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
         if(collects.size()==1) {
             boolean collectFlag=true;
             for (Collects collect : collects) {
-                if(collect.getCollectName().equals("稍后再看"))
+                if(collect.getCollectName().equals("待看清单"))
                     collectFlag=false;
             }
             if (collectFlag)
@@ -1149,7 +1149,7 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
         if(dbVideo==null)
             return selectVideoByIdVo;
         Integer videoId=dbVideo.getId();
-        //UP主一律取视频真正的归属，避免前端伪造upUser.id把点赞/硬币算到别人头上
+        //创作者一律取视频真正的归属，避免前端伪造upUser.id把点赞/硬币算到别人头上
         Integer upUserId=dbVideo.getUserId();
 
         if(controlsType==1||controlsType==3)
@@ -1173,7 +1173,7 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
                             .build());
 
                     Users upUsers=userMapper.selectById(upUserId);
-                    //是否开启点赞提醒，由视频与UP主的真实设置决定
+                    //是否开启点赞提醒，由视频与创作者的真实设置决定
                     boolean warn=dbVideo.getLikeWarn()!=null&&dbVideo.getLikeWarn()==1
                             &&upUsers!=null&&upUsers.getLikeMessageWarn()!=null&&upUsers.getLikeMessageWarn()==1
                             &&!Objects.equals(upUserId,operatorId);
@@ -1233,7 +1233,7 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
                     addExpAndLevelUp(users,2);
                     userMapper.updateById(users);
 
-                    //UP主收硬币并加经验
+                    //创作者收硬币并加经验
                     Users upUser = userMapper.selectById(upUserId);
                     if(upUser!=null){
                         upUser.setCoinNumber(nullToZero(upUser.getCoinNumber())+coinCount);
@@ -1253,7 +1253,7 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
             {
                 LambdaQueryWrapper<Collects> collectLambdaQueryWrapper=new LambdaQueryWrapper<>();
                 collectLambdaQueryWrapper.eq(Collects::getVideoId,videoId)
-                        .ne(Collects::getCollectName,"稍后再看")
+                        .ne(Collects::getCollectName,"待看清单")
                         .eq(Collects::getUserId,operatorId);
                 List<Collects> collects = collectMapper.selectList(collectLambdaQueryWrapper);
                 if(collects.isEmpty())
@@ -1331,14 +1331,14 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
     }
 
     /**
-     * 原子增减UP主的获赞与互动计数
+     * 原子增减创作者的获赞与互动计数
      */
     private void addLikeNumber(Integer upUserId, int likeDelta, int likeAllDelta) {
         addLikeNumber(upUserId,likeDelta,likeAllDelta,0);
     }
 
     /**
-     * 原子增减UP主的获赞与互动计数
+     * 原子增减创作者的获赞与互动计数
      * @param likeDelta like_number增量
      * @param likeAllDelta like_all_number增量
      * @param allMessageDelta all_message_number增量
@@ -1391,7 +1391,7 @@ public class VideosServiceImpl extends ServiceImpl<VideosMapper, Videos> impleme
         List<CollectsClassify> collectsClassifies = collectClassifyMapper.selectList(collectsClassifyLambdaQueryWrapper);
         List<ResponseCollectClassify> newCollectClassify=new ArrayList<>();
         for (CollectsClassify collectsClassify : collectsClassifies) {
-            if(!collectsClassify.getCollectName().equals("稍后再看"))
+            if(!collectsClassify.getCollectName().equals("待看清单"))
             {
                 ResponseCollectClassify responseCollectClassify=new ResponseCollectClassify();
                 BeanUtils.copyProperties(collectsClassify,responseCollectClassify);

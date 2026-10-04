@@ -201,7 +201,7 @@ public class SystemServiceImpl implements SystemService {
         Long todayCommentNumber = commentsMapper.selectCount(
                 new LambdaQueryWrapper<Comments>().ge(Comments::getCommentTime, todayStart).lt(Comments::getCommentTime, tomorrowStart));
 
-        //up主自己的动态 fans_id 为空，这里只统计全部动态
+        //创作者自己的动态 fans_id 为空，这里只统计全部动态
         Long dynamicNumber = dynamicMapper.selectCount(null);
         Long messageNumber = privateMessageMapper.selectCount(null);
         Long keyWordNumber = keyWordMapper.selectCount(null);
@@ -612,8 +612,8 @@ List<Integer> selectedMainIds = commentList.stream()
             wrapper.isNotNull(Dynamic::getCommentId).isNull(Dynamic::getVideoId);
         }
 
-        //同一个视频动态在表里有「UP主自己发布的1条」+「每个粉丝各1条副本」，
-        //不区分来源的话列表会出现看起来重复的很多行，所以默认只显示UP主自己发布的
+        //同一个视频动态在表里有「创作者自己发布的1条」+「每个粉丝各1条副本」，
+        //不区分来源的话列表会出现看起来重复的很多行，所以默认只显示创作者自己发布的
         if (dto.getSource() != null && dto.getSource() == 0) {
             wrapper.isNull(Dynamic::getFansId);
         } else if (dto.getSource() != null && dto.getSource() == 1) {
@@ -664,11 +664,11 @@ List<Integer> selectedMainIds = commentList.stream()
         if (ids.isEmpty())
             throw new BaseException("请先选择要删除的动态");
 
-        //up主自己的动态 fans_id 为空才允许删除，避免管理员删掉用户收到的动态副本
+        //创作者自己的动态 fans_id 为空才允许删除，避免管理员删掉用户收到的动态副本
         List<Dynamic> dynamicList = dynamicMapper.selectList(
                 new LambdaQueryWrapper<Dynamic>().in(Dynamic::getId, ids).isNull(Dynamic::getFansId));
         if (dynamicList.isEmpty())
-            throw new BaseException("选中的动态可能已不存在，或属于用户收到的动态副本，只允许删除UP主自己发布的动态");
+            throw new BaseException("选中的动态可能已不存在，或属于用户收到的动态副本，只允许删除创作者自己发布的动态");
 
         List<Integer> realIds = dynamicList.stream().map(Dynamic::getId).collect(Collectors.toList());
         int deleteNumber = dynamicMapper.delete(new LambdaQueryWrapper<Dynamic>().in(Dynamic::getId, realIds));
@@ -998,7 +998,7 @@ List<Integer> selectedMainIds = commentList.stream()
 
         LambdaQueryWrapper<Videos> wrapper = new LambdaQueryWrapper<>();
 
-        //关键词同时匹配视频标题和UP主昵称
+        //关键词同时匹配视频标题和创作者昵称
         applyVideoKeyword(wrapper, dto.getKeyword());
         if (StringUtils.hasText(dto.getSubZoneKey()))
             wrapper.eq(Videos::getSubZoneKey, dto.getSubZoneKey());
@@ -1027,7 +1027,7 @@ List<Integer> selectedMainIds = commentList.stream()
     }
 
     /**
-     * 批量填充UP主头像
+     * 批量填充创作者头像
      */
     private void fillVideoUpAvatars(List<SystemVideoVo> list) {
 
@@ -1069,14 +1069,14 @@ List<Integer> selectedMainIds = commentList.stream()
 
         Videos videos = requireVideo(videoId);
 
-        //只有未审核的视频可以放行，重复放行会重复给粉丝推送动态并重复累加UP主计数
+        //只有未审核的视频可以放行，重复放行会重复给粉丝推送动态并重复累加创作者计数
         if (!Objects.equals(videos.getStatus(), VIDEO_STATUS_WAIT)) {
             systemLogService.write(dto, "video", "examineVideo", "video", videoId, videos.getTitle(),
                     "重复审核通过已被拒绝", 0);
             throw new BaseException("该视频不是待审核状态，无需重复审核");
         }
 
-        //复用创作中心的审核逻辑：重置发布时间、累加UP主计数、向粉丝推送动态
+        //复用创作中心的审核逻辑：重置发布时间、累加创作者计数、向粉丝推送动态
         Boolean b = videosService.examineVideo(videoId);
         if (!Objects.equals(b, true))
             throw new BaseException("审核失败，请稍后重试");
@@ -1127,7 +1127,7 @@ List<Integer> selectedMainIds = commentList.stream()
         if (!StringUtils.hasText(dto.getReason()))
             throw new BaseException("请填写下架原因");
 
-        //与审核通过严格互逆：回退UP主计数、回退粉丝动态红点、删除已推送的动态副本、软删收藏
+        //与审核通过严格互逆：回退创作者计数、回退粉丝动态红点、删除已推送的动态副本、软删收藏
         rollbackPublishedVideo(videos);
 
         videos.setStatus(VIDEO_STATUS_REJECT);
@@ -1148,7 +1148,7 @@ List<Integer> selectedMainIds = commentList.stream()
 
         Integer videoId = videos.getId();
 
-        //回退UP主的投稿数与动态数
+        //回退创作者的投稿数与动态数
         Users up = userMapper.selectById(videos.getUserId());
         if (up != null) {
             up.setVideoNumber(Math.max(0, nullToZero(up.getVideoNumber()) - 1));
@@ -1257,7 +1257,7 @@ return videos;
             }
         }
 
-        //恢复UP主自己的动态
+        //恢复创作者自己的动态
         List<Dynamic> ownDynamics = dynamicMapper.selectList(new LambdaQueryWrapper<Dynamic>()
                 .eq(Dynamic::getVideoId, videoId)
                 .isNull(Dynamic::getFansId)
@@ -1368,7 +1368,7 @@ return videos;
                     .set(Dynamic::getStatus, target ? 1 : 0));
             number++;
 
-            //下架动态要同时把UP主的动态数扣掉，动态流里不再出现；上架再加回来
+            //下架动态要同时把创作者的动态数扣掉，动态流里不再出现；上架再加回来
             Users owner = userMapper.selectById(dynamic.getFollowId());
             if (owner != null) {
                 int own = nullToZero(owner.getOwnDynamicNumber());
@@ -1430,7 +1430,7 @@ return videos;
     }
 
     /**
-     * 视频列表的关键词：标题或UP主昵称
+     * 视频列表的关键词：标题或创作者昵称
      */
     private void applyVideoKeyword(LambdaQueryWrapper<Videos> wrapper, String keyword) {
 

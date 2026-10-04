@@ -27,6 +27,6 @@ public class SelectVideoByIdVo implements Serializable {
     private List<String> collectName;
     private Integer throwCoinResult; //0是硬币不足 1是已投币
     private Integer throwCoinNumber;
-    private Integer controlsType;//操作类型 1点赞2投币3三连
+    private Integer controlsType;//操作类型 1点赞2投币3连击
 
 }
