@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qingmang.infrastructure.mapper.SocialQueryMapper">
+
+    <resultMap id="postMap" type="com.qingmang.interfaces.vo.PostVO">
+        <id column="id" property="id"/>
+        <result column="author_id" property="authorId"/>
+        <result column="author_nickname" property="authorNickname"/>
+        <result column="author_avatar" property="authorAvatar"/>
+        <result column="author_signature" property="authorSignature"/>
+        <result column="video_id" property="videoId"/>
+        <result column="video_title" property="videoTitle"/>
+        <result column="video_cover" property="videoCover"/>
+        <result column="video_duration" property="videoDuration"/>
+        <result column="content" property="content"/>
+        <result column="image_urls" property="imageUrls"/>
+        <result column="like_count" property="likeCount"/>
+        <result column="comment_count" property="commentCount"/>
+        <result column="share_count" property="shareCount"/>
+        <result column="liked" property="liked"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <resultMap id="userBriefMap" type="com.qingmang.interfaces.vo.UserBriefVO">
+        <id column="user_id" property="userId"/>
+        <result column="nickname" property="nickname"/>
+        <result column="avatar_url" property="avatarUrl"/>
+        <result column="signature" property="signature"/>
+        <result column="level" property="level"/>
+        <result column="followed" property="followed"/>
+        <result column="followed_at" property="followedAt"/>
+    </resultMap>
+
+    <select id="selectPosts" resultMap="postMap">
+        SELECT p.id, p.author_id, p.content, p.image_urls, p.video_id,
+               p.like_count, p.comment_count, p.share_count, p.created_at,
+               u.nickname AS author_nickname, u.avatar_url AS author_avatar,
+               u.signature AS author_signature,
+               v.title AS video_title, v.cover_url AS video_cover,
+               v.duration_seconds AS video_duration,
+               EXISTS (SELECT 1 FROM video_reaction r WHERE r.user_id = #{viewerId}
+                       AND r.reaction_type = 3 AND r.video_id = p.video_id) AS liked
+        FROM user_post p
+        JOIN `user` u ON u.id = p.author_id AND u.deleted_at IS NULL
+        LEFT JOIN video v ON v.id = p.video_id AND v.deleted_at IS NULL
+        WHERE p.status = 1 AND p.deleted_at IS NULL
+          AND (p.visibility = 0 OR p.author_id = #{viewerId})
+        <if test="targetUserId != null">
+          AND p.author_id = #{targetUserId}
+        </if>
+        <if test="cursorId != null">
+          AND p.id &lt; #{cursorId}
+        </if>
+        ORDER BY p.id DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- otherId 为空看「我关注的人」，不为空看「关注我的人」 -->
+    <select id="selectFollows" resultMap="userBriefMap">
+        SELECT u.id AS user_id, u.nickname, u.avatar_url, u.signature, u.level,
+               f.created_at AS followed_at,
+               CASE WHEN EXISTS (SELECT 1 FROM user_follow ff
+                                 WHERE ff.follower_id = #{viewerId} AND ff.followee_id = u.id)
+                    THEN TRUE ELSE FALSE END AS followed
+        FROM user_follow f
+        JOIN `user` u ON u.id = <choose>
+            <when test="otherId != null">f.follower_id</when>
+            <otherwise>f.followee_id</otherwise>
+        </choose> AND u.deleted_at IS NULL
+        WHERE 1 = 1
+        <choose>
+            <when test="otherId != null">AND f.followee_id = #{otherId}</when>
+            <otherwise>AND f.follower_id = #{viewerId}</otherwise>
+        </choose>
+        <if test="cursorId != null">
+          AND f.id &lt; #{cursorId}
+        </if>
+        ORDER BY f.id DESC
+        LIMIT #{limit}
+    </select>
+</mapper>
