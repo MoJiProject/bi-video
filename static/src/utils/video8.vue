@@ -53,8 +53,8 @@
        </div>
        <div class="up-user-name-link" @click="openHome(1,video)">
             <div class="up-user-name">
-                <img src="/img/up蓝.png">
-                <img src="/img/up.png">
+                <img src="/img/author-badge-blue.png">
+                <img src="/img/author-badge-default.png">
                 <el-tooltip
                 popper-class="custom-tooltip"
                 :disabled="batchControls"
@@ -94,8 +94,8 @@
        </div>
        <div class="up-user-name-link">
             <div class="up-user-name">
-                <img src="/img/up蓝.png">
-                <img src="/img/up.png">
+                <img src="/img/author-badge-blue.png">
+                <img src="/img/author-badge-default.png">
                 <el-tooltip
                 popper-class="custom-tooltip"
                 :disabled="batchControls"
@@ -293,7 +293,7 @@ video{
             }
         }
         .active-check-out{
-         background-color: #00AEEC;
+         background-color: #0FA68E;
          
             .border{
             opacity: 1;
@@ -320,7 +320,7 @@ video{
             padding: 1px 4px;
             transition: all 0.3s ease;
             z-index: 10;
-            background-color: #FF6699;
+            background-color: #FF8A4C;
         }
         .video-info{
         position: absolute;
@@ -381,7 +381,7 @@ video{
         top: 0;
         left: 0;
         height: 100%;
-        background-color: #FF6699;
+        background-color: #FF8A4C;
         }
     }
     .video-link2{
@@ -391,7 +391,7 @@ video{
             position: relative;
             top: 7px;
             padding-right: 16px;
-            color: #18191C;
+            color: #1C2321;
             font-size: 15px;
             line-height: 22px;
             height: 48px;
@@ -404,7 +404,7 @@ video{
             transition: color 0.3s ease;
         }
         .video-title:hover{
-        color: #00AEEC;
+        color: #0FA68E;
         }
     }
     .up-user-name-link{
@@ -433,7 +433,7 @@ video{
                 word-break: break-all;
                 -webkit-line-clamp: 1;
                 font-size: 13px;
-                color: #9499A0;
+                color: #8D9794;
                 transition: color 0.3s ease;
             }
             .delete-btn{
@@ -478,7 +478,7 @@ video{
             transition: opacity 0.3s ease;
         }
         span{
-            color: #00AEEC;
+            color: #0FA68E;
         }
     }
     }
@@ -491,7 +491,7 @@ video{
     height: 100%;
     cursor: pointer;
     user-select: none;
-    background-color: #E3E5E7;
+    background-color: #E0E5E3;
     border-radius: 6px;
     z-index: 10;
     }

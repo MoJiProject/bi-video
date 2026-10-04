@@ -3,7 +3,7 @@
        <div class="auto-play-video-header">
          <img @click="openHome(1,store.selectUpVideo.upUser?.id)" class="auto-play-video-avatar" :src="store.selectUpVideo.upUser?.avatarAddress">
          <span @click="openHome(1,store.selectUpVideo.upUser?.id)" class="auto-play-video-username">{{ store.selectUpVideo.upUser?.userName }}</span>
-         <span class="auto-play-video-vip"> <img src="/img/充电.webp"> 充电</span>
+         <span class="auto-play-video-vip"> <img src="/img/charge.png"> 充电</span>
          <span v-show="store.selectUpVideo?.isFansFlag===0" class="auto-play-video-follow" @click="store.setAddFollowFlag(1)"> <img src="/img/加关注.png"/> 关注 {{ store.selectUpVideo.upUser?.fansNumber }}</span>
          <span v-show="store.selectUpVideo?.isFansFlag===1" class="auto-play-video-delete-follow" @click="store.setAddFollowFlag(2)">已关注</span>
          <span class="auto-play-video-replay" @click="store.setReVideoPlayerFlag(true)">
@@ -47,11 +47,11 @@
                    <div class="black-border"></div>
                 </div>
                 <span class="auto-play-video-item-wait-watch" @click.stop="waitWatch(video.videoId)">
-                    <div v-show="store.userId===null" class="auto-play-video-item-wait-watch-title">稍后再看</div>
-                    <div v-show="video.waitWatch===0" class="auto-play-video-item-wait-watch-title">稍后再看</div>
+                    <div v-show="store.userId===null" class="auto-play-video-item-wait-watch-title">待看清单</div>
+                    <div v-show="video.waitWatch===0" class="auto-play-video-item-wait-watch-title">待看清单</div>
                     <div v-show="video.waitWatch===1" class="auto-play-video-item-wait-watch-title">移除</div>
-                    <div v-show="waitWatchInfoFlag&&video.waitWatch===1"  class="auto-play-video-item-wait-watch-info1">已加稍后再看</div>  
-                    <div v-show="waitWatchInfoFlag&&video.waitWatch===0"  class="auto-play-video-item-wait-watch-info2">已从稍后再看列表中移除</div>
+                    <div v-show="waitWatchInfoFlag&&video.waitWatch===1"  class="auto-play-video-item-wait-watch-info1">已加待看清单</div>  
+                    <div v-show="waitWatchInfoFlag&&video.waitWatch===0"  class="auto-play-video-item-wait-watch-info2">已从待看清单列表中移除</div>
                     <img v-show="store.userId===null" src="/img/waitWatch.png"/>
                     <img v-show="video.waitWatch===0" src="/img/waitWatch.png"/>
                     <img v-show="video.waitWatch===1" src="/img/addWaitWatch.png"/>
@@ -84,11 +84,11 @@
                    <div class="black-border"></div>
                 </div>
                 <span class="auto-play-video-item-wait-watch" @click.stop="waitWatch(video.videoId)">
-                    <div v-show="store.userId===null" class="auto-play-video-item-wait-watch-title">稍后再看</div>
-                    <div v-show="video.waitWatch===0" class="auto-play-video-item-wait-watch-title">稍后再看</div>
+                    <div v-show="store.userId===null" class="auto-play-video-item-wait-watch-title">待看清单</div>
+                    <div v-show="video.waitWatch===0" class="auto-play-video-item-wait-watch-title">待看清单</div>
                     <div v-show="video.waitWatch===1" class="auto-play-video-item-wait-watch-title">移除</div>
-                    <div v-show="waitWatchInfoFlag&&video.waitWatch===1"  class="auto-play-video-item-wait-watch-info1">已加稍后再看</div>  
-                    <div v-show="waitWatchInfoFlag&&video.waitWatch===0"  class="auto-play-video-item-wait-watch-info2">已从稍后再看列表中移除</div>
+                    <div v-show="waitWatchInfoFlag&&video.waitWatch===1"  class="auto-play-video-item-wait-watch-info1">已加待看清单</div>  
+                    <div v-show="waitWatchInfoFlag&&video.waitWatch===0"  class="auto-play-video-item-wait-watch-info2">已从待看清单列表中移除</div>
                     <img v-show="store.userId===null" src="/img/waitWatch.png"/>
                     <img v-show="video.waitWatch===0" src="/img/waitWatch.png"/>
                     <img v-show="video.waitWatch===1" src="/img/addWaitWatch.png"/>
@@ -222,7 +222,7 @@ export default {
             }
         }
 
-        //添加到稍后再看
+        //添加到待看清单
         async function waitWatch(videoId) {
             try {
 
@@ -422,7 +422,7 @@ export default {
 
         }
         .auto-play-video-avatar:hover{
-            border: 2px solid #00aeec;
+            border: 2px solid #0FA68E;
         }
 
         .auto-play-video-username{
@@ -442,8 +442,8 @@ export default {
             position: absolute;
             width: 62px;
             height: 25px;
-            border: 1px solid #eb7a99;
-            color: #eb7a99;
+            border: 1px solid #EE7A31;
+            color: #EE7A31;
             font-size: 12px;
             cursor: pointer;
             display: flex;
@@ -462,7 +462,7 @@ export default {
         }
 
         .auto-play-video-vip:hover{
-            background-color: rgba(251, 114, 153, .2);
+            background-color: rgba(240,160,60, .2);
 
         }
 
@@ -471,8 +471,8 @@ export default {
             z-index: 1000;
             width: 114px;
             height: 25px;
-            border: 1px solid #00aeec;
-            background-color: #00aeec;
+            border: 1px solid #0FA68E;
+            background-color: #0FA68E;
             color: white;
             font-size: 12px;
             cursor: pointer;

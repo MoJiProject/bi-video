@@ -1,7 +1,7 @@
 // 系统管理后台通用样式，被各管理页面的 <style scoped lang="scss"> 引入
-$sys-primary: #00a1d6;
-$sys-text: #18191c;
-$sys-sub: #9499a0;
+$sys-primary: #0E9C85;
+$sys-text: #1C2321;
+$sys-sub: #8D9794;
 $sys-border: #e5e7eb;
 $sys-bg: #f4f6f9;
 $sys-danger: #f56c6c;
@@ -68,7 +68,7 @@ $sys-success: #67c23a;
   align-items: center;
 
   span {
-    color: #18191c;
+    color: #1C2321;
     font-size: 13px;
     margin-left: 44px;
 
@@ -79,7 +79,7 @@ $sys-success: #67c23a;
       padding: 0 10px;
       margin: 0 4px;
       background-color: white;
-      border: 1px solid #e3e5e7;
+      border: 1px solid #E0E5E3;
       font-size: 14px;
       border-radius: 6px;
       transition: all 0.3s ease;
@@ -255,8 +255,8 @@ $sys-success: #67c23a;
 
   &.tag-primary {
     color: $sys-primary;
-    background-color: #eaf7fc;
-    border-color: #d3eef8;
+    background-color: #E7F5F1;
+    border-color: #D3EDE7;
   }
 
   &.tag-grey {

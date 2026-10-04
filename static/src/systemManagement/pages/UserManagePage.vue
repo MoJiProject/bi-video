@@ -411,7 +411,7 @@ export default {
 
 .time-text {
   font-size: 12px;
-  color: #61666d;
+  color: #5C6664;
   line-height: 1.7;
 }
 

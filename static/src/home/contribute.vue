@@ -294,16 +294,16 @@ watch(imgSource, () => {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background-color: #00aeec;
+      background-color: #0FA68E;
       margin-bottom: 8px;
     }
     .activeMenu {
       background-color: white;
-      color: #18191c;
+      color: #1C2321;
       transition: background-color 0.3s ease;
     }
     .activeMenu:hover {
-      background-color: #f1f2f3;
+      background-color: #EFF3F2;
     }
   }
   .content {
@@ -315,7 +315,7 @@ watch(imgSource, () => {
       .title {
         font-size: 24px;
         font-weight: 600;
-        color: #18191c;
+        color: #1C2321;
         line-height: 34px;
       }
       .title2 {
@@ -325,7 +325,7 @@ watch(imgSource, () => {
           cursor: pointer;
           display: flex;
           align-items: center;
-          color: #9499a0;
+          color: #8D9794;
           font-weight: 600;
           font-size: 24px;
           transition: color 0.3s ease;
@@ -337,13 +337,13 @@ watch(imgSource, () => {
           width: 2px;
           height: 20px;
           border-radius: 2px;
-          background-color: #e3e5e7;
+          background-color: #E0E5E3;
         }
         .activeImgSource {
-          color: #18191c !important;
+          color: #1C2321 !important;
         }
         span:hover {
-          color: #00aeec;
+          color: #0FA68E;
         }
       }
       .video-sort {
@@ -361,18 +361,18 @@ watch(imgSource, () => {
           height: 34px;
           padding: 0 15px;
           flex-shrink: 0;
-          color: #61666d;
+          color: #5C6664;
           cursor: pointer;
           transition: all 0.3s;
           border-radius: 6px;
-          background-color: #f6f7f8;
+          background-color: #F4F7F6;
         }
         span:hover {
-          color: #00aeec;
+          color: #0FA68E;
         }
         .sortClass {
           color: white !important;
-          background-color: #00aeec !important;
+          background-color: #0FA68E !important;
         }
       }
       .video-grid {
@@ -433,7 +433,7 @@ watch(imgSource, () => {
             font-size: 14px;
             line-height: 20px;
             font-weight: 400;
-            color: #9499a0;
+            color: #8D9794;
           }
         }
       }
@@ -444,7 +444,7 @@ watch(imgSource, () => {
         align-items: center;
 
         span {
-          color: #18191c;
+          color: #1C2321;
           font-size: 13px;
           margin-left: 44px;
           input {
@@ -457,17 +457,17 @@ watch(imgSource, () => {
             position: relative;
             padding: 0 12px;
             background-color: white;
-            border: 1px solid #e3e5e7;
+            border: 1px solid #E0E5E3;
             font-size: 14px;
             border-radius: 6px;
             transition: all 0.3s ease;
             padding: 0 10px;
           }
           input:hover {
-            border-color: #00aeec;
+            border-color: #0FA68E;
           }
           input:focus {
-            border-color: #00aeec;
+            border-color: #0FA68E;
           }
           input::-webkit-inner-spin-button,
           input::-webkit-outer-spin-button {

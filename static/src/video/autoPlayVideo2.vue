@@ -14,11 +14,11 @@
           ></video>
           <span class="autoPlayVideo2-videoTime">{{ video.videoTime }}</span>
           <span class="auto-play-video-item-wait-watch" @click.stop="waitWatch(video.videoId)">
-            <div v-show="store.userId===null" class="auto-play-video-item-wait-watch-title">稍后再看</div>
-            <div v-show="video.waitWatch===0" class="auto-play-video-item-wait-watch-title">稍后再看</div>
+            <div v-show="store.userId===null" class="auto-play-video-item-wait-watch-title">待看清单</div>
+            <div v-show="video.waitWatch===0" class="auto-play-video-item-wait-watch-title">待看清单</div>
             <div v-show="video.waitWatch===1" class="auto-play-video-item-wait-watch-title">移除</div>
-            <div v-show="waitWatchInfoFlag&&video.waitWatch===1"  class="auto-play-video-item-wait-watch-info1">已加稍后再看</div>  
-            <div v-show="waitWatchInfoFlag&&video.waitWatch===0"  class="auto-play-video-item-wait-watch-info2">已从稍后再看列表中移除</div>
+            <div v-show="waitWatchInfoFlag&&video.waitWatch===1"  class="auto-play-video-item-wait-watch-info1">已加待看清单</div>  
+            <div v-show="waitWatchInfoFlag&&video.waitWatch===0"  class="auto-play-video-item-wait-watch-info2">已从待看清单列表中移除</div>
             <img v-show="store.userId===null" src="/img/waitWatch.png"/>
             <img v-show="video.waitWatch===0" src="/img/waitWatch.png"/>
             <img v-show="video.waitWatch===1" src="/img/addWaitWatch.png"/>
@@ -39,8 +39,8 @@
         <span @click="intoVideo(video)" class="autoPlayVideo2-item-title">{{ video.videoTitle }}</span>
         </el-tooltip>
         <span @click="openHome(1,video.userId)" class="autoPlayVideo2-item-right-username-container">
-            <img class="img1" src="/img/up.png">
-            <img class="img2" src="/img/up蓝.png">
+            <img class="img1" src="/img/author-badge-default.png">
+            <img class="img2" src="/img/author-badge-blue.png">
             <span class="autoPlayVideo2-item-right-username">{{ video.userName }}</span> 
         </span>
         <span class="autoPlayVideo2-item-right-videoinfo-container">
@@ -65,11 +65,11 @@
           ></video>
           <span class="autoPlayVideo2-videoTime">{{ video.videoTime }}</span>
           <span class="auto-play-video-item-wait-watch" @click.stop="waitWatch(video.videoId)">
-            <div v-show="store.userId===null" class="auto-play-video-item-wait-watch-title">稍后再看</div>
-            <div v-show="video.waitWatch===0" class="auto-play-video-item-wait-watch-title">稍后再看</div>
+            <div v-show="store.userId===null" class="auto-play-video-item-wait-watch-title">待看清单</div>
+            <div v-show="video.waitWatch===0" class="auto-play-video-item-wait-watch-title">待看清单</div>
             <div v-show="video.waitWatch===1" class="auto-play-video-item-wait-watch-title">移除</div>
-            <div v-show="waitWatchInfoFlag&&video.waitWatch===1"  class="auto-play-video-item-wait-watch-info1">已加稍后再看</div>  
-            <div v-show="waitWatchInfoFlag&&video.waitWatch===0"  class="auto-play-video-item-wait-watch-info2">已从稍后再看列表中移除</div>
+            <div v-show="waitWatchInfoFlag&&video.waitWatch===1"  class="auto-play-video-item-wait-watch-info1">已加待看清单</div>  
+            <div v-show="waitWatchInfoFlag&&video.waitWatch===0"  class="auto-play-video-item-wait-watch-info2">已从待看清单列表中移除</div>
             <img v-show="store.userId===null" src="/img/waitWatch.png"/>
             <img v-show="video.waitWatch===0" src="/img/waitWatch.png"/>
             <img v-show="video.waitWatch===1" src="/img/addWaitWatch.png"/>
@@ -90,8 +90,8 @@
         <span @click="intoVideo(video)" class="autoPlayVideo2-item-title">{{ video.videoTitle }}</span>
         </el-tooltip>
         <span @click="openHome(1,video.userId)" class="autoPlayVideo2-item-right-username-container">
-            <img class="img1" src="/img/up.png">
-            <img class="img2" src="/img/up蓝.png">
+            <img class="img1" src="/img/author-badge-default.png">
+            <img class="img2" src="/img/author-badge-blue.png">
             <span class="autoPlayVideo2-item-right-username">{{ video.userName }}</span> 
         </span>
         <span class="autoPlayVideo2-item-right-videoinfo-container">
@@ -138,7 +138,7 @@ export default {
         }, {deep: true})
 
 
-         //添加到稍后再看
+         //添加到待看清单
          async function waitWatch(videoId) {
             try {
 
@@ -420,13 +420,13 @@ position: absolute;
     font-size: 13.5px;
     left: 260px;
     cursor: pointer;
-    color: #9499a0;
+    color: #8D9794;
 
     .custom-switch1 {
     width: 20px !important;
     --el-switch-height: 20px; /* 修改高度 */
     --el-switch-width: 30px !important; /* 修改宽度 */
-    --el-switch-on-color: #00aeec !important;
+    --el-switch-on-color: #0FA68E !important;
     }
     
 }
@@ -451,7 +451,7 @@ position: absolute;
         line-break: anywhere;
     }
     .autoPlayVideo2-item-title:hover{
-        color: #00aeec;
+        color: #0FA68E;
     }
 }
 
@@ -471,7 +471,7 @@ position: absolute;
    }
    .autoPlayVideo2-item-right-username{
        position: absolute;
-       color: #9499a0;
+       color: #8D9794;
        display: -webkit-box;
        left: 171px;
        top: 43px;
@@ -497,7 +497,7 @@ position: absolute;
         opacity: 1;
      }
      .autoPlayVideo2-item-right-username{
-          color: #00aeec;
+          color: #0FA68E;
      }
 }
 
@@ -506,7 +506,7 @@ position: absolute;
     width: 200px;
     left: 152px;
     top: 61px;
-    color: #9499a0;
+    color: #8D9794;
     font-size: 13px;
     img{
         width: 15px;
@@ -536,7 +536,7 @@ position: absolute;
     display: inline-block;
     width: 100%;
     height: 1px;
-    background-color: #e3e5e7;
+    background-color: #E0E5E3;
     transform: translate(0px, 79px);
 }
 
@@ -552,8 +552,8 @@ position: absolute;
     top: 3px;
     border-radius: 6px;
     cursor: pointer;
-    background-color: #f1f2f3;
-    color: #18191c;
+    background-color: #EFF3F2;
+    color: #1C2321;
     line-height: 42px;
     font-size: 11.5px;
     text-align: center;
@@ -563,6 +563,6 @@ position: absolute;
 }
 
 .show-video-btn:hover{
-    background-color: #e3e5e7;
+    background-color: #E0E5E3;
 }
 </style>

@@ -36,21 +36,21 @@ import {ChecklLogin,getUserIp} from '../api/user/index';
 
 const store = useGlobalStore();
 const backgroundImgSrc=[
-  '/img/pageBg1.webp',
-  '/img/pageBg2.webp',
-  '/img/pageBg3.webp',
-  '/img/pageBg4.webp',
-  '/img/pageBg5.webp',
-  '/img/pageBg6.webp',
-  '/img/pageBg7.webp',
-  '/img/pageBg8.webp',
+  '/img/page-bg-1.png',
+  '/img/page-bg-2.png',
+  '/img/page-bg-3.png',
+  '/img/page-bg-4.png',
+  '/img/page-bg-5.png',
+  '/img/page-bg-6.png',
+  '/img/page-bg-7.png',
+  '/img/page-bg-8.png',
 ];
 let bIndex=Math.floor(Math.random()*backgroundImgSrc.length);
 
 onMounted(async()=>{
   
   document.body.style.overflowY = 'hidden';
-  document.title = "消息中心-哔哩哔哩弹幕视频网 - (゜- ゜)つロ 干杯~";
+  document.title = "消息中心 - 青芒视频";
   localStorage.setItem('backgroundModel', parseInt(localStorage.getItem('backgroundModel')) || 0);
   const urlParams = new URLSearchParams(window.location.search);
   store.setMessageMenu(parseInt(urlParams.get("messageMenu")) || 1,true);

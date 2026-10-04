@@ -102,7 +102,7 @@ function openDynamic(dynamicId){
     position: relative;
     top: 6px; /* 距离底部 14px */
     font-size: 14px;
-    color: #18191C;
+    color: #1C2321;
     transition: color .3s ease;
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -111,7 +111,7 @@ function openDynamic(dynamicId){
     text-overflow: ellipsis;
     }
     .introduce:hover{
-        color: #00AEEC;
+        color: #0FA68E;
     }
 }
 

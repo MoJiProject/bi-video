@@ -401,7 +401,7 @@ export default {
 
 .word-text {
   font-size: 14px;
-  color: #18191c;
+  color: #1C2321;
 }
 
 .count-cell {
@@ -415,7 +415,7 @@ export default {
   width: 46px;
   text-align: right;
   font-size: 13px;
-  color: #18191c;
+  color: #1C2321;
   flex-shrink: 0;
 }
 
@@ -430,13 +430,13 @@ export default {
 .count-bar {
   display: block;
   height: 100%;
-  background-color: #00a1d6;
+  background-color: #0E9C85;
   border-radius: 4px;
 }
 
 .warn-text {
   font-size: 14px;
-  color: #61666d;
+  color: #5C6664;
   margin-bottom: 12px;
 }
 </style>

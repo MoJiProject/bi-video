@@ -374,16 +374,16 @@ watch(()=>store.keyword,()=>{
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background-color: #00aeec;
+      background-color: #0FA68E;
       margin-bottom: 8px;
     }
     .activeMenu {
       background-color: white;
-      color: #18191c;
+      color: #1C2321;
       transition: background-color 0.3s ease;
     }
     .activeMenu:hover {
-      background-color: #f1f2f3;
+      background-color: #EFF3F2;
     }
   }
   .content-container {
@@ -395,18 +395,18 @@ watch(()=>store.keyword,()=>{
       .title {
         font-size: 24px;
         font-weight: 600;
-        color: #18191c;
+        color: #1C2321;
         line-height: 34px;
       }
       .find-info {
-        color: #18191c;
+        color: #1C2321;
         margin-top: 16px;
         font-size: 14px;
         font-weight: 400;
         line-height: 20px;
 
         span {
-          color: #00aeec;
+          color: #0FA68E;
         }
       }
       .video-sort {
@@ -424,18 +424,18 @@ watch(()=>store.keyword,()=>{
           height: 34px;
           padding: 0 15px;
           flex-shrink: 0;
-          color: #61666d;
+          color: #5C6664;
           cursor: pointer;
           transition: all 0.3s;
           border-radius: 6px;
-          background-color: #f6f7f8;
+          background-color: #F4F7F6;
         }
         span:hover {
-          color: #00aeec;
+          color: #0FA68E;
         }
         .sortClass {
           color: white !important;
-          background-color: #00aeec !important;
+          background-color: #0FA68E !important;
         }
       }
       .video-grid {
@@ -477,7 +477,7 @@ watch(()=>store.keyword,()=>{
         align-items: center;
 
         span {
-          color: #18191c;
+          color: #1C2321;
           font-size: 13px;
           margin-left: 44px;
           input {
@@ -490,17 +490,17 @@ watch(()=>store.keyword,()=>{
             position: relative;
             padding: 0 12px;
             background-color: white;
-            border: 1px solid #e3e5e7;
+            border: 1px solid #E0E5E3;
             font-size: 14px;
             border-radius: 6px;
             transition: all 0.3s ease;
             padding: 0 10px;
           }
           input:hover {
-            border-color: #00aeec;
+            border-color: #0FA68E;
           }
           input:focus {
-            border-color: #00aeec;
+            border-color: #0FA68E;
           }
           input::-webkit-inner-spin-button,
           input::-webkit-outer-spin-button {
@@ -521,7 +521,7 @@ watch(()=>store.keyword,()=>{
         align-items: end;
         justify-content: center;
         font-size: 14px;
-        color: #9499A0;
+        color: #8D9794;
         user-select: none;
       }
     }
@@ -543,7 +543,7 @@ watch(()=>store.keyword,()=>{
                 font-size: 14px;
                 line-height: 20px;
                 font-weight: 400;
-                color: #9499A0;
+                color: #8D9794;
                 
             }
       }

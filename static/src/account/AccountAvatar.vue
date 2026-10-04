@@ -16,7 +16,11 @@
                     @drop="handlePicDrop"
                     @click="selectPic"
                 >
-                    <img src="~assets/img/icon_add_img.png" alt="">
+                    <svg class="choose-box-icon" viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="#5C6664" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="3" y="4" width="18" height="16" rx="2.5"></rect>
+                        <circle cx="8.5" cy="9.5" r="1.5"></circle>
+                        <path d="M3.5 17.5 L9 12.5 L13 16 L16.5 13 L20.5 17"></path>
+                    </svg>
                     <span>选择本地图片</span>
                 </div>
                 <CropperDefault v-if="!isCurrAvatar"
@@ -208,14 +212,14 @@ export default {
     width: 4px;
     height: 16px;
     margin-top: 17px;
-    background-color: #FF7DA1;
+    background-color: #FF8A4C;
     border-radius: 4px;
 }
 
 .header-text {
     float: left;
     margin: 17px 0 0 5px;
-    color: #FF7DA1;
+    color: #FF8A4C;
     font-size: 14px;
     cursor: default;
 }
@@ -344,7 +348,7 @@ export default {
 
 .btn.enable {
     cursor: pointer;
-    background: #FF7DA1;
+    background: #FF8A4C;
     color: #fff;
 }
 </style>

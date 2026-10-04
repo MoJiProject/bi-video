@@ -1,6 +1,6 @@
 <template>
     <div class="loading-indicator" :class="{inline:inline}" :style="{minHeight:minHeight}">
-        <img class="loading-icon" src="/img/loading-blue.gif" alt=""/>
+        <img class="loading-icon" src="/img/loading.png" alt=""/>
         <span v-if="text">{{ text }}</span>
     </div>
 </template>
@@ -21,7 +21,7 @@ defineProps({
     justify-content: center;
     gap: 8px;
     padding: 60px 0;
-    color: #61666D;
+    color: #5C6664;
 
     &.inline{
         padding: 16px 0;

@@ -25,7 +25,7 @@
           style="margin-bottom: 10px"
         >
           <img src="/img/投稿首页.png" alt="首页" /><span
-            style="margin-left: 4px; color: #479fd1"
+            style="margin-left: 4px; color: #3FA79E"
             >首页</span
           >
         </div>
@@ -36,7 +36,7 @@
         </div>
         <div
           v-if="isActive('/contribute/subpage2')"
-          style="color: #479fd1; margin-top: 10px"
+          style="color: #3FA79E; margin-top: 10px"
         >
           <img src="/img/稿件管理.png" alt="稿件管理" /> 稿件管理
         </div>
@@ -76,7 +76,7 @@ export default {
 .upload {
   width: 136px;
   height: 40px;
-  background-color: #479fd1;
+  background-color: #3FA79E;
   transform: translate(-11px, -25px);
   display: flex;
   justify-content: center;
@@ -86,7 +86,7 @@ export default {
 }
 
 .upload:hover {
-  background-color: #65b6df; /* 改变背景颜色 */
+  background-color: #5FB9B4; /* 改变背景颜色 */
 }
 
 .aside-link {

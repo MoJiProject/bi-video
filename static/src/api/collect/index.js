@@ -55,7 +55,7 @@ export async function controlCollect(token,userId,collectIds,collectClassifyIds,
     return res;
 }
 
-//查询稍后再看的视频
+//查询待看清单的视频
 export async function selectWaitWatch(token,userId,pageNum,sort,sort2,keyWord,startTime,endTime){
 
     const res = await apiClient.get("/collect/selectWaitWatch", {
@@ -76,7 +76,7 @@ export async function selectWaitWatch(token,userId,pageNum,sort,sort2,keyWord,st
     return res;
 }
 
-//清除所有稍后再看
+//清除所有待看清单
 export async function cleanAllWaitWatch(token,userId){
 
     const res = await apiClient.delete("/collect/cleanAllWaitWatch", {

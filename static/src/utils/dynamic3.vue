@@ -370,7 +370,7 @@ function deleteDynamicF(dynamic){
 
             .title{
             margin-top: 20px;  
-            color: #18191C;
+            color: #1C2321;
             font-size: 28px;
             font-weight: 700;
             line-height: 1.4;
@@ -429,7 +429,7 @@ function deleteDynamicF(dynamic){
                     font-size: 17px;
                     line-height: 32px;
                     transition: color .3s ease;
-                    color: #18191C;
+                    color: #1C2321;
                     cursor: pointer;
                     font-weight: 600;
                     transition: all .3s ease;
@@ -437,7 +437,7 @@ function deleteDynamicF(dynamic){
               }
               .user-name:hover{
                   span{
-                      color: #40C5F1;
+                      color: #3CC0A6;
                   }
               }
               .date{
@@ -446,7 +446,7 @@ function deleteDynamicF(dynamic){
               padding-right: 120px;
               
                 span{
-                  color: #9499A0;
+                  color: #8D9794;
                   font-size: 13px;
                   line-height: 18px;
                 }
@@ -475,10 +475,10 @@ function deleteDynamicF(dynamic){
                 margin-bottom: 10px;
                 user-select: none;
                 object-fit: contain;
-                background-color: #f1f2f3;
+                background-color: #EFF3F2;
                 }
                 .video-info-container{
-                background-color: #F6F7F8;
+                background-color: #F4F7F6;
                 border-radius: 6px;
                 margin-top: 12px;
                 padding: 20px;
@@ -531,7 +531,7 @@ function deleteDynamicF(dynamic){
                               line-height: 25px;
                               display: inline-block;
                               transition: color .3s ease;
-                              color: #61666D;
+                              color: #5C6664;
                               margin-right: 4px;
 
                                 .up-user-info{
@@ -555,14 +555,14 @@ function deleteDynamicF(dynamic){
                             .end{
                               font-size: 14.5px;
                               line-height: 25px;
-                              color: #9499A0;
+                              color: #8D9794;
                             }
                         }
                         .right{
                           flex-shrink: 0;
                           div{
                             border-radius: 4px;
-                            color: #00AEEC;
+                            color: #0FA68E;
                             cursor: pointer;
                             font-size: 12.5px;
                             font-weight: 500;
@@ -586,7 +586,7 @@ function deleteDynamicF(dynamic){
                           z-index: 1;
                           }
                           .unfollow{
-                            color: #9499A0;
+                            color: #8D9794;
                           }
                         }
           
@@ -596,14 +596,14 @@ function deleteDynamicF(dynamic){
                     }
                 }
                 .delete-info-container{
-                  background-color: #F6F7F8;
+                  background-color: #F4F7F6;
                   border-radius: 6px;
                   margin-top: 12px;
                   padding: 8px 12px;
                   
                   .delete-info{
                     align-items: center;
-                    color: #9499A0;
+                    color: #8D9794;
                     display: flex;
                     font-size: 13px;
                     line-height: 18px;
@@ -632,7 +632,7 @@ function deleteDynamicF(dynamic){
             cursor: pointer;
 
                 svg{
-                color: #9499A0;
+                color: #8D9794;
                 }
                 .up-info{
                         transition-delay: 0.3s;  
@@ -649,7 +649,7 @@ function deleteDynamicF(dynamic){
                         align-items: center;
                         justify-content: center;
                         background-color: white;
-                        border: 1px solid #E3E5E7;
+                        border: 1px solid #E0E5E3;
                         box-shadow: 0 8px 40px rgba(0, 0, 0, .1);
                         padding: 4px;
                         border-radius: 12px;
@@ -659,7 +659,7 @@ function deleteDynamicF(dynamic){
                             text-align: center;    
                             cursor: pointer;
                             font-size: 14px;
-                            color: #61666D;
+                            color: #5C6664;
                             transition: background-color .3s ease;
                             border-radius: 8px;
                             height: 40px;
@@ -668,7 +668,7 @@ function deleteDynamicF(dynamic){
                             background-color: white;
                             }
                             div:hover{
-                                background-color: #F1F2F3;
+                                background-color: #EFF3F2;
                             }
                 }
                 .up-info2{
@@ -687,7 +687,7 @@ function deleteDynamicF(dynamic){
                         align-items: center;
                         justify-content: center;
                         background-color: white;
-                        border: 1px solid #E3E5E7;
+                        border: 1px solid #E0E5E3;
                         box-shadow: 0 8px 40px rgba(0, 0, 0, .1);
                         padding: 4px;
                         border-radius: 12px;
@@ -697,7 +697,7 @@ function deleteDynamicF(dynamic){
                             text-align: center;    
                             cursor: pointer;
                             font-size: 14px;
-                            color: #61666D;
+                            color: #5C6664;
                             transition: background-color .3s ease;
                             border-radius: 8px;
                             height: 40px;
@@ -706,12 +706,12 @@ function deleteDynamicF(dynamic){
                             background-color: white;
                             }
                             div:hover{
-                                background-color: #F1F2F3;
+                                background-color: #EFF3F2;
                             }
                 }
             }
             .up-btn:hover{
-            background-color: #F1F2F3;
+            background-color: #EFF3F2;
               
                 .up-info{
                     transition-delay: 0.3s;
@@ -732,7 +732,7 @@ function deleteDynamicF(dynamic){
     text-align: center;
     font-size: 15.5px;
     font-weight: 550;
-    color: #18191C;
+    color: #1C2321;
   }
 .delete-dialog-content{
     position: relative;
@@ -751,7 +751,7 @@ function deleteDynamicF(dynamic){
 }
 
 .delete-dialog-confirm-btn{
-    border: 1px solid #00AEEC;
+    border: 1px solid #0FA68E;
     color: white;
     border-radius: 4px;
     min-width: 130px;
@@ -759,18 +759,18 @@ function deleteDynamicF(dynamic){
     cursor: pointer;
     font-size: 15.5px;
     margin: 0 6px;
-    background-color: #00AEEC;
+    background-color: #0FA68E;
     transition: all 0.3s ease;
 }
 
 .delete-dialog-confirm-btn:hover{
-    background-color: #40C5F1;
-    border: 1px solid #40C5F1;
+    background-color: #3CC0A6;
+    border: 1px solid #3CC0A6;
 }
 
 .delete-dialog-cancel-btn{
-    border: 1px solid #E3E5E7;
-    color: #18191C;
+    border: 1px solid #E0E5E3;
+    color: #1C2321;
     border-radius: 4px;
     min-width: 130px;
     height: 32px;
@@ -782,7 +782,7 @@ function deleteDynamicF(dynamic){
 }
 
 .delete-dialog-cancel-btn:hover{
-    background-color: #E3E5E7;
+    background-color: #E0E5E3;
 }
 
 .delete-dialog-confirm-btn2{

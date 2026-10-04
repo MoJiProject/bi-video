@@ -425,7 +425,7 @@ export default {
   cursor: pointer;
 
   &:hover {
-    color: #00a1d6;
+    color: #0E9C85;
   }
 }
 
@@ -444,12 +444,12 @@ export default {
   justify-content: center;
   gap: 5px;
   font-size: 13px;
-  color: #00a1d6;
+  color: #0E9C85;
   cursor: pointer;
   min-width: 0;
 
   &:hover {
-    color: #00b6e3;
+    color: #19AC96;
   }
 }
 
@@ -459,14 +459,14 @@ export default {
 
 .sub-text {
   font-size: 12px;
-  color: #9499a0;
+  color: #8D9794;
   margin-top: 2px;
   display: block;
 }
 
 .warn-text {
   font-size: 14px;
-  color: #61666d;
+  color: #5C6664;
   margin-bottom: 12px;
 }
 </style>

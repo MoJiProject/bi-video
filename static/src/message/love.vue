@@ -315,7 +315,7 @@
           <img src="/img/没有消息数据.png">
         </div>
         <div v-show="loveList.length===0&&!selectLikeCommentFFlag" class="love-loading">
-          <img src="/img/加载消息.gif">
+          <img src="/img/loading.png">
         </div>
       </div>
       <div class="love-content" style="padding-bottom: 200px;" v-show="likeUserList.length>0" @scroll="handleScroll2">
@@ -658,7 +658,7 @@ function addImgFlagF(comment){
         transition: color 0.3s ease;
       }
       .detail:hover{
-        color: #2faee3;
+        color: #2BB2A0;
       }
       } 
       .head3{
@@ -769,7 +769,7 @@ function addImgFlagF(comment){
               transition: color 0.3s ease;
             }
             a:hover{
-              color: #2faee3;
+              color: #2BB2A0;
             }
             span{
               color: #505050;
@@ -781,7 +781,7 @@ function addImgFlagF(comment){
             }
 
             .love-list:hover{
-                color: #2faee3;
+                color: #2BB2A0;
              }
             
           }
@@ -796,11 +796,11 @@ function addImgFlagF(comment){
             color: #222;
             
             a{
-              color: #1389bf;
+              color: #0F7E77;
               transition: color 0.3s ease;
             }
             a:hover{
-              color: #2faee3;
+              color: #2BB2A0;
             }
             .love-message-content{
               display: -webkit-box;
@@ -862,7 +862,7 @@ function addImgFlagF(comment){
                }
             }
             .love-comment:hover{
-             color: #2faee3;
+             color: #2BB2A0;
             }
             .love-comment{
               position: relative;
@@ -879,14 +879,14 @@ function addImgFlagF(comment){
                }
             }
             .love-comment:hover{
-              color: #2faee3;
+              color: #2BB2A0;
             }
             .love-comment2{
               position: relative;
               display: flex;
               left: 30px;
               top: -0.5px;
-              color: #2faee3;
+              color: #2BB2A0;
               font-size: 13.5px;
                img{
                  position: relative;
@@ -912,7 +912,7 @@ function addImgFlagF(comment){
                }
             }
             .delete-comment-notification:hover{
-              color: #2faee3;
+              color: #2BB2A0;
             }
 
             .comment-notification{
@@ -931,7 +931,7 @@ function addImgFlagF(comment){
                }
             }
             .comment-notification:hover{
-              color: #2faee3;
+              color: #2BB2A0;
             }
 
             .comment-disable-notification{
@@ -950,7 +950,7 @@ function addImgFlagF(comment){
                }
             }
             .comment-disable-notification:hover{
-              color: #2faee3;
+              color: #2BB2A0;
             }
 
           }
@@ -994,7 +994,7 @@ function addImgFlagF(comment){
               margin: 0px;
             }
             .love-comment-input:focus{
-              border-color: #2faee3;
+              border-color: #2BB2A0;
             }
             .commit-comment{
               position: absolute;
@@ -1009,7 +1009,7 @@ function addImgFlagF(comment){
               -webkit-box-align: center;
               -ms-flex-align: center;
               align-items: center;
-              background-color: #00a1d6;
+              background-color: #0E9C85;
               border-radius: 4px;
               color: #fff;
               border: none;
@@ -1112,7 +1112,7 @@ function addImgFlagF(comment){
     left: 16px;
     top: -14px;
     font-size: 18px;
-    color: #23ade5;
+    color: #20AF99;
 }
 
 .delete-dialog-content{
@@ -1128,8 +1128,8 @@ function addImgFlagF(comment){
 }
 
 .delete-dialog-cancel-btn{
-    border: 1px solid #23ade5;
-    color: #23ade5;
+    border: 1px solid #20AF99;
+    color: #20AF99;
     cursor: pointer;
     border-radius: 4px;
     min-width: 104px;
@@ -1141,13 +1141,13 @@ function addImgFlagF(comment){
 }
 
 .delete-dialog-cancel-btn:hover{
-    background-color: #23ade5;
+    background-color: #20AF99;
     color: white;
 }
 
 .delete-dialog-confirm-btn{
-    background-color: #23ade5;
-    border: 1px solid #23ade5;
+    background-color: #20AF99;
+    border: 1px solid #20AF99;
     color: #fff;
     cursor: pointer;
     border-radius: 4px;
@@ -1158,7 +1158,7 @@ function addImgFlagF(comment){
 }
 
 .delete-dialog-confirm-btn:hover{
-    background-color: #39b5e7;
+    background-color: #2FB4A1;
 }
   
 </style>

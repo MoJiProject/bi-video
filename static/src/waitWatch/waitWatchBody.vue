@@ -3,7 +3,7 @@
         <div class="head">
             <div class="head-left">
                 <svg data-v-69623c3f="" class="vui_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M16 4.74968C9.78681 4.74968 4.750023333333333 9.786476666666665 4.750023333333333 15.999733333333333C4.750023333333333 22.212899999999998 9.78681 27.24973333333333 16 27.24973333333333C19.106216666666665 27.24973333333333 21.917133333333332 25.991816666666665 23.95375 23.955866666666665C24.24668333333333 23.663066666666666 24.721466666666664 23.663083333333333 25.0144 23.956016666666663C25.307199999999998 24.248966666666664 25.307066666666664 24.723866666666666 25.01423333333333 25.016683333333333C22.7078 27.322316666666666 19.519916666666667 28.74973333333333 16 28.74973333333333C8.958386666666666 28.74973333333333 3.2500233333333335 23.04135 3.2500233333333335 15.999733333333333C3.2500233333333335 8.958043333333332 8.958386666666666 3.24968 16 3.24968C23.04161666666667 3.24968 28.75 8.958043333333332 28.75 15.999733333333333C28.75 16.47798333333333 28.72368333333333 16.95038333333333 28.672283333333333 17.415416666666665C28.6267 17.827166666666663 28.256049999999995 18.124016666666666 27.84443333333333 18.078433333333333C27.4327 18.032966666666667 27.13583333333333 17.662316666666666 27.1813 17.25058333333333C27.226699999999997 16.84015 27.25 16.4228 27.25 15.999733333333333C27.25 9.786476666666665 22.213183333333333 4.74968 16 4.74968z" fill="currentColor"></path><path d="M24.803066666666666 14.802666666666667C25.095883333333333 14.509733333333333 25.57078333333333 14.509733333333333 25.863716666666665 14.802666666666667L28 16.93895L30.1364 14.802666666666667C30.429216666666665 14.509733333333333 30.904116666666667 14.509733333333333 31.197049999999997 14.802666666666667C31.489866666666664 15.095616666666666 31.489866666666664 15.570383333333332 31.197049999999997 15.863333333333333L28.766 18.294266666666665C28.34303333333333 18.717333333333332 27.657083333333333 18.717333333333332 27.233999999999998 18.294266666666665L24.803066666666666 15.863333333333333C24.510133333333332 15.570383333333332 24.510133333333332 15.095616666666666 24.803066666666666 14.802666666666667z" fill="currentColor"></path><path d="M19.83223333333333 14.89335C20.683899999999998 15.385 20.683899999999998 16.614166666666666 19.83223333333333 17.105816666666666L15.039966666666666 19.872716666666665C14.188416666666665 20.364366666666665 13.12385 19.74973333333333 13.12385 18.766416666666665L13.12385 13.232789999999998C13.12385 12.249416666666665 14.188416666666665 11.634813333333334 15.039966666666666 12.1265L19.83223333333333 14.89335z" fill="currentColor"></path></svg>
-                稍后再看
+                待看清单
                 <span>·{{ store.collectNumber }}</span>
             </div>
             <div class="head-right">
@@ -25,7 +25,7 @@
                         <svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" d="m488.832 344.32-339.84 356.672a32 32 0 0 0 0 44.16l.384.384a29.44 29.44 0 0 0 42.688 0l320-335.872 319.872 335.872a29.44 29.44 0 0 0 42.688 0l.384-.384a32 32 0 0 0 0-44.16L535.168 344.32a32 32 0 0 0-46.336 0"></path></svg>
                     </div>
                     <div v-show="!batchManageFlag" class="search-container">
-                    <input type="text" v-model="keyWord" placeholder="搜索标题/up主昵称" maxlength="30" @keydown.enter="searchwaitWatchList">
+                    <input type="text" v-model="keyWord" placeholder="搜索标题/创作者昵称" maxlength="30" @keydown.enter="searchwaitWatchList">
                     <img
                         v-show="keyWord.length>0"
                         @mouseover="deleteAllSearchFlag = false"
@@ -37,7 +37,7 @@
                     </div>
                     <div v-show="!batchManageFlag" class="clear-btn" @click="deleteAllwaitWatchDialogFlag=true">
                     <img src="/img/清空历史记录.png">
-                    清空稍后再看
+                    清空待看清单
                     </div>
                     <div v-show="batchManageFlag" class="check-all" @click="checkAllF">
                         <span class="check-all-icon">
@@ -45,7 +45,7 @@
                         </span>
                         <span class="check-all-text">全选</span>
                     </div>
-                    <div v-show="batchManageFlag" class="num">已经选择 {{ store.autoVideoList.length }} 条稍后再看</div>
+                    <div v-show="batchManageFlag" class="num">已经选择 {{ store.autoVideoList.length }} 条待看清单</div>
                     <div v-show="batchManageFlag" class="line"><div></div></div>
                     <div v-show="batchManageFlag" class="delete-btn" @click="deleteCheckwaitWatchDialogFlag=store.autoVideoList.length>0" :class="{activeDelete: store.autoVideoList.length}">
                         <svg v-show="!store.autoVideoList.length"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" d="M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32zm448-64v-64H416v64zM224 896h576V256H224zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32m192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32"></path></svg>
@@ -84,7 +84,7 @@
             </div>
         </div>
         <div v-show="dataFlag&&waitWatchList.length" class="fotter">已经探索到底啦~</div>
-        <!-- 清空稍后再看对话框 -->
+        <!-- 清空待看清单对话框 -->
         <el-dialog
         v-model="deleteAllwaitWatchDialogFlag"
         append-to-body
@@ -93,7 +93,7 @@
         align-center
         style="height: 152px; border-radius: 12px"
         >
-            <div class="delete-dialog-title">确认要清空所有稍后再看？</div>
+            <div class="delete-dialog-title">确认要清空所有待看清单？</div>
             <div class="delete-dialog-content">
                 记录清空后将不可恢复
             </div>
@@ -108,7 +108,7 @@
             </button>
             </div>
         </el-dialog>
-        <!-- 删除选中的稍后再看 -->
+        <!-- 删除选中的待看清单 -->
         <el-dialog
         v-model="deleteCheckwaitWatchDialogFlag"
         append-to-body
@@ -117,7 +117,7 @@
         align-center
         style="height: 152px; border-radius: 12px"
         >
-            <div class="delete-dialog-title">确认要删除选中的稍后再看？</div>
+            <div class="delete-dialog-title">确认要删除选中的待看清单？</div>
             <div class="delete-dialog-content">
                 记录删除后将不可恢复
             </div>
@@ -166,7 +166,7 @@ const touchMoveY = ref(0)
 const touchEndY = ref(0)
 
 onMounted(()=>{
-    document.title="稍后再看";
+    document.title="待看清单";
     window.addEventListener('scroll', handleScroll);
     document.addEventListener('touchstart', touchStartF);
     document.addEventListener('touchmove', touchMoveF);
@@ -236,7 +236,7 @@ watch(sort2,()=>{
     selectwaitWatchListF();
 })
 
-//清空稍后再看
+//清空待看清单
 function deleteAllwaitWatchF(){
     cleanAllWaitWatch(store.token,store.userId).then(res=>{
         if(res.data.code===1){
@@ -287,7 +287,7 @@ function touchEndF(e){
 }
 
 
-//查询稍后再看
+//查询待看清单
 let selectwaitWatchListFlag=true;
 function selectwaitWatchListF(){
     
@@ -323,7 +323,7 @@ watch(()=>store.userId,()=>{
     }
 })
 
-//搜索稍后再看
+//搜索待看清单
 function searchwaitWatchList(){
     pageNum.value=1;
     waitWatchList.length=0;
@@ -392,7 +392,7 @@ function handleScroll(){
     }
 }
 
-//删除选中的稍后再看
+//删除选中的待看清单
 function deleteCheckwaitWatchF(){
     if(store.autoVideoList.length===0){
         ElMessage({
@@ -460,7 +460,7 @@ max-width: 2560px;
         .head-left{
         display: flex;
         align-items: center;
-        color: #18191C;
+        color: #1C2321;
         font-weight: 600;
         font-size: 28px;
         line-height: 40px;
@@ -473,7 +473,7 @@ max-width: 2560px;
             }
             span{
             margin-left: 4px;
-            color: #61666D;
+            color: #5C6664;
             font-size: 19px;   
             }
         }
@@ -482,7 +482,7 @@ max-width: 2560px;
         align-items: center;
         font-size: 14px;
         padding-right: 98px;
-        color: #18191C;
+        color: #1C2321;
 
             button{
             position: relative;    
@@ -507,7 +507,7 @@ max-width: 2560px;
                 left: 0px;
                 bottom: -100px;
                 background-color: white;
-                border: 1px solid #E3E5E7;
+                border: 1px solid #E0E5E3;
                 box-shadow: 0 8px 40px rgba(0, 0, 0, .1);
                 padding: 4px;
                 border-radius: 12px;
@@ -519,7 +519,7 @@ max-width: 2560px;
                     width: 90px;
                     cursor: pointer;
                     font-size: 14px;
-                    color: #61666D;
+                    color: #5C6664;
                     height: 40px;
                     line-height: 40px;
                     position: relative;
@@ -533,7 +533,7 @@ max-width: 2560px;
                 }
             }
             button:hover{
-            background-color: #E3E5E7;
+            background-color: #E0E5E3;
 
                 .dropdown-menu{
                 transition-delay: 0.3s;
@@ -581,9 +581,9 @@ max-width: 2560px;
                 line-height: 1;
                 transition: all .3s ease;
                 user-select: none;
-                color: #18191C;
+                color: #1C2321;
                 background: white;
-                border: 1px solid #E3E5E7;
+                border: 1px solid #E0E5E3;
                 cursor: pointer;
                 margin-right: 16px;
                     
@@ -594,8 +594,8 @@ max-width: 2560px;
                     }
                 }
                 .sort-btn:hover{
-                background: #E3E5E7;
-                border: 1px solid #E3E5E7;
+                background: #E0E5E3;
+                border: 1px solid #E0E5E3;
                 }
                 .search-container{
                 position: relative;    
@@ -607,10 +607,10 @@ max-width: 2560px;
                 padding: 2px;
                 padding-right: 0;
                 border-radius: 8px;
-                background-color: #F1F2F3;
-                border: 1px solid #F1F2F3;
+                background-color: #EFF3F2;
+                border: 1px solid #EFF3F2;
                 margin-right: 12px;
-                color: #18191C;
+                color: #1C2321;
                 transition: all .3s ease;
 
                     input{
@@ -622,7 +622,7 @@ max-width: 2560px;
                     padding: 0 30px 0 0px;
                     background-color: transparent;
                     font-size: 14px;
-                    color: #18191C;
+                    color: #1C2321;
                     transition: background-color .3s;
                     outline: 0;
                     border: none;
@@ -647,10 +647,10 @@ max-width: 2560px;
                     }
                 }
                 .search-container:hover{
-                border: 1px solid #00AEEC;
+                border: 1px solid #0FA68E;
                 }
                 .search-container:focus-within{
-                border: 1px solid #00AEEC;   
+                border: 1px solid #0FA68E;   
                 }
                 .clear-btn{
                 display: flex;
@@ -664,9 +664,9 @@ max-width: 2560px;
                 line-height: 1;
                 transition: all .3s ease;
                 user-select: none;
-                color: #18191C;
+                color: #1C2321;
                 background: white;
-                border: 1px solid #E3E5E7;
+                border: 1px solid #E0E5E3;
                 cursor: pointer;
                 margin-right: 16px;
 
@@ -677,8 +677,8 @@ max-width: 2560px;
                     }
                 }
                 .clear-btn:hover{
-                background: #E3E5E7;
-                border: 1px solid #E3E5E7;
+                background: #E0E5E3;
+                border: 1px solid #E0E5E3;
                 }
                 .batch-manage-btn{
                 display: flex;
@@ -692,9 +692,9 @@ max-width: 2560px;
                 line-height: 1;
                 transition: all .3s ease;
                 user-select: none;
-                color: #18191C;
+                color: #1C2321;
                 background: white;
-                border: 1px solid #E3E5E7;
+                border: 1px solid #E0E5E3;
                 cursor: pointer;
                 margin-right: 16px;
 
@@ -705,8 +705,8 @@ max-width: 2560px;
                     }
                 }
                 .batch-manage-btn:hover{
-                background: #E3E5E7;
-                border: 1px solid #E3E5E7;
+                background: #E0E5E3;
+                border: 1px solid #E0E5E3;
                 }
                 .check-all{
                 position: relative;
@@ -716,7 +716,7 @@ max-width: 2560px;
                 user-select: none;
                 font-size: 14px;
                 line-height: 1.5;
-                color: #18191C;
+                color: #1C2321;
                 cursor: pointer;
                     .check-all-icon{
                     position: relative;
@@ -731,7 +731,7 @@ max-width: 2560px;
                         -webkit-box-sizing: border-box;
                         box-sizing: border-box;
                         background-color: white;
-                        border: 1px solid #E3E5E7;
+                        border: 1px solid #E0E5E3;
                         border-radius: 4px;
                         -webkit-transition: all .3s ease-in-out;
                         transition: all .3s ease-in-out;
@@ -751,8 +751,8 @@ max-width: 2560px;
                         transition: all .3s ease-in-out;
                         }
                         .activeCheck{
-                            border: 1px solid #00aeec;
-                            background-color: #00aeec;
+                            border: 1px solid #0FA68E;
+                            background-color: #0FA68E;
                         }
                     
                     }
@@ -763,7 +763,7 @@ max-width: 2560px;
                 .check-all:hover{
                     .check-all-icon{
                         .check-input-box{
-                            border: 1px solid #00aeec;
+                            border: 1px solid #0FA68E;
                         }
                     }
                 }
@@ -773,7 +773,7 @@ max-width: 2560px;
                 margin-left: 26px;
                 min-width: 170px;
                 font-size: 14px;
-                color: #61666D;
+                color: #5C6664;
                 }
                 .line{
                 display: flex;
@@ -783,7 +783,7 @@ max-width: 2560px;
                     margin: 0 36.5px;
                     width: 1px;
                     height: 18px;
-                    background-color: #E3E5E7;
+                    background-color: #E0E5E3;
                     }
                 }
                 .delete-btn{
@@ -799,7 +799,7 @@ max-width: 2560px;
                 user-select: none;
                 color: #8b8c8d;
                 background: white;
-                border: 1px solid #E3E5E7;
+                border: 1px solid #E0E5E3;
                 cursor: not-allowed;
                 margin-right: 16px;
 
@@ -811,17 +811,17 @@ max-width: 2560px;
                     }
                 }
                 .activeDelete{
-                color: #18191C;
+                color: #1C2321;
                 transition: all .3s ease;
                 cursor: pointer;
                     
                     svg{
-                        color: #18191C;
+                        color: #1C2321;
                     }
                 }
                 .activeDelete:hover{
-                background-color: #E3E5E7;
-                border: 1px solid #E3E5E7;
+                background-color: #E0E5E3;
+                border: 1px solid #E0E5E3;
                 }
             }
             .sort{
@@ -839,15 +839,15 @@ max-width: 2560px;
                 min-width: 84px;
                 height: 34px;
                 flex-shrink: 0;
-                color: #61666D;
+                color: #5C6664;
                 cursor: pointer;
                 transition: all .3s;
                 border-radius: 6px;
                 margin-left: 12px; 
                 }
                 .active{
-                color: #00AEEC;   
-                background-color: #DFF6FD;
+                color: #0FA68E;   
+                background-color: #E3F5F0;
                 }
             }
         }
@@ -881,7 +881,7 @@ max-width: 2560px;
                     font-size: 14px;
                     line-height: 20px;
                     font-weight: 400;
-                    color: #9499A0;
+                    color: #8D9794;
                     
                 }
         }   
@@ -893,7 +893,7 @@ max-width: 2560px;
     text-align: center;
     padding-bottom: 15px;
     font-size: 14px;
-    color: #9499A0;
+    color: #8D9794;
     }
 }
 
@@ -902,7 +902,7 @@ max-width: 2560px;
     text-align: center;
     font-size: 15.5px;
     font-weight: 550;
-    color: #18191C;
+    color: #1C2321;
 }
 
 .delete-dialog-content{
@@ -922,7 +922,7 @@ max-width: 2560px;
 }
 
 .delete-dialog-confirm-btn{
-    border: 1px solid #00AEEC;
+    border: 1px solid #0FA68E;
     color: white;
     border-radius: 4px;
     min-width: 130px;
@@ -930,18 +930,18 @@ max-width: 2560px;
     cursor: pointer;
     font-size: 15.5px;
     margin: 0 6px;
-    background-color: #00AEEC;
+    background-color: #0FA68E;
     transition: all 0.3s ease;
 }
 
 .delete-dialog-confirm-btn:hover{
-    background-color: #40C5F1;
-    border: 1px solid #40C5F1;
+    background-color: #3CC0A6;
+    border: 1px solid #3CC0A6;
 }
 
 .delete-dialog-cancel-btn{
-    border: 1px solid #E3E5E7;
-    color: #18191C;
+    border: 1px solid #E0E5E3;
+    color: #1C2321;
     border-radius: 4px;
     min-width: 130px;
     height: 32px;
@@ -953,7 +953,7 @@ max-width: 2560px;
 }
 
 .delete-dialog-cancel-btn:hover{
-    background-color: #E3E5E7;
+    background-color: #E0E5E3;
 }
 
 

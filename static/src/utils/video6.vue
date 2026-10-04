@@ -62,8 +62,8 @@
        </div>
        <div class="up-user-name-link" @click="openHome(1,video)">
             <div class="up-user-name">
-                <img src="/img/up蓝.png">
-                <img src="/img/up.png">
+                <img src="/img/author-badge-blue.png">
+                <img src="/img/author-badge-default.png">
                 <el-tooltip
                 popper-class="custom-tooltip"
                 :disabled="batchControls"
@@ -107,8 +107,8 @@
        </div>
        <div class="up-user-name-link">
             <div class="up-user-name">
-                <img src="/img/up蓝.png">
-                <img src="/img/up.png">
+                <img src="/img/author-badge-blue.png">
+                <img src="/img/author-badge-default.png">
                 <el-tooltip
                 popper-class="custom-tooltip"
                 :disabled="batchControls"
@@ -312,7 +312,7 @@ video{
             }
         }
         .active-check-out{
-         background-color: #00AEEC;
+         background-color: #0FA68E;
          
             .border{
             opacity: 1;
@@ -362,7 +362,7 @@ video{
             padding: 1px 4px;
             transition: all 0.3s ease;
             z-index: 10;
-            background-color: #FF6699;
+            background-color: #FF8A4C;
         }
         .video-info{
         position: absolute;
@@ -423,7 +423,7 @@ video{
         top: 0;
         left: 0;
         height: 100%;
-        background-color: #FF6699;
+        background-color: #FF8A4C;
         }
     }
     .video-link2{
@@ -433,7 +433,7 @@ video{
             position: relative;
             top: 7px;
             padding-right: 16px;
-            color: #18191C;
+            color: #1C2321;
             font-size: 14.5px;
             line-height: 22px;
             height: 44px;
@@ -446,7 +446,7 @@ video{
             transition: color 0.3s ease;
         }
         .video-title:hover{
-        color: #00AEEC;
+        color: #0FA68E;
         }
         .collect-controls-info{
         position: absolute;
@@ -464,7 +464,7 @@ video{
                 width: 15px;
                 height: 13px;
                 transform: rotate(-90deg);
-                color: #61666D;
+                color: #5C6664;
             }
             .collect-controls-info-content{
                 position: absolute;
@@ -475,8 +475,8 @@ video{
                 background-color: white;
                 box-shadow: 0 0 30px rgba(0,0,0,.1);
                 border-radius: 8px;
-                border: 1px solid #E3E5E7;
-                color: #18191C;
+                border: 1px solid #E0E5E3;
+                color: #1C2321;
                 padding: 12px 0;
                 opacity: 0;
                 visibility: hidden;
@@ -490,12 +490,12 @@ video{
                     line-height: 40px;
                     text-align: left;
                     font-size: 14px;
-                    color: #61666D;
+                    color: #5C6664;
                     transition: background-color 0.3s ease;
                     cursor: pointer
                     }
                     span:hover{
-                        background-color: #F6F7F8;
+                        background-color: #F4F7F6;
                     }
             }
         }
@@ -535,7 +535,7 @@ video{
                 word-break: break-all;
                 -webkit-line-clamp: 1;
                 font-size: 11.5px;
-                color: #9499A0;
+                color: #8D9794;
                 transition: color 0.3s ease;
             }
          }
@@ -551,7 +551,7 @@ video{
             transition: opacity 0.3s ease;
         }
         span{
-            color: #00AEEC;
+            color: #0FA68E;
         }
     }
     }
@@ -564,7 +564,7 @@ video{
     height: 100%;
     user-select: none;
     cursor: pointer;
-    background-color: #E3E5E7;
+    background-color: #E0E5E3;
     border-radius: 6px;
     z-index: 10;
     }

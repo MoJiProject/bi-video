@@ -184,23 +184,23 @@ export default {
 
 .filter-summary {
   font-size: 13px;
-  color: #9499a0;
+  color: #8D9794;
   margin-left: auto;
 }
 
 .time-text {
   font-size: 13px;
-  color: #18191c;
+  color: #1C2321;
 }
 
 .sub-text {
   font-size: 12px;
-  color: #9499a0;
+  color: #8D9794;
 }
 
 .detail-text {
   font-size: 13px;
-  color: #61666d;
+  color: #5C6664;
   word-break: break-all;
 }
 </style>

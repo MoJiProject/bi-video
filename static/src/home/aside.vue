@@ -5,33 +5,33 @@
                <div class="left-part1" >
                 <span @click="changeHomeMenu(1)" style="margin-left: 0px;">
                     <img src="/img/主页.png">
-                    <span :style="{fontWeight: store.homeMenu===1? 'bold' : 'normal', color: store.homeMenu===1? '#00AEEC' : '#18191C'}">主页</span>
+                    <span :style="{fontWeight: store.homeMenu===1? 'bold' : 'normal', color: store.homeMenu===1? '#0FA68E' : '#1C2321'}">主页</span>
                 </span>
                 <span @click="changeHomeMenu(2)">
                     <img src="/img/主页动态.png">
-                    <span :style="{fontWeight: store.homeMenu===2? 'bold' : 'normal', color: store.homeMenu===2? '#00AEEC' : '#18191C'}">动态</span>
+                    <span :style="{fontWeight: store.homeMenu===2? 'bold' : 'normal', color: store.homeMenu===2? '#0FA68E' : '#1C2321'}">动态</span>
                 </span>
                 <span @click="changeHomeMenu(3)">
                     <img src="/img/主页投稿.png">
-                    <span :style="{fontWeight: store.homeMenu===3? 'bold' : 'normal', color: store.homeMenu===3? '#00AEEC' : '#18191C'}">投稿</span>
-                    <span class="num" :style="{color: store.homeMenu===3? '#00AEEC':'#18191C' }">{{ contributeTotal }}</span>
+                    <span :style="{fontWeight: store.homeMenu===3? 'bold' : 'normal', color: store.homeMenu===3? '#0FA68E' : '#1C2321'}">投稿</span>
+                    <span class="num" :style="{color: store.homeMenu===3? '#0FA68E':'#1C2321' }">{{ contributeTotal }}</span>
                 </span>
                 <span @click="changeHomeMenu(4)">
                     <img src="/img/主页合集.png">
-                    <span :style="{fontWeight: store.homeMenu===4? 'bold' : 'normal', color: store.homeMenu===4? '#00AEEC' : '#18191C'}">合集</span>
+                    <span :style="{fontWeight: store.homeMenu===4? 'bold' : 'normal', color: store.homeMenu===4? '#0FA68E' : '#1C2321'}">合集</span>
                 </span>
                 <span v-if="(store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicCollect===1" @click="changeHomeMenu(5)">
                     <img src="/img/主页收藏.png">
-                    <span :style="{fontWeight: store.homeMenu===5? 'bold' : 'normal', color: store.homeMenu===5? '#00AEEC' : '#18191C'}">收藏</span>
-                    <span class="num" :style="{color: store.homeMenu===5? '#00AEEC':'#18191C' }">{{ store.collectClassifyNumber }}</span>
+                    <span :style="{fontWeight: store.homeMenu===5? 'bold' : 'normal', color: store.homeMenu===5? '#0FA68E' : '#1C2321'}">收藏</span>
+                    <span class="num" :style="{color: store.homeMenu===5? '#0FA68E':'#1C2321' }">{{ store.collectClassifyNumber }}</span>
                 </span>
                 <span v-if="(store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicAnime===1" @click="changeHomeMenu(6)">
-                    <img src="/img/主页追番追剧.png">
-                    <span :style="{fontWeight: store.homeMenu===6? 'bold' : 'normal', color: store.homeMenu===6? '#00AEEC' : '#18191C'}">追番追剧</span>
+                    <img src="/img/主页追剧.png">
+                    <span :style="{fontWeight: store.homeMenu===6? 'bold' : 'normal', color: store.homeMenu===6? '#0FA68E' : '#1C2321'}">追剧</span>
                 </span>
                 <span v-if="store.userId!==null&&store.userId===userId" @click="changeHomeMenu(7)">
                     <img src="/img/主页设置.png">
-                    <span :style="{fontWeight: store.homeMenu===7? 'bold' : 'normal', color: store.homeMenu==7? '#00AEEC' : '#18191C'}">设置</span>
+                    <span :style="{fontWeight: store.homeMenu===7? 'bold' : 'normal', color: store.homeMenu==7? '#0FA68E' : '#1C2321'}">设置</span>
                 </span>
                </div>
                <div v-show="store.homeMenu!==8&&store.homeMenu!==9&&store.homeMenu!==10" class="line" :style="{transform: 'translateX('+menuLinePositionX[store.homeMenu-1]+'px)', width: menuLineWidth[store.homeMenu-1]+'px'}"></div>
@@ -51,12 +51,12 @@
            <div class="right">
               <div class="user-middle-info">
                   <span @click="changeHomeMenu(8)">
-                    <span :style="{color: store.homeMenu===8? '#00AEEC' : '#18191C'}">关注数</span>
-                    <span :style="{color: store.homeMenu===8? '#00AEEC' : '#18191C'}">{{ store?.homeUserInformation?.followNumber }}</span>
+                    <span :style="{color: store.homeMenu===8? '#0FA68E' : '#1C2321'}">关注数</span>
+                    <span :style="{color: store.homeMenu===8? '#0FA68E' : '#1C2321'}">{{ store?.homeUserInformation?.followNumber }}</span>
                   </span>
                   <span @click="changeHomeMenu(9)">
-                    <span :style="{color: store.homeMenu===9? '#00AEEC' : '#18191C'}">粉丝数</span>
-                    <span :style="{color: store.homeMenu===9? '#00AEEC' : '#18191C'}">{{ store?.homeUserInformation?.fansNumber }}</span>
+                    <span :style="{color: store.homeMenu===9? '#0FA68E' : '#1C2321'}">粉丝数</span>
+                    <span :style="{color: store.homeMenu===9? '#0FA68E' : '#1C2321'}">{{ store?.homeUserInformation?.fansNumber }}</span>
                   </span>
                   <div>
                     <span>获赞数</span>
@@ -202,7 +202,7 @@ watch(()=>store.homeMenu,()=>{
     height: 64px;
     z-index: 5;
     background-color: white;
-    box-shadow: 0 0 0 1px #F1F2F3;
+    box-shadow: 0 0 0 1px #EFF3F2;
 
     .home-aside-logo{
     display: flex;
@@ -237,19 +237,19 @@ watch(()=>store.homeMenu,()=>{
             height: 17px;
         }
         span{
-            color: #18191C;
+            color: #1C2321;
             font-size: 15px;
             margin-left: 5px;
             transition: color 0.3s ease;
         }
         .num{
-          color: #61666D;
+          color: #5C6664;
           font-size: 12px;
         }
         }
         span:hover{
             span{
-                color: #00AEEC !important;
+                color: #0FA68E !important;
             }
         }
         .tab-line{
@@ -260,7 +260,7 @@ watch(()=>store.homeMenu,()=>{
         bottom: 0px;
         height: 3px;
         border-radius: 3px;
-        background-color: #00AEEC;
+        background-color: #0FA68E;
         transition: all .3s;
         }
     }
@@ -270,7 +270,7 @@ watch(()=>store.homeMenu,()=>{
     height: 3px;
     bottom: 0px;
     border-radius: 3px;
-    background-color: #00AEEC;    
+    background-color: #0FA68E;    
     }
     .search-box{
     position: relative;
@@ -285,14 +285,14 @@ watch(()=>store.homeMenu,()=>{
     background-color: transparent;
     line-height: 16px;
     font-size: 11.5px;
-    color: #18191C;
+    color: #1C2321;
     border-radius: 6px;
-    border: 1px solid #E3E5E7;
+    border: 1px solid #E0E5E3;
     transition: border-color .3s;
     outline: none;
     }
     .left-part2:focus{
-    border-color: #00AEEC;
+    border-color: #0FA68E;
     }
 
     .deleteAllSearchImg{
@@ -348,7 +348,7 @@ watch(()=>store.homeMenu,()=>{
                 min-width: 52px;
                 
                 span:nth-child(1){
-                    color: #61666D;
+                    color: #5C6664;
                     font-size: 12.5px;
                     line-height: 18px;
                     cursor: pointer;
@@ -358,7 +358,7 @@ watch(()=>store.homeMenu,()=>{
                     line-height: 20px;
                     margin-top: 2px;
                     font-weight: 500;
-                    color: #18191C;
+                    color: #1C2321;
                     cursor: pointer;
                 }
                 span{
@@ -367,7 +367,7 @@ watch(()=>store.homeMenu,()=>{
             }
             span:hover{
                 span{
-                    color: #00AEEC !important;
+                    color: #0FA68E !important;
                 }
             }
             div{
@@ -378,7 +378,7 @@ watch(()=>store.homeMenu,()=>{
                 margin-left: 0px;
 
                 span:nth-child(1){
-                    color: #61666D;
+                    color: #5C6664;
                     font-size: 12.5px;
                     line-height: 18px;
                 }
@@ -387,7 +387,7 @@ watch(()=>store.homeMenu,()=>{
                     line-height: 20px;
                     margin-top: 2px;
                     font-weight: 500;
-                    color: #18191C;
+                    color: #1C2321;
                 }
             }
         }

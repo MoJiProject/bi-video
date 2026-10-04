@@ -204,7 +204,7 @@ export default {
 .title {
   position: absolute;
   font-weight: 800;
-  color: #00a1d6;
+  color: #0E9C85;
   margin-left: 50px;
   margin-top: 100px;
 }
@@ -223,7 +223,7 @@ export default {
 }
 
 .aa {
-  color: #00a1d6 !important;
+  color: #0E9C85 !important;
   font-size: 22px;
   font-weight: 800;
   transform: translate(20px, 22px) !important;

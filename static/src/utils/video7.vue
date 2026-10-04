@@ -175,7 +175,7 @@ return title.replace(regex, '<span class="highlight2">$1</span>');
            padding: 1px 4px;
            transition: all 0.3s ease;
            z-index: 10;
-           background-color: #FF6699;
+           background-color: #FF8A4C;
        }
        .video-overlay{
        position: absolute;
@@ -228,7 +228,7 @@ return title.replace(regex, '<span class="highlight2">$1</span>');
        top: 0;
        left: 0;
        height: 100%;
-       background-color: #FF6699;
+       background-color: #FF8A4C;
        }
    }
    .video-info{
@@ -247,7 +247,7 @@ return title.replace(regex, '<span class="highlight2">$1</span>');
                width: 863px;    
                cursor: pointer;
                display: block;
-               color: #18191C;
+               color: #1C2321;
                line-height: 22px;
                font-size: 14.5px;
                display: -webkit-box;
@@ -259,7 +259,7 @@ return title.replace(regex, '<span class="highlight2">$1</span>');
                transition: color .3s ease;
            }
            .video-title:hover{
-           color: #00AEEC;
+           color: #0FA68E;
            }
            }
            .introduce-container{
@@ -268,7 +268,7 @@ return title.replace(regex, '<span class="highlight2">$1</span>');
            margin-top: 8px;
            font-size: 14px;
            line-height: 22px;
-           color: #61666D;
+           color: #5C6664;
            display: -webkit-box;
            -webkit-box-orient: vertical;
            overflow: hidden;
@@ -286,7 +286,7 @@ return title.replace(regex, '<span class="highlight2">$1</span>');
            display: flex;
            align-items: center;
            font-size: 13px;
-           color: #9499A0;
+           color: #8D9794;
 
            img{
                width: 15px;

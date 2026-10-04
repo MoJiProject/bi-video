@@ -178,7 +178,7 @@ min-height: 50vh;
     align-items: center;
     padding: 16px 0;
     cursor: pointer;
-    box-shadow: 0 -.5px 0 0 #E3E5E7 inset;  
+    box-shadow: 0 -.5px 0 0 #E0E5E3 inset;  
 
         .avatar{
         width: 40px;
@@ -216,7 +216,7 @@ min-height: 50vh;
             font-style: normal;
             font-weight: 500;
             line-height: 21px;
-            color: #18191C;
+            color: #1C2321;
 
                 div{
                 display: inline-block;
@@ -230,9 +230,9 @@ min-height: 50vh;
         height: 30px;
         min-width: 70px;
         font-size: 14px;
-        border: 1px solid #00AEEC;
+        border: 1px solid #0FA68E;
         background-color: white;
-        color: #00AEEC;
+        color: #0FA68E;
         cursor: pointer;
         display: inline-block;
         line-height: 1;
@@ -240,9 +240,9 @@ min-height: 50vh;
         user-select: none;
         }
         .unfollow-btn{
-        background-color: #F1F2F3;
-        border: 1px solid #F1F2F3;
-        color: #9499A0;
+        background-color: #EFF3F2;
+        border: 1px solid #EFF3F2;
+        color: #8D9794;
         border-radius: 6px;
         height: 30px;
         min-width: 70px;
@@ -270,7 +270,7 @@ min-height: 50vh;
             top: 35px;
             width: 122px;
             z-index: 11;
-            color: #18191C;
+            color: #1C2321;
             cursor: pointer;
             font-size: 14px;
             line-height: 40px;
@@ -280,7 +280,7 @@ min-height: 50vh;
             visibility: hidden;
             }
             div:hover{
-            color: #00AEEC;
+            color: #0FA68E;
             transition-delay: 0s !important;
             background-color: #f4f5f5;
             }
@@ -299,7 +299,7 @@ min-height: 50vh;
     margin-top: 20px;
     padding-top: 50px;
     font-size: 14px;
-    color: #9499A0;
+    color: #8D9794;
     text-align: center;
     user-select: none;
     padding-bottom: 120px;   

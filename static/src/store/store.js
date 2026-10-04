@@ -31,14 +31,14 @@ export const useGlobalStore = defineStore('global', {
       loginDialogVisibleFlag: false,//登录弹窗标识
       userInformation: {},//用户信息
       updateVideoInfoFlag: false,//更新视频信息标识
-      upUserId: null,//视频up主id
+      upUserId: null,//视频创作者id
       eitUserInfo: null,//eit用户信息
       eitUserInfoHover: false,//eit用户信息hover标识
       messageMenu: 1, //消息菜单 1消息 2回复 3@ 4点赞 5消息设置
       selectUpVideo: {},//当前播放视频信息
       shareVideoFocusFlag: false,//分享视频输入框焦点标识
       shareHover: false,//分享按钮hover标识
-      homeMenu: 0,//1主页 2动态 3投稿 4合集 5收藏 6追番追剧 7设置 8关注 9粉丝 10搜索
+      homeMenu: 0,//1主页 2动态 3投稿 4合集 5收藏 6追剧 7设置 8关注 9粉丝 10搜索
       homeUserInformation: {},//home用户信息
       homeLoad:{
         homeHead: false,

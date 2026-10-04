@@ -185,7 +185,7 @@ watch(typeSource,()=>{
     z-index: 2000;
     align-items: center;
     justify-content: space-between;
-    background-color: #00AEEC;
+    background-color: #0FA68E;
     }
     .content{
         position: relative;
@@ -193,7 +193,7 @@ watch(typeSource,()=>{
         .title{
         font-size: 24px;
         font-weight: 600;
-        color: #18191C;
+        color: #1C2321;
         line-height: 34px;
         }
         .condition{
@@ -211,17 +211,17 @@ watch(typeSource,()=>{
         height: 34px;
         padding: 0 15px;
         flex-shrink: 0;
-        color: #61666D;
+        color: #5C6664;
         cursor: pointer;
         transition: all .3s ease;
         border-radius: 6px;
-        background-color: #F6F7F8;
+        background-color: #F4F7F6;
         }
         span:hover{
-            color: #00AEEC;
+            color: #0FA68E;
         }
         .activeStatus{
-            background-color: #00AEEC !important;
+            background-color: #0FA68E !important;
             color: white !important;
         }
         }
@@ -240,17 +240,17 @@ watch(typeSource,()=>{
         height: 34px;
         padding: 0 15px;
         flex-shrink: 0;
-        color: #61666D;
+        color: #5C6664;
         cursor: pointer;
         transition: all .3s ease;
         border-radius: 6px;
-        background-color: #F6F7F8;
+        background-color: #F4F7F6;
         }
         span:hover{
-            color: #00AEEC;
+            color: #0FA68E;
         }
         .activeTags{
-            background-color: #00AEEC !important;
+            background-color: #0FA68E !important;
             color: white !important;
         }
         }
@@ -274,7 +274,7 @@ watch(typeSource,()=>{
                     font-size: 14px;
                     line-height: 20px;
                     font-weight: 400;
-                    color: #9499A0;
+                    color: #8D9794;
                     
                 }
             }

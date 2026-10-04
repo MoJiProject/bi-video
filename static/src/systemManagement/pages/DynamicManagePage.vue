@@ -5,7 +5,7 @@
           <span class="title">
             动态管理
             <span class="title-tip">
-              同一个视频动态会存多条（UP主自己发布的1条 + 每个粉丝各1条副本），默认只显示UP主发布的
+              同一个视频动态会存多条（创作者自己发布的1条 + 每个粉丝各1条副本），默认只显示创作者发布的
             </span>
           </span>
       </div>
@@ -25,7 +25,7 @@
           <el-option label="评论动态" :value="1" />
         </el-select>
         <el-select v-model="query.source" style="width: 160px" @change="handleSearch">
-          <el-option label="UP主发布的" :value="0" />
+          <el-option label="创作者发布的" :value="0" />
           <el-option label="粉丝收到的副本" :value="1" />
           <el-option label="全部来源" :value="-1" />
         </el-select>
@@ -217,7 +217,7 @@ export default {
       keyword: "",
       type: -1,
       userId: "",
-      //默认只看UP主自己发布的动态，粉丝收到的是同一动态的副本，全部显示会出现看起来重复的行
+      //默认只看创作者自己发布的动态，粉丝收到的是同一动态的副本，全部显示会出现看起来重复的行
       source: 0,
     });
 
@@ -391,7 +391,7 @@ export default {
 @use "../systemPanel.scss" as *;
 
 .title-link {
-  color: #18191c;
+  color: #1C2321;
   font-size: 13px;
   transition: color 0.2s ease;
 }
@@ -402,20 +402,20 @@ export default {
   min-width: 0;
 
   &:hover .title-link {
-    color: #00a1d6;
+    color: #0E9C85;
   }
 }
 
 .sub-text {
   font-size: 12px;
-  color: #9499a0;
+  color: #8D9794;
   margin-top: 2px;
   display: block;
 }
 
 .warn-text {
   font-size: 14px;
-  color: #61666d;
+  color: #5C6664;
   margin-bottom: 12px;
 }
 </style>

@@ -17,13 +17,13 @@
         "
       >
         <img
-          src="/img/bilibili蓝.png"
+          src="/img/logo.png"
           style="width: 55px; transform: translate(30px, 8px)"
         />
         <span
           style="
             display: flex;
-            color: #00a1d6;
+            color: #0E9C85;
             font-weight: bold;
             font-size: 21px;
             transform: translate(90px, -25px);
@@ -86,7 +86,7 @@
               color: #eb9362;
             "
           >
-            成为up主的第{{ daysAsUP }}天 >
+            成为创作者的第{{ daysAsUP }}天 >
           </div>
           <div style="transform: translate(1160px, -40px); color: #ededed">
             |
@@ -189,7 +189,7 @@ export default {
       fansNumber: 0,
       introduce: "",
     });
-    // 计算成为up主的天数
+    // 计算成为创作者的天数
     const daysAsUP = computed(() => {
       const nowDate = new Date();
       const upDate = new Date(user.createTime);
@@ -201,7 +201,7 @@ export default {
     });
 
     onMounted(async() => {
-      document.title = "创作中心-哔哩哔哩弹幕视频网 - (゜- ゜)つロ 干杯~";
+      document.title = "创作中心 - 青芒视频";
       window.scrollTo({top: 0, behavior: "smooth"});
       await getUserIp();
       await ChecklLogin();
@@ -363,7 +363,7 @@ export default {
 }
 
 .feature div:hover {
-  background-color: #e3e5e7;
+  background-color: #E0E5E3;
 }
 
 .feature div span {
@@ -373,7 +373,7 @@ export default {
   align-items: center;
   justify-content: center;
   transform: translateX(27px);
-  color: #62666c;
+  color: #5D6764;
 }
 .feature div img {
   width: 18px;
@@ -418,7 +418,7 @@ export default {
   display: flex;
   align-items: center;
   transform: translate(-10px, -7px);
-  color: #62666c;
+  color: #5D6764;
   transition: all 0.3s ease;
   cursor: pointer;
 }
@@ -429,7 +429,7 @@ export default {
 }
 
 .message-info span:hover {
-  background-color: #e3e5e7;
+  background-color: #E0E5E3;
 }
 
 .message:hover .message-info {

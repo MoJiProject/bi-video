@@ -2,7 +2,7 @@
   <div>
     <div id="fixedBox" class="hiddenBox" :class="{ showHiddenBox: isVisible }">
       <img
-        src="/img/bilibili蓝.png"
+        src="/img/logo.png"
         style="width: 60px; transform: translate(24px, 18px); cursor: pointer"
       />
       <Searcha
@@ -161,7 +161,7 @@
             style="
               width: 32px;
               height: 4px;
-              background-color: #00aeec;
+              background-color: #0FA68E;
               position: absolute;
               transform: translate(63px, 137px);
               border-radius: 5px;
@@ -172,7 +172,7 @@
             style="
               width: 32px;
               height: 4px;
-              background-color: #00aeec;
+              background-color: #0FA68E;
               position: absolute;
               transform: translate(147.5px, 137px);
               border-radius: 5px;
@@ -183,7 +183,7 @@
             style="
               width: 32px;
               height: 4px;
-              background-color: #00aeec;
+              background-color: #0FA68E;
               position: absolute;
               transform: translate(267px, 137px);
               border-radius: 5px;
@@ -194,7 +194,7 @@
             style="
               width: 32px;
               height: 4px;
-              background-color: #00aeec;
+              background-color: #0FA68E;
               position: absolute;
               transform: translate(371.5px, 137px);
               border-radius: 5px;
@@ -205,7 +205,7 @@
             style="
               width: 32px;
               height: 4px;
-              background-color: #00aeec;
+              background-color: #0FA68E;
               position: absolute;
               transform: translate(475px, 137px);
               border-radius: 5px;
@@ -216,7 +216,7 @@
             style="
               width: 32px;
               height: 4px;
-              background-color: #00aeec;
+              background-color: #0FA68E;
               position: absolute;
               transform: translate(581px, 137px);
               border-radius: 5px;
@@ -227,7 +227,7 @@
             style="
               width: 32px;
               height: 4px;
-              background-color: #00aeec;
+              background-color: #0FA68E;
               position: absolute;
               transform: translate(692px, 137px);
               border-radius: 5px;
@@ -446,13 +446,13 @@
               @click="ClickClassifyFlag1"
               class="condition"
               style="transform: translate(86px, 165.5px)"
-              >全部分区</span
+              >全部分类</span
             >
             <span
               v-if="clickClassifyFlag1"
               class="conditionClick"
               style="transform: translate(64px, 160px)"
-              >全部分区</span
+              >全部分类</span
             >
             <el-tooltip
               class="box-item"
@@ -1031,7 +1031,7 @@
                 position: absolute;
                 transform: translate(496.5px, 321px);
                 font-size: 14px;
-                color: #9599a5;
+                color: #8F9794;
               "
               >今天真是寂寞如雪啊~</span
             >
@@ -1074,7 +1074,7 @@
                 >
                   <img
                     v-show="video.waitWatch === 0"
-                    src="/img/稍后再看.png"
+                    src="/img/待看清单.png"
                     style="
                       width: 21px;
                       height: 18px;
@@ -1298,7 +1298,7 @@
               position: absolute;
               transform: translate(496.5px, 287px);
               font-size: 14px;
-              color: #9599a5;
+              color: #8F9794;
             "
             >今天真是寂寞如雪啊~</span
           >
@@ -1384,7 +1384,7 @@
                 position: absolute;
                 transform: translate(496.5px, 321px);
                 font-size: 14px;
-                color: #9599a5;
+                color: #8F9794;
               "
               >今天真是寂寞如雪啊~</span
             >
@@ -1583,8 +1583,8 @@
 <script>
 import head1 from "../components/mainHead.vue";
 import Searcha from "./searcha";
-const up = "/img/up.png"
-const upBlue = "/img/up蓝.png"
+const up = "/img/author-badge-default.png"
+const upBlue = "/img/author-badge-blue.png"
 import { reactive, onMounted, ref, watch, onUnmounted } from "vue";
 import apiClient from "../services/apiClient";
 import { ElMessage } from "element-plus";
@@ -2620,7 +2620,7 @@ export default {
       selectUsersAxios();
       document.title =
         acceptSearchData.keyWord ||
-        acceptSearchData.classify + "-哔哩哔哩_bilibili";
+        acceptSearchData.classify + "-青芒视频";
       window.addEventListener("scroll", handleScroll); // 监听滚动事件
     });
     onUnmounted(() => {
@@ -3150,8 +3150,8 @@ export default {
 
 .head {
   position: relative;
-  width: 102%;
-  left: -15px;
+  width: 100%;
+  box-sizing: border-box;
   height: 65px;
   z-index: 100000;
   box-shadow: 0 0px 3px rgba(0, 0, 0, 0.3); /* 添加底部阴影 */
@@ -3200,10 +3200,10 @@ export default {
 }
 .sort .aww {
   cursor: pointer;
-  color: #00aeec;
+  color: #0FA68E;
 }
 .sort .aw:hover {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .videoSort .condition {
@@ -3215,7 +3215,7 @@ export default {
 }
 
 .videoSort .condition:hover {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .videoSort .conditionClick {
@@ -3224,11 +3224,11 @@ export default {
   font-size: 14px;
   position: absolute;
   cursor: pointer;
-  color: #00aeec;
+  color: #0FA68E;
   border-radius: 7px;
   width: 100px;
   height: 32px;
-  background-color: #e3f5fc;
+  background-color: #E2F4EF;
 }
 
 .userSort .condition {
@@ -3241,7 +3241,7 @@ export default {
 }
 
 .userSort .condition:hover {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .userSort .conditionClick {
@@ -3250,13 +3250,13 @@ export default {
   font-size: 14px;
   position: absolute;
   cursor: pointer;
-  color: #00aeec;
+  color: #0FA68E;
   border-radius: 7px;
   width: auto;
   height: 32px;
   padding-right: 15px;
   padding-left: 15px;
-  background-color: #e3f5fc;
+  background-color: #E2F4EF;
 }
 
 .screen {
@@ -3295,7 +3295,7 @@ export default {
   margin-right: 5px;
 }
 .custom-tooltip2 span:hover {
-  color: #00aeec;
+  color: #0FA68E;
 }
 .showBox {
   width: auto;
@@ -3436,7 +3436,7 @@ video {
 
 .upInfo {
   width: 224.5px;
-  color: #95999f;
+  color: #8F9794;
   font-size: 12.5px;
   transform: translate(19.5px, 23px);
   position: absolute;
@@ -3449,7 +3449,7 @@ video {
 }
 
 .videoBottomInfo:hover .upInfo {
-  color: #00aeec;
+  color: #0FA68E;
 }
 .videoBottomInfo {
   cursor: pointer;
@@ -3463,7 +3463,7 @@ video {
   border-radius: 10px;
   position: absolute;
   transform: translate(1390px, -305px);
-  border: 1px solid #e3e5e7;
+  border: 1px solid #E0E5E3;
   cursor: pointer;
 }
 .changer img {
@@ -3474,7 +3474,7 @@ video {
   position: absolute;
 }
 .changer:hover {
-  background-color: #e3e5e7;
+  background-color: #E0E5E3;
 }
 
 .changer span {
@@ -3505,10 +3505,10 @@ video {
 }
 
 .title:hover {
-  color: #00aeec;
+  color: #0FA68E;
 }
 .highlight {
-  color: #e1679f !important;
+  color: #E06B33 !important;
 }
 
 .searchUsers {
@@ -3532,7 +3532,7 @@ video {
 .follow {
   width: 100.5px;
   height: 32px;
-  background-color: #00aeec;
+  background-color: #0FA68E;
   color: white;
   display: flex;
   justify-content: center;
@@ -3552,8 +3552,8 @@ video {
 .deleteFollow {
   width: 100.5px;
   height: 32px;
-  background-color: #f1f2f3;
-  color: #62666c;
+  background-color: #EFF3F2;
+  color: #5D6764;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -3565,7 +3565,7 @@ video {
 }
 
 .deleteFollow:hover {
-  background-color: #e3e5e7;
+  background-color: #E0E5E3;
 }
 
 .user-Name {
@@ -3577,7 +3577,7 @@ video {
 }
 
 .user-Name:hover {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .custom-tooltip1 {
@@ -3622,7 +3622,7 @@ video {
   align-items: center;
 
   span {
-    color: #18191c;
+    color: #1C2321;
     font-size: 13px;
     margin-left: 44px;
     input {
@@ -3635,17 +3635,17 @@ video {
       position: relative;
       padding: 0 12px;
       background-color: white;
-      border: 1px solid #e3e5e7;
+      border: 1px solid #E0E5E3;
       font-size: 14px;
       border-radius: 6px;
       transition: all 0.3s ease;
       padding: 0 10px;
     }
     input:hover {
-      border-color: #00aeec;
+      border-color: #0FA68E;
     }
     input:focus {
-      border-color: #00aeec;
+      border-color: #0FA68E;
     }
     input::-webkit-inner-spin-button,
     input::-webkit-outer-spin-button {

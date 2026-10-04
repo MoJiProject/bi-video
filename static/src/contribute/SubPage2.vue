@@ -11,7 +11,7 @@
       ></div>
       <div
         style="
-          color: #00a1d6;
+          color: #0E9C85;
           font-weight: 800;
           transform: translate(50px, 22px);
           cursor: pointer;
@@ -23,7 +23,7 @@
         style="
           width: 65px;
           height: 3px;
-          background-color: #00a1d6;
+          background-color: #0E9C85;
           transform: translate(50px, 35px);
         "
       ></div>
@@ -70,7 +70,7 @@
         v-else
         style="
           font-size: 14px;
-          color: #00a1d6;
+          color: #0E9C85;
           transform: translate(50px, 20px);
           cursor: pointer;
         "
@@ -90,7 +90,7 @@
         <span v-if="click1 === 0" @click="waitUpload" style="cursor: pointer"
           >进行中&nbsp;{{ UserVideoVo.videoWaitNumber }}</span
         >
-        <span v-else @click="waitUpload" style="cursor: pointer; color: #00a1d6"
+        <span v-else @click="waitUpload" style="cursor: pointer; color: #0E9C85"
           >进行中&nbsp;{{ UserVideoVo.videoWaitNumber }}</span
         >
         <span style="color: #e1e1e1">|</span>
@@ -100,7 +100,7 @@
         <span
           v-else
           @click="successUpload"
-          style="cursor: pointer; color: #00a1d6"
+          style="cursor: pointer; color: #0E9C85"
           >已通过&nbsp;{{ UserVideoVo.videoSuccessNumber }}</span
         >
         <span style="color: #e1e1e1">|</span>
@@ -110,7 +110,7 @@
         <span
           v-else
           @click="errorUpload"
-          style="cursor: pointer; color: #00a1d6"
+          style="cursor: pointer; color: #0E9C85"
           >未通过&nbsp;{{ UserVideoVo.videoErrorNumber }}</span
         >
       </div>
@@ -447,8 +447,8 @@ export default {
       window.scrollTo({top: 0, behavior: "smooth"});
     };
     const videoTitle = ref("");
-    const subZoneKey = ref("全部分区");
-    const sortWay = ref("投稿时间排序");
+    const subZoneKey = ref("全部分类");
+    const sortWay = ref("发布时间排序");
     const click1 = ref(0);
     const click2 = ref(0);
     const click3 = ref(0);
@@ -487,7 +487,7 @@ export default {
     }
 
     const classify = [
-      { label: "全部分区", value: "全部分区" },
+      { label: "全部分类", value: "全部分类" },
       { label: "生活", value: "生活" },
       { label: "游戏", value: "游戏" },
       { label: "娱乐", value: "娱乐" },
@@ -511,10 +511,10 @@ export default {
     ];
 
     const sort = [
-      { label: "投稿时间排序", value: "投稿时间排序" },
-      { label: "播放数排序", value: "播放数排序" },
-      { label: "收藏数排序", value: "收藏数排序" },
-      { label: "弹幕数排序", value: "弹幕数排序" },
+      { label: "发布时间排序", value: "发布时间排序" },
+      { label: "播放量排序", value: "播放量排序" },
+      { label: "收藏量排序", value: "收藏量排序" },
+      { label: "弹幕量排序", value: "弹幕量排序" },
       { label: "评论数排序", value: "评论数排序" },
     ];
 
@@ -652,7 +652,7 @@ export default {
         plain: true,
         duration: 1700,
       });
-    };
+    }
 
     //打开视频页
     function openVideo(video) {
@@ -757,8 +757,8 @@ export default {
 }
 
 .edit:hover {
-  border: 1px solid #00a1d6;
-  color: #00a1d6;
+  border: 1px solid #0E9C85;
+  color: #0E9C85;
 }
 
 .datas {
@@ -777,8 +777,8 @@ export default {
 }
 
 .datas:hover {
-  border: 1px solid #00a1d6;
-  color: #00a1d6;
+  border: 1px solid #0E9C85;
+  color: #0E9C85;
 }
 .more {
   display: flex;
@@ -792,7 +792,7 @@ export default {
 }
 
 .more:hover {
-  border: 1px solid #00a1d6;
+  border: 1px solid #0E9C85;
 }
 
 .ai img {
@@ -826,8 +826,8 @@ export default {
 }
 
 .deleteUpload:hover {
-  border: 1px solid #00a1d6;
-  color: #00a1d6;
+  border: 1px solid #0E9C85;
+  color: #0E9C85;
 }
 
 .more:hover .deleteUpload {
@@ -836,7 +836,7 @@ export default {
 }
 
 .yesDelete {
-  background-color: #00a1d6;
+  background-color: #0E9C85;
   color: white;
   border: none;
   width: 90px;
@@ -845,7 +845,7 @@ export default {
 
 .yesDelete:hover {
   color: white;
-  background-color: #64aad2;
+  background-color: #5DB0AC;
 }
 
 .videoTitle{
@@ -854,6 +854,6 @@ export default {
 }
 
 .videoTitle:hover{
-  color: #00AEEC;
+  color: #0FA68E;
 }
 </style>

@@ -17,21 +17,21 @@ import {ChecklLogin,getUserIp} from '../api/user/index';
 import { onMounted } from "vue";
 
 const backgroundImgSrc=[
-  '/img/pageBg1.webp',
-  '/img/pageBg2.webp',
-  '/img/pageBg3.webp',
-  '/img/pageBg4.webp',
-  '/img/pageBg5.webp',
-  '/img/pageBg6.webp',
-  '/img/pageBg7.webp',
-  '/img/pageBg8.webp',
+  '/img/page-bg-1.png',
+  '/img/page-bg-2.png',
+  '/img/page-bg-3.png',
+  '/img/page-bg-4.png',
+  '/img/page-bg-5.png',
+  '/img/page-bg-6.png',
+  '/img/page-bg-7.png',
+  '/img/page-bg-8.png',
 ];
 let bIndex=Math.floor(Math.random()*backgroundImgSrc.length);
 const store = useGlobalStore();
 
 onMounted(async()=>{
   
-  document.title = "个人中心-哔哩哔哩弹幕视频网 - (゜- ゜)つロ 干杯~";
+  document.title = "个人中心 - 青芒视频";
   document.body.style.overflowY = 'hidden';
   document.body.style.display = 'flex';
   document.body.style.justifyContent = 'center';

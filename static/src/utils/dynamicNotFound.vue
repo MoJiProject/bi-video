@@ -6,7 +6,7 @@
         <div class="not-found-content">
             <div><img src="/img/404.png"></div>
             <div class="not-found-title">啊叻？动态不见了？</div>
-            <div class="not-found-desc">动态内容已被UP主删除，动态无法观看，敬请谅解。</div>
+            <div class="not-found-desc">动态内容已被创作者删除，动态无法观看，敬请谅解。</div>
             <a href="./">前往首页</a>
         </div>
   </div>  
@@ -59,14 +59,14 @@ import mainHead from "@/components/mainHead.vue";
       }
       .not-found-title{
         font-size: 26px;
-        color: #18191C;
+        color: #1C2321;
         line-height: 26px;
         font-weight: bolder;
         padding: 0 0 12px 0;
       }
       .not-found-desc{
         font-size: 14px;
-        color: #61666D;
+        color: #5C6664;
         line-height: 21px;
       }
       a{
@@ -80,7 +80,7 @@ import mainHead from "@/components/mainHead.vue";
         justify-content: center;
         align-items: center;
         margin-top: 60px;
-        background: #00AEEC;
+        background: #0FA68E;
         color: white;
         border-radius: 2px;
         font-size: 16px;
@@ -88,7 +88,7 @@ import mainHead from "@/components/mainHead.vue";
         cursor: pointer;
       }
       a:hover{
-        background-color: #19a4e0;
+        background-color: #17A08B;
       }
   }
 }

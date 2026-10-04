@@ -2,7 +2,7 @@
   <div v-if="pageLoad && isAdmin" class="system-layout">
     <header class="system-header">
       <div class="brand">
-        <img src="/img/bilibili蓝.png" alt="logo" class="logo" />
+        <img src="/img/logo.png" alt="logo" class="logo" />
         <span class="brand-name">系统管理后台</span>
       </div>
 
@@ -124,11 +124,11 @@ export default {
       () => (store.userInformation && store.userInformation.userName) || "管理员"
     );
     const userAvatar = computed(
-      () => (store.userInformation && store.userInformation.avatarAddress) || "/img/默认头像.gif"
+      () => (store.userInformation && store.userInformation.avatarAddress) || "/img/avatar-default.png"
     );
 
     onMounted(async () => {
-      document.title = "系统管理后台-哔哩哔哩弹幕视频网 - (゜- ゜)つロ 干杯~";
+      document.title = "系统管理后台 - 青芒视频";
       window.scrollTo({ top: 0 });
       await getUserIp();
       await checkLogin();
@@ -250,7 +250,7 @@ export default {
   margin-left: 10px;
   font-size: 18px;
   font-weight: 700;
-  color: #00a1d6;
+  color: #0E9C85;
   letter-spacing: 1px;
   white-space: nowrap;
 }
@@ -265,7 +265,7 @@ export default {
   display: flex;
   align-items: center;
   margin-right: 20px;
-  color: #61666d;
+  color: #5C6664;
   font-size: 14px;
   text-decoration: none;
   white-space: nowrap;
@@ -273,7 +273,7 @@ export default {
 }
 
 .nav-link:hover {
-  color: #00a1d6;
+  color: #0E9C85;
 }
 
 .nav-icon {
@@ -294,7 +294,7 @@ export default {
 
 .refresh-time {
   font-size: 12px;
-  color: #9499a0;
+  color: #8D9794;
   margin-right: 10px;
   white-space: nowrap;
 }
@@ -321,7 +321,7 @@ export default {
 .user-name {
   margin-left: 8px;
   font-size: 14px;
-  color: #18191c;
+  color: #1C2321;
   max-width: 220px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -346,7 +346,7 @@ export default {
 
 .aside-title {
   font-size: 12px;
-  color: #9499a0;
+  color: #8D9794;
   padding: 0 20px 10px;
 }
 
@@ -355,7 +355,7 @@ export default {
   align-items: center;
   height: 44px;
   padding: 0 20px;
-  color: #61666d;
+  color: #5C6664;
   font-size: 14px;
   text-decoration: none;
   border-left: 3px solid transparent;
@@ -364,13 +364,13 @@ export default {
 
 .menu-item:hover {
   background-color: #f4f6f9;
-  color: #00a1d6;
+  color: #0E9C85;
 }
 
 .menu-item.active {
-  background-color: #eaf7fc;
-  border-left-color: #00a1d6;
-  color: #00a1d6;
+  background-color: #E7F5F1;
+  border-left-color: #0E9C85;
+  color: #0E9C85;
   font-weight: 600;
 }
 
@@ -395,12 +395,12 @@ export default {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  color: #61666d;
+  color: #5C6664;
 }
 
 .system-forbidden p {
   margin: 0 0 20px;
-  color: #9499a0;
+  color: #8D9794;
   font-size: 14px;
 }
 </style>

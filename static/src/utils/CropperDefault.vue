@@ -485,7 +485,7 @@ export default {
 
 .cropper-point {
     position: absolute;
-    background-color: #f6f7f8;
+    background-color: #F4F7F6;
     height: 12.5px;
     opacity: 1;
     width: 12.5px;

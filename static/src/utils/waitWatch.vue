@@ -9,7 +9,7 @@
     >
       <img
         v-show="video.waitWatch === 0"
-        src="/img/稍后再看.png"
+        src="/img/待看清单.png"
         style="
           width: 20px;
           height: 18px;

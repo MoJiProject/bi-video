@@ -110,7 +110,7 @@ const routes = [
         name: 'history',
         component: () => import('./history/historyPage.vue'),
       },
-      // 稍后再看
+      // 待看清单
       {
         path: '/waitWatch',
         name: 'waitWatch',

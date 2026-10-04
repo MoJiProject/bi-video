@@ -18,7 +18,7 @@
                         <svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" d="m488.832 344.32-339.84 356.672a32 32 0 0 0 0 44.16l.384.384a29.44 29.44 0 0 0 42.688 0l320-335.872 319.872 335.872a29.44 29.44 0 0 0 42.688 0l.384-.384a32 32 0 0 0 0-44.16L535.168 344.32a32 32 0 0 0-46.336 0"></path></svg>
                     </div>
                     <div v-show="!batchManageFlag" class="search-container">
-                    <input type="text" v-model="keyWord" placeholder="搜索标题/up主昵称" maxlength="30" @keydown.enter="searchHistoryList">
+                    <input type="text" v-model="keyWord" placeholder="搜索标题/创作者昵称" maxlength="30" @keydown.enter="searchHistoryList">
                     <img
                         v-show="keyWord.length>0"
                         @mouseover="deleteAllSearchFlag = false"
@@ -73,7 +73,7 @@
                 v-show="groupedHistoryList[timestamp]?.length"
                 v-for="timestamp in timestampList"
                 :key="timestamp"
-                style="--el-font-size-small: 16px;--el-text-color-secondary: #61666D;"               
+                style="--el-font-size-small: 16px;--el-text-color-secondary: #5C6664;"               
                 placement="top"
                 size="large"
                 :hollow="true"
@@ -444,15 +444,15 @@ const groupedHistoryList = computed(() => {
 //计算paddingBottom
 function paddingBottomF(timestamp){
     
-    if(timestamp==="今天"&&(groupedHistoryList["昨天"]?.length||groupedHistoryList["近一周"]?.length||groupedHistoryList["一周前"]?.length||groupedHistoryList["一个月前"]?.length||groupedHistoryList["一年前"]?.length))
+    if(timestamp==="今天"&&(groupedHistoryList.value["昨天"]?.length||groupedHistoryList.value["近一周"]?.length||groupedHistoryList.value["一周前"]?.length||groupedHistoryList.value["一个月前"]?.length||groupedHistoryList.value["一年前"]?.length))
       return true;
-    else if(timestamp==="昨天"&&(groupedHistoryList["近一周"]?.length||groupedHistoryList["一周前"]?.length||groupedHistoryList["一个月前"]?.length||groupedHistoryList["一年前"]?.length))
+    else if(timestamp==="昨天"&&(groupedHistoryList.value["近一周"]?.length||groupedHistoryList.value["一周前"]?.length||groupedHistoryList.value["一个月前"]?.length||groupedHistoryList.value["一年前"]?.length))
       return true;
-    else if(timestamp==="近一周"&&(groupedHistoryList["一周前"]?.length||groupedHistoryList["一个月前"]?.length||groupedHistoryList["一年前"]?.length))
+    else if(timestamp==="近一周"&&(groupedHistoryList.value["一周前"]?.length||groupedHistoryList.value["一个月前"]?.length||groupedHistoryList.value["一年前"]?.length))
       return true;
-    else if(timestamp==="一周前"&&(groupedHistoryList["一个月前"]?.length||groupedHistoryList["一年前"]?.length))
+    else if(timestamp==="一周前"&&(groupedHistoryList.value["一个月前"]?.length||groupedHistoryList.value["一年前"]?.length))
       return true;
-    else if(timestamp==="一个月前"&&groupedHistoryList["一年前"]?.length)
+    else if(timestamp==="一个月前"&&groupedHistoryList.value["一年前"]?.length)
       return true;
     else
       return false;
@@ -568,7 +568,7 @@ max-width: 2560px;
         .head-left{
         display: flex;
         align-items: center;
-        color: #18191C;
+        color: #1C2321;
         font-weight: 600;
         font-size: 28px;
         line-height: 40px;
@@ -585,7 +585,7 @@ max-width: 2560px;
         align-items: center;
         font-size: 14px;
         padding-right: 70px;
-        color: #18191C;
+        color: #1C2321;
         user-select: none;
             
             .custom-switch1{
@@ -631,9 +631,9 @@ max-width: 2560px;
                 line-height: 1;
                 transition: all .3s ease;
                 user-select: none;
-                color: #18191C;
+                color: #1C2321;
                 background: white;
-                border: 1px solid #E3E5E7;
+                border: 1px solid #E0E5E3;
                 cursor: pointer;
                 margin-right: 16px;
                     
@@ -644,8 +644,8 @@ max-width: 2560px;
                     }
                 }
                 .sort-btn:hover{
-                background: #E3E5E7;
-                border: 1px solid #E3E5E7;
+                background: #E0E5E3;
+                border: 1px solid #E0E5E3;
                 }
                 .search-container{
                 position: relative;    
@@ -657,10 +657,10 @@ max-width: 2560px;
                 padding: 2px;
                 padding-right: 0;
                 border-radius: 8px;
-                background-color: #F1F2F3;
-                border: 1px solid #F1F2F3;
+                background-color: #EFF3F2;
+                border: 1px solid #EFF3F2;
                 margin-right: 12px;
-                color: #18191C;
+                color: #1C2321;
                 transition: all .3s ease;
 
                     input{
@@ -672,7 +672,7 @@ max-width: 2560px;
                     padding: 0 30px 0 0px;
                     background-color: transparent;
                     font-size: 14px;
-                    color: #18191C;
+                    color: #1C2321;
                     transition: background-color .3s;
                     outline: 0;
                     border: none;
@@ -697,10 +697,10 @@ max-width: 2560px;
                     }
                 }
                 .search-container:hover{
-                border: 1px solid #00AEEC;
+                border: 1px solid #0FA68E;
                 }
                 .search-container:focus-within{
-                border: 1px solid #00AEEC;   
+                border: 1px solid #0FA68E;   
                 }
                 .clear-btn{
                 display: flex;
@@ -714,9 +714,9 @@ max-width: 2560px;
                 line-height: 1;
                 transition: all .3s ease;
                 user-select: none;
-                color: #18191C;
+                color: #1C2321;
                 background: white;
-                border: 1px solid #E3E5E7;
+                border: 1px solid #E0E5E3;
                 cursor: pointer;
                 margin-right: 16px;
 
@@ -727,8 +727,8 @@ max-width: 2560px;
                     }
                 }
                 .clear-btn:hover{
-                background: #E3E5E7;
-                border: 1px solid #E3E5E7;
+                background: #E0E5E3;
+                border: 1px solid #E0E5E3;
                 }
                 .batch-manage-btn{
                 display: flex;
@@ -742,9 +742,9 @@ max-width: 2560px;
                 line-height: 1;
                 transition: all .3s ease;
                 user-select: none;
-                color: #18191C;
+                color: #1C2321;
                 background: white;
-                border: 1px solid #E3E5E7;
+                border: 1px solid #E0E5E3;
                 cursor: pointer;
                 margin-right: 16px;
 
@@ -755,8 +755,8 @@ max-width: 2560px;
                     }
                 }
                 .batch-manage-btn:hover{
-                background: #E3E5E7;
-                border: 1px solid #E3E5E7;
+                background: #E0E5E3;
+                border: 1px solid #E0E5E3;
                 }
                 .check-all{
                 position: relative;
@@ -766,7 +766,7 @@ max-width: 2560px;
                 user-select: none;
                 font-size: 14px;
                 line-height: 1.5;
-                color: #18191C;
+                color: #1C2321;
                 cursor: pointer;
                     .check-all-icon{
                     position: relative;
@@ -781,7 +781,7 @@ max-width: 2560px;
                         -webkit-box-sizing: border-box;
                         box-sizing: border-box;
                         background-color: white;
-                        border: 1px solid #E3E5E7;
+                        border: 1px solid #E0E5E3;
                         border-radius: 4px;
                         -webkit-transition: all .3s ease-in-out;
                         transition: all .3s ease-in-out;
@@ -801,8 +801,8 @@ max-width: 2560px;
                         transition: all .3s ease-in-out;
                         }
                         .activeCheck{
-                            border: 1px solid #00aeec;
-                            background-color: #00aeec;
+                            border: 1px solid #0FA68E;
+                            background-color: #0FA68E;
                         }
                     
                     }
@@ -813,7 +813,7 @@ max-width: 2560px;
                 .check-all:hover{
                     .check-all-icon{
                         .check-input-box{
-                            border: 1px solid #00aeec;
+                            border: 1px solid #0FA68E;
                         }
                     }
                 }
@@ -823,7 +823,7 @@ max-width: 2560px;
                 margin-left: 26px;
                 min-width: 170px;
                 font-size: 14px;
-                color: #61666D;
+                color: #5C6664;
                 }
                 .line{
                 display: flex;
@@ -833,7 +833,7 @@ max-width: 2560px;
                     margin: 0 36.5px;
                     width: 1px;
                     height: 18px;
-                    background-color: #E3E5E7;
+                    background-color: #E0E5E3;
                     }
                 }
                 .delete-btn{
@@ -849,7 +849,7 @@ max-width: 2560px;
                 user-select: none;
                 color: #8b8c8d;
                 background: white;
-                border: 1px solid #E3E5E7;
+                border: 1px solid #E0E5E3;
                 cursor: not-allowed;
                 margin-right: 16px;
 
@@ -861,17 +861,17 @@ max-width: 2560px;
                     }
                 }
                 .activeDelete{
-                color: #18191C;
+                color: #1C2321;
                 transition: all .3s ease;
                 cursor: pointer;
                     
                     svg{
-                        color: #18191C;
+                        color: #1C2321;
                     }
                 }
                 .activeDelete:hover{
-                background-color: #E3E5E7;
-                border: 1px solid #E3E5E7;
+                background-color: #E0E5E3;
+                border: 1px solid #E0E5E3;
                 }
             }
             .sort{
@@ -889,15 +889,15 @@ max-width: 2560px;
                 min-width: 84px;
                 height: 34px;
                 flex-shrink: 0;
-                color: #61666D;
+                color: #5C6664;
                 cursor: pointer;
                 transition: all .3s;
                 border-radius: 6px;
                 margin-left: 12px; 
                 }
                 .active{
-                color: #00AEEC;   
-                background-color: #DFF6FD;
+                color: #0FA68E;   
+                background-color: #E3F5F0;
                 }
             }
         }
@@ -927,7 +927,7 @@ max-width: 2560px;
                     font-size: 14px;
                     line-height: 20px;
                     font-weight: 400;
-                    color: #9499A0;
+                    color: #8D9794;
                     
                 }
         }   
@@ -939,7 +939,7 @@ max-width: 2560px;
     text-align: center;
     padding-bottom: 15px;
     font-size: 14px;
-    color: #9499A0;
+    color: #8D9794;
     }
 }
 
@@ -948,7 +948,7 @@ max-width: 2560px;
     text-align: center;
     font-size: 15.5px;
     font-weight: 550;
-    color: #18191C;
+    color: #1C2321;
 }
 
 .delete-dialog-content{
@@ -968,7 +968,7 @@ max-width: 2560px;
 }
 
 .delete-dialog-confirm-btn{
-    border: 1px solid #00AEEC;
+    border: 1px solid #0FA68E;
     color: white;
     border-radius: 4px;
     min-width: 130px;
@@ -976,18 +976,18 @@ max-width: 2560px;
     cursor: pointer;
     font-size: 15.5px;
     margin: 0 6px;
-    background-color: #00AEEC;
+    background-color: #0FA68E;
     transition: all 0.3s ease;
 }
 
 .delete-dialog-confirm-btn:hover{
-    background-color: #40C5F1;
-    border: 1px solid #40C5F1;
+    background-color: #3CC0A6;
+    border: 1px solid #3CC0A6;
 }
 
 .delete-dialog-cancel-btn{
-    border: 1px solid #E3E5E7;
-    color: #18191C;
+    border: 1px solid #E0E5E3;
+    color: #1C2321;
     border-radius: 4px;
     min-width: 130px;
     height: 32px;
@@ -999,7 +999,7 @@ max-width: 2560px;
 }
 
 .delete-dialog-cancel-btn:hover{
-    background-color: #E3E5E7;
+    background-color: #E0E5E3;
 }
 
 

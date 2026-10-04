@@ -247,16 +247,16 @@ function openAccount(){
         display: flex;
         align-items: center;
         justify-content: space-between;
-        background-color: #00AEEC;
+        background-color: #0FA68E;
         margin-bottom: 8px;
         }
         .activeMenu{
             background-color: white;
-            color: #18191C;
+            color: #1C2321;
             transition: background-color 0.3s ease;
         }
         .activeMenu:hover{
-            background-color: #F1F2F3;
+            background-color: #EFF3F2;
         }
     }
     .home-user-info{
@@ -266,7 +266,7 @@ function openAccount(){
     right: 85px;
     top: 30px;
     padding: 20px 16px 24px;
-    background-color: #F6F7F8;
+    background-color: #F4F7F6;
     border-radius: 6px;
 
     div:nth-child(1){
@@ -274,11 +274,11 @@ function openAccount(){
     display: flex;
     align-items: center;
     justify-content: space-between;
-    color: #18191C;
+    color: #1C2321;
     font-size: 16px;
     font-weight: 500;
         span{
-        color: #61666D;
+        color: #5C6664;
         font-size: 12px;
         transition: color 0.3s ease;
         cursor: pointer;
@@ -291,7 +291,7 @@ function openAccount(){
         }
         }
         span:hover{
-            color: #00AEEC;
+            color: #0FA68E;
         }
     }
     div:nth-child(2){
@@ -338,7 +338,7 @@ function openAccount(){
                     font-size: 14px;
                     line-height: 20px;
                     font-weight: 400;
-                    color: #9499A0;
+                    color: #8D9794;
                     
                 }
             }
@@ -349,7 +349,7 @@ function openAccount(){
                 align-items: end;
                 justify-content: center;
                 font-size: 14px;
-                color: #9499A0;
+                color: #8D9794;
                 user-select: none;
                 margin-bottom: 10px;
             }

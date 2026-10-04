@@ -99,9 +99,9 @@ function jumpPage(messageMenu){
     }
     
     li:hover{
-        color: #2faee3;
+        color: #2BB2A0;
         .active{
-            color: #2faee3;
+            color: #2BB2A0;
         }
     }
    
@@ -139,22 +139,22 @@ img{
 }
 
 .msg-setting:hover .active{
-    color: #2faee3;
+    color: #2BB2A0;
 }
     
 }
 
 
 .liColor{
-    color: #2faee3 !important;
+    color: #2BB2A0 !important;
     .active{
-        color: #2faee3 !important;
+        color: #2BB2A0 !important;
     }
 }
 
 .message-num{
     position: absolute;
-    background-color: #fb7299;
+    background-color: #F0A03C;
     line-height: 16px;
     height: 16px;
     font-size: 12px;

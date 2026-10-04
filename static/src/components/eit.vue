@@ -153,7 +153,7 @@ export default {
             const escapedText = escapeHtml(text || '');
             if (!keyword.value) return escapedText;
             const regex = new RegExp(`(${escapeRegExp(keyword.value)})`, 'g');
-            return escapedText.replace(regex, '<span style="color: #00aeec;">$1</span>');
+            return escapedText.replace(regex, '<span style="color: #0FA68E;">$1</span>');
     }
 
         return {
@@ -184,7 +184,7 @@ export default {
     width: 221px;
     height: 325px;
     background-color: white;
-    border: 1px solid #e3e5e7;
+    border: 1px solid #E0E5E3;
     border-radius: 6px;
     font-size: 12px;
     box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 10px;
@@ -197,7 +197,7 @@ export default {
     width: 100%;
     height: 41px;
     padding: 12px;
-    color: #61666d;
+    color: #5C6664;
     font-size: 12px;
     font-weight: 500;
     }
@@ -206,7 +206,7 @@ export default {
     width: 100%;
     height: 18px;
     padding: 0px 12px;
-    color: #61666d;
+    color: #5C6664;
     font-size: 12px;
     font-weight: 500;
     }
@@ -242,7 +242,7 @@ export default {
         display: -webkit-box;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        color: #18191c;
+        color: #1C2321;
                 -webkit-line-clamp: 1;
         line-clamp: 1;
         text-overflow: ellipsis;
@@ -250,14 +250,14 @@ export default {
             }
 
             .eit-item-fans {
-                color: #9499a0;
+                color: #8D9794;
             }
     }
     }
 
     .eit-item:hover,
     .eit-item-active {
-        background-color: #f1f2f3;
+        background-color: #EFF3F2;
     }
 }
 
@@ -266,7 +266,7 @@ export default {
     inset: 50% 0 auto;
     transform: translateY(-50%);
     text-align: center;
-    color: #9499a0;
+    color: #8D9794;
 }
 
 .eit::-webkit-scrollbar {

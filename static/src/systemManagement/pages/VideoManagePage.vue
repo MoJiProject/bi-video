@@ -27,7 +27,7 @@
       <div class="sys-filter">
         <el-input
           v-model="query.keyword"
-          placeholder="搜索视频标题或UP主昵称"
+          placeholder="搜索视频标题或创作者昵称"
           clearable
           style="width: 240px"
           @keyup.enter="handleSearch"
@@ -35,7 +35,7 @@
         />
         <el-select
           v-model="query.subZoneKey"
-          placeholder="全部分区"
+          placeholder="全部分类"
           clearable
           style="width: 140px"
           @change="handleSearch"
@@ -44,7 +44,7 @@
         </el-select>
         <el-input
           v-model="query.userId"
-          placeholder="按UP主ID筛选"
+          placeholder="按创作者ID筛选"
           clearable
           style="width: 150px"
           @keyup.enter="handleSearch"
@@ -75,7 +75,7 @@
       >
         <el-table-column type="selection" width="46" />
 
-        <el-table-column label="UP主" width="150" align="left">
+        <el-table-column label="创作者" width="150" align="left">
           <template #default="scope">
             <div class="sys-user-link" @click="goUserHome(scope.row.userId)">
               <img :src="scope.row.userAvatar" class="avatar" referrerpolicy="no-referrer" />
@@ -629,19 +629,19 @@ export default {
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
-  color: #61666d;
+  color: #5C6664;
   border: 1px solid transparent;
   transition: all 0.2s ease;
   white-space: nowrap;
 
   &:hover {
-    color: #00a1d6;
+    color: #0E9C85;
   }
 
   &.active {
-    color: #00a1d6;
-    border-color: #00a1d6;
-    background-color: #eaf7fc;
+    color: #0E9C85;
+    border-color: #0E9C85;
+    background-color: #E7F5F1;
     font-weight: 600;
   }
 }
@@ -659,7 +659,7 @@ export default {
 }
 
 .tab-item.active .tab-count {
-  background-color: #00a1d6;
+  background-color: #0E9C85;
   color: white;
 }
 
@@ -683,13 +683,13 @@ export default {
 }
 
 .title-link {
-  color: #18191c;
+  color: #1C2321;
   font-size: 13px;
   cursor: pointer;
   transition: color 0.2s ease;
 
   &:hover {
-    color: #00a1d6;
+    color: #0E9C85;
   }
 }
 
@@ -712,7 +712,7 @@ export default {
 
 .sub-text {
   font-size: 12px;
-  color: #9499a0;
+  color: #8D9794;
   margin-top: 2px;
   display: block;
 }
@@ -730,14 +730,14 @@ export default {
 
 .target-title {
   font-size: 13px;
-  color: #18191c;
+  color: #1C2321;
   word-break: break-all;
   line-height: 1.5;
 }
 
 .warn-text {
   font-size: 14px;
-  color: #61666d;
+  color: #5C6664;
   margin-bottom: 12px;
 }
 </style>

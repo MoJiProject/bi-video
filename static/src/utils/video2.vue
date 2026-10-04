@@ -44,8 +44,8 @@
         </a>
          <a class="up-user-name-link" :href="'./home?homeMenu=1&userId='+video.userId" target="_blank">
             <div class="up-user-name">
-                <img src="/img/up蓝.png">
-                <img src="/img/up.png">
+                <img src="/img/author-badge-blue.png">
+                <img src="/img/author-badge-default.png">
                 <el-tooltip
                 popper-class="custom-tooltip"
                 class="box-item"
@@ -187,7 +187,7 @@
          padding: 1px 4px;
          transition: all 0.3s ease;
          z-index: 10;
-         background-color: #FF6699;
+         background-color: #FF8A4C;
          }
          .video-info{
          position: absolute;
@@ -248,7 +248,7 @@
          top: 0;
          left: 0;
          height: 100%;
-         background-color: #FF6699;
+         background-color: #FF8A4C;
          }
      }
      .video-link2{
@@ -258,7 +258,7 @@
              position: relative;
              top: 6px;
              padding-right: 16px;
-             color: #18191C;
+             color: #1C2321;
              font-size: 14.5px;
              line-height: 20px;
              height: 44px;
@@ -271,7 +271,7 @@
              transition: color 0.3s ease;
          }
          .video-title:hover{
-         color: #00AEEC;
+         color: #0FA68E;
          }
      }
      .up-user-name-link{
@@ -299,7 +299,7 @@
                 word-break: break-all;
                 -webkit-line-clamp: 1;
                 font-size: 11.5px;
-                color: #9499A0;
+                color: #8D9794;
                 transition: color 0.3s ease;
             }
          }
@@ -315,7 +315,7 @@
                 transition: opacity 0.3s ease;
             }
             span{
-                color: #00AEEC;
+                color: #0FA68E;
             }
         }
      }

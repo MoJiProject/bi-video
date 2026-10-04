@@ -4,7 +4,7 @@
         <loadingIndicator v-if="loadMore" min-height="160px"/>
         <div class="content" v-show="checkValue&&!loadMore">
             <div class="item"><span>公开我的收藏</span><el-switch class="custom-switch1" v-model="publicCollect"/> </div>
-            <div class="item"><span>公开我的追番追剧</span> <el-switch class="custom-switch1" v-model="publicAnime" /> </div>
+            <div class="item"><span>公开我的追剧</span> <el-switch class="custom-switch1" v-model="publicAnime" /> </div>
             <div class="item"><span>公开最近投币的视频</span> <el-switch class="custom-switch1" v-model="publicCoin"/> </div>
             <div class="item"><span>公开最近点赞的视频</span> <el-switch class="custom-switch1" v-model="publicLove"/> </div>
             <div class="item"><span>公开我的关注列表</span> <el-switch class="custom-switch1" v-model="publicFollowList"/> </div>
@@ -200,7 +200,7 @@ function thumbName(name){
        return '收藏夹';
     }else if(name==='follow-anime')
     {
-       return '订阅追番';
+       return '订阅剧集';
     }else if(name==='love-video')
     {
        return '最近点赞的视频';
@@ -221,7 +221,7 @@ function thumbName(name){
     .title{
         font-size: 24px;
         font-weight: 600;
-        color: #18191C;
+        color: #1C2321;
         line-height: 34px;
     }
     .content{
@@ -241,18 +241,18 @@ function thumbName(name){
         display: inline-block;
         font-size: 15.5px;
         line-height: 22px;
-        color: #18191C;
+        color: #1C2321;
         }
         .custom-switch1 {
         width: 30px !important;
         --el-switch-height: 20px; /* 修改高度 */
         --el-switch-width: 30px !important; /* 修改宽度 */
-        --el-switch-on-color: #00aeec !important;
+        --el-switch-on-color: #0FA68E !important;
         }   
     }
     }   
     .sort{
-    border: 1px solid #E3E5E7;
+    border: 1px solid #E0E5E3;
     border-radius: 6px;
     width: 322px;
     margin-top: 30px;
@@ -272,7 +272,7 @@ function thumbName(name){
                 line-height: 22.4px;
                 font-weight: 400;
                 font-size: 16px;
-                color: #18191C;  
+                color: #1C2321;  
                 }
                 img{
                     width: 18px;
@@ -285,7 +285,7 @@ function thumbName(name){
                 }
             }
             div:hover{
-                background-color: #00AEEC;
+                background-color: #0FA68E;
                     span{
                         color: white;
                     }

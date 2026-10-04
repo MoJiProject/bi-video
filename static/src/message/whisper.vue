@@ -154,7 +154,7 @@
                         </div>
                         <div class="share-video-title"><span>{{ message.videos?.title }}</span></div>
                         <div class="share-video-fotter">
-                            <img src="/img/up.png">
+                            <img src="/img/author-badge-default.png">
                             <span class="share-video-user-name">{{ message.videos?.userName }}</span>
                             <span class="share-contribute-video">投稿视频</span>
                         </div>
@@ -242,7 +242,7 @@
         </div>
         <div v-show="!currentDialogue" class="no-message-container">
             <img src="/img/no_message.png">
-            <div>快找小伙伴聊天吧 ( ゜- ゜)つロ</div>
+            <div>快找小伙伴聊天吧</div>
         </div>
     </div>
     <div v-show="messageDialogFlag" class="message-setting-dialog" :class="{
@@ -1222,7 +1222,7 @@ function restoreBodyOverflow() {
             right: 8px;
             padding: 0 4px;
             text-align: center;
-            background-color: #fb7299;
+            background-color: #F0A03C;
         }
 
         .message-user-content{
@@ -1237,7 +1237,7 @@ function restoreBodyOverflow() {
           white-space: nowrap;
 
           :deep(a){
-          color: #fb7299;
+          color: #F0A03C;
           text-decoration: none;
           }
         }
@@ -1420,7 +1420,7 @@ function restoreBodyOverflow() {
                     background: #fff;
 
                     :deep(a){
-                    color: #fb7299;
+                    color: #F0A03C;
                     text-decoration: none;
 
                     &:hover{
@@ -1539,7 +1539,7 @@ function restoreBodyOverflow() {
                     height: 40px;
                     border-radius: 6px;
                     font-size: 18px;
-                    background-color: #F6F7F8;
+                    background-color: #F4F7F6;
                     display: flex;
                     justify-content: center;
                     align-items: center;
@@ -1548,7 +1548,7 @@ function restoreBodyOverflow() {
 
                     .delete-info{
                     align-items: center;
-                    color: #9499A0;
+                    color: #8D9794;
                     display: flex;
                     font-size: 13px;
                     line-height: 18px;
@@ -1588,7 +1588,7 @@ function restoreBodyOverflow() {
                     padding: 8px 16px;
                     word-wrap: break-all;
                     word-break: break-all;
-                    background: #80b9f2;
+                    background: #79C7B6;
                     border-radius: 16px 0 16px 16px;
                     overflow: hidden;
                 }
@@ -1702,7 +1702,7 @@ function restoreBodyOverflow() {
                     height: 40px;
                     border-radius: 6px;
                     font-size: 18px;
-                    background-color: #F6F7F8;
+                    background-color: #F4F7F6;
                     display: flex;
                     justify-content: center;
                     align-items: center;
@@ -1711,7 +1711,7 @@ function restoreBodyOverflow() {
 
                     .delete-info{
                     align-items: center;
-                    color: #9499A0;
+                    color: #8D9794;
                     display: flex;
                     font-size: 13px;
                     line-height: 18px;
@@ -1831,7 +1831,7 @@ function restoreBodyOverflow() {
                 }
 
                 .close-emoji:hover{
-                    color: #2faee3;
+                    color: #2BB2A0;
                 }
 
                 .comment-emoji-content {
@@ -1856,7 +1856,7 @@ function restoreBodyOverflow() {
                 }
 
                 .comment-emoji-content:hover {
-                    background-color: #e3e5e7;
+                    background-color: #E0E5E3;
                 }
             }
 
@@ -1925,8 +1925,8 @@ function restoreBodyOverflow() {
             button{
                 width: 88px;
                 height: 30px;
-                background-color: #1389bf;
-                border: 1px solid #1389bf;
+                background-color: #0F7E77;
+                border: 1px solid #0F7E77;
                 color: #fff;
                 cursor: pointer;
                 transition: 200ms;
@@ -1934,8 +1934,8 @@ function restoreBodyOverflow() {
             }
 
             button:hover{
-                background-color: #2faee3;
-                border: 1px solid #2faee3;
+                background-color: #2BB2A0;
+                border: 1px solid #2BB2A0;
             }
 
             .sendMessageBtnClass{
@@ -1960,7 +1960,7 @@ function restoreBodyOverflow() {
         width: 36px;
         height: 36px;
         border-radius: 50%;
-        background-color: #00AEEC;
+        background-color: #0FA68E;
         color: #fff;
         display: flex;
         align-items: center;
@@ -2027,7 +2027,7 @@ function restoreBodyOverflow() {
         }
 
         div:hover{
-        color: #2faee3;
+        color: #2BB2A0;
         background: #e5e9ef;
         }
     }
@@ -2250,8 +2250,8 @@ function restoreBodyOverflow() {
 }
 
 .delete-dialog-cancel-btn{
-    border: 1px solid #23ade5;
-    color: #23ade5;
+    border: 1px solid #20AF99;
+    color: #20AF99;
     border-radius: 4px;
     cursor: pointer;
     min-width: 104px;
@@ -2263,13 +2263,13 @@ function restoreBodyOverflow() {
 }
 
 .delete-dialog-cancel-btn:hover{
-    background-color: #23ade5;
+    background-color: #20AF99;
     color: white;
 }
 
 .delete-dialog-confirm-btn{
-    background-color: #23ade5;
-    border: 1px solid #23ade5;
+    background-color: #20AF99;
+    border: 1px solid #20AF99;
     color: #fff;
     border-radius: 4px;
     cursor: pointer;
@@ -2280,7 +2280,7 @@ function restoreBodyOverflow() {
 }
 
 .delete-dialog-confirm-btn:hover{
-    background-color: #39b5e7;
+    background-color: #2FB4A1;
 }
 
 

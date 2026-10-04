@@ -55,8 +55,8 @@
         <div class="up-user-name-link" @click="openHome(1,video)">
              <div>
                 <div class="up-user-name">
-                    <img src="/img/up蓝.png">
-                    <img src="/img/up.png">
+                    <img src="/img/author-badge-blue.png">
+                    <img src="/img/author-badge-default.png">
                     <el-tooltip
                     popper-class="custom-tooltip"
                     :disabled="batchControls"
@@ -229,7 +229,7 @@
              }
          }
          .active-check-out{
-          background-color: #00AEEC;
+          background-color: #0FA68E;
           
              .border{
              opacity: 1;
@@ -306,7 +306,7 @@
          top: 0;
          left: 0;
          height: 100%;
-         background-color: #FF6699;
+         background-color: #FF8A4C;
          }
      }
      .video-link2{
@@ -316,7 +316,7 @@
              position: relative;
              top: 8px;
              padding-right: 16px;
-             color: #18191C;
+             color: #1C2321;
              font-size: 14.5px;
              line-height: 22px;
              height: 48px;
@@ -329,7 +329,7 @@
              transition: color 0.3s ease;
          }
          .video-title:hover{
-         color: #00AEEC;
+         color: #0FA68E;
          }
          .delete-history{
           position: absolute;
@@ -385,7 +385,7 @@
                         word-break: break-all;
                         -webkit-line-clamp: 1;
                         font-size: 13px;
-                        color: #9499A0;
+                        color: #8D9794;
                         transition: color 0.3s ease;
                     }
                 }
@@ -395,7 +395,7 @@
                 display: flex;
                 align-items: center;  
                 font-size: 13px;
-                color: #9499A0;
+                color: #8D9794;
 
                     img{
                     width: 14px;
@@ -417,7 +417,7 @@
              transition: opacity 0.3s ease;
          }
          span{
-             color: #00AEEC;
+             color: #0FA68E;
          }
      }
      }

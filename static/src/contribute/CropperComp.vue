@@ -743,7 +743,7 @@ export default {
   position: relative;
 }
 .crop {
-  background-color: #00a1d6;
+  background-color: #0E9C85;
   width: 120px;
   height: 30px;
   display: flex;
@@ -755,7 +755,7 @@ export default {
   cursor: pointer;
 }
 .crop:hover {
-  background-color: #65b6df;
+  background-color: #5FB9B4;
 }
 .pic169 {
   position: relative;

@@ -167,7 +167,7 @@ video{
         padding: 1px 4px;
         transition: all 0.3s ease;
         z-index: 10;
-        background-color: #FF6699;
+        background-color: #FF8A4C;
         }
         .video-info{
         position: absolute;
@@ -228,7 +228,7 @@ video{
         top: 0;
         left: 0;
         height: 100%;
-        background-color: #FF6699;
+        background-color: #FF8A4C;
         }
     }
     .video-link2{
@@ -238,7 +238,7 @@ video{
             position: relative;
             top: 6px;
             padding-right: 16px;
-            color: #18191C;
+            color: #1C2321;
             font-size: 14.5px;
             line-height: 22px;
             height: 44px;
@@ -251,13 +251,13 @@ video{
             transition: color 0.3s ease;
         }
         .video-title:hover{
-        color: #00AEEC;
+        color: #0FA68E;
         }
         .video-date{
             margin-top: 6px;
             display: flex;
             align-items: center;
-            color: #9499A0;
+            color: #8D9794;
             font-size: 11.5px;
             line-height: 18px;
             height: 18px;

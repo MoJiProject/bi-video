@@ -21,7 +21,7 @@
       <img
         class="comment-avatar"
         v-show="store.userId === null"
-        src="/img/默认头像.gif"
+        src="/img/avatar-default.png"
       />
       <img
         @click="openHome(1,store.userId)"
@@ -91,7 +91,7 @@
                 <span @click="deleteCommentImg(index)"
                   ><img src="/img/关闭视频定位.png"
                 /></span>
-                <img src="/img/loading-blue.gif" />
+                <img src="/img/loading.png" />
               </span>
               <span
                 v-show="file !== undefined && file !== null"
@@ -238,7 +238,7 @@
           <span
             @click="openHome(1,comment.userInfo.id)"
             class="comment-user-name"
-            :style="{ color: comment.userInfo.grade > 4 ? '#fb7299' : '#000' }"
+            :style="{ color: comment.userInfo.grade > 4 ? '#F0A03C' : '#000' }"
             @mouseover="
               delayUserInfo(-comment.comments.id), selectFollow(comment)
             "
@@ -250,7 +250,7 @@
             class="comment-user-level"
             :src="'/img/' + comment.userInfo.grade + '级.png'"
           />
-          <img v-if="comment.comments.userId===store.upUserId" class="comment-up-icon" src="/img/up_pb.svg">
+          <img v-if="comment.comments.userId===store.upUserId" class="comment-up-icon" src="/img/author-badge.svg">
         </span>
         <div
           v-show="
@@ -267,7 +267,7 @@
           @mouseover="nameOrAvatarHoverFlag2 = true"
           @mouseleave="(nameOrAvatarHoverFlag2 = false), delayUserInfo(0)"
         >
-          <div v-if="!comment.userInfo.backgroundAddress" :style="{backgroundImage:'url(/img/主页背景图.webp)'}" class="up-user-info-bg"></div>
+          <div v-if="!comment.userInfo.backgroundAddress" :style="{backgroundImage:'url(/img/page-bg.png)'}" class="up-user-info-bg"></div>
           <div v-else :style="{backgroundImage:`url(${comment.userInfo.backgroundAddress})`}" class="up-user-info-bg"></div>
           <div class="up-user-info-container">
             <img
@@ -280,7 +280,7 @@
                 @click="openHome(1,comment.userInfo.id)"
                 class="up-user-info-name"
                 :style="{
-                  color: comment.userInfo.grade > 4 ? '#fb7299' : '#000',
+                  color: comment.userInfo.grade > 4 ? '#F0A03C' : '#000',
                 }"
                 >{{ comment.userInfo.userName }}</span
               >
@@ -301,19 +301,19 @@
               />
             </div>
             <div class="up-user-info-container-content">
-              <span @click="openHome(8,comment.userInfo.id)" v-debounce style="color: #95999f; cursor: pointer"
+              <span @click="openHome(8,comment.userInfo.id)" v-debounce style="color: #8F9794; cursor: pointer"
                 ><span style="color: black">{{
                   comment.userInfo.followNumber
                 }}</span>
                 &nbsp;关注</span
               >
-              <span @click="openHome(9,comment.userInfo.id)" style="margin-left: 25px; color: #95999f; cursor: pointer"
+              <span @click="openHome(9,comment.userInfo.id)" style="margin-left: 25px; color: #8F9794; cursor: pointer"
                 ><span style="color: black">{{
                   comment.userInfo.fansNumber
                 }}</span>
                 &nbsp;粉丝</span
               >
-              <span style="margin-left: 25px; color: #95999f;"
+              <span style="margin-left: 25px; color: #8F9794;"
                 ><span style="color: black">{{
                   comment.userInfo.likeNumber
                 }}</span>
@@ -380,7 +380,7 @@
               .split(',')
               .slice(0, comment.comments.imgAddress.split(',').length - 1)"
             :key="commentImg"
-            style="width: 88px; height: 88px; border-radius: 5px;background-color: #f1f2f3;"
+            style="width: 88px; height: 88px; border-radius: 5px;background-color: #EFF3F2;"
             :hide-on-click-modal="true"
             :src="commentImg"
             :zoom-rate="1.2"
@@ -398,7 +398,7 @@
         </span>
         <img
           class="comment-id-icon"
-          :src="'/img/NOImg' + (comment.userInfo.id % 10) + '.webp'"
+          :src="'/img/NoImg' + (comment.userInfo.id % 10) + '.webp'"
         />
         <span
           class="comment-id-number"
@@ -501,7 +501,7 @@
            </div>
           </span>
         </div>
-        <div v-if="comment.upLikeFlag" class="up-like-comment" :style="{marginBottom: comment.replyFlag ? '0px' : '5px'}">UP主觉得很赞</div>
+        <div v-if="comment.upLikeFlag" class="up-like-comment" :style="{marginBottom: comment.replyFlag ? '0px' : '5px'}">创作者觉得很赞</div>
         <div v-show="comment.userInfo?.isFansFlag === 1 && comment.userInfo?.isFollowFlag === 1" class="up-like-comment" :style="{marginBottom: comment.replyFlag ? '0px' : '5px'}">互相关注</div>
         <div v-if="comment.replyNumber>0" class="view-reply-btn">
             共 {{ comment.replyNumber }} 条回复，
@@ -558,7 +558,7 @@
                     <span @click="deleteCommentImg2(index)"
                       ><img src="/img/关闭视频定位.png"
                     /></span>
-                    <img src="/img/loading-blue.gif" />
+                    <img src="/img/loading.png" />
                   </span>
                   <span
                     v-show="file !== undefined && file !== null"
@@ -713,7 +713,7 @@
                  @click="openHome(1,remark.userInfo.id)"
                 :id="'replyName'+remark.comments.id"
                 class="comment-user-name"
-                :style="{ color: remark.userInfo.grade > 4 ? '#fb7299' : '#000' }"
+                :style="{ color: remark.userInfo.grade > 4 ? '#F0A03C' : '#000' }"
                 @mouseover="
                   delayUserInfo(-remark.comments.id), selectFollow(remark)
                 "
@@ -725,7 +725,7 @@
                 class="comment-user-level"
                 :src="'/img/' + remark.userInfo.grade + '级.png'"
               />
-              <img v-if="remark.comments.userId===store.upUserId&&remark.comments.imgAddress.split(',').length>1" class="comment-up-icon" src="/img/up_pb.svg">
+              <img v-if="remark.comments.userId===store.upUserId&&remark.comments.imgAddress.split(',').length>1" class="comment-up-icon" src="/img/author-badge.svg">
             </span>
             <div
           v-show="
@@ -742,7 +742,7 @@
           @mouseover="nameOrAvatarHoverFlag2 = true"
           @mouseleave="(nameOrAvatarHoverFlag2 = false), delayUserInfo(0)"
         >
-          <div v-if="!remark.userInfo.backgroundAddress" :style="{backgroundImage:'url(/img/主页背景图.webp)'}" class="up-user-info-bg"></div>
+          <div v-if="!remark.userInfo.backgroundAddress" :style="{backgroundImage:'url(/img/page-bg.png)'}" class="up-user-info-bg"></div>
           <div v-else :style="{backgroundImage:`url(${remark.userInfo.backgroundAddress})`}" class="up-user-info-bg"></div>
           <div class="up-user-info-container">
             <img
@@ -755,7 +755,7 @@
                 @click="openHome(1,remark.userInfo.id)"
                 class="up-user-info-name"
                 :style="{
-                  color: remark.userInfo.grade > 4 ? '#fb7299' : '#000',
+                  color: remark.userInfo.grade > 4 ? '#F0A03C' : '#000',
                 }"
                 >{{ remark.userInfo.userName }}</span
               >
@@ -776,19 +776,19 @@
               />
             </div>
             <div class="up-user-info-container-content">
-              <span @click="openHome(8,remark.userInfo.id)" style="color: #95999f; cursor: pointer"
+              <span @click="openHome(8,remark.userInfo.id)" style="color: #8F9794; cursor: pointer"
                 ><span style="color: black">{{
                   remark.userInfo.followNumber
                 }}</span>
                 &nbsp;关注</span
               >
-              <span @click="openHome(9,remark.userInfo.id)" style="margin-left: 25px; color: #95999f; cursor: pointer"
+              <span @click="openHome(9,remark.userInfo.id)" style="margin-left: 25px; color: #8F9794; cursor: pointer"
                 ><span style="color: black">{{
                   remark.userInfo.fansNumber
                 }}</span>
                 &nbsp;粉丝</span
               >
-              <span style="margin-left: 25px; color: #95999f;"
+              <span style="margin-left: 25px; color: #8F9794;"
                 ><span style="color: black">{{
                   remark.userInfo.likeNumber
                 }}</span>
@@ -851,7 +851,7 @@
                   .split(',')
                   .slice(0, remark.comments.imgAddress.split(',').length - 1)"
                 :key="remarkImg"
-                style="width: 88px; height: 88px; border-radius: 5px;background-color: #f1f2f3;"
+                style="width: 88px; height: 88px; border-radius: 5px;background-color: #EFF3F2;"
                 :hide-on-click-modal="true"
                 :src="remarkImg"
                 :zoom-rate="1.2"
@@ -1003,7 +1003,7 @@
                     <span @click="deleteCommentImg2(index)"
                       ><img src="/img/关闭视频定位.png"
                     /></span>
-                    <img src="/img/loading-blue.gif" />
+                    <img src="/img/loading.png" />
                   </span>
                   <span
                     v-show="file !== undefined && file !== null"
@@ -1138,7 +1138,7 @@
         <div v-if="comment.replyFlag&&!comment.replyFlag2&&comment.replyNumber>10" class="reply-page-container">
           <span class="page-sum">共{{ Math.ceil(comment.replyNumber/10) }}页</span>  
           <span v-show="comment.page&&comment.page>1" class="page-prev" @click="moreReplyComment(comment,comment.page-1)">上一页</span>
-          <span :style="{color: comment.page === index ? '#00aeec' : '#000'}" @click="moreReplyComment(comment,index)" class="page-num" v-for="index in Math.ceil(comment.replyNumber/10)" :key="index">{{ index }}</span>
+          <span :style="{color: comment.page === index ? '#0FA68E' : '#000'}" @click="moreReplyComment(comment,index)" class="page-num" v-for="index in Math.ceil(comment.replyNumber/10)" :key="index">{{ index }}</span>
           <span v-show="comment.page&&comment.page<Math.ceil(comment.replyNumber/10)" class="page-next" @click="moreReplyComment(comment,comment.page+1)">下一页</span>
           <span @click="comment.replyFlag=false" class="page-show">收起</span> 
         </div>
@@ -1205,7 +1205,7 @@
                 <span @click="deleteCommentImg(index)"
                   ><img src="/img/关闭视频定位.png"
                 /></span>
-                <img src="/img/loading-blue.gif" />
+                <img src="/img/loading.png" />
               </span>
               <span
                 v-show="file !== undefined && file !== null"
@@ -1704,7 +1704,7 @@ export default {
 
           // **创建新的按钮元素**
         const buttonHtml = `<a m1a,s,a2href="./home?homeMenu=1&userId=${store.eitUserId}" target="_blank" data-eitt-userId="${store.eitUserId}" 
-                              contentEditable="false" class="at-msg" style="color:#008ac5;margin-right:3px;margin-top:2px;">
+                              contentEditable="false" class="at-msg" style="color:#0A8271;margin-right:3px;margin-top:2px;">
                               @${store.eitUserName}</a>`;
 
         // **确保页面中只有一个占位符**
@@ -1797,7 +1797,7 @@ export default {
 
         // **创建新的按钮元素**
         const buttonHtml = `<a m1a,s,a2href="./home?homeMenu=1&userId=${store.eitUserId}" target="_blank" data-eitt-userId="${store.eitUserId}" 
-                              contentEditable="false" class="at-msg" style="color:#008ac5;margin-right:3px;">
+                              contentEditable="false" class="at-msg" style="color:#0A8271;margin-right:3px;">
                               @${store.eitUserName}</a>`;
 
         // **确保页面中只有一个占位符**
@@ -2163,8 +2163,8 @@ export default {
 
       // @样式
       commentContent.value = commentContent.value.replaceAll(
-        "color:#008ac5;",
-        "color:#008ac5;cursor:pointer;",
+        "color:#0A8271;",
+        "color:#0A8271;cursor:pointer;",
       );
 
       // 替换时间样式 + 时间合法性校验（非法时间不替换）
@@ -2188,7 +2188,7 @@ export default {
 
           // 合法：返回带span标签；非法：返回原文本（不替换）
           if (isValid) {
-            return `<span class="time-span" style="color:#008ac5;cursor:pointer;" data-time="${match}">${match}</span>`;
+            return `<span class="time-span" style="color:#0A8271;cursor:pointer;" data-time="${match}">${match}</span>`;
           }
           return match;
         }
@@ -2305,8 +2305,8 @@ export default {
 
       // @样式
       commentContent2.value = commentContent2.value.replaceAll(
-        "color:#008ac5;",
-        "color:#008ac5;cursor:pointer;",
+        "color:#0A8271;",
+        "color:#0A8271;cursor:pointer;",
       );
 
       // 替换时间样式 + 时间合法性校验（非法时间不替换）
@@ -2330,7 +2330,7 @@ export default {
 
           // 合法：返回带span标签；非法：返回原文本（不替换）
           if (isValid) {
-            return `<span class="time-span" style="color:#008ac5;cursor:pointer;" data-time="${match}">${match}</span>`;
+            return `<span class="time-span" style="color:#0A8271;cursor:pointer;" data-time="${match}">${match}</span>`;
           }
           return match;
         }
@@ -2377,13 +2377,13 @@ export default {
         
       //如果是二级回复
       if(replyComment.value!==mainComment.value){
-      commentContent2.value= `&nbsp;回复 <a href='./home?homeMenu=1&userId=${replyUserId.value}' target='_blank' data-eit-userid='${replyUserId.value}' class='at-msg' style='color:#008ac5;'>@${replyUserName.value}</a> ：`+commentContent2.value;
+      commentContent2.value= `&nbsp;回复 <a href='./home?homeMenu=1&userId=${replyUserId.value}' target='_blank' data-eit-userid='${replyUserId.value}' class='at-msg' style='color:#0A8271;'>@${replyUserName.value}</a> ：`+commentContent2.value;
 
       }  
 
       //如果发布评论的是视频作者
       if(store.upUserId===store.userId&&commentImg2.length === 0){
-        commentContent2.value = "<img style='width: 24px;height: 24px;display: inline-block;vertical-align: middle;transform: translateY(-2px);user-select: none;' src='/img/up_pb.svg'>&nbsp;&nbsp;&nbsp;"+commentContent2.value;
+        commentContent2.value = "<img style='width: 24px;height: 24px;display: inline-block;vertical-align: middle;transform: translateY(-2px);user-select: none;' src='/img/author-badge.svg'>&nbsp;&nbsp;&nbsp;"+commentContent2.value;
       }
 
       let comments = {
@@ -3122,7 +3122,7 @@ export default {
 
     .comment-title {
       font-size: 19px;
-      color: #18191c;
+      color: #1C2321;
       font-weight: 900;
       font-family: Microsoft YaHei UI Light;
       user-select: none;
@@ -3131,46 +3131,46 @@ export default {
         margin-left: 2px;
         font-weight: 600;
         font-size: 13px;
-        color: #9499a0;
+        color: #8D9794;
       }
 
       .comment-sort-fire {
         margin-left: 37px;
         font-size: 12.5px;
-        color: #9499a0;
+        color: #8D9794;
         font-family: 微软雅黑;
         font-weight: 500;
         cursor: pointer;
       }
       .comment-sort-fire:hover {
-        color: #00aeec;
+        color: #0FA68E;
       }
       .comment-sort-line {
         display: inline-block;
         transform: translateY(-2px);
         margin-left: 11px;
         font-size: 11px;
-        color: #9499a0;
+        color: #8D9794;
         font-family: 黑体;
         font-weight: 500;
       }
       .comment-sort-new {
         margin-left: 11px;
         font-size: 12.5px;
-        color: #9499a0;
+        color: #8D9794;
         font-family: 微软雅黑;
         font-weight: 500;
         cursor: pointer;
       }
       .comment-sort-new:hover {
-        color: #00aeec;
+        color: #0FA68E;
       }
 
       .commentSortFlag {
-        color: #18191c;
+        color: #1C2321;
       }
       .commentSortFlag:hover {
-        color: #18191c;
+        color: #1C2321;
       }
     }
 
@@ -3194,8 +3194,8 @@ export default {
       border-radius: 6px;
       font-size: 12px;
       z-index: 100;
-      color: #9499a0;
-      background-color: #f1f2f3;
+      color: #8D9794;
+      background-color: #EFF3F2;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -3207,14 +3207,14 @@ export default {
           margin: 0px 3px;
           border-radius: 4px;
           color: white;
-          background-color: #00aeec;
+          background-color: #0FA68E;
           outline: none;
           border: none;
           cursor: pointer;
           font-size: 12px;
         }
         button:hover {
-          background-color: #40c5f1;
+          background-color: #3CC0A6;
         }
       }
     }
@@ -3227,7 +3227,7 @@ export default {
       top: 0px;
       border-radius: 6px;
       font-size: 14px;
-      color: #18191c;
+      color: #1C2321;
       outline: none;
       z-index: 10;
       overflow: hidden;
@@ -3238,13 +3238,13 @@ export default {
 
     .comment-content-container:hover {
       background-color: white;
-      border: 1px solid #c9ccd0;
+      border: 1px solid #C6CDCA;
     }
 
     .comment-placeholder {
       position: absolute;
       width: 300px;
-      color: #9499a0;
+      color: #8D9794;
       font-size: 13.5px;
       top: 64px;
       left: 89px;
@@ -3255,7 +3255,7 @@ export default {
 
     .commentPlaceholderHoverFlag {
       background-color: white;
-      border: 1px solid #c9ccd0;
+      border: 1px solid #C6CDCA;
     }
 
     .comment-emoji-btn {
@@ -3265,7 +3265,7 @@ export default {
       width: 32px;
       height: 26px;
       background-color: white;
-      border: 1px solid rgb(241, 242, 243);
+      border: 1px solid rgb(239,243,242);
       border-radius: 4px;
       display: flex;
       justify-content: center;
@@ -3285,7 +3285,7 @@ export default {
         top: 28px;
         overflow: hidden;
         background-color: white;
-        border: 1px solid #e3e5e7;
+        border: 1px solid #E0E5E3;
         border-radius: 8px;
         padding-left: 11px;
         padding-bottom: 45px;
@@ -3296,7 +3296,7 @@ export default {
           position: absolute;
           left: 15px;
           top: 13px;
-          color: #61666d;
+          color: #5C6664;
           font-size: 12px;
         }
 
@@ -3319,7 +3319,7 @@ export default {
         }
 
         .comment-emoji-content:hover {
-          background-color: #e3e5e7;
+          background-color: #E0E5E3;
         }
       }
 
@@ -3329,7 +3329,7 @@ export default {
       }
 
       .comment-emoji-container::-webkit-scrollbar-thumb {
-        background: #e3e5e7; /* 滚动条的滑块 */
+        background: #E0E5E3; /* 滚动条的滑块 */
         border-radius: 10px;
       }
     }
@@ -3341,7 +3341,7 @@ export default {
       width: 32px;
       height: 26px;
       background-color: white;
-      border: 1px solid rgb(241, 242, 243);
+      border: 1px solid rgb(239,243,242);
       border-radius: 4px;
       display: flex;
       justify-content: center;
@@ -3360,7 +3360,7 @@ export default {
       width: 32px;
       height: 26px;
       background-color: white;
-      border: 1px solid rgb(241, 242, 243);
+      border: 1px solid rgb(239,243,242);
       border-radius: 4px;
       display: flex;
       justify-content: center;
@@ -3407,7 +3407,7 @@ export default {
         position: absolute;
         font-size: 11px;
         left: 19px;
-        color: #61666d;
+        color: #5C6664;
       }
     }
 
@@ -3415,7 +3415,7 @@ export default {
       position: relative;
       left: 629.5px;
       top: -69.5px;
-      background-color: #00aeec;
+      background-color: #0FA68E;
       color: white;
       display: flex;
       justify-content: center;
@@ -3505,7 +3505,7 @@ export default {
           object-fit: cover;
           width: 72px;
           height: 72px;
-          background-color: #f1f2f3;
+          background-color: #EFF3F2;
           border-radius: 5px;
         }
         span {
@@ -3565,18 +3565,18 @@ export default {
       top: 24.5px;
       border-radius: 6px;
       font-size: 14px;
-      color: #9499a0;
-      border: 1px solid #f1f2f3;
-      background-color: #f1f2f3;
+      color: #8D9794;
+      border: 1px solid #EFF3F2;
+      background-color: #EFF3F2;
       outline: none;
       min-height: 48px;
       max-height: 118px;
     }
 
     .commentFocusFlag {
-      color: #18191c;
+      color: #1C2321;
       background-color: white;
-      border: 1px solid #c9ccd0;
+      border: 1px solid #C6CDCA;
     }
 
     .commentImgFiles1 {
@@ -3655,7 +3655,7 @@ export default {
         display: inline-block;
         font-size: 12.5px;
         cursor: pointer;
-        color: #61666d;
+        color: #5C6664;
       }
 
       .comment-up-icon{
@@ -3694,7 +3694,7 @@ export default {
         width: auto;
         transform: none;
         text-indent: 0;
-        color: #18191c;
+        color: #1C2321;
         line-height: 2;
       }
 
@@ -3740,7 +3740,7 @@ export default {
         position: relative;
         top: 14px;
         left: 0px;
-        color: #9499a0;
+        color: #8D9794;
         font-size: 12.5px;
         .comment-time {
           position: relative;
@@ -3769,7 +3769,7 @@ export default {
 
         .comment-like-number-container:hover {
           .comment-like-number {
-            color: #00aeec;
+            color: #0FA68E;
           }
         }
 
@@ -3797,7 +3797,7 @@ export default {
 
 
         .comment-reply-btn:hover {
-          color: #00aeec;
+          color: #0FA68E;
         }
 
         .comment-delete-btn-container {
@@ -3817,9 +3817,9 @@ export default {
             height: 36px;
             top: 25px;
             right: 0px;
-            color: #61666d;
+            color: #5C6664;
             background-color: white;
-            border: 1px solid #e3e5e7;
+            border: 1px solid #E0E5E3;
             display: flex;
             align-items: center;
             padding: 0px 15px;
@@ -3831,7 +3831,7 @@ export default {
           }
 
           .delete-btn:hover {
-            background-color: #f1f2f3;
+            background-color: #EFF3F2;
           }
 
           .up-btn {
@@ -3840,9 +3840,9 @@ export default {
             height: 36px;
             top: 61px;
             right: 0px;
-            color: #61666d;
+            color: #5C6664;
             background-color: white;
-            border: 1px solid #e3e5e7;
+            border: 1px solid #E0E5E3;
             border-top: none;
             display: flex;
             align-items: center;
@@ -3855,7 +3855,7 @@ export default {
           }
 
           .up-btn:hover {
-            background-color: #f1f2f3;
+            background-color: #EFF3F2;
           }
         }
       }
@@ -3889,9 +3889,9 @@ export default {
       width: 30px;
       font-size: 12px;
       height: 18px;
-      border: 1px solid #FF6699;
+      border: 1px solid #FF8A4C;
       border-radius: 3px;
-      color: #FF6699;
+      color: #FF8A4C;
       vertical-align: text-bottom;
       margin-bottom: 0.0666em;
       }
@@ -3923,7 +3923,7 @@ export default {
         position: relative;
         left: 80px;
         font-size: 12.5px;
-        color: #9499a0;
+        color: #8D9794;
         margin-bottom: 8px;
         top: 25px;
 
@@ -3931,13 +3931,13 @@ export default {
           border: none;
           user-select: none;
           background-color: white;
-          color: #9499a0;
+          color: #8D9794;
           font-size: 12.5px;
           cursor: pointer;
         }
 
         button:hover {
-          color: #00aeec;
+          color: #0FA68E;
         }
       }
 
@@ -3965,7 +3965,7 @@ export default {
           padding: 0px;
           left: 159.5px;
           top: 30px;
-          border: 1px solid #c9ccd0;
+          border: 1px solid #C6CDCA;
           background-color: white;
           outline: none;
           min-height: 48px;
@@ -3986,7 +3986,7 @@ export default {
           z-index: 10;
           border-radius: 6px;
           font-size: 14px;
-          color: #18191c;
+          color: #1C2321;
           outline: none;
           overflow: hidden;
           overflow-y: auto;
@@ -4073,7 +4073,7 @@ export default {
               width: 72px;
               height: 72px;
               border-radius: 5px;
-              background-color: #f1f2f3;
+              background-color: #EFF3F2;
             }
             span {
               position: absolute;
@@ -4243,7 +4243,7 @@ export default {
         height: 9px;
         z-index: -1;
         pointer-events: none;
-        background-color: #dff6fd;
+        background-color: #E3F5F0;
         animation: commentAnimation 6s ease forwards;
       }
 
@@ -4280,16 +4280,16 @@ export default {
         }
 
         .page-prev:hover{
-          color: #00aeec;
+          color: #0FA68E;
         }
         .page-num:hover{
-          color: #00aeec !important;
+          color: #0FA68E !important;
         }
         .page-next:hover{
-          color: #00aeec;
+          color: #0FA68E;
         }
         .page-show:hover{
-          color: #00aeec;
+          color: #0FA68E;
         }
       }
 
@@ -4299,7 +4299,7 @@ export default {
           height: 1px;
           top: 32px;
           left: 80px;
-          border-bottom: 1px solid #e3e5e7;
+          border-bottom: 1px solid #E0E5E3;
       }
       
 
@@ -4333,7 +4333,7 @@ export default {
   font-weight: 600;
   text-align: center;
   margin-top: -20px;
-  color: #18191c;
+  color: #1C2321;
 }
 
 .delete-dialog-content {
@@ -4342,16 +4342,16 @@ export default {
   top: 24px;
   font-size: 14px;
   text-align: center;
-  color: #61666d;
+  color: #5C6664;
   margin-bottom: 37px;
   line-height: 1.5;
 }
 
 .delete-dialog-cancel-btn {
   -webkit-font-smoothing: antialiased;
-  border: 1px solid #e3e5e7;
+  border: 1px solid #E0E5E3;
   background-color: white;
-  color: #18191c;
+  color: #1C2321;
   border-radius: 6px;
   box-sizing: border-box;
   cursor: pointer;
@@ -4365,8 +4365,8 @@ export default {
 
 .delete-dialog-confirm-btn {
   -webkit-font-smoothing: antialiased;
-  border: 1px solid #00aeec;
-  background-color: #00aeec;
+  border: 1px solid #0FA68E;
+  background-color: #0FA68E;
   color: white;
   border-radius: 6px;
   box-sizing: border-box;
@@ -4497,7 +4497,7 @@ export default {
   width: 102px;
   font-size: 14px;
   height: 30px;
-  background-color: #00aeec;
+  background-color: #0FA68E;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -4511,30 +4511,30 @@ export default {
   width: 102px;
   font-size: 14px;
   height: 30px;
-  background-color: #e3e5e7;
+  background-color: #E0E5E3;
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 5px;
   margin-right: 5px;
-  color: #959595;
+  color: #8F9794;
   cursor: pointer;
 }
 
 .up-user-info-container-footer-delete-follow:hover {
-  background-color: #f1f2f3;
+  background-color: #EFF3F2;
 }
 
 .up-user-info-container-footer-message {
   width: 100px;
   font-size: 14px;
   height: 30px;
-  border: 1px solid #62666c;
+  border: 1px solid #5D6764;
   border-radius: 5px;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #62666c;
+  color: #5D6764;
   cursor: pointer;
 }
 
@@ -4543,8 +4543,8 @@ export default {
 }
 
 .up-user-info-container-footer-message:hover {
-  color: #00aeec;
-  border: 1px solid #00aeec;
+  color: #0FA68E;
+  border: 1px solid #0FA68E;
 }
 
 .comment-footer-info{
@@ -4553,7 +4553,7 @@ export default {
   display: flex;
   top: -55px;
   font-size: 13px;
-  color: #9499a0;
+  color: #8D9794;
   z-index: -10;
   justify-content: center;
 
@@ -4593,8 +4593,8 @@ export default {
   height: 50px;
   border-radius: 6px;
   font-size: 13.5px;
-  color: #00aeec;
-  background-color: #dff6fd;
+  color: #0FA68E;
+  background-color: #E3F5F0;
   transition: 0.2s;
   cursor: pointer;
   z-index: 1000;
@@ -4604,7 +4604,7 @@ export default {
   position: fixed !important;
   bottom: 0px !important;
   width: 700px;
-  border-top: 0.5px solid #e3e5e7;
+  border-top: 0.5px solid #E0E5E3;
   min-height: 80.5px;
   background-color: white;
   z-index: 1000;
@@ -4630,7 +4630,7 @@ export default {
 
 @keyframes commentAnimation {
   0% {
-    background-color: #DFF6FD;
+    background-color: #E3F5F0;
   }
   100% {
     background-color: white;

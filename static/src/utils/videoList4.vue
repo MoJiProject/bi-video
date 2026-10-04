@@ -62,7 +62,7 @@ const userId = parseInt(new URL(window.location).searchParams.get("userId")) || 
             font-size: 14px;
             line-height: 20px;
             font-weight: 400;
-            color: #9499A0;
+            color: #8D9794;
             
         }
     }    

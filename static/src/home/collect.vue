@@ -42,7 +42,7 @@
                 </div>
               </div>
               <div v-if="store.userId&&store.userId===store.homeUserInformation.id" class="aside-name" @click="openWaitWatch" :class="{'activeAside2': collectAsideOpenFlag}">
-                    <span>稍后再看</span>
+                    <span>待看清单</span>
               </div>
         </div>
         <div class="collect-body">
@@ -50,7 +50,7 @@
                 <div class="left">
                     <div class="collect-back"></div>
                     <div class="collect-back2"></div>
-                    <img v-show="!collectOpenFlag.coverAddress" :src="'/img/collect_cover.avif'">
+                    <img v-show="!collectOpenFlag.coverAddress" :src="'/img/collect-cover.png'">
                     <img v-show="collectOpenFlag.coverAddress" :src="collectOpenFlag.coverAddress">
                 </div>
                 <div class="right">
@@ -200,7 +200,7 @@
                 <el-switch
                     v-model="collectPublic"
                     class="ml-2"
-                    style="height: 20px;--el-switch-on-color: #00AEEC;"
+                    style="height: 20px;--el-switch-on-color: #0FA68E;"
                 />
                 <p class="collect-name">简介</p>
                 <el-input v-model="collectIntroduce" type="textarea" resize="none" :autosize="{ minRows: 5, maxRows: 5 }" style="width: 340px;height: 112px !important;" maxlength="200" placeholder="可以简单的描述下你的收藏夹" :show-word-limit="true"/>
@@ -242,7 +242,7 @@
                 <el-switch
                     v-model="collectPublic"
                     class="ml-2"
-                    style="height: 20px;--el-switch-on-color: #00AEEC;"
+                    style="height: 20px;--el-switch-on-color: #0FA68E;"
                 />
                 <p class="collect-name">简介</p>
                 <el-input v-model="collectIntroduce" type="textarea" resize="none" :autosize="{ minRows: 5, maxRows: 5 }" style="width: 340px;height: 112px !important;" maxlength="200" placeholder="可以简单的描述下你的收藏夹" :show-word-limit="true"/>
@@ -853,7 +853,7 @@ watch(pageNum, () => {
  
 });
 
-//打开稍后再看
+//打开待看清单
 function openWaitWatch(){
     window.open('./waitWatch','_blank');
 }
@@ -894,7 +894,7 @@ function openWaitWatch(){
         cursor: pointer;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid #E3E5E7;
+        border-bottom: 1px solid #E0E5E3;
            
             svg{
                 transition: all 0.3s ease;
@@ -908,7 +908,7 @@ function openWaitWatch(){
             }
         }
         .aside-name:hover{
-            color: #00AEEC;
+            color: #0FA68E;
         }
         .aside-list{
             display: flex;
@@ -933,7 +933,7 @@ function openWaitWatch(){
                    }
                 }
                 .add-collect:hover{
-                    color: #00AEEC;
+                    color: #0FA68E;
                 }
                 .collect-item-container{
                     .collect-aside-item{
@@ -954,13 +954,13 @@ function openWaitWatch(){
                         }
                         svg{
                             transition: all .3s ease;
-                            color: #9499A0;
+                            color: #8D9794;
                             margin-right: 8px;
                         }
                         .number{
                             font-size: 12px;
                             flex-shrink: 0;
-                            color: #9499A0;
+                            color: #8D9794;
                         }
                         .controls{
                         position: relative;
@@ -973,7 +973,7 @@ function openWaitWatch(){
                             width: 16px;
                             height: 22px;
                             transform: rotate(90deg);
-                            color: #18191C;
+                            color: #1C2321;
                             margin-right: 0px !important;
                             transition: all .3s ease;
                             }
@@ -994,7 +994,7 @@ function openWaitWatch(){
                             align-items: center;
                             justify-content: center;
                             background-color: white;
-                            border: 1px solid #E3E5E7;
+                            border: 1px solid #E0E5E3;
                             box-shadow: 0 8px 40px rgba(0, 0, 0, .1);
                             padding: 4px;
                             border-radius: 12px;
@@ -1004,7 +1004,7 @@ function openWaitWatch(){
                                 text-align: center;    
                                 cursor: pointer;
                                 font-size: 14px;
-                                color: #61666D;
+                                color: #5C6664;
                                 transition: background-color .3s ease;
                                 border-radius: 8px;
                                 height: 40px;
@@ -1013,7 +1013,7 @@ function openWaitWatch(){
                                 background-color: white;
                                 }
                                 div:hover{
-                                    background-color: #F1F2F3;
+                                    background-color: #EFF3F2;
                                 }
                             }
                             .active-controls-info{
@@ -1030,10 +1030,10 @@ function openWaitWatch(){
                         }
                     }
                     .collect-aside-item:hover{
-                    background-color: #F6F7F8;
+                    background-color: #F4F7F6;
 
                     svg{
-                        color: #18191C;
+                        color: #1C2321;
                     }
                     .number{
                         display: none;
@@ -1046,7 +1046,7 @@ function openWaitWatch(){
                     }
                 }
                 .activeCollect{
-                    background-color: #00AEEC !important;
+                    background-color: #0FA68E !important;
                     color: white !important;
 
                     svg{
@@ -1063,7 +1063,7 @@ function openWaitWatch(){
                 }
         }
         .activeAside2{
-            border-top: 1px solid #E3E5E7;
+            border-top: 1px solid #E0E5E3;
         }
     }
     .collect-body{
@@ -1076,7 +1076,7 @@ function openWaitWatch(){
         height: 137px;
         padding-bottom: 24px;
         box-sizing: border-box;
-        border-bottom: 1px solid #E3E5E7;
+        border-bottom: 1px solid #E0E5E3;
         display: flex;
         position: relative;
 
@@ -1086,7 +1086,7 @@ function openWaitWatch(){
             width: 178px;
                 .collect-back{
                 position: absolute;
-                background: #F6F7F8;
+                background: #F4F7F6;
                 width: 80%;
                 height: 16px;
                 border-radius: 6px;
@@ -1098,7 +1098,7 @@ function openWaitWatch(){
                 }
                 .collect-back2{
                 position: absolute;
-                background: #F1F2F3;
+                background: #EFF3F2;
                 width: 90%;
                 height: 16px;
                 border-radius: 6px;
@@ -1111,7 +1111,7 @@ function openWaitWatch(){
                 img{
                 width: 100%;
                 height: 100px;
-                background-color: #E3E5E7;
+                background-color: #E0E5E3;
                 border-radius: 6px;
                 object-fit: cover;
                 }
@@ -1135,7 +1135,7 @@ function openWaitWatch(){
                 margin-top: 8px;
                   span{
                     font-size: 14px;
-                    color: #9499A0;
+                    color: #8D9794;
                     line-height: 17px;
                   }
                   span:nth-child(1){
@@ -1155,16 +1155,16 @@ function openWaitWatch(){
                 border-radius: 8px;
                 font-size: 14px;
                 line-height: 1;
-                color: #18191C;
+                color: #1C2321;
                 background: white;
-                border: 1px solid #E3E5E7;
+                border: 1px solid #E0E5E3;
                 transition: all .3s ease;
                 user-select: none;
                 cursor: pointer;
                }
                .controls:hover{
-                background-color: #E3E5E7;
-                border: 1px solid #E3E5E7;
+                background-color: #E0E5E3;
+                border: 1px solid #E0E5E3;
                }
             }
         }
@@ -1184,18 +1184,18 @@ function openWaitWatch(){
             height: 34px;
             padding: 0 15px;
             flex-shrink: 0;
-            color: #61666d;
+            color: #5C6664;
             cursor: pointer;
             transition: all 0.3s;
             border-radius: 6px;
-            background-color: #f6f7f8;
+            background-color: #F4F7F6;
             }
             .sort-item:hover {
-            color: #00aeec;
+            color: #0FA68E;
             }
             .sortClass {
             color: white !important;
-            background-color: #00aeec !important;
+            background-color: #0FA68E !important;
             }
             .search-container{
                 position: relative;
@@ -1205,7 +1205,7 @@ function openWaitWatch(){
                 height: 34px;
                 border-radius: 6px;
                 font-size: 14px;
-                border: 1px solid #E3E5E7;
+                border: 1px solid #E0E5E3;
 
                     .search-container-left{
                         display: inline-flex;
@@ -1218,8 +1218,8 @@ function openWaitWatch(){
                         line-height: 1;
                         border-radius: 6px 0 0 6px;
                         transition: all 0.3s ease;
-                        border-right: 1px solid #E3E5E7;
-                        color: #18191C;
+                        border-right: 1px solid #E0E5E3;
+                        color: #1C2321;
                         user-select: none;
                         cursor: pointer;
 
@@ -1248,7 +1248,7 @@ function openWaitWatch(){
                             align-items: center;
                             justify-content: center;
                             background-color: white;
-                            border: 1px solid #E3E5E7;
+                            border: 1px solid #E0E5E3;
                             box-shadow: 0 8px 40px rgba(0, 0, 0, .1);
                             padding: 4px;
                             border-radius: 12px;
@@ -1258,7 +1258,7 @@ function openWaitWatch(){
                                 text-align: center;    
                                 cursor: pointer;
                                 font-size: 14px;
-                                color: #61666D;
+                                color: #5C6664;
                                 transition: background-color .3s ease;
                                 border-radius: 8px;
                                 height: 40px;
@@ -1267,7 +1267,7 @@ function openWaitWatch(){
                                 background-color: white;
                                 }
                                 div:hover{
-                                    background-color: #F1F2F3;
+                                    background-color: #EFF3F2;
                                 }
                           }
                           .active-search-controls{
@@ -1276,7 +1276,7 @@ function openWaitWatch(){
                           }
                     }
                     .search-container-left:hover{
-                        background-color: #E3E5E7;
+                        background-color: #E0E5E3;
                     }
                     .search-container-right{
                     width: 210px;
@@ -1297,19 +1297,19 @@ function openWaitWatch(){
                         border: none;
                         outline: none;
                         background-color: transparent;
-                        color: #18191C;
+                        color: #1C2321;
                         }
                         svg{
                             position: absolute;
                             right: 40px;
                             top: 50%;
                             transform: translateY(-50%);
-                            color: #E3E5E7;
+                            color: #E0E5E3;
                             transition: color 0.3s ease;
                             cursor: pointer;
                         }
                         svg:hover{
-                            color: #C9CCD0;
+                            color: #C6CDCA;
                         }
                         img{
                             position: absolute;
@@ -1330,7 +1330,7 @@ function openWaitWatch(){
             user-select: none;
             font-size: 14px;
             line-height: 1.5;
-            color: #18191C;
+            color: #1C2321;
             cursor: pointer;
                 .check-all-icon{
                 position: relative;
@@ -1345,7 +1345,7 @@ function openWaitWatch(){
                     -webkit-box-sizing: border-box;
                     box-sizing: border-box;
                     background-color: white;
-                    border: 1px solid #E3E5E7;
+                    border: 1px solid #E0E5E3;
                     border-radius: 4px;
                     -webkit-transition: all .3s ease-in-out;
                     transition: all .3s ease-in-out;
@@ -1365,8 +1365,8 @@ function openWaitWatch(){
                     transition: all .3s ease-in-out;
                     }
                     .activeCheck{
-                        border: 1px solid #00aeec;
-                        background-color: #00aeec;
+                        border: 1px solid #0FA68E;
+                        background-color: #0FA68E;
                     }
                    
                 }
@@ -1377,7 +1377,7 @@ function openWaitWatch(){
             .check-all:hover{
                 .check-all-icon{
                     .check-input-box{
-                        border: 1px solid #00aeec;
+                        border: 1px solid #0FA68E;
                     }
                 }
             }
@@ -1385,7 +1385,7 @@ function openWaitWatch(){
                 position: relative;
                 top: 8px;
                 font-size: 13.5px;
-                color: #61666D;
+                color: #5C6664;
                 margin-left: 12px;
             }
             .controls-item{
@@ -1405,9 +1405,9 @@ function openWaitWatch(){
                 border-radius: 8px;
                 font-size: 14px;
                 line-height: 1;
-                color: #18191C;
+                color: #1C2321;
                 background: white;
-                border: 1px solid #E3E5E7;
+                border: 1px solid #E0E5E3;
                 transition: all .3s ease;
                 user-select: none;
                 margin-left: 12px;
@@ -1425,8 +1425,8 @@ function openWaitWatch(){
                     }
                 }
                 .controls:hover{
-                    background-color: #E3E5E7;
-                    border: 1px solid #E3E5E7;
+                    background-color: #E0E5E3;
+                    border: 1px solid #E0E5E3;
                 }
             }
         }
@@ -1441,7 +1441,7 @@ function openWaitWatch(){
         align-items: center;
 
         span {
-          color: #18191c;
+          color: #1C2321;
           font-size: 13px;
           margin-left: 44px;
           input {
@@ -1454,17 +1454,17 @@ function openWaitWatch(){
             position: relative;
             padding: 0 12px;
             background-color: white;
-            border: 1px solid #e3e5e7;
+            border: 1px solid #E0E5E3;
             font-size: 14px;
             border-radius: 6px;
             transition: all 0.3s ease;
             padding: 0 10px;
           }
           input:hover {
-            border-color: #00aeec;
+            border-color: #0FA68E;
           }
           input:focus {
-            border-color: #00aeec;
+            border-color: #0FA68E;
           }
           input::-webkit-inner-spin-button,
           input::-webkit-outer-spin-button {
@@ -1480,7 +1480,7 @@ function openWaitWatch(){
     text-align: center;
     font-size: 15.5px;
     font-weight: 550;
-    color: #18191C;
+    color: #1C2321;
 }
 
 .delete-dialog-content{
@@ -1500,7 +1500,7 @@ function openWaitWatch(){
 }
 
 .delete-dialog-confirm-btn{
-    border: 1px solid #00AEEC;
+    border: 1px solid #0FA68E;
     color: white;
     border-radius: 4px;
     min-width: 130px;
@@ -1508,18 +1508,18 @@ function openWaitWatch(){
     cursor: pointer;
     font-size: 15.5px;
     margin: 0 6px;
-    background-color: #00AEEC;
+    background-color: #0FA68E;
     transition: all 0.3s ease;
 }
 
 .delete-dialog-confirm-btn:hover{
-    background-color: #40C5F1;
-    border: 1px solid #40C5F1;
+    background-color: #3CC0A6;
+    border: 1px solid #3CC0A6;
 }
 
 .delete-dialog-cancel-btn{
-    border: 1px solid #E3E5E7;
-    color: #18191C;
+    border: 1px solid #E0E5E3;
+    color: #1C2321;
     border-radius: 4px;
     min-width: 130px;
     height: 32px;
@@ -1531,7 +1531,7 @@ function openWaitWatch(){
 }
 
 .delete-dialog-cancel-btn:hover{
-    background-color: #E3E5E7;
+    background-color: #E0E5E3;
 }
 
 .delete-dialog-confirm-btn2{
@@ -1550,13 +1550,13 @@ function openWaitWatch(){
 .add-dialog-title{
     text-align: center;
     font-size: 15.5px;
-    color: #18191C;
+    color: #1C2321;
 }
 
 .add-dialog-body{
     padding-top: 24px;
     padding-bottom: 22px;
-    color: #18191C;
+    color: #1C2321;
     text-align: left;
     font-size: 14px;
     margin-top: 10px;
@@ -1570,7 +1570,7 @@ function openWaitWatch(){
 
         .collect-back{
         position: absolute;
-        background: #F6F7F8;
+        background: #F4F7F6;
         width: 80%;
         height: 16px;
         border-radius: 6px;
@@ -1582,7 +1582,7 @@ function openWaitWatch(){
         }
         .collect-back2{
         position: absolute;
-        background: #F1F2F3;
+        background: #EFF3F2;
         width: 90%;
         height: 16px;
         border-radius: 6px;
@@ -1600,14 +1600,14 @@ function openWaitWatch(){
         width: 100%;
         height: 100%;
         cursor: pointer;
-        background-color: #E3E5E7;
+        background-color: #E0E5E3;
         border-radius: 6px;
         z-index: 10;
 
             svg{
                 width: 35px;
                 height: 34px;
-                color: #61666D;
+                color: #5C6664;
             }
         }
         img{
@@ -1633,8 +1633,8 @@ function openWaitWatch(){
     display: flex;
     justify-content: center;
     .add-dialog-cancel-btn{
-    border: 1px solid #E3E5E7;
-    color: #18191C;
+    border: 1px solid #E0E5E3;
+    color: #1C2321;
     border-radius: 8px;
     min-width: 164px;
     height: 34px;
@@ -1645,10 +1645,10 @@ function openWaitWatch(){
     transition: all 0.3s ease;
     }
     .add-dialog-cancel-btn:hover{
-        background-color: #E3E5E7;
+        background-color: #E0E5E3;
     }
     .add-dialog-confirm-btn{
-    border: 1px solid #00AEEC;
+    border: 1px solid #0FA68E;
     color: white;
     border-radius: 8px;
     min-width: 164px;
@@ -1656,15 +1656,15 @@ function openWaitWatch(){
     cursor: pointer;
     font-size: 14px;
     margin: 0 6px;
-    background-color: #00AEEC;
+    background-color: #0FA68E;
     transition: all 0.3s ease;
     }
     .add-dialog-confirm-btn:hover{
-    background-color: #40C5F1;
-    border: 1px solid #40C5F1;
+    background-color: #3CC0A6;
+    border: 1px solid #3CC0A6;
     }
     .disabled{
-        background-color: #00AEEC !important;
+        background-color: #0FA68E !important;
         opacity: 0.5 !important;
         cursor: not-allowed;
     }
@@ -1675,12 +1675,12 @@ function openWaitWatch(){
     margin-top: 3px;
     text-align: center;
     font-size: 15.5px;
-    color: #18191C;
+    color: #1C2321;
 }
 
 .control-dialog-confirm-btn{
     position: relative;
-    border: 1px solid #00AEEC;
+    border: 1px solid #0FA68E;
     color: white;
     border-radius: 8px;
     min-width: 120px;
@@ -1688,7 +1688,7 @@ function openWaitWatch(){
     cursor: pointer;
     font-size: 14px;
     margin: 0 6px;
-    background-color: #00AEEC;
+    background-color: #0FA68E;
     transition: all 0.3s ease;
 }
 
@@ -1696,7 +1696,7 @@ function openWaitWatch(){
     padding-top: 20px;
     width: 340px;
     height: 340px;
-    color: #18191C;
+    color: #1C2321;
     text-align: left;
     font-size: 14px;
     margin-top: 10px;
@@ -1710,7 +1710,7 @@ function openWaitWatch(){
     padding: 16px;
     font-size: 13.5px;
     border-radius: 4px;
-    border: 1px dashed #C9CCD0;
+    border: 1px dashed #C6CDCA;
     height: 52px;
     display: flex;
     user-select: none;
@@ -1736,7 +1736,7 @@ function openWaitWatch(){
             width: 290px; /* 占满宽度以实现两边对齐 */
 
               .video-number{
-                color: #61666D;
+                color: #5C6664;
               }
             }
         }

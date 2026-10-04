@@ -53,7 +53,7 @@ if(store.accountMenu!==accountMenu)
   text-align: center;
   line-height: 50px;
   font-size: 16px;
-  color: #181818;
+  color: #1C2321;
   border: 1px solid #e1e2e5;
   border-radius: 5px 0 0 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, .14);
@@ -66,7 +66,7 @@ if(store.accountMenu!==accountMenu)
     text-align: center;
     line-height: 50px;
     font-size: 16px;
-    color: #181818;
+    color: #1C2321;
     cursor: default;
     border-bottom: 1px solid rgba(171, 171, 171, 0.7);
     }
@@ -99,7 +99,7 @@ if(store.accountMenu!==accountMenu)
      background-color: rgb(225, 228, 234, 0.7);
     }
     .active{
-      background-color: rgba(0, 161, 215, 0.7) !important;
+      background-color: rgba(14,156,133, 0.7) !important;
       color: white !important;
 
       img:nth-child(1){

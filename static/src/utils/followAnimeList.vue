@@ -70,21 +70,21 @@ function jumpToAnime(url) {
       margin-left: 12px;
 
       .name {
-        color: #18191c;
+        color: #1C2321;
         font-weight: 500;
         font-size: 16px;
         line-height: 22px;
         transition: color 0.3s ease;
       }
       .name:hover {
-        color: #40c5f1;
+        color: #3CC0A6;
       }
       .introduce {
         margin-top: 12px;
         margin-bottom: 12px;
         font-size: 14px;
         line-height: 20px;
-        color: #61666d;
+        color: #5C6664;
         display: -webkit-box;
         overflow: hidden;
         word-break: break-all;
@@ -96,7 +96,7 @@ function jumpToAnime(url) {
         margin-bottom: 4px;
         font-size: 14px;
         line-height: 20px;
-        color: #61666d;
+        color: #5C6664;
         display: flex;
         align-items: center;
       }

@@ -6,8 +6,8 @@
                 <dynamic3 :dynamic="dynamic"/>
             </div>
             <div class="content2">
-                <div class="menu" :style="{color: content3Menu===1?'#00AEEC':'#61666D'}" @click="content3Menu=1">评论 {{ dynamic.dynamic.videoId&&!dynamic.dynamic.commentId?dynamic.video.videoCommentNumber:dynamic.dynamic.commentNumber }}</div>
-                <div class="menu" :style="{color: content3Menu===2?'#00AEEC':'#61666D'}" @click="content3Menu=2">赞与转发 {{ (dynamic.dynamic.videoId&&!dynamic.dynamic.commentId?dynamic.video.videoLikeNumber:dynamic.dynamic.likeNumber)+(dynamic.dynamic.videoId&&!dynamic.dynamic.commentId?dynamic.video.videoShareNumber:dynamic.dynamic.shareNumber) }}</div>
+                <div class="menu" :style="{color: content3Menu===1?'#0FA68E':'#5C6664'}" @click="content3Menu=1">评论 {{ dynamic.dynamic.videoId&&!dynamic.dynamic.commentId?dynamic.video.videoCommentNumber:dynamic.dynamic.commentNumber }}</div>
+                <div class="menu" :style="{color: content3Menu===2?'#0FA68E':'#5C6664'}" @click="content3Menu=2">赞与转发 {{ (dynamic.dynamic.videoId&&!dynamic.dynamic.commentId?dynamic.video.videoLikeNumber:dynamic.dynamic.likeNumber)+(dynamic.dynamic.videoId&&!dynamic.dynamic.commentId?dynamic.video.videoShareNumber:dynamic.dynamic.shareNumber) }}</div>
                 <div :style="{ width: content3Menu===1?'51.88px':'98.44px',transform: content3Menu===1? 'translateX(53px)':'translateX(133px)' }" class="line"></div>
             </div>
             <div class="content3">
@@ -19,8 +19,8 @@
             <div class="content">
                 <div class="controls" @click="likeDynamicF" v-debounce>
                   <svg v-show="!likeFlag" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.9252 3.04546C13.6432 3.01258 13.382 3.13521 13.2422 3.29868C12.9774 3.60848 12.8705 3.86276 12.7384 4.23799C12.7234 4.28037 12.7082 4.32422 12.6925 4.36961C12.5611 4.74857 12.3929 5.23391 12.044 5.85187C11.446 6.91117 10.8882 7.55173 10.2013 8.154C9.63865 8.6473 9.06639 8.98294 8.5 9.14275V19.7248C9.28689 19.7417 10.1287 19.7525 11 19.7525C13.2468 19.7525 15.1529 19.6812 16.4372 19.615C17.3477 19.5681 18.1379 19.1176 18.5497 18.3851C19.1274 17.3574 19.8396 15.8503 20.2712 14.0753C20.6734 12.4212 20.8569 11.0615 20.9392 10.1025C20.9774 9.65797 20.6256 9.25003 20.08 9.25003H15.0977C14.8476 9.25003 14.614 9.12542 14.4748 8.91775C14.3355 8.71015 14.3089 8.44684 14.4037 8.21557C14.4037 8.21555 14.4037 8.21553 14.4037 8.21551C14.4037 8.21547 14.4038 8.21543 14.4038 8.21539C14.4038 8.21537 14.4038 8.21536 14.4038 8.21534L14.4046 8.21341L14.4085 8.20377L14.4249 8.16256C14.4395 8.12573 14.4609 8.07081 14.4874 8.00089C14.5404 7.86084 14.6131 7.66185 14.6909 7.42856C14.8489 6.95439 15.0177 6.36917 15.0941 5.85681C15.2109 5.07451 15.1824 4.44592 14.8757 3.86439C14.5461 3.23954 14.1724 3.07429 13.9252 3.04546ZM16.164 7.75003H20.08C21.4037 7.75003 22.5555 8.81291 22.4337 10.2309C22.3455 11.2583 22.1508 12.6941 21.7288 14.4297C21.2555 16.3758 20.4798 18.0127 19.8573 19.1201C19.1594 20.3616 17.8654 21.0435 16.5144 21.113C15.21 21.1802 13.2777 21.2525 11 21.2525C8.7933 21.2525 6.77664 21.1846 5.34776 21.1195C3.73985 21.0461 2.39101 19.8517 2.21798 18.2152C2.1042 17.1391 2 15.7467 2 14.2525C2 12.8835 2.08746 11.6418 2.18985 10.6567C2.36874 8.93544 3.84615 7.75003 5.50754 7.75003H7.75C8.06896 7.75003 8.56382 7.59478 9.21241 7.02612C9.77509 6.53279 10.2246 6.0235 10.7378 5.11442C11.0177 4.61868 11.146 4.24973 11.2753 3.87788C11.2913 3.83198 11.3072 3.78604 11.3235 3.73981C11.4791 3.29802 11.6602 2.84083 12.1021 2.32398C12.5582 1.79047 13.3077 1.4633 14.0989 1.55555C14.9248 1.65186 15.6866 2.18668 16.2024 3.16456C16.7233 4.15199 16.7157 5.15349 16.5777 6.07814C16.4916 6.65522 16.3202 7.26593 16.164 7.75003ZM7 19.6835V9.25003H5.50754C4.54442 9.25003 3.77423 9.92257 3.68182 10.8118C3.58359 11.7569 3.5 12.9457 3.5 14.2525C3.5 15.6802 3.59975 17.0179 3.70967 18.0575C3.80099 18.9212 4.51252 19.5798 5.41611 19.621C5.88508 19.6424 6.41785 19.6641 7 19.6835Z" fill="currentColor"></path></svg>
-                  <svg v-show="likeFlag" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M20.3186 7.74998H15.776C15.999 7.26616 16.2333 6.6567 16.3213 6.06668C16.3848 5.64061 16.3909 5.11874 16.3397 4.62199C16.2897 4.1373 16.1773 3.59536 15.9528 3.16982C15.4775 2.26864 14.8233 1.63578 14.0361 1.48224C13.1988 1.31893 12.4779 1.74495 12.0464 2.39778C11.6856 2.94375 11.5449 3.39925 11.4167 3.81444L11.4167 3.81444L11.4125 3.82786C11.2892 4.22696 11.1679 4.61901 10.8559 5.17154C10.3427 6.08056 9.92397 6.55203 9.36125 7.0454C9.071 7.29988 8.77253 7.47246 8.5 7.5831V21.225C9.28742 21.2418 10.1289 21.2524 11 21.2524C13.3441 21.2524 15.3224 21.1759 16.627 21.1071C17.9072 21.0396 19.1311 20.3943 19.7997 19.2217C20.4316 18.1135 21.2409 16.4358 21.7288 14.4296C22.1856 12.5508 22.3761 11.0232 22.4535 9.98474C22.5487 8.70656 21.5102 7.74998 20.3186 7.74998ZM7 21.1842V7.74998H5.30231C3.75929 7.74998 2.38771 8.85084 2.21213 10.4483C2.10046 11.4642 2 12.7852 2 14.2524C2 15.839 2.11749 17.3111 2.23926 18.4118C2.40726 19.9306 3.65916 21.0399 5.15251 21.1103C5.68498 21.1355 6.30853 21.1615 7 21.1842Z" fill="#00A1D6"></path></svg>
-                  <span :style="{color: likeFlag?'#00AEEC':'#61666D'}">{{ dynamic.dynamic.videoId&&!dynamic.dynamic.commentId?dynamic.video.videoLikeNumber:dynamic.dynamic.likeNumber }}</span>    
+                  <svg v-show="likeFlag" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M20.3186 7.74998H15.776C15.999 7.26616 16.2333 6.6567 16.3213 6.06668C16.3848 5.64061 16.3909 5.11874 16.3397 4.62199C16.2897 4.1373 16.1773 3.59536 15.9528 3.16982C15.4775 2.26864 14.8233 1.63578 14.0361 1.48224C13.1988 1.31893 12.4779 1.74495 12.0464 2.39778C11.6856 2.94375 11.5449 3.39925 11.4167 3.81444L11.4167 3.81444L11.4125 3.82786C11.2892 4.22696 11.1679 4.61901 10.8559 5.17154C10.3427 6.08056 9.92397 6.55203 9.36125 7.0454C9.071 7.29988 8.77253 7.47246 8.5 7.5831V21.225C9.28742 21.2418 10.1289 21.2524 11 21.2524C13.3441 21.2524 15.3224 21.1759 16.627 21.1071C17.9072 21.0396 19.1311 20.3943 19.7997 19.2217C20.4316 18.1135 21.2409 16.4358 21.7288 14.4296C22.1856 12.5508 22.3761 11.0232 22.4535 9.98474C22.5487 8.70656 21.5102 7.74998 20.3186 7.74998ZM7 21.1842V7.74998H5.30231C3.75929 7.74998 2.38771 8.85084 2.21213 10.4483C2.10046 11.4642 2 12.7852 2 14.2524C2 15.839 2.11749 17.3111 2.23926 18.4118C2.40726 19.9306 3.65916 21.0399 5.15251 21.1103C5.68498 21.1355 6.30853 21.1615 7 21.1842Z" fill="#0E9C85"></path></svg>
+                  <span :style="{color: likeFlag?'#0FA68E':'#5C6664'}">{{ dynamic.dynamic.videoId&&!dynamic.dynamic.commentId?dynamic.video.videoLikeNumber:dynamic.dynamic.likeNumber }}</span>    
                 </div>
                 <div class="controls" @click="collectDynamicF">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.1617 3.28288C10.9137 1.75922 13.0863 1.75922 13.8383 3.28288L15.5564 6.76404C15.6656 6.9854 15.8768 7.13882 16.1211 7.17432L19.9628 7.73255C21.6442 7.97688 22.3156 10.0432 21.0989 11.2292L18.319 13.9389C18.1423 14.1112 18.0616 14.3595 18.1033 14.6028L18.7596 18.4289C19.0468 20.1036 17.2891 21.3807 15.7851 20.59L12.349 18.7835C12.1305 18.6687 11.8695 18.6687 11.651 18.7835L8.21488 20.59C6.71094 21.3807 4.95321 20.1036 5.24043 18.4289L5.89667 14.6028C5.9384 14.3595 5.85774 14.1112 5.68097 13.9389L2.9011 11.2292C1.68439 10.0432 2.35579 7.97688 4.03724 7.73255L7.87893 7.17432C8.12321 7.13882 8.33439 6.9854 8.44363 6.76404L10.1617 3.28288ZM12.4932 3.94673C12.2915 3.53794 11.7085 3.53794 11.5068 3.94673L9.78874 7.42789C9.461 8.09196 8.82747 8.55224 8.09463 8.65873L4.25294 9.21696C3.80182 9.28251 3.62168 9.8369 3.94812 10.1551L6.72799 12.8648C7.25829 13.3817 7.50027 14.1265 7.37508 14.8563L6.71884 18.6825C6.64178 19.1318 7.11337 19.4744 7.51687 19.2623L10.953 17.4558C11.6085 17.1112 12.3915 17.1112 13.047 17.4558L16.4831 19.2623C16.8866 19.4744 17.3582 19.1318 17.2811 18.6825L16.6249 14.8563C16.4997 14.1265 16.7417 13.3817 17.272 12.8648L20.0519 10.1551C20.3783 9.8369 20.1982 9.28251 19.7471 9.21696L15.9054 8.65873C15.1725 8.55224 14.539 8.09196 14.2113 7.42789L12.4932 3.94673Z" fill="currentColor"></path></svg>
@@ -54,14 +54,14 @@ import likeDynamicList from "@/utils/likeDynamicList.vue";
 
 
 const backgroundImgSrc=[
-  '/img/pageBg1.webp',
-  '/img/pageBg2.webp',
-  '/img/pageBg3.webp',
-  '/img/pageBg4.webp',
-  '/img/pageBg5.webp',
-  '/img/pageBg6.webp',
-  '/img/pageBg7.webp',
-  '/img/pageBg8.webp',
+  '/img/page-bg-1.png',
+  '/img/page-bg-2.png',
+  '/img/page-bg-3.png',
+  '/img/page-bg-4.png',
+  '/img/page-bg-5.png',
+  '/img/page-bg-6.png',
+  '/img/page-bg-7.png',
+  '/img/page-bg-8.png',
 ];
 let bIndex=Math.floor(Math.random()*backgroundImgSrc.length);
 const store = useGlobalStore();
@@ -276,7 +276,7 @@ padding-bottom: 1px;
           height: 48px;
           position: relative;
           background-color: white;
-          border-bottom: 1px solid #E3E5E7;
+          border-bottom: 1px solid #E0E5E3;
 
             .menu:nth-child(1){
             cursor: pointer;
@@ -297,10 +297,10 @@ padding-bottom: 1px;
             user-select: none;
             }
             .menu:hover{
-            color: #00AEEC !important;
+            color: #0FA68E !important;
             }
             .line{
-            background-color: #00AEEC;
+            background-color: #0FA68E;
             bottom: 0;
             height: 2px;
             left: 0;
@@ -334,12 +334,12 @@ padding-bottom: 1px;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            color: #9499A0;
+            color: #8D9794;
 
               svg{
               width: 24px;
               height: 24px;
-              color: #61666D;
+              color: #5C6664;
               transition: color .3s ease;
               }
               span{
@@ -349,7 +349,7 @@ padding-bottom: 1px;
               line-height: 14px;
               transition: color .3s ease;
               cursor: pointer;
-              color: #9499A0;
+              color: #8D9794;
               }
             }
             .controls:not(:first-of-type){
@@ -357,10 +357,10 @@ padding-bottom: 1px;
             }
             .controls:hover{
               svg{
-                color: #00AEEC;
+                color: #0FA68E;
               }
               span{
-                color: #00AEEC;
+                color: #0FA68E;
               }
             }
             .video-share{

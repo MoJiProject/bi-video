@@ -17,7 +17,7 @@
             </div>
             <div class="content">
                 <span class="label">我的签名:</span>
-                <textarea maxlength="250" placeholder="设置您的签名- ( ゜- ゜)つロ" v-model="store.userInformation.introduce"/>
+                <textarea maxlength="250" placeholder="介绍一下自己，让别人更懂你" v-model="store.userInformation.introduce"/>
             </div>
             <div class="content">
                 <span class="label">性别:</span>
@@ -189,11 +189,11 @@ width: 100%;
 height: 50px;
 line-height: 50px;
 font-size: 14px;
-color: #181818;
+color: #1C2321;
 cursor: default;
 text-align: left;
 padding-left: 30px;
-color: #00a1d6;
+color: #0E9C85;
 border-bottom: 1px solid #ddd;
 
     span{
@@ -201,7 +201,7 @@ border-bottom: 1px solid #ddd;
     width: 4px;
     height: 16px;
     margin-top: 18px;
-    background-color: #00a1d6;
+    background-color: #0E9C85;
     border-radius: 4px;
     margin-right: 5px;
     }
@@ -277,8 +277,8 @@ position: relative;
         transition: all .3s ease;
         }
         .active-radio{
-        background-color: #22a1d6 !important;
-        border-color: #22a1d6 !important;
+        background-color: #1E9E8C !important;
+        border-color: #1E9E8C !important;
         color: #fff !important;
         }
 
@@ -291,7 +291,7 @@ position: relative;
     display: inline-block;
     line-height: 1;
     cursor: pointer;
-    border: 1px solid #00a1d6;
+    border: 1px solid #0E9C85;
     color: #606266;
     text-align: center;
     outline: 0;
@@ -307,10 +307,10 @@ position: relative;
     left: 50%;
     color: #fff;
     transform: translate(-50%, -50%);
-    background-color: #00a1d6;
+    background-color: #0E9C85;
     }
     button:hover{
-        background-color: #00b5e5;
+        background-color: #19AC96;
     }
 }
 

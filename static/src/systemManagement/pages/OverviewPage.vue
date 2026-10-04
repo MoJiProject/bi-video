@@ -160,7 +160,7 @@ export default {
         value: overview.userNumber || 0,
         tip: `今日新增 ${overview.todayUserNumber || 0}`,
         icon: UserFilled,
-        color: "#00a1d6",
+        color: "#0E9C85",
       },
       {
         label: "视频总数",
@@ -248,7 +248,7 @@ export default {
     function barColor(number) {
       if (!number) return "#e4e7ed";
       return trendType.value === "userTrend"
-        ? "#00a1d6"
+        ? "#0E9C85"
         : trendType.value === "videoTrend"
         ? "#00b07c"
         : "#7c5cff";
@@ -324,13 +324,13 @@ export default {
 
 .stat-label {
   font-size: 13px;
-  color: #9499a0;
+  color: #8D9794;
 }
 
 .stat-value {
   font-size: 24px;
   font-weight: 700;
-  color: #18191c;
+  color: #1C2321;
   line-height: 1.3;
 }
 
@@ -361,7 +361,7 @@ export default {
 
 .chart-value {
   font-size: 12px;
-  color: #61666d;
+  color: #5C6664;
   margin-bottom: 4px;
 }
 
@@ -381,7 +381,7 @@ export default {
 
 .chart-label {
   font-size: 12px;
-  color: #9499a0;
+  color: #8D9794;
   padding-top: 8px;
 }
 
@@ -401,17 +401,17 @@ export default {
 }
 
 .link {
-  color: #18191c;
+  color: #1C2321;
   text-decoration: none;
 
   &:hover {
-    color: #00a1d6;
+    color: #0E9C85;
   }
 }
 
 .sub-text {
   font-size: 12px;
-  color: #9499a0;
+  color: #8D9794;
   margin-top: 2px;
 }
 
@@ -459,7 +459,7 @@ export default {
 .keyword-word {
   width: 110px;
   font-size: 13px;
-  color: #18191c;
+  color: #1C2321;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -477,7 +477,7 @@ export default {
 .keyword-bar {
   display: block;
   height: 100%;
-  background-color: #00a1d6;
+  background-color: #0E9C85;
   border-radius: 4px;
 }
 
@@ -485,7 +485,7 @@ export default {
   width: 40px;
   text-align: right;
   font-size: 13px;
-  color: #61666d;
+  color: #5C6664;
   flex-shrink: 0;
 }
 
@@ -507,18 +507,18 @@ export default {
   transition: background-color 0.2s ease;
 
   &:hover {
-    background-color: #eaf7fc;
+    background-color: #E7F5F1;
   }
 }
 
 .alert-num {
   font-size: 20px;
   font-weight: 700;
-  color: #00a1d6;
+  color: #0E9C85;
 }
 
 .alert-text {
   font-size: 13px;
-  color: #61666d;
+  color: #5C6664;
 }
 </style>

@@ -68,7 +68,7 @@
                     <span class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id" @mouseover="deleteCommentNotificaitonHoverFlag=true" @mouseleave="deleteCommentNotificaitonHoverFlag=false"><img :src="deleteCommentNotificaitonHoverFlag?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除该通知</span></span>
                 </div>
                 <div v-show="at?.replyFlag" class="at-comment-container">
-                  <img src="/img/默认头像.gif">
+                  <img src="/img/avatar-default.png">
                   <textarea :id="'at'+at.at.id" class="at-comment-input" v-model="commentContent" placeholder="请自觉遵守互联网相关的政策法规，严禁发布色情、暴力、反动的言论。"></textarea>
                   <button v-debounce class="commit-comment" @click="replayCommentF(at)">发表<br>评论</button>
                 </div>
@@ -168,7 +168,7 @@
           <img src="/img/没有消息数据.png">
         </div>
         <div v-show="atList.length===0&&!selectAtCommentFFlag" class="at-loading">
-          <img src="/img/加载消息.gif">
+          <img src="/img/loading.png">
         </div>
       </div>
       <el-dialog
@@ -359,9 +359,9 @@ function addImgFlagF(comment){
   function replayCommentF(at){
 
       if(at.comments.mainCommentId!==null)
-      commentContent.value=`&nbsp;回复 <a href='https://baidu.com' data-eit-userid='${at.comments.userId}' class='at-msg' style='color:#008ac5;'>@${at.comments.userName}</a> ：`+commentContent.value;
+      commentContent.value=`&nbsp;回复 <a href='https://baidu.com' data-eit-userid='${at.comments.userId}' class='at-msg' style='color:#0A8271;'>@${at.comments.userName}</a> ：`+commentContent.value;
       if(at.isAuthorFlag===1)
-      commentContent.value = "<img style='width: 24px;height: 24px;display: inline-block;vertical-align: middle;transform: translateY(-1.5px);user-select: none;' src='/img/up_pb.svg'>&nbsp;"+commentContent.value;
+      commentContent.value = "<img style='width: 24px;height: 24px;display: inline-block;vertical-align: middle;transform: translateY(-1.5px);user-select: none;' src='/img/author-badge.svg'>&nbsp;"+commentContent.value;
      
       let comments={
         content: commentContent.value,
@@ -512,7 +512,7 @@ function addImgFlagF(comment){
               transition: color 0.3s ease;
             }
             a:hover{
-              color: #2faee3;
+              color: #2BB2A0;
             }
             span{
               color: #505050;
@@ -530,11 +530,11 @@ function addImgFlagF(comment){
             color: #222;
             
             a{
-              color: #1389bf;
+              color: #0F7E77;
               transition: color 0.3s ease;
             }
             a:hover{
-              color: #2faee3;
+              color: #2BB2A0;
             }
             .at-message-content{
               display: -webkit-box;
@@ -582,7 +582,7 @@ function addImgFlagF(comment){
                }
             }
             .at-comment:hover{
-             color: #2faee3;
+             color: #2BB2A0;
             }
             .love-comment{
               position: relative;
@@ -599,14 +599,14 @@ function addImgFlagF(comment){
                }
             }
             .love-comment:hover{
-              color: #2faee3;
+              color: #2BB2A0;
             }
             .love-comment2{
               position: relative;
               display: flex;
               left: 30px;
               top: -0.5px;
-              color: #2faee3;
+              color: #2BB2A0;
               font-size: 13.5px;
                img{
                  position: relative;
@@ -632,7 +632,7 @@ function addImgFlagF(comment){
                }
             }
             .delete-comment-notification:hover{
-              color: #2faee3;
+              color: #2BB2A0;
             }
 
           }
@@ -669,7 +669,7 @@ function addImgFlagF(comment){
               margin: 0px;
             }
             .at-comment-input:focus{
-              border-color: #2faee3;
+              border-color: #2BB2A0;
             }
             .commit-comment{
               position: absolute;
@@ -684,7 +684,7 @@ function addImgFlagF(comment){
               -webkit-box-align: center;
               -ms-flex-align: center;
               align-items: center;
-              background-color: #00a1d6;
+              background-color: #0E9C85;
               border-radius: 4px;
               color: #fff;
               border: none;
@@ -778,7 +778,7 @@ function addImgFlagF(comment){
     left: 16px;
     top: -14px;
     font-size: 18px;
-    color: #23ade5;
+    color: #20AF99;
   }
 
   .delete-dialog-content{
@@ -794,8 +794,8 @@ function addImgFlagF(comment){
 }
 
 .delete-dialog-cancel-btn{
-    border: 1px solid #23ade5;
-    color: #23ade5;
+    border: 1px solid #20AF99;
+    color: #20AF99;
     border-radius: 4px;
     min-width: 104px;
     cursor: pointer;
@@ -807,13 +807,13 @@ function addImgFlagF(comment){
 }
 
 .delete-dialog-cancel-btn:hover{
-    background-color: #23ade5;
+    background-color: #20AF99;
     color: white;
 }
 
 .delete-dialog-confirm-btn{
-    background-color: #23ade5;
-    border: 1px solid #23ade5;
+    background-color: #20AF99;
+    border: 1px solid #20AF99;
     color: #fff;
     border-radius: 4px;
     cursor: pointer;
@@ -824,7 +824,7 @@ function addImgFlagF(comment){
 }
 
 .delete-dialog-confirm-btn:hover{
-    background-color: #39b5e7;
+    background-color: #2FB4A1;
 }
   
   </style>

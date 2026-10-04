@@ -140,7 +140,7 @@
             font-family: Microsoft YaHei UI Light;
           "
         >
-          bilibili热搜
+          qingmang热搜
         </div>
         <ul class="fireSearch">
           <li @click="sendSearchAxios(fireSearch[0]?.word)">
@@ -563,12 +563,12 @@ export default {
 .search-box {
   width: 100%; /* 使搜索框宽度适应容器 */
   height: 100%;
-  border: 1px solid #f1f2f3;
+  border: 1px solid #EFF3F2;
   border-radius: 7px; /* 左边两个角的圆角 */
   outline: none;
   font-size: 17.5px;
   z-index: 10000;
-  background-color: #f6f7f8;
+  background-color: #F4F7F6;
   padding-right: 200px;
   padding-left: 50px;
   transition: all 0.3s ease;
@@ -583,7 +583,7 @@ export default {
   background-color: rgba(255, 255, 255, 1); /* 完全不透明的背景 */
   opacity: 1; /* 完全不透明 */
   z-index: 10000;
-  border: 1px solid #00aeec;
+  border: 1px solid #0FA68E;
 }
 
 /* 当 .search 或其子元素获得焦点时应用样式 */
@@ -628,7 +628,7 @@ export default {
   align-items: center; /* 垂直居中 */
   line-height: 20px;
   border-radius: 5px;
-  background-color: #f6f7f8;
+  background-color: #F4F7F6;
   max-width: 37%; /* 允许最大宽度 */
   width: auto; /* 自动根据内容宽度调整 */
   cursor: pointer;
@@ -656,7 +656,7 @@ export default {
 }
 
 .searchContentCss:hover .searchContentFontCss {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .deleteSearchCss {
@@ -680,7 +680,7 @@ export default {
 }
 
 .searchFewer:hover {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .searchFewer {
@@ -692,7 +692,7 @@ export default {
 }
 
 .searchMore:hover {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .fireSearch {
@@ -725,15 +725,15 @@ li:nth-child(-n + 3) .bb img {
 }
 /* 控制后七个 li */
 li:nth-last-child(-n + 6) .aa {
-  color: #95999f;
+  color: #8F9794;
 }
 
 .fireSearch li:hover {
-  background-color: #e3e5e7;
+  background-color: #E0E5E3;
 }
 
 .fireSearch .cc {
-  color: #e1678d;
+  color: #DD5C24;
   margin-left: 45px;
 }
 
@@ -747,7 +747,7 @@ li:nth-last-child(-n + 6) .aa {
 }
 
 .cleanAllSearch:hover {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .searchButton {
@@ -758,7 +758,7 @@ li:nth-last-child(-n + 6) .aa {
   color: white;
   width: 100px;
   height: 38px;
-  background-color: #00aeec;
+  background-color: #0FA68E;
   border-radius: 7px;
   position: absolute;
   z-index: 100000;

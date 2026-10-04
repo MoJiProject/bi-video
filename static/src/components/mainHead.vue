@@ -3,46 +3,36 @@
     <ul class="v-header-ul" :class="{ head2Flag: head2Flag }">
       <li>
         <a class="head-li1" href="../">
-          <img v-show="!head2Flag" src="/img/首页.png" alt="首页" style="width: 18px;margin-top: 1px;" />
-          <img v-show="head2Flag" src="/img/bilibili蓝.png" alt="首页" style="width: 60px;margin-top: 2px;margin-right: 23px;animation: none;transform: translate(-2px);"/>
+          <img v-show="!head2Flag" class="icon" src="/img/首页.png" alt="首页" style="margin-top: 1px;" />
+          <img v-show="head2Flag" class="h-logo" src="/img/logo.png" alt="首页" style="width: 60px;margin-top: 2px;margin-right: 23px;animation: none;transform: translate(-2px);"/>
             首页
           <img v-show="head2Flag" src="/img/头首页.png" class="head-home" />
           </a
         >
       </li>
       <li>
-        <a href="https://www.bilibili.com/anime/?spm_id_from=333.1007.0.0"
-          >番剧</a
-        >
+        <a href="./search?keyword=&classifyIndex=番剧" target="_blank">番剧</a>
       </li>
       <li>
-        <a href="https://live.bilibili.com/?spm_id_from=333.1007.0.0">直播</a>
+        <a href="./search?keyword=&classifyIndex=动画" target="_blank">动画</a>
       </li>
       <li>
-        <a href="https://game.bilibili.com/platform?spm_id_from=333.1007.0.0"
-          >游戏中心</a
-        >
+        <a href="./search?keyword=&classifyIndex=音乐" target="_blank">音乐</a>
       </li>
       <li>
-        <a
-          href="https://show.bilibili.com/platform/home?msource=pc_web&spm_id_from=333.1007.0.0"
-          >会员购</a
-        >
+        <a href="./search?keyword=&classifyIndex=游戏" target="_blank">游戏中心</a>
       </li>
       <li>
-        <a
-          href="https://manga.bilibili.com/?from=bill_top_mnav&spm_id_from=333.1007.0.0"
-          >漫画</a
-        >
+        <a href="./search?keyword=&classifyIndex=知识" target="_blank">知识</a>
       </li>
       <li>
-        <a href="https://www.bilibili.com/match/home/?spm_id_from=333.1007.0.0"
-          >赛事</a
-        >
+        <a href="./search?keyword=&classifyIndex=影视" target="_blank">影视</a>
       </li>
       <li>
-        <a href="https://app.bilibili.com/?spm_id_from=333.1007.0.0"
-          >
+        <a href="./search?keyword=&classifyIndex=生活" target="_blank">生活</a>
+      </li>
+      <li>
+        <a href="#" @click.prevent>
           <img
             v-show="!head2Flag"
             src="/img/下载.png"
@@ -79,7 +69,7 @@
           <div class="user-info">
             <div style="margin-top: 15px; font-size: 18px;" @click="openHome(1)">{{store.userInformation?.userName}}</div>
             <div>
-              <span style="font-size: 12px; color: #95999f;"
+              <span style="font-size: 12px; color: #8F9794;"
               >硬币：<span style="color: black">{{ user.coinNumber }}</span>
               &nbsp;&nbsp;b币：<span style="color: black">0</span>
               </span>
@@ -251,7 +241,7 @@
               style="animation: none !important"
               target="_blank"
               rel="noopener noreferrer"
-              href="https://www.bilibili.com/#:~:text=%E5%8A%A8%E6%80%81-,%E6%88%90%E4%B8%BA%E5%A4%A7%E4%BC%9A%E5%91%98,-%E4%BA%86%E8%A7%A3%E6%9B%B4%E5%A4%9A%E6%9D%83%E7%9B%8A"
+              href="https://www.qingmang.com/#:~:text=%E5%8A%A8%E6%80%81-,%E6%88%90%E4%B8%BA%E5%A4%A7%E4%BC%9A%E5%91%98,-%E4%BA%86%E8%A7%A3%E6%9B%B4%E5%A4%9A%E6%9D%83%E7%9B%8A"
             >
               <div
                 style="
@@ -259,7 +249,7 @@
                   display: flex;
                   flex-direction: column;
                   height: 50px;
-                  background-color: #fcedf1;
+                  background-color: #FDEEE4;
                   margin-left: 16px;
                   margin-top: 10px;
                   border-radius: 5px;
@@ -268,11 +258,11 @@
               >
                 <span
                   style="
-                    color: #ed7098;
+                    color: #E56A2E;
                     font-size: 13px;
                     transform: translate(-65px, 10px);
                   "
-                  >成为大会员
+                  >开通尊享会员
                   <div
                     style="
                       background-color: white;
@@ -287,7 +277,7 @@
                       display: flex;
                       align-items: center;
                       justify-content: center;
-                      color: #ea7999;
+                      color: #E5762F;
                     "
                   >
                     立即开通
@@ -335,7 +325,7 @@
               </div>
               <hr
                 style="
-                  color: #95999f;
+                  color: #8F9794;
                   width: 220px;
                   margin-top: 10px;
                   height: 1px;
@@ -408,9 +398,9 @@
       </li>
       <li>
         <a href="#">
-          <img v-show="!head2Flag" style="width: 17px;height: 17px;" src="/img/大会员.png" alt="大会员" />
-          <img v-show="head2Flag" style="width: 17px;height: 17px;" src="/img/大会员黑.png" alt="大会员" />
-           大会员
+          <img v-show="!head2Flag" style="width: 17px;height: 17px;" src="/img/尊享会员.png" alt="尊享会员" />
+          <img v-show="head2Flag" style="width: 17px;height: 17px;" src="/img/尊享会员黑.png" alt="尊享会员" />
+           尊享会员
         </a>
         <div class="transparent-div12"></div>
         <div v-if="store.userId !== null" class="vip-introduce">
@@ -425,7 +415,7 @@
                 margin-top: 10px;
                 transform: translateX(-135px);
               "
-              >大会员特权</span
+              >尊享会员特权</span
             ></a
           >
           <div style="margin-top: 15px; display: flex">
@@ -491,7 +481,7 @@
           <div
             style="
               margin-top: 15px;
-              background-color: #fcedf1;
+              background-color: #FDEEE4;
               width: 380px;
               height: 60px;
             "
@@ -500,7 +490,7 @@
               style="
                 display: flex;
                 font-size: 14px;
-                color: #ed7098;
+                color: #E56A2E;
                 transform: translate(23px, 10px);
               "
               >首月15元</span
@@ -526,7 +516,7 @@
                 cursor: pointer;
                 position: relative;
                 display: flex;
-                background-color: #ea7999;
+                background-color: #E5762F;
                 width: 120px;
                 border-radius: 5px;
                 height: 40px;
@@ -537,12 +527,12 @@
                 transform: translate(250px, -30px);
               "
             >
-              成为大会员
+              开通尊享会员
             </div>
             <span
               style="
                 font-size: 12px;
-                color: #ed7098;
+                color: #E56A2E;
                 display: flex;
                 transform: translate(23px, -48px);
               "
@@ -746,7 +736,7 @@
                   "
                 >
                   <img
-                    src="/img/稍后再看.png"
+                    src="/img/待看清单.png"
                     style="
                       width: 20px;
                       height: 20px;
@@ -785,7 +775,7 @@
           </div>
           <div 
           v-if="notHistoryDynamic.length === 0 && dynamicss.length  === 0"
-           class="dynamic-dataNull">动态什么都没有啊，快去关注一些喜欢的UP主吧！</div>
+           class="dynamic-dataNull">动态什么都没有啊，快去关注一些喜欢的创作者吧！</div>
 
           <div style="display: flex; transform: translate(0px, 15px)">
             <span
@@ -910,7 +900,7 @@
                   "
                 >
                   <img
-                    src="/img/稍后再看.png"
+                    src="/img/待看清单.png"
                     style="
                       width: 20px;
                       height: 20px;
@@ -1011,7 +1001,7 @@
                           display: flex;
                           transform: translate(93px, -45px);
                           font-size: 12px;
-                          color: #9499A0;
+                          color: #8D9794;
                         "
                         >{{ collectDto.collectNumber }}</span
                       ></span
@@ -1090,7 +1080,7 @@
                   }}</span>
                 </el-tooltip>
                 <img
-                  src="/img/up.png"
+                  src="/img/author-badge-default.png"
                   style="
                     width: 14px;
                     height: 12px;
@@ -1157,7 +1147,7 @@
             <span v-show="historyAsideFlag !== 0" @click="selectHistoryAxios"
               >视频</span
             >
-            <span v-show="historyAsideFlag === 0" style="color: #00aeec"
+            <span v-show="historyAsideFlag === 0" style="color: #0FA68E"
               >视频</span
             >
             <span
@@ -1168,13 +1158,13 @@
             >
             <span
               v-show="historyAsideFlag === 1"
-              style="margin-right: 20px; margin-left: 20px; color: #00aeec"
+              style="margin-right: 20px; margin-left: 20px; color: #0FA68E"
               >直播</span
             >
             <span v-show="historyAsideFlag !== 2" @click="historyAsideFlag = 2"
               >专栏</span
             >
-            <span v-show="historyAsideFlag === 2" style="color: #00aeec"
+            <span v-show="historyAsideFlag === 2" style="color: #0FA68E"
               >专栏</span
             >
             <span
@@ -1183,7 +1173,7 @@
                 position: absolute;
                 width: 126.6px;
                 height: 3px;
-                background-color: #00aeec;
+                background-color: #0FA68E;
                 transform: translate(-126px, 24px);
               "
             ></span>
@@ -1193,7 +1183,7 @@
                 position: absolute;
                 width: 126.6px;
                 height: 3px;
-                background-color: #00aeec;
+                background-color: #0FA68E;
                 transform: translate(0px, 24px);
               "
             ></span>
@@ -1203,7 +1193,7 @@
                 position: absolute;
                 width: 126.6px;
                 height: 3px;
-                background-color: #00aeec;
+                background-color: #0FA68E;
                 transform: translate(126px, 24px);
               "
             ></span>
@@ -1276,7 +1266,7 @@
                     ><span>{{ history.watchVideoDateTime }}</span>
                   </span>
                   <img
-                    src="/img/up.png"
+                    src="/img/author-badge-default.png"
                     style="
                       width: 14px;
                       height: 12px;
@@ -1374,7 +1364,7 @@
                     ><span>{{ history.watchVideoDateTime }}</span>
                   </span>
                   <img
-                    src="/img/up.png"
+                    src="/img/author-badge-default.png"
                     style="
                       width: 14px;
                       height: 12px;
@@ -1472,7 +1462,7 @@
                     ><span>{{ history.watchVideoDateTime }}</span>
                   </span>
                   <img
-                    src="/img/up.png"
+                    src="/img/author-badge-default.png"
                     style="
                       width: 14px;
                       height: 12px;
@@ -1695,7 +1685,7 @@
                           @click="loginAxios"
                           class="deng-lu"
                           style="
-                            background-color: #00aeec;
+                            background-color: #0FA68E;
                             border: none;
                             color:white;
                             margin-left: 10px;
@@ -1715,11 +1705,11 @@
                         >登录或完成注册即代表你同意&nbsp;
                         <a
                           href="#"
-                          style="color: #00aeec; animation: none !important"
+                          style="color: #0FA68E; animation: none !important"
                           >用户协议</a
                         >&nbsp;和&nbsp;<a
                           href="#"
-                          style="color: #00aeec; animation: none !important"
+                          style="color: #0FA68E; animation: none !important"
                           >隐私政策</a
                         >
                       </span>
@@ -1819,7 +1809,7 @@
                           class="zhu-ce"
                           @click="sigininAxios"
                           style="
-                            background-color: #00aeec;
+                            background-color: #0FA68E;
                             border: 1px solid #dcdcdc;
                             margin-right: 10px;
                             transform: translateX(1%);
@@ -1854,12 +1844,12 @@
                         登录或完成注册即代表你同意&nbsp;
                         <a
                           href="#"
-                          style="color: #00aeec; animation: none !important"
+                          style="color: #0FA68E; animation: none !important"
                           >用户协议</a
                         >&nbsp;和
                         <a
                           href="#"
-                          style="color: #00aeec; animation: none !important"
+                          style="color: #0FA68E; animation: none !important"
                           >隐私政策</a
                         >
                       </span>
@@ -1968,7 +1958,7 @@
                           "
                           class="deng-lu"
                           style="
-                            background-color: #00aeec;
+                            background-color: #0FA68E;
                             border: none;
                             color:white;
                             margin-left: 10px;
@@ -1992,12 +1982,12 @@
                         登录或完成注册即代表你同意&nbsp;
                         <a
                           href="#"
-                          style="color: #00aeec; animation: none !important"
+                          style="color: #0FA68E; animation: none !important"
                           >用户协议</a
                         >&nbsp;和
                         <a
                           href="#"
-                          style="color: #00aeec; animation: none !important"
+                          style="color: #0FA68E; animation: none !important"
                           >隐私政策</a
                         >
                       </span>
@@ -2089,7 +2079,7 @@ export default {
         id:1,
         collectsList:[],
         collectNumber:0,
-        collectName:"稍后再看"
+        collectName:"待看清单"
       }
     ]);
     const changerCollect = ref(0);
@@ -2836,7 +2826,7 @@ export default {
           collectDtoList.length = 0;
           Object.assign(collectDtoList, response.data.data);
 
-          const index=response.data.data.findIndex(item=>item.collectName==='稍后再看');
+          const index=response.data.data.findIndex(item=>item.collectName==='待看清单');
           if(index!==-1)
           {
             store.setCollectNumber(response.data.data[index].collectNumber);
@@ -3035,7 +3025,7 @@ export default {
 
     //打开我的主页
     function openHome(menu,userId,collect){
-      if(collect&&collect.collectName!=='稍后再看')
+      if(collect&&collect.collectName!=='待看清单')
         {
           window.open(
         `./home?homeMenu=${menu}&userId=${userId||store.userId}`+`&collectId=${collect.collectClassifyId}`,
@@ -3211,7 +3201,7 @@ a {
 }
 
 .head2Flag li a{
-  color:#18191c;
+  color:#1C2321;
 }
 
 
@@ -3319,7 +3309,7 @@ a {
 }
 
 .feature div:hover {
-  background-color: #e3e5e7;
+  background-color: #E0E5E3;
 }
 
 .feature div span {
@@ -3328,7 +3318,7 @@ a {
   align-items: center;
   justify-content: center;
   transform: translateX(27px);
-  color: #62666c;
+  color: #5D6764;
 }
 .feature div img {
   width: 18px;
@@ -3341,7 +3331,7 @@ a {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background-color: #00aeec;
+  background-color: #0FA68E;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3451,7 +3441,7 @@ a {
   display: flex;
   align-items: center;
   transform: translate(-10px, -7px);
-  color: #62666c;
+  color: #5D6764;
 }
 .message-info span .text {
   display: flex;
@@ -3459,7 +3449,7 @@ a {
 }
 
 .message-info span:hover {
-  background-color: #e3e5e7;
+  background-color: #E0E5E3;
 }
 .v-header-ul li:nth-child(12):hover .message-info {
   transition-delay: 0.2s;
@@ -3510,7 +3500,7 @@ a {
   display: flex;
   width: 320px;
   height: 36px;
-  background-color: #00aeec;
+  background-color: #0FA68E;
   margin-top: 12px;
   border-radius: 5px;
   justify-content: center;
@@ -3522,14 +3512,14 @@ a {
   transform: translate(0,-9px);
   width: 320px;
   height: 43px;
-  background-color: #00aeec;
+  background-color: #0FA68E;
   font-size: 14px;
   color: white;
   border: none;
 }
 .login .el-bu:hover {
  
-  background-color: #49bbf0;
+  background-color: #45BBA1;
   
 }
 
@@ -3579,10 +3569,10 @@ a {
 }
 .sign-in a div {
   font-size: 14px;
-  color: #00aeec;
+  color: #0FA68E;
 }
 .active {
-  color: #00aeec !important;
+  color: #0FA68E !important;
 }
 
 .v-header-ul li:nth-child(n + 11):nth-child(-n + 16) a {
@@ -3679,7 +3669,7 @@ a {
 
 .head2Flag li:nth-child(n + 11):nth-child(-n + 16){
   a{
-    color: #62666c;
+    color: #5D6764;
     font-size: 12px;
   }
 }
@@ -3723,7 +3713,7 @@ a {
   margin-top: 10px; /* 按钮与文本之间的间距 */
   width: 320px;
   height: 38px;
-  background-color: #00aeec;
+  background-color: #0FA68E;
   font-size: 14px;
   color: white;
   border: none;
@@ -3731,7 +3721,7 @@ a {
 }
 
 .el-bu:hover{
-  background-color: #49bbf0;
+  background-color: #45BBA1;
 
 }
 
@@ -3763,7 +3753,7 @@ a {
   transform: translate(-4px);
   width: 90px;
   height: 33px;
-  background-color: #fb7299;
+  background-color: #F0A03C;
   border-radius: 7px;
   display: flex;
   justify-content: center;
@@ -3773,7 +3763,7 @@ a {
 }
 
 .upload:hover{
-  background-color: #ef80a0;
+  background-color: #F08438;
 
 }
 
@@ -3818,7 +3808,7 @@ a {
   position: absolute;
   font-size: 14px;
   transform: translate(2px, 8px);
-  color: #e1678d;
+  color: #DD5C24;
 }
 
 .dynamic-info {
@@ -3876,7 +3866,7 @@ a {
 }
 
 .dynamicContent-item:hover {
-  background-color: #e3e5e7;
+  background-color: #E0E5E3;
 }
 
 .dynamicVideoTitle {
@@ -3913,7 +3903,7 @@ a {
   font-size: 14px;
   cursor: pointer;
   border-radius: 5px;
-  background-color: #f6f7f8;
+  background-color: #F4F7F6;
   margin-top: 20px;
 }
 
@@ -4014,7 +4004,7 @@ a {
 .collectAsideTitle2 {
   width: 100%;
   height: 45px;
-  background-color: #00aeec;
+  background-color: #0FA68E;
   cursor: pointer;
   line-height: 45px;
   padding-left: 15px;
@@ -4051,7 +4041,7 @@ a {
   padding-right: 20px;
 }
 .collectContent-item:hover {
-  background-color: #e3e5e7;
+  background-color: #E0E5E3;
 }
 
 .collectVideoTime {
@@ -4090,14 +4080,14 @@ a {
   overflow: hidden; /* 隐藏超出部分 */
   text-overflow: ellipsis; /* 显示省略号 */
   font-size: 12px;
-  color: #95999f;
+  color: #8F9794;
   transform: translate(169px, -91.5px);
   cursor: pointer;
 }
 .dynamicUserName {
   width: 80px;
   font-size: 13px;
-  color: #62666c;
+  color: #5D6764;
   display: flex;
   transform: translate(65px, 10px);
   display: -webkit-box; /* 使用 flexbox 布局 */
@@ -4132,7 +4122,7 @@ a {
   font-size: 15px;
   text-align: center;
   line-height: 45px;
-  color: #00aeec;
+  color: #0FA68E;
 }
 .playAllCollect img {
   width: 15px;
@@ -4141,7 +4131,7 @@ a {
 
 .collectIsNull {
   position: absolute;
-  color: #62666c !important;
+  color: #5D6764 !important;
   transform: translate(115px, 160px);
   font-size: 14px;
 }
@@ -4238,10 +4228,10 @@ a {
   cursor: pointer;
 }
 .historyContent-item-today:hover {
-  background-color: #e3e5e7;
+  background-color: #E0E5E3;
 }
 .historyContent-item-yesterday:hover {
-  background-color: #e3e5e7;
+  background-color: #E0E5E3;
 }
 .historyVideoTime {
   font-size: 11px;
@@ -4284,7 +4274,7 @@ a {
 }
 .history-system span {
   font-size: 12px;
-  color: #95999f;
+  color: #8F9794;
 }
 .historyVideoUpName {
   display: -webkit-box; /* 使用 flexbox 布局 */
@@ -4295,7 +4285,7 @@ a {
   overflow: hidden; /* 隐藏超出部分 */
   text-overflow: ellipsis; /* 显示省略号 */
   font-size: 12px;
-  color: #95999f;
+  color: #8F9794;
   transform: translate(169px, -110px);
   cursor: pointer;
 }
@@ -4309,7 +4299,7 @@ a {
   height: 34px;
   font-size: 14px;
   border-radius: 5px;
-  background-color: #f6f7f8;
+  background-color: #F4F7F6;
   margin-top: 20px;
   cursor: pointer;
 }
@@ -4330,7 +4320,7 @@ a {
 }
 
 .historyVideoProgress::-webkit-progress-value {
-  background-color: #e1678d; /* 加载的颜色 */
+  background-color: #DD5C24; /* 加载的颜色 */
   border-radius: 0 0 5px 5px !important;
 }
 
@@ -4414,21 +4404,21 @@ a {
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #18191C;
+    color: #1C2321;
 
     span{
       font-size: 12px;
-      color: #e1678d;
+      color: #DD5C24;
     }
     }
     div:nth-child(2){
     font-size: 12px;
-    color: #9499A0;
+    color: #8D9794;
     }
   }
   span:hover{
     div{
-      color: #00AEEC;
+      color: #0FA68E;
     }
   }
 

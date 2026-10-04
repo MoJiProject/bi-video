@@ -5,7 +5,7 @@
     @mouseover="store.setEitUserInfoHover(true)"
     @mouseleave="store.setEitUserInfo(null),store.setEitUserInfoHover(false)"
     class="up-user-info">
-    <div v-if="!store.eitUserInfo.backgroundAddress" :style="{backgroundImage:'url(/img/主页背景图.webp)'}" class="up-user-info-bg"></div>
+    <div v-if="!store.eitUserInfo.backgroundAddress" :style="{backgroundImage:'url(/img/page-bg.png)'}" class="up-user-info-bg"></div>
     <div v-else :style="{backgroundImage:`url(${store.eitUserInfo.backgroundAddress})`}" class="up-user-info-bg"></div>
     <div class="up-user-info-container">
     <img
@@ -18,7 +18,7 @@
         @click="openHome(1,store.eitUserInfo.id)"
         class="up-user-info-name"
         :style="{
-            color: store.eitUserInfo.grade > 4 ? '#fb7299' : '#000',
+            color: store.eitUserInfo.grade > 4 ? '#F0A03C' : '#000',
         }"
         >{{ store.eitUserInfo.userName }}</span
         >
@@ -39,17 +39,17 @@
         />
     </div>
     <div class="up-user-info-container-content">
-        <span @click="openHome(8,store.eitUserInfo.id)" style="color: #95999f; cursor: pointer"
+        <span @click="openHome(8,store.eitUserInfo.id)" style="color: #8F9794; cursor: pointer"
         ><span style="color: black">{{
             store.eitUserInfo.followNumber
         }}</span>
         &nbsp;关注</span
         >
-        <span @click="openHome(9,store.eitUserInfo.id)" style="margin-left: 25px; color: #95999f; cursor: pointer"
+        <span @click="openHome(9,store.eitUserInfo.id)" style="margin-left: 25px; color: #8F9794; cursor: pointer"
         ><span style="color: black">{{store.eitUserInfo.fansNumber}}</span>
         &nbsp;粉丝</span
         >
-        <span style="margin-left: 25px; color: #95999f;"
+        <span style="margin-left: 25px; color: #8F9794;"
         ><span style="color: black">{{
             store.eitUserInfo.likeNumber
         }}</span>
@@ -330,7 +330,7 @@ function openHome(menu,id){
   width: 102px;
   font-size: 14px;
   height: 32px;
-  background-color: #00aeec;
+  background-color: #0FA68E;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -344,30 +344,30 @@ function openHome(menu,id){
   width: 102px;
   font-size: 14px;
   height: 32px;
-  background-color: #e3e5e7;
+  background-color: #E0E5E3;
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 5px;
   margin-right: 5px;
-  color: #959595;
+  color: #8F9794;
   cursor: pointer;
 }
 
 .up-user-info-container-footer-delete-follow:hover {
-  background-color: #f1f2f3;
+  background-color: #EFF3F2;
 }
 
 .up-user-info-container-footer-message {
   width: 100px;
   font-size: 14px;
   height: 30px;
-  border: 1px solid #62666c;
+  border: 1px solid #5D6764;
   border-radius: 5px;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #62666c;
+  color: #5D6764;
   cursor: pointer;
 }
 
@@ -376,7 +376,7 @@ function openHome(menu,id){
 }
 
 .up-user-info-container-footer-message:hover {
-  color: #00aeec;
-  border: 1px solid #00aeec;
+  color: #0FA68E;
+  border: 1px solid #0FA68E;
 }
 </style>

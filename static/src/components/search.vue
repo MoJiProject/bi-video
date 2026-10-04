@@ -143,7 +143,7 @@
             font-family: Microsoft YaHei UI Light;       
           "
         >
-          bilibili热搜
+          qingmang热搜
         </div>
         <ul class="fireSearch">
           <li @click="sendSearchAxios(fireSearch[0]?.word)">
@@ -434,12 +434,12 @@ export default {
       showMore.value = true;
       showFewerFlag.value = true;
       imgFlag2.value = false;
-    };
+    }
     function searchFewer() {
       showMore.value = false;
       showFewerFlag.value = false;
       imgFlag1.value = false;
-    };
+    }
 
     //获取热词
     async function selectFireWord() {
@@ -449,7 +449,7 @@ export default {
         if (response.data.code === 1)
           Object.assign(fireSearch, response.data.data);
       } catch (error) {}
-    };
+    }
 
     //获取关键字
     let keyWordTIme;
@@ -472,7 +472,7 @@ export default {
             }, 800);
           }
       } catch (error) {}
-    };
+    }
 
     //添加关键字
     async function addKeyWord() {
@@ -483,7 +483,7 @@ export default {
           },
         });
       } catch (error) {}
-    };
+    }
 
     watch(Content, (newValue) => {
       if (newValue.length === 0) keyWord.length = 0;
@@ -493,7 +493,7 @@ export default {
     function sendSearchAxios(value) {
       Content.value = value;
       searchVideoAxios();
-    };
+    }
 
     //搜索placeholder
     function searchVideoAxios() {
@@ -502,7 +502,7 @@ export default {
         Content.value,
       )}&classifyIndex=`;
       window.open(url, "_blank"); // '_blank' 表示在新窗口或标签页打开
-    };
+    }
 
     //监视不显示时关闭搜索框
     function handleScroll(){
@@ -762,7 +762,7 @@ export default {
   align-items: center; /* 垂直居中 */
   line-height: 20px;
   border-radius: 5px;
-  background-color: #f6f7f8;
+  background-color: #F4F7F6;
   max-width: 37%; /* 允许最大宽度 */
   width: auto; /* 自动根据内容宽度调整 */
   cursor: pointer;
@@ -790,7 +790,7 @@ export default {
 }
 
 .searchContentCss:hover .searchContentFontCss {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .deleteSearchCss {
@@ -808,25 +808,25 @@ export default {
 .searchMore {
   cursor: pointer;
   font-size: 11.5px;
-  color: #9499a0;
+  color: #8D9794;
   transform: translate(158px, -14px);
 }
 
 .searchFewer:hover {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .searchFewer {
   cursor: pointer;
   font-size: 12px;
-  color: #9499a0;
+  color: #8D9794;
   transform: translate(164px, -14px);
   margin-top: 10px;
   transition: all 0.3s ease;
 }
 
 .searchMore:hover {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .fireSearch {
@@ -857,15 +857,15 @@ li:nth-child(-n + 3) .bb img {
 }
 /* 控制后七个 li */
 li:nth-last-child(-n + 6) .aa {
-  color: #95999f;
+  color: #8F9794;
 }
 
 .fireSearch li:hover {
-  background-color: #e3e5e7;
+  background-color: #E0E5E3;
 }
 
 .fireSearch .cc {
-  color: #e1678d;
+  color: #DD5C24;
   transform: translateX(30px);
 }
 
@@ -884,7 +884,7 @@ li:nth-last-child(-n + 6) .aa {
 
 
 .cleanAllSearch:hover {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .search-icon-box{
@@ -893,7 +893,7 @@ li:nth-last-child(-n + 6) .aa {
 }
 .search-icon-box:hover{
   padding: 10px;
-  background-color: #e1678d;
+  background-color: #DD5C24;
 }
 
 .deleteAllSearchImg

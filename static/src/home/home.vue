@@ -67,7 +67,7 @@
                         <div class="collect-back"></div>
                         <div class="collect-back2"></div>
                         <div class="content" @click="store.setHomeMenu(5,userId,true,collect.id)">
-                            <img :src="collect.coverAddress?collect.coverAddress:'/img/collect_cover.avif'">
+                            <img :src="collect.coverAddress?collect.coverAddress:'/img/collect-cover.png'">
                             <svg v-if="collect.status === 0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
                                 <path fill="currentColor" d="M224 448a32 32 0 0 0-32 32v384a32 32 0 0 0 32 32h576a32 32 0 0 0 32-32V480a32 32 0 0 0-32-32zm0-64h576a96 96 0 0 1 96 96v384a96 96 0 0 1-96 96H224a96 96 0 0 1-96-96V480a96 96 0 0 1 96-96"></path>
                                 <path fill="currentColor" d="M512 544a32 32 0 0 1 32 32v192a32 32 0 1 1-64 0V576a32 32 0 0 1 32-32m192-160v-64a192 192 0 1 0-384 0v64zM512 64a256 256 0 0 1 256 256v128H256V320A256 256 0 0 1 512 64"></path>
@@ -81,10 +81,10 @@
                     </div>
                 </div>        
             </div>
-            <!-- 订阅追番部分 -->
+            <!-- 订阅剧集部分 -->
             <div  :class="item.class" v-if="item.class === 'follow-anime'&&!loadMore && ((store.userId!== null && store.userId === userId) || store.homeUserInformation.publicAnime === 1)">
                 <div class="title">
-                    <div class="title-name" @click="store.setHomeMenu(6,userId,true)">订阅追番</div> · &nbsp;
+                    <div class="title-name" @click="store.setHomeMenu(6,userId,true)">订阅剧集</div> · &nbsp;
                     <span class="contribute-total">12</span>
                     <span v-if="store.userId===store.homeUserInformation.id&&store.homeUserInformation.publicAnime===0" class="home-user-info-public"><img src="/img/隐藏.png">仅自己可见</span> 
                 </div>
@@ -298,7 +298,7 @@ function openAccount(){
     top: 30px;
     z-index: 10;
     padding: 20px 16px 24px;
-    background-color: #F6F7F8;
+    background-color: #F4F7F6;
     border-radius: 6px;
 
     div:nth-child(1){
@@ -306,11 +306,11 @@ function openAccount(){
     display: flex;
     align-items: center;
     justify-content: space-between;
-    color: #18191C;
+    color: #1C2321;
     font-size: 16px;
     font-weight: 500;
         span{
-        color: #61666D;
+        color: #5C6664;
         font-size: 12px;
         transition: color 0.3s ease;
         cursor: pointer;
@@ -323,7 +323,7 @@ function openAccount(){
         }
         }
         span:hover{
-            color: #00AEEC;
+            color: #0FA68E;
         }
     }
     div:nth-child(2){
@@ -353,18 +353,18 @@ function openAccount(){
         width: 100%;
         margin-bottom: 34.5px;
         padding-bottom: 24px;
-        border-bottom: 1px solid #E3E5E7;
+        border-bottom: 1px solid #E0E5E3;
             .title{
             span{
                 cursor: pointer;
-                color: #18191C;
+                color: #1C2321;
                 font-size: 24px;
                 font-weight: 600;
                 transition: color 0.3s ease;
                 margin-right: 5px;
             }
             span:hover{
-                color: #00AEEC;
+                color: #0FA68E;
             }
             }
         }
@@ -374,18 +374,18 @@ function openAccount(){
         width: 100%;
         padding-bottom: 24px;
         margin-bottom: 24px;
-        border-bottom: 1px solid #E3E5E7;
+        border-bottom: 1px solid #E0E5E3;
             .title{
             .title-name{
                 cursor: pointer;
-                color: #18191C;
+                color: #1C2321;
                 font-size: 24px;
                 font-weight: 600;
                 transition: color 0.3s ease;
                 margin-right: 5px;
             }
             .title-name:hover{
-                color: #00AEEC;
+                color: #0FA68E;
             }
             .contribute-total{
                 margin-top: 2px;
@@ -407,18 +407,18 @@ function openAccount(){
                 height: 34px;
                 padding: 0 15px;
                 flex-shrink: 0;
-                color: #61666D;
+                color: #5C6664;
                 cursor: pointer;
                 transition: all .3s;
                 border-radius: 6px;
-                background-color: #F6F7F8;
+                background-color: #F4F7F6;
                 }
                 span:hover{
-                    color: #00AEEC;
+                    color: #0FA68E;
                 }
                 .sortClass{
                     color: white !important;
-                    background-color: #00AEEC !important;
+                    background-color: #0FA68E !important;
                 }
             }
             .more{
@@ -434,20 +434,20 @@ function openAccount(){
                     left: 563px;
                     top: 0;
                     font-size: 14px;
-                    color: #18191C;
+                    color: #1C2321;
                     background: white;
                     border-radius: 8px;
                     transition: all .3s;
                     user-select: none;
-                    border: 1px solid #E3E5E7;
+                    border: 1px solid #E0E5E3;
                     svg{
                         width: 14px;
                         height: 14px;
                     }
             }
             .more:hover{
-                background-color: #E3E5E7;
-                border: #E3E5E7;
+                background-color: #E0E5E3;
+                border: #E0E5E3;
             }
         }
 
@@ -457,18 +457,18 @@ function openAccount(){
         width: 100%;
         margin-bottom: 24px;
         padding-bottom: 24px;
-        border-bottom: 1px solid #E3E5E7;
+        border-bottom: 1px solid #E0E5E3;
             .title{
             span{
                 cursor: pointer;
-                color: #18191C;
+                color: #1C2321;
                 font-size: 24px;
                 font-weight: 600;
                 transition: color 0.3s ease;
                 margin-right: 5px;
             }
             span:hover{
-                color: #00AEEC;
+                color: #0FA68E;
             }
             }
             .video-sort{
@@ -487,18 +487,18 @@ function openAccount(){
                 height: 34px;
                 padding: 0 15px;
                 flex-shrink: 0;
-                color: #61666D;
+                color: #5C6664;
                 cursor: pointer;
                 transition: all .3s;
                 border-radius: 6px;
-                background-color: #F6F7F8;
+                background-color: #F4F7F6;
                 }
                 span:hover{
-                    color: #00AEEC;
+                    color: #0FA68E;
                 }
                 .sortClass{
                     color: white !important;
-                    background-color: #00AEEC !important;
+                    background-color: #0FA68E !important;
                 }
             }
             .more{
@@ -514,20 +514,20 @@ function openAccount(){
                     right: 0px;
                     top: 0;
                     font-size: 14px;
-                    color: #18191C;
+                    color: #1C2321;
                     background: white;
                     border-radius: 8px;
                     transition: all .3s;
                     user-select: none;
-                    border: 1px solid #E3E5E7;
+                    border: 1px solid #E0E5E3;
                     svg{
                         width: 14px;
                         height: 14px;
                     }
             }
             .more:hover{
-                background-color: #E3E5E7;
-                border: #E3E5E7;
+                background-color: #E0E5E3;
+                border: #E0E5E3;
             }
         }
 
@@ -537,18 +537,18 @@ function openAccount(){
         width: 100%;
         padding-bottom: 24px;
         margin-bottom: 24px;
-        border-bottom: 1px solid #E3E5E7;
+        border-bottom: 1px solid #E0E5E3;
             .title{   
             .title-name{
                 cursor: pointer;
-                color: #18191C;
+                color: #1C2321;
                 font-size: 24px;
                 font-weight: 600;
                 transition: color 0.3s ease;
                 margin-right: 5px;
             }
             .title-name:hover{
-                color: #00AEEC;
+                color: #0FA68E;
             }
             .contribute-total{
                 margin-top: 2px;
@@ -570,18 +570,18 @@ function openAccount(){
                 height: 34px;
                 padding: 0 15px;
                 flex-shrink: 0;
-                color: #61666D;
+                color: #5C6664;
                 cursor: pointer;
                 transition: all .3s;
                 border-radius: 6px;
-                background-color: #F6F7F8;
+                background-color: #F4F7F6;
                 }
                 span:hover{
-                    color: #00AEEC;
+                    color: #0FA68E;
                 }
                 .sortClass{
                     color: white !important;
-                    background-color: #00AEEC !important;
+                    background-color: #0FA68E !important;
                 }
             }
             .more{
@@ -597,20 +597,20 @@ function openAccount(){
                     left: 820px;
                     top: 0;
                     font-size: 14px;
-                    color: #18191C;
+                    color: #1C2321;
                     background: white;
                     border-radius: 8px;
                     transition: all .3s;
                     user-select: none;
-                    border: 1px solid #E3E5E7;
+                    border: 1px solid #E0E5E3;
                     svg{
                         width: 14px;
                         height: 14px;
                     }
             }
             .more:hover{
-                background-color: #E3E5E7;
-                border: #E3E5E7;
+                background-color: #E0E5E3;
+                border: #E0E5E3;
             }
             .collect-list{
             column-gap: 16px;
@@ -626,7 +626,7 @@ function openAccount(){
 
                     .collect-back{
                         position: absolute;
-                        background: #F6F7F8;
+                        background: #F4F7F6;
                         width: 80%;
                         height: 16px;
                         border-radius: 6px;
@@ -638,7 +638,7 @@ function openAccount(){
                     }
                     .collect-back2{
                         position: absolute;
-                        background: #F1F2F3;
+                        background: #EFF3F2;
                         width: 90%;
                         height: 16px;
                         border-radius: 6px;
@@ -652,7 +652,7 @@ function openAccount(){
                         img{
                         width: 100%;
                         height: 110px;
-                        background-color: #E3E5E7;
+                        background-color: #E0E5E3;
                         border-radius: 6px;
                         object-fit: cover;
                         }
@@ -693,7 +693,7 @@ function openAccount(){
                         font-weight: 500;
                         font-size: 16px;
                         line-height: 1.5;
-                        color: #18191C;
+                        color: #1C2321;
 
                         .name{
                             font-size: 15.5px;
@@ -704,11 +704,11 @@ function openAccount(){
                             transition: color 0.3s ease;
                         }
                         .name:hover{
-                            color: #00AEEC;
+                            color: #0FA68E;
                         }
                         .status{
                             font-size: 11.5px;
-                            color: #9499A0;
+                            color: #8D9794;
                             margin-top: 4px;
                         }
                         }
@@ -724,18 +724,18 @@ function openAccount(){
         width: 100%;
         padding-bottom: 24px;
         margin-bottom: 24px;
-        border-bottom: 1px solid #E3E5E7;
+        border-bottom: 1px solid #E0E5E3;
             .title{
             .title-name{
                 cursor: pointer;
-                color: #18191C;
+                color: #1C2321;
                 font-size: 24px;
                 font-weight: 600;
                 transition: color 0.3s ease;
                 margin-right: 5px;
             }
             .title-name:hover{
-                color: #00AEEC;
+                color: #0FA68E;
             }
             .contribute-total{
                 margin-top: 2px;
@@ -757,18 +757,18 @@ function openAccount(){
                 height: 34px;
                 padding: 0 15px;
                 flex-shrink: 0;
-                color: #61666D;
+                color: #5C6664;
                 cursor: pointer;
                 transition: all .3s;
                 border-radius: 6px;
-                background-color: #F6F7F8;
+                background-color: #F4F7F6;
                 }
                 span:hover{
-                    color: #00AEEC;
+                    color: #0FA68E;
                 }
                 .sortClass{
                     color: white !important;
-                    background-color: #00AEEC !important;
+                    background-color: #0FA68E !important;
                 }
             }
             .more{
@@ -784,20 +784,20 @@ function openAccount(){
                     right: 0px;
                     top: 0;
                     font-size: 14px;
-                    color: #18191C;
+                    color: #1C2321;
                     background: white;
                     border-radius: 8px;
                     transition: all .3s;
                     user-select: none;
-                    border: 1px solid #E3E5E7;
+                    border: 1px solid #E0E5E3;
                     svg{
                         width: 14px;
                         height: 14px;
                     }
             }
             .more:hover{
-                background-color: #E3E5E7;
-                border: #E3E5E7;
+                background-color: #E0E5E3;
+                border: #E0E5E3;
             }
             .video-list{
             column-gap: 16px;
@@ -823,7 +823,7 @@ function openAccount(){
                         font-size: 14px;
                         line-height: 20px;
                         font-weight: 400;
-                        color: #9499A0;
+                        color: #8D9794;
                         
                     }
                 }    
@@ -836,18 +836,18 @@ function openAccount(){
         width: 100%;
         margin-bottom: 24px;
         padding-bottom: 24px;
-        border-bottom: 1px solid #E3E5E7;
+        border-bottom: 1px solid #E0E5E3;
             .title{
             span{
                 cursor: pointer;
-                color: #18191C;
+                color: #1C2321;
                 font-size: 24px;
                 font-weight: 600;
                 transition: color 0.3s ease;
                 margin-right: 5px;
             }
             span:hover{
-                color: #00AEEC;
+                color: #0FA68E;
             }
             }
             .video-sort{
@@ -866,18 +866,18 @@ function openAccount(){
                 height: 34px;
                 padding: 0 15px;
                 flex-shrink: 0;
-                color: #61666D;
+                color: #5C6664;
                 cursor: pointer;
                 transition: all .3s;
                 border-radius: 6px;
-                background-color: #F6F7F8;
+                background-color: #F4F7F6;
                 }
                 span:hover{
-                    color: #00AEEC;
+                    color: #0FA68E;
                 }
                 .sortClass{
                     color: white !important;
-                    background-color: #00AEEC !important;
+                    background-color: #0FA68E !important;
                 }
             }
             .more{
@@ -893,20 +893,20 @@ function openAccount(){
                     right: 0px;
                     top: 0;
                     font-size: 14px;
-                    color: #18191C;
+                    color: #1C2321;
                     background: white;
                     border-radius: 8px;
                     transition: all .3s;
                     user-select: none;
-                    border: 1px solid #E3E5E7;
+                    border: 1px solid #E0E5E3;
                     svg{
                         width: 14px;
                         height: 14px;
                     }
             }
             .more:hover{
-                background-color: #E3E5E7;
-                border: #E3E5E7;
+                background-color: #E0E5E3;
+                border: #E0E5E3;
             }
                 .video-list{
                 column-gap: 16px;
@@ -932,7 +932,7 @@ function openAccount(){
                             font-size: 14px;
                             line-height: 20px;
                             font-weight: 400;
-                            color: #9499A0;
+                            color: #8D9794;
                             
                         }
                 }       
@@ -945,7 +945,7 @@ function openAccount(){
 .home-user-info-public{
     font-size: 12px !important;
     margin-left: 16px !important;
-    color: #9499A0 !important;
+    color: #8D9794 !important;
     display: flex;
     font-weight: normal !important;
     align-items: center;

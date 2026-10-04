@@ -72,7 +72,7 @@ export function formatSecondsToVideoTime(seconds) {
  * 远程视频取不到首帧时使用的默认封面
  */
 export async function fetchDefaultRemoteCover() {
-  const response = await fetch("/img/pageBg7.webp");
+  const response = await fetch("/img/page-bg-7.png");
   return await response.blob();
 }
 

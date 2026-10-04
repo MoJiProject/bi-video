@@ -387,14 +387,14 @@ export default {
 
 .sub-text {
   font-size: 12px;
-  color: #9499a0;
+  color: #8D9794;
   margin-top: 2px;
   display: block;
 }
 
 .warn-text {
   font-size: 14px;
-  color: #61666d;
+  color: #5C6664;
   margin-bottom: 12px;
 }
 </style>

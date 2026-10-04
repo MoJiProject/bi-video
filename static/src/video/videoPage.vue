@@ -78,7 +78,7 @@
             <div class="show-up-videoTitle">
               {{ SelectVideoByIdVo.upVideo.title }}
             </div>
-            <div style="transform: translate(0px, 5px); color: #95999f">
+            <div style="transform: translate(0px, 5px); color: #8F9794">
               <img
                 src="/img/播放量灰.png"
                 style="
@@ -150,7 +150,7 @@
               @mouseover="nameOrAvatarHoverFlag2=true"
               @mouseleave="nameOrAvatarHoverFlag2=false,delayUserInfo(0)"
             >
-              <div v-if="!SelectVideoByIdVo.upUser.backgroundAddress" :style="{backgroundImage:'url(/img/主页背景图.webp)'}" class="up-user-info-bg"></div>
+              <div v-if="!SelectVideoByIdVo.upUser.backgroundAddress" :style="{backgroundImage:'url(/img/page-bg.png)'}" class="up-user-info-bg"></div>
               <div v-else :style="{backgroundImage:`url(${SelectVideoByIdVo.upUser.backgroundAddress})`}" class="up-user-info-bg"></div>
               <div class="up-user-info-container">
                 <img
@@ -164,7 +164,7 @@
                     class="up-user-info-name"
                     :style="{
                       color:
-                        SelectVideoByIdVo.upUser.grade > 4 ? '#fb7299' : '#000',
+                        SelectVideoByIdVo.upUser.grade > 4 ? '#F0A03C' : '#000',
                     }"
                     >{{ SelectVideoByIdVo.upUser.userName }}</span
                   >
@@ -185,19 +185,19 @@
                   />
                 </div>
                 <div class="up-user-info-container-content">
-                  <span @click="openHome(8,SelectVideoByIdVo.upUser.id)" style="color: #95999f; cursor: pointer"
+                  <span @click="openHome(8,SelectVideoByIdVo.upUser.id)" style="color: #8F9794; cursor: pointer"
                     ><span style="color: black">{{
                       SelectVideoByIdVo.upUser.followNumber
                     }}</span>
                     &nbsp;关注</span
                   >
-                  <span @click="openHome(9,SelectVideoByIdVo.upUser.id)" style="margin-left: 25px; color: #95999f; cursor: pointer"
+                  <span @click="openHome(9,SelectVideoByIdVo.upUser.id)" style="margin-left: 25px; color: #8F9794; cursor: pointer"
                     ><span style="color: black">{{
                       SelectVideoByIdVo.upUser.fansNumber
                     }}</span>
                     &nbsp;粉丝</span
                   >
-                  <span style="margin-left: 25px; color: #95999f;"
+                  <span style="margin-left: 25px; color: #8F9794;"
                     ><span style="color: black">{{
                       SelectVideoByIdVo.upUser.likeNumber
                     }}</span>
@@ -246,7 +246,7 @@
               @mouseover="delayUserInfo(2)"
               @mouseleave="delayUserInfo(0)"
               :style="{
-                color: SelectVideoByIdVo.upUser.grade > 4 ? '#fb7299' : '#000',
+                color: SelectVideoByIdVo.upUser.grade > 4 ? '#F0A03C' : '#000',
               }"
             >
               {{ SelectVideoByIdVo.upUser.userName }}
@@ -279,7 +279,7 @@
             </div>
           </el-tooltip>
           <div id="up-power-container" class="up-power-container">
-            <img src="/img/充电.webp" />
+            <img src="/img/charge.png" />
             <span style="margin-right: 2px">充</span><span>电</span>
           </div>
           <div
@@ -914,7 +914,7 @@
                     id="volume"
                     class="scrolling-display-slider"
                     :style="{
-                      background: `linear-gradient(to right, #00aeec ${scrollingDisplayOpacityValue}%, #424242 ${scrollingDisplayOpacityValue}%, #424242 170px)`,
+                      background: `linear-gradient(to right, #0FA68E ${scrollingDisplayOpacityValue}%, #424242 ${scrollingDisplayOpacityValue}%, #424242 170px)`,
                     }"
                     type="range"
                     min="0"
@@ -938,7 +938,7 @@
                     id="volume"
                     class="scrolling-display-slider"
                     :style="{
-                      background: `linear-gradient(to right, #00aeec ${scrollingDisplayFontSizeValue}%, #424242 ${scrollingDisplayFontSizeValue}%, #424242 170px)`,
+                      background: `linear-gradient(to right, #0FA68E ${scrollingDisplayFontSizeValue}%, #424242 ${scrollingDisplayFontSizeValue}%, #424242 170px)`,
                     }"
                     type="range"
                     min="0"
@@ -1081,7 +1081,7 @@
               style="color: #b9b7b8; position: absolute"
               >请先
               <span
-                style="color: #00aeec; cursor: pointer"
+                style="color: #0FA68E; cursor: pointer"
                 @click="
                   loginDialogVisibleFlag === 0
                     ? (loginDialogVisibleFlag = 1)
@@ -1091,7 +1091,7 @@
               >
               或
               <span
-                style="color: #00aeec; cursor: pointer"
+                style="color: #0FA68E; cursor: pointer"
                 @click="
                   loginDialogVisibleFlag === 2
                     ? (loginDialogVisibleFlag = 3)
@@ -1104,7 +1104,7 @@
               ><a
                 class="scrolling-regulation1"
                 target="_blank"
-                href="https://www.bilibili.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
+                href="https://www.qingmang.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
                 >弹幕礼仪 ></a
               ></span
             >
@@ -1154,7 +1154,7 @@
                   >
                   <span
                     v-show="sendScrollingFontSize === 16"
-                    style="margin-right: 5px; background-color: #00aeec"
+                    style="margin-right: 5px; background-color: #0FA68E"
                     @click="sendScrollingFontSize = 16"
                     >小</span
                   >
@@ -1167,7 +1167,7 @@
                   >
                   <span
                     v-show="sendScrollingFontSize === 20"
-                    style="margin-left: 5px; background-color: #00aeec"
+                    style="margin-left: 5px; background-color: #0FA68E"
                     @click="sendScrollingFontSize = 20"
                     >标准</span
                   >
@@ -1292,7 +1292,7 @@
               style="color: #b9b7b8; position: absolute"
               >请先
               <span
-                style="color: #00aeec; cursor: pointer"
+                style="color: #0FA68E; cursor: pointer"
                 @click="
                   loginDialogVisibleFlag === 0
                     ? (loginDialogVisibleFlag = 1)
@@ -1302,7 +1302,7 @@
               >
               或
               <span
-                style="color: #00aeec; cursor: pointer"
+                style="color: #0FA68E; cursor: pointer"
                 @click="
                   loginDialogVisibleFlag === 2
                     ? (loginDialogVisibleFlag = 3)
@@ -1315,7 +1315,7 @@
               ><a
                 class="scrolling-regulation1"
                 target="_blank"
-                href="https://www.bilibili.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
+                href="https://www.qingmang.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
                 >弹幕礼仪 ></a
               ></span
             >
@@ -1437,7 +1437,7 @@
                 <input
                   id="volume"
                   :style="{
-                    background: `linear-gradient(to right, #00aeec ${videoAudio}%, white ${videoAudio}%, white 170px)`,
+                    background: `linear-gradient(to right, #0FA68E ${videoAudio}%, white ${videoAudio}%, white 170px)`,
                   }"
                   class="volume-slider"
                   type="range"
@@ -1670,7 +1670,7 @@
         <div class="up-video-play-bottom-video-scrolling-container">
           <img
             v-show="likeVideoImgFlag"
-            src="/img/视频点赞.gif"
+            src="/img/like-burst.png"
             class="up-video-controls-img0"
           />
           <span class="watch-num"
@@ -1893,7 +1893,7 @@
                     id="volume"
                     class="scrolling-display-slider"
                     :style="{
-                      background: `linear-gradient(to right, #00aeec ${scrollingDisplayOpacityValue}%, #424242 ${scrollingDisplayOpacityValue}%, #424242 170px)`,
+                      background: `linear-gradient(to right, #0FA68E ${scrollingDisplayOpacityValue}%, #424242 ${scrollingDisplayOpacityValue}%, #424242 170px)`,
                     }"
                     type="range"
                     min="0"
@@ -1917,7 +1917,7 @@
                     id="volume"
                     class="scrolling-display-slider"
                     :style="{
-                      background: `linear-gradient(to right, #00aeec ${scrollingDisplayFontSizeValue}%, #424242 ${scrollingDisplayFontSizeValue}%, #424242 170px)`,
+                      background: `linear-gradient(to right, #0FA68E ${scrollingDisplayFontSizeValue}%, #424242 ${scrollingDisplayFontSizeValue}%, #424242 170px)`,
                     }"
                     type="range"
                     min="0"
@@ -2051,7 +2051,7 @@
               style="color: #999999; position: absolute"
               >请先
               <span
-                style="color: #00aeec; cursor: pointer"
+                style="color: #0FA68E; cursor: pointer"
                 @click="
                   loginDialogVisibleFlag === 0
                     ? (loginDialogVisibleFlag = 1)
@@ -2061,7 +2061,7 @@
               >
               或
               <span
-                style="color: #00aeec; cursor: pointer"
+                style="color: #0FA68E; cursor: pointer"
                 @click="
                   loginDialogVisibleFlag === 2
                     ? (loginDialogVisibleFlag = 3)
@@ -2074,7 +2074,7 @@
               ><a
                 class="scrolling-regulation"
                 target="_blank"
-                href="https://www.bilibili.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
+                href="https://www.qingmang.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
                 >弹幕礼仪 ></a
               ></span
             >
@@ -2114,7 +2114,7 @@
                   >
                   <span
                     v-show="sendScrollingFontSize === 16"
-                    style="margin-right: 5px; background-color: #00aeec"
+                    style="margin-right: 5px; background-color: #0FA68E"
                     @click="sendScrollingFontSize = 16"
                     >小</span
                   >
@@ -2127,7 +2127,7 @@
                   >
                   <span
                     v-show="sendScrollingFontSize === 20"
-                    style="margin-left: 5px; background-color: #00aeec"
+                    style="margin-left: 5px; background-color: #0FA68E"
                     @click="sendScrollingFontSize = 20"
                     >标准</span
                   >
@@ -2251,7 +2251,7 @@
               style="color: #999999; position: absolute"
               >请先
               <span
-                style="color: #00aeec; cursor: pointer"
+                style="color: #0FA68E; cursor: pointer"
                 @click="
                   loginDialogVisibleFlag === 0
                     ? (loginDialogVisibleFlag = 1)
@@ -2261,7 +2261,7 @@
               >
               或
               <span
-                style="color: #00aeec; cursor: pointer"
+                style="color: #0FA68E; cursor: pointer"
                 @click="
                   loginDialogVisibleFlag === 2
                     ? (loginDialogVisibleFlag = 3)
@@ -2274,7 +2274,7 @@
               ><a
                 class="scrolling-regulation"
                 target="_blank"
-                href="https://www.bilibili.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
+                href="https://www.qingmang.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
                 >弹幕礼仪 ></a
               ></span
             >
@@ -2292,7 +2292,7 @@
             transform: translate(10px, 77px);
           "
         ></div>
-        <!-- 三连 -->
+        <!-- 连击 -->
         <div class="up-video-controls-container">
           <!-- 点赞 -->
           <el-tooltip
@@ -2432,10 +2432,10 @@
                 <template #footer>
                   <div class="throw-coin-dialog-content">
                     <div v-show="throwCoinNumber === 1" class="throw-coin-title">
-                      给UP主投上<span>1</span>枚硬币
+                      给创作者投上<span>1</span>枚硬币
                     </div>
                     <div v-show="throwCoinNumber === 2" class="throw-coin-title">
-                      给UP主投上<span>2</span>枚硬币
+                      给创作者投上<span>2</span>枚硬币
                     </div>
                     <div
                       :class="{
@@ -2686,8 +2686,8 @@
             :src="addWaitWatchHoverFlag ? addWaitWatchBlue : addWaitWatch"
           />
           <div class="wait-watch-info" @click="waitWatchAxios">
-            <img src="/img/稍后再看灰.png" />
-            <span>稍后再看</span>
+            <img src="/img/待看清单灰.png" />
+            <span>待看清单</span>
           </div>
           <div v-show="waitWatchMsg.length > 0" class="waitWatchMsg">
             {{ waitWatchMsg }}
@@ -2725,7 +2725,7 @@
                           display: inline-block;
                           transform: translate(0px, -9px);
                           margin-left: 17px;
-                          color: #62666c;
+                          color: #5D6764;
                         "
                         >{{ videoTimeFormat(scrollingData.videoTime) }}</span
                       >
@@ -3180,7 +3180,7 @@ export default {
       );
       window.removeEventListener("beforeunload", addHistoryAxios);
       window.clearTimeout(watchTogetherVisibleTimer);
-      //清理剩余的定时器与三连计时器
+      //清理剩余的定时器与连击计时器
       clearTimeout(timer);
       clearTimeout(keyInfoTime);
       clearTimeout(audioInfoTime);
@@ -3388,7 +3388,7 @@ export default {
           videoCollectClickFlag.value =
             response.data.data.videoCollectClickFlag;
           document.title =
-            SelectVideoByIdVo.upVideo.title + "-哔哩哔哩_bilibili";
+            SelectVideoByIdVo.upVideo.title + "-青芒视频";
           checkVideoTitle(response.data.data.upVideo.title);
           onloadPage.value = true;
           handleVideoContentHeight();
@@ -4081,14 +4081,14 @@ export default {
             loginDialogVisibleFlag.value === 0 ? 1 : 0;
           return;
         }
-        ScrollingData.content = sendScrollingText.value.trim();
-        ScrollingData.color = sendScrollingColor.value;
-        ScrollingData.size = sendScrollingFontSize.value;
-        ScrollingData.userId = store.userId;
-        ScrollingData.videoId = SelectVideoByIdVo.upVideo?.id;
-        ScrollingData.videoTime = upVideoPlayer.value.currentTime;
-        ScrollingData.location = scrollingPattern.value;
-        ScrollingData.colorful = sendScrollingColorful.value;
+        ScrollingData.value.content = sendScrollingText.value.trim();
+        ScrollingData.value.color = sendScrollingColor.value;
+        ScrollingData.value.size = sendScrollingFontSize.value;
+        ScrollingData.value.userId = store.userId;
+        ScrollingData.value.videoId = SelectVideoByIdVo.upVideo?.id;
+        ScrollingData.value.videoTime = upVideoPlayer.value.currentTime;
+        ScrollingData.value.location = scrollingPattern.value;
+        ScrollingData.value.colorful = sendScrollingColorful.value;
         const response = await apiClient.post(
           "/video/sendScrolling",
           ScrollingData,
@@ -4307,7 +4307,7 @@ export default {
       }
     }
 
-    //三连
+    //连击
     const StartThreeTime = ref(0);
     let intervalId;
     let threeForCount = 0;
@@ -4330,7 +4330,7 @@ export default {
       }, 1500);
     }
 
-    //结束三连
+    //结束连击
     async function endThree(a) {
       const endThreeTime = Date.now() - StartThreeTime.value;
       //发送点赞请求
@@ -4346,7 +4346,7 @@ export default {
       } else if (endThreeTime >= 500 && a !== 2) {
         threeAnmationBeforeFlag.value = true;
       }
-      //发送三连请求
+      //发送连击请求
       if (endThreeTime >= 3000) {
         if (store.userId === null) {
           loginDialogVisibleFlag.value =
@@ -4803,7 +4803,7 @@ export default {
       }
     }
 
-    //稍后再看请求
+    //待看清单请求
     async function waitWatchAxios() {
       try {
         if (store.userId === null) {
@@ -5447,7 +5447,7 @@ export default {
   display: -webkit-box;
   transform: translate(8px, 23px);
   font-size: 19px;
-  color: #18191c;
+  color: #1C2321;
   -webkit-box-orient: vertical; /* 垂直方向排列 */
   -webkit-line-clamp: 1; /* 限制为 1 行 */
   line-clamp: 1;
@@ -5484,7 +5484,7 @@ export default {
 }
 
 .expand-icon-container:hover {
-  background-color: #e3e5e7;
+  background-color: #E0E5E3;
 }
 
 .expand-icon-container:hover .expand-icon {
@@ -5540,7 +5540,7 @@ export default {
 }
 
 .up-user-name:hover {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .up-user-info {
@@ -5651,7 +5651,7 @@ export default {
   width: 102px;
   font-size: 14px;
   height: 32px;
-  background-color: #00aeec;
+  background-color: #0FA68E;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -5665,30 +5665,30 @@ export default {
   width: 102px;
   font-size: 14px;
   height: 32px;
-  background-color: #e3e5e7;
+  background-color: #E0E5E3;
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 5px;
   margin-right: 5px;
-  color: #959595;
+  color: #8F9794;
   cursor: pointer;
 }
 
 .up-user-info-container-footer-delete-follow:hover {
-  background-color: #f1f2f3;
+  background-color: #EFF3F2;
 }
 
 .up-user-info-container-footer-message {
   width: 100px;
   font-size: 14px;
   height: 30px;
-  border: 1px solid #62666c;
+  border: 1px solid #5D6764;
   border-radius: 5px;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #62666c;
+  color: #5D6764;
   cursor: pointer;
 }
 
@@ -5697,8 +5697,8 @@ export default {
 }
 
 .up-user-info-container-footer-message:hover {
-  color: #00aeec;
-  border: 1px solid #00aeec;
+  color: #0FA68E;
+  border: 1px solid #0FA68E;
 }
 
 .sendUpMessageImg {
@@ -5719,12 +5719,12 @@ export default {
 }
 
 .sendMessage-container:hover .sendUpMessage {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .up-user-content {
   transform: translate(800px, -77px);
-  color: #95999f;
+  color: #8F9794;
   width: 280px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -5737,15 +5737,15 @@ export default {
   height: 27.5px;
   transform: translate(800px, -72px);
   font-size: 13px;
-  color: #eb7a99;
+  color: #EE7A31;
   border-radius: 5px;
-  border: 1px solid #eb7a99;
+  border: 1px solid #EE7A31;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   user-select: none;
-  text-shadow: 0 0 1px rgba(235, 122, 153, 0.6);
+  text-shadow: 0 0 1px rgba(238,122,49, 0.6);
   z-index: -500000;
   position: relative;
 }
@@ -5757,7 +5757,7 @@ export default {
 }
 
 .up-power-container:hover {
-  background-color: #ffecf1;
+  background-color: #FDEEE4;
 }
 
 .up-add-follow-container {
@@ -5766,7 +5766,7 @@ export default {
   transform: translate(920px, -102px);
   color: white;
   font-size: 13.5px;
-  background-color: #00aeec;
+  background-color: #0FA68E;
   border-radius: 5px;
   display: flex;
   justify-content: center;
@@ -5782,9 +5782,9 @@ export default {
   width: 169px;
   height: 30px;
   transform: translate(920px, -102px);
-  color: #95999f;
+  color: #8F9794;
   font-size: 13.5px;
-  background-color: #e3e5e7;
+  background-color: #E0E5E3;
   border-radius: 5px;
   display: flex;
   justify-content: center;
@@ -5796,7 +5796,7 @@ export default {
 }
 
 .up-delete-follow-container:hover {
-  background-color: #f1f2f3;
+  background-color: #EFF3F2;
 }
 
 .up-add-follow-container:hover {
@@ -5806,7 +5806,7 @@ export default {
 .prohibition-sign {
   width: 9px; /* 标识的宽度 */
   height: 9px; /* 标识的高度 */
-  border: 2.5px solid #eb7073; /* 圆圈的边框颜色 */
+  border: 2.5px solid #E2603C; /* 圆圈的边框颜色 */
   border-radius: 50%; /* 使其成为圆形 */
   position: relative; /* 相对定位，便于内部斜杠定位 */
   display: flex;
@@ -5821,7 +5821,7 @@ export default {
   position: absolute;
   width: 2.5px; /* 斜杠的宽度 */
   height: 100%; /* 斜杠的高度 */
-  background-color: #eb7073; /* 斜杠的颜色 */
+  background-color: #E2603C; /* 斜杠的颜色 */
   transform: rotate(-50deg); /* 旋转斜杠 */
 }
 
@@ -5829,7 +5829,7 @@ export default {
   width: 500px;
   position: relative;
   transform: translate(11px, 20px);
-  color: #95999f;
+  color: #8F9794;
 }
 
 .up-video-container {
@@ -5910,7 +5910,7 @@ export default {
 }
 
 .up-VideoProgress::-webkit-progress-value {
-  background-color: #00aeec; /* 加载的颜色 */
+  background-color: #0FA68E; /* 加载的颜色 */
   border-radius: 1px 1px 1px 1px !important;
 }
 
@@ -6157,7 +6157,7 @@ export default {
 }
 
 .selectVideoSpped {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .up-video-play-bottom-video-set-audio {
@@ -6194,7 +6194,7 @@ export default {
   appearance: none;
   width: 12px; /* 滑块圆点宽度 */
   height: 12px; /* 滑块圆点高度 */
-  background: #00aeec; /* 滑块圆点颜色 */
+  background: #0FA68E; /* 滑块圆点颜色 */
   border-radius: 50%; /* 圆形 */
   cursor: pointer;
 }
@@ -6265,7 +6265,7 @@ export default {
 }
 
 .up-video-play-bottom-video-set-container span:hover {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .video-false-container {
@@ -6292,7 +6292,7 @@ export default {
   width: 20px;
   --el-switch-height: 20px; /* 修改高度 */
   --el-switch-width: 30px; /* 修改宽度 */
-  --el-switch-on-color: #00aeec !important;
+  --el-switch-on-color: #0FA68E !important;
   margin-left: 10px;
   margin-right: 10px;
 }
@@ -6569,7 +6569,7 @@ export default {
   width: 321px;
   height: 32px;
   font-size: 12.5px;
-  background-color: #f1f2f3;
+  background-color: #EFF3F2;
   display: flex;
   align-items: center;
   padding-left: 6.5px;
@@ -6582,7 +6582,7 @@ export default {
   width: 325px;
   height: 32px;
   font-size: 12.5px;
-  background-color: #f1f2f3;
+  background-color: #EFF3F2;
   display: flex;
   align-items: center;
   padding-left: 6.5px;
@@ -6618,7 +6618,7 @@ export default {
 .send-scrolling-btn-close {
   transform: translate(195px);
   color: #999999;
-  background-color: #e3e5e7;
+  background-color: #E0E5E3;
   width: 62px;
   height: 32px;
   display: flex;
@@ -6631,7 +6631,7 @@ export default {
 .send-scrolling-btn-close1 {
   transform: translate(285px);
   color: #999999;
-  background-color: #e3e5e7;
+  background-color: #E0E5E3;
   width: 62px;
   height: 32px;
   display: flex;
@@ -6644,7 +6644,7 @@ export default {
 .send-scrolling-btn-open {
   transform: translate(242px);
   color: white;
-  background-color: #00aeec;
+  background-color: #0FA68E;
   width: 62px;
   height: 32px;
   display: flex;
@@ -6657,7 +6657,7 @@ export default {
 .send-scrolling-btn-open1 {
   transform: translate(332px);
   color: white;
-  background-color: #00aeec;
+  background-color: #0FA68E;
   width: 62px;
   height: 32px;
   display: flex;
@@ -6692,7 +6692,7 @@ export default {
   transform: translate(27px);
   font-size: 13px;
   border: none;
-  background-color: #f1f2f3;
+  background-color: #EFF3F2;
 }
 
 .up-video-play-bottom-video-close-scrolling-input:focus {
@@ -6728,7 +6728,7 @@ export default {
 }
 
 .scrolling-regulation:hover {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .scrolling-regulation1:hover {
@@ -6783,7 +6783,7 @@ export default {
 }
 
 .rollScrollingText {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .fixed-scrolling-text {
@@ -6806,7 +6806,7 @@ export default {
 }
 
 .fixedScrollingText {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .setting-scrolling-checkbox {
@@ -6825,7 +6825,7 @@ export default {
 }
 
 .checkBoxHoverFlag {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .scrolling-slider-container {
@@ -6848,7 +6848,7 @@ export default {
   width: 170px;
   height: 6px;
   border-radius: 8px;
-  background-color: #00aeec;
+  background-color: #0FA68E;
 }
 
 .silder-pointer1 {
@@ -6908,7 +6908,7 @@ export default {
 .scrollingDisplayAreaValue1 {
   background: linear-gradient(
     to right,
-    #00aeec 50px,
+    #0FA68E 50px,
     /* 第一个颜色填充到 55px */ #424242 50px,
     /* 第二个颜色从 55px 开始 */ #424242 170px
   ); /* 第二个颜色填充到 170px */
@@ -6917,7 +6917,7 @@ export default {
 .scrollingDisplayAreaValue2 {
   background: linear-gradient(
     to right,
-    #00aeec 90px,
+    #0FA68E 90px,
     /* 第一个颜色填充到 55px */ #424242 90px,
     /* 第二个颜色从 55px 开始 */ #424242 170px
   ); /* 第二个颜色填充到 170px */
@@ -6926,7 +6926,7 @@ export default {
 .scrollingDisplayAreaValue3 {
   background: linear-gradient(
     to right,
-    #00aeec 130px,
+    #0FA68E 130px,
     /* 第一个颜色填充到 55px */ #424242 130px,
     /* 第二个颜色从 55px 开始 */ #424242 170px
   ); /* 第二个颜色填充到 170px */
@@ -7021,7 +7021,7 @@ export default {
 .up-video-play-bottom-video-open-scrolling-color-info-container-pattern
   div
   .cc2 {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .scrolling-color-picker {
@@ -7099,7 +7099,7 @@ export default {
 /* 选中态保持 1px 边框，只换颜色；
    写成双类选择器是为了在:hover 时也能压过上面的 hover 规则 */
 .scrolling-colorful-picker.scrolling-colorful-picker-active {
-  border-color: #00aeec;
+  border-color: #0FA68E;
 }
 
 .up-video-play-bottom-video-open-scrolling-color-container:hover
@@ -7221,7 +7221,7 @@ export default {
   z-index: -5;
   width: 348.5px;
   border-radius: 8px;
-  border: 1px solid #f1f2f3;
+  border: 1px solid #EFF3F2;
 }
 
 .scrolling-list {
@@ -7234,7 +7234,7 @@ export default {
 }
 
 .el-collapse-item__header {
-  background-color: #f1f2f3 !important;
+  background-color: #EFF3F2 !important;
   border-radius: 7px !important;
   height: 42.5px !important;
   padding: 13px !important;
@@ -7273,7 +7273,7 @@ export default {
 
 .scrolling-list-item-top {
   height: 31px;
-  color: #62666c;
+  color: #5D6764;
   font-size: 11.5px;
   line-height: 31px;
   margin-bottom: 10px;
@@ -7334,19 +7334,19 @@ export default {
   user-select: none;
   height: 16px;
   transform: translate(235px, -29px);
-  border: 1px solid #00aeec;
-  color: #00aeec;
+  border: 1px solid #0FA68E;
+  color: #0FA68E;
 }
 
 .scrolling-reocation:hover {
-  background-color: #00aeec;
+  background-color: #0FA68E;
   color: white;
 }
 
 .scrolling-list-item-bottom-end {
   transform: translate(0px, 40px);
   width: 50px;
-  background-color: #00aeec;
+  background-color: #0FA68E;
   height: 30px;
 }
 
@@ -7357,7 +7357,7 @@ export default {
   height: 55.5px;
   user-select: none;
   transform: translate(9.5px, 100px);
-  border-bottom: 1px solid #e3e5e7;
+  border-bottom: 1px solid #E0E5E3;
 }
 
 .up-video-controls-img0 {
@@ -7407,7 +7407,7 @@ export default {
 }
 
 .up-video-controls-container .up-video-controls-span:hover {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .video-share-container{
@@ -7505,29 +7505,29 @@ export default {
   }
   20% {
     border-radius: 50%;
-    border-top: 1.5px solid rgba(78, 171, 230, 0.3); /* 先设置透明边框 */
+    border-top: 1.5px solid rgba(60,192,166, 0.3); /* 先设置透明边框 */
   }
   40% {
     border-radius: 50%;
-    border-top: 1.5px solid #00aeec;
-    border-right: 1.5px solid rgba(78, 171, 230, 0.3); /* 右边框透明 */
+    border-top: 1.5px solid #0FA68E;
+    border-right: 1.5px solid rgba(60,192,166, 0.3); /* 右边框透明 */
   }
   60% {
     border-radius: 50%;
-    border-top: 1.5px solid #00aeec;
-    border-right: 1.5px solid #00aeec;
-    border-bottom: 1.5px solid rgba(78, 171, 230, 0.3); /* 底边框透明 */
+    border-top: 1.5px solid #0FA68E;
+    border-right: 1.5px solid #0FA68E;
+    border-bottom: 1.5px solid rgba(60,192,166, 0.3); /* 底边框透明 */
   }
   80% {
     border-radius: 50%;
-    border-top: 1.5px solid #00aeec;
-    border-right: 1.5px solid #00aeec;
-    border-bottom: 1.5px solid #00aeec; /* 底边框透明 */
-    border-left: 1.5px solid rgba(78, 171, 230, 0.3); /* 左边框透明 */
+    border-top: 1.5px solid #0FA68E;
+    border-right: 1.5px solid #0FA68E;
+    border-bottom: 1.5px solid #0FA68E; /* 底边框透明 */
+    border-left: 1.5px solid rgba(60,192,166, 0.3); /* 左边框透明 */
   }
   100% {
     border-radius: 50%;
-    border: 1.5px solid #00aeec;
+    border: 1.5px solid #0FA68E;
   }
 }
 
@@ -7535,7 +7535,7 @@ export default {
   position: absolute;
   width: 4px; /* 小圆点大小 */
   height: 4px; /* 小圆点大小 */
-  background-color: #00aeec; /* 小圆点颜色 */
+  background-color: #0FA68E; /* 小圆点颜色 */
   border-radius: 50%; /* 圆形 */
   opacity: 0;
   visibility: hidden;
@@ -7545,7 +7545,7 @@ export default {
   top: 101%;
   left: 50%;
   animation: dotMoveBottom 0.5s ease-in-out infinite;
-  background-color: #eb7073;
+  background-color: #E2603C;
 }
 .dot:nth-child(2) {
   top: -4%;
@@ -7563,7 +7563,7 @@ export default {
   top: 4%;
   left: 75%;
   animation: dotMoveTopRight 0.5s ease-in-out infinite;
-  background-color: #00aeec;
+  background-color: #0FA68E;
 }
 .dot:nth-child(5) {
   top: 50%;
@@ -7987,19 +7987,19 @@ export default {
 }
 
 .likeVideoClickFlag {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .videoThrowCoinClickFlag {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .videoCollectClickFlag {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .videoShareClickFlag {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .collect-dialog {
@@ -8019,7 +8019,7 @@ export default {
   height: 34.5px;
   transform: translate(20.5px, 245px);
   margin-bottom: -36px;
-  border: 1px solid #95999f;
+  border: 1px solid #8F9794;
   border-radius: 5px;
   cursor: pointer;
   line-height: 29.5px;
@@ -8030,18 +8030,18 @@ export default {
   height: 34.5px;
   transform: translate(20.5px, 245px);
   margin-bottom: -36px;
-  border: 1px solid #00aeec;
+  border: 1px solid #0FA68E;
   border-radius: 5px;
   cursor: pointer;
   line-height: 29.5px;
 }
 
 .dialog-footer-input-container:focus {
-  border: 1px solid #00aeec;
+  border: 1px solid #0FA68E;
 }
 
 .dialog-footer-input-container:hover {
-  border: 1px solid #00aeec;
+  border: 1px solid #0FA68E;
 }
 
 .dialog-footer-input-container img {
@@ -8053,7 +8053,7 @@ export default {
 
 .dialog-footer-input-container span {
   font-size: 12px;
-  color: #61666d;
+  color: #5C6664;
 }
 
 .collect-list-container {
@@ -8086,18 +8086,18 @@ export default {
   position: relative;
   left: 5px;
   top: -1px;
-  color: #9499A0;
+  color: #8D9794;
   font-size: 14px;
 }
 
 .collect-list-item:hover .collect-list-item-name {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .collect-list-item-num {
   display: flex;
   font-size: 11.5px;
-  color: #62666c;
+  color: #5D6764;
   transform: translate(322.5px, -41.5px);
 }
 
@@ -8106,13 +8106,13 @@ export default {
 }
 
 .collect-list-container::-webkit-scrollbar-thumb {
-  background-color: #95999f;
+  background-color: #8F9794;
   border-radius: 5px;
 }
 
 .dialog-footer-item {
-  background-color: #e3e5e7;
-  color: #9499a0;
+  background-color: #E0E5E3;
+  color: #8D9794;
   border-radius: 5px;
   width: 160px;
   height: 40px;
@@ -8125,7 +8125,7 @@ export default {
 }
 
 .dialog-footer-item1 {
-  background-color: #00aeec;
+  background-color: #0FA68E;
   color: white;
   border-radius: 5px;
   width: 160px;
@@ -8166,9 +8166,9 @@ export default {
   font-size: 13.5px;
   background-color: #d9f1f9;
   height: 34.5px;
-  color: #00aeec;
+  color: #0FA68E;
   line-height: 34px;
-  border-left: 1px solid #00aeec;
+  border-left: 1px solid #0FA68E;
 }
 
 .new-create-collect-info {
@@ -8235,7 +8235,7 @@ export default {
 }
 
 .wait-watch-info span:hover {
-  background-color: #f1f2f3;
+  background-color: #EFF3F2;
 }
 
 .wait-watch-info img {
@@ -8276,7 +8276,7 @@ export default {
 .throw-coin-title span {
   font-size: 28px;
   margin: 0 5px 0 5px;
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .throw-coin-submit {
@@ -8284,7 +8284,7 @@ export default {
   width: 66px;
   height: 31px !important;
   font-size: 15.5px;
-  background-color: #00aeec !important;
+  background-color: #0FA68E !important;
   color: white !important;
   left: 50%;
   transform: translate(-50%, 343px);
@@ -8326,7 +8326,7 @@ export default {
 }
 
 .throw-coin-img-content1:hover {
-  border: 2px dashed #00aeec;
+  border: 2px dashed #0FA68E;
 }
 
 .throw-coin-img-content1 .img-static {
@@ -8338,7 +8338,7 @@ export default {
 }
 
 .throw-coin-img-content1 span {
-  color: #95999f;
+  color: #8F9794;
   font-size: 13.5px;
   display: block;
   transform: translate(-110px, 10px);
@@ -8397,7 +8397,7 @@ export default {
 }
 
 .throw-coin-img-content2:hover {
-  border: 2px dashed #00aeec;
+  border: 2px dashed #0FA68E;
 }
 
 .throw-coin-img-content2 .img-static {
@@ -8409,7 +8409,7 @@ export default {
 }
 
 .throw-coin-img-content2 span {
-  color: #95999f;
+  color: #8F9794;
   font-size: 13px;
   display: block;
   transform: translate(-110px, 10px);
@@ -8434,24 +8434,24 @@ export default {
   position: absolute;
   left: 50%;
   font-size: 12px;
-  color: #95999f;
+  color: #8F9794;
   transform: translate(-50%, 390px);
 }
 
 .throwCoinNumberConten1 {
-  border: 2px solid #00aeec;
+  border: 2px solid #0FA68E;
 }
 
 .throwCoinNumberConten1:hover {
-  border: 2px solid #00aeec;
+  border: 2px solid #0FA68E;
 }
 
 .throwCoinNumberConten2 {
-  border: 2px solid #00aeec;
+  border: 2px solid #0FA68E;
 }
 
 .throwCoinNumberConten2:hover {
-  border: 2px solid #00aeec;
+  border: 2px solid #0FA68E;
 }
 
 .throwCoinNumberContenImg1 {
@@ -8497,7 +8497,7 @@ export default {
   /* 发光半径收到最小：1px 白色高光 + 3px 冷色辉光 + 暗色描边，
      半径越小边缘越锐利，越大越容易在深色画面上糊成雾。 */
   filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.6))
-    drop-shadow(0 0 3px rgba(120, 200, 255, 0.3))
+    drop-shadow(0 0 3px rgba(111,210,187, 0.3))
     drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6));
 }
 
@@ -8508,7 +8508,7 @@ export default {
   font-size: 14px;
   height: auto;
   width: 690px;
-  color: #18191c;
+  color: #1C2321;
   line-height: 24px;
   padding-bottom: 5px;
 }
@@ -8520,12 +8520,12 @@ export default {
   left: 9px;
   font-size: 12.5px;
   line-height: 18px;
-  color: #61666d;
+  color: #5C6664;
   span {
     cursor: pointer;
   }
   span:hover {
-    color: #00aeec;
+    color: #0FA68E;
   }
 }
 
@@ -8540,11 +8540,11 @@ export default {
   top: 132px;
   left: 9px;
   padding-bottom: 14px;
-  border-bottom: 1px solid #e3e5e7;
+  border-bottom: 1px solid #E0E5E3;
   span {
     margin-right: 15px;
-    color: #61666d;
-    background: #f1f2f3;
+    color: #5C6664;
+    background: #EFF3F2;
     height: 28px;
     line-height: 28px;
     border-radius: 14px;
@@ -8560,11 +8560,11 @@ export default {
 
 a {
   text-decoration: none;
-  color: #008ac5;
+  color: #0A8271;
 }
 
 a:hover {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .autoPlayVideoContainer {
@@ -8630,7 +8630,7 @@ a:hover {
   transform: translate(-50%, -50%);
   div{
     animation: bpx-animation-loading .94s steps(1) infinite;
-    background: url(//s1.hdslb.com/bfs/static/player/img/ploading.png) no-repeat;
+    background: url(#) no-repeat;
     height: 184px;
     transform: scale(.5);
     width: 320px;

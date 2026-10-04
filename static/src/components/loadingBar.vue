@@ -145,7 +145,7 @@ onBeforeUnmount(()=>{
     pointer-events: none;
     opacity: 1;
     transition: opacity .22s ease;
-    background-color: rgba(0,174,236,.12);
+    background-color: rgba(15,166,142,.12);
 
     &.fading{
         opacity: 0;
@@ -154,8 +154,8 @@ onBeforeUnmount(()=>{
     .loading-bar-inner{
         height: 100%;
         border-radius: 0 3px 3px 0;
-        background: linear-gradient(90deg,#00AEEC,#40C5F1);
-        box-shadow: 0 0 6px rgba(0,174,236,.55);
+        background: linear-gradient(90deg,#0FA68E,#3CC0A6);
+        box-shadow: 0 0 6px rgba(15,166,142,.55);
         transition: width .12s linear;
     }
 }

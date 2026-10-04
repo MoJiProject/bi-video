@@ -7,7 +7,7 @@
           height: 40px;
           width: 1200px;
           background-color: white;
-          color: #00a1d6;
+          color: #0E9C85;
           font-weight: 800;
         "
       >
@@ -24,7 +24,7 @@
           style="
             width: 65px;
             height: 3px;
-            background-color: #00a1d6;
+            background-color: #0E9C85;
             transform: translate(0px, 17px);
           "
         ></div>
@@ -108,7 +108,7 @@
           box-sizing: border-box;
         "
       >
-        <div style="font-size: 13px; color: #00a1d6; margin-bottom: 10px">
+        <div style="font-size: 13px; color: #0E9C85; margin-bottom: 10px">
           粘贴视频直链
         </div>
         <el-input
@@ -213,7 +213,7 @@
               display: flex;
               justify-content: center;
               align-items: center;
-              background-color: #00a1d6;
+              background-color: #0E9C85;
               width: 180px;
               border-radius: 5px;
               height: 40px;
@@ -248,7 +248,7 @@
           <span style="display: flex; transform: translate(-130px, 23px)"
             ><a
               class="forbind"
-              href="https://www.bilibili.com/blackboard/blackroom.html"
+              href="https://www.qingmang.com/blackboard/blackroom.html"
               target="_blank"
               style="font-size: 12px; text-decoration: none; color: #9c9f9f"
               >禁止发布的视频内容</a
@@ -319,17 +319,17 @@
         <div class="forter2" style="font-size: 12px; color: #9c9f9f">
           上传视频，即表示您已同意
           <a
-            style="font-size: 12px; color: #00a1d6; text-decoration: none"
+            style="font-size: 12px; color: #0E9C85; text-decoration: none"
             target="_blank"
-            href="https://member.bilibili.com/platform/upload/video/frame?page_from=creative_home_top_upload#:~:text=%E6%82%A8%E5%B7%B2%E5%90%8C%E6%84%8F-,%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E4%BD%BF%E7%94%A8%E5%8D%8F%E8%AE%AE,-%E4%B8%8E%20%E5%93%94%E5%93%A9"
-            >哔哩哔哩使用协议</a
+            href="https://member.qingmang.com/platform/upload/video/frame?page_from=creative_home_top_upload#:~:text=%E6%82%A8%E5%B7%B2%E5%90%8C%E6%84%8F-,%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E4%BD%BF%E7%94%A8%E5%8D%8F%E8%AE%AE,-%E4%B8%8E%20%E5%93%94%E5%93%A9"
+            >青芒视频用户协议</a
           >
           与
           <a
-            style="font-size: 12px; color: #00a1d6; text-decoration: none"
+            style="font-size: 12px; color: #0E9C85; text-decoration: none"
             target="_blank"
-            href="https://member.bilibili.com/platform/upload/video/frame?page_from=creative_home_top_upload#:~:text=%E4%BD%BF%E7%94%A8%E5%8D%8F%E8%AE%AE%20%E4%B8%8E-,%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%A4%BE%E5%8C%BA%E5%85%AC%E7%BA%A6,-%EF%BC%8C%E8%AF%B7%E5%8B%BF%E4%B8%8A"
-            >哔哩哔哩社区公约</a
+            href="https://member.qingmang.com/platform/upload/video/frame?page_from=creative_home_top_upload#:~:text=%E4%BD%BF%E7%94%A8%E5%8D%8F%E8%AE%AE%20%E4%B8%8E-,%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%A4%BE%E5%8C%BA%E5%85%AC%E7%BA%A6,-%EF%BC%8C%E8%AF%B7%E5%8B%BF%E4%B8%8A"
+            >青芒视频社区公约</a
           >
           ，请勿上传色情，反动等违法视频。
         </div>
@@ -358,7 +358,7 @@
             ><img
               src="/img/小丸压定制版.png"
               style="transform: translate(2px, 3px); width: 16px;margin-right: 8px"
-            />小丸压制工具bilibili定制版</span
+            />推荐转码工具</span
           >
         </div>
       </div>
@@ -423,7 +423,7 @@
                 display: inline-block;
                 transform: translate(120px, -10px);
                 font-size: 16px;
-                color: #00a1d6;
+                color: #0E9C85;
               "
             >
               上传封面
@@ -435,7 +435,7 @@
                 display: inline-block;
                 transform: translate(-50px, -10px);
                 font-size: 16px;
-                color: #00a1d6;
+                color: #0E9C85;
               "
             >
               截取封面
@@ -454,7 +454,7 @@
                 style="
                   width: 66px;
                   height: 3px;
-                  background-color: #00a1d6;
+                  background-color: #0E9C85;
                   transform: translate(14px, 7px);
                 "
               ></div>
@@ -463,7 +463,7 @@
                 style="
                   width: 66px;
                   height: 3px;
-                  background-color: #00a1d6;
+                  background-color: #0E9C85;
                   transform: translate(119px, 7px);
                 "
               ></div>
@@ -493,7 +493,7 @@
                 />
                 <div
                   style="
-                    color: #00a1d6;
+                    color: #0E9C85;
                     font-size: 12px;
                     transform: translate(-10px, -50px);
                   "
@@ -638,7 +638,7 @@
             @close="handleClose(tag)"
             style="
               transform: translateX(80px);
-              background-color: #00a1d6;
+              background-color: #0E9C85;
               color: white;
             "
           >
@@ -731,7 +731,7 @@
             <el-button v-debounce
               @click="confirmLeave"
               style="
-                background-color: #00a1d6;
+                background-color: #0E9C85;
                 color: white;
                 border: none;
                 width: 90px;
@@ -848,7 +848,7 @@ export default {
       () => fileListVideo.value.length === 1 || video.videoSource === 1
     );
     //远程视频取不到首帧时投稿使用的默认封面
-    const defaultCoverSrc = "/img/pageBg7.webp";
+    const defaultCoverSrc = "/img/page-bg-7.png";
     const handleSourceTypeChange = (value) => {
       if (value === 1) {
         //远程视频无需本地文件，清理已选择的本地视频
@@ -1805,7 +1805,7 @@ export default {
         }
 
         // 创建新的按钮元素
-        const button = `<a m1a,s,a2href="./home?homeMenu=1&userId=${store.eitUserId}"  contentEditable="false" class="at-msg" style="color:#008ac5;">@${store.eitUserName}&nbsp;</a>`;
+        const button = `<a m1a,s,a2href="./home?homeMenu=1&userId=${store.eitUserId}"  contentEditable="false" class="at-msg" style="color:#0A8271;">@${store.eitUserName}&nbsp;</a>`;
         // 插入新按钮到光标位置
         const fragment = range.createContextualFragment(button); // 创建 DOM 片段
         const lastChild = fragment.lastChild;
@@ -1846,8 +1846,8 @@ export default {
 
     // @样式
     video.contentHtml = video.contentHtml.replaceAll(
-      "color:#008ac5;",
-      "color:#008ac5;cursor:pointer;",
+      "color:#0A8271;",
+      "color:#0A8271;cursor:pointer;",
     );
 
     // 替换时间样式 + 时间合法性校验（非法时间不替换）
@@ -1871,7 +1871,7 @@ export default {
 
         // 合法：返回带span标签；非法：返回原文本（不替换）
         if (isValid) {
-          return `<span class="time-span" style="color:#008ac5;cursor:pointer;" data-time="${match}">${match}</span>`;
+          return `<span class="time-span" style="color:#0A8271;cursor:pointer;" data-time="${match}">${match}</span>`;
         }
         return match;
       }
@@ -2019,13 +2019,13 @@ h1 {
 
 :deep(.el-dialog__title) {
   font-size: 16px;
-  color: #00a1d6; /* 文字颜色 */
+  color: #0E9C85; /* 文字颜色 */
 }
 .uploadCoverImg {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #00a1d6;
+  background-color: #0E9C85;
   width: 120px;
   border-radius: 5px;
   height: 30px;
@@ -2036,7 +2036,7 @@ h1 {
 }
 
 .uploadCoverImg:hover {
-  background-color: #65b6df;
+  background-color: #5FB9B4;
 }
 
 .commit {
@@ -2045,7 +2045,7 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #00a1d6;
+  background-color: #0E9C85;
   width: 120px;
   border-radius: 5px;
   height: 40px;
@@ -2053,7 +2053,7 @@ h1 {
 }
 
 .commit:hover {
-  background-color: #65b6df;
+  background-color: #5FB9B4;
 }
 .crop {
   background-color: white;
@@ -2096,11 +2096,11 @@ h1 {
   background-color: white;
 }
 .m-2:hover {
-  color: #00a1d6 !important;
+  color: #0E9C85 !important;
   background-color: white;
 }
 .forbind:hover {
-  color: #00a1d6 !important;
+  color: #0E9C85 !important;
 }
 
 :global(.el-popover.contribute-upload-popover) {
@@ -2156,7 +2156,7 @@ h1 {
 
 a{
   text-decoration: none;
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 

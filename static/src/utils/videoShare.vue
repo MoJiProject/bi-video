@@ -8,7 +8,7 @@
           <div class="share-item" v-for="user in shareUserList" :key="user.id" @click="clickUser(user)">
               <img class="avatar" :src="user.avatarAddress">
               <img class="check" v-show="user?.checkFlag" src="/img/选中.png">
-              <span style="color: #18191C;">{{ user.userName }}</span>
+              <span style="color: #1C2321;">{{ user.userName }}</span>
           </div>
       </div>
       <div class="line"></div>
@@ -244,7 +244,7 @@ return {
   .title{
     font-size: 16px;
     user-select: none;
-    color: #18191C;
+    color: #1C2321;
   }
 
   .delete-share-info{
@@ -257,7 +257,7 @@ return {
   }
 
   .delete-share-info:hover{
-    color: #00AEEC;
+    color: #0FA68E;
   }
 
   .not-share-container{
@@ -320,7 +320,7 @@ return {
     top: 25px;
     width: 100%;
     height: 1px;
-    background-color: #e3e5e7;
+    background-color: #E0E5E3;
   }
 
   .share-textarea{
@@ -361,7 +361,7 @@ return {
     top: 30px;
     width: 100%;
     height: 30px;
-    background-color: #00AEEC;
+    background-color: #0FA68E;
     transition: background-color 0.3s ease;
     color: #fff;
     border: none;
@@ -379,7 +379,7 @@ return {
     top: 30px;
     width: 100%;
     height: 30px;
-    background-color: #E3E5E7;
+    background-color: #E0E5E3;
     transition: background-color 0.3s ease;
     color: #fff;
     border: none;

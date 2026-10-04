@@ -169,7 +169,7 @@
          padding: 1px 4px;
          transition: all 0.3s ease;
          z-index: 10;
-         background-color: #FF6699;
+         background-color: #FF8A4C;
          }
          .video-info{
          position: absolute;
@@ -235,7 +235,7 @@
          top: 0;
          left: 0;
          height: 100%;
-         background-color: #FF6699;
+         background-color: #FF8A4C;
          }
      }
      .video-link2{
@@ -245,7 +245,7 @@
              position: relative;
              top: 8px;
              padding-right: 16px;
-             color: #18191C;
+             color: #1C2321;
              font-size: 14.5px;
              line-height: 22px;
              height: 44px;
@@ -258,7 +258,7 @@
              transition: color 0.3s ease;
          }
          .video-title:hover{
-         color: #00AEEC;
+         color: #0FA68E;
          }
      }
  }

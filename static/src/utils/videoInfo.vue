@@ -64,7 +64,7 @@ function openVideo(videoId){
 
       .right{
       background-color: white;
-      border: 1px solid #E3E5E7;
+      border: 1px solid #E0E5E3;
       border-left: unset;
       border-radius: 0 6px 6px 0;
       display: flex;
@@ -81,12 +81,12 @@ function openVideo(videoId){
           text-overflow: ellipsis;
           word-break: break-all;
           -webkit-line-clamp: 2;
-          color: #18191C;
+          color: #1C2321;
           line-height: 21px !important;
           transition: color .3s ease;
         }
         .title:hover{
-          color: #40C5F1;
+          color: #3CC0A6;
         }
         .introduce{
           font-size: 13px;
@@ -97,13 +97,13 @@ function openVideo(videoId){
           text-overflow: ellipsis;
           word-break: break-all;
           -webkit-line-clamp: 2;
-          color: #9499A0;
+          color: #8D9794;
           height: 34px;
           line-height: 17px;
           margin-top: 6px;
         }
         ::v-deep(.introduce *) {
-        color: #9499A0 !important;
+        color: #8D9794 !important;
         }
         ::v-deep(.introduce img) {
          display: none !important;
@@ -113,7 +113,7 @@ function openVideo(videoId){
         line-height: 18px;
         align-items: center;
         bottom: 10px;
-        color: #9499A0;
+        color: #8D9794;
         display: flex;
         height: 18px;
         left: 16px;

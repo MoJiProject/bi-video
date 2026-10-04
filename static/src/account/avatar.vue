@@ -171,11 +171,11 @@ width: 100%;
 height: 50px;
 line-height: 50px;
 font-size: 14px;
-color: #181818;
+color: #1C2321;
 cursor: default;
 text-align: left;
 padding-left: 30px;
-color: #00a1d6;
+color: #0E9C85;
 border-bottom: 1px solid #ddd;
 
     .icon{
@@ -183,7 +183,7 @@ border-bottom: 1px solid #ddd;
     width: 4px;
     height: 16px;
     margin-top: 18px;
-    background-color: #00a1d6;
+    background-color: #0E9C85;
     border-radius: 4px;
     margin-right: 5px;
     }
@@ -197,7 +197,7 @@ margin-left: -10px;
     transition: all 0.3s ease;
     }
     .avatar:hover{
-    color: #00a1d6;
+    color: #0E9C85;
     }
     .change-avatar{
     color: #222;
@@ -227,8 +227,8 @@ padding: 20px 0;
         width: 54px;
         height: 54px;
         border-radius: 50%;
-        background: #00a1d6;
-        border: 1px solid #00a1d6;
+        background: #0E9C85;
+        border: 1px solid #0E9C85;
         position: absolute;
         left: -27px;
         user-select: none;
@@ -369,15 +369,15 @@ cursor: not-allowed;
 color: #ccd0d7;
 }
 .active-update-btn{
-border: 1px solid #00a1d6;
+border: 1px solid #0E9C85;
 transition: all 0.3s ease;
 color: #fff;
-background-color: #00a1d6;
+background-color: #0E9C85;
 cursor: pointer;
 }
 .active-update-btn:hover{
-background-color: #00b5e5;
-border-color: #00b5e5;
+background-color: #19AC96;
+border-color: #19AC96;
 }
 .avatar-container3{
 padding: 61.5px 20px 56px;
@@ -408,8 +408,8 @@ align-items: center;
     cursor: pointer;
     }
     .reset-img:hover {
-        color: #00b5e5;
-        fill: #00b5e5;
+        color: #19AC96;
+        fill: #19AC96;
     }
     .reset-img svg {
         margin-right: 6px;

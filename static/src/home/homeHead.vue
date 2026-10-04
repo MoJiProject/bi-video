@@ -1,5 +1,5 @@
 <template>
-   <div v-show="store.homeUserInformation.id" class="home-head" :style="{backgroundImage: store.homeUserInformation.backgroundAddress? `url(${store.homeUserInformation.backgroundAddress})`:'url(/img/主页背景图.webp)'}" @contextmenu="changeBackgroundMenu">
+   <div v-show="store.homeUserInformation.id" class="home-head" :style="{backgroundImage: store.homeUserInformation.backgroundAddress? `url(${store.homeUserInformation.backgroundAddress})`:'url(/img/page-bg.png)'}" @contextmenu="changeBackgroundMenu">
         <mainhead :head2-flag="false" :login-dialog-visible-flag="loginDialogVisibleFlag"/>
         <div class="overlay"></div>
         <div class="overlay2"></div>
@@ -121,13 +121,13 @@ async function selectUserInfoF(){
         if(res.data.code === 1){
             store.setHomeUserInformation(res.data.data);
             if(homeMenu === 1 || homeMenu === 5 || homeMenu === 6 || homeMenu === 7)
-            document.title=res.data.data.userName+"的个人空间-"+res.data.data.userName+"个人主页-哔哩哔哩视频";
+            document.title=res.data.data.userName+"的个人空间-"+res.data.data.userName+"个人主页-青芒视频";
             else if(homeMenu === 2)
-            document.title=res.data.data.userName+"的个人动态-"+res.data.data.userName+"动态记录-哔哩哔哩视频";
+            document.title=res.data.data.userName+"的个人动态-"+res.data.data.userName+"动态记录-青芒视频";
             else if(homeMenu === 3)
-            document.title=res.data.data.userName+"的投稿视频-"+res.data.data.userName+"视频分享-哔哩哔哩视频";
+            document.title=res.data.data.userName+"的投稿视频-"+res.data.data.userName+"视频分享-青芒视频";
             else if(homeMenu === 4)
-            document.title=res.data.data.userName+"的视频专辑-"+res.data.data.userName+"视频合集-哔哩哔哩视频";
+            document.title=res.data.data.userName+"的视频专辑-"+res.data.data.userName+"视频合集-青芒视频";
         }
         else{
             window.location.href="/";
@@ -539,7 +539,7 @@ z-index: 999;
     font-size: 14px;
     font-weight: 600;
     color: white;
-    background-color: #00AEEC;
+    background-color: #0FA68E;
     transition: background-color .3s ease;
 
         img{
@@ -553,7 +553,7 @@ z-index: 999;
         
     }
     .follow:hover{
-        background-color: #40C5F1;
+        background-color: #3CC0A6;
     }
     .delete-follow{
     cursor: pointer;

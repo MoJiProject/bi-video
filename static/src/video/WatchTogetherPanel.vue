@@ -84,7 +84,7 @@
             <div class="member-avatar-wrap clickable" @click="openHome(member)">
               <img
                 class="member-avatar"
-                :src="member.avatarAddress || '/img/默认头像.gif'"
+                :src="member.avatarAddress || '/img/avatar-default.png'"
                 :alt="member.userName"
               />
               <span class="online-dot" :class="{ offline: !member.online }"></span>
@@ -178,7 +178,7 @@
           >
             <img
               class="invite-avatar"
-              :src="friend.avatarAddress || '/img/默认头像.gif'"
+              :src="friend.avatarAddress || '/img/avatar-default.png'"
               :alt="friend.userName"
             />
             <span class="invite-name">{{ friend.userName }}</span>
@@ -215,7 +215,7 @@
             class="switch-search-input"
             type="text"
             maxlength="50"
-            placeholder="搜索视频标题、UP主或BV号"
+            placeholder="搜索视频标题、创作者或BV号"
             @keyup.enter="searchSwitchVideos"
           />
           <button class="switch-search-btn" type="button" :disabled="searching" @click="searchSwitchVideos">
@@ -1228,8 +1228,8 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 7px;
   color: #fff;
-  background: #00aeec;
-  box-shadow: 0 5px 16px rgba(0, 174, 236, 0.24);
+  background: #0FA68E;
+  box-shadow: 0 5px 16px rgba(15,166,142, 0.24);
   border-radius: 6px;
   cursor: grab;
   touch-action: none;
@@ -1261,7 +1261,7 @@ onBeforeUnmount(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #087ea4;
+  color: #0B7E73;
   background: #fff;
   border-radius: 9px;
   font-size: 11px;
@@ -1359,11 +1359,11 @@ onBeforeUnmount(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   color: #fff;
-  background: #00aeec;
+  background: #0FA68E;
 }
 
 .primary-button:hover {
-  background: #0a9fe0;
+  background: #0E9B85;
 }
 
 .secondary-button,
@@ -1383,11 +1383,11 @@ onBeforeUnmount(() => {
 
 .secondary-button-active {
   color: #fff;
-  background: #00aeec;
+  background: #0FA68E;
 }
 
 .secondary-button-active:hover {
-  background: #0a9fe0;
+  background: #0E9B85;
 }
 
 .leave-button {
@@ -1408,7 +1408,7 @@ onBeforeUnmount(() => {
 
 .primary-button:disabled:hover,
 .secondary-button:disabled:hover {
-  background: #00aeec;
+  background: #0FA68E;
 }
 
 .secondary-button:disabled:not(.secondary-button-active):hover {
@@ -1466,8 +1466,8 @@ onBeforeUnmount(() => {
 }
 
 .member-avatar-wrap:hover .member-avatar {
-  border-color: #00aeec;
-  box-shadow: 0 0 0 3px rgba(0, 174, 236, 0.16);
+  border-color: #0FA68E;
+  box-shadow: 0 0 0 3px rgba(15,166,142, 0.16);
   transform: scale(1.06);
 }
 
@@ -1522,7 +1522,7 @@ onBeforeUnmount(() => {
 }
 
 .member-name-text.clickable:hover {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .member-info {
@@ -1556,8 +1556,8 @@ onBeforeUnmount(() => {
 
 .role-label {
   padding: 1px 6px;
-  color: #087ea4;
-  background: #e7f7fc;
+  color: #0B7E73;
+  background: #E5F5F0;
   border-radius: 3px;
   font-size: 11px;
 }
@@ -1658,7 +1658,7 @@ onBeforeUnmount(() => {
 }
 
 .invite-item.selected {
-  background: #eaf7fd;
+  background: #E7F5F1;
 }
 
 .invite-avatar {
@@ -1671,7 +1671,7 @@ onBeforeUnmount(() => {
 }
 
 .invite-item.selected .invite-avatar {
-  border-color: #00aeec;
+  border-color: #0FA68E;
 }
 
 .invite-name {
@@ -1727,11 +1727,11 @@ onBeforeUnmount(() => {
 
 .invite-send-btn {
   color: #fff;
-  background: #00aeec;
+  background: #0FA68E;
 }
 
 .invite-send-btn:hover {
-  background: #0a9fe0;
+  background: #0E9B85;
 }
 
 .invite-send-btn:disabled {
@@ -1771,7 +1771,7 @@ onBeforeUnmount(() => {
 
 .switch-search-input:focus {
   background: #fff;
-  border-color: #00aeec;
+  border-color: #0FA68E;
 }
 
 .switch-search-btn {
@@ -1779,7 +1779,7 @@ onBeforeUnmount(() => {
   height: 30px;
   padding: 0 14px;
   color: #fff;
-  background: #00aeec;
+  background: #0FA68E;
   border: 0;
   border-radius: 15px;
   font-size: 12px;
@@ -1855,7 +1855,7 @@ onBeforeUnmount(() => {
 }
 
 .switch-item:hover .switch-title {
-  color: #00aeec;
+  color: #0FA68E;
 }
 
 .switch-meta {
