@@ -40,13 +40,13 @@ const size = ref({ width: 272.75, height: 153.42 });
   position: relative;
   column-gap: 16px;
   display: grid;
-  grid-template-columns: repeat(4, 272.75px);
+  grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
   .video-item {
     height: 240px;
   }
   .no-data {
     user-select: none;
-    width: 1090px;
+    width: 100%;
     height: 37.5vh;
     display: flex;
     justify-content: center;
@@ -66,20 +66,8 @@ const size = ref({ width: 272.75, height: 153.42 });
   }
 }
 
-@media (max-width: 1420px) {
-  .video-list6 {
-    grid-template-columns: repeat(3, 272.75px);
-  }
-}
 
-@media (max-width: 1150px) {
-  .video-list6 {
-    grid-template-columns: repeat(2, 272.75px);
-  }
-}
-@media (max-width: 850px) {
-  .video-list6 {
-    grid-template-columns: repeat(1, 272.75px);
-  }
-}
+
+
+
 </style>

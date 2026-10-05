@@ -39,26 +39,14 @@ defineProps({
 .video-list8 {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(4, 258px);
+  grid-template-columns: repeat(auto-fill, minmax(193px, 1fr));
   grid-gap: 48.5px 16px;
   .video-item {
     height: 223.13px;
   }
 }
-@media (max-width: 1340px) {
-  .video-list8 {
-    grid-template-columns: repeat(3, 258px);
-  }
-}
 
-@media (max-width: 1050px) {
-  .video-list8 {
-    grid-template-columns: repeat(2, 258px);
-  }
-}
-@media (max-width: 780px) {
-  .video-list8 {
-    grid-template-columns: repeat(1, 258px);
-  }
-}
+
+
+
 </style>

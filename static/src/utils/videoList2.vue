@@ -35,13 +35,13 @@ defineProps({
   display: grid;
   column-gap: 16px;
   row-gap: 23px;
-  grid-template-columns: repeat(5, 193px);
+  grid-template-columns: repeat(auto-fill, minmax(193px, 1fr));
   .video-item {
     height: 173.5px;
   }
   .no-data {
     user-select: none;
-    width: 1090px;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -59,21 +59,9 @@ defineProps({
     }
   }
 }
-@media (max-width: 1150px) {
-  .video-list2 {
-    grid-template-columns: repeat(4, 193px);
-  }
-}
 
-@media (max-width: 940px) {
-  .video-list2 {
-    grid-template-columns: repeat(3, 193px);
-  }
-}
 
-@media (max-width: 730px) {
-  .video-list2 {
-    grid-template-columns: repeat(2, 193px);
-  }
-}
+
+
+
 </style>

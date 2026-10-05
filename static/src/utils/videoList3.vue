@@ -40,13 +40,13 @@ const userId =
   column-gap: 16px;
   row-gap: 23px;
   display: grid;
-  grid-template-columns: repeat(5, 215px);
+  grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
   .video-item {
     height: 185px;
   }
   .no-data {
     user-select: none;
-    width: 1139px;
+    width: 100%;
     height: 42vh;
     display: flex;
     justify-content: center;
@@ -65,26 +65,10 @@ const userId =
     }
   }
 }
-@media (max-width: 1420px) {
-  .video-list3 {
-    grid-template-columns: repeat(4, 215px);
-  }
-}
 
-@media (max-width: 1195px) {
-  .video-list3 {
-    grid-template-columns: repeat(3, 215px);
-  }
-}
 
-@media (max-width: 965px) {
-  .video-list3 {
-    grid-template-columns: repeat(2, 215px);
-  }
-}
-@media (max-width: 730px) {
-  .video-list3 {
-    grid-template-columns: repeat(1, 215px);
-  }
-}
+
+
+
+
 </style>

@@ -103,7 +103,7 @@ video{
 .video{
     position: relative;
     top: 0px;
-    width: 193px;
+    width: 100%;
     height: 110px;
     cursor: pointer;
     

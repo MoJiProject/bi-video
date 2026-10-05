@@ -47,7 +47,7 @@ const userId = parseInt(new URL(window.location).searchParams.get("userId")) || 
     }
     .no-data{
         user-select: none;
-        width: 1139px;
+        width: 100%;
         height: 42vh;
         display: flex;
         justify-content: center;

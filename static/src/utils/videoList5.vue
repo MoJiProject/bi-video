@@ -39,13 +39,13 @@ const userId =
   top: 6.5px;
   column-gap: 21px;
   display: grid;
-  grid-template-columns: repeat(3, 327.94px);
+  grid-template-columns: repeat(auto-fill, minmax(328px, 1fr));
   .video-item {
     height: 262.5px;
   }
   .no-data {
     user-select: none;
-    width: 1090px;
+    width: 100%;
     height: 37.5vh;
     display: flex;
     justify-content: center;
@@ -65,14 +65,6 @@ const userId =
   }
 }
 
-@media (max-width: 1150px) {
-  .video-list5 {
-    grid-template-columns: repeat(2, 327.94px);
-  }
-}
-@media (max-width: 795px) {
-  .video-list5 {
-    grid-template-columns: repeat(1, 327.94px);
-  }
-}
+
+
 </style>

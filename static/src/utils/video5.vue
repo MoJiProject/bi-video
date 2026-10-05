@@ -105,7 +105,7 @@
  .video{
      position: relative;
      top: 0px;
-     width: 327.94px;
+     width: 100%;
      height: 184.46px;
      cursor: pointer;
      

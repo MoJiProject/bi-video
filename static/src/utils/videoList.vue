@@ -31,7 +31,7 @@ defineProps({
 
 .video-list {
   display: grid;
-  grid-template-columns: repeat(5, 193px);
+  grid-template-columns: repeat(auto-fill, minmax(193px, 1fr));
   column-gap: 16px;
   row-gap: 23px;
 
@@ -63,21 +63,9 @@ defineProps({
   }
 }
 
-@media (max-width: 1150px) {
-  .video-list {
-    grid-template-columns: repeat(4, 193px);
-  }
-}
 
-@media (max-width: 940px) {
-  .video-list {
-    grid-template-columns: repeat(3, 193px);
-  }
-}
 
-@media (max-width: 730px) {
-  .video-list {
-    grid-template-columns: repeat(2, 193px);
-  }
-}
+
+
+
 </style>
