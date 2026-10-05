@@ -859,7 +859,6 @@
                 <div>
                   <span>显示区域</span>
                   <input
-                    id="volume"
                     class="scrolling-display-slider"
                     :class="{
                       scrollingDisplayAreaValue:
@@ -910,7 +909,6 @@
                 <div>
                   <span>不透明度</span>
                   <input
-                    id="volume"
                     class="scrolling-display-slider"
                     :style="{
                       background: `linear-gradient(to right, #0FA68E ${scrollingDisplayOpacityValue}%, #424242 ${scrollingDisplayOpacityValue}%, #424242 170px)`,
@@ -934,7 +932,6 @@
                 <div>
                   <span>弹幕字号</span>
                   <input
-                    id="volume"
                     class="scrolling-display-slider"
                     :style="{
                       background: `linear-gradient(to right, #0FA68E ${scrollingDisplayFontSizeValue}%, #424242 ${scrollingDisplayFontSizeValue}%, #424242 170px)`,
@@ -958,7 +955,6 @@
                 <div v-show="!checkBoxOpenFlag">
                   <span>弹幕速度</span>
                   <input
-                    id="volume"
                     class="scrolling-display-slider"
                     :class="{
                       scrollingDisplayAreaValue:
@@ -1434,7 +1430,6 @@
             >
               <div>
                 <input
-                  id="volume"
                   :style="{
                     background: `linear-gradient(to right, #0FA68E ${videoAudio}%, white ${videoAudio}%, white 170px)`,
                   }"
@@ -1838,7 +1833,6 @@
                 <div>
                   <span>显示区域</span>
                   <input
-                    id="volume"
                     class="scrolling-display-slider"
                     :class="{
                       scrollingDisplayAreaValue:
@@ -1889,7 +1883,6 @@
                 <div>
                   <span>不透明度</span>
                   <input
-                    id="volume"
                     class="scrolling-display-slider"
                     :style="{
                       background: `linear-gradient(to right, #0FA68E ${scrollingDisplayOpacityValue}%, #424242 ${scrollingDisplayOpacityValue}%, #424242 170px)`,
@@ -1913,7 +1906,6 @@
                 <div>
                   <span>弹幕字号</span>
                   <input
-                    id="volume"
                     class="scrolling-display-slider"
                     :style="{
                       background: `linear-gradient(to right, #0FA68E ${scrollingDisplayFontSizeValue}%, #424242 ${scrollingDisplayFontSizeValue}%, #424242 170px)`,
@@ -1937,7 +1929,6 @@
                 <div v-show="!checkBoxOpenFlag">
                   <span>弹幕速度</span>
                   <input
-                    id="volume"
                     class="scrolling-display-slider"
                     :class="{
                       scrollingDisplayAreaValue:
@@ -2675,9 +2666,7 @@
           />
         </Teleport>
       </div>
-      <div style="position: fixed;top: 800px;">
-        <el-backtop :right="5"/>
-      </div>
+      <el-backtop class="video-page-backtop" :right="24"/>
     </div>
   </div>
 </template>
@@ -4282,15 +4271,13 @@ export default {
 
     //发送点赞请求
     let likeNoMoreClick = true;
-    async function likeVideoAxios() {
+    async function sendLikeRequest() {
       try {
-        if(!likeNoMoreClick)
-          return;
-          likeNoMoreClick = false;
+        if (!likeNoMoreClick) return;
+        likeNoMoreClick = false;
         store.setLTCAFlag(0);
         if (store.userId === null) {
-          loginDialogVisibleFlag.value =
-            loginDialogVisibleFlag.value === 0 ? 1 : 0;
+          store.loginDialogVisible = true;
           return;
         }
         likeVideoClickFlag.value = !likeVideoClickFlag.value;
@@ -4329,7 +4316,7 @@ export default {
     async function likeVideoAxios() {
       try {
         if (store.userId === null) {
-          loginDialogVisibleFlag.value = true;
+          store.loginDialogVisible = true;
           return;
         }
 
@@ -4345,7 +4332,7 @@ export default {
 
         if (likeVideoFlag.value) {
           likeVideoClickFlag.value = false;
-          await likeVideoAxios();
+          await sendLikeRequest();
           if (likeVideoClickFlag.value) {
             likeNoMoreClick = true;
             likeVideoImgFlag.value = true;

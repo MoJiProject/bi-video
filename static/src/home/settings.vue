@@ -2,7 +2,7 @@
     <div class="settings">
         <div v-show="!loadMore" class="title">隐私设置</div>
         <loadingIndicator v-if="loadMore" min-height="160px"/>
-        <div class="content" v-show="checkValue&&!loadMore">
+        <div class="content" v-show="canShowSettings&&!loadMore">
             <div class="item"><span>公开我的收藏</span><el-switch class="custom-switch1" v-model="publicCollect"/> </div>
             <div class="item"><span>公开我的追剧</span> <el-switch class="custom-switch1" v-model="publicAnime" /> </div>
             <div class="item"><span>公开最近投币的视频</span> <el-switch class="custom-switch1" v-model="publicCoin"/> </div>
@@ -26,7 +26,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref,reactive, watch } from "vue";
+import { computed, onMounted, ref,reactive, watch } from "vue";
 import { useGlobalStore } from "../store/store";
 import { putHomeSettings } from "../api/user/index";
 import { ElMessage } from "element-plus";
@@ -114,21 +114,27 @@ function putSettingF() {
     });
 }
 
-function checkValue(){
-
-    return store.userInformation.publicCollect!==undefined&&
-    store.userInformation.publicAnime!==undefined&&
-    store.userInformation.publicCoin!==undefined&&
-    store.userInformation.publicLove!==undefined&&
-    store.userInformation.publicFollowList!==undefined&&
-    store.userInformation.publicFansList!==undefined&&
-    store.userInformation.publicBirthday!==undefined;
-}
+// 隐私字段全部到位后才允许渲染开关，否则会闪出一排全灭的开关。
+// 原来模板里写的是 v-show="checkValue&&!loadMore"，checkValue 是函数引用恒为真，
+// 这个判断等于没生效；函数体内还直接读 userInformation.publicCollect，
+// store 里还是 null 时会抛错。
+const canShowSettings = computed(()=>{
+    const u=store.userInformation;
+    if(!u)
+        return false;
+    return u.publicCollect!==undefined&&
+    u.publicAnime!==undefined&&
+    u.publicCoin!==undefined&&
+    u.publicLove!==undefined&&
+    u.publicFollowList!==undefined&&
+    u.publicFansList!==undefined&&
+    u.publicBirthday!==undefined;
+});
 
 let onceFlag=true;
 watch(()=>store.userInformation,()=>{
 
-    if(onceFlag&&checkValue())
+    if(onceFlag&&canShowSettings.value)
     {
         publicCollect.value=store.userInformation.publicCollect?true:false;
         publicAnime.value=store.userInformation.publicAnime?true:false;

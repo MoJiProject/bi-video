@@ -218,7 +218,6 @@ return {
   store,
   shareUserList,
   checkSelectUser,
-  heightFlag,
   clickUser,
   shareVideoF,
 }

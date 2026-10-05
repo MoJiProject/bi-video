@@ -6,9 +6,7 @@
         <div class="dynamic-detail-page-body-container">
             <dynamicDetail/>
         </div>  
-        <div style="position: fixed;top: 800px;z-index: 10;">
-            <el-backtop :right="5"/>
-        </div>
+        <el-backtop :right="5"/>
     </div>
 </template>
 
@@ -51,10 +49,10 @@ watch(()=>store.loginDialogVisibleFlag,()=>{
 .dynamic-detail-page-container{
     
     .dynamic-detail-page-head-container{
-    position: fixed;
+    position: sticky;
     top: 0;
-    width: 103%;
-    left: -21px;
+    left: 0;
+    width: 100%;
     background-color: white;
     height: 64px;
     z-index: 1000;

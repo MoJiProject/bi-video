@@ -134,7 +134,7 @@ async function load(reset) {
     });
     const list = data?.records || [];
     videos.value = reset ? list : videos.value.concat(list);
-    cursorId.value = data?.cursorId ?? list.length ? list[list.length - 1]?.id : null;
+    cursorId.value = data?.cursorId ?? (list.length ? list[list.length - 1]?.id : null);
     hasMore.value = list.length > 0 && (data?.hasMore ?? false);
     if (!list.length) hasMore.value = false;
   } catch (e) {
@@ -286,30 +286,6 @@ onUnmounted(() => {
   border-color: var(--brand-soft);
 }
 
-.hero-stat {
-  display: flex;
-  gap: var(--gap-6);
-  color: #fff;
-}
-
-.hero-stat-item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  text-align: right;
-}
-
-.hero-stat-item b {
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-
-.hero-stat-item span {
-  font-size: 13px;
-  color: rgba(255, 255, 255, .82);
-}
-
 /* ---------- 分类导航 ---------- */
 .rail-wrap {
   position: sticky;
@@ -420,97 +396,5 @@ onUnmounted(() => {
   right: 0;
   bottom: 120px;
   z-index: 700;
-}
-</style>
-
-<!--
-  页头组件（mainHead.vue）原本是按「压在一张动漫大图上」设计的：
-  文字写死白色、宽度写死 1450px 再 translate(28px)、右侧六个功能区各写一套
-  nth-child 微调，图标尺寸 14/15/16/17/18/20px 混用。
-  换成纯色首屏后白字看不清、宽度也把页面撑出横向滚动条。
-  这里用一段非 scoped 样式统一收口，只挂在 .home-head 下面，不影响其它页面。
--->
-<style>
-:is(.home-head, .home-sticky) .header {
-  width: 100% !important;
-  max-width: 1384px;
-  height: 64px;
-  margin: 0 auto;
-  transform: none !important;
-}
-
-:is(.home-head, .home-sticky) .v-header-ul {
-  left: 50%;
-  right: auto;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 1384px;
-  margin: 0;
-  padding: 0;
-}
-
-:is(.home-head, .home-sticky) .v-header-ul li {
-  flex: none;
-  white-space: nowrap;
-}
-
-:is(.home-head, .home-sticky) .v-header-ul li a {
-  color: var(--ink) !important;
-  font-size: 13.5px;
-  line-height: 1;
-  margin-top: 0;
-  white-space: nowrap;
-  gap: 6px;
-}
-
-/* 右侧功能区统一成「图标在上、文字在下」，尺寸走同一档 */
-:is(.home-head, .home-sticky) .v-header-ul li:nth-child(n + 12):nth-child(-n + 17) {
-  transform: none !important;
-}
-
-:is(.home-head, .home-sticky) .v-header-ul li:nth-child(n + 12):nth-child(-n + 17) > a {
-  flex-direction: column;
-  gap: 3px;
-  font-size: 12px !important;
-  color: var(--ink-2) !important;
-  line-height: 1.1;
-}
-
-:is(.home-head, .home-sticky) .v-header-ul li:nth-child(n + 12):nth-child(-n + 17) > a:hover {
-  color: var(--brand) !important;
-}
-
-/* 图标统一：除文字标外一律 18px 正方形 + contain，任何比例都不被拉变形 */
-:is(.home-head, .home-sticky) .v-header-ul li a img:not(.h-logo) {
-  width: 18px !important;
-  height: 18px !important;
-  object-fit: contain;
-  margin: 0 6px 0 0 !important;
-  flex: none;
-}
-
-:is(.home-head, .home-sticky) .v-header-ul li:nth-child(n + 12):nth-child(-n + 17) > a img {
-  margin: 0 !important;
-}
-
-/* 搜索框在白底页头上必须自己有底，否则白底白框看不见 */
-:is(.home-head, .home-sticky) .search {
-  background: var(--fill);
-  border: 1px solid var(--line);
-}
-
-:is(.home-head, .home-sticky) .search:hover,
-:is(.home-head, .home-sticky) .search:focus-within {
-  background: #fff;
-  border-color: var(--brand-light-5);
-}
-
-:is(.home-head, .home-sticky) .search-box:focus {
-  background: #fff;
-}
-
-:is(.home-head, .home-sticky) .head-search {
-  width: 300px;
-  margin-right: 6px;
 }
 </style>

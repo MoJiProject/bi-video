@@ -14,7 +14,8 @@ import accountBody from "./accountBody.vue";
 import accountHead from "./accountHead.vue";
 import {useGlobalStore} from "../store/store";
 import { ChecklLogin } from '../api/user/index';
-import { onMounted } from "vue";
+import { onBeforeUnmount, onMounted } from "vue";
+import { useBodyLayout } from "../composables/useBodyLayout";
 
 const backgroundImgSrc=[
   '/img/page-bg-1.png',
@@ -29,25 +30,30 @@ const backgroundImgSrc=[
 let bIndex=Math.floor(Math.random()*backgroundImgSrc.length);
 const store = useGlobalStore();
 
+useBodyLayout({ overflowY: 'hidden' });
+
+function handlePopState(){
+  const urlParams = new URLSearchParams(window.location.search);
+  store.setAccountMenu(parseInt(urlParams.get("accountMenu")) || 1,false);
+}
+
 onMounted(async()=>{
   
   document.title = "个人中心 - 青芒视频";
-  document.body.style.overflowY = 'hidden';
-  document.body.style.display = 'flex';
-  document.body.style.justifyContent = 'center';
   const accountMenu = parseInt(new URLSearchParams(window.location.search).get("accountMenu"));
   if(!accountMenu)
     store.setAccountMenu(1,true);
   else
     store.setAccountMenu(accountMenu,false);
 
-  window.addEventListener('popstate', () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  store.setAccountMenu(parseInt(urlParams.get("accountMenu")) || 1,false);
-  });
+  window.addEventListener('popstate', handlePopState);
 
   await getUserIp();
   await ChecklLoginF();
+})
+
+onBeforeUnmount(()=>{
+  window.removeEventListener('popstate', handlePopState);
 })
 
 
@@ -82,9 +88,8 @@ async function getUserIp(){
 
 .account-page{
   position: relative;
-  left: -11px;
-  width: 100.5%;
-  height: 100vh;
+  width: 100%;
+  min-height: 100vh;
   background-size: cover;
 
     .account-head{

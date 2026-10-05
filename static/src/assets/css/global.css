@@ -122,27 +122,6 @@
     pointer-events: none;
 }
 
-/*
- * 页头宽度兜底。
- * mainHead.vue 里 .header 写死 1450px 并 translate(28px)，那是按 1500px 设计稿来的；
- * 视口一旦窄于 1450（现在 body 的 min-width 已放宽到 1280），整站都会出横向滚动条。
- * 这里只在低于设计宽度时接管，>=1450 的显示完全不动。
- */
-@media (max-width: 1449px) {
-    .header {
-        width: 100% !important;
-        max-width: 1450px;
-        transform: none !important;
-    }
-
-    .v-header-ul {
-        width: 100% !important;
-        max-width: 1410px;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-    }
-}
-
 .custom-tooltip {
     border: 1px solid black !important; /* 修改边框颜色和宽度 */
     height: auto;
@@ -193,18 +172,24 @@
     transform:translateY(-3px);
   }
 
-  div{
-    text-indent: 0px !important;
-    word-break: break-all !important;
-  }
+/*
+ * 原来这里是 div{text-indent:0!important; word-break:break-all!important} + span 同款。
+ * 两条全站 !important 造成两个问题：
+ *   1) word-break:break-all 会把中英文都在字符中间折行，正文被切得很难看，
+ *      组件里专门写的 word-break:break-word 也要靠 !important 硬顶才生效。
+ *   2) text-indent:0 把 comment / whisper / dynamic 里给表情预留的 text-indent 直接打死，
+ *      那批样式等于从来没生效过。
+ * 现在只保留「超长内容不撑破容器」这一个真实诉求，用 overflow-wrap 达成，
+ * 它允许在必要处断行，但优先在词边界断，组件自己的断行设置也不再被压制。
+ */
+div,
+span {
+    overflow-wrap: anywhere;
+}
 
-  span{
-    word-break: break-all !important;
-  }
-
-  a{
-    text-decoration: none !important;
-  }
+a{
+  text-decoration: none !important;
+}
 
   .el-pagination {
     --el-pagination-border-radius: 8px;

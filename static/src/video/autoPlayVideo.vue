@@ -116,6 +116,7 @@ import apiClient from "../services/apiClient";
 import { useGlobalStore } from "../store/store";
 import videoShareC from '../utils/videoShare.vue';
 import { navigateToVideo } from '../services/watchTogetherBridge';
+import { ElMessage } from "element-plus";
 export default {
     name: "autoPlayVideo",
     props:{

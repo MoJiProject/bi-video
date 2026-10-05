@@ -31,8 +31,9 @@ import at from './at.vue';
 import love from './love.vue';
 import config from './config.vue';
 import {useGlobalStore} from "../store/store";
-import { onMounted, watch } from 'vue';
+import { onBeforeUnmount, onMounted, watch } from 'vue';
 import { ChecklLogin } from '../api/user/index';
+import { useBodyLayout } from '../composables/useBodyLayout';
 
 const store = useGlobalStore();
 const backgroundImgSrc=[
@@ -47,19 +48,28 @@ const backgroundImgSrc=[
 ];
 let bIndex=Math.floor(Math.random()*backgroundImgSrc.length);
 
+useBodyLayout({ overflowY: 'hidden' });
+
+function handlePopState(){
+  const urlParams = new URLSearchParams(window.location.search);
+  store.setMessageMenu(parseInt(urlParams.get("messageMenu")) || 1,false);
+}
+
 onMounted(async()=>{
   
-  document.body.style.overflowY = 'hidden';
   document.title = "消息中心 - 青芒视频";
   localStorage.setItem('backgroundModel', parseInt(localStorage.getItem('backgroundModel')) || 0);
   const urlParams = new URLSearchParams(window.location.search);
   store.setMessageMenu(parseInt(urlParams.get("messageMenu")) || 1,true);
-  window.addEventListener('popstate', () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  store.setMessageMenu(parseInt(urlParams.get("messageMenu")) || 1,false);
-  });
+  window.addEventListener('popstate', handlePopState);
   await getUserIp();
   await ChecklLoginF();
+})
+
+onBeforeUnmount(()=>{
+  window.removeEventListener('popstate', handlePopState);
+  document.documentElement.style.removeProperty('--background-color');
+  document.documentElement.style.removeProperty('--line-color');
 })
 
 //检查是否登录
@@ -112,8 +122,8 @@ watch(()=>store.userInformation,()=>{
 
 .message-page{
   position: relative;
-  width: 102%;
-  height: 100vh;
+  width: 100%;
+  min-height: 100vh;
   background-position: 0px 50px;
   background-repeat: no-repeat;
   background-size: cover;
@@ -123,9 +133,9 @@ watch(()=>store.userInformation,()=>{
 
 .message-head {
   top: 0px;
-  width: 101%;
+  left: 0;
+  width: 100%;
   height: 64px;
-  left: -13px;
   position: fixed;
   background-color: white;
   box-shadow: 2px 0px 4px #d3d3d3;

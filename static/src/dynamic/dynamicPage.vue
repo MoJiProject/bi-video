@@ -6,9 +6,7 @@
     <div class="dynamic-body-container">
         <dynamicBody/>
     </div>  
-    <div style="position: fixed;top: 800px;z-index: 10;">
-        <el-backtop :right="5"/>
-    </div>
+    <el-backtop :right="5"/>
 </div>
 </template>
 
@@ -67,10 +65,10 @@ async function getEitListF(){
 
 .dynamic-page{
     .dynamic-head-container{
-    position: fixed;
+    position: sticky;
     top: 0;
-    width: 103%;
-    left: -21px;
+    left: 0;
+    width: 100%;
     background-color: white;
     height: 64px;
     z-index: 1000;

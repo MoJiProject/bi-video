@@ -112,8 +112,7 @@ async function addFollowAxios(upUserId) {
         store.setAddFollowFlag(0);
 
         if (store.userId === null) {
-          loginDialogVisibleFlag.value =
-            loginDialogVisibleFlag.value === 0 ? 1 : 0;
+          store.loginDialogVisible = true;
           return;
         }
 
@@ -155,8 +154,7 @@ async function deleteFollowAxios(upUserId) {
         store.setAddFollowFlag(0);
 
         if (store.userId === null) {
-          loginDialogVisibleFlag.value =
-            loginDialogVisibleFlag.value === 0 ? 1 : 0;
+          store.loginDialogVisible = true;
           return;
         }
 
@@ -188,8 +186,7 @@ async function deleteFollowAxios(upUserId) {
 async function addDialogueF(dialogueId) {
 
 if (store.userId === null) {
-    loginDialogVisibleFlag.value =
-      loginDialogVisibleFlag.value === 0 ? 1 : 0;
+    store.loginDialogVisible = true;
     return;
   }
 

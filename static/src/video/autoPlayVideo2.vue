@@ -112,6 +112,7 @@ import { onMounted, ref, watch } from 'vue';
 import apiClient from "../services/apiClient";
 import {useGlobalStore} from "../store/store";
 import { navigateToVideo } from "../services/watchTogetherBridge";
+import { ElMessage } from "element-plus";
 export default {
     name: "autoPlayVideo2",
     setup(){

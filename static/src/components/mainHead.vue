@@ -10,10 +10,10 @@
           </a
         >
       </li>
-      <li v-for="item in navItems" :key="item.name">
+      <li class="hd-nav" v-for="item in navItems" :key="item.name">
         <a :href="item.href" target="_blank">{{ item.name }}</a>
       </li>
-      <li>
+      <li class="hd-download">
         <a href="#" @click.prevent>
           <img
             v-show="!head2Flag"
@@ -30,10 +30,10 @@
         >
       </li>
       <li>
-        <search v-if="!searchFlag" class="head-search" :head2Flag="head2Flag" :class="{ head2SearchFlag: head2Flag } "/>
+        <search v-if="!searchFlag" class="hd-search head-search" :head2Flag="head2Flag" :class="{ head2SearchFlag: head2Flag } "/>
         <div v-if="searchFlag" class="head-search" :class="{ head2SearchFlag: head2Flag } "></div>
       </li>
-      <li>
+      <li class="hd-user">
         <div v-if="store.userId !== null" class="avatar-container">
           <div class="avatar1" @click="openHome(1)">
             <img
@@ -378,7 +378,7 @@
        
         </div>
       </li>
-      <li>
+      <li class="hd-vip">
         <a href="#">
           <img v-show="!head2Flag" style="width: 17px;height: 17px;" src="/img/尊享会员.png" alt="尊享会员" />
           <img v-show="head2Flag" style="width: 17px;height: 17px;" src="/img/尊享会员黑.png" alt="尊享会员" />
@@ -523,7 +523,7 @@
           </div>
         </div>
       </li>
-      <li>
+      <li class="hd-message">
         <a v-if="store.userId !== null" target="_blank" :href='`./message`'>
           <div
             v-if="store.userInformation.allMessageNumber>0"
@@ -575,7 +575,7 @@
           </span>
         </div>
       </li>
-      <li>
+      <li class="hd-dynamic">
         <a v-if="!store.userId" @click="loginDialogVisible = true">
           <img v-show="!head2Flag" style="width:18px;" src="/img/动态.png" alt="动态" />
           <img v-show="head2Flag" style="width:18px;" src="/img/动态黑.png" alt="动态" /> 动态
@@ -925,7 +925,7 @@
           </div>
         </div>
       </li>
-      <li @mouseover="setCollectStore">
+      <li class="hd-collect" @mouseover="setCollectStore">
         <a v-if="!store.userId" @click="loginDialogVisible = true">
           <img v-show="!head2Flag" style="width: 18px;height: 18px;" src="/img/收藏.png" alt="收藏" />
           <img v-show="head2Flag" style="width: 18px;height: 18px;" src="/img/收藏黑.png" alt="收藏" />
@@ -1101,7 +1101,7 @@
           </div>
         </div>
       </li>
-      <li>
+      <li class="hd-history">
         <a v-if="!store.userId" @click="loginDialogVisible = true">
           <img v-show="!head2Flag" style="width:18px;" src="/img/历史.png" alt="历史" /> 
           <img v-show="head2Flag" style="width:18px;" src="/img/历史黑.png" alt="历史" /> 
@@ -1495,7 +1495,7 @@
           </div>
         </div>
       </li>
-      <li>
+      <li class="hd-create">
         <a v-if="!store.userId" @click="loginDialogVisible = true">
           <img v-show="!head2Flag" style="width:15px;height:18px;" src="/img/创作中心.png" alt="创作中心" />
           <img v-show="head2Flag" style="width:15px;height:18px;" src="/img/创作中心黑.png" alt="创作中心" />
@@ -1506,7 +1506,7 @@
           <img v-show="head2Flag" style="width:15px;height:18px;" src="/img/创作中心黑.png" alt="创作中心" /> 创作中心
         </a>
       </li>
-      <li>
+      <li class="hd-publish">
         <div v-if="store.userId !== null" class="upload">
           <a
             href="./contribute"
@@ -2096,6 +2096,7 @@ export default {
       userName: "",
       password: "",
     });
+    const showPassword = ref(false);
     const notHistoryDynamic = reactive([]);
     const signinForm = reactive({
       //注册表单
@@ -2970,8 +2971,6 @@ flag.value = 1;
       historyEarlier,
       histotyVideoProgress,
       locationHerfVideo,
-      head2Flag,
-      searchFlag,
       setCollectStore,
       store,
       openMessage,
@@ -3007,11 +3006,14 @@ a {
 }
 
 .header {
-  width: 1450px;
+  width: 100%;
+  max-width: var(--page-max);
   height: 70px;
   margin: 0 auto; /* 居中对齐 */
+  padding: 0 var(--page-pad);
+  box-sizing: border-box;
   display: flex;
-  transform: translate(28px);
+  position: relative;
   align-items: center; /* 垂直居中对齐内容 */
   justify-content: center;
 }
@@ -3028,8 +3030,8 @@ a {
   list-style-type: none;
   margin-right: 36px;
   margin-bottom: 3px;
-  position: absolute;
-  width: 1410px;
+  position: relative;
+  width: 100%;
   justify-content: space-around;
 }
 
@@ -3240,7 +3242,7 @@ a {
   height: 22px;
   opacity: 0;
 }
-.v-header-ul li:nth-child(11):hover .transparent-div12 {
+.v-header-ul li.hd-vip:hover .transparent-div12 {
   visibility: visible;
 }
 .vip-introduce div span img {
@@ -3250,7 +3252,7 @@ a {
 .vip-introduce div span a {
   animation: none !important;
 }
-.v-header-ul li:nth-child(11):hover .vip-introduce {
+.v-header-ul li.hd-vip:hover .vip-introduce {
   transition-delay: 0.2s;
   visibility: visible;
   opacity: 1;
@@ -3299,7 +3301,7 @@ a {
   height: 20px;
   opacity: 0;
 }
-.v-header-ul li:nth-child(12):hover .transparent-div13 {
+.v-header-ul li.hd-message:hover .transparent-div13 {
   visibility: visible;
 }
 .message-info span {
@@ -3319,7 +3321,7 @@ a {
 .message-info span:hover {
   background-color: #E0E5E3;
 }
-.v-header-ul li:nth-child(12):hover .message-info {
+.v-header-ul li.hd-message:hover .message-info {
   transition-delay: 0.2s;
   visibility: visible;
   opacity: 1;
@@ -3443,7 +3445,7 @@ a {
   color: #0FA68E !important;
 }
 
-.v-header-ul li:nth-child(n + 11):nth-child(-n + 16) a {
+.v-header-ul li.hd-vip, li.hd-message, li.hd-dynamic, li.hd-collect, li.hd-history, li.hd-create a {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -3452,101 +3454,101 @@ a {
   margin-top: 5px;
 }
 
-.v-header-ul li:nth-child(2){
+.v-header-ul li.hd-nav {
    transform: translate(-2px);
 }
-.v-header-ul li:nth-child(3){
+.v-header-ul li.hd-nav {
    transform: translate(-3.5px);
 }
 
-.v-header-ul li:nth-child(4){
+.v-header-ul li.hd-nav {
    transform: translate(-5.5px);
 }
 
-.v-header-ul li:nth-child(5){
+.v-header-ul li.hd-nav {
    transform: translate(-6px);
 }
 
-.head2Flag li:nth-child(5){
+.head2Flag li.hd-nav:nth-child(5){
   transform: translate(-7px);
 }
 
-.v-header-ul li:nth-child(6){
+.v-header-ul li.hd-nav {
    transform: translate(-7px);
 }
 
-.head2Flag li:nth-child(6){
+.head2Flag li.hd-nav:nth-child(6){
   transform: translate(-9px);
 }
 
 
-.v-header-ul li:nth-child(7){
+.v-header-ul li.hd-nav {
    transform: translate(-9px);
 }
 
-.head2Flag li:nth-child(7){
+.head2Flag li.hd-nav:nth-child(7){
   transform: translate(-11px);
 }
 
-.v-header-ul li:nth-child(8){
+.v-header-ul li.hd-nav {
    transform: translate(-11px);
 }
 
-.head2Flag li:nth-child(9){
+.head2Flag li.hd-download{
   margin-right: -40px;
   transform: translate(-17.5px);
 }
 
-.head2Flag li:nth-child(8){
+.head2Flag li.hd-nav:nth-child(8){
   transform: translate(-13px);
 }
 
 
-.v-header-ul li:nth-child(10){
+.v-header-ul li.hd-user{
    transform: translate(-8px,-2px);
    z-index: 10000000;
 }
 
-.v-header-ul li:nth-child(11){
+.v-header-ul li.hd-vip{
   transform: translate(-3px,-4px);
   z-index: 10000;
 }
 
-.v-header-ul li:nth-child(12){
+.v-header-ul li.hd-message{
   transform: translate(-3px,-4px);
 }
-.v-header-ul li:nth-child(13){
+.v-header-ul li.hd-dynamic{
   transform: translate(0px,-4px);
 }
-.v-header-ul li:nth-child(14){
+.v-header-ul li.hd-collect{
   transform: translate(4.5px,-4px);
   z-index: 10000;
 
 }
-.v-header-ul li:nth-child(15){
+.v-header-ul li.hd-history{
   transform: translate(9px,-4px);
 }
 
-.v-header-ul li:nth-child(16){
+.v-header-ul li.hd-create{
   transform: translate(3px,-4px);
 }
 
-.head2Flag li:nth-child(17){
+.head2Flag li.hd-publish{
   transform: translate(-3.5px);
 }
 
-.head2Flag li:nth-child(n + 11):nth-child(-n + 16){
+.head2Flag li.hd-vip, li.hd-message, li.hd-dynamic, li.hd-collect, li.hd-history, li.hd-create{
   a{
     color: #5D6764;
     font-size: 12px;
   }
 }
 
-.v-header-ul li:nth-child(n + 11):nth-child(-n + 16){
+.v-header-ul li.hd-vip, li.hd-message, li.hd-dynamic, li.hd-collect, li.hd-history, li.hd-create{
    position: relative;
 }
 
-.v-header-ul li:nth-child(n + 11):nth-child(-n + 16) a img {
+.v-header-ul li.hd-vip, li.hd-message, li.hd-dynamic, li.hd-collect, li.hd-history, li.hd-create a img {
   margin-left: 4px;
   height: 17px;
   width: 16px;
@@ -3593,25 +3595,25 @@ a {
 
 }
 
-.v-header-ul li:nth-child(12):hover .login-info2,
-.v-header-ul li:nth-child(13):hover .login-info2,
-.v-header-ul li:nth-child(14):hover .login-info2,
-.v-header-ul li:nth-child(15):hover .login-info2 {
+.v-header-ul li.hd-message:hover .login-info2,
+.v-header-ul li.hd-dynamic:hover .login-info2,
+.v-header-ul li.hd-collect:hover .login-info2,
+.v-header-ul li.hd-history:hover .login-info2 {
   visibility: visible; /* 悬停时可见 */
   opacity: 1; /* 悬停时不透明 */
 }
 
-.v-header-ul li:nth-child(13) a img {
+.v-header-ul li.hd-dynamic a img {
   height: 17px;
 }
-.v-header-ul li:nth-child(14) a img {
+.v-header-ul li.hd-collect a img {
   margin-left: 4px;
 }
-.v-header-ul li:nth-child(15) a img {
+.v-header-ul li.hd-history a img {
   height: 12px;
 }
 
-.v-header-ul li:nth-child(16) a img {
+.v-header-ul li.hd-create a img {
   height: 10px;
 }
 
@@ -3666,9 +3668,9 @@ a {
     transform: translateY(0); /* 返回原位 */
   }
 }
-.v-header-ul li:nth-child(9):hover,
-.v-header-ul li:nth-child(10):hover,
-.v-header-ul li:nth-child(17):hover {
+.v-header-ul li.hd-download:hover,
+.v-header-ul li.hd-user:hover,
+.v-header-ul li.hd-publish:hover {
   animation: none !important;
 }
 
@@ -3709,11 +3711,11 @@ a {
   height: 20px;
   opacity: 0;
 }
-.v-header-ul li:nth-child(13):hover .transparent-div14 {
+.v-header-ul li.hd-dynamic:hover .transparent-div14 {
   visibility: visible;
 }
 
-.v-header-ul li:nth-child(13):hover .dynamic-info {
+.v-header-ul li.hd-dynamic:hover .dynamic-info {
   transition-delay: 0.2s;
   opacity: 1;
   visibility: visible;
@@ -3803,7 +3805,7 @@ a {
   overflow: hidden;
 }
 
-.v-header-ul li:nth-child(14):hover .collect-info {
+.v-header-ul li.hd-collect:hover .collect-info {
   transition-delay: 0.2s;
   opacity: 1;
   visibility: visible;
@@ -3818,7 +3820,7 @@ a {
   height: 20px;
   opacity: 0;
 }
-.v-header-ul li:nth-child(14):hover .transparent-div15 {
+.v-header-ul li.hd-collect:hover .transparent-div15 {
   visibility: visible;
 }
 .collectContent {
@@ -4004,7 +4006,7 @@ a {
   font-size: 14px;
 }
 
-.v-header-ul li:nth-child(15):hover .history-info {
+.v-header-ul li.hd-history:hover .history-info {
   transition-delay: 0.2s;
   opacity: 1;
   visibility: visible;
@@ -4019,7 +4021,7 @@ a {
   height: 20px;
   opacity: 0;
 }
-.v-header-ul li:nth-child(15):hover .transparent-div16 {
+.v-header-ul li.hd-history:hover .transparent-div16 {
   visibility: visible;
 }
 .history-info {
@@ -4203,7 +4205,7 @@ a {
   margin-bottom: 10px;
 }
 
-.v-header-ul li:nth-child(n + 11):nth-child(-n + 16) a{
+.v-header-ul li.hd-vip, li.hd-message, li.hd-dynamic, li.hd-collect, li.hd-history, li.hd-create a{
   font-size: 13px;
 }
 
@@ -4292,3 +4294,204 @@ a {
 
 }
 </style>
+
+<!-- header-layout-pass2 -->
+<style>
+/*
+  页头改成流式布局。
+  原样式是 position:absolute + 每个 li 各写各的 transform 微调，
+  导航项一改数量就整体错位。这里不再依赖任何固定偏移：
+  容器 flex 居中、条目按内容宽度排、图标统��� 18px、文字 13px。
+*/
+.v-header-ul {
+  position: static !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 0 !important;
+  width: 100% !important;
+  max-width: 1400px !important;
+  height: 64px !important;
+  margin: 0 auto !important;
+  padding: 0 10px !important;
+  box-sizing: border-box;
+}
+
+.v-header-ul > li {
+  flex: none !important;
+  position: static !important;
+  transform: none !important;
+  display: flex !important;
+  align-items: center !important;
+  height: 64px !important;
+  margin: 0 !important;
+}
+
+.v-header-ul > li.hd-nav,
+.v-header-ul > li.hd-download {
+  padding: 0 9px !important;
+}
+
+.v-header-ul > li.hd-nav > a,
+.v-header-ul > li.hd-download > a {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  height: 64px !important;
+  font-size: 14px !important;
+  color: var(--ink-2) !important;
+  white-space: nowrap !important;
+  transition: color .18s ease;
+}
+
+.v-header-ul > li.hd-nav > a:hover,
+.v-header-ul > li.hd-download > a:hover {
+  color: var(--brand) !important;
+}
+
+.v-header-ul > li.hd-search,
+.v-header-ul > li.hd-user {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  padding: 0 12px !important;
+}
+
+.v-header-ul > li.hd-search > * {
+  width: 100% !important;
+  max-width: 420px !important;
+}
+
+.v-header-ul > li.hd-user {
+  flex: 0 0 auto !important;
+  justify-content: flex-end !important;
+}
+
+/* 右侧功能区：图标在上、文字在下，等宽对齐 */
+.v-header-ul > li.hd-vip,
+.v-header-ul > li.hd-message,
+.v-header-ul > li.hd-dynamic,
+.v-header-ul > li.hd-collect,
+.v-header-ul > li.hd-history,
+.v-header-ul > li.hd-create {
+  padding: 0 9px !important;
+}
+
+.v-header-ul > li.hd-vip > a,
+.v-header-ul > li.hd-message > a,
+.v-header-ul > li.hd-dynamic > a,
+.v-header-ul > li.hd-collect > a,
+.v-header-ul > li.hd-history > a,
+.v-header-ul > li.hd-create > a {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  min-width: 46px !important;
+  height: 64px !important;
+  font-size: 12px !important;
+  line-height: 1.1 !important;
+  color: var(--ink-2) !important;
+  white-space: nowrap !important;
+  transition: color .18s ease;
+}
+
+.v-header-ul > li.hd-vip > a:hover,
+.v-header-ul > li.hd-message > a:hover,
+.v-header-ul > li.hd-dynamic > a:hover,
+.v-header-ul > li.hd-collect > a:hover,
+.v-header-ul > li.hd-history > a:hover,
+.v-header-ul > li.hd-create > a:hover {
+  color: var(--brand) !important;
+}
+
+/* 图标：全部 18px 正方形，任何比例都不变形 */
+.v-header-ul > li img {
+  width: 18px !important;
+  height: 18px !important;
+  object-fit: contain;
+  margin: 0 !important;
+}
+
+.v-header-ul > li.hd-home {
+  padding-right: 6px;
+}
+
+.v-header-ul > li.hd-home > a {
+  display: flex !important;
+  align-items: center !important;
+  height: 64px !important;
+}
+
+.v-header-ul > li.hd-home img.h-logo {
+  width: auto !important;
+  height: 40px !important;
+}
+
+/* 投稿按钮固定在最后，不参与伸缩 */
+.v-header-ul > li.hd-publish {
+  padding: 0 4px 0 10px !important;
+}
+
+.v-header-ul > li.hd-publish > div,
+.v-header-ul > li.hd-publish .upload {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.v-header-ul > li.hd-publish img {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+/* 悬浮面板：挂在所属条目下方，去掉原先靠 transparent-div 算位置的偏移 */
+.v-header-ul > li .vip-introduce,
+.v-header-ul > li .message-info,
+.v-header-ul > li .dynamic-info,
+.v-header-ul > li .collect-aside,
+.v-header-ul > li .history-info {
+  position: absolute !important;
+  top: 100% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translateX(-50%) !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  z-index: 950 !important;
+}
+
+.v-header-ul > li.hd-vip:hover .vip-introduce,
+.v-header-ul > li.hd-message:hover .message-info,
+.v-header-ul > li.hd-dynamic:hover .dynamic-info,
+.v-header-ul > li.hd-collect:hover .collect-aside,
+.v-header-ul > li.hd-history:hover .history-info,
+.v-header-ul > li.hd-message:hover .login-info2,
+.v-header-ul > li.hd-dynamic:hover .login-info2,
+.v-header-ul > li.hd-collect:hover .login-info2,
+.v-header-ul > li.hd-history:hover .login-info2,
+.v-header-ul > li.hd-user:hover .avatar,
+.v-header-ul > li.hd-user:hover .login-info {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* 中间的小三角指示器统一交给面板自己画 */
+.v-header-ul > li .transparent-div,
+.v-header-ul > li .transparent-div12,
+.v-header-ul > li .transparent-div13,
+.v-header-ul > li .transparent-div14,
+.v-header-ul > li .transparent-div15,
+.v-header-ul > li .transparent-div16 {
+  position: absolute !important;
+  top: 100% !important;
+  left: 50% !important;
+  width: 20px !important;
+  height: 12px !important;
+  margin-left: -10px !important;
+  background: #fff;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%) !important;
+  z-index: 960 !important;
+}
+</style>
+<!-- /header-layout-pass2 -->

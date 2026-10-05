@@ -1574,9 +1574,7 @@
         </div>
       </div>
     </div>
-    <div style="position: fixed;top: 800px;z-index: 10;">
-      <el-backtop :right="5"/>
-    </div>
+    <el-backtop :right="5"/>
   </div>
 </template>
 
@@ -1610,7 +1608,6 @@ export default {
       time: 0,
       classify: "全部",
       startTIme: null,
-      endTime: null,
       startTime: "",
       endTime: "",
       userSort: 0,

@@ -80,14 +80,19 @@ onMounted(async() => {
         // 无论请求是否失败都要结束加载，否则顶部进度条不会结束
         store.setHomeLoad(true,"homeHead");
     }
-    window.addEventListener("click",()=>{
-        handleContextMenuVisible.value=false;
-    })
+    window.addEventListener("click",closeContextMenu)
 })
 
 onUnmounted(()=>{
     store.setHomeLoad(false,"homeHead");
+    // 这个监听以前是匿名函数注册的，组件卸载时无法移除，
+    // 每次进一次个人主页就往 window 上多挂一个，来回切换会累积到几十个。
+    window.removeEventListener("click",closeContextMenu)
 })
+
+function closeContextMenu(){
+    handleContextMenuVisible.value=false;
+}
 
 //获取用户ip和token
 // token 由 /auth/login 返回后存在本地，这里不再向后端要 IP + token。
@@ -326,12 +331,12 @@ watch(()=>store.homeUserInformation.id,()=>{
 
 .home-head {
 top: 0px;
-width: 101%;
+width: 100%;
 height: 200px;
 background-size: cover;
 background-position: 50% 50%;
 background-repeat: no-repeat;
-left: -23px;
+left: 0;
 position: relative;
 background-color: white;
 box-shadow: 2px 0px 4px #d3d3d3;
@@ -339,9 +344,12 @@ z-index: 999;
 
 .main-head {
     position: relative;
-    z-index: 9999;
+    z-index: 3;
 }
 
+/* 遮罩与资料区的层级原来靠负数 z-index（-20 / -10）压在背景之下，
+   依赖「父级背景之上、常规流之下」这个次序才能看见；一旦有别的定位兄弟节点插进来
+   就会被盖住。改成正常正数层级，层级关系写清楚。 */
 .overlay {
     position: absolute;
     top: 0;
@@ -349,7 +357,7 @@ z-index: 999;
     width: 100%;
     height: 100px;
     background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0));
-    z-index: -20;
+    z-index: 1;
 }
 .overlay2 {
     position: absolute;
@@ -358,7 +366,7 @@ z-index: 999;
     width: 100%;
     height: 100px;
     background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.6));
-    z-index: -20;
+    z-index: 1;
 }
 .menu{
     position: absolute;
@@ -379,7 +387,7 @@ z-index: 999;
     width: 100%;
     height: 80px;
     bottom: 0px;
-    z-index: -10;
+    z-index: 2;
 
     .user-avatar-link {
         position: absolute;
@@ -452,11 +460,14 @@ z-index: 999;
             margin-right: 8px;
         }
     }
+    /* 原来写死 width:892.5px（配 left:177px，最窄也要 1070px 才不溢出），
+       这里改成左偏移固定、右侧留白自适应，窄屏下签名自动收窄而不是把页面撑破。 */
     .user-info-introduce{
     position: relative;
-    width: 892.5px;
-    height: 17px;
     left: 177px;
+    right: 24px;
+    width: auto;
+    height: 17px;
     top: 9px;
     font-size: 12px;
     color: white;
@@ -470,9 +481,10 @@ z-index: 999;
     }
     .user-info-introduce2{
     position: relative;
-    width: 892.5px;
-    height: 17px;
     left: 177px;
+    right: 24px;
+    width: auto;
+    height: 17px;
     top: 9px;
     font-size: 12px;
     color: white;
@@ -492,8 +504,9 @@ z-index: 999;
 
     input{
     position: relative;
-    width: 897.5px;
     left: 173px;
+    right: 20px;
+    width: auto;
     top: 5px;
     padding: 2px 4px;
     font-size: 12px;
@@ -520,7 +533,7 @@ z-index: 999;
     height: 34px;
     right: 135px;
     bottom: 22px;
-    z-index: -10;
+    z-index: 2;
     user-select: none;
     .follow{  
     margin-right: 24px;

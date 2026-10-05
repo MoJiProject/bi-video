@@ -553,7 +553,6 @@ async function selectKeyWord(Value) {
       deleteAllSearchFlag,
       sendSearchAxios,
       placeholderWord,
-      head2Flag,
     };
   },
 };
@@ -571,15 +570,21 @@ async function selectKeyWord(Value) {
 .search {
   width: 300px;
   display: flex;
-  background-color: rgb(255, 255, 255,0.8);
   align-items: center;
   height: 40px;
-  border-radius: 7px; /* 上边角圆角 */
-  transition: background-color 0.3s, opacity 0.3s; /* 平滑过渡效果 */
+  border-radius: 7px;
+  background-color: var(--fill);
+  border: 1px solid var(--line);
+  transition: background-color 0.2s, border-color 0.2s, opacity 0.3s;
   position: relative; /* 设置为相对定位以便子元素绝对定位 */
   box-shadow: none; /* 去掉阴影效果 */
   z-index: 10000;
-  transition: all 0.3s ease;
+}
+
+.search:hover,
+.search:focus-within {
+  background-color: #fff;
+  border-color: var(--brand-light-5);
 }
 
 .box{

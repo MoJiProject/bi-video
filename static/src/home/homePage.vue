@@ -1,12 +1,10 @@
 <template>
-  <div v-if="userId" class="home-page">
+  <div v-if="userId !== null" class="home-page">
     <loadingBar :active="barActive" :percent="barPercent" :min-duration="initialLoadFinished?260:400"/>
     <home-head/>
     <homeAside/>
     <homeBody/>
-    <div style="position: fixed;top: 800px;z-index: 10;">
-      <el-backtop :right="5"/>
-    </div>
+    <el-backtop class="home-page-backtop" :right="24"/>
   </div>
     
 </template>
@@ -15,14 +13,17 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import {useGlobalStore} from "../store/store";
 import homeHead from './homeHead.vue';
-import homeAside from './aside.vue';
+import homeAside from './homeAside.vue';
 import homeBody from './homeBody.vue';
 import loadingBar from '@/components/loadingBar.vue';
+import { useBodyLayout } from '@/composables/useBodyLayout';
 
 const store = useGlobalStore();
 const initialLoadFinished = ref(false);
 const menuLoading = ref(false);
 const userId = parseInt(new URL(window.location).searchParams.get("userId")) || null;
+
+useBodyLayout({});
 
 // 头部与侧栏先完成，正文占剩余权重，整体不会过早显示为 100%
 const loadPercent = computed(() => {
@@ -56,9 +57,6 @@ onMounted(() => {
     return;
   }
 
-  document.body.style.display = 'flex';
-  document.body.style.justifyContent = 'center';
-  
   const urlParams = new URLSearchParams(window.location.search);
   store.setHomeMenu(parseInt(urlParams.get("homeMenu")) || 1,true);
   window.addEventListener('popstate', handlePopState);
@@ -99,6 +97,13 @@ watch(()=>store.homeLoad.homeBody,(value)=>{
 .home-page{
     position: relative;
     width: 100%;
+}
+
+.home-page-backtop{
+    position: fixed;
+    right: 24px;
+    bottom: 120px;
+    z-index: 700;
 }
 
 </style>

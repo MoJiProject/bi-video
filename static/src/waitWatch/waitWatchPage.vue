@@ -6,9 +6,7 @@
       <div class="waitWatch-body-container">
           <waitWatchBody/>
       </div>  
-      <div style="position: fixed;top: 800px;z-index: 10;">
-          <el-backtop :right="5"/>
-      </div>
+      <el-backtop :right="5"/>
   </div>
 </template>
 
@@ -56,9 +54,10 @@ async function ChecklLoginF(){
 
 .waitWatch-page{
     .waitWatch-head-container{
-    position: relative;
-    width: 103%;
-    left: -21px;
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
     background-color: white;
     height: 64px;
     z-index: 1000;

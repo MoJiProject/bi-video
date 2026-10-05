@@ -43,6 +43,7 @@ const currentComponent = computed(() => {
       return (store.homeUserInformation.publicFansList === 1 ||
               (store.userId !== null && store.userId === userId)) ? fans : null;
     case 10: return search;
+    default: return null;
   }
 });
 
@@ -84,6 +85,6 @@ onBeforeUnmount(()=>{
 }
 
 .home-component{
-  width: 100vw;
+  width: 100%;
 }
 </style>

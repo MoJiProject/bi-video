@@ -27,10 +27,10 @@ import mainHead from "@/components/mainHead.vue";
 
 .not-found-container{
   .not-found-header{
-    position: relative;
+    position: sticky;
     top: 0;
-    width: 103%;
-    left: -21px;
+    left: 0;
+    width: 100%;
     background-color: white;
     height: 64px;
     z-index: 1000;

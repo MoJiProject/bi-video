@@ -241,7 +241,7 @@ return (dynamic)=>{
  if(dynamic.video){
  
  if(dynamic.video.videoLikeNumber>2)
-    return `等${dynamic.video.videoLikeNumber+video.videoShareNumber}人点赞了`;
+     return `等${dynamic.video.videoLikeNumber+dynamic.video.videoShareNumber}人点赞了`;
  else
     return `点赞了`;
 }else{

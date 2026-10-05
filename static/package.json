@@ -35,6 +35,12 @@
     "env": {
       "node": true
     },
+    "globals": {
+      "defineProps": "readonly",
+      "defineEmits": "readonly",
+      "defineExpose": "readonly",
+      "withDefaults": "readonly"
+    },
     "extends": [
       "plugin:vue/vue3-essential",
       "eslint:recommended"
@@ -42,7 +48,31 @@
     "parserOptions": {
       "parser": "@babel/eslint-parser"
     },
-    "rules": {}
+    "rules": {
+      "vue/multi-word-component-names": ["error", {
+        "ignores": [
+          "index",
+          "Eit",
+          "home",
+          "dynamic",
+          "contribute",
+          "lists",
+          "collect",
+          "followAnime",
+          "settings",
+          "follow",
+          "fans",
+          "search",
+          "whisper",
+          "comment",
+          "Comment",
+          "video5",
+          "video6",
+          "video7",
+          "video8"
+        ]
+      }]
+    }
   },
   "browserslist": [
     "> 1%",

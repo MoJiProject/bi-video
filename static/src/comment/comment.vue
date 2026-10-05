@@ -2888,8 +2888,7 @@ export default {
     async function addDialogueF(dialogueId) {
 
     if (store.userId === null) {
-        loginDialogVisibleFlag.value =
-          loginDialogVisibleFlag.value === 0 ? 1 : 0;
+        store.loginDialogVisible = true;
         return;
       }
 

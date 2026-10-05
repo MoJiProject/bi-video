@@ -3,38 +3,42 @@
         <div class="home-aside-logo">
            <div class="left">
                <div class="left-part1" >
-                <span @click="changeHomeMenu(1)" style="margin-left: 0px;">
+                <span ref="tabEls[0]" :class="{ 'is-on': store.homeMenu === 1 }" @click="changeHomeMenu(1)">
                     <img src="/img/主页.png">
-                    <span :style="{fontWeight: store.homeMenu===1? 'bold' : 'normal', color: store.homeMenu===1? '#0FA68E' : '#1C2321'}">主页</span>
+                    <span>主页</span>
                 </span>
-                <span @click="changeHomeMenu(2)">
+                <span ref="tabEls[1]" :class="{ 'is-on': store.homeMenu === 2 }" @click="changeHomeMenu(2)">
                     <img src="/img/主页动态.png">
-                    <span :style="{fontWeight: store.homeMenu===2? 'bold' : 'normal', color: store.homeMenu===2? '#0FA68E' : '#1C2321'}">动态</span>
+                    <span>动态</span>
                 </span>
-                <span @click="changeHomeMenu(3)">
+                <span ref="tabEls[2]" :class="{ 'is-on': store.homeMenu === 3 }" @click="changeHomeMenu(3)">
                     <img src="/img/主页投稿.png">
-                    <span :style="{fontWeight: store.homeMenu===3? 'bold' : 'normal', color: store.homeMenu===3? '#0FA68E' : '#1C2321'}">投稿</span>
-                    <span class="num" :style="{color: store.homeMenu===3? '#0FA68E':'#1C2321' }">{{ contributeTotal }}</span>
+                    <span>投稿</span>
+                    <span class="num" v-if="contributeTotal">{{ contributeTotal }}</span>
                 </span>
-                <span @click="changeHomeMenu(4)">
+                <span ref="tabEls[3]" :class="{ 'is-on': store.homeMenu === 4 }" @click="changeHomeMenu(4)">
                     <img src="/img/主页合集.png">
-                    <span :style="{fontWeight: store.homeMenu===4? 'bold' : 'normal', color: store.homeMenu===4? '#0FA68E' : '#1C2321'}">合集</span>
+                    <span>合集</span>
                 </span>
-                <span v-if="(store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicCollect===1" @click="changeHomeMenu(5)">
+                <span v-if="(store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicCollect===1" ref="tabEls[4]" :class="{ 'is-on': store.homeMenu === 5 }" @click="changeHomeMenu(5)">
                     <img src="/img/主页收藏.png">
-                    <span :style="{fontWeight: store.homeMenu===5? 'bold' : 'normal', color: store.homeMenu===5? '#0FA68E' : '#1C2321'}">收藏</span>
-                    <span class="num" :style="{color: store.homeMenu===5? '#0FA68E':'#1C2321' }">{{ store.collectClassifyNumber }}</span>
+                    <span>收藏</span>
+                    <span class="num" v-if="store.collectClassifyNumber">{{ store.collectClassifyNumber }}</span>
                 </span>
-                <span v-if="(store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicAnime===1" @click="changeHomeMenu(6)">
+                <span v-if="(store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicAnime===1" ref="tabEls[5]" :class="{ 'is-on': store.homeMenu === 6 }" @click="changeHomeMenu(6)">
                     <img src="/img/主页追剧.png">
-                    <span :style="{fontWeight: store.homeMenu===6? 'bold' : 'normal', color: store.homeMenu===6? '#0FA68E' : '#1C2321'}">追剧</span>
+                    <span>追剧</span>
                 </span>
-                <span v-if="store.userId!==null&&store.userId===userId" @click="changeHomeMenu(7)">
+                <span v-if="store.userId!==null&&store.userId===userId" ref="tabEls[6]" :class="{ 'is-on': store.homeMenu === 7 }" @click="changeHomeMenu(7)">
                     <img src="/img/主页设置.png">
-                    <span :style="{fontWeight: store.homeMenu===7? 'bold' : 'normal', color: store.homeMenu==7? '#0FA68E' : '#1C2321'}">设置</span>
+                    <span>设置</span>
                 </span>
+                <div
+                  v-show="tabLine.visible"
+                  class="line"
+                  :style="{ transform: 'translateX('+tabLine.x+'px)', width: tabLine.w+'px' }"
+                ></div>
                </div>
-               <div v-show="store.homeMenu!==8&&store.homeMenu!==9&&store.homeMenu!==10" class="line" :style="{transform: 'translateX('+menuLinePositionX[store.homeMenu-1]+'px)', width: menuLineWidth[store.homeMenu-1]+'px'}"></div>
                <div class="search-box">
                     <input class="left-part2" type="text" ref="searchInput" placeholder="搜索视频、动态" maxlength="50" v-model="searchContent" @keydown.enter="searchJumpPage" @blur="searchInputFoucsFlag=false">
                     <img
@@ -73,7 +77,7 @@
 </template>
 
 <script setup>
-import { nextTick, onMounted, ref, watch } from 'vue';
+import { nextTick, onMounted, reactive, ref, watch } from 'vue';
 import {useGlobalStore} from "../store/store";
 import {homeContributeVideos} from '@/api/home/index';
 import { ElMessage } from "element-plus";
@@ -86,12 +90,33 @@ const searchInput = ref(null);
 const searchInputFoucsFlag = ref(false);
 const searchImgHoverFlag = ref(false);
 const contributeTotal = ref(0);
-const menuLinePositionX = ref([
-    0,86,172,269,355,452,569
-]);
-const menuLineWidth = ref([
-    56,56,66,56,66,87,56
-]);
+
+const tabEls = ref([]);
+const tabLine = reactive({ visible: false, x: 0, w: 0 });
+
+const TABS_WITHOUT_LINE = [8, 9, 10];
+
+function measureTabLine() {
+  const index = store.homeMenu - 1;
+  if (TABS_WITHOUT_LINE.includes(store.homeMenu) || index < 0 || index > 6) {
+    tabLine.visible = false;
+    return;
+  }
+  const el = tabEls.value[index];
+  if (!el) {
+    tabLine.visible = false;
+    return;
+  }
+  tabLine.x = el.offsetLeft;
+  tabLine.w = el.offsetWidth;
+  tabLine.visible = true;
+}
+
+watch(() => store.homeMenu, () => nextTick(measureTabLine));
+watch(
+  () => [store.collectClassifyNumber, store.homeUserInformation.publicCollect, store.homeUserInformation.publicAnime],
+  () => nextTick(measureTabLine)
+);
 
 watch(searchInputFoucsFlag,()=>{
     if(searchInputFoucsFlag.value)
@@ -137,7 +162,8 @@ function changeHomeMenu(homeMenu){
 onMounted(async()=>{
    await homeContributeVideosF();
    store.setHomeLoad(true,'homeAside');
-
+   await nextTick();
+   measureTabLine();
 })
 
 // 获取用户主页投稿的视频
@@ -249,24 +275,22 @@ watch(()=>store.homeMenu,()=>{
         }
         span:hover{
             span{
-                color: #0FA68E !important;
+                color: #0FA68E;
             }
         }
-        .tab-line{
-        position: absolute;
-        width: 56px;
-        height: 3px;
-        left: -1px;
-        bottom: 0px;
-        height: 3px;
-        border-radius: 3px;
-        background-color: #0FA68E;
-        transition: all .3s;
+        span.is-on{
+            font-weight: bold;
+            span{
+                color: #0FA68E;
+            }
+            .num{
+                color: #0FA68E;
+            }
         }
     }
     .line{
     position: absolute;
-    transition: transform .3s ease;    
+    transition: transform .3s ease, width .3s ease;
     height: 3px;
     bottom: 0px;
     border-radius: 3px;
