@@ -1445,10 +1445,11 @@ export default {
 
     watch([()=>store.eitUserName,()=>store.userId],
       async() => {
-        if (store.eitUserName.trim() !== "" && commentFocusFlag.value) {
-          insertEit();
-        } else {
-          insertEit2();
+        // 只在确实有 @ 用户待插入时才动手。插入完成后 insertEit 会把
+        // eitUserName 清空，这里再触发就直接跳过，不会自己套自己。
+        if (store.eitUserName.trim() !== "") {
+          if (commentFocusFlag.value) insertEit();
+          else insertEit2();
         }
       },
       { deep: true },
