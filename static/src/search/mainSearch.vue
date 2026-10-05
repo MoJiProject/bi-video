@@ -41,198 +41,26 @@
         />
       </div>
       <div class="middle">
-        <div class="sort">
-          <span
-            v-if="clickFlag1 === false"
-            @click="ClickFlag1"
-            class="aw"
-            style="transform: translate(17px, -1px)"
-            >综合
-          </span>
-          <span
-            v-if="clickFlag1"
-            class="aww"
-            style="transform: translate(17px, -1px)"
-            >综合
-          </span>
-          <span
-            v-if="clickFlag2 === false"
-            @click="ClickFlag2"
-            class="aw"
-            style="transform: translate(6px, -1px)"
-            >视频
-            <span class="ac"
-              ><span v-if="acceptSearchData.videoTotal <= 99">{{
-                acceptSearchData.videoTotal
-              }}</span
-              ><span v-if="acceptSearchData.videoTotal > 99">99+</span></span
-            ></span
-          >
-          <span
-            v-if="clickFlag2"
-            class="aww"
-            style="transform: translate(6px, -1px)"
-            >视频
-            <span class="ac"
-              ><span v-if="acceptSearchData.videoTotal <= 99">{{
-                acceptSearchData.videoTotal
-              }}</span
-              ><span v-if="acceptSearchData.videoTotal > 99">99+</span></span
-            ></span
-          >
-          <span
-            v-if="clickFlag3 === false"
-            @click="ClickFlag3"
-            class="aw"
-            style="margin-left: 26px"
-            >番剧 <span class="ac">0</span></span
-          >
-          <span v-if="clickFlag3" class="aww" style="margin-left: 26px"
-            >番剧 <span class="ac">0</span></span
-          >
-          <span
-            v-if="clickFlag4 === false"
-            @click="ClickFlag4"
-            class="aw"
-            style="transform: translate(8px, -1px)"
-            >影视 <span class="ac">0</span></span
-          >
-          <span
-            v-if="clickFlag4"
-            class="aww"
-            style="transform: translate(8px, -1px)"
-            >影视 <span class="ac">0</span></span
-          >
-          <span
-            v-if="clickFlag5 === false"
-            @click="ClickFlag5"
-            class="aw"
-            style="margin-left: 8px; transform: translate(9px, -1px)"
-            >直播 <span class="ac">0</span></span
-          >
-          <span
-            v-if="clickFlag5"
-            class="aww"
-            style="margin-left: 8px; transform: translate(9px, -1px)"
-            >直播 <span class="ac">0</span></span
-          >
-          <span
-            v-if="clickFlag6 === false"
-            @click="ClickFlag6"
-            class="aw"
-            style="margin-left: 14px; transform: translate(3px, -1px)"
-            >专栏 <span class="ac">0</span></span
-          >
-          <span
-            v-if="clickFlag6"
-            class="aww"
-            style="margin-left: 14px; transform: translate(3px, -1px)"
-            >专栏 <span class="ac">0</span></span
-          >
-          <span
-            v-if="clickFlag7 === false"
-            @click="ClickFlag7"
-            class="aw"
-            style="transform: translate(19px, -1px)"
-            >用户
-            <span class="ac">
-              <span v-if="acceptSearchData.userTotal <= 99">{{
-                acceptSearchData.userTotal
-              }}</span>
-              <span v-if="acceptSearchData.userTotal > 99">99+</span>
-            </span>
-          </span>
-          <span
-            v-if="clickFlag7"
-            class="aww"
-            style="transform: translate(19px, -1px)"
-            >用户
-            <span class="ac"
-              ><span v-if="acceptSearchData.userTotal <= 99">{{
-                acceptSearchData.userTotal
-              }}</span
-              ><span v-if="acceptSearchData.userTotal > 99">99+</span></span
-            >
-          </span>
-        </div>
-        <div class="clickAllBox">
-          <span
-            v-if="clickFlag1"
-            style="
-              width: 32px;
-              height: 4px;
-              background-color: #0FA68E;
-              position: absolute;
-              transform: translate(63px, 137px);
-              border-radius: 5px;
-            "
-          ></span>
-          <span
-            v-if="clickFlag2"
-            style="
-              width: 32px;
-              height: 4px;
-              background-color: #0FA68E;
-              position: absolute;
-              transform: translate(147.5px, 137px);
-              border-radius: 5px;
-            "
-          ></span>
-          <span
-            v-if="clickFlag3"
-            style="
-              width: 32px;
-              height: 4px;
-              background-color: #0FA68E;
-              position: absolute;
-              transform: translate(267px, 137px);
-              border-radius: 5px;
-            "
-          ></span>
-          <span
-            v-if="clickFlag4"
-            style="
-              width: 32px;
-              height: 4px;
-              background-color: #0FA68E;
-              position: absolute;
-              transform: translate(371.5px, 137px);
-              border-radius: 5px;
-            "
-          ></span>
-          <span
-            v-if="clickFlag5"
-            style="
-              width: 32px;
-              height: 4px;
-              background-color: #0FA68E;
-              position: absolute;
-              transform: translate(475px, 137px);
-              border-radius: 5px;
-            "
-          ></span>
-          <span
-            v-if="clickFlag6"
-            style="
-              width: 32px;
-              height: 4px;
-              background-color: #0FA68E;
-              position: absolute;
-              transform: translate(581px, 137px);
-              border-radius: 5px;
-            "
-          ></span>
-          <span
-            v-if="clickFlag7"
-            style="
-              width: 32px;
-              height: 4px;
-              background-color: #0FA68E;
-              position: absolute;
-              transform: translate(692px, 137px);
-              border-radius: 5px;
-            "
-          ></span>
+        <div class="sort" ref="sortBarEl">
+    <!-- 原来这里是 14 个 span：每个 tab 按选中与否各写一份 .aw / .aww，
+         靠 17px / 26px / 8px / 14px 这些 translate 微调对齐；
+         下面再挂 7 个写死 translate(63px, 137px) 的下划线。
+         现在只留一份 tab，选中态走 is-on，下划线按 DOM 实测位置。 -->
+    <span
+      v-for="tab in resultTabs"
+      :key="tab.flag"
+      :ref="el => setTabEl(el, tab.flag)"
+      class="aw"
+      :class="{ 'is-on': clickFlag === tab.flag }"
+      @click="ClickFlag(tab.flag)"
+      >{{ tab.label }}
+      <span class="ac" v-if="tab.total !== null">{{ tab.total > 99 ? '99+' : tab.total }}</span>
+    </span>
+    <span
+      class="sort-underline"
+      :style="{ transform: 'translateX('+sortLine.x+'px)', width: sortLine.w+'px' }"
+      v-show="sortLine.visible"
+    ></span>
         </div>
       </div>
       <div class="content">
@@ -1583,7 +1411,7 @@ import head1 from "../components/mainHead.vue";
 import Searcha from "./searcha";
 const up = "/img/author-badge-default.png"
 const upBlue = "/img/author-badge-blue.png"
-import { reactive, onMounted, ref, watch, onUnmounted } from "vue";
+import { computed, reactive, nextTick, onMounted, ref, watch, onUnmounted } from "vue";
 import apiClient from "../services/apiClient";
 import { ElMessage } from "element-plus";
 import { useGlobalStore } from "../store/store";
@@ -1636,13 +1464,56 @@ export default {
       isVisible.value = scrollPosition > 155; // 当滚动超过155px时显示盒子
     };
     const datea = ref("");
-    const clickFlag1 = ref(true);
-    const clickFlag2 = ref(false);
-    const clickFlag3 = ref(false);
-    const clickFlag4 = ref(false);
-    const clickFlag5 = ref(false);
-    const clickFlag6 = ref(false);
-    const clickFlag7 = ref(false);
+const clickFlag = ref(1);
+const clickFlag1 = computed(() => clickFlag.value === 1);
+const clickFlag2 = computed(() => clickFlag.value === 2);
+const clickFlag3 = computed(() => clickFlag.value === 3);
+const clickFlag4 = computed(() => clickFlag.value === 4);
+const clickFlag5 = computed(() => clickFlag.value === 5);
+const clickFlag6 = computed(() => clickFlag.value === 6);
+const clickFlag7 = computed(() => clickFlag.value === 7);
+
+// 结果分类页签。原来是 7 个 ref + 7 个各自把另外 6 个置 false 的函数，
+// 写错一个就会让两个 tab 同时高亮。改成单一 clickFlag，页签表由它派生。
+const resultTabs = computed(() => [
+  { flag: 1, label: "综合", total: null },
+  { flag: 2, label: "视频", total: acceptSearchData.videoTotal },
+  { flag: 3, label: "番剧", total: 0 },
+  { flag: 4, label: "影视", total: 0 },
+  { flag: 5, label: "直播", total: 0 },
+  { flag: 6, label: "专栏", total: 0 },
+  { flag: 7, label: "用户", total: acceptSearchData.userTotal },
+]);
+
+const tabEls = new Map();
+const sortLine = reactive({ visible: false, x: 0, w: 0 });
+
+function setTabEl(el, flag) {
+  if (el) tabEls.set(flag, el);
+  else tabEls.delete(flag);
+}
+
+function measureSortLine() {
+  const el = tabEls.get(clickFlag.value);
+  if (!el) {
+    sortLine.visible = false;
+    return;
+  }
+  sortLine.x = el.offsetLeft;
+  sortLine.w = el.offsetWidth;
+  sortLine.visible = true;
+}
+
+watch(
+  () => [clickFlag.value, acceptSearchData.videoTotal, acceptSearchData.userTotal],
+  () => {
+    nextTick(measureSortLine);
+  }
+);
+
+    onMounted(() => {
+      nextTick(measureSortLine);
+    });
     const clickSortFlag1 = ref(true);
     const clickSortFlag2 = ref(false);
     const clickSortFlag3 = ref(false);
@@ -1734,70 +1605,12 @@ export default {
       }
    }
 
-    function ClickFlag1() {
-      clickFlag1.value = true;
-      clickFlag2.value = false;
-      clickFlag3.value = false;
-      clickFlag4.value = false;
-      clickFlag5.value = false;
-      clickFlag6.value = false;
-      clickFlag7.value = false;
-    }
-    function ClickFlag2() {
-      clickFlag1.value = false;
-      clickFlag2.value = true;
-      clickFlag3.value = false;
-      clickFlag4.value = false;
-      clickFlag5.value = false;
-      clickFlag6.value = false;
-      clickFlag7.value = false;
-    }
-    function ClickFlag3() {
-      clickFlag1.value = false;
-      clickFlag2.value = false;
-      clickFlag3.value = true;
-      clickFlag4.value = false;
-      clickFlag5.value = false;
-      clickFlag6.value = false;
-      clickFlag7.value = false;
-    }
-    function ClickFlag4() {
-      clickFlag1.value = false;
-      clickFlag2.value = false;
-      clickFlag3.value = false;
-      clickFlag4.value = true;
-      clickFlag5.value = false;
-      clickFlag6.value = false;
-      clickFlag7.value = false;
-    }
-    function ClickFlag5() {
-      clickFlag1.value = false;
-      clickFlag2.value = false;
-      clickFlag3.value = false;
-      clickFlag4.value = false;
-      clickFlag5.value = true;
-      clickFlag6.value = false;
-      clickFlag7.value = false;
-    }
-    function ClickFlag6() {
-      clickFlag1.value = false;
-      clickFlag2.value = false;
-      clickFlag3.value = false;
-      clickFlag4.value = false;
-      clickFlag5.value = false;
-      clickFlag6.value = true;
-      clickFlag7.value = false;
-    }
-    function ClickFlag7() {
-      clickFlag1.value = false;
-      clickFlag2.value = false;
-      clickFlag3.value = false;
-      clickFlag4.value = false;
-      clickFlag5.value = false;
-      clickFlag6.value = false;
-      clickFlag7.value = true;
-
-      selectUsersAxios();
+    function ClickFlag(n) {
+      clickFlag.value = n;
+      nextTick(measureSortLine);
+      if (n === 7) {
+        selectUsersAxios();
+      }
     }
     function ClickSortFlag1() {
       clickSortFlag1.value = true;
@@ -2971,6 +2784,7 @@ export default {
     return {
       onloadPage,
       isVisible,
+      clickFlag,
       clickFlag1,
       clickFlag2,
       clickFlag3,
@@ -2978,13 +2792,10 @@ export default {
       clickFlag5,
       clickFlag6,
       clickFlag7,
-      ClickFlag1,
-      ClickFlag2,
-      ClickFlag3,
-      ClickFlag4,
-      ClickFlag5,
-      ClickFlag6,
-      ClickFlag7,
+      ClickFlag,
+      resultTabs,
+      sortLine,
+      setTabEl,
       clickSortFlag1,
       clickSortFlag2,
       clickSortFlag3,
@@ -3112,13 +2923,15 @@ export default {
   box-sizing: border-box; /* 包括内边距和边框在元素的总宽度和高度中 */
 }
 
+/* 原来写死 width:1425px 靠 left:50% + translateX(-50%) 居中，
+   视口窄于 1425px 就必然出现横向滚动条。改成 max-width 由页面容器控宽。 */
 .SearchBox {
   user-select: none;
   height: auto;
   position: relative;
-  width: 1425px;
-  left: 50%;
-  transform: translate(-50%, 0);
+  width: 100%;
+  max-width: var(--page-max);
+  margin: 0 auto;
 }
 
 
@@ -3163,11 +2976,15 @@ export default {
   z-index: 0;
 }
 
+/* 结果分类页签。
+   原来 .sort 是 width:50% + translate(15px,122.5px)，下划线另有 7 个写死坐标；
+   现在页签按内容宽度排布，选中态走 .is-on，下划线用 .sort-underline 由脚本定位。 */
 .sort {
-  width: 50%;
+  position: relative;
   display: flex;
-  justify-content: space-around;
-  transform: translate(15px, 122.5px);
+  align-items: center;
+  gap: 34px;
+  padding-bottom: 10px;
   font-size: 15.5px;
 }
 
@@ -3176,28 +2993,42 @@ export default {
 }
 
 .sort .ac {
-  line-height: 15px;
-  text-align: center;
-  position: absolute;
-  width: 25px;
+  display: inline-block;
+  min-width: 20px;
   height: 16px;
+  margin-left: 5px;
+  padding: 0 5px;
   font-size: 12px;
+  line-height: 16px;
+  text-align: center;
   background-color: #eaeaea;
   border-radius: 5px;
   color: #919090;
-  transform: translate(5px, 3px);
+  vertical-align: middle;
 }
 .sort .aw {
+  position: relative;
   cursor: pointer;
-  color: #5b5b5b;
-  transition: all 0.3s ease;
+  color: var(--ink-2);
+  white-space: nowrap;
+  transition: color .2s ease;
 }
-.sort .aww {
-  cursor: pointer;
-  color: #0FA68E;
+.sort .aw.is-on {
+  color: var(--brand);
+  font-weight: 600;
 }
 .sort .aw:hover {
-  color: #0FA68E;
+  color: var(--brand);
+}
+
+.sort-underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  border-radius: 3px;
+  background-color: var(--brand);
+  transition: transform .25s ease, width .25s ease;
 }
 
 .videoSort .condition {
