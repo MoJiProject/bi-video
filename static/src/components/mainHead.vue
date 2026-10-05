@@ -2352,8 +2352,8 @@ export default {
        
         let res;
         try {
-          res = await authApi.login({
-            username: loginForm.username,
+res = await authApi.login({
+            username: loginForm.userName,
             password: loginForm.password,
           });
         } catch (err) {
@@ -2512,10 +2512,11 @@ await getUserIp();
 
         let res;
         try {
-          res = await authApi.register({
-            username: signinForm.username,
+res = await authApi.register({
+            username: signinForm.userName,
             password: signinForm.password,
-            nickname: signinForm.nickname || signinForm.username,
+            // 注册表单里没有单独的昵称，用账号兜底
+            nickname: signinForm.userName,
             phone: signinForm.phone || "",
           });
         } catch (err) {
