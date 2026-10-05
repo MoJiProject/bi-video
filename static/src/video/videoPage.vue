@@ -304,6 +304,7 @@
             />已关注 {{ SelectVideoByIdVo.upUser.fansNumber }}
           </div>
         </div>
+        <div class="video-stage">
         <div id="upvideocontainer" ref="upVideoContainer" class="up-video-container">
           <video
             :class="{
@@ -2545,6 +2546,7 @@
             {{ waitWatchMsg }}
           </div>
         </div>
+        </div>
         <div style="position: absolute; z-index: -5;height: 0;">
           <!-- 弹幕列表 -->
           <div class="scrolling-list-container">
@@ -2687,6 +2689,14 @@ const watchEffect = (...a) => __vueWatchEffect(...a);
 const sendMessageGray = "/img/发消息灰.png"
 const sendMessageBlue = "/img/发消息蓝.png"
 import apiClient from "../services/apiClient";
+import {
+  authApi,
+  commentApi,
+  danmakuApi,
+  socialApi,
+  userContentApi,
+  videoApi,
+} from "../api/product";
 import { ElMessage } from "element-plus";
 const upVideoPlayGray = "/img/播放灰.png"
 const upVideoPlayWhite = "/img/播放白.png"
@@ -2901,10 +2911,12 @@ export default {
     const threeAnmationBeforeFlag = ref(false);
     const threeAnmationAfterFlag = ref(false);
     const likeVideoClickFlag = ref(false);
-    
+
     const videoShareClickFlag = ref(false);
     const likeVideoImgFlag = ref(false);
     const videoCollectClickFlag = ref(false);
+    /* 当前用户已投的硬币数，新接口的 /video/{id}/state 直接给 */
+    const myCoinCount = ref(0);
     const collectInputButtonFlag = ref(false);
     const collectDialogVisible = ref(false);
     const collectCheckBoxHoverFlag = ref(false);
@@ -3047,20 +3059,22 @@ export default {
       store.setUserIp("");
     }
     //获取@用户列表
+    /* 原端点 /user/getEit/{id} 已下线。新接口没有对应功能，
+       失败静默处理：@ 列表只影响输入框的补全提示，
+       缺了不影响发评论本身。 */
     async function getEitList() {
-      if(!store.userId)
-      return;
+      if (!store.userId) return;
       try {
-        const response = await apiClient.get(`/user/getEit/${store.userId}`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: store.token,
-          },
-        });
-
-        if (response.data.code === 1)
-          Object.assign(store.eitList, response.data.data);
-      } catch (error) {}
+        const list = await socialApi.posts({ targetUserId: store.userId, size: 50 });
+        if (Array.isArray(list) && list.length) {
+          Object.assign(
+            store.eitList,
+            list.map((p) => (p.authorName || "").replace(/^@/, "")).filter(Boolean),
+          );
+        }
+      } catch (error) {
+        /* 补全列表取不到不影响主流程 */
+      }
     }
 
     //播放视频
@@ -3199,68 +3213,143 @@ export default {
     }
 
     //根据id查询视频和用户
+    /* 新接口的字段转成模板在用的名字。
+       模板里引用了 60 多处 upVideo.xxx / upUser.xxx，两边字段名完全不同，
+       在这里转一次，模板就不用逐处改。 */
+    function mapUpVideo(v) {
+      return {
+        id: v.id,
+        title: v.title,
+        /* 简介原是 contentHtml（已渲染好的 HTML），新接口给纯文本 */
+        contentHtml: v.description || "",
+        tag: (v.tags || []).join(","),
+        videoAddress: v.playUrl || "",
+        videoSource: v.source === 1 ? 1 : 0,
+        remoteUrl: v.remoteUrl || "",
+        videoTime: v.durationSeconds || 0,
+        length: v.durationSeconds || 0,
+        /* 新接口没有独立的「禁止转载」位，固定为未开启 */
+        allowTwo: 0,
+        playNumber: v.playCount || 0,
+        scrollingNumber: v.danmakuCount || 0,
+        likeNumber: v.likeCount || 0,
+        collectNumber: v.favoriteCount || 0,
+        commentNumber: v.commentCount || 0,
+        shareNumber: v.shareCount || 0,
+        coinNumber: v.coinCount || 0,
+        shareNumber: v.shareCount || 0,
+        createTime: (v.publishedAt || "").replace("T", " ").slice(0, 16),
+      };
+    }
+
+    function mapUpUser(u) {
+      return {
+        id: u.id,
+        userName: u.nickname,
+        avatarAddress: u.avatarUrl,
+        backgroundAddress: u.backgroundUrl,
+        introduce: u.signature,
+        grade: u.level || 0,
+        gender: u.gender == null ? 0 : u.gender,
+        followNumber: u.followingCount || 0,
+        fansNumber: u.followerCount || 0,
+        likeNumber: u.likeReceived || 0,
+        videoNumber: u.videoCount || 0,
+      };
+    }
+
     async function getVideoAndUser(isInit = false) {
       try {
         const urlParams = new URLSearchParams(window.location.search);
-        let videoId = urlParams.get("videoId");
-        videoId = videoId.replace("BV", "");
-
-        if (!videoId)
-        {
+        const rawId = urlParams.get("videoId");
+        if (!rawId) {
           setTimeout(() => {
             window.location.href = "./videoNotFound";
           }, 200);
           return;
         }
+        const videoId = rawId.replace("BV", "");
 
         if (store.userId === null) userId.value = 0;
         else userId.value = store.userId;
 
-        const response = await apiClient.get("/video/selectByVideoId", {
-          params: {
-            videoId: videoId,
-            userId: userId.value,
-          },
-        });
-        if (response.data.code === 1) {
-          Object.assign(SelectVideoByIdVo, response.data.data);
-          store.setCommentNumber(response.data.data.upVideo.commentNumber);
-          store.setUpUserId(response.data.data.upUser.id);
-          store.setSelectUpVideo(response.data.data);
-          likeVideoClickFlag.value = response.data.data.likeVideoClickFlag;
-          videoShareClickFlag.value = response.data.data.videoShareClickFlag;
-          videoCollectClickFlag.value =
-            response.data.data.videoCollectClickFlag;
-          document.title =
-            SelectVideoByIdVo.upVideo.title + "-青芒视频";
-          checkVideoTitle(response.data.data.upVideo.title);
-          onloadPage.value = true;
-          handleVideoContentHeight();
-        } else if (isInit) {
-          setTimeout(() => {
-            window.location.href = "./videoNotFound";
-          }, 200);
+        const video = await videoApi.detail(videoId);
+        if (!video) {
+          if (isInit) window.location.href = "./videoNotFound";
+          return;
         }
-      } catch (error) {}
+
+        const upVideo = mapUpVideo(video);
+        const upUser = mapUpUser({
+          id: video.ownerId,
+          nickname: video.ownerNickname,
+          avatarUrl: video.ownerAvatar,
+        });
+
+        /* UP 主资料在新接口里是独立的 /api/auth/user/{id}。
+           补不到不阻塞渲染：先按详情里已有的最小字段显示。 */
+        try {
+          const profile = await authApi.profile(video.ownerId);
+          if (profile) Object.assign(upUser, mapUpUser(profile));
+        } catch (e) {
+          /* 保持最小信息 */
+        }
+
+        Object.assign(SelectVideoByIdVo, {
+          upVideo,
+          upUser,
+          length: upVideo.videoTime,
+          controlsType: 0,
+          isFansFlag: false,
+          userId: userId.value,
+        });
+
+        /* 互动状态（点赞/投币/收藏）单独一个接口，失败不影响视频本身展示。 */
+        let state = {};
+        try {
+          state = (await videoApi.state(videoId)) || {};
+        } catch (e) {
+          state = {};
+        }
+        likeVideoClickFlag.value = !!state.liked;
+        videoCollectClickFlag.value = !!state.collected;
+        myCoinCount.value = state.myCoinCount || 0;
+
+        store.setCommentNumber(upVideo.commentNumber);
+        store.setUpUserId(upUser.id);
+        store.setSelectUpVideo({ upVideo, upUser });
+        document.title = upVideo.title + "-青芒视频";
+        checkVideoTitle(upVideo.title);
+        onloadPage.value = true;
+        handleVideoContentHeight();
+      } catch (error) {
+        if (isInit) {
+          window.location.href = "./videoNotFound";
+        }
+      }
     }
 
     //检查是否登录
+    /* 原来打 /user/checkLoginFlag/{ip}，该端点已下线，
+       catch 里把 userId 置 null —— 未登录和接口挂了表现一样。改用 /auth/me。 */
     async function ChecklLogin() {
       try {
-        const response = await apiClient.get(
-          `/user/checkLoginFlag/${store.userIp}`,
-        );
-        if (response.data.code === 1) {
-          store.setUserId(response.data.data.id);
-          store.setUserInformation(response.data.data);
-        } else store.setUserId(null);
+        const me = await authApi.me();
+        if (me && me.id) {
+          store.setUserId(me.id);
+          store.setUserInformation(me);
+        } else {
+          store.setUserId(null);
+        }
       } catch (error) {
         store.setUserId(null);
       }
     }
 
     //关注用户
-    async function addFollowAxios(upUserId) {
+    /* 新后端的 /user/{userId}/follow 是「切换」语义，
+       没有单独的取关端点，两个按钮共用它。 */
+    async function toggleFollowAxios(upUserId) {
       try {
         store.setAddFollowFlag(0);
 
@@ -3270,7 +3359,7 @@ export default {
           return;
         }
 
-        if (store.userId === upUserId) {
+        if (String(store.userId) === String(upUserId)) {
           ElMessage({
             message: "不能关注自己哦",
             type: "info",
@@ -3280,50 +3369,20 @@ export default {
           return;
         }
 
-        const response = await apiClient.post(
-          "/video/addFollow",
-          {
-            followId: upUserId,
-            fansId: store.userId,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: store.token,
-            },
-          },
-        );
-        if (response.data.code === 1) getVideoAndUser();
-      } catch (error) {}
+        await socialApi.follow(upUserId);
+        await getVideoAndUser();
+      } catch (error) {
+        ElMessage({
+          message: "操作失败",
+          type: "info",
+          plain: true,
+          duration: 1700,
+        });
+      }
     }
 
-    //取消关注用户
-    async function deleteFollowAxios(upUserId) {
-      try {
-        store.setAddFollowFlag(0);
-
-        if (store.userId === null) {
-          loginDialogVisibleFlag.value =
-            loginDialogVisibleFlag.value === 0 ? 1 : 0;
-          return;
-        }
-
-        const response = await apiClient.post(
-          "/video/deleteFollow",
-          {
-            followId: upUserId,
-            fansId: store.userId,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: store.token,
-            },
-          },
-        );
-        if (response.data.code === 1) getVideoAndUser();
-      } catch (error) {}
-    }
+    const addFollowAxios = toggleFollowAxios;
+    const deleteFollowAxios = toggleFollowAxios;
 
     //更新视频进度条
     const updateProgress = () => {
@@ -8467,7 +8526,24 @@ a:hover {
 
 </style>
 
-<!-- 视频页布局 pass1：外层壳子改 grid + 自适应 + 图标尺寸统一 -->
+/*
+  视频页布局 pass2。
+
+  pass1 把 .video-body 改成了两列 grid，但页面的 14 个直接子元素
+  并没有按「主栏 / 侧栏」分组 —— 它们是按源码顺序平铺的，
+  grid 会依次把它们填进第 1 列、第 2 列、第 1 列……
+  结果播放器、评论区这些本该在主栏的块被塞进了侧栏，
+  UP 主卡片被塞进主栏。实测 1600 视口下：
+    播放器 left=1173（应在左栏 x=61）、评论区 left=1173、文档宽 1873（溢出 300px）。
+
+  同时这些块各自还带一层 transform 偏移
+  （播放器 translate(9.5px,77.5px)、进度条 translate(9.5px,50px)、
+   信息行 translate(11px,20px)），在 grid 里这些偏移会把元素推出自己的格子。
+
+  这里做两件事：
+  1) 用 grid-column 显式指定每块属于主栏还是侧栏，不再靠源码顺序
+  2) 去掉主栏各块的 translate 偏移，改由 grid 的 gap 和行距排布
+*/
 <style>
 /* 页头图标统一成正方形占位，任何比例的图都不会被拉变形 */
 .video-page .v-header-ul li a img:not(.h-logo) {
@@ -8482,28 +8558,171 @@ a:hover {
   border: 1px solid var(--line);
 }
 
-/* 主栏 + 侧栏：宽屏两列，窄屏单列。原来的 left/top 偏移已经去掉了。 */
+.video-page .video-body-container {
+  padding: var(--gap-4) var(--page-pad) var(--gap-6);
+}
+
+/* 主栏 + 侧栏。行间距统一由 row-gap 给，
+   原来各块靠 margin-bottom / translate 互相顶开。 */
+/* 主栏单列：本页只有主栏（原先的侧栏规则对应的元素在模板里不存在）。 */
 .video-page .video-body {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 350px;
-  gap: var(--gap-5);
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: var(--gap-5);
+  row-gap: var(--gap-4);
   align-items: start;
+  width: 100%;
+  /* 阅读型内容限宽，避免超宽屏上播放器拉得过宽 */
+  max-width: var(--col-mid);
+  margin: 0 auto;
 }
 
 .video-page .video-body > * {
   min-width: 0;
 }
 
-@media (max-width: 1400px) {
-  .video-page .video-body {
-    grid-template-columns: minmax(0, 1fr) 300px;
-  }
+/* ---------- 主栏（第 1 列） ---------- */
+/* 标题、信息行、播放器、控制条、进度、简介、标签、评论 */
+.video-page .up-videoTitle,
+.video-page .up-video-infos-container,
+.video-page .expand-icon-container,
+.video-page .video-stage,
+.video-page .video-content-container,
+.video-page .video-content-container-switch,
+.video-page .video-tage-container,
+.video-page .comment-container {
+  grid-column: 1;
+  transform: none;
 }
 
+.video-page .up-videoTitle {
+  max-width: none;
+  width: 100%;
+}
+
+/* 信息行原先 width:500px + absolute + translate(11px,20px)，
+   标题一行放不下时会折行并压到标题上。改回正常流。 */
+.video-page .up-video-infos-container {
+  position: static;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 6px;
+  margin-top: -6px;
+  color: var(--ink-3);
+}
+
+.video-page .up-video-infos-container img {
+  transform: none;
+}
+
+.video-page .up-video-infos-container > span {
+  font-size: 12.5px;
+  margin-right: 8px;
+}
+
+/* 播放器 + 它的浮层（进度条 / 控制条 / 弹幕输入 / 稍后再看）共用的定位容器。
+   这四块原先是 .video-body 的直接子元素，包含块是整页，
+   视口一变就和播放器错位（实测弹幕输入条跑到播放器上方、文档宽溢出 300px）。 */
+.video-page .video-stage {
+  position: relative;
+  width: 100%;
+  z-index: var(--z-base);
+}
+
+/* 播放器：撑满主栏宽度，高度按 16:9 走，不再写死 700x419。
+   原来写死 700px 宽，列宽一变就和容器错开（实测播放器 left=1173）。 */
+.video-page .up-video-container {
+  position: relative;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  transform: none;
+  z-index: var(--z-base);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+  background: #000;
+  overflow: hidden;
+}
+
+.video-page .up-user-video-player {
+  width: 100%;
+  height: 100%;
+}
+
+/* 浮层：相对 .video-stage 定位。
+   原来四块各自 absolute + translate(x,y) 把它们摆到播放器上，
+   现在改成 bottom/top 定位，播放器高度变化时浮层自动跟随。 */
+.video-page .up-video-play-bottom-video-scrolling-container,
+.video-page .up-video-controls-container,
+.video-page .addWaitWatch,
+.video-page .up-VideoProgress {
+  position: absolute;
+  transform: none;
+  z-index: 3;
+  left: 0;
+  right: 0;
+}
+
+/* 弹幕输入条：贴着播放器上沿 */
+.video-page .up-video-play-bottom-video-scrolling-container {
+  top: 0;
+  z-index: 4;
+  width: 100%;
+}
+
+/* 控制条：贴着播放器下沿 */
+.video-page .up-video-controls-container {
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* 进度条：紧贴控制条上方 */
+.video-page .up-VideoProgress {
+  bottom: 57px;
+  width: 100%;
+  height: 5px;
+}
+
+/* 稍后再看：控制条右侧 */
+.video-page .addWaitWatch {
+  z-index: 5;
+  left: auto;
+  right: 12px;
+  bottom: 72px;
+}
+
+.video-page .video-content-container {
+  width: 100%;
+}
+
+.video-page .video-tage-container {
+  width: 100%;
+}
+
+.video-page .comment-container {
+  width: 100%;
+}
+
+/* 本页没有侧栏：原先 pass1 写的 .up-user-info-container /
+   .up-video-recommend-container 这两块在模板里根本不存在
+   （UP 主卡片是播放器的 hover 浮层，相关推荐组件 import 了但没用），
+   那几条规则从来没生效过，留着只会误导。 */
+.video-page .video-share-container {
+  grid-column: 1;
+  grid-row: auto;
+  position: static;
+}
+
+/* 窄屏：侧栏落到主栏下方 */
+/* 窄屏：单列（本来就是单列，断点只收紧留白） */
 @media (max-width: 1100px) {
   .video-page .video-body {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 </style>
-<!-- /video-layout-pass1 -->
+<!-- /video-layout-pass2 -->
