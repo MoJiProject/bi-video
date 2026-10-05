@@ -337,7 +337,6 @@
             <autoPlayVideo
               :intoVideoAllDisplayIngFlag="intoVideoAllDisplayIngFlag"
               :likeVideoClickFlag="likeVideoClickFlag"
-              :videoThrowCoinClickFlag="videoThrowCoinClickFlag"
               :videoShareClickFlag="videoShareClickFlag"
               :videoCollectClickFlag="videoCollectClickFlag"
               style="position: absolute"
@@ -2359,146 +2358,6 @@
               >
             </span>
           </el-tooltip>
-          <!-- 投币 -->
-          <el-tooltip
-            popper-class="custom-tooltip"
-            class="dynamicContent-item-tooltip"
-            effect="light"
-            :show-after="300"
-            content="投币 （W）"
-            placement="bottom"
-            :offset="14"
-            :show-arrow="false"
-            :hide-after="0"
-          >
-            <span
-              class="up-video-controls-span"
-              style="margin-left: 76.5px; margin-top: 6px"
-              @mouseover="videoThrowCoinHoverFlag = true"
-              @mouseleave="videoThrowCoinHoverFlag = false"
-              @click="throwCoinDialog = true"
-            >
-              <div
-                class="up-video-controls-div2"
-                :class="{
-                  dotDisplay: threeAnmationAfterFlag,
-                  dotDisplay2: threeAnmationBeforeFlag,
-                }"
-              >
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-              </div>
-              <img
-                v-show="!videoThrowCoinClickFlag"
-                class="up-video-controls-img2"
-                :class="{
-                  threeAnmationAfter: threeAnmationAfterFlag,
-                }"
-                :src="
-                  videoThrowCoinHoverFlag ? videoThrowCoinBlue : videoThrowCoin
-                "
-              />
-              <img
-                v-show="videoThrowCoinClickFlag"
-                class="up-video-controls-img2"
-                :class="{
-                  threeAnmationAfter: threeAnmationAfterFlag,
-                }"
-                :src="videoThrowCoinBlue"
-              />
-              <span
-                :class="{ videoThrowCoinClickFlag: videoThrowCoinClickFlag }"
-                class="up-video-controls-span2"
-                >{{ SelectVideoByIdVo.upVideo.coinThrowNumber }}</span
-              >
-              <!-- 投币对话框 -->
-              <el-dialog
-                v-model="throwCoinDialog"
-                append-to-body
-                width="430"
-                align-center
-                class="throwCoinDialog"
-              >
-                <template #footer>
-                  <div class="throw-coin-dialog-content">
-                    <div v-show="throwCoinNumber === 1" class="throw-coin-title">
-                      给创作者投上<span>1</span>枚硬币
-                    </div>
-                    <div v-show="throwCoinNumber === 2" class="throw-coin-title">
-                      给创作者投上<span>2</span>枚硬币
-                    </div>
-                    <div
-                      :class="{
-                        throwCoinNumberConten1: throwCoinNumber === 1,
-                        throwCoinNumberContenImg1: throwCoinNumber === 2,
-                      }"
-                      @click="throwCoinNumber = 1"
-                      class="throw-coin-img-content1"
-                    >
-                      <span>1硬币</span>
-                      <div class="overlay1"></div>
-                      <img
-                        class="img-static"
-                        v-show="throwCoinNumber === 2"
-                        src="/img/22-coin-ani-static.png"
-                      />
-                      <div class="overlay2"></div>
-                    </div>
-                    <div
-                      :class="{
-                        throwCoinNumberConten2: throwCoinNumber === 2,
-                        throwCoinNumberContenImg2: throwCoinNumber === 1,
-                      }"
-                      @click="throwCoinNumber = 2"
-                      class="throw-coin-img-content2"
-                    >
-                      <span>2硬币</span>
-                      <div class="overlay1"></div>
-                      <img
-                        class="img-static"
-                        v-show="throwCoinNumber === 1"
-                        src="/img/33-coin-ani-static.png"
-                      />
-                      <div class="overlay2"></div>
-                    </div>
-
-                    <div
-                      @click="likeVideoFlag = !likeVideoFlag"
-                      class="throw-coin-check-box"
-                    >
-                      <img v-show="!likeVideoFlag" src="/img/投币复选框.svg" />
-                      <img
-                        v-show="likeVideoFlag"
-                        src="/img/投币复选框选中.svg"
-                      />
-                      <span>同时点赞内容</span>
-                    </div>
-
-                    <el-button v-debounce
-                      class="throw-coin-submit"
-                      @click="videoThrowCoinAxios"
-                    >
-                      确定
-                    </el-button>
-
-                    <div class="throw-coin-fotter">经验值+20</div>
-                  </div>
-                </template>
-
-
-              </el-dialog>
-            </span>
-          </el-tooltip>
           <!-- 收藏 -->
           <el-tooltip
             popper-class="custom-tooltip"
@@ -2829,11 +2688,13 @@ import {
   onBeforeUnmount,
   reactive,
   ref,
-  watch,
-  watchEffect,
+  watch as __vueWatch,
+  watchEffect as __vueWatchEffect,
   computed,
   nextTick,
 } from "vue";
+const watch = (...a) => __vueWatch(...a);
+const watchEffect = (...a) => __vueWatchEffect(...a);
 const sendMessageGray = "/img/发消息灰.png"
 const sendMessageBlue = "/img/发消息蓝.png"
 import apiClient from "../services/apiClient";
@@ -2884,8 +2745,6 @@ const checkBoxs = "/img/勾选框.png"
 const checkBoxBlue = "/img/勾选框蓝.png"
 const likeVideo = "/img/视频点赞.png"
 const likeVideoBlue = "/img/视频点赞蓝.png"
-const videoThrowCoin = "/img/视频投币.png"
-const videoThrowCoinBlue = "/img/视频投币蓝.png"
 const videoShare = "/img/视频分享.png"
 const videoShareBlue = "/img/视频分享蓝.png"
 const videoCollect = "/img/视频收藏.png"
@@ -2931,7 +2790,6 @@ export default {
       isFansFlag: "",
       userId: 0,
       likeVideoClickFlag: false,
-      videoThrowCoinClickFlag: false,
       videoShareClickFlag: false,
       videoCollectClickFlag: false,
       collectName: [],
@@ -3047,14 +2905,14 @@ export default {
     let scrollingAnimationFrameId = null;
     const ScrollingReocationHoverFlag = ref(false);
     const videoLikeHoverFlag = ref(false);
-    const videoThrowCoinHoverFlag = ref(false);
+    
     const videoShareHoverFlag = ref(false);
     const videoCollectHoverFlag = ref(false);
     const sppedList = ref([2, 1.5, 1.25, 1, 0.75, 0.5]);
     const threeAnmationBeforeFlag = ref(false);
     const threeAnmationAfterFlag = ref(false);
     const likeVideoClickFlag = ref(false);
-    const videoThrowCoinClickFlag = ref(false);
+    
     const videoShareClickFlag = ref(false);
     const likeVideoImgFlag = ref(false);
     const videoCollectClickFlag = ref(false);
@@ -3072,9 +2930,9 @@ export default {
     const keyInfo = ref("");
     const audioInfoFlag = ref(false);
     const watchingNumber = ref(0);
-    const throwCoinDialog = ref(false);
+    
     const likeVideoFlag = ref(true);
-    const throwCoinNumber = ref(1);
+    
     const loginDialogVisibleFlag = ref(0);
     const videoContentFlag = ref(false);
     const videoContentFlag1 = ref(false);
@@ -3384,8 +3242,6 @@ export default {
           store.setUpUserId(response.data.data.upUser.id);
           store.setSelectUpVideo(response.data.data);
           likeVideoClickFlag.value = response.data.data.likeVideoClickFlag;
-          videoThrowCoinClickFlag.value =
-            response.data.data.videoThrowCoinClickFlag;
           videoShareClickFlag.value = response.data.data.videoShareClickFlag;
           videoCollectClickFlag.value =
             response.data.data.videoCollectClickFlag;
@@ -3522,19 +3378,17 @@ export default {
     watchEffect(() => {
       const minutes = Math.floor(upVideoTimeDuration.value / 60);
       const seconds = upVideoTimeDuration.value % 60;
-      //用播放器真实时长判断是否播完；时长未知(远程视频未加载完)时不能判定为结束，
-      //否则每播放1秒就会被强制暂停，形成播放/暂停死循环
       const duration = getVideoDurationSeconds();
       if (duration > 0 && minutes * 60 + seconds >= duration) {
         if (!setVideoAutoRePlayFlag.value) {
           pausedOrPlayVideoFlag.value = false;
         }
       }
-      if (upVideoTimeDuration.value !== "00:00")
-        formattedTime.value = `${minutes < 10 ? "0" : ""}${minutes}:${
-          seconds < 10 ? "0" : ""
-        }${seconds} `;
-      else formattedTime.value = "00:00";
+      const next =
+        upVideoTimeDuration.value !== "00:00"
+          ? `${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""}${seconds}`
+          : "00:00";
+      if (formattedTime.value !== next) formattedTime.value = next;
     });
 
     let timer = null; // 用于存储定时器
@@ -3984,14 +3838,13 @@ export default {
           }, 2000);
         }
       }
-      // W键投币
+      // W键点赞
       else if (
         (event.key === "W" || event.key === "w") &&
         !isInputField &&
         !intoVideoAllDisplayIngFlag.value
       ) {
         collectDialogVisible.value = false;
-        throwCoinDialog.value = true;
       }
       // E键收藏
       else if (
@@ -3999,7 +3852,6 @@ export default {
         !isInputField &&
         !intoVideoAllDisplayIngFlag.value
       ) {
-        throwCoinDialog.value = false;
         collectDialogVisible.value = true;
       }
 
@@ -4377,7 +4229,7 @@ export default {
       }
     }
 
-    //发送点赞投币收藏请求
+    //发送点赞点赞收藏请求
     async function getLTCAxios() {
       try {
         threeForCount++;
@@ -4389,18 +4241,17 @@ export default {
           return;
         }
 
-        //自己不可以给自己投币
+        //自己不可以给自己点赞
         if (store.userId === parseInt(SelectVideoByIdVo.upUser.id)) {
-          SelectVideoByIdVo.videoThrowCoinClickFlag = false;
+          SelectVideoByIdVo.videoShareClickFlag = false;
           ElMessage({
-            message: "不能给自己投币",
+            message: "不能给自己点赞",
             type: "info",
             plain: true,
             duration: 1700,
           });
-        } else SelectVideoByIdVo.videoThrowCoinClickFlag = true;
+        } else SelectVideoByIdVo.videoShareClickFlag = true;
 
-        SelectVideoByIdVo.throwCoinNumber = throwCoinNumber.value;
         SelectVideoByIdVo.controlsType = 3;
         SelectVideoByIdVo.likeVideoClickFlag = likeVideoClickFlag.value;
         SelectVideoByIdVo.videoCollectClickFlag = videoCollectClickFlag.value;
@@ -4419,20 +4270,6 @@ export default {
         if (response.data.code === 1) {
           SelectVideoByIdVo.length = 0;
           Object.assign(SelectVideoByIdVo, response.data.data);
-          if (response.data.data.throwCoinResult === 1)
-            videoThrowCoinClickFlag.value = true;
-          else if (
-            response.data.data.throwCoinResult !== 1 &&
-            store.userId !== parseInt(SelectVideoByIdVo.upUser.id)
-          ) {
-            videoThrowCoinClickFlag.value = false;
-            ElMessage({
-              message: "硬币不够...",
-              type: "info",
-              plain: true,
-              duration: 1700,
-            });
-          }
         }
         threeForCount = 0;
       } catch (error) {
@@ -4491,34 +4328,23 @@ export default {
       }, 1000);
     }
 
-    //发送投币请求
-    async function videoThrowCoinAxios() {
+    //发送点赞请求
+    async function likeVideoAxios() {
       try {
         if (store.userId === null) {
-          loginDialogVisibleFlag.value =
-            loginDialogVisibleFlag.value === 0 ? 1 : 0;
-          return;
-        }
-
-        if (videoThrowCoinClickFlag.value) {
-          ElMessage({
-            message: "您已经投过币了",
-            type: "info",
-            plain: true,
-            duration: 1700,
-          });
+          loginDialogVisibleFlag.value = true;
           return;
         }
 
         if (store.userId === parseInt(SelectVideoByIdVo.upUser.id)) {
-          SelectVideoByIdVo.videoThrowCoinClickFlag = false;
+          SelectVideoByIdVo.videoShareClickFlag = false;
           ElMessage({
-            message: "不能给自己投币",
+            message: "不能给自己点赞",
             type: "info",
             plain: true,
             duration: 1700,
           });
-        } else SelectVideoByIdVo.videoThrowCoinClickFlag = true;
+        } else SelectVideoByIdVo.videoShareClickFlag = true;
 
         if (likeVideoFlag.value) {
           likeVideoClickFlag.value = false;
@@ -4531,39 +4357,6 @@ export default {
         }
 
         SelectVideoByIdVo.videoShareClickFlag = false;
-        SelectVideoByIdVo.controlsType = 2;
-        SelectVideoByIdVo.throwCoinNumber = throwCoinNumber.value;
-        SelectVideoByIdVo.userId = store.userId;
-        const response = await apiClient.post(
-          "/video/getLTCAxios",
-          SelectVideoByIdVo,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: store.token,
-            },
-          },
-        );
-        if (response.data.code === 1) {
-          SelectVideoByIdVo.length = 0;
-          Object.assign(SelectVideoByIdVo, response.data.data);
-          if (response.data.data.throwCoinResult === 1)
-            videoThrowCoinClickFlag.value = true;
-          else if (
-            response.data.data.throwCoinResult !== 1 &&
-            store.userId !== parseInt(SelectVideoByIdVo.upUser.id)
-          ) {
-            videoThrowCoinClickFlag.value = false;
-            ElMessage({
-              message: "硬币不够...",
-              type: "info",
-              plain: true,
-              duration: 1700,
-            });
-          }
-        }
-        throwCoinDialog.value = false;
-        throwCoinNumber.value = 1;
         likeVideoFlag.value = true;
       } catch (error) {
         ElMessage({
@@ -4914,7 +4707,7 @@ export default {
           deleteFollowAxios(SelectVideoByIdVo.upUser.id);
       },
     );
-    //点赞 投币 收藏 按钮
+    //点赞 点赞 收藏 按钮
     watch(
       () => store.LTCAFlag,
       async (value) => {
@@ -4924,22 +4717,12 @@ export default {
             likeVideoImgFlag.value = true;
             ThreImgDisplay();
           }
-        } else if (value === 2) {
-          if (store.userId === null) {
-            loginDialogVisibleFlag.value =
-              loginDialogVisibleFlag.value === 0 ? 1 : 0;
-          } else {
-            toggleFullscreen2();
-            collectDialogVisible.value = false;
-            throwCoinDialog.value = true;
-          }
         } else if (value === 3) {
           if (store.userId === null) {
             loginDialogVisibleFlag.value =
               loginDialogVisibleFlag.value === 0 ? 1 : 0;
           } else {
             toggleFullscreen2();
-            throwCoinDialog.value = false;
             collectDialogVisible.value = true;
           }
         }
@@ -5338,14 +5121,11 @@ export default {
       revocationScrollingAxios,
       likeVideo,
       likeVideoBlue,
-      videoThrowCoin,
-      videoThrowCoinBlue,
       videoShare,
       videoShareBlue,
       videoCollect,
       videoCollectBlue,
       videoLikeHoverFlag,
-      videoThrowCoinHoverFlag,
       videoShareHoverFlag,
       videoCollectHoverFlag,
       startThree,
@@ -5353,12 +5133,10 @@ export default {
       threeAnmationBeforeFlag,
       threeAnmationAfterFlag,
       likeVideoClickFlag,
-      videoThrowCoinClickFlag,
       videoShareClickFlag,
       videoCollectClickFlag,
       likeVideoImgFlag,
       intervalId,
-      videoThrowCoinAxios,
       collectDialogVisible,
       collectInputButtonFlag,
       collectInputRef,
@@ -5383,9 +5161,7 @@ export default {
       audioBlack,
       closeAudioBlack,
       watchingNumber,
-      throwCoinDialog,
       likeVideoFlag,
-      throwCoinNumber,
       sendScrollingInputStatus,
       copyScrolling,
       store,
