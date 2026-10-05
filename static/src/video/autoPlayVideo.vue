@@ -779,7 +779,7 @@ position: absolute;
 
 .into-video-all-display-ing{
     position: relative;
-    width: 1040px;
+    width: 100%;
     height: 390px;
     transform: translate(-50%,40%);
     .auto-play-video-header{
@@ -851,7 +851,7 @@ position: absolute;
     .auto-play-video-body {
            
         transform: translateY(45px);
-        width: 102%;
+        width: 100%;
 
         .auto-play-video-body-video-recommend{
             position: absolute;

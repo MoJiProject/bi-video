@@ -3,7 +3,7 @@
     <div class="white">
       <div
         style="
-          width: 1200px;
+          width: 100%;
           height: 3px;
           background-color: #f8f8f8;
           transform: translate(0px, 60px);
@@ -718,7 +718,7 @@ export default {
 }
 .white {
   transform: translate(40px, 20px);
-  width: 1200px;
+  width: 100%;
   overflow: visible;
   z-index: 10;
   min-height: 1500px;

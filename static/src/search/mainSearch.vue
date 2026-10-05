@@ -3135,9 +3135,10 @@ watch(
 }
 
 .bottomVideo {
-  transform: translate(-11px, 306px);
-  width: 1312.5px;
-  height: 1px;
+  top: 306px;
+  left: 0;
+  right: 0;
+  width: auto;
   display: flex;
   flex-wrap: wrap; /* 允许换行 */
   z-index: 0;
@@ -3149,7 +3150,9 @@ watch(
   height: 138px;
   margin-top: 295px;
   margin-bottom: -180px; /* 设置每行之间的间距 */
-  transform: translate(75px, -507px);
+  /* 父级原来 translate(-11px,306px)、这里 translate(75px,-507px)，合起来是 (64,-201)。
+     父级改成 left/right 定位后不再带 -11px，这里补成 64px 保持渲染位置不变。 */
+  transform: translate(64px, -507px);
 }
 
 video {

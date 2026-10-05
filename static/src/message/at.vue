@@ -723,7 +723,7 @@ function addImgFlagF(comment){
           .at-line{
           display: block;
           top: 4px;
-          width: 102%;
+          width: 100%;
           height: 1px;
           border-bottom: 1px solid var(--line-color);
           position: relative;

@@ -528,7 +528,7 @@ watch(()=>store.keyword,()=>{
 
     .no-data{
         user-select: none;
-        width: 101.3%;
+        width: 100%;
         height: 58vh;
         display: flex;
         justify-content: center;
