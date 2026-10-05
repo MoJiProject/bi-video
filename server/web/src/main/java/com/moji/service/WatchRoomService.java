@@ -71,7 +71,6 @@ room.getParticipants().add(new WatchParticipant(
     public WatchRoom join(String roomId, Integer userId) {
         return withRoomLock(roomId, () -> {
             WatchRoom room = requireRoom(roomId);
-            advancePlayingTime(room);
             if (room.getBlacklistedIds().contains(userId)) {
                 throw new SecurityException("你已被拉黑，无法加入该房间");
             }
@@ -129,6 +128,16 @@ room.getParticipants().add(new WatchParticipant(
             room.setCurrentTime(Math.max(0, message.getCurrentTime()));
             room.setPlaybackRate(normalizeRate(message.getPlaybackRate()));
             if (message.getPaused() != null) room.setPaused(message.getPaused());
+            save(room, ROOM_TTL, false);
+            return room;
+        });
+    }
+
+    // 客户端校准用：只回房间的权威进度，不接受客户端上报的时间。
+    // 房间进度由服务端自己按 updatedAt 推进，因此任何一端掉线都不会把进度带偏。
+    public WatchRoom sync(String roomId, Integer userId) {
+        return withRoomLock(roomId, () -> {
+            WatchRoom room = requireMember(roomId, userId);
             save(room, ROOM_TTL, false);
             return room;
         });
@@ -280,7 +289,11 @@ room.getParticipants().add(new WatchParticipant(
         String json = redisTemplate.opsForValue().get(roomKey(roomId));
         if (json == null) return null;
         try {
-            return objectMapper.readValue(json, WatchRoom.class);
+            WatchRoom room = objectMapper.readValue(json, WatchRoom.class);
+            // 读出来的是落盘那一刻的进度，播放中的房间要先按流逝时间补齐再交给调用方，
+            // 否则任何一次读取都会拿到滞后的进度，网络差时客户端越等越偏。
+            advancePlayingTime(room);
+            return room;
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("房间状态读取失败", e);
         }

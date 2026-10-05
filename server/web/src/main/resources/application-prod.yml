@@ -3,13 +3,13 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/bi_video?useSSL=false&serverTimezone=UTC
-    username:
-    password:
+    username: MoJi
+    password: 1535889816
   data:
     redis:
       host: localhost
       port: 6379
-      password:
+      password: 1535889816
       database: 0
       timeout: 10s
       lettuce:
@@ -25,12 +25,12 @@ spring:
 
 file:
   upload:
-    root:
-    comment-img:
-    avatar:
-    video-cover:
-    video:
-    message-img:
-    collect-classify:
-    background:
-    dynamic:
+    root: C:/Users/Administrator/Desktop/bilibili/dist/upload
+    comment-img: C:/Users/Administrator/Desktop/bilibili/dist/upload/comment/
+    avatar: C:/Users/Administrator/Desktop/bilibili/dist/upload/avatar/
+    video-cover: C:/Users/Administrator/Desktop/bilibili/dist/upload/video/cover/
+    video: C:/Users/Administrator/Desktop/bilibili/dist/upload/video/
+    message-img: C:/Users/Administrator/Desktop/bilibili/dist/upload/message/
+    collect-classify: C:/Users/Administrator/Desktop/bilibili/dist/upload/collectClassify/
+    background: C:/Users/Administrator/Desktop/bilibili/dist/upload/background/
+    dynamic: C:/Users/Administrator/Desktop/bilibili/dist/upload/dynamic/

@@ -61,27 +61,33 @@ public class WatchTogetherServer implements WebSocketConfigurer {
 
             try {
                 WatchMessage message = objectMapper.readValue(textMessage.getPayload(), WatchMessage.class);
-                if (message.getType() == null || message.getType().isBlank()) {
-                    throw new IllegalArgumentException("房间操作类型不能为空");
+                String type = message.getType();
+                if (type == null || type.isBlank()) {
+                    sendError(session, null, "房间操作类型不能为空");
+                    return;
                 }
-                switch (message.getType()) {
-                    case "join" -> join(session, userId, message);
-                    case "leave" -> leave(session, message);
-                    case "play", "pause", "seek", "rate" -> playback(session, userId, message);
-                    case "grant_admin" -> changeAdmin(session, userId, message, true);
-                    case "revoke_admin" -> changeAdmin(session, userId, message, false);
-                    case "kick" -> kick(session, userId, message);
-                    case "transfer_owner" -> transferOwner(session, userId, message);
-                    case "switch_video" -> switchVideo(session, userId, message);
-                    case "blacklist" -> changeBlacklist(session, userId, message, true);
-                    case "unblacklist" -> changeBlacklist(session, userId, message, false);
-                    case "ping" -> send(session, Map.of("type", "pong"));
-                    default -> sendError(session, "不支持的房间操作");
+                try {
+                    switch (type) {
+                        case "join" -> join(session, userId, message);
+                        case "leave" -> leave(session, message);
+                        case "sync" -> sync(session, userId, message);
+                        case "play", "pause", "seek", "rate" -> playback(session, userId, message);
+                        case "grant_admin" -> changeAdmin(session, userId, message, true);
+                        case "revoke_admin" -> changeAdmin(session, userId, message, false);
+                        case "kick" -> kick(session, userId, message);
+                        case "transfer_owner" -> transferOwner(session, userId, message);
+                        case "switch_video" -> switchVideo(session, userId, message);
+                        case "blacklist" -> changeBlacklist(session, userId, message, true);
+                        case "unblacklist" -> changeBlacklist(session, userId, message, false);
+                        case "ping" -> pong(session, message);
+                        default -> sendError(session, type, "不支持的房间操作");
+                    }
+                } catch (IllegalArgumentException | SecurityException e) {
+                    // 回带上原始操作类型，客户端据此判断是哪条指令被拒
+                    sendError(session, type, e.getMessage());
                 }
             } catch (JsonProcessingException e) {
-                sendError(session, "消息格式不正确");
-            } catch (IllegalArgumentException | SecurityException e) {
-                sendError(session, e.getMessage());
+                sendError(session, null, "消息格式不正确");
             }
         }
 
@@ -90,7 +96,7 @@ public class WatchTogetherServer implements WebSocketConfigurer {
             if (existingRoom == null) throw new IllegalArgumentException("房间不存在或已过期");
             if (message.getVideoId() != null && !existingRoom.getVideoId().equals(message.getVideoId())) {
                 // 房间已切换过视频，让客户端直接跳到新视频再加入。
-                send(session, Map.of("type", "video_switched", "room", existingRoom));
+                send(session, roomState("video_switched", existingRoom));
                 return;
             }
 
@@ -114,7 +120,7 @@ public class WatchTogetherServer implements WebSocketConfigurer {
                 currentSessions.add(session);
                 return currentSessions;
             });
-            broadcast(room.getRoomId(), Map.of("type", "state", "room", room));
+            broadcast(room.getRoomId(), roomState("state", room));
         }
 
         private void playback(WebSocketSession session, Integer userId, WatchMessage message) {
@@ -130,7 +136,39 @@ public class WatchTogetherServer implements WebSocketConfigurer {
             payload.put("currentTime", room.getCurrentTime());
             payload.put("playbackRate", room.getPlaybackRate());
             payload.put("paused", room.isPaused());
+            // 带上服务端时间，客户端用它估算时钟偏移与消息时效，网络越差越需要
+            payload.put("sentAt", System.currentTimeMillis());
             broadcastExcept(roomId, payload, session);
+        }
+
+        // 心跳兼校准：回一份只给自己看的房间权威状态，网络卡顿时靠它把进度拉回来
+        private void sync(WebSocketSession session, Integer userId, WatchMessage message) {
+            String roomId = requireJoinedRoom(session, message.getRoomId());
+            WatchRoom room = watchRoomService.sync(roomId, userId);
+            send(session, roomState("sync", room));
+        }
+
+        private void pong(WebSocketSession session, WatchMessage message) {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("type", "pong");
+            payload.put("clientTime", message.getClientTime());
+            payload.put("sentAt", System.currentTimeMillis());
+            send(session, payload);
+        }
+
+        private Map<String, Object> roomState(String type, WatchRoom room) {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("type", type);
+            payload.put("room", room);
+            payload.put("sentAt", System.currentTimeMillis());
+            return payload;
+        }
+
+        private Map<String, Object> userLeftPayload(WatchRoom room, Integer userId, String userName) {
+            Map<String, Object> payload = roomState("user_left", room);
+            payload.put("userId", userId);
+            payload.put("userName", userName);
+            return payload;
         }
 
         private void leave(WebSocketSession session, WatchMessage message) {
@@ -142,7 +180,7 @@ public class WatchTogetherServer implements WebSocketConfigurer {
         private void changeAdmin(WebSocketSession session, Integer userId, WatchMessage message, boolean grant) {
             String roomId = requireJoinedRoom(session, message.getRoomId());
             WatchRoom room = watchRoomService.setAdmin(roomId, userId, message.getTargetUserId(), grant);
-            broadcast(roomId, Map.of("type", "state", "room", room));
+            broadcast(roomId, roomState("state", room));
         }
 
         private void kick(WebSocketSession session, Integer userId, WatchMessage message) {
@@ -156,21 +194,21 @@ public class WatchTogetherServer implements WebSocketConfigurer {
                     close(targetSession, CloseStatus.POLICY_VIOLATION.withReason("已被移出房间"));
                 }
             }
-            broadcast(roomId, Map.of("type", "state", "room", room));
+            broadcast(roomId, roomState("state", room));
         }
 
         private void transferOwner(WebSocketSession session, Integer userId, WatchMessage message) {
             String roomId = requireJoinedRoom(session, message.getRoomId());
             WatchRoom room = watchRoomService.transferOwner(roomId, userId, message.getTargetUserId());
             send(session, Map.of("type", "owner_transferred", "ownerName", room.getOwnerName()));
-            broadcast(roomId, Map.of("type", "state", "room", room));
+            broadcast(roomId, roomState("state", room));
         }
 
         private void switchVideo(WebSocketSession session, Integer userId, WatchMessage message) {
             String roomId = requireJoinedRoom(session, message.getRoomId());
             WatchRoom room = watchRoomService.switchVideo(roomId, userId, message.getVideoId());
             // 需要包含操作者本人，所有端都要跳转到新视频。
-            broadcast(roomId, Map.of("type", "video_switched", "room", room));
+            broadcast(roomId, roomState("video_switched", room));
         }
 
         private void changeBlacklist(WebSocketSession session, Integer userId, WatchMessage message, boolean blocked) {
@@ -186,7 +224,7 @@ public class WatchTogetherServer implements WebSocketConfigurer {
                     }
                 }
             }
-            broadcast(roomId, Map.of("type", "state", "room", room));
+            broadcast(roomId, roomState("state", room));
         }
 
         @Override
@@ -220,12 +258,7 @@ public class WatchTogetherServer implements WebSocketConfigurer {
                         .map(WatchParticipant::getUserName)
                         .findFirst()
                         .orElse("成员");
-                broadcast(roomId, Map.of(
-                        "type", "user_left",
-                        "userId", userId,
-                        "userName", userName,
-                        "room", room
-                ));
+broadcast(roomId, userLeftPayload(room, userId, userName));
             }
         }
 
@@ -247,8 +280,12 @@ public class WatchTogetherServer implements WebSocketConfigurer {
             }
         }
 
-        private void sendError(WebSocketSession session, String message) {
-            send(session, Map.of("type", "error", "message", message == null ? "操作失败" : message));
+        private void sendError(WebSocketSession session, String requestType, String message) {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("type", "error");
+            payload.put("requestType", requestType);
+            payload.put("message", message == null ? "操作失败" : message);
+            send(session, payload);
         }
 
         private void send(WebSocketSession session, Object payload) {

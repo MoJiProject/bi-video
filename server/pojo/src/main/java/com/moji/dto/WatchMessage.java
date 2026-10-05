@@ -13,5 +13,6 @@ public class WatchMessage {
     private double currentTime;
     private double playbackRate = 1.0;
     private Boolean paused;
+    private Long clientTime;
     private JsonNode data;
 }
