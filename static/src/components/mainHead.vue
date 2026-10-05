@@ -10,26 +10,8 @@
           </a
         >
       </li>
-      <li>
-        <a href="./search?keyword=&classifyIndex=番剧" target="_blank">番剧</a>
-      </li>
-      <li>
-        <a href="./search?keyword=&classifyIndex=动画" target="_blank">动画</a>
-      </li>
-      <li>
-        <a href="./search?keyword=&classifyIndex=音乐" target="_blank">音乐</a>
-      </li>
-      <li>
-        <a href="./search?keyword=&classifyIndex=游戏" target="_blank">游戏中心</a>
-      </li>
-      <li>
-        <a href="./search?keyword=&classifyIndex=知识" target="_blank">知识</a>
-      </li>
-      <li>
-        <a href="./search?keyword=&classifyIndex=影视" target="_blank">影视</a>
-      </li>
-      <li>
-        <a href="./search?keyword=&classifyIndex=生活" target="_blank">生活</a>
+      <li v-for="item in navItems" :key="item.name">
+        <a :href="item.href" target="_blank">{{ item.name }}</a>
       </li>
       <li>
         <a href="#" @click.prevent>
@@ -2046,6 +2028,20 @@ const right2 = "/img/loginPasswordRight.png"
 import { ElLoading } from "element-plus";
 import {useGlobalStore} from "../store/store";
 import {ChecklLogin} from '../api/user/index'
+
+// 主导航。顺序按「内容占比」排，不是按字母；改顺序只改这里，不用动模板。
+const NAV_ITEMS = [
+  { name: "动画", category: "动画" },
+  { name: "番剧", category: "番剧" },
+  { name: "影视", category: "影视" },
+  { name: "音乐", category: "音乐" },
+  { name: "游戏", category: "游戏" },
+  { name: "知识", category: "知识" },
+  { name: "生活", category: "生活" },
+  { name: "美食", category: "美食" },
+  { name: "资讯", category: "资讯" },
+];
+
 export default {
   name: "mainHead",
   props:{
@@ -2982,6 +2978,10 @@ flag.value = 1;
       openHome,
       openHistory,
       openDynamic,
+    navItems: NAV_ITEMS.map((n) => ({
+      name: n.name,
+      href: `./search?keyword=&categoryName=${encodeURIComponent(n.category)}`,
+    })),
     };
   },
 };
