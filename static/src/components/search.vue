@@ -278,6 +278,7 @@
 
 <script>
 import apiClient from "../services/apiClient";
+import { searchApi } from "../api/product";
 import {
   ref,
   reactive,
@@ -444,45 +445,27 @@ export default {
     //获取热词
     async function selectFireWord() {
       try {
-        const response = await apiClient.get("/keyWord/getFireWord");
-
-        if (response.data.code === 1)
-          Object.assign(fireSearch, response.data.data);
+        const list = await searchApi.hot(10);
+        fireSearch.length = 0;
+        list.forEach((k) => fireSearch.push(k.keyword));
       } catch (error) {}
     }
-
     //获取关键字
     let keyWordTIme;
-    async function selectKeyWord(Value) {
-      try {
+async function selectKeyWord(Value) {
+      if (!Value) {
         keyWord.length = 0;
-        const response = await apiClient.get("/keyWord/getKeyWord", {
-          params: {
-            keyWord: Value,
-          },
-        });
-          if(keyWordTIme)
-          clearTimeout(keyWordTIme);
-        if (response.data.code === 1)
-          {
-            keyWordTIme=setTimeout(() => {
-              keyWord.length=0;
-            if(Content.value.length>0)
-            Object.assign(keyWord, response.data.data);
-            }, 800);
-          }
+        return;
+      }
+      try {
+        const list = await searchApi.hot(20);
+        keyWord.length = 0;
+        Object.assign(keyWord, list.map((k) => k.keyword).filter((w) => w.includes(Value)));
       } catch (error) {}
     }
 
-    //添加关键字
+    //记录一次搜索。新后端在 searchApi.videos 内部记账，这里不用单独上报。
     async function addKeyWord() {
-      try {
-        const response = await apiClient.get("/keyWord/addKeyWord", {
-          params: {
-            keyWord: Content.value,
-          },
-        });
-      } catch (error) {}
     }
 
     watch(Content, (newValue) => {
@@ -525,21 +508,14 @@ export default {
 
     }
 
-     //获取placeholder
-     async function getPlaceholder(){
-      try {
-        const response=await apiClient.get("/keyWord/placeholder");
-
-        if(response.data.code===1)
-          placeholderWord.value=response.data.data?.word;
-
-      } catch (error) {
-
+//获取placeholder
+      async function getPlaceholder(){
+        // 新后端没有随机占位词接口，固定用品牌标语
+        placeholderWord.value = "分享每一次观看";
       }
-     }
 
 
-     watch(searchHeight,()=>{
+      watch(searchHeight,()=>{
        if(searchHeight.value<100)
        {
          showMore.value=false;

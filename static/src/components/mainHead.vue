@@ -2027,9 +2027,15 @@
 <script>
 import { ref, reactive, onMounted,watch } from "vue";
 import "element-plus/theme-chalk/el-message.css";
-import apiClient from "../services/apiClient";
+import {
+  fetchDynamicPanels,
+  fetchFolders,
+  fetchHistory,
+  toggleWatchLater,
+} from "../services/headerPanels";
 import { authApi } from "../api/product";
 import { getToken, setToken } from "../services/http";
+import { forgetPassword } from "../services/account";
 import { ElMessage } from "element-plus";
 import search from "./search.vue";
 import "element-plus/dist/index.css";
@@ -2241,27 +2247,20 @@ export default {
           return (loginDialogVisible.value = true);
         }
 
-        let limiterLoginDto={
-           user: forgetPasswordForm,
-           userIp: store.userIp,
-        };
-        const response = await apiClient.put(
-          "/user/forget",
-          limiterLoginDto,
-        );
-
-        if (response.data.code === 0) {
+        // 找回密码（手机号 + 密保问题）由后端账号模块提供，接口路径 /auth/forget。
+        try {
+          const res = await forgetPassword(forgetPasswordForm);
           ElMessage({
-            message: response.data.msg,
+            message: res || "密码已重置，请重新登录",
             type: "info",
             plain: true,
             duration: 1700,
           });
-        } else {
           flag.value = 1;
           handleClose();
+        } catch (error) {
           ElMessage({
-            message: response.data.data,
+            message: error.message || "重置失败",
             type: "info",
             plain: true,
             duration: 1700,
@@ -2269,7 +2268,7 @@ export default {
         }
       } catch (error) {
         ElMessage({
-          message: response.data.data,
+          message: "重置失败",
           type: "info",
           plain: true,
           duration: 1700,
@@ -2690,23 +2689,10 @@ flag.value = 1;
       }
     }
 
-    //获取新粉丝数量
+//获取新粉丝数量
+    // 新后端暂未提供「新粉丝数」接口，先归零，不再请求不存在的地址
     async function getNewFansNumberAxiso() {
-      try {
-        const response = await apiClient.get(
-          `/user/getNewFansNumber/${store.userId}`,
-          {
-            headers: {
-            "Content-Type": "application/json",
-            "Authorization": store.token,
-          },        
-          }
-        );
-
-        if (response.data.code === 1) {
-          NewFansNumber.value = response.data.data;
-        }
-      } catch (error) {}
+      NewFansNumber.value = 0;
     }
 
     //按真实发布时间降序，videoId是入库主键，与审核通过时间不一致，不能用于排序
@@ -2722,114 +2708,53 @@ flag.value = 1;
     //获取动态
     async function getDynamicAxiso() {
       try {
-        const response = await apiClient.get(
-          `/dynamic/getFollowDynamic/${store.userId}`,
-          {
-            headers: {
-            "Content-Type": "application/json",
-            "Authorization": store.token,
-          },        
+        const groups = await fetchDynamicPanels();
+        dynamics.length = 0;
+        dynamicss.length = 0;
+        notHistoryDynamic.length = 0;
+        notWatchDynamicFlag.value = false;
+        Object.assign(dynamics, groups);
+        dynamics.forEach((item) => {
+          if (item.newDynamicNumber !== 0) {
+            notWatchDynamicFlag.value = true;
+            notHistoryDynamic.push(item);
+          } else {
+            dynamicss.push(item);
           }
-        );
-
-        if (response.data.code === 1) {
-          dynamics.length = 0;
-          dynamicss.length = 0;
-          notHistoryDynamic.length = 0;
-          //重置未看标识，避免清除后区块残留
-          notWatchDynamicFlag.value = false;
-          Object.assign(dynamics, response.data.data);
-          sortItems();
-          dynamics.forEach((item) => {
-            if (item.newDynamicNumber !== 0) {
-              // 根据条件查找
-              notWatchDynamicFlag.value = true; // 获取对应的值
-              notHistoryDynamic.push(item);
-            } else dynamicss.push(item);
-          });
-        }
-      } catch (error) {}
+        });
+} catch (error) {
+      }
     }
 
     //清空所有动态
     async function cleanAllDynamicAxios() {
-      try {
-
-        if (user.dynamicNumber !== 0) {
-          const response = await apiClient.get(
-            `/dynamic/cleanFollowDynamicAllNumber/${store.userId}`,
-            {
-            headers: {
-            "Content-Type": "application/json",
-            "Authorization": store.token,
-          },        
-          }
-          );
-          if (response.data.code === 1) dynamics.length = 0;
-          dynamicss.length = 0;
-          notHistoryDynamic.length = 0;
-          getDynamicAxiso();
-          refreshUser();
-        }
-      } catch (error) {}
+      // 新后端的动态面板没有「一键清空未读」这个动作，改为重新拉一次
+      dynamics.length = 0;
+      dynamicss.length = 0;
+      notHistoryDynamic.length = 0;
+      notWatchDynamicFlag.value = false;
+      await getDynamicAxiso();
+      await refreshUser();
     }
 
     //查询所有收藏
     async function selectCollect() {
       try {
-
-        const response = await apiClient.get(
-          `/collect/getCollect/${store.userId}`,
-          {
-            headers: {
-            "Content-Type": "application/json",
-            "Authorization": store.token,
-          },        
-          }
-        );
-        if (response.data.code === 1) {
-          collectDtoList.length = 0;
-          Object.assign(collectDtoList, response.data.data);
-
-          const index=response.data.data.findIndex(item=>item.collectName==='待看清单');
-          if(index!==-1)
-          {
-            store.setCollectNumber(response.data.data[index].collectNumber);
-          }
-
-        }
-      } catch (error) {}
+        const list = await fetchFolders();
+        collectDtoList.length = 0;
+        Object.assign(collectDtoList, list);
+        const def = list.find((f) => f.isDefault);
+        store.setCollectNumber(def ? def.collectNumber : 0);
+} catch (error) {}
     }
 
     //稍后观看
     async function waitWatchAxios(dynamic) {
       try {
-
-        let dynamicDto={
-            videoId: dynamic.videoId,
-            userId: store.userId,
-        }
-        const response = await apiClient.put(
-          "/dynamic/updateWaitWatch",dynamicDto,
-            {
-            headers: {
-            "Content-Type": "application/json",
-            "Authorization": store.token,
-          },        
-          }
-        );
-        if (response.data.code === 1) {
-         dynamic.waitWatch=dynamic.waitWatch===1?0:1;
-        }
-        else{
-          ElMessage({
-            message: response.data.msg,
-            type: "info",
-            plain: true,
-            duration: 1700,
-          });
-        }
-      } catch (error) {
+        await toggleWatchLater(dynamic.videoId);
+        dynamic.waitWatch = dynamic.waitWatch === 1 ? 0 : 1;
+} catch (error) {
+        ElMessage({ message: error.message || "操作失败", type: "info", plain: true, duration: 1700 });
       }
     }
 
@@ -2843,39 +2768,22 @@ flag.value = 1;
     //查询历史记录
     async function selectHistoryAxios() {
       historyAsideFlag.value = 0;
-      if(historyAxiosTimeFlag)
-      return;
-      historyAxiosTimeFlag=true;
+      if (historyAxiosTimeFlag) return;
+      historyAxiosTimeFlag = true;
       try {
-        const response = await apiClient.get(
-          `/history/getHistory/${store.userId}`,
-          {
-            headers: {
-            "Content-Type": "application/json",
-            "Authorization": store.token,
-          },        
-          }
-        );
-        if (response.data.code === 1) {
-          historyList.length = 0;
-          Object.assign(historyList, response.data.data);
-          const today = historyList.filter(
-            (item) => item.watchVideoDate === "今天",
-          );
-          const yesterday = historyList.filter(
-            (item) => item.watchVideoDate === "昨天",
-          );
-          const earlier = historyList.filter(
-            (item) => item.watchVideoDate !== "今天"&&item.watchVideoDate !== "昨天",
-          );
-          historyToday.length = 0;
-          historyYesterday.length = 0;
-          historyEarlier.length = 0;
-          Object.assign(historyToday, today);
-          Object.assign(historyYesterday, yesterday);
-          Object.assign(historyEarlier, earlier);
-        }
-      } catch (error) {}
+        const list = await fetchHistory();
+        historyList.length = 0;
+        Object.assign(historyList, list);
+        historyToday.length = 0;
+        historyYesterday.length = 0;
+        historyEarlier.length = 0;
+        Object.assign(historyToday, list.filter((i) => i.dayLabel === "今天"));
+        Object.assign(historyYesterday, list.filter((i) => i.dayLabel === "昨天"));
+        Object.assign(historyEarlier, list.filter((i) => i.dayLabel !== "今天" && i.dayLabel !== "昨天"));
+      } catch (error) {
+} finally {
+        historyAxiosTimeFlag = false;
+      }
     }
 
     //节流查询历史
@@ -2917,16 +2825,9 @@ flag.value = 1;
       changerCollect.value=store.collectSelect;
     }
 
-    // 用户 IP。新后端不再用它下发 token，token 由 /auth/login 返回后存在本地。
+    // 用户 IP 只用于风控展示。新后端没有这个接口，这里直接留空即可。
     async function getUserIp(){
-      try {
-        const response = await apiClient.get("/userIp/getUserIp");
-        if (response.data.code === 1) {
-          store.setUserIp(response.data.data.userIp);
-        }
-      } catch (e) {
-        // IP 拿不到不影响主流程
-      }
+      store.setUserIp("");
     }
 
     watch(loginDialogVisible,(newValue)=>{
