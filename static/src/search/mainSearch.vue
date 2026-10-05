@@ -28,20 +28,17 @@
           :loginDialogVisibleFlag="loginDialogVisibleFlag"
         />
       </div>
-      <div class="searchBox2">
-        <Searcha
-        ref="searcha2"
-        :handleUrlChange="handleUrlChange"
-          style="
-            position: relative;
-            left: 50%;
-            transform: translate(-50%,28px);
-            z-index: 1000;
-          "
-        />
-      </div>
-      <div class="middle">
-        <div class="sort" ref="sortBarEl">
+      <!-- 搜索页顶部的大搜索框。
+           原来 .searchBox2 没有任何样式，定位全靠 Searcha 上的 inline
+           left:50% + translate(-50%,28px)：这个 50% 是相对 Searcha 自身父节点
+           算的，父节点宽度又是内容宽度，所以「居中」每次渲染结果都不一样。
+           改成容器自己居中，Searcha 内部按 100% 铺满。 -->
+      <div class="searchShell">
+        <div class="searchBox2">
+          <Searcha ref="searcha2" class="searchBox2-inner" :handleUrlChange="handleUrlChange" />
+        </div>
+        <div class="middle">
+          <div class="sort" ref="sortBarEl">
     <!-- 原来这里是 14 个 span：每个 tab 按选中与否各写一份 .aw / .aww，
          靠 17px / 26px / 8px / 14px 这些 translate 微调对齐；
          下面再挂 7 个写死 translate(63px, 137px) 的下划线。
@@ -61,809 +58,101 @@
       :style="{ transform: 'translateX('+sortLine.x+'px)', width: sortLine.w+'px' }"
       v-show="sortLine.visible"
     ></span>
+          </div>
         </div>
       </div>
       <div class="content">
+        <!-- 筛选栏：四行维度 + 展开更多。
+             坐标、间距、选中态统一由 CSS 的 .filter-row / .chip 负责，
+             数据来自脚本里的 SORT / DATE / TIME / CLASSIFY 四张表。 -->
         <div v-show="clickFlag1 || clickFlag2" class="videoSort">
-          <span
-            v-show="clickSortFlag1 === false"
-            @click="ClickSortFlag1"
-            class="condition"
-            style="transform: translate(86px, 36.5px)"
-            >综合排序</span
-          >
-          <span
-            v-show="clickSortFlag1"
-            class="conditionClick"
-            style="transform: translate(64px, 31px)"
-            >综合排序</span
-          >
-          <span
-            v-show="clickSortFlag2 === false"
-            @click="ClickSortFlag2"
-            class="condition"
-            style="transform: translate(196px, 36.5px)"
-            >最多播放</span
-          >
-          <span
-            v-show="clickSortFlag2"
-            class="conditionClick"
-            style="transform: translate(174px, 31px)"
-            >最多播放</span
-          >
-          <span
-            v-show="clickSortFlag3 === false"
-            @click="ClickSortFlag3"
-            class="condition"
-            style="transform: translate(306px, 36.5px)"
-            >最新发布</span
-          >
-          <span
-            v-show="clickSortFlag3"
-            class="conditionClick"
-            style="transform: translate(284px, 31px)"
-            >最新发布</span
-          >
-          <span
-            v-show="clickSortFlag4 === false"
-            @click="ClickSortFlag4"
-            class="condition"
-            style="transform: translate(416px, 36.5px)"
-            >最多弹幕</span
-          >
-          <span
-            v-show="clickSortFlag4"
-            class="conditionClick"
-            style="transform: translate(394px, 31px)"
-            >最多弹幕</span
-          >
-          <span
-            v-show="clickSortFlag5 === false"
-            @click="ClickSortFlag5"
-            class="condition"
-            style="transform: translate(526px, 36.5px)"
-            >最多收藏</span
-          >
-          <span
-            v-show="clickSortFlag5"
-            class="conditionClick"
-            style="transform: translate(504px, 31px)"
-            >最多收藏</span
-          >
-          <span class="screen" @click="expanded = !expanded"
-            ><span>更多筛选</span><img src="/img/更多.png"
-          /></span>
+          <div class="filter-bar">
+            <div class="filter-row">
+              <button
+                v-for="(opt, i) in SORT"
+                :key="'sort' + i"
+                type="button"
+                class="chip"
+                :class="{ 'is-on': sortIndex === i }"
+                @click="applyFilter('sort', i)"
+              >{{ opt.label }}</button>
+            </div>
 
-          <div class="showBox" :class="{ expanded }">
-            <span
-              v-show="clickDateFlag1 === false"
-              @click="ClickDateFlag1"
-              class="condition"
-              style="transform: translate(86px, 80.5px)"
-              >全部日期</span
-            >
-            <span
-              v-show="clickDateFlag1"
-              class="conditionClick"
-              style="transform: translate(64px, 75px)"
-              >全部日期</span
-            >
-            <span
-              v-show="clickDateFlag2 === false"
-              @click="ClickDateFlag2"
-              class="condition"
-              style="transform: translate(196px, 80.5px)"
-              >最近一天</span
-            >
-            <span
-              v-show="clickDateFlag2"
-              class="conditionClick"
-              style="transform: translate(174px, 75px)"
-              >最近一天</span
-            >
-            <span
-              v-show="clickDateFlag3 === false"
-              @click="ClickDateFlag3"
-              class="condition"
-              style="transform: translate(306px, 80.5px)"
-              >最近一周</span
-            >
-            <span
-              v-show="clickDateFlag3"
-              class="conditionClick"
-              style="transform: translate(284px, 75px)"
-              >最近一周</span
-            >
-            <span
-              v-show="clickDateFlag4 === false"
-              @click="ClickDateFlag4"
-              class="condition"
-              style="transform: translate(416px, 80.5px)"
-              >最近半年</span
-            >
-            <span
-              v-show="clickDateFlag4"
-              class="conditionClick"
-              style="transform: translate(394px, 75px)"
-              >最近半年</span
-            >
-            <span
-              @click="ClickDateFlag5"
-              class="condition"
-              style="transform: translate(504px, 74px)"
-            >
+            <div class="filter-more">
+              <button type="button" class="filter-toggle" @click="expanded = !expanded">
+                <span>更多筛选</span>
+                <img src="/img/更多.png" :class="{ 'is-open': expanded }" alt="" />
+              </button>
+            </div>
+          </div>
+
+          <div class="filter-panel" :class="{ expanded }">
+            <div class="filter-row">
+              <button
+                v-for="(opt, i) in DATE"
+                :key="'date' + i"
+                type="button"
+                class="chip"
+                :class="{ 'is-on': dateIndex === i }"
+                @click="applyFilter('date', i)"
+              >{{ opt.label }}</button>
               <el-date-picker
                 v-model="datea"
-                style="border-radius: 8px; width: 310px; height: 34px"
+                class="filter-date"
                 type="daterange"
                 start-placeholder="开始日期"
                 end-placeholder="结束日期"
                 :default-value="[new Date(), new Date()]"
-              >
-              </el-date-picker>
-            </span>
+              />
+            </div>
 
-            <span
-              v-show="clickTimeFlag1 === false"
-              @click="ClickTimeFlag1"
-              class="condition"
-              style="transform: translate(86px, 123.5px)"
-              >全部时长</span
-            >
-            <span
-              v-show="clickTimeFlag1"
-              class="conditionClick"
-              style="transform: translate(64px, 118px)"
-              >全部时长</span
-            >
-            <span
-              v-show="clickTimeFlag2 === false"
-              @click="ClickTimeFlag2"
-              class="condition"
-              style="transform: translate(189px, 123.5px)"
-              >10分钟以下</span
-            >
-            <span
-              v-show="clickTimeFlag2"
-              class="conditionClick"
-              style="transform: translate(175px, 118px)"
-              >10分钟以下</span
-            >
-            <span
-              v-show="clickTimeFlag3 === false"
-              @click="ClickTimeFlag3"
-              class="condition"
-              style="transform: translate(302px, 123.5px)"
-              >10-30分钟</span
-            >
-            <span
-              v-show="clickTimeFlag3"
-              class="conditionClick"
-              style="transform: translate(285.5px, 118px)"
-              >10-30分钟</span
-            >
-            <span
-              v-show="clickTimeFlag4 === false"
-              @click="ClickTimeFlag4"
-              class="condition"
-              style="transform: translate(412px, 123.5px)"
-              >30-60分钟</span
-            >
-            <span
-              v-show="clickTimeFlag4"
-              class="conditionClick"
-              style="transform: translate(395.5px, 118px)"
-              >30-60分钟</span
-            >
-            <span
-              v-show="clickTimeFlag5 === false"
-              @click="ClickTimeFlag5"
-              class="condition"
-              style="transform: translate(521px, 123.5px)"
-              >60分钟以上</span
-            >
-            <span
-              v-show="clickTimeFlag5"
-              class="conditionClick"
-              style="transform: translate(507px, 118px)"
-              >60分钟以上</span
-            >
+            <div class="filter-row">
+              <button
+                v-for="(opt, i) in TIME"
+                :key="'time' + i"
+                type="button"
+                class="chip"
+                :class="{ 'is-on': timeIndex === i }"
+                @click="applyFilter('time', i)"
+              >{{ opt.label }}</button>
+            </div>
 
-            <span
-              v-if="clickClassifyFlag1 === false"
-              @click="ClickClassifyFlag1"
-              class="condition"
-              style="transform: translate(86px, 165.5px)"
-              >全部分类</span
-            >
-            <span
-              v-if="clickClassifyFlag1"
-              class="conditionClick"
-              style="transform: translate(64px, 160px)"
-              >全部分类</span
-            >
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag2"
-            >
-              <template #content>
-                <div class="custom-tooltip2" @click="ClickClassifyFlag2">
-                  <span>MAD·AMV</span><span>MMD·3D</span> <span>同人·手书</span
-                  ><span>配音</span><span>模玩·周边</span><span>特摄</span
-                  ><span>动漫杂谈</span><span>综合</span>
-                </div>
+            <div class="filter-row filter-row-wrap">
+              <template v-for="(opt, i) in CLASSIFY" :key="'classify' + i">
+                <el-tooltip
+                  v-if="opt.sub"
+                  :show-arrow="false"
+                  effect="light"
+                  placement="bottom"
+                >
+                  <template #content>
+                    <div class="sub-tags">
+                      <span v-for="tag in opt.sub" :key="tag" class="sub-tag">{{ tag }}</span>
+                    </div>
+                  </template>
+                  <button
+                    type="button"
+                    class="chip chip-has-sub"
+                    :class="{ 'is-on': classifyIndexRef === i }"
+                    @click="applyFilter('classify', i)"
+                  >{{ opt.label }}</button>
+                </el-tooltip>
+                <button
+                  v-else
+                  type="button"
+                  class="chip"
+                  :class="{ 'is-on': classifyIndexRef === i }"
+                  @click="applyFilter('classify', i)"
+                >{{ opt.label }}</button>
               </template>
-              <span
-                v-if="!clickClassifyFlag2"
-                @click="ClickClassifyFlag2"
-                class="condition"
-                style="transform: translate(210px, 165.5px)"
-                >动画</span
-              >
-              <span
-                v-if="clickClassifyFlag2"
-                class="conditionClick"
-                style="transform: translate(174px, 160px)"
-                >动画</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag3"
-              :disabled="true"
-            >
-              <span
-                v-if="clickClassifyFlag3 === false"
-                @click="ClickClassifyFlag3"
-                class="condition"
-                style="transform: translate(320px, 165.5px)"
-                >番剧</span
-              >
-              <span
-                v-if="clickClassifyFlag3"
-                class="conditionClick"
-                style="transform: translate(284px, 160px)"
-                >番剧</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag4"
-            >
-              <template #content>
-                <div class="custom-tooltip2" @click="ClickClassifyFlag4">
-                  <span>国产动画</span><span>国产原创相关</span>
-                  <span>布袋戏</span><span>动态漫·广播剧</span><span>资讯</span
-                  ><span>新番时间表</span><span>国产动画索引</span>
-                </div>
-              </template>
-              <span
-                v-if="clickClassifyFlag4 === false"
-                @click="ClickClassifyFlag4"
-                class="condition"
-                style="transform: translate(430px, 165.5px)"
-                >国创</span
-              >
-              <span
-                v-if="clickClassifyFlag4"
-                class="conditionClick"
-                style="transform: translate(394px, 160px)"
-                >国创</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag5"
-            >
-              <template #content>
-                <div class="custom-tooltip2" @click="ClickClassifyFlag5">
-                  <span>音乐现场</span><span>翻唱</span> <span>演奏</span
-                  ><span>乐评盘点</span><span>VOCLOID·UTAU</span><span>MV</span
-                  ><span>音乐粉丝饭拍</span><span>AI音乐</span><span>电台</span
-                  ><span>音乐教学</span><span>音乐综合</span><span>说唱</span>
-                </div>
-              </template>
-              <span
-                v-if="clickClassifyFlag5 === false"
-                @click="ClickClassifyFlag5"
-                class="condition"
-                style="transform: translate(540px, 165.5px)"
-                >音乐</span
-              >
-              <span
-                v-if="clickClassifyFlag5"
-                class="conditionClick"
-                style="transform: translate(504px, 160px)"
-                >音乐</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag6"
-            >
-              <template #content>
-                <div class="custom-tooltip2" @click="ClickClassifyFlag6">
-                  <span>宅舞</span><span>街舞</span> <span>明星舞蹈</span
-                  ><span>国风舞蹈</span><span>颜值·网红舞</span
-                  ><span>舞蹈综合</span><span>舞蹈教程</span>
-                </div>
-              </template>
-              <span
-                v-if="clickClassifyFlag6 === false"
-                @click="ClickClassifyFlag6"
-                class="condition"
-                style="transform: translate(650px, 165.5px)"
-                >舞蹈</span
-              >
-              <span
-                v-if="clickClassifyFlag6"
-                class="conditionClick"
-                style="transform: translate(614px, 160px)"
-                >舞蹈</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag7"
-            >
-              <template #content>
-                <div class="custom-tooltip2" @click="ClickClassifyFlag7">
-                  <span>单机游戏</span><span>电子竞技</span>
-                  <span>手机游戏</span><span>网络游戏</span><span>桌游棋牌</span
-                  ><span>GMV</span><span>音游</span><span>Mugen</span
-                  ><span>游戏赛事</span>
-                </div>
-              </template>
-              <span
-                v-if="clickClassifyFlag7 === false"
-                @click="ClickClassifyFlag7"
-                class="condition"
-                style="transform: translate(760px, 165.5px)"
-                >游戏</span
-              >
-              <span
-                v-if="clickClassifyFlag7"
-                class="conditionClick"
-                style="transform: translate(724px, 160px)"
-                >游戏</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag8"
-            >
-              <template #content>
-                <div class="custom-tooltip2" @click="ClickClassifyFlag8">
-                  <span>科学科普</span><span>社科·法律·心理</span>
-                  <span>人文历史</span><span>财经商业</span><span>校园学校</span
-                  ><span>职业职场</span><span>设计·创意</span
-                  ><span>野生技能协会</span><span>游戏赛事</span>
-                </div>
-              </template>
-              <span
-                v-if="clickClassifyFlag8 === false"
-                @click="ClickClassifyFlag8"
-                class="condition"
-                style="transform: translate(870px, 165.5px)"
-                >知识</span
-              >
-              <span
-                v-if="clickClassifyFlag8"
-                class="conditionClick"
-                style="transform: translate(834px, 160px)"
-                >知识</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag9"
-            >
-              <template #content>
-                <div class="custom-tooltip2" @click="ClickClassifyFlag9">
-                  <span>数码</span><span>软件应用</span> <span>计算机技术</span
-                  ><span>科工机械</span><span>极客DIY</span>
-                </div>
-              </template>
-              <span
-                v-if="clickClassifyFlag9 === false"
-                @click="ClickClassifyFlag9"
-                class="condition"
-                style="transform: translate(980px, 165.5px)"
-                >科技</span
-              >
-              <span
-                v-if="clickClassifyFlag9"
-                class="conditionClick"
-                style="transform: translate(944px, 160px)"
-                >科技</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag10"
-            >
-              <template #content>
-                <div class="custom-tooltip2" @click="ClickClassifyFlag10">
-                  <span>篮球</span><span>足球</span> <span>健身</span
-                  ><span>竞技体育</span><span>运动文化</span
-                  ><span>运动综合</span>
-                </div>
-              </template>
-              <span
-                v-if="clickClassifyFlag10 === false"
-                @click="ClickClassifyFlag10"
-                class="condition"
-                style="transform: translate(1090px, 165.5px)"
-                >运动</span
-              >
-              <span
-                v-if="clickClassifyFlag10"
-                class="conditionClick"
-                style="transform: translate(1054px, 160px)"
-                >运动</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag11"
-              :disabled="true"
-            >
-              <span
-                v-if="clickClassifyFlag11 === false"
-                @click="ClickClassifyFlag11"
-                class="condition"
-                style="transform: translate(1200px, 165.5px)"
-                >汽车</span
-              >
-              <span
-                v-if="clickClassifyFlag11"
-                class="conditionClick"
-                style="transform: translate(1164px, 160px)"
-                >汽车</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag12"
-            >
-              <template #content>
-                <div class="custom-tooltip2" @click="ClickClassifyFlag12">
-                  <span>搞笑</span><span>亲子</span> <span>出行</span
-                  ><span>三农</span><span>家居房产</span><span>手工</span
-                  ><span>绘画</span><span>日常</span>
-                </div>
-              </template>
-              <span
-                v-if="clickClassifyFlag12 === false"
-                @click="ClickClassifyFlag12"
-                class="condition"
-                style="transform: translate(100px, 207.5px)"
-                >生活</span
-              >
-              <span
-                v-if="clickClassifyFlag12"
-                class="conditionClick"
-                style="transform: translate(64px, 202px)"
-                >生活</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag13"
-            >
-              <template #content>
-                <div class="custom-tooltip2" @click="ClickClassifyFlag13">
-                  <span>美食制作</span><span>美食侦探</span>
-                  <span>美食测评</span><span>田园美食</span
-                  ><span>美食记录</span>
-                </div>
-              </template>
-              <span
-                v-if="clickClassifyFlag13 === false"
-                @click="ClickClassifyFlag13"
-                class="condition"
-                style="transform: translate(210px, 207.5px)"
-                >美食</span
-              >
-              <span
-                v-if="clickClassifyFlag13"
-                class="conditionClick"
-                style="transform: translate(174px, 202px)"
-                >美食</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag14"
-            >
-              <template #content>
-                <div class="custom-tooltip2" @click="ClickClassifyFlag14">
-                  <span>喵星人</span><span>汪星人</span> <span>小宠异能</span
-                  ><span>野生动物</span><span>动物二创</span
-                  ><span>动物综合</span>
-                </div>
-              </template>
-              <span
-                v-if="clickClassifyFlag14 === false"
-                @click="ClickClassifyFlag14"
-                class="condition"
-                style="transform: translate(313px, 207.5px)"
-                >动物圈</span
-              >
-              <span
-                v-if="clickClassifyFlag14"
-                class="conditionClick"
-                style="transform: translate(284px, 202px)"
-                >动物圈</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag15"
-            >
-              <template #content>
-                <div class="custom-tooltip2" @click="ClickClassifyFlag15">
-                  <span>鬼畜教程</span><span>音MAD</span>
-                  <span>人力VOCALOID</span><span>鬼畜剧场</span
-                  ><span>教程演示</span>
-                </div>
-              </template>
-              <span
-                v-if="clickClassifyFlag15 === false"
-                @click="ClickClassifyFlag15"
-                class="condition"
-                style="transform: translate(430px, 207.5px)"
-                >鬼畜</span
-              >
-              <span
-                v-if="clickClassifyFlag15"
-                class="conditionClick"
-                style="transform: translate(394px, 202px)"
-                >鬼畜</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag16"
-            >
-              <template #content>
-                <div class="custom-tooltip2" @click="ClickClassifyFlag16">
-                  <span>美妆护肤</span><span>仿妆cos</span> <span>穿搭</span
-                  ><span>时尚潮流</span>
-                </div>
-              </template>
-              <span
-                v-if="clickClassifyFlag16 === false"
-                @click="ClickClassifyFlag16"
-                class="condition"
-                style="transform: translate(540px, 207.5px)"
-                >时尚</span
-              >
-              <span
-                v-if="clickClassifyFlag16"
-                class="conditionClick"
-                style="transform: translate(504px, 202px)"
-                >时尚</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag17"
-            >
-              <template #content>
-                <div class="custom-tooltip2" @click="ClickClassifyFlag17">
-                  <span>热点</span><span>环球</span> <span>社会</span
-                  ><span>综合</span>
-                </div>
-              </template>
-              <span
-                v-if="clickClassifyFlag17 === false"
-                @click="ClickClassifyFlag17"
-                class="condition"
-                style="transform: translate(650px, 207.5px)"
-                >资讯</span
-              >
-              <span
-                v-if="clickClassifyFlag17"
-                class="conditionClick"
-                style="transform: translate(614px, 202px)"
-                >资讯</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag18"
-            >
-              <template #content>
-                <div class="custom-tooltip2" @click="ClickClassifyFlag18">
-                  <span>资讯杂谈</span><span>CP安利</span> <span>颜值安利</span
-                  ><span>娱乐粉丝创作</span><span>明星综合</span
-                  ><span>综艺</span>
-                </div>
-              </template>
-              <span
-                v-if="clickClassifyFlag18 === false"
-                @click="ClickClassifyFlag18"
-                class="condition"
-                style="transform: translate(760px, 207.5px)"
-                >娱乐</span
-              >
-              <span
-                v-if="clickClassifyFlag18"
-                class="conditionClick"
-                style="transform: translate(724px, 202px)"
-                >娱乐</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag19"
-            >
-              <template #content>
-                <div class="custom-tooltip2" @click="ClickClassifyFlag19">
-                  <span>影视杂谈</span><span>影视剪辑</span>
-                  <span>影视整活</span><span>AI影像</span><span>预告·资讯</span
-                  ><span>小剧场</span><span>短片</span><span>影视综合</span>
-                </div>
-              </template>
-              <span
-                v-if="clickClassifyFlag19 === false"
-                @click="ClickClassifyFlag19"
-                class="condition"
-                style="transform: translate(870px, 207.5px)"
-                >影视</span
-              >
-              <span
-                v-if="clickClassifyFlag19"
-                class="conditionClick"
-                style="transform: translate(834px, 202px)"
-                >影视</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag20"
-              :disabled="true"
-            >
-              <span
-                v-if="clickClassifyFlag20 === false"
-                @click="ClickClassifyFlag20"
-                class="condition"
-                style="transform: translate(973px, 207.5px)"
-                >纪录片</span
-              >
-              <span
-                v-if="clickClassifyFlag20"
-                class="conditionClick"
-                style="transform: translate(944px, 202px)"
-                >纪录片</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag21"
-              :disabled="true"
-            >
-              <span
-                v-if="clickClassifyFlag21 === false"
-                @click="ClickClassifyFlag21"
-                class="condition"
-                style="transform: translate(1090px, 207.5px)"
-                >电影</span
-              >
-              <span
-                v-if="clickClassifyFlag21"
-                class="conditionClick"
-                style="transform: translate(1054px, 202px)"
-                >电影</span
-              >
-            </el-tooltip>
-            <el-tooltip
-              class="box-item"
-              :show-arrow="false"
-              effect="light"
-              placement="bottom"
-              @click="ClickClassifyFlag22"
-              :disabled="true"
-            >
-              <span
-                v-if="clickClassifyFlag22 === false"
-                @click="ClickClassifyFlag22"
-                class="condition"
-                style="transform: translate(1193px, 207.5px)"
-                >电视剧</span
-              >
-              <span
-                v-if="clickClassifyFlag22"
-                class="conditionClick"
-                style="transform: translate(1164px, 202px)"
-                >电视剧</span
-              >
-            </el-tooltip>
-            <div
-              v-if="expanded"
-              style="width: 100%; height: 170px; z-index: 0"
-            ></div>
+            </div>
           </div>
-          <div v-if="Videos.length === 0">
-            <img
-              src="/img/搜索空.png"
-              style="
-                width: 150px;
-                height: 160px;
-                transform: translate(637px, 133px);
-              "
-            />
-            <span
-              style="
-                position: absolute;
-                transform: translate(496.5px, 321px);
-                font-size: 14px;
-                color: #8F9794;
-              "
-              >今天真是寂寞如雪啊~</span
-            >
+
+          <div v-if="Videos.length === 0" class="empty-state">
+            <img src="/img/搜索空.png" alt="" />
+            <span>今天真是寂寞如雪啊~</span>
           </div>
+
           <div class="bottomVideo">
             <div
               class="video-video"
@@ -1079,15 +368,7 @@
                 </a>
               </el-tooltip>
             </div>
-            <div
-              style="
-                width: 100%;
-                display: flex;
-                justify-content: center;
-                transform: translate(70px, -200px);
-                padding-bottom: 50px;
-              "
-            >
+            <div class="pager-row">
               <div v-show="acceptSearchData.videoTotal" class="page-container">
                 <el-pagination
                   :current-page="videoPageNum"
@@ -1109,116 +390,23 @@
           </div>
         </div>
 
-        <div
-          class="falseData"
-          v-if="clickFlag3 || clickFlag4 || clickFlag5 || clickFlag6"
-        >
-          <img
-            src="/img/搜索空.png"
-            style="
-              width: 150px;
-              height: 160px;
-              transform: translate(637px, 99px);
-            "
-          />
-          <span
-            style="
-              position: absolute;
-              transform: translate(496.5px, 287px);
-              font-size: 14px;
-              color: #8F9794;
-            "
-            >今天真是寂寞如雪啊~</span
-          >
+        <div v-if="clickFlag3 || clickFlag4 || clickFlag5 || clickFlag6" class="empty-state">
+          <img src="/img/搜索空.png" alt="" />
+          <span>今天真是寂寞如雪啊~</span>
         </div>
 
-        <div v-if="clickFlag7" class="userSort">
-          <span
-            v-if="clickUserFlag1 === false"
-            @click="ClickUserFlag1"
-            class="condition"
-            style="transform: translate(86px, 36.5px)"
-            >默认排序</span
-          >
-          <span
-            v-if="clickUserFlag1"
-            class="conditionClick"
-            style="transform: translate(64px, 31px); width: 100px"
-            >默认排序</span
-          >
-          <span
-            v-if="clickUserFlag2 === false"
-            @click="ClickUserFlag2"
-            class="condition"
-            style="transform: translate(189px, 36.5px)"
-            >粉丝数由高到低</span
-          >
-          <span
-            v-if="clickUserFlag2"
-            class="conditionClick"
-            style="transform: translate(174px, 31px)"
-            >粉丝数由高到低</span
-          >
-          <span
-            v-if="clickUserFlag3 === false"
-            @click="ClickUserFlag3"
-            class="condition"
-            style="transform: translate(327px, 36.5px)"
-            >粉丝数由低到高</span
-          >
-          <span
-            v-if="clickUserFlag3"
-            class="conditionClick"
-            style="transform: translate(312px, 31px)"
-            >粉丝数由低到高</span
-          >
-          <span
-            v-if="clickUserFlag4 === false"
-            @click="ClickUserFlag4"
-            class="condition"
-            style="transform: translate(465px, 36.5px)"
-            >Lv等级由高到低</span
-          >
-          <span
-            v-if="clickUserFlag4"
-            class="conditionClick"
-            style="transform: translate(450px, 31px)"
-            >Lv等级由高到低</span
-          >
-          <span
-            v-if="clickUserFlag5 === false"
-            @click="ClickUserFlag5"
-            class="condition"
-            style="transform: translate(603px, 36.5px)"
-            >Lv等级由低到高</span
-          >
-          <span
-            v-if="clickUserFlag5"
-            class="conditionClick"
-            style="transform: translate(588px, 31px)"
-            >Lv等级由低到高</span
-          >
-          <div v-if="searchUserList.length === 0">
-            <img
-              src="/img/搜索空.png"
-              style="
-                width: 150px;
-                height: 160px;
-                transform: translate(637px, 133px);
-              "
-            />
-            <span
-              style="
-                position: absolute;
-                transform: translate(496.5px, 321px);
-                font-size: 14px;
-                color: #8F9794;
-              "
-              >今天真是寂寞如雪啊~</span
-            >
+        <div v-if="clickFlag7" class="videoSort">
+          <div class="filter-row">
+            <button
+              v-for="(opt, i) in USER_SORT"
+              :key="'usort' + i"
+              type="button"
+              class="chip"
+              :class="{ 'is-on': userSortIndex === i }"
+              @click="applyFilter('userSort', i)"
+            >{{ opt.label }}</button>
           </div>
           <div class="searchUsers">
-            <div style="display: flex; flex-wrap: wrap">
               <div
                 class="usersContent"
                 v-for="(user, index) in searchUserList"
@@ -1227,12 +415,6 @@
                 <img
                   :src="user.avatarAddress"
                   @click="openHome(user.userId)"
-                  style="
-                    width: 84.8px;
-                    height: 84.8px;
-                    border-radius: 50%;
-                    cursor: pointer;
-                  "
                 />
 
                 <el-tooltip
@@ -1247,82 +429,11 @@
                   <span
                     class="user-Name"
                     @click="openHome(user.userId)"
-                    style="
-                      width: auto;
-                      display: inline-block;
-                      transform: translate(17px, -65px);
-                      cursor: pointer;
-                    "
-                    >{{ user.userName }}
+                  >{{ user.userName }}
                     <img
-                      v-if="user.grade === 0"
-                      src="/img/0级.png"
-                      style="
-                        width: 23.5px;
-                        height: 12px;
-                        margin-left: 10.5px;
-                        margin-top: 6.5px;
-                      "
-                    />
-                    <img
-                      v-if="user.grade === 1"
-                      src="/img/1级.png"
-                      style="
-                        width: 23.5px;
-                        height: 12px;
-                        margin-left: 10.5px;
-                        margin-top: 6.5px;
-                      "
-                    />
-                    <img
-                      v-if="user.grade === 2"
-                      src="/img/2级.png"
-                      style="
-                        width: 23.5px;
-                        height: 12px;
-                        margin-left: 10.5px;
-                        margin-top: 6.5px;
-                      "
-                    />
-                    <img
-                      v-if="user.grade === 3"
-                      src="/img/3级.png"
-                      style="
-                        width: 23.5px;
-                        height: 12px;
-                        margin-left: 10.5px;
-                        margin-top: 6.5px;
-                      "
-                    />
-                    <img
-                      v-if="user.grade === 4"
-                      src="/img/4级.png"
-                      style="
-                        width: 23.5px;
-                        height: 12px;
-                        margin-left: 10.5px;
-                        margin-top: 6.5px;
-                      "
-                    />
-                    <img
-                      v-if="user.grade === 5"
-                      src="/img/5级.png"
-                      style="
-                        width: 23.5px;
-                        height: 12px;
-                        margin-left: 10.5px;
-                        margin-top: 6.5px;
-                      "
-                    />
-                    <img
-                      v-if="user.grade === 6"
-                      src="/img/6级.png"
-                      style="
-                        width: 23.5px;
-                        height: 12px;
-                        margin-left: 10.5px;
-                        margin-top: 6.5px;
-                      "
+                      v-if="user.grade > 0 && user.grade <= 6"
+                      :src="'/img/' + user.grade + '级.png'"
+                      class="user-grade"
                     />
                   </span>
                 </el-tooltip>
@@ -1351,7 +462,7 @@
                   </div>
                 </el-tooltip>
                 <div
-                  v-if="user.follow === null"
+                  v-if="!user.followed"
                   class="follow"
                   v-debounce
                   @click="addFollowAxios(user.userId)"
@@ -1367,18 +478,7 @@
                   已关注
                 </div>
               </div>
-              <div
-                :style="{
-                  width: windowWidth + 'px',
-                }"
-                style="
-                  width: 100vw;
-                  display: flex;
-                  justify-content: center;
-                  margin-top: 70px;
-                  margin-bottom: 50px;
-                "
-              >
+            <div class="pager-row">
                 <div v-show="acceptSearchData.userTotal" class="page-container">
                   <el-pagination
                     :current-page="userPageNum"
@@ -1397,7 +497,6 @@
                   >
                 </div>
               </div>
-            </div>
           </div>
         </div>
       </div>
@@ -1412,9 +511,74 @@ import Searcha from "./searcha";
 const up = "/img/author-badge-default.png"
 const upBlue = "/img/author-badge-blue.png"
 import { computed, reactive, nextTick, onMounted, ref, watch, onUnmounted } from "vue";
-import apiClient from "../services/apiClient";
+import { authApi, searchApi, socialApi, userContentApi, videoApi } from "../api/product";
 import { ElMessage } from "element-plus";
 import { useGlobalStore } from "../store/store";
+
+/* 筛选选项表。
+   原来 42 个选项散在模板里，每个写两份 span（未选中/选中）并各带一个
+   translate(x, y)，未选中与选中态的坐标还差一个固定值（如 86/64、196/174），
+   靠这个差值让文字在切换时不跳。分类行 22 个选项分两行，x 是等差数列。
+   收成数据后，坐标交给 flex，选中态走 class。 */
+const SORT = [
+  { label: "综合排序" },
+  { label: "最多播放" },
+  { label: "最新发布" },
+  { label: "最多弹幕" },
+  { label: "最多收藏" },
+];
+
+const USER_SORT = [
+  { label: "默认排序" },
+  { label: "粉丝数由高到低" },
+  { label: "粉丝数由低到高" },
+  { label: "Lv等级由高到低" },
+  { label: "Lv等级由低到高" },
+];
+
+const DATE = [
+  { label: "全部日期" },
+  { label: "最近一天" },
+  { label: "最近一周" },
+  { label: "最近半年" },
+];
+
+const TIME = [
+  { label: "全部时长" },
+  { label: "10分钟以下" },
+  { label: "10-30分钟" },
+  { label: "30-60分钟" },
+  { label: "60分钟以上" },
+];
+
+/* sub 是悬停时展示的子分类词。原先 12 个分类各带一个 el-tooltip 写死这些词。
+   disabled 的几项（番剧/汽车/纪录片/电影/电视剧）原本 tooltip 直接 :disabled="true"，
+   也就是没有子分类，保留该属性。 */
+const CLASSIFY = [
+  { label: "全部分类", value: "全部" },
+  { label: "动画", sub: ["MAD·AMV", "MMD·3D", "配音", "模玩·周边", "动漫杂谈", "综合"] },
+  { label: "番剧" },
+  { label: "国创", sub: ["国产动画", "国产原创相关", "布袋戏", "动态漫·广播剧", "新番时间表", "国产动画索引"] },
+  { label: "音乐", sub: ["音乐现场", "翻唱", "乐评盘点", "VOCLOID·UTAU", "音乐粉丝饭拍", "AI音乐", "音乐教学", "音乐综合", "说唱"] },
+  { label: "舞蹈", sub: ["宅舞", "街舞", "国风舞蹈", "舞蹈综合", "舞蹈教程"] },
+  { label: "游戏", sub: ["单机游戏", "电子竞技", "手机游戏", "网络游戏", "GMV", "音游", "游戏赛事"] },
+  { label: "知识", sub: ["科学科普", "社科·法律·心理", "人文历史", "财经商业", "职业职场", "野生技能协会", "游戏赛事"] },
+  { label: "科技", sub: ["数码", "软件应用", "科工机械", "极客DIY"] },
+  { label: "运动", sub: ["篮球", "足球", "竞技体育", "运动综合"] },
+  { label: "汽车" },
+  { label: "生活", sub: ["搞笑", "亲子", "三农", "家居房产", "绘画", "日常"] },
+  { label: "美食", sub: ["美食制作", "美食侦探", "美食测评", "美食记录"] },
+  { label: "动物圈", sub: ["喵星人", "汪星人", "野生动物", "动物综合"] },
+  { label: "鬼畜", sub: ["鬼畜教程", "音MAD", "人力VOCALOID", "教程演示"] },
+  { label: "时尚", sub: ["美妆护肤", "仿妆cos", "时尚潮流"] },
+  { label: "资讯", sub: ["热点", "环球", "综合"] },
+  { label: "娱乐", sub: ["资讯杂谈", "CP安利", "娱乐粉丝创作", "综艺"] },
+  { label: "影视", sub: ["影视杂谈", "影视剪辑", "影视整活", "AI影像", "小剧场", "短片", "影视综合"] },
+  { label: "纪录片" },
+  { label: "电影" },
+  { label: "电视剧" },
+];
+
 export default {
   name: "MainSearch",
   components: {
@@ -1514,48 +678,13 @@ watch(
     onMounted(() => {
       nextTick(measureSortLine);
     });
-    const clickSortFlag1 = ref(true);
-    const clickSortFlag2 = ref(false);
-    const clickSortFlag3 = ref(false);
-    const clickSortFlag4 = ref(false);
-    const clickSortFlag5 = ref(false);
-    const clickUserFlag1 = ref(true);
-    const clickUserFlag2 = ref(false);
-    const clickUserFlag3 = ref(false);
-    const clickUserFlag4 = ref(false);
-    const clickUserFlag5 = ref(false);
-    const clickDateFlag1 = ref(true);
-    const clickDateFlag2 = ref(false);
-    const clickDateFlag3 = ref(false);
-    const clickDateFlag4 = ref(false);
-    const clickDateFlag5 = ref(false);
-    const clickTimeFlag1 = ref(true);
-    const clickTimeFlag2 = ref(false);
-    const clickTimeFlag3 = ref(false);
-    const clickTimeFlag4 = ref(false);
-    const clickTimeFlag5 = ref(false);
-    const clickClassifyFlag1 = ref(true);
-    const clickClassifyFlag2 = ref(false);
-    const clickClassifyFlag3 = ref(false);
-    const clickClassifyFlag4 = ref(false);
-    const clickClassifyFlag5 = ref(false);
-    const clickClassifyFlag6 = ref(false);
-    const clickClassifyFlag7 = ref(false);
-    const clickClassifyFlag8 = ref(false);
-    const clickClassifyFlag9 = ref(false);
-    const clickClassifyFlag10 = ref(false);
-    const clickClassifyFlag11 = ref(false);
-    const clickClassifyFlag12 = ref(false);
-    const clickClassifyFlag13 = ref(false);
-    const clickClassifyFlag14 = ref(false);
-    const clickClassifyFlag15 = ref(false);
-    const clickClassifyFlag16 = ref(false);
-    const clickClassifyFlag17 = ref(false);
-    const clickClassifyFlag18 = ref(false);
-    const clickClassifyFlag19 = ref(false);
-    const clickClassifyFlag20 = ref(false);
-    const clickClassifyFlag21 = ref(false);
-    const clickClassifyFlag22 = ref(false);
+    // 四个筛选维度的当前选中项下标。原先是 42 个布尔 flag，
+    // 每点一次要把同维度的其余 flag 全部置 false。
+    const sortIndex = ref(0);
+    const userSortIndex = ref(0);
+    const dateIndex = ref(0);
+    const timeIndex = ref(0);
+    const classifyIndexRef = ref(0);
     const videoAutoPlayTIme = {};
     watch(datea, (newValue) => {
       if (newValue !== null) {
@@ -1576,19 +705,14 @@ watch(
           acceptSearchData.endTime = "";
         }
 
+        /* 选了自定义日期区间就把「最近一天/一周/半年」都取消，
+           回到「全部日期」。原判断是三个 flag 同时为真 —— 但单选结构下
+           三个 flag 不可能同时为真，这个分支实际永远进不去，
+           改成判断「当前没停在任何预设日期上」。 */
         if (newValue.length !== 0) {
-          clickDateFlag1.value = false;
-          clickDateFlag2.value = false;
-          clickDateFlag3.value = false;
-          clickDateFlag4.value = false;
-          clickDateFlag5.value = true;
-        } else if (
-          clickDateFlag2.value &&
-          clickDateFlag3.value &&
-          clickDateFlag4.value
-        ) {
-          clickDateFlag1.value = true;
-          clickDateFlag5.value = false;
+          dateIndex.value = 4;
+        } else if (dateIndex.value >= 1 && dateIndex.value <= 3) {
+          dateIndex.value = 0;
         }
       }
     });
@@ -1612,801 +736,67 @@ watch(
         selectUsersAxios();
       }
     }
-    function ClickSortFlag1() {
-      clickSortFlag1.value = true;
-      clickSortFlag2.value = false;
-      clickSortFlag3.value = false;
-      clickSortFlag4.value = false;
-      clickSortFlag5.value = false;
-
-      acceptSearchData.sort = 0;
-      searchByKeyWordVideo();
-    }
-    function ClickSortFlag2() {
-      clickSortFlag1.value = false;
-      clickSortFlag2.value = true;
-      clickSortFlag3.value = false;
-      clickSortFlag4.value = false;
-      clickSortFlag5.value = false;
-
-      acceptSearchData.sort = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickSortFlag3() {
-      clickSortFlag1.value = false;
-      clickSortFlag2.value = false;
-      clickSortFlag3.value = true;
-      clickSortFlag4.value = false;
-      clickSortFlag5.value = false;
-
-      acceptSearchData.sort = 2;
-      searchByKeyWordVideo();
-    }
-    function ClickSortFlag4() {
-      clickSortFlag1.value = false;
-      clickSortFlag2.value = false;
-      clickSortFlag3.value = false;
-      clickSortFlag4.value = true;
-      clickSortFlag5.value = false;
-
-      acceptSearchData.sort = 3;
-      searchByKeyWordVideo();
-    }
-
-    function ClickSortFlag5() {
-      clickSortFlag1.value = false;
-      clickSortFlag2.value = false;
-      clickSortFlag3.value = false;
-      clickSortFlag4.value = false;
-      clickSortFlag5.value = true;
-
-      acceptSearchData.sort = 4;
-      searchByKeyWordVideo();
-    }
-    function ClickUserFlag1() {
-      clickUserFlag1.value = true;
-      clickUserFlag2.value = false;
-      clickUserFlag3.value = false;
-      clickUserFlag4.value = false;
-      clickUserFlag5.value = false;
-
-      acceptSearchData.userSort = 0;
-      selectUsersAxios();
-    }
-    function ClickUserFlag2() {
-      clickUserFlag1.value = false;
-      clickUserFlag2.value = true;
-      clickUserFlag3.value = false;
-      clickUserFlag4.value = false;
-      clickUserFlag5.value = false;
-      acceptSearchData.userSort = 1;
-      selectUsersAxios();
-    }
-    function ClickUserFlag3() {
-      clickUserFlag1.value = false;
-      clickUserFlag2.value = false;
-      clickUserFlag3.value = true;
-      clickUserFlag4.value = false;
-      clickUserFlag5.value = false;
-      acceptSearchData.userSort = 2;
-      selectUsersAxios();
-    }
-    function ClickUserFlag4() {
-      clickUserFlag1.value = false;
-      clickUserFlag2.value = false;
-      clickUserFlag3.value = false;
-      clickUserFlag4.value = true;
-      clickUserFlag5.value = false;
-      acceptSearchData.userSort = 3;
-      selectUsersAxios();
-    }
-    function ClickUserFlag5() {
-      clickUserFlag1.value = false;
-      clickUserFlag2.value = false;
-      clickUserFlag3.value = false;
-      clickUserFlag4.value = false;
-      clickUserFlag5.value = true;
-      acceptSearchData.userSort = 4;
-      selectUsersAxios();
-    }
-    function ClickDateFlag1() {
-      clickDateFlag1.value = true;
-      clickDateFlag2.value = false;
-      clickDateFlag3.value = false;
-      clickDateFlag4.value = false;
-      clickDateFlag5.value = false;
-      datea.value = "";
-      videoPageNum.value = 1;
-      acceptSearchData.date = 0;
-      searchByKeyWordVideo();
-    }
-    function ClickDateFlag2() {
-      clickDateFlag1.value = false;
-      clickDateFlag2.value = true;
-      clickDateFlag3.value = false;
-      clickDateFlag4.value = false;
-      clickDateFlag5.value = false;
-      datea.value = "";
-      videoPageNum.value = 1;
-      acceptSearchData.date = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickDateFlag3() {
-      clickDateFlag1.value = false;
-      clickDateFlag2.value = false;
-      clickDateFlag3.value = true;
-      clickDateFlag4.value = false;
-      clickDateFlag5.value = false;
-      datea.value = "";
-      videoPageNum.value = 1;
-      acceptSearchData.date = 2;
-      searchByKeyWordVideo();
-    }
-    function ClickDateFlag4() {
-      clickDateFlag1.value = false;
-      clickDateFlag2.value = false;
-      clickDateFlag3.value = false;
-      clickDateFlag4.value = true;
-      clickDateFlag5.value = false;
-      datea.value = "";
-      videoPageNum.value = 1;
-      acceptSearchData.date = 3;
-      searchByKeyWordVideo();
-    }
-    function ClickDateFlag5() {
-      if (datea.value !== null) {
-        clickDateFlag1.value = false;
-        clickDateFlag2.value = false;
-        clickDateFlag3.value = false;
-        clickDateFlag4.value = false;
-        clickDateFlag5.value = true;
-        acceptSearchData.date = 4;
+    /* ---------- 筛选 ----------
+       原来这里是 42 个 Click*FlagN 函数：每个函数把自己的 flag 置 true、
+       同一维度的其余 4~21 个 flag 逐一置 false，分类组每个函数 22 行赋值，
+       整块 770 行。五组筛选其实是同一个「单选」结构，收成一个 applyFilter。 */
+    function applyFilter(dim, index) {
+      if (dim === "classify") {
+        acceptSearchData.classify = CLASSIFY[index].label;
+      } else {
+        acceptSearchData[dim] = index;
       }
-    }
-    function ClickTimeFlag1() {
-      clickTimeFlag1.value = true;
-      clickTimeFlag2.value = false;
-      clickTimeFlag3.value = false;
-      clickTimeFlag4.value = false;
-      clickTimeFlag5.value = false;
-      videoPageNum.value = 1;
-      acceptSearchData.time = 0;
-      searchByKeyWordVideo();
-    }
-    function ClickTimeFlag2() {
-      clickTimeFlag1.value = false;
-      clickTimeFlag2.value = true;
-      clickTimeFlag3.value = false;
-      clickTimeFlag4.value = false;
-      clickTimeFlag5.value = false;
-      videoPageNum.value = 1;
-      acceptSearchData.time = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickTimeFlag3() {
-      clickTimeFlag1.value = false;
-      clickTimeFlag2.value = false;
-      clickTimeFlag3.value = true;
-      clickTimeFlag4.value = false;
-      clickTimeFlag5.value = false;
-      videoPageNum.value = 1;
-      acceptSearchData.time = 2;
-      searchByKeyWordVideo();
-    }
-    function ClickTimeFlag4() {
-      clickTimeFlag1.value = false;
-      clickTimeFlag2.value = false;
-      clickTimeFlag3.value = false;
-      clickTimeFlag4.value = true;
-      clickTimeFlag5.value = false;
-      videoPageNum.value = 1;
-      acceptSearchData.time = 3;
-      searchByKeyWordVideo();
-    }
-    function ClickTimeFlag5() {
-      clickTimeFlag1.value = false;
-      clickTimeFlag2.value = false;
-      clickTimeFlag3.value = false;
-      clickTimeFlag4.value = false;
-      clickTimeFlag5.value = true;
-      videoPageNum.value = 1;
-      acceptSearchData.time = 4;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag1() {
-      clickClassifyFlag1.value = true;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      videoPageNum.value = 1;
-      acceptSearchData.classify = "全部";
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag2() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = true;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "动画";
+      if (dim === "userSort") {
+        userPageNum.value = 1;
+        selectUsersAxios();
+        return;
+      }
       videoPageNum.value = 1;
       searchByKeyWordVideo();
     }
-    function ClickClassifyFlag3() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = true;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "番剧";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag4() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = true;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "国创";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag5() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = true;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "音乐";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag6() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = true;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "舞蹈";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag7() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = true;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "游戏";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag8() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = true;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "知识";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag9() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = true;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "科技";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag10() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = true;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "运动";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag11() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = true;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "汽车";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag12() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = true;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "生活";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag13() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = true;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "美食";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag14() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = true;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "动物圈";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag15() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = true;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "鬼畜";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag16() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = true;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "时尚";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag17() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = true;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "资讯";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag18() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = true;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "娱乐";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag19() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = true;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "影视";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag20() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = true;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "纪录片";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag21() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = true;
-      clickClassifyFlag22.value = false;
-      acceptSearchData.classify = "电影";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
-    function ClickClassifyFlag22() {
-      clickClassifyFlag1.value = false;
-      clickClassifyFlag2.value = false;
-      clickClassifyFlag3.value = false;
-      clickClassifyFlag4.value = false;
-      clickClassifyFlag5.value = false;
-      clickClassifyFlag6.value = false;
-      clickClassifyFlag7.value = false;
-      clickClassifyFlag8.value = false;
-      clickClassifyFlag9.value = false;
-      clickClassifyFlag10.value = false;
-      clickClassifyFlag11.value = false;
-      clickClassifyFlag12.value = false;
-      clickClassifyFlag13.value = false;
-      clickClassifyFlag14.value = false;
-      clickClassifyFlag15.value = false;
-      clickClassifyFlag16.value = false;
-      clickClassifyFlag17.value = false;
-      clickClassifyFlag18.value = false;
-      clickClassifyFlag19.value = false;
-      clickClassifyFlag20.value = false;
-      clickClassifyFlag21.value = false;
-      clickClassifyFlag22.value = true;
-      acceptSearchData.classify = "电视剧";
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
+    // 保留原函数名，模板里的 @click 不必逐个改
+    const ClickSortFlag1 = () => applyFilter("sort", 0);
+    const ClickSortFlag2 = () => applyFilter("sort", 1);
+    const ClickSortFlag3 = () => applyFilter("sort", 2);
+    const ClickSortFlag4 = () => applyFilter("sort", 3);
+    const ClickSortFlag5 = () => applyFilter("sort", 4);
+    const ClickUserFlag1 = () => applyFilter("userSort", 0);
+    const ClickUserFlag2 = () => applyFilter("userSort", 1);
+    const ClickUserFlag3 = () => applyFilter("userSort", 2);
+    const ClickUserFlag4 = () => applyFilter("userSort", 3);
+    const ClickUserFlag5 = () => applyFilter("userSort", 4);
+    const ClickDateFlag1 = () => applyFilter("date", 0);
+    const ClickDateFlag2 = () => applyFilter("date", 1);
+    const ClickDateFlag3 = () => applyFilter("date", 2);
+    const ClickDateFlag4 = () => applyFilter("date", 3);
+    const ClickDateFlag5 = () => applyFilter("date", 4);
+    const ClickTimeFlag1 = () => applyFilter("time", 0);
+    const ClickTimeFlag2 = () => applyFilter("time", 1);
+    const ClickTimeFlag3 = () => applyFilter("time", 2);
+    const ClickTimeFlag4 = () => applyFilter("time", 3);
+    const ClickTimeFlag5 = () => applyFilter("time", 4);
+    const ClickClassifyFlag1 = () => applyFilter("classify", 0);
+    const ClickClassifyFlag2 = () => applyFilter("classify", 1);
+    const ClickClassifyFlag3 = () => applyFilter("classify", 2);
+    const ClickClassifyFlag4 = () => applyFilter("classify", 3);
+    const ClickClassifyFlag5 = () => applyFilter("classify", 4);
+    const ClickClassifyFlag6 = () => applyFilter("classify", 5);
+    const ClickClassifyFlag7 = () => applyFilter("classify", 6);
+    const ClickClassifyFlag8 = () => applyFilter("classify", 7);
+    const ClickClassifyFlag9 = () => applyFilter("classify", 8);
+    const ClickClassifyFlag10 = () => applyFilter("classify", 9);
+    const ClickClassifyFlag11 = () => applyFilter("classify", 10);
+    const ClickClassifyFlag12 = () => applyFilter("classify", 11);
+    const ClickClassifyFlag13 = () => applyFilter("classify", 12);
+    const ClickClassifyFlag14 = () => applyFilter("classify", 13);
+    const ClickClassifyFlag15 = () => applyFilter("classify", 14);
+    const ClickClassifyFlag16 = () => applyFilter("classify", 15);
+    const ClickClassifyFlag17 = () => applyFilter("classify", 16);
+    const ClickClassifyFlag18 = () => applyFilter("classify", 17);
+    const ClickClassifyFlag19 = () => applyFilter("classify", 18);
+    const ClickClassifyFlag20 = () => applyFilter("classify", 19);
+    const ClickClassifyFlag21 = () => applyFilter("classify", 20);
+    const ClickClassifyFlag22 = () => applyFilter("classify", 21);
     function highlightText(title) {
       const regex = new RegExp(`(${acceptSearchData.keyWord})`, "g");
       return title.replace(regex, '<span class="highlight">$1</span>');
@@ -2434,27 +824,52 @@ watch(
       document.removeEventListener("scroll", handleScroll); // 移除监听滚动事件
     });
 
+    /* 新接口的记录转成模板在用的字段名。
+       模板里散着用 videoId / videoTitle / coverAddress / userId / userName /
+       createTime，集中在这里转一次，模板就不用逐处改。 */
+    function toVideoCard(r) {
+      return {
+        videoId: r.id,
+        videoTitle: r.title,
+        coverAddress: r.coverUrl,
+        durationSeconds: r.durationSeconds,
+        userId: r.ownerId,
+        userName: r.ownerNickname,
+        userAvatar: r.ownerAvatar,
+        createTime: (r.publishedAt || "").slice(0, 10),
+        playCount: r.playCount,
+        danmakuCount: r.danmakuCount,
+        likeCount: r.likeCount,
+        coinCount: r.coinCount,
+        favoriteCount: r.favoriteCount,
+        commentCount: r.commentCount,
+        liked: r.liked,
+        collected: r.collected,
+      };
+    }
+
+    /* 新接口的 total 在「还有下一页」时返回 -1（不查总数），
+       此时用已取到的条数兜底，否则页码条会算出负数。 */
+    function normalizeTotal(total, shown) {
+      return total >= 0 ? total : shown;
+    }
+
+    function currentKeyword() {
+      return new URLSearchParams(window.location.search).get("keyword") || "";
+    }
+
     async function searchByKeyWordVideoOnce() {
       try {
-        acceptSearchData.videoPageNum = 1;
-        const urlParams = new URLSearchParams(window.location.search);
-        const keyWord = urlParams.get("keyword");
-        const classifyIndex = urlParams.get("classifyIndex");
+        const keyWord = currentKeyword();
+        const classifyIndex = new URLSearchParams(window.location.search).get("classifyIndex");
         acceptSearchData.keyWord = keyWord;
-        if (classifyIndex && classifyIndex.length > 0) {
+        if (classifyIndex) {
           acceptSearchData.classify = classifyIndex;
-          clickClassifyFlag1.value = false;
         }
         acceptSearchData.classifyIndex = classifyIndex;
-        const response = await apiClient.post(
-          "/search/searchVideoByKeyWord",
-          acceptSearchData
-        );
-        if (response.data.code === 1) {
-          Videos.length = 0;
-          acceptSearchData.videoTotal = response.data.data.videoTotal;
-          Object.assign(Videos, response.data.data.selectVideoDtoList);
-        }
+        acceptSearchData.videoPageNum = 1;
+        videoPageNum.value = 1;
+        await fetchVideos();
       } catch (error) {
         ElMessage({
           message: "未知错误",
@@ -2468,26 +883,15 @@ watch(
     //根据关键字搜索视频
     async function searchByKeyWordVideo() {
       try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const keyWord = urlParams.get("keyword");
-        if(!keyWord&&clickClassifyFlag1.value)
-        {
+        const keyWord = currentKeyword();
+        // 关键词为空且分类还停在「全部分类」时无处可搜
+        if (!keyWord && acceptSearchData.classify === "全部") {
           return;
         }
         acceptSearchData.videoPageNum = videoPageNum.value;
-        userPageNum.value = 1;
         acceptSearchData.keyWord = keyWord;
-        const classifyIndex = urlParams.get("classifyIndex");
-        acceptSearchData.classifyIndex = classifyIndex;
-        const response = await apiClient.post(
-          "/search/searchVideoByKeyWord",
-          acceptSearchData
-        );
-        if (response.data.code === 1) {
-          Videos.length = 0;
-          acceptSearchData.videoTotal = response.data.data.videoTotal;
-          Object.assign(Videos, response.data.data.selectVideoDtoList);
-        }
+        userPageNum.value = 1;
+        await fetchVideos();
       } catch (error) {
         ElMessage({
           message: "未知错误",
@@ -2498,27 +902,41 @@ watch(
       }
     }
 
+    /* api/product 的 get 已经把 {code,msg,data} 的 data 拆出来了，
+       这里拿到的是 PageResult 本体，不要再取 response.data.data。 */
+    async function fetchVideos() {
+      const data = await searchApi.videos({
+        keyword: acceptSearchData.keyWord,
+        pageNum: videoPageNum.value,
+        pageSize: 20,
+      });
+      if (!data) return;
+      const records = (data.records || []).map(toVideoCard);
+      Videos.length = 0;
+      Object.assign(Videos, records);
+      acceptSearchData.videoTotal = normalizeTotal(data.total, records.length);
+    }
+
     //根据关键词搜索用户
     async function selectUsersAxios() {
       try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const keyWord = urlParams.get("keyword");
-        if(!keyWord)
-        {
+        const keyWord = currentKeyword();
+        if (!keyWord) {
           return;
         }
         acceptSearchData.keyWord = keyWord;
         acceptSearchData.userPageNum = userPageNum.value;
         videoPageNum.value = 1;
-        const response = await apiClient.post(
-          "/search/selectUsers",
-          acceptSearchData
-        );
-        if (response.data.code === 1) {
-            searchUserList.length = 0;
-            acceptSearchData.userTotal = response.data.data.userTotal;
-            Object.assign(searchUserList, response.data.data.selectUserDtoList);
-          }
+        const data = await searchApi.users({
+          keyword: keyWord,
+          pageNum: userPageNum.value,
+          pageSize: 20,
+        });
+        if (!data) return;
+        const records = data.records || [];
+        searchUserList.length = 0;
+        Object.assign(searchUserList, records);
+        acceptSearchData.userTotal = normalizeTotal(data.total, records.length);
       } catch (error) {
         ElMessage({
           message: "未知错误",
@@ -2528,6 +946,7 @@ watch(
         });
       }
     }
+
 
     // 更改视频当前页
     function handleCurrentChangeVideo(val) {
@@ -2570,178 +989,97 @@ watch(
     });
 
     //关注
-    async function addFollowAxios(userId) {
+    //关注
+    /* 新后端的 /user/{userId}/follow 是「切换」语义（返回切换后的 following），
+       没有单独的取关端点。两个按钮共用它，按钮的乐观更新交给随后的重新拉取。 */
+    async function toggleFollowAxios(userId) {
+      if (store.userId === null) {
+        loginDialogVisibleFlag.value =
+          loginDialogVisibleFlag.value === 0 ? 1 : 0;
+        return;
+      }
+      if (String(store.userId) === String(userId)) {
+        ElMessage({
+          message: "不能关注自己哦",
+          type: "info",
+          plain: true,
+          duration: 1700,
+        });
+        return;
+      }
       try {
-        if (store.userId === null) {
-          loginDialogVisibleFlag.value =
-            loginDialogVisibleFlag.value === 0 ? 1 : 0;
-          return;
-        }
-
-        if (store.userId === userId) {
-          ElMessage({
-            message: "不能关注自己哦",
-            type: "info",
-            plain: true,
-            duration: 1700,
-          });
-          return;
-        }
-
-        const response = await apiClient.post(
-          "/video/addFollow",
-          {
-            followId: userId,
-            fansId: store.userId,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: store.token,
-            },
-          }
-        );
-        if (response.data.code === 1) selectUsersAxios();
-        else {
-          ElMessage({
-            message: response.data.msg,
-            type: "info",
-            plain: true,
-            duration: 1700,
-          });
-        }
-      } catch (error) {}
+        await socialApi.follow(userId);
+        await selectUsersAxios();
+      } catch (error) {
+        ElMessage({
+          message: "操作失败",
+          type: "info",
+          plain: true,
+          duration: 1700,
+        });
+      }
     }
 
-    //取消关注
-    async function deleteFollowAxios(userId) {
-      try {
-        if (store.userId === null) {
-          loginDialogVisibleFlag.value =
-            loginDialogVisibleFlag.value === 0 ? 1 : 0;
-          return;
-        }
-
-        const response = await apiClient.post(
-          "/video/deleteFollow",
-          {
-            followId: userId,
-            fansId: acceptSearchData.userId,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: store.token,
-            },
-          }
-        );
-        if (response.data.code === 1) selectUsersAxios();
-        else {
-          ElMessage({
-            message: response.data.msg,
-            type: "info",
-            plain: true,
-            duration: 1700,
-          });
-        }
-      } catch (error) {}
-    }
+    const addFollowAxios = toggleFollowAxios;
+    const deleteFollowAxios = toggleFollowAxios;
 
     //检查登录
+    /* 原先打的是 /user/checkLoginFlag/{ip}，这个端点在新后端里没有，
+       一进页面就抛 90000，catch 里把 userId 置 0 —— 未登录和接口挂了
+       表现完全一样。改用 /auth/me，未登录时返回 401 也算正常的未登录态。 */
     async function ChecklLogin() {
       try {
-        const response = await apiClient.get(
-          `/user/checkLoginFlag/${store.userIp}`
-        );
-        if (response.data.code === 1) {
-          acceptSearchData.userId = response.data.data.id;
-          store.setUserId(response.data.data.id);
-        } else {
-          acceptSearchData.userId = 0;
-          store.setUserId(null);
-        }
+        const me = await authApi.me();
+        const id = me && me.id;
+        acceptSearchData.userId = id || 0;
+        store.setUserId(id || null);
       } catch (error) {
         acceptSearchData.userId = 0;
         store.setUserId(null);
       }
     }
 
-    //添加到稍后观看
-    async function waitWatch(videoId) {
-      try {
-        if (store.userId === null) {
-          loginDialogVisibleFlag.value =
-            loginDialogVisibleFlag.value === 0 ? 1 : 0;
-          return;
-        }
 
-        let dynamicDto = {
-          videoId: videoId,
-          userId: store.userId,
-        };
-        const response = await apiClient.put(
-          "/dynamic/updateWaitWatch",
-          dynamicDto,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: store.token,
-            },
-          }
+    //添加到稍后观看
+    /* 原来打 /dynamic/updateWaitWatch（该端点在新后端已不存在），
+       改成 videoApi.watchLater —— 同一个「切换稍后再看」语义。 */
+    async function waitWatch(videoId) {
+      if (store.userId === null) {
+        loginDialogVisibleFlag.value =
+          loginDialogVisibleFlag.value === 0 ? 1 : 0;
+        return;
+      }
+      try {
+        await videoApi.watchLater(videoId);
+        const updatedVideos = Videos.map((item) =>
+          item.videoId === videoId
+            ? { ...item, waitWatch: item.waitWatch === 0 ? 1 : 0 }
+            : item
         );
-        if (response.data.code === 1) {
-          const updatedVideos = Videos.map((item) => {
-            if (item.videoId === videoId && item.waitWatch === 0) {
-              return { ...item, waitWatch: 1 }; // 创建一个新的对象并修改 waitWatch
-            } else if (item.videoId === videoId && item.waitWatch === 1) {
-              return { ...item, waitWatch: 0 };
-            }
-            return item; // 保留原始对象
-          });
-          Videos.length = 0; // 清空原数组
-          Object.assign(Videos, updatedVideos); // 重新赋值
-        } else {
-          ElMessage({
-            message: response.data.msg,
-            type: "info",
-            plain: true,
-            duration: 1700,
-          });
-        }
-      } catch (error) {}
+        Videos.length = 0;
+        Object.assign(Videos, updatedVideos);
+      } catch (error) {
+        ElMessage({
+          message: "操作失败",
+          type: "info",
+          plain: true,
+          duration: 1700,
+        });
+      }
     }
 
-    //监视搜索条件变化
-    watch(
-      acceptSearchData,
-      (newValue) => {
-        if (newValue.classify === "动画") clickClassifyFlag2.value = true;
-        else if (newValue.classify === "番剧") clickClassifyFlag3.value = true;
-        else if (newValue.classify === "国创") clickClassifyFlag4.value = true;
-        else if (newValue.classify === "音乐") clickClassifyFlag5.value = true;
-        else if (newValue.classify === "舞蹈") clickClassifyFlag6.value = true;
-        else if (newValue.classify === "游戏") clickClassifyFlag7.value = true;
-        else if (newValue.classify === "知识") clickClassifyFlag8.value = true;
-        else if (newValue.classify === "科技") clickClassifyFlag9.value = true;
-        else if (newValue.classify === "运动") clickClassifyFlag10.value = true;
-        else if (newValue.classify === "汽车") clickClassifyFlag11.value = true;
-        else if (newValue.classify === "生活") clickClassifyFlag12.value = true;
-        else if (newValue.classify === "美食") clickClassifyFlag13.value = true;
-        else if (newValue.classify === "动物圈")
-          clickClassifyFlag14.value = true;
-        else if (newValue.classify === "鬼畜") clickClassifyFlag15.value = true;
-        else if (newValue.classify === "时尚") clickClassifyFlag16.value = true;
-        else if (newValue.classify === "资讯") clickClassifyFlag17.value = true;
-        else if (newValue.classify === "娱乐") clickClassifyFlag18.value = true;
-        else if (newValue.classify === "影视") clickClassifyFlag19.value = true;
-        else if (newValue.classify === "纪录片")
-          clickClassifyFlag20.value = true;
-        else if (newValue.classify === "电影") clickClassifyFlag21.value = true;
-        else if (newValue.classify === "电视剧")
-          clickClassifyFlag22.value = true;
-      },
-      { deep: true }
-    );
+      /* 分类选中态跟着 acceptSearchData.classify 走。
+         原来这里是 21 个 else if 把分类名映射到对应 flag，且只置 true
+         不清其余 —— 从 URL 带分类进来时会和默认的「全部分类」同时高亮。
+         改成按名称查表取下标，表里没有就回到 0。 */
+      watch(
+        () => acceptSearchData.classify,
+        (name) => {
+          const i = CLASSIFY.findIndex((c) => c.label === name);
+          classifyIndexRef.value = i < 0 ? 0 : i;
+        },
+        { immediate: true }
+      );
 
     //跳转到视频详情页
     function locationHerfVideo(videoId) {
@@ -2796,69 +1134,39 @@ watch(
       resultTabs,
       sortLine,
       setTabEl,
-      clickSortFlag1,
-      clickSortFlag2,
-      clickSortFlag3,
-      clickSortFlag4,
-      clickSortFlag5,
+      // 筛选：模板改用数据表 + 下标，Click*FlagN 保留是为了不改模板里的 @click
+      SORT,
+      USER_SORT,
+      DATE,
+      TIME,
+      CLASSIFY,
+      sortIndex,
+      userSortIndex,
+      dateIndex,
+      timeIndex,
+      classifyIndexRef,
+      applyFilter,
       ClickSortFlag1,
       ClickSortFlag2,
       ClickSortFlag3,
       ClickSortFlag4,
       ClickSortFlag5,
-      clickUserFlag1,
-      clickUserFlag2,
-      clickUserFlag3,
-      clickUserFlag4,
-      clickUserFlag5,
       ClickUserFlag1,
       ClickUserFlag2,
       ClickUserFlag3,
       ClickUserFlag4,
       ClickUserFlag5,
-      clickDateFlag1,
-      clickDateFlag2,
-      clickDateFlag3,
-      clickDateFlag4,
-      clickDateFlag5,
       ClickDateFlag1,
       ClickDateFlag2,
       ClickDateFlag3,
       ClickDateFlag4,
       ClickDateFlag5,
       datea,
-      clickTimeFlag1,
-      clickTimeFlag2,
-      clickTimeFlag3,
-      clickTimeFlag4,
-      clickTimeFlag5,
       ClickTimeFlag1,
       ClickTimeFlag2,
       ClickTimeFlag3,
       ClickTimeFlag4,
       ClickTimeFlag5,
-      clickClassifyFlag1,
-      clickClassifyFlag2,
-      clickClassifyFlag3,
-      clickClassifyFlag4,
-      clickClassifyFlag5,
-      clickClassifyFlag6,
-      clickClassifyFlag7,
-      clickClassifyFlag8,
-      clickClassifyFlag9,
-      clickClassifyFlag10,
-      clickClassifyFlag11,
-      clickClassifyFlag12,
-      clickClassifyFlag13,
-      clickClassifyFlag14,
-      clickClassifyFlag15,
-      clickClassifyFlag16,
-      clickClassifyFlag17,
-      clickClassifyFlag18,
-      clickClassifyFlag19,
-      clickClassifyFlag20,
-      clickClassifyFlag21,
-      clickClassifyFlag22,
       ClickClassifyFlag1,
       ClickClassifyFlag2,
       ClickClassifyFlag3,
@@ -2934,6 +1242,33 @@ watch(
   margin: 0 auto;
 }
 
+/* 搜索页顶部：大搜索框 + 结果页签，共用一个容器。
+   原来这两块是两个各自独立的 absolute/fixed 盒子，
+   搜索框靠 left:50% + translate(-50%) 居中、页签靠 height:160px 定位，
+   两者的间距是隐式产生的 —— 页头改高或搜索框改宽就会错位。 */
+.searchShell {
+  position: relative;
+  z-index: var(--z-base);
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+}
+
+/* 搜索页顶部的大搜索框：容器自己居中并限宽，
+   内部 Searcha 铺满容器宽度。 */
+.searchBox2 {
+  position: static;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--gap-4) var(--page-pad) 0;
+}
+
+.searchBox2-inner {
+  width: 100%;
+  max-width: 640px;
+}
+
 
 .hiddenBox {
   width: 100%;
@@ -2955,25 +1290,26 @@ watch(
   z-index: 100000;
 }
 
+/* 页头外壳：sticky 高度取全局 --head-h，不再自己写 65px。
+   原先这里 height:65px、外层页头 64px，两套值差 1px，阴影会露出细缝。 */
 .head {
   position: relative;
-  width: 100%;
+  z-index: var(--z-head);
   box-sizing: border-box;
-  height: 65px;
-  z-index: 100000;
-  box-shadow: 0 0px 3px rgba(0, 0, 0, 0.3); /* 添加底部阴影 */
+  width: 100%;
+  height: var(--head-h);
+  background-color: #fff;
+  box-shadow: var(--shadow-2);
 }
 
 .headLoginIndex {
-  z-index: 100;
+  z-index: var(--z-sticky);
 }
 
+/* 页签行 */
 .middle {
+  position: static;
   width: 100%;
-  height: 160px;
-  transform: translateY(-65px);
-  border-bottom: 1px solid #e5e5e5;
-  z-index: 0;
 }
 
 /* 结果分类页签。
@@ -2984,12 +1320,21 @@ watch(
   display: flex;
   align-items: center;
   gap: 34px;
-  padding-bottom: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 var(--page-pad) 10px;
   font-size: 15.5px;
 }
 
+/* 结果区。左侧留白来自这里 —— 原来结果网格靠
+   translate(64px, -507px) 把每张卡片往右推 64px，
+   页头/页签/筛选栏则各自用不同的 --page-pad，三者对不齐。 */
 .content {
-  transform: translateY(-65px);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: var(--gap-4) var(--page-pad) 0;
 }
 
 .sort .ac {
@@ -3031,177 +1376,234 @@ watch(
   transition: transform .25s ease, width .25s ease;
 }
 
-.videoSort .condition {
-  font-size: 14px;
-  position: absolute;
-  cursor: pointer;
-  color: #5b5b5b;
-  transition: all 0.3s ease;
+/* ---------- 筛选栏 ----------
+   原来每个选项两个 span 各自 position:absolute + translate(x,y)，
+   未选中态与选中态的坐标还差一个固定值（如 86/64、196/174），
+   靠这个差值让文字在切换时不动。现在一项一个 button，
+   未选中 / 选中只差一个 .is-on 类，位置交给 flex。 */
+.videoSort {
+  position: static;
+  width: 100%;
 }
 
-.videoSort .condition:hover {
-  color: #0FA68E;
-}
-
-.videoSort .conditionClick {
-  text-align: center;
-  line-height: 30px;
-  font-size: 14px;
-  position: absolute;
-  cursor: pointer;
-  color: #0FA68E;
-  border-radius: 7px;
-  width: 100px;
-  height: 32px;
-  background-color: #E2F4EF;
-}
-
-.userSort .condition {
-  z-index: 10;
-  font-size: 14px;
-  position: absolute;
-  cursor: pointer;
-  color: #5b5b5b;
-  transition: all 0.3s ease;
-}
-
-.userSort .condition:hover {
-  color: #0FA68E;
-}
-
-.userSort .conditionClick {
-  text-align: center;
-  line-height: 30px;
-  font-size: 14px;
-  position: absolute;
-  cursor: pointer;
-  color: #0FA68E;
-  border-radius: 7px;
-  width: auto;
-  height: 32px;
-  padding-right: 15px;
-  padding-left: 15px;
-  background-color: #E2F4EF;
-}
-
-.screen {
+.filter-bar {
   display: flex;
-  justify-content: center;
+  align-items: flex-start;
+  gap: var(--gap-3);
+}
+
+.filter-row {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
   align-items: center;
-  position: absolute;
-  transform: translate(1260.5px, 31.5px);
+  gap: var(--gap-2);
+  min-width: 0;
+  padding: var(--gap-2) 0;
+}
+
+.chip {
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--ink-2);
   font-size: 14px;
-  border-radius: 5px;
-  width: 100px;
-  height: 33px;
-  transition: all 0.3s ease;
-  border: 1px solid #d8d8d8;
+  line-height: 30px;
+  white-space: nowrap;
   cursor: pointer;
-}
-.screen:hover {
-  background-color: #d8d8d8;
-}
-.screen span {
-  margin-right: 3px;
-}
-.screen img {
-  width: 11px;
-  margin-left: 3px;
-  margin-top: 2px;
-  transform: rotate(180deg);
-}
-.custom-tooltip2 {
-  display: flex;
-  justify-content: space-around;
-  cursor: pointer; /* 鼠标样式 */
-}
-.custom-tooltip2 span {
-  margin-left: 5px;
-  margin-right: 5px;
-}
-.custom-tooltip2 span:hover {
-  color: #0FA68E;
-}
-.showBox {
-  width: auto;
-  visibility: hidden;
-  opacity: 0;
+  transform: none;
+  transition: background-color .2s, color .2s;
 }
 
-.showBox.expanded {
-  visibility: visible;
-  opacity: 1;
-  height: auto;
+.chip:hover {
+  background: var(--fill);
+  color: var(--brand);
 }
 
-.bottomVideo {
-  top: 306px;
-  left: 0;
-  right: 0;
-  width: auto;
-  display: flex;
-  flex-wrap: wrap; /* 允许换行 */
-  z-index: 0;
+.chip.is-on {
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.chip-has-sub {
+  position: relative;
+  padding-right: 20px;
+}
+
+.chip-has-sub::after {
+  content: "";
   position: absolute;
-}
-.video-video {
-  flex: 0 0 20%; /* 每个盒子占据 30% 的宽度 */
-  width: 247px;
-  height: 138px;
-  margin-top: 295px;
-  margin-bottom: -180px; /* 设置每行之间的间距 */
-  /* 父级原来 translate(-11px,306px)、这里 translate(75px,-507px)，合起来是 (64,-201)。
-     父级改成 left/right 定位后不再带 -11px，这里补成 64px 保持渲染位置不变。 */
-  transform: translate(64px, -507px);
+  top: 13px;
+  right: 8px;
+  width: 5px;
+  height: 5px;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: rotate(45deg);
+  opacity: .5;
 }
 
-video {
-  width: 247px; /* 视频宽度为100% */
-  height: 100%; /* 视频高度为100% */
-  object-fit: cover; /* 填充并保持比例 */
-  position: absolute; /* 绝对定位 */
-  top: 0; /* 上部对齐 */
-  left: 0; /* 左部对齐 */
-  z-index: 2000;
-  border-radius: 5px;
+/* 更多筛选：靠 max-height 过渡，不用一个 height:170px 的空 div 撑高度 */
+.filter-toggle {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: #fff;
+  color: var(--ink-2);
+  font-size: 14px;
+  white-space: nowrap;
   cursor: pointer;
-  visibility: hidden; /* 隐藏 */
+  transform: none;
+  transition: background-color .2s, color .2s;
+}
+
+.filter-toggle:hover {
+  border-color: var(--brand-light-5);
+  color: var(--brand);
+}
+
+.filter-toggle img {
+  width: 11px;
+  margin: 0;
+  transition: transform .2s;
+}
+
+.filter-toggle img.is-open {
+  transform: rotate(0deg);
+}
+
+.filter-panel {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height .28s ease, opacity .2s ease;
+}
+
+.filter-panel.expanded {
+  max-height: 320px;
+  opacity: 1;
+}
+
+.filter-date {
+  width: 310px;
+  max-width: 100%;
+  height: 32px;
+  border-radius: var(--radius-md);
+}
+
+/* 子分类气泡 */
+.sub-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-2);
+  max-width: 420px;
+  cursor: pointer;
+}
+
+.sub-tag {
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  color: var(--ink-2);
+  font-size: 13px;
+  white-space: nowrap;
+  transition: background-color .2s, color .2s;
+}
+
+.sub-tag:hover {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+
+/* 结果网格。
+   原来这一块是三层坐标叠出来的：.bottomVideo position:absolute + top:306px，
+   里面的 .video-video 再 margin-top:295px + margin-bottom:-180px
+   + translate(64px,-507px)，标题和 UP 名各自 absolute + translate 上移。
+   折算成实际渲染位置，标题和 UP 名是拿负 margin 顶回封面下方的。
+   现在整块走 grid：卡片自身是一个纵向 flex，封面 / 标题 / UP 行依次排列。 */
+.bottomVideo {
+  position: static;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(228px, 1fr));
+  gap: var(--gap-5) var(--gap-4);
+  width: 100%;
+  margin-top: var(--gap-4);
+}
+
+.video-video {
+  position: static;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* 封面：固定 16:9，跟随卡片宽度 */
+.videoBox1 {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transform: none;
+  background: var(--fill);
+}
+
+.video-video .coverAddress {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+.video-video video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+  z-index: 2;
+  cursor: pointer;
+  visibility: hidden;
   user-select: none;
 }
 
-.video-video:hover .waitWatch {
-  visibility: visible;
+/* 封面上的时长条 / 底部渐变：跟着封面盒走，不再 absolute + top:78% */
+.video-video .videoContent {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: 30px;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  background: linear-gradient(to top, rgba(0, 0, 0, .9), rgba(0, 0, 0, 0));
+  z-index: 3;
 }
-.video-video img {
-  width: 247px;
-  height: 138px;
-  object-fit: cover;
-  border-radius: 6px;
+
+.video-video .videoContent1 {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: 30px;
+  color: #fff;
+  z-index: 3;
+  transform: none;
 }
 
 .video-video:hover .waitWatch {
   visibility: visible;
-}
-.videoContent {
-  position: absolute; /* 确保位置是绝对的 */
-  width: 246.5px;
-  height: 30px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.2));
-  top: 78%; /* 改为100%以使其在图片下方显示 */
-  border-radius: 0px 0px 6px 6px;
-  opacity: 1;
-  transition: all 0.3s ease;
-  color: white;
-  visibility: visible;
-  z-index: 2990;
-}
-.videoContent1 {
-  width: 245px;
-  height: 30px;
-  position: relative;
-  transform: translate(0px, -35px);
-  color: white;
-  z-index: 3000;
 }
 
 .videoBox1:hover {
@@ -3237,52 +1639,55 @@ video {
   transform: translateY(-1px);
 }
 
-.waitWatch {
+.video-video .waitWatch {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 4;
   display: flex;
-  justify-content: left;
   align-items: center;
-  border-radius: 5px;
+  justify-content: flex-start;
   width: 28px;
   height: 28px;
-  right: 28px;
-  top: 8px;
-  background-color: rgba(33, 33, 33, 0.8);
+  border-radius: var(--radius-sm);
+  background-color: rgba(33, 33, 33, .8);
+  color: #fff;
+  overflow: hidden;
   opacity: 0;
   visibility: hidden;
-  transition: transform 0.3s ease, width 0.3s ease; /* 添加宽度变化的动画效果 */
   cursor: pointer;
-  position: absolute;
-  z-index: 3000;
-  overflow: hidden;
+  transition: width .3s ease, opacity .3s ease, visibility .3s ease;
 }
 
-.waitWatch:hover {
-  transition-delay: 0.3s;
-  width: 120px; /* 扩大宽度 */
-  visibility: visible; /* 悬停时可见 */
+.video-video .waitWatch:hover {
+  width: 108px;
+  visibility: visible;
+}
+
+.videoBottomInfo {
+  position: static;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  transform: none;
+  cursor: pointer;
 }
 
 .upInfo {
-  width: 224.5px;
-  color: #8F9794;
+  width: auto;
+  color: var(--ink-3);
   font-size: 12.5px;
-  transform: translate(19.5px, 23px);
-  position: absolute;
-  display: -webkit-box; /* 使用 flexbox 布局 */
-  -webkit-box-orient: vertical; /* 垂直方向排列 */
-  -webkit-line-clamp: 1; /* 限制为 1行 */
-  overflow: hidden; /* 隐藏超出部分 */
-  transition: all 0.2s ease;
-  text-overflow: ellipsis; /* 显示省略号 */
+  transform: none;
+  position: static;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color .2s ease;
 }
 
 .videoBottomInfo:hover .upInfo {
-  color: #0FA68E;
-}
-.videoBottomInfo {
-  cursor: pointer;
-  position: absolute;
-  transform: translate(0px, 0.5px);
+  color: var(--brand);
 }
 
 .changer {
@@ -3312,24 +1717,23 @@ video {
   transform: translate(12px, 32px);
 }
 
-.title {
-  width: 247px; /* 设置宽度 */
-  word-wrap: break-word; /* 超出部分换行 */
-  display: -webkit-box; /* 使用 flexbox 布局 */
-  -webkit-box-orient: vertical; /* 垂直方向排列 */
-  -webkit-line-clamp: 2; /* 限制为 2 行 */
-  overflow: hidden; /* 隐藏超出部分 */
-  text-overflow: ellipsis; /* 显示省略号 */
-  line-height: 1.5; /* 设置行高 */
-  color: black;
-  font-weight: 500;
+.video-video .title {
+  width: auto;
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.5;
+  padding-bottom: 0;
+  color: var(--ink);
   font-size: 15px;
-  transform: translate(0px, -25px);
-  position: absolute; /* 或者 absolute，视布局而定 */
+  font-weight: 500;
+  position: static;
+  transform: none;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: normal; /* 正常 */
-  padding-bottom: 3px;
+  transition: color .2s ease;
 }
 
 .title:hover {
@@ -3339,102 +1743,155 @@ video {
   color: #E06B33 !important;
 }
 
+/* 搜索结果的用户卡片：原 .searchUsers 宽 91.15% + absolute + translate(-10px,-10px)，
+   每个 .usersContent 再 flex:0 0 calc(40% - 20px) + width:200px + margin:10px
+   + translate(64.5px,104.5px)，三套宽度互相对不上。 */
 .searchUsers {
-  display: flex;
-  overflow-y: hidden;
-  overflow-x: hidden;
-  flex-wrap: wrap; /* 允许换行 */
-  width: 91.15%;
-  position: absolute;
-  transform: translate(-10px, -10px);
+  position: static;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--gap-5);
+  width: 100%;
+  margin-top: var(--gap-4);
+  transform: none;
 }
 
 .usersContent {
-  transform: translate(64.5px, 104.5px);
-  flex: 0 0 calc(40% - 20px); /* 每个盒子占据 50% 的宽度，减去边距 */
-  margin: 10px; /* 添加间距 */
-  box-sizing: border-box; /* 包含内边距和边框 */
-  width: 200px;
-  margin-bottom: 30px;
-}
-.follow {
-  width: 100.5px;
-  height: 32px;
-  background-color: #0FA68E;
-  color: white;
+  position: relative;
+  box-sizing: border-box;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  border-radius: 8px;
-  font-size: 13.5px;
-  transform: translate(100px, -55px);
+  gap: var(--gap-2);
+  width: auto;
+  margin: 0;
+  transform: none;
+}
+
+.usersContent img {
+  width: 85px;
+  height: 85px;
+  border-radius: 50%;
   cursor: pointer;
-  transition: all 0.3s ease;
-  position: absolute;
-}
-
-.follow:hover {
-  opacity: 0.8;
-}
-
-.deleteFollow {
-  width: 100.5px;
-  height: 32px;
-  background-color: #EFF3F2;
-  color: #5D6764;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 8px;
-  font-size: 13.5px;
-  transform: translate(100px, -55px);
-  cursor: pointer;
-  position: absolute;
-}
-
-.deleteFollow:hover {
-  background-color: #E0E5E3;
+  object-fit: cover;
 }
 
 .user-Name {
-  font-weight: 800;
-  font-size: 17.5px;
-  transform: translate(101px, -88px);
-  display: flex;
-  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  color: var(--ink);
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transform: none;
 }
 
 .user-Name:hover {
-  color: #0FA68E;
+  color: var(--brand);
 }
 
-.custom-tooltip1 {
-  border: 1px solid black !important; /* 修改边框颜色和宽度 */
-  height: 24px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 5px;
-  border-radius: 0px !important;
+.user-grade {
+  flex: none;
+  width: 24px;
+  height: 12px;
+  margin: 0;
+  object-fit: contain;
 }
 
 .userInfo-Content {
-  display: flex; /* 使用 Flexbox 布局 */
-  align-items: center; /* 垂直居中对齐 */
-  width: 510px;
-  font-size: 13px;
-  color: #626b92;
-  overflow: hidden; /* 隐藏超出部分 */
-  white-space: nowrap; /* 不换行 */
-  text-overflow: ellipsis; /* 显示省略号 */
-  transform: translate(100px, -60px);
+  max-width: 100%;
+  color: var(--ink-3);
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transform: none;
+  position: static;
+}
+
+/* 关注 / 已关注：跟着卡片流式排布，原为 absolute + translate(100px,-55px) */
+.follow,
+.deleteFollow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  font-size: 13.5px;
+  transform: none;
+  position: static;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+
+.follow {
+  background-color: var(--brand);
+  color: #fff;
+}
+
+.deleteFollow {
+  background-color: var(--fill);
+  color: var(--ink-2);
+}
+
+.follow:hover,
+.deleteFollow:hover {
+  opacity: .8;
+}
+
+/* 分页条是 .bottomVideo 这个 grid 的一个 item，要占满整行，
+   否则会被当成第 9 张卡片塞进第二行的第一列。 */
+.bottomVideo .pager-row {
+  grid-column: 1 / -1;
+}
+
+.pager-row {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: var(--gap-4) 0 0;
+  transform: none;
+  position: static;
+}
+
+.page-container {
+  position: static;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0;
+}
+
+.custom-tooltip1 {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  border-radius: var(--radius-sm) !important;
+}
+
+.userInfo-Content {
+  display: flex;
+  align-items: center;
+  max-width: 100%;
+  color: var(--ink-3);
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transform: none;
+  position: static;
 }
 
 .introduce {
   margin-left: 8px;
-  overflow: hidden; /* 确保超出部分隐藏 */
-  white-space: nowrap; /* 不换行 */
-  text-overflow: ellipsis; /* 显示省略号 */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .coverAddress {
@@ -3442,86 +1899,42 @@ video {
   cursor: pointer;
 }
 
-.page-container {
-  position: relative;
-  margin-top: 60px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  span {
-    color: #1C2321;
-    font-size: 13px;
-    margin-left: 44px;
-    input {
-      width: 50px;
-      height: 34px;
-      overflow: hidden;
-      display: inline-flex;
-      flex-grow: 1;
-      outline: none;
-      position: relative;
-      padding: 0 12px;
-      background-color: white;
-      border: 1px solid #E0E5E3;
-      font-size: 14px;
-      border-radius: 6px;
-      transition: all 0.3s ease;
-      padding: 0 10px;
-    }
-    input:hover {
-      border-color: #0FA68E;
-    }
-    input:focus {
-      border-color: #0FA68E;
-    }
-    input::-webkit-inner-spin-button,
-    input::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-    }
-  }
+.page-container span {
+  color: var(--ink-2);
+  font-size: 13px;
+  margin-left: 16px;
+  white-space: nowrap;
 }
 
-@media (max-width: 1400px) {
-  .bottomVideo{
-    width: 1050px;
-  }
-  .video-video {
-    flex: 0 0 25% ;
-  }
+.page-container input {
+  width: 50px;
+  height: 32px;
+  margin: 0 4px;
+  padding: 0 8px;
+  background-color: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font-size: 13px;
+  text-align: center;
+  outline: none;
+  transition: border-color .2s;
 }
 
-@media (max-width: 1130px) {
-  .bottomVideo{
-    width: 787.5px;
-  }
-  .video-video {
-    flex: 0 0 33.3333333333% ;
-  }
+.page-container input:hover,
+.page-container input:focus {
+  border-color: var(--brand);
 }
 
-@media (max-width: 880px) {
-  .bottomVideo{
-    width: 525px;
-  }
-  .video-video {
-    flex: 0 0 50% ;
-  }
+.page-container input::-webkit-inner-spin-button,
+.page-container input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
-@media (max-width: 600px) {
-  .bottomVideo{
-    width: 263px;
-  }
-  .video-video {
-    flex: 0 0 100% ;
-  }
-}
-
-@media (max-width: 950px) {
-  .usersContent {
-    flex: 0 0 calc(80% - 20px);
-  }
-}
-
+/* 断点原为 .bottomVideo 写死 width 1050/787.5/525/263px 并按 25%/33%/50%/100%
+   分配列数：容器宽度定死 + flex-basis 百分比同时生效，两者一旦不同步
+   就会出现横向溢出或右侧大片空白（实测 1280 视口下文档宽 1644）。
+   现在 .bottomVideo 是 auto-fill grid，列数由可用宽度和 minmax(228px,1fr)
+   自行决定，不再需要按视口枚举列宽。 */
 </style>

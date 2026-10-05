@@ -59,6 +59,7 @@ export const socialApi = {
 /** 搜索。 */
 export const searchApi = {
   videos: (params) => get('/search/video', params),
+  users: (params) => get('/search/user', params),
   hot: (limit = 10) => get('/search/hot', { limit }),
 };
 

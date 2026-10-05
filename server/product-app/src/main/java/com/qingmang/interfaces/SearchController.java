@@ -4,7 +4,9 @@ import com.qingmang.application.SearchService;
 import com.qingmang.common.api.ApiResponse;
 import com.qingmang.common.api.PageResult;
 import com.qingmang.interfaces.dto.SearchQuery;
+import com.qingmang.interfaces.dto.UserSearchQuery;
 import com.qingmang.interfaces.vo.KeywordVO;
+import com.qingmang.interfaces.vo.UserSearchItemVO;
 import com.qingmang.interfaces.vo.VideoListItemVO;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +29,12 @@ public class SearchController {
     @GetMapping("/video")
     public ApiResponse<PageResult<VideoListItemVO>> searchVideos(@Valid SearchQuery query) {
         return search.search(query);
+    }
+
+    /** 搜索页的「用户」结果页签。 */
+    @GetMapping("/user")
+    public ApiResponse<PageResult<UserSearchItemVO>> searchUsers(@Valid UserSearchQuery query) {
+        return search.searchUsers(query);
     }
 
     /** 搜索热榜，走 Redis 缓存。 */

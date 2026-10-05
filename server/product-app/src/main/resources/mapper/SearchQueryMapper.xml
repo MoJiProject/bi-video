@@ -34,6 +34,41 @@
         LIMIT #{limit}
     </select>
 
+    <select id="searchUsers" resultType="com.qingmang.interfaces.vo.UserSearchItemVO">
+        SELECT u.id             AS user_id,
+               u.nickname       AS user_name,
+               u.avatar_url     AS avatar_address,
+               u.level          AS grade,
+               u.signature      AS introduce,
+               COALESCE(s.video_count, 0)    AS video_number,
+               COALESCE(s.follower_count, 0) AS fans_number,
+               CASE WHEN f.id IS NULL THEN FALSE ELSE TRUE END AS followed
+        FROM `user` u
+        LEFT JOIN user_stats s ON s.user_id = u.id
+        LEFT JOIN user_follow f ON f.follower_id = #{viewerId} AND f.followee_id = u.id
+        WHERE u.deleted_at IS NULL AND u.status = 1
+          AND (u.nickname LIKE CONCAT('%', #{keyword}, '%')
+               OR u.username  LIKE CONCAT('%', #{keyword}, '%'))
+        <choose>
+            <when test="sort == 'fans_desc'">
+              ORDER BY COALESCE(s.follower_count, 0) DESC, u.id DESC
+            </when>
+            <when test="sort == 'fans_asc'">
+              ORDER BY COALESCE(s.follower_count, 0) ASC, u.id DESC
+            </when>
+            <when test="sort == 'level_desc'">
+              ORDER BY u.level DESC, u.id DESC
+            </when>
+            <when test="sort == 'level_asc'">
+              ORDER BY u.level ASC, u.id DESC
+            </when>
+            <otherwise>
+              ORDER BY u.id DESC
+            </otherwise>
+        </choose>
+        LIMIT #{offset}, #{limit}
+    </select>
+
     <select id="hotKeywords" resultType="com.qingmang.interfaces.vo.KeywordVO">
         SELECT keyword, search_count AS searchCount
         FROM search_keyword
