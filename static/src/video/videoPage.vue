@@ -5199,15 +5199,10 @@ textarea,
   box-shadow: 0 1px 4px rgba(0, 0, 0, .08);
 }
 
-/*
-  原来是 `left:-206px; top:63.5px` 这种魔法偏移来假装居中，
-  再给 .video-body 加 `position:absolute; z-index:-1000` 躲开页头。
-  改成正常的文档流 + 容器居中，页面宽度变化时不会再错位。
-*/
 .video-body-container {
   position: relative;
   width: 100%;
-  max-width: 1500px;
+  max-width: var(--page-max);
   margin: 0 auto;
   padding: var(--gap-4) var(--page-pad) 80px;
   box-sizing: border-box;
