@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div
     class="search"
     :class="{searchShowBox:showBox,headBorderFlag:head2Flag}"
@@ -48,27 +48,16 @@
 
       <div
         v-show="flag"
-        style="
-          font-size: 15.5px;
-          color: rgb(0, 0, 0);
-          margin-bottom:-3px;
-          font-weight: 900;
-          font-family: Microsoft YaHei UI Light;       
-        "
+        class="box-title"
       >
         搜索历史
       </div>
       <div
         v-show="flag && !showMore"
-        style="
-          transform: translate(0px, -20px);
-          max-height: 110px;
-          overflow: hidden;
-        "
-        id="uniqueContentHolder"
+        class="box-body is-clamped"
       >
         <div @click="ckaeanAllContent" class="cleanAllSearch">清空</div>
-        <div style="max-height: 100px">
+        <div class="history-chips">
           <div
             class="searchContentCss"
             v-for="(item, index) in reversedSearchDatas"
@@ -91,11 +80,10 @@
 
       <div
         v-show="flag && showMore"
-        style="transform: translate(0px, -20px);"
-        id="uniqueContentHolder"
+        class="box-body"
       >
         <div @click="ckaeanAllContent" class="cleanAllSearch">清空</div>
-        <div>
+        <div class="history-chips">
           <div
             class="searchContentCss"
             v-for="(item, index) in reversedSearchDatas"
@@ -134,63 +122,16 @@
         />
       </div>
       <div v-show="fireSearch.length === 10" class="searchContent">
-        <div
-          style="
-            font-size: 15.5px;
-            color: rgb(0, 0, 0);
-            margin-top: 3px;
-            font-weight: 900;
-            font-family: Microsoft YaHei UI Light;       
-          "
-        >
+        <div class="box-title">
           qingmang热搜
         </div>
         <ul class="fireSearch">
-          <li @click="sendSearchAxios(fireSearch[0]?.word)">
-            <span class="aa">1</span>
-            <span class="bb"
-              >{{ fireSearch[0]?.word }} <img src="/img/热门搜索.png"
-            /></span>
-          </li>
-          <li @click="sendSearchAxios(fireSearch[1]?.word)">
-            <span class="aa">2</span>
-            <span class="bb"
-              >{{ fireSearch[1]?.word }} <img src="/img/热门搜索.png"
-            /></span>
-          </li>
-          <li @click="sendSearchAxios(fireSearch[2]?.word)">
-            <span class="aa">3</span>
-            <span class="bb"
-              >{{ fireSearch[2]?.word }} <img src="/img/热门搜索.png"
-            /></span>
-          </li>
-          <li @click="sendSearchAxios(fireSearch[3]?.word)">
-            <span class="aa">4</span>
-            <span class="bb">{{ fireSearch[3]?.word }}</span>
-          </li>
-          <li @click="sendSearchAxios(fireSearch[4]?.word)">
-            <span class="aa">5</span>
-            <span class="bb">{{ fireSearch[4]?.word }}</span>
-          </li>
-          <li @click="sendSearchAxios(fireSearch[5]?.word)">
-            <span class="aa">6</span>
-            <span class="bb">{{ fireSearch[5]?.word }}</span>
-          </li>
-          <li @click="sendSearchAxios(fireSearch[6]?.word)">
-            <span class="aa">7</span>
-            <span class="bb">{{ fireSearch[6]?.word }}</span>
-          </li>
-          <li @click="sendSearchAxios(fireSearch[7]?.word)">
-            <span class="aa">8</span>
-            <span class="bb">{{ fireSearch[7]?.word }}</span>
-          </li>
-          <li @click="sendSearchAxios(fireSearch[8]?.word)">
-            <span class="aa">9</span>
-            <span class="bb">{{ fireSearch[8]?.word }}</span>
-          </li>
-          <li @click="sendSearchAxios(fireSearch[9]?.word)">
-            <span class="aa" style="margin-left:-1.5px; ">10</span>
-            <span class="bb">{{ fireSearch[9]?.word }}</span>
+          <li v-for="(item, i) in fireSearch" :key="i" @click="sendSearchAxios(item?.word)">
+            <span class="aa" :class="{ 'is-top': i < 3 }">{{ i + 1 }}</span>
+            <span class="bb">
+              {{ item?.word }}
+              <img v-if="i < 3" src="/img/热门搜索.png" />
+            </span>
           </li>
         </ul>
       </div>
@@ -198,80 +139,16 @@
 
     <!-- 显示的盒子 -->
     <div v-show="showBox && keyWord.length !== 0" class="box" @mousedown.stop>
-      <div style="transform: translateY(-10px)">
-        <ul class="fireSearch">
-          <li
-            @click="sendSearchAxios(Content + keyWord[0]?.word)"
-            v-show="keyWord.length >= 1"
-          >
-            <span class="cc">{{ Content }}</span>
-            <span class="dd">{{ keyWord[0]?.word }}</span>
-          </li>
-          <li
-            @click="sendSearchAxios(Content + keyWord[1]?.word)"
-            v-show="keyWord.length >= 2"
-          >
-            <span class="cc">{{ Content }}</span>
-            <span class="dd">{{ keyWord[1]?.word }}</span>
-          </li>
-          <li
-            @click="sendSearchAxios(Content + keyWord[2]?.word)"
-            v-show="keyWord.length >= 3"
-          >
-            <span class="cc">{{ Content }}</span>
-            <span class="dd">{{ keyWord[2]?.word }}</span>
-          </li>
-          <li
-            @click="sendSearchAxios(Content + keyWord[3]?.word)"
-            v-show="keyWord.length >= 4"
-          >
-            <span class="cc">{{ Content }}</span>
-            <span class="dd">{{ keyWord[3]?.word }}</span>
-          </li>
-          <li
-            @click="sendSearchAxios(Content + keyWord[4]?.word)"
-            v-show="keyWord.length >= 5"
-          >
-            <span class="cc">{{ Content }}</span>
-            <span class="dd">{{ keyWord[4]?.word }}</span>
-          </li>
-          <li
-            @click="sendSearchAxios(Content + keyWord[5]?.word)"
-            v-show="keyWord.length >= 6"
-          >
-            <span class="cc">{{ Content }}</span>
-            <span class="dd">{{ keyWord[5]?.word }}</span>
-          </li>
-          <li
-            @click="sendSearchAxios(Content + keyWord[6]?.word)"
-            v-show="keyWord.length >= 7"
-          >
-            <span class="cc">{{ Content }}</span>
-            <span class="dd">{{ keyWord[6]?.word }}</span>
-          </li>
-          <li
-            @click="sendSearchAxios(Content + keyWord[7]?.word)"
-            v-show="keyWord.length >= 8"
-          >
-            <span class="cc">{{ Content }}</span>
-            <span class="dd">{{ keyWord[7]?.word }}</span>
-          </li>
-          <li
-            @click="sendSearchAxios(Content + keyWord[8]?.word)"
-            v-show="keyWord.length >= 9"
-          >
-            <span class="cc">{{ Content }}</span>
-            <span class="dd">{{ keyWord[8]?.word }}</span>
-          </li>
-          <li
-            @click="sendSearchAxios(Content + keyWord[9]?.word)"
-            v-show="keyWord.length >= 10"
-          >
-            <span class="cc">{{ Content }}</span>
-            <span class="dd">{{ keyWord[9]?.word }}</span>
-          </li>
-        </ul>
-      </div>
+      <ul class="fireSearch">
+        <li
+          v-for="(item, i) in keyWord.slice(0, 10)"
+          :key="i"
+          @click="sendSearchAxios(Content + item?.word)"
+        >
+          <span class="cc">{{ Content }}</span>
+          <span class="dd">{{ item?.word }}</span>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -559,149 +436,86 @@ async function selectKeyWord(Value) {
 </script>
 
 <style lang="scss" scoped>
-* {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-}
-
-
+/*
+  搜索框。
+  原宽度散在三处：.search 写死 300px、.headBorderFlag .box 写死 337px、
+  .box 下拉写死 413px，导致浅色页头上输入框比容器窄一截、下拉比输入框宽 76px。
+  现在容器宽度交给父级（页头的 .hd-search > *），自身只负责内部排布。
+*/
 
 .search {
-  width: 300px;
+  position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
   height: 40px;
-  border-radius: 7px;
+  border-radius: var(--radius-md);
   background-color: var(--fill);
   border: 1px solid var(--line);
-  transition: background-color 0.2s, border-color 0.2s, opacity 0.3s;
-  position: relative; /* 设置为相对定位以便子元素绝对定位 */
-  box-shadow: none; /* 去掉阴影效果 */
   z-index: 10000;
+  transition: background-color .2s, border-color .2s, box-shadow .2s;
 }
 
 .search:hover,
 .search:focus-within {
   background-color: #fff;
   border-color: var(--brand-light-5);
+  box-shadow: 0 0 0 3px var(--brand-soft);
 }
 
-.box{
-  border-left: 1px solid #e6e7e9 !important;
-
+.search.showBox {
+  background-color: #fff;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  border-bottom-color: transparent;
+  box-shadow: none;
 }
 
-.headBorderFlag{
-  border: 1px solid #e6e7e9;
-  background-color: rgba(240, 240, 240, 0.8);
-
-  .box{
-    .searchMore{
-      transform: translate(115px, -10px);
-
-    }
-    .searchFewer{
-      transform: translate(123px, -10px);
-    }
-
-    .cleanAllSearch{
-      margin-left: 275px;
-    }
-
-
-  }
-  .search-box{
-    width: 84.4%;
-  }
-
-  .search-box:focus{
-    width: 84.4%;
-  }
-
-  .search2{
-    transform: translateX(9px);
-  }
-
-  .deleteAllSearchImg{
-      transform: translate(260px, 0px);
-    }
-
-}
-
-
-
-.searchShowBox{
-  border-radius: 7px 7px 0px 0px;
-
-}
-
-
-/* 输入框样式 */
+/* 输入框：唯一伸缩项 */
 .search-box {
-  padding: 0 10px;
-  width: 87%; /* 使搜索框宽度适应容器 */
-  height: 80%;
-  margin-top: 0px;
-  margin-left: 5px;
-  background-color: rgba(255, 255, 255, 0);
-  border: none; /* 确保没有边框 */
-  border-radius: 7px; /* 左边两个角的圆角 */
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0 8px 0 12px;
+  background: transparent;
+  border: none;
   outline: none;
-  z-index: 100;
+  color: var(--ink);
   font-size: 13px;
-  text-overflow: ellipsis;
-  z-index: 100000;
-  padding-right: 40px;
 }
 
-/* 输入框聚焦状态 */
-.search-box:focus {
-  margin-top: 0px;
-  text-overflow: ellipsis;
-  margin-left: 5px;
-  background-color: #d9dcdd; /* 完全不透明的背景 */
-  border-radius: 5px;
-  opacity: 1; /* 完全不透明 */
-  z-index: 10000;
-}
-
-/* 当 .search 或其子元素获得焦点时应用样式 */
-.search:focus-within {
-  background-color: rgba(255, 255, 255, 1); /* 完全不透明的背景 */
-  z-index: 10000;
-  opacity: 1; /* 完全不透明 */
-}
-
-/* 当鼠标悬停在 .search 上时应用样式 */
-.search:hover {
-  background-color: rgba(255, 255, 255, 1); /* 完全不透明的背景 */
-  opacity: 1; /* 完全不透明 */
-  z-index: 10000;
-}
-
-.searchboxMax{
-
-  background-color: #d9dcdd; /* 完全不透明的背景 */
-}
-
-/* 搜索图标样式 */
-.search2 {
-  margin-right: 5px;
-  transform: translate(10.5px,0px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* 清空按钮：贴输入框右缘，跟随输入宽度，不写死 translate */
+.deleteAllSearchImg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-right: 4px;
   cursor: pointer;
-  width: 30px;
-  height: 31px;
-  padding: 5px;
-  border-radius: 5px;
-  transition: all 0.3s ease;
+  transform: none;
 }
 
-.search2:hover{
-  background-color: #d9dcdd;
+/* 搜索按钮 */
+.search2 {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  cursor: pointer;
+  transform: none;
+  transition: background-color .2s;
+}
+
+.search.showBox .search2 {
+  border-radius: 0;
+}
+
+.search2:hover {
+  background-color: var(--brand-soft);
 }
 
 .search2 img {
@@ -709,76 +523,87 @@ async function selectKeyWord(Value) {
   height: 16px;
 }
 
-.headBorderFlag .box{
-  width: 337px;
-  transform: translate(-1px);
-  border: 1px solid #e6e7e9;
-  box-shadow: none;
+/* 下拉面板：宽度跟随输入框，不再写死 337 / 413px */
+.box {
+  position: absolute;
+  top: 100%;
+  left: -1px;
+  width: calc(100% + 2px);
+  max-height: 420px;
+  padding: 16px;
+  background-color: #fff;
+  border: 1px solid var(--line);
   border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  box-shadow: var(--shadow-3);
+  z-index: 10000;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transform: none;
 }
 
-/* 盒子的样式 */
-.box {
-  position: absolute; /* 绝对定位使盒子在搜索框下方 */
-  top: 100%; /* 紧贴在搜索框的下方 */
-  left: 0;
-  width: 413px;
-  height: auto;
-  background-color: white; /* 白色背景 */
-  border-radius: 0 0 7px 7px; /* 只保留下边角圆角 */
-  box-shadow: 1px 1px rgba(0, 0, 0, 0.2); /* 阴影效果 */
-  z-index: 10000; /* 确保盒子在其他元素之上 */
-  padding: 18px; /* 内边距 */
-  transform: translate(0px, -3px);
-  overflow: hidden;
-  transition: all 0.3s ease;
+.box-title {
+  margin-bottom: var(--gap-3);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
 }
-.box:hover {
-  opacity: 1;
+
+.box-body {
+  margin-top: 0;
+}
+
+/* 折叠态：超出两行截断，靠 max-height 而不是 translate 上移 */
+.box-body.is-clamped {
+  max-height: 104px;
+  overflow: hidden;
+}
+
+/* 历史词条：flex 换行，宽度由内容决定 */
+.history-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .searchContentCss {
-  display: inline-flex; /* 使用 inline-flex 以便根据内容调整大小 */
-  justify-content: center;
-  align-items: center; /* 垂直居中 */
-  line-height: 20px;
-  border-radius: 5px;
-  background-color: #F4F7F6;
-  max-width: 37%; /* 允许最大宽度 */
-  width: auto; /* 自动根据内容宽度调整 */
-  cursor: pointer;
-  padding: 10px; /* 添加内边距 */
-  box-sizing: border-box; /* 包含内边距在总宽度内 */
-  transform: translate(-10px, 15px);
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 190px;
   height: 28px;
-  margin-left: 10px;
-  margin-bottom: 10px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  background-color: #f4f7f6;
+  cursor: pointer;
+  transform: none;
+  margin: 0;
+  transition: background-color .2s;
+}
+
+.searchContentCss:hover {
+  background-color: var(--brand-soft);
 }
 
 .searchContentCss .searchContentFontCss {
-  display: -webkit-box; /* 使用 flexbox 布局 */
-  -webkit-box-orient: vertical;
-  text-overflow: ellipsis;
-  -webkit-line-clamp: 1;
-  text-align: center;
-  max-width: 90px;
-  word-wrap: break-word;
   overflow: hidden;
-  font-size: 11.5px;
-  color: black;
-  height: 24px; /* 可以适当调整高度 */
-  transition: all 0.3s ease;
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 28px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .searchContentCss:hover .searchContentFontCss {
-  color: #0FA68E;
+  color: var(--brand);
 }
 
 .deleteSearchCss {
   position: absolute;
+  top: -6px;
+  right: -6px;
   width: 12px;
-  right: -10px;
-  top: -5px;
+  cursor: pointer;
   visibility: hidden;
 }
 
@@ -786,103 +611,104 @@ async function selectKeyWord(Value) {
   visibility: visible;
 }
 
-.searchMore {
-  cursor: pointer;
-  font-size: 11.5px;
-  color: #8D9794;
-  transform: translate(158px, -14px);
-}
-
-.searchFewer:hover {
-  color: #0FA68E;
-}
-
-.searchFewer {
-  cursor: pointer;
+/* 清空 / 展开 / 收起：行内流式排布 */
+.cleanAllSearch {
+  display: inline-block;
+  margin: 0 0 8px;
+  color: var(--ink-3);
   font-size: 12px;
-  color: #8D9794;
-  transform: translate(164px, -14px);
-  margin-top: 10px;
-  transition: all 0.3s ease;
-}
-
-.searchMore:hover {
-  color: #0FA68E;
-}
-
-.fireSearch {
-  list-style-type: none;
-}
-.fireSearch li {
-  font-size: 14px;
-  height: 38px;
-  width: 110%;
-  transform: translate(-10px);
-  padding: 10px 0px 0px 10px;
   cursor: pointer;
-  transition: all 0.3s ease;
-}
-.fireSearch li .aa {
-  position: absolute;
-  transform: translate(3px);
-}
-.fireSearch li .bb {
-  position: absolute;
-  transform: translate(25px);
-  color: black;
+  transition: color .2s;
 }
 
-li:nth-child(-n + 3) .bb img {
-  width: 14px;
-  transform: translateY(1px);
+.cleanAllSearch:hover,
+.searchMore:hover,
+.searchFewer:hover {
+  color: var(--brand);
 }
-/* 控制后七个 li */
-li:nth-last-child(-n + 6) .aa {
-  color: #8F9794;
+
+.searchMore,
+.searchFewer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 8px 0 0;
+  color: var(--ink-3);
+  font-size: 12px;
+  cursor: pointer;
+  transform: none;
+}
+
+/* 热搜榜 */
+.fireSearch {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fireSearch li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 34px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transform: none;
+  transition: background-color .2s;
 }
 
 .fireSearch li:hover {
-  background-color: #E0E5E3;
+  background-color: var(--fill);
+}
+
+.fireSearch .aa {
+  flex: none;
+  width: 18px;
+  color: var(--ink-3);
+  font-size: 13px;
+  text-align: center;
+}
+
+.fireSearch .aa.is-top {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.fireSearch .bb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  color: var(--ink-2);
+  font-size: 13px;
+  transform: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fireSearch .bb img {
+  flex: none;
+  width: 14px;
+  height: 14px;
 }
 
 .fireSearch .cc {
-  color: #DD5C24;
-  transform: translateX(30px);
+  flex: none;
+  color: var(--brand);
+  font-size: 13px;
+  transform: none;
 }
 
 .fireSearch .dd {
-  transform: translateX(29px);
-}
-
-.cleanAllSearch {
-  display: inline;
-  font-size: 11.5px;
-  color: rgb(171, 171, 171);
-  margin-left: 353px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-
-.cleanAllSearch:hover {
-  color: #0FA68E;
-}
-
-.search-icon-box{
-  z-index: 1000000;
-  transition: all 0.3s ease;
-}
-.search-icon-box:hover{
-  padding: 10px;
-  background-color: #DD5C24;
-}
-
-.deleteAllSearchImg
-{
-  width: 13.5px;
-  transform: translate(340px, 0px);
-  position: absolute;
-  z-index: 10000000000;
-  cursor: pointer;
+  min-width: 0;
+  color: var(--ink-2);
+  font-size: 13px;
+  transform: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

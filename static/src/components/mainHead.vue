@@ -1,10 +1,10 @@
 <template>
   <div class="header" v-external-link>
     <ul class="v-header-ul" :class="{ head2Flag: head2Flag }">
-      <li>
+      <li class="hd-home">
         <a class="head-li1" href="../">
           <img v-show="!head2Flag" class="icon" src="/img/首页.png" alt="首页" style="margin-top: 1px;" />
-          <img v-show="head2Flag" class="h-logo" src="/img/logo.png" alt="首页" style="width: 60px;margin-top: 2px;margin-right: 23px;animation: none;transform: translate(-2px);"/>
+          <img v-show="head2Flag" class="h-logo" src="/img/logo.png" alt="首页" style="animation: none;transform: none;" />
             首页
           <img v-show="head2Flag" src="/img/头首页.png" class="head-home" />
           </a
@@ -29,9 +29,9 @@
           下载客户端</a
         >
       </li>
-      <li>
-        <search v-if="!searchFlag" class="hd-search head-search" :head2Flag="head2Flag" :class="{ head2SearchFlag: head2Flag } "/>
-        <div v-if="searchFlag" class="head-search" :class="{ head2SearchFlag: head2Flag } "></div>
+      <li class="hd-search">
+        <search v-if="!searchFlag" class="head-search head-search-inner" :head2Flag="head2Flag" />
+        <div v-if="searchFlag" class="head-search head-search-inner"></div>
       </li>
       <li class="hd-user">
         <div v-if="store.userId !== null" class="avatar-container">
@@ -3005,24 +3005,17 @@ a {
   text-decoration: none;
 }
 
+/* 页头外壳：高度与 --head-h 对齐，供各页包成 sticky 容器时复用同一刻度。 */
 .header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
   width: 100%;
   max-width: var(--page-max);
-  height: 70px;
-  margin: 0 auto; /* 居中对齐 */
+  height: var(--head-h);
+  margin: 0 auto;
   padding: 0 var(--page-pad);
-  box-sizing: border-box;
-  display: flex;
-  position: relative;
-  align-items: center; /* 垂直居中对齐内容 */
-  justify-content: center;
-}
-
-.el-overlay {
-  width: 400%;
-  height: 160%;
-  display: flex;
-  transform: translate(-1310px, -120px);
 }
 
 .v-header-ul {
@@ -3445,96 +3438,26 @@ a {
   color: #0FA68E !important;
 }
 
-.v-header-ul li.hd-vip, li.hd-message, li.hd-dynamic, li.hd-collect, li.hd-history, li.hd-create a {
+/* 主导航与右侧功能区原本各写各的 translate 偏移（-2 / -3.5 / -5.5 / -6 / -7 / -9 /
+   -11 / -13px，还有 .head2Flag 变体和 margin-right:-40px），共 20 条规则靠
+   「后写的赢」层层覆盖。导航项一改数量，最后一条生效，前面 19 条变成死规则，
+   偏移也跟着错位。排版统一交给 pass3 的 flex，这里只保留层级。 */
+.v-header-ul li.hd-vip,
+.v-header-ul li.hd-message,
+.v-header-ul li.hd-dynamic,
+.v-header-ul li.hd-collect,
+.v-header-ul li.hd-history,
+.v-header-ul li.hd-create a {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  transform: translate(-3px);
-  margin-top: 5px;
 }
 
-.v-header-ul li.hd-nav {
-   transform: translate(-2px);
-}
-.v-header-ul li.hd-nav {
-   transform: translate(-3.5px);
-}
-
-.v-header-ul li.hd-nav {
-   transform: translate(-5.5px);
-}
-
-.v-header-ul li.hd-nav {
-   transform: translate(-6px);
-}
-
-.head2Flag li.hd-nav:nth-child(5){
-  transform: translate(-7px);
-}
-
-.v-header-ul li.hd-nav {
-   transform: translate(-7px);
-}
-
-.head2Flag li.hd-nav:nth-child(6){
-  transform: translate(-9px);
-}
-
-
-.v-header-ul li.hd-nav {
-   transform: translate(-9px);
-}
-
-.head2Flag li.hd-nav:nth-child(7){
-  transform: translate(-11px);
-}
-
-.v-header-ul li.hd-nav {
-   transform: translate(-11px);
-}
-
-.head2Flag li.hd-download{
-  margin-right: -40px;
-  transform: translate(-17.5px);
-}
-
-.head2Flag li.hd-nav:nth-child(8){
-  transform: translate(-13px);
-}
-
-
-.v-header-ul li.hd-user{
-   transform: translate(-8px,-2px);
-   z-index: 10000000;
-}
-
-.v-header-ul li.hd-vip{
-  transform: translate(-3px,-4px);
+.v-header-ul li.hd-user,
+.v-header-ul li.hd-vip,
+.v-header-ul li.hd-collect {
   z-index: 10000;
-}
-
-.v-header-ul li.hd-message{
-  transform: translate(-3px,-4px);
-}
-.v-header-ul li.hd-dynamic{
-  transform: translate(0px,-4px);
-}
-.v-header-ul li.hd-collect{
-  transform: translate(4.5px,-4px);
-  z-index: 10000;
-
-}
-.v-header-ul li.hd-history{
-  transform: translate(9px,-4px);
-}
-
-.v-header-ul li.hd-create{
-  transform: translate(3px,-4px);
-}
-
-.head2Flag li.hd-publish{
-  transform: translate(-3.5px);
 }
 
 .head2Flag li.hd-vip, li.hd-message, li.hd-dynamic, li.hd-collect, li.hd-history, li.hd-create{
@@ -3548,11 +3471,18 @@ a {
    position: relative;
 }
 
-.v-header-ul li.hd-vip, li.hd-message, li.hd-dynamic, li.hd-collect, li.hd-history, li.hd-create a img {
-  margin-left: 4px;
-  height: 17px;
-  width: 16px;
-  margin-bottom: 5px;
+/* 功能区图标统一 18px。原规则给这一组图标单独写 16x17 + margin-left:4px，
+   和模板里 inline 的 width:18px 打架，图标大小随 li 变体而异。 */
+.v-header-ul li.hd-vip a img,
+.v-header-ul li.hd-message a img,
+.v-header-ul li.hd-dynamic a img,
+.v-header-ul li.hd-collect a img,
+.v-header-ul li.hd-history a img,
+.v-header-ul li.hd-create a img {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  object-fit: contain;
 }
 
 .login-info2 {
@@ -4194,11 +4124,12 @@ a {
   border-radius: 0 0 5px 5px !important;
 }
 
-.head-search{
-  width: 413px;
-  height: 38.5px; 
-  margin-right: 15px;
-  transform: translate(3px);
+/* 搜索框外壳：宽度交给父级（pass3 的 .hd-search > *），自身不再定宽。
+   原来这里写死 413px，.head2SearchFlag 写死 337px，浅色页头上就比容器窄一截。 */
+.head-search {
+  width: 100%;
+  height: 40px;
+  transform: none;
 }
 
 .el-form-item{
@@ -4209,12 +4140,11 @@ a {
   font-size: 13px;
 }
 
-.head2SearchFlag{
-  top: -0.5px;
-  width: 337px;
-  height: 39px;
-  margin-right: 47px;
- 
+/* 浅色页头上的搜索框同样跟随容器宽度，不再单独定 337px */
+.head2SearchFlag {
+  width: 100%;
+  height: 40px;
+  transform: none;
 }
 
 .head-home{
@@ -4295,85 +4225,112 @@ a {
 }
 </style>
 
-<!-- header-layout-pass2 -->
+<!-- header-layout-pass3 -->
 <style>
 /*
-  页头改成流式布局。
-  原样式是 position:absolute + 每个 li 各写各的 transform 微调，
-  导航项一改数量就整体错位。这里不再依赖任何固定偏移：
-  容器 flex 居中、条目按内容宽度排、图标统��� 18px、文字 13px。
+  页头排版（pass3）。
+
+  pass2 把整条横轴改成了 flex，但漏了一件事：右侧功能区的 li 只写了
+  `padding: 0 9px`，内容宽度是 0；而里面的 a 有 min-width:46px，
+  于是 46px 的文字溢出到 li 之外，和右邻的入口互相压字
+  （实测 hd-vip 的 li 宽 18px、里面的 a 宽 48px）。
+  下面这套规则让 li 宽度由内容决定，并统一由 flex 分配空间：
+    左：logo + 主导航（不伸缩）
+    中：搜索框（唯一可伸缩项，两端对齐）
+    右：功能区（不伸缩）
 */
 .v-header-ul {
-  position: static !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  gap: 0 !important;
-  width: 100% !important;
-  max-width: 1400px !important;
-  height: 64px !important;
-  margin: 0 auto !important;
-  padding: 0 10px !important;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: var(--page-max);
+  height: var(--head-h);
+  margin: 0 auto;
+  padding: 0 var(--page-pad);
   box-sizing: border-box;
 }
 
+/* 三个分区：左导航 / 中搜索 / 右功能 */
 .v-header-ul > li {
-  flex: none !important;
-  position: static !important;
-  transform: none !important;
-  display: flex !important;
-  align-items: center !important;
-  height: 64px !important;
-  margin: 0 !important;
+  position: static;
+  display: flex;
+  align-items: center;
+  flex: none;
+  height: var(--head-h);
+  margin: 0;
+  transform: none;
 }
 
+/* 左：logo */
+.v-header-ul > li.hd-home {
+  flex: none;
+  padding-right: var(--gap-3);
+}
+
+.v-header-ul > li.hd-home > a {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--head-h);
+  color: var(--ink);
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+/* 左：主导航与下载入口 */
 .v-header-ul > li.hd-nav,
 .v-header-ul > li.hd-download {
-  padding: 0 9px !important;
+  padding: 0 8px;
 }
 
 .v-header-ul > li.hd-nav > a,
 .v-header-ul > li.hd-download > a {
-  display: flex !important;
-  align-items: center !important;
-  gap: 4px !important;
-  height: 64px !important;
-  font-size: 14px !important;
-  color: var(--ink-2) !important;
-  white-space: nowrap !important;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--head-h);
+  color: var(--ink-2);
+  font-size: 14px;
+  white-space: nowrap;
   transition: color .18s ease;
 }
 
 .v-header-ul > li.hd-nav > a:hover,
 .v-header-ul > li.hd-download > a:hover {
-  color: var(--brand) !important;
+  color: var(--brand);
 }
 
-.v-header-ul > li.hd-search,
-.v-header-ul > li.hd-user {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  padding: 0 12px !important;
+/* 中：搜索框。整条横轴只有这一项允许伸缩 */
+.v-header-ul > li.hd-search {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0 var(--gap-4);
 }
 
 .v-header-ul > li.hd-search > * {
-  width: 100% !important;
-  max-width: 420px !important;
+  width: 100%;
+  max-width: 420px;
 }
 
+/* 右：头像 / 登录 */
 .v-header-ul > li.hd-user {
-  flex: 0 0 auto !important;
-  justify-content: flex-end !important;
+  flex: none;
+  justify-content: flex-end;
+  padding-right: var(--gap-2);
 }
 
-/* 右侧功能区：图标在上、文字在下，等宽对齐 */
+/* 右：功能区入口，图标在上文字在下。
+   关键修复：这里给 a 显式宽度基准并让 li 跟着内容走，
+   修掉 pass2 里 li 宽 18px / a 宽 48px 造成的压字。 */
 .v-header-ul > li.hd-vip,
 .v-header-ul > li.hd-message,
 .v-header-ul > li.hd-dynamic,
 .v-header-ul > li.hd-collect,
 .v-header-ul > li.hd-history,
 .v-header-ul > li.hd-create {
-  padding: 0 9px !important;
+  position: relative;
+  flex: none;
+  padding: 0 6px;
 }
 
 .v-header-ul > li.hd-vip > a,
@@ -4382,17 +4339,20 @@ a {
 .v-header-ul > li.hd-collect > a,
 .v-header-ul > li.hd-history > a,
 .v-header-ul > li.hd-create > a {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 3px !important;
-  min-width: 46px !important;
-  height: 64px !important;
-  font-size: 12px !important;
-  line-height: 1.1 !important;
-  color: var(--ink-2) !important;
-  white-space: nowrap !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 52px;
+  height: var(--head-h);
+  color: var(--ink-2);
+  font-size: 12px;
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
+  transform: none;
+  margin: 0;
   transition: color .18s ease;
 }
 
@@ -4402,96 +4362,121 @@ a {
 .v-header-ul > li.hd-collect > a:hover,
 .v-header-ul > li.hd-history > a:hover,
 .v-header-ul > li.hd-create > a:hover {
-  color: var(--brand) !important;
+  color: var(--brand);
 }
 
-/* 图标：全部 18px 正方形，任何比例都不变形 */
+/* 右：投稿按钮 */
+.v-header-ul > li.hd-publish {
+  flex: none;
+  padding: 0 0 0 var(--gap-3);
+}
+
+.v-header-ul > li.hd-publish .upload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 92px;
+  height: 34px;
+  margin: 0;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  transform: none;
+  transition: background .18s ease;
+}
+
+.v-header-ul > li.hd-publish .upload:hover {
+  background: var(--accent-hover);
+}
+
+.v-header-ul > li.hd-publish .upload a {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #fff;
+  transform: none;
+}
+
+/* 图标统一：功能区 18px，投稿 20px。
+   logo 例外，它靠 height 定尺寸，width 保持原比例。 */
 .v-header-ul > li img {
-  width: 18px !important;
-  height: 18px !important;
+  width: 18px;
+  height: 18px;
+  margin: 0;
   object-fit: contain;
-  margin: 0 !important;
-}
-
-.v-header-ul > li.hd-home {
-  padding-right: 6px;
-}
-
-.v-header-ul > li.hd-home > a {
-  display: flex !important;
-  align-items: center !important;
-  height: 64px !important;
 }
 
 .v-header-ul > li.hd-home img.h-logo {
-  width: auto !important;
-  height: 40px !important;
-}
-
-/* 投稿按钮固定在最后，不参与伸缩 */
-.v-header-ul > li.hd-publish {
-  padding: 0 4px 0 10px !important;
-}
-
-.v-header-ul > li.hd-publish > div,
-.v-header-ul > li.hd-publish .upload {
-  display: flex !important;
-  align-items: center !important;
+  width: auto;
+  height: 38px;
 }
 
 .v-header-ul > li.hd-publish img {
-  width: 20px !important;
-  height: 20px !important;
+  width: 20px;
+  height: 20px;
 }
 
-/* 悬浮面板：挂在所属条目下方，去掉原先靠 transparent-div 算位置的偏移 */
+.v-header-ul > li.hd-user img {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* 悬浮面板：挂在所属条目正下方，横向居中。
+   原来六个面板各写一个 translate 百分比（-55% / -52% / -48% / -65% / -64%），
+   面板宽度和触发器宽度不成比例，边缘对不齐。 */
 .v-header-ul > li .vip-introduce,
 .v-header-ul > li .message-info,
 .v-header-ul > li .dynamic-info,
-.v-header-ul > li .collect-aside,
-.v-header-ul > li .history-info {
-  position: absolute !important;
-  top: 100% !important;
-  left: 50% !important;
-  right: auto !important;
-  bottom: auto !important;
-  transform: translateX(-50%) !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  z-index: 950 !important;
+.v-header-ul > li .collect-info,
+.v-header-ul > li .history-info,
+.v-header-ul > li .login-info2 {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translateX(-50%);
+  z-index: var(--z-panel);
+  visibility: hidden;
+  opacity: 0;
 }
 
 .v-header-ul > li.hd-vip:hover .vip-introduce,
 .v-header-ul > li.hd-message:hover .message-info,
-.v-header-ul > li.hd-dynamic:hover .dynamic-info,
-.v-header-ul > li.hd-collect:hover .collect-aside,
-.v-header-ul > li.hd-history:hover .history-info,
 .v-header-ul > li.hd-message:hover .login-info2,
+.v-header-ul > li.hd-dynamic:hover .dynamic-info,
 .v-header-ul > li.hd-dynamic:hover .login-info2,
+.v-header-ul > li.hd-collect:hover .collect-info,
 .v-header-ul > li.hd-collect:hover .login-info2,
-.v-header-ul > li.hd-history:hover .login-info2,
-.v-header-ul > li.hd-user:hover .avatar,
-.v-header-ul > li.hd-user:hover .login-info {
-  visibility: visible !important;
-  opacity: 1 !important;
+.v-header-ul > li.hd-history:hover .history-info,
+.v-header-ul > li.hd-history:hover .login-info2 {
+  visibility: visible;
+  opacity: 1;
 }
 
-/* 中间的小三角指示器统一交给面板自己画 */
+/* 面板上方的小三角由面板自己画，去掉原先用来定位的 transparent-div */
 .v-header-ul > li .transparent-div,
 .v-header-ul > li .transparent-div12,
 .v-header-ul > li .transparent-div13,
 .v-header-ul > li .transparent-div14,
 .v-header-ul > li .transparent-div15,
 .v-header-ul > li .transparent-div16 {
-  position: absolute !important;
-  top: 100% !important;
-  left: 50% !important;
-  width: 20px !important;
-  height: 12px !important;
-  margin-left: -10px !important;
-  background: #fff;
-  clip-path: polygon(50% 0, 100% 100%, 0 100%) !important;
-  z-index: 960 !important;
+  display: none;
+}
+
+/* 视口收窄时先让出主导航，再让出次要入口，搜索框始终保留 */
+@media (max-width: 1400px) {
+  .v-header-ul > li.hd-download { display: none; }
+}
+
+@media (max-width: 1240px) {
+  .v-header-ul > li.hd-vip { display: none; }
+}
+
+@media (max-width: 1120px) {
+  .v-header-ul > li.hd-nav:nth-child(n + 9) { display: none; }
 }
 </style>
-<!-- /header-layout-pass2 -->
+<!-- /header-layout-pass3 -->
