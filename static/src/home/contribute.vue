@@ -308,7 +308,7 @@ watch(imgSource, () => {
   }
   .content {
     position: relative;
-    width: 1139px;
+    width: 100%;
     padding-bottom: 60px;
 
     .contribute-menu {
@@ -418,7 +418,7 @@ watch(imgSource, () => {
         }
         .no-data {
           user-select: none;
-          width: 1139px;
+          width: 100%;
           height: 50vh;
           display: flex;
           justify-content: center;

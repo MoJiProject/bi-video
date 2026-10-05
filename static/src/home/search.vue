@@ -388,7 +388,7 @@ watch(()=>store.keyword,()=>{
   }
   .content-container {
     position: relative;
-    width: 1139px;
+    width: 100%;
     padding-bottom: 60px;
 
     .search-menu {
@@ -509,7 +509,7 @@ watch(()=>store.keyword,()=>{
         }
       }
       .dynamic-item{
-        width: 1000px;
+        width: 100%;
         margin-top: 30px;
       }
       .no-more{

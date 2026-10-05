@@ -1,7 +1,6 @@
 <template>
     <div class="home">
-        <!-- 单独渲染个人资料部分 -->
-        <div v-if="!loadMore && ((store.userId!== null && store.userId === userId) || store.homeUserInformation.publicBirthday === 1)" class="home-user-info">
+                    <div v-if="!loadMore && ((store.userId!== null && store.userId === userId) || store.homeUserInformation.publicBirthday === 1)" class="home-user-info">
             <div>个人资料
                 <span v-if="store.homeUserInformation.id === store.userId" @click="openAccount">
                     编辑 
@@ -13,6 +12,7 @@
             <div><img src="/img/uid.png"> {{ store.homeUserInformation.id }}</div>
             <div v-if="store.homeUserInformation.birthday"><img src="/img/birthday.png"> {{ store.homeUserInformation?.birthday?.split(' ')[0] }}</div>
         </div>
+        <div class="home-content">
         <!-- 单独渲染加载中部分 -->
         <loadingIndicator v-show="loadMore" min-height="180px"/>
         <!-- 使用 v-for 遍历排序后的数组来渲染其他 div -->
@@ -98,6 +98,7 @@
                 </div>
                 <videoList2 :data="loveVideos" :sign="'love'"/>
             </div>
+        </div>
         </div>
     </div>
 </template>
@@ -286,16 +287,26 @@ function openAccount(){
     box-sizing: border-box;
 }
 
+.home-content{
+    min-width: 0;
+}
+
 .home{
-    top: 24px;
-    padding-left: 60px;
-    padding-bottom: 25px;
+    position: relative;
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    align-items: start;
+    gap: 0 var(--gap-5);
+    width: 100%;
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: var(--gap-5) var(--page-pad) 25px;
+
     .home-user-info{
-    position: absolute;
+    position: sticky;
+    top: 80px;
     width: 240px;
     height: 125px;
-    right: 85px;
-    top: 30px;
     z-index: 10;
     padding: 20px 16px 24px;
     background-color: #F4F7F6;
@@ -809,7 +820,7 @@ function openAccount(){
                 }
                 .no-data{
                     user-select: none;
-                    width: 1090px;
+                    width: 100%;
                     display: flex;
                     justify-content: center;
                     align-items: center;
@@ -918,7 +929,7 @@ function openAccount(){
                 }
                 .no-data{
                         user-select: none;
-                        width: 1090px;
+                        width: 100%;
                         display: flex;
                         justify-content: center;
                         align-items: center;
@@ -964,6 +975,16 @@ function openAccount(){
 }
 
 @media (max-width: 1150px) {
+  .home{
+    grid-template-columns: minmax(0, 1fr);
+
+    .home-user-info{
+      position: static;
+      width: 100%;
+      height: auto;
+    }
+  }
+
   :deep(.collect-list) {
     grid-template-columns: repeat(4, 193px) !important;
   }

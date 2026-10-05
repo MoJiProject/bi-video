@@ -220,9 +220,14 @@ function openAccount(){
 }
 
 .dynamic-container{
-    display: flex;
-    padding-left: 60px;
-    padding-top: 30px;
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr) 240px;
+    align-items: start;
+    gap: 0 var(--gap-5);
+    width: 100%;
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: var(--gap-5) var(--page-pad);
 
     .aside-container{
         position: sticky;
@@ -234,7 +239,7 @@ function openAccount(){
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin-right: 16px;
+        margin-right: 0;
 
         div{
         width: 150px;
@@ -260,11 +265,10 @@ function openAccount(){
         }
     }
     .home-user-info{
-    position: absolute;
+    position: sticky;
+    top: 80px;
     width: 240px;
     height: 125px;
-    right: 85px;
-    top: 30px;
     padding: 20px 16px 24px;
     background-color: #F4F7F6;
     border-radius: 6px;
@@ -314,7 +318,8 @@ function openAccount(){
     }
     }
     .dynamic-list{
-        width: 883px;
+        width: 100%;
+        min-width: 0;
         display: flex;
         flex-direction: column;
 
@@ -354,9 +359,38 @@ function openAccount(){
                 margin-bottom: 10px;
             }
     }
-           
-
 }
 
+/* 资料卡在中等屏先让位给列表，窄屏整体单列 */
+@media (max-width: 1200px) {
+    .dynamic-container{
+        grid-template-columns: 150px minmax(0, 1fr);
+
+        .home-user-info{
+            grid-column: 2;
+            position: static;
+            width: 100%;
+            height: auto;
+            margin-bottom: var(--gap-4);
+        }
+    }
+}
+
+@media (max-width: 860px) {
+    .dynamic-container{
+        grid-template-columns: minmax(0, 1fr);
+
+        .aside-container{
+            position: static;
+            flex-direction: row;
+            width: 100%;
+            height: auto;
+
+            div{
+                flex: 1;
+            }
+        }
+    }
+}
 
 </style>

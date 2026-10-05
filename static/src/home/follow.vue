@@ -364,7 +364,8 @@ if(res.data.code===1)
     }
     .content{
         position: relative;
-        width: 1099px;
+        width: 100%;
+        min-width: 0;
         padding-left: 20px;
         padding-bottom: 70px;
         
@@ -684,7 +685,7 @@ if(res.data.code===1)
     }
     .not-data-container{
     user-select: none;
-    width: 1139px;
+    width: 100%;
     height: 50vh;
     display: flex;
     justify-content: center;
@@ -704,7 +705,7 @@ if(res.data.code===1)
     }
     .not-login-container{
     user-select: none;
-    width: 1139px;
+    width: 100%;
     height: 50vh;
     display: flex;
     justify-content: center;
@@ -724,6 +725,36 @@ if(res.data.code===1)
     }
     }
 
+}
+
+
+/* 三列列表在中屏/窄屏逐级降列，避免固定列宽把页面撑出横向滚动条 */
+@media (max-width: 1100px) {
+  .content .follow-list-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .follow-container,
+  .fans-container {
+    flex-direction: column;
+
+    .aside {
+      position: static;
+      width: 100%;
+      height: auto;
+      margin-right: 0;
+    }
+
+    .content {
+      padding-left: 0;
+    }
+
+    .content .follow-list-container {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
 }
 
 </style>

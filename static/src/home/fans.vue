@@ -361,7 +361,8 @@ window.open(
     }
     .content{
         position: relative;
-        width: 1099px;
+        width: 100%;
+        min-width: 0;
         padding-left: 20px;
         padding-bottom: 70px;
         
@@ -685,7 +686,7 @@ window.open(
     }
     .not-data-container{
     user-select: none;
-    width: 1139px;
+    width: 100%;
     height: 50vh;
     display: flex;
     justify-content: center;
@@ -705,7 +706,7 @@ window.open(
     }
     .not-login-container{
     user-select: none;
-    width: 1139px;
+    width: 100%;
     height: 50vh;
     display: flex;
     justify-content: center;
@@ -733,6 +734,36 @@ window.open(
     }100%{
        background-color: white;
     }
+}
+
+
+/* 三列列表在中屏/窄屏逐级降列，避免固定列宽把页面撑出横向滚动条 */
+@media (max-width: 1100px) {
+  .content .fans-list-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .follow-container,
+  .fans-container {
+    flex-direction: column;
+
+    .aside {
+      position: static;
+      width: 100%;
+      height: auto;
+      margin-right: 0;
+    }
+
+    .content {
+      padding-left: 0;
+    }
+
+    .content .fans-list-container {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
 }
 
 </style>
