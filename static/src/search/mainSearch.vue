@@ -2603,13 +2603,10 @@ export default {
     }
 
     //获取用户ip和token
-    async function getUserIp() {
-      const response = await apiClient.get("/userIp/getUserIp");
-
-      if (response.data.code === 1) store.setUserIp(response.data.data.userIp);
-      store.setToken(response.data.data.token);
+    // token 由 /auth/login 返回后存在本地，这里不再向后端要 IP + token。
+    async function getUserIp(){
+      store.setUserIp("");
     }
-
     onMounted(async () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
       windowWidth.value = window.screen.width;

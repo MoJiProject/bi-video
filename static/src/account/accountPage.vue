@@ -13,7 +13,7 @@ import accountAside from "./accountAside.vue";
 import accountBody from "./accountBody.vue";
 import accountHead from "./accountHead.vue";
 import {useGlobalStore} from "../store/store";
-import {ChecklLogin,getUserIp} from '../api/user/index';
+import { ChecklLogin } from '../api/user/index';
 import { onMounted } from "vue";
 
 const backgroundImgSrc=[
@@ -46,7 +46,7 @@ onMounted(async()=>{
   store.setAccountMenu(parseInt(urlParams.get("accountMenu")) || 1,false);
   });
 
-  await getUserIpF();
+  await getUserIp();
   await ChecklLoginF();
 })
 
@@ -66,16 +66,10 @@ if (response.data.code === 1) {
 }
 
 //获取用户ip
-async function getUserIpF(){
-
-await getUserIp().then(response=>{
-if(response.data.code === 1)
-store.setUserIp(response.data.data.userIp);
-store.setToken(response.data.data.token);
-})
-
+// token 由 /auth/login 返回后存在本地，这里不再向后端要 IP + token。
+async function getUserIp(){
+  store.setUserIp("");
 }
-
 </script>
 
 <style lang="scss" scoped>

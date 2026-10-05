@@ -15,7 +15,7 @@
 <script setup>
 import mainHead from '@/components/mainHead.vue';
 import historyBody from './historyBody.vue';
-import {ChecklLogin,getUserIp} from '../api/user/index';
+import { ChecklLogin } from '../api/user/index';
 import { useGlobalStore } from '@/store/store';
 import { onMounted } from 'vue';
 
@@ -23,20 +23,15 @@ const store = useGlobalStore();
 
 onMounted(async()=>{
 
-    await getUserIpF();
+    await getUserIp();
     ChecklLoginF();
 })
 
 //获取用户ip和token
-async function getUserIpF(){
-    
-    await getUserIp().then(response => {
-        if(response.data.code === 1)
-        store.setUserIp(response.data.data.userIp);
-        store.setToken(response.data.data.token);
-    });
+// token 由 /auth/login 返回后存在本地，这里不再向后端要 IP + token。
+async function getUserIp(){
+  store.setUserIp("");
 }
-
 //检查是否登录
 async function ChecklLoginF(){
 

@@ -32,7 +32,7 @@ import love from './love.vue';
 import config from './config.vue';
 import {useGlobalStore} from "../store/store";
 import { onMounted, watch } from 'vue';
-import {ChecklLogin,getUserIp} from '../api/user/index';
+import { ChecklLogin } from '../api/user/index';
 
 const store = useGlobalStore();
 const backgroundImgSrc=[
@@ -58,7 +58,7 @@ onMounted(async()=>{
   const urlParams = new URLSearchParams(window.location.search);
   store.setMessageMenu(parseInt(urlParams.get("messageMenu")) || 1,false);
   });
-  await getUserIpF();
+  await getUserIp();
   await ChecklLoginF();
 })
 
@@ -76,16 +76,10 @@ async function ChecklLoginF(){
 }
 
 //获取用户ip
-async function getUserIpF(){
-
-   await getUserIp().then(response=>{
-    if(response.data.code === 1)
-    store.setUserIp(response.data.data.userIp);
-    store.setToken(response.data.data.token);
-    })
-
+// token 由 /auth/login 返回后存在本地，这里不再向后端要 IP + token。
+async function getUserIp(){
+  store.setUserIp("");
 }
-
 watch(()=>store.userInformation,()=>{
   
   const backgroundModel=parseInt(localStorage.getItem('backgroundModel')) || 0;
