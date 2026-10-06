@@ -286,7 +286,7 @@ function initRange() {
     selection.removeAllRanges();
     selection.addRange(range);
   } else {
-    console.warn('contentInput 或 selection 不存在');
+    ElMessage.warning('输入框或选区不可用');
   }
 }
 

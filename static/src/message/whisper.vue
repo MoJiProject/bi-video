@@ -629,7 +629,7 @@ const selectPrivateMessageF2 =async (sDialogue) => {
       dealyFlag = true;
     }
   }).catch((error) => {
-    console.log(error);
+    ElMessage.error("消息加载失败");
   });
 };
 

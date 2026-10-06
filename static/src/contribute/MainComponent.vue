@@ -1259,7 +1259,7 @@ export default {
       if (uploadRef.value) {
         uploadRef.value.$el.querySelector('input[type="file"]').click();
       } else {
-        console.error("uploadRef 为空或未正确引用");
+        ElMessage.warning("上传组件未就绪");
       }
     };
     // 手动触发视频文件选择框
@@ -1267,7 +1267,7 @@ export default {
       if (uploadRef2.value) {
         uploadRef2.value.$el.querySelector('input[type="file"]').click();
       } else {
-        console.error("uploadRef2 为空或未正确引用");
+        ElMessage.warning("上传组件未就绪");
       }
     };
     //发送请求上传视频

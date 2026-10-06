@@ -75,7 +75,7 @@ onMounted(async() => {
         await checkFollowF();
         getCollectsClassifyF();
     }catch(e){
-        console.error(e);
+        ElMessage.error("首页信息加载失败");
     }finally{
         // 无论请求是否失败都要结束加载，否则顶部进度条不会结束
         store.setHomeLoad(true,"homeHead");
