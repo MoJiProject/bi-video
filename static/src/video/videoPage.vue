@@ -60,16 +60,80 @@
           <span style="font-size: 12.5px">{{
             SelectVideoByIdVo.upVideo.createTime
           }}</span>
-          <div
+           <div
             v-if="SelectVideoByIdVo.upVideo.allowTwo === 0"
-            style="
-              font-size: 12.5px;
-              transform: translate(32px, 0px);
-              display: inline-block;
-            "
+            class="prohibition-tag"
           >
             <span class="prohibition-sign"></span>
-            <span style="margin-left: -2px">未经作者授权，禁止转载</span>
+            <span>未经作者授权，禁止转载</span>
+          </div>
+          <div class="up-user-avatar-wrapper">
+            <img
+              @click="openHome(1,SelectVideoByIdVo.upUser.id)"
+              :src="SelectVideoByIdVo.upUser?.avatarAddress"
+              class="up-user-avatar"
+              @mouseover="delayUserInfo(1)"
+              @mouseleave="delayUserInfo(0)"
+            />
+            <div
+              v-show="nameOrAvatarHoverFlag !== 0"
+              :style="{
+                transform:
+                  nameOrAvatarHoverFlag === 1
+                    ? 'translate(0px, 0px)'
+                    : 'translate(55px, -35px)',
+              }"
+              class="up-user-info"
+              @mouseover="nameOrAvatarHoverFlag2=true"
+              @mouseleave="nameOrAvatarHoverFlag2=false,delayUserInfo(0)"
+            >
+              <div v-if="!SelectVideoByIdVo.upUser.backgroundAddress" :style="{backgroundImage:'url(/img/page-bg.png)'}" class="up-user-info-bg"></div>
+              <div v-else :style="{backgroundImage:`url(${SelectVideoByIdVo.upUser.backgroundAddress})`}" class="up-user-info-bg"></div>
+              <div class="up-user-info-container">
+                <img
+                  @click="openHome(1,SelectVideoByIdVo.upUser.id)"
+                  :src="SelectVideoByIdVo.upUser?.avatarAddress"
+                  class="up-user-info-avatar"
+                />
+                <div class="up-user-info-container-header">
+                  <span
+                  @click="openHome(1,SelectVideoByIdVo.upUser.id)"
+                    class="up-user-info-name"
+                    :style="{
+                      color:
+                        SelectVideoByIdVo.upUser.grade > 4 ? '#F0A03C' : '#000',
+                    }"
+                    >{{ SelectVideoByIdVo.upUser.userName }}</span
+                  >
+                  <img
+                    v-if="SelectVideoByIdVo.upUser.gender === 1"
+                    src="/img/man.png"
+                    class="up-user-info-gender"
+                  />
+                  <img
+                    v-if="SelectVideoByIdVo.upUser.gender === 2"
+                    src="/img/woman.png"
+                    class="up-user-info-gender"
+                  />
+                  <img
+                    v-if="SelectVideoByIdVo.upUser.grade >= 6"
+                    src="/img/VIP6.gif"
+                    class="up-user-info-level"
+                  />
+                </div>
+                <div class="up-user-info-container-content">
+                  <div class="up-user-info-container-introduce">
+                    <span class="up-user-info-introduce-content">获赞数：{{ SelectVideoByIdVo.upUser.likedNumber }}</span>
+                  </div>
+                  <div class="up-user-info-container-introduce">
+                    <span class="up-user-info-introduce-content">粉丝数：{{ SelectVideoByIdVo.upUser.fansNumber }}</span>
+                  </div>
+                  <div class="up-user-info-container-introduce">
+                    <span class="up-user-info-introduce-content">关注数：{{ SelectVideoByIdVo.upUser.followNumber }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div v-if="titleShowFlag" class="expand-icon-container">
@@ -118,190 +182,6 @@
                 <span style="margin-left: -2px">未经作者授权，禁止转载</span>
               </div>
             </div>
-          </div>
-        </div>
-        <div
-          style="
-            transform: translate(0px, 22px);
-            z-index: -1;
-            position: absolute;
-            height: 55px;
-          "
-        >
-          <div
-            class="up-user-avatar-container"
-          >
-            <img
-              @click="openHome(1,SelectVideoByIdVo.upUser.id)"
-              :src="SelectVideoByIdVo.upUser?.avatarAddress"
-              class="up-user-avatar"
-              @mouseover="delayUserInfo(1)"
-              @mouseleave="delayUserInfo(0)"
-            />
-            <div
-              v-show="nameOrAvatarHoverFlag !== 0"
-              :style="{
-                transform:
-                  nameOrAvatarHoverFlag === 1
-                    ? 'translate(0px, 0px)'
-                    : 'translate(55px, -35px)',
-              }"
-              class="up-user-info"
-              @mouseover="nameOrAvatarHoverFlag2=true"
-              @mouseleave="nameOrAvatarHoverFlag2=false,delayUserInfo(0)"
-            >
-              <div v-if="!SelectVideoByIdVo.upUser.backgroundAddress" :style="{backgroundImage:'url(/img/page-bg.png)'}" class="up-user-info-bg"></div>
-              <div v-else :style="{backgroundImage:`url(${SelectVideoByIdVo.upUser.backgroundAddress})`}" class="up-user-info-bg"></div>
-              <div class="up-user-info-container">
-                <img
-                  @click="openHome(1,SelectVideoByIdVo.upUser.id)"
-                  :src="SelectVideoByIdVo.upUser?.avatarAddress"
-                  class="up-user-info-avatar"
-                />
-                <div class="up-user-info-container-header">
-                  <span
-                  @click="openHome(1,SelectVideoByIdVo.upUser.id)"
-                    class="up-user-info-name"
-                    :style="{
-                      color:
-                        SelectVideoByIdVo.upUser.grade > 4 ? '#F0A03C' : '#000',
-                    }"
-                    >{{ SelectVideoByIdVo.upUser.userName }}</span
-                  >
-                  <img
-                    v-if="SelectVideoByIdVo.upUser.gender === 1"
-                    src="/img/man.png"
-                    class="up-user-info-gender"
-                  />
-                  <img
-                    v-if="SelectVideoByIdVo.upUser.gender === 2"
-                    src="/img/man.png"
-                    class="up-user-info-gender"
-                  />
-                  <img
-                    v-if="SelectVideoByIdVo.upUser.grade"
-                    :src="'/img/' + SelectVideoByIdVo.upUser.grade + '级.png'"
-                    class="up-user-info-level"
-                  />
-                </div>
-                <div class="up-user-info-container-content">
-                  <span @click="openHome(8,SelectVideoByIdVo.upUser.id)" style="color: #8F9794; cursor: pointer"
-                    ><span style="color: black">{{
-                      SelectVideoByIdVo.upUser.followNumber
-                    }}</span>
-                    &nbsp;关注</span
-                  >
-                  <span @click="openHome(9,SelectVideoByIdVo.upUser.id)" style="margin-left: 25px; color: #8F9794; cursor: pointer"
-                    ><span style="color: black">{{
-                      SelectVideoByIdVo.upUser.fansNumber
-                    }}</span>
-                    &nbsp;粉丝</span
-                  >
-                  <span style="margin-left: 25px; color: #8F9794;"
-                    ><span style="color: black">{{
-                      SelectVideoByIdVo.upUser.likeNumber
-                    }}</span>
-                    &nbsp;获赞</span
-                  >
-                </div>
-                <div class="up-user-info-container-introduce">
-                  <span class="up-user-info-introduce-content">
-                    {{ SelectVideoByIdVo.upUser.introduce }}
-                  </span>
-                </div>
-                <div class="up-user-info-container-footer">
-                  <span
-                    v-show="SelectVideoByIdVo.isFansFlag === 0"
-                    class="up-user-info-container-footer-add-follow"
-                    v-debounce
-                    @click="addFollowAxios(SelectVideoByIdVo.upUser.id)"
-                    ><img
-                      src="/img/加关注.png"
-                      style="width: 14px; margin-right: 4px"
-                    />关注</span
-                  >
-                  <span
-                    v-show="SelectVideoByIdVo.isFansFlag === 1"
-                    class="up-user-info-container-footer-delete-follow"
-                    @click="deleteFollowAxios(SelectVideoByIdVo.upUser.id)"
-                    v-debounce
-                    @mouseover="isDeleteFollowFlag = 1"
-                    @mouseleave="isDeleteFollowFlag = 0"
-                  >
-                    <span v-show="isDeleteFollowFlag === 0">已关注</span>
-                    <span v-show="isDeleteFollowFlag === 1">取消关注</span></span
-                  >
-                  <span class="up-user-info-container-footer-message"
-                  @click="addDialogueF(SelectVideoByIdVo.upUser.id)"
-                    >发消息</span
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="up-user-header">
-            <div
-              class="up-user-name"
-              @click="openHome(1,SelectVideoByIdVo.upUser.id)"
-              @mouseover="delayUserInfo(2)"
-              @mouseleave="delayUserInfo(0)"
-              :style="{
-                color: SelectVideoByIdVo.upUser.grade > 4 ? '#F0A03C' : '#000',
-              }"
-            >
-              {{ SelectVideoByIdVo.upUser.userName }}
-            </div>
-            <span
-              class="sendMessage-container"
-              @mouseover="showSendMessageFlag = true"
-              @mouseleave="showSendMessageFlag = false"
-            >
-              <img
-                class="sendUpMessageImg"
-                :src="showSendMessageFlag ? sendMessageBlue : sendMessageGray"
-              />
-              <span class="sendUpMessage" @click="addDialogueF(SelectVideoByIdVo.upUser.id)">发消息</span>
-            </span>
-          </div>
-          <el-tooltip
-            popper-class="custom-tooltip"
-            class="dynamicContent-item-tooltip"
-            effect="light"
-            :show-after="300"
-            :content="SelectVideoByIdVo.upUser.introduce"
-            placement="left"
-            :offset="24"
-            :show-arrow="false"
-            :hide-after="0"
-          >
-            <div class="up-user-content">
-              {{ SelectVideoByIdVo.upUser.introduce }}
-            </div>
-          </el-tooltip>
-          <div id="up-power-container" class="up-power-container">
-            <img src="/img/charge.png" />
-            <span style="margin-right: 2px">充</span><span>电</span>
-          </div>
-          <div
-            v-show="SelectVideoByIdVo.isFansFlag === 0"
-            class="up-add-follow-container"
-            @click="addFollowAxios(SelectVideoByIdVo.upUser.id)"
-          >
-            <img
-              src="/img/加关注.png"
-              style="width: 12px; margin-right: 7px; margin-left: 3px"
-            />关注 {{ SelectVideoByIdVo.upUser.fansNumber }}
-          </div>
-          <div
-            v-show="SelectVideoByIdVo.isFansFlag === 1"
-            v-debounce
-            class="up-delete-follow-container"
-            @click="deleteFollowAxios(SelectVideoByIdVo.upUser.id)"
-          >
-            <img
-              src="/img/取消关注.png"
-              style="width: 12px; margin-right: 7px; margin-left: 3px"
-            />已关注 {{ SelectVideoByIdVo.upUser.fansNumber }}
           </div>
         </div>
         <div class="video-stage">
@@ -5355,9 +5235,21 @@ textarea,
 .up-user-avatar {
   width: 47px;
   border-radius: 50%;
-  display: flex;
-  transform: translate(740px, -20px);
   cursor: pointer;
+  flex-shrink: 0;
+}
+
+.up-user-avatar-wrapper {
+  position: relative;
+  margin-left: auto;
+}
+
+.prohibition-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12.5px;
+  color: #5C6664;
+  margin-right: 8px;
 }
 
 .up-user-header {
@@ -5377,15 +5269,15 @@ textarea,
 .up-user-info {
   position: absolute;
   top: 100%;
-  left: 210%;
-  transform: translate(0, 0);
+  left: 50%;
+  transform: translate(-50%, 8px);
   background-color: white;
   color: #a6acaf;
   border-radius: 10px;
   z-index: 1000;
   width: 350px;
   height: 220px;
-  border: 1px solid #d3d3d3; /* 浅灰色边框 */
+  border: 1px solid #d3d3d3;
   box-shadow: 1px 0px 5px #e5e5e5;
   overflow: hidden;
   padding-bottom: 15px;
