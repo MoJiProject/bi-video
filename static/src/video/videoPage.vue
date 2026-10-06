@@ -5324,7 +5324,6 @@ textarea,
 }
 
 .titleShowFlagCss {
-  position: absolute;
   margin-top: 10px;
 }
 
@@ -6357,12 +6356,10 @@ textarea,
 }
 
 .allowFlagcss1 {
-  position: absolute;
   margin-top: 0px;
 }
 
 .allowFlagcss2 {
-  position: absolute;
   margin-top: 10px;
 }
 
@@ -8335,11 +8332,9 @@ textarea,
 
 .video-content-container {
   position: relative;
-  top: 115px;
-  left: 9px;
   font-size: 14px;
   height: auto;
-  width: 690px;
+  width: 100%;
   color: #1C2321;
   line-height: 24px;
   padding-bottom: 5px;
@@ -8348,8 +8343,6 @@ textarea,
 .video-content-container-switch {
   position: relative;
   padding-top: 8px;
-  top: 117px;
-  left: 9px;
   font-size: 12.5px;
   line-height: 18px;
   color: #5C6664;
@@ -8368,9 +8361,7 @@ textarea,
 
 .video-tage-container {
   position: relative;
-  width: 700px;
-  top: 132px;
-  left: 9px;
+  width: 100%;
   padding-bottom: 14px;
   border-bottom: 1px solid #E0E5E3;
   span {
@@ -8609,7 +8600,7 @@ a:hover {
   flex-wrap: wrap;
   align-items: center;
   gap: 0 6px;
-  margin-top: -6px;
+  margin-top: 8px;
   color: var(--ink-3);
 }
 
