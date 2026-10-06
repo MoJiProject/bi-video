@@ -191,14 +191,20 @@ export default {
   width: 100%;
   transform: translate(-20px, -20px);
   height: auto !important;
+  padding: 20px;
+  box-sizing: border-box;
 }
 .white2 {
   transform: translate(40px, 20px);
   width: 100%;
+  max-width: 1200px;
   min-height: 1500px;
   height: auto !important;
+  margin: 0 auto;
   z-index: 10;
   background-color: white;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .title {
@@ -229,4 +235,12 @@ export default {
   transform: translate(20px, 22px) !important;
 }
 
+@media (max-width: 1100px) {
+  .main-content2 {
+    padding: 12px;
+  }
+  .white2 {
+    padding: 12px;
+  }
+}
 </style>

@@ -27,10 +27,12 @@ const store = useGlobalStore();
 
 .account-body{
   position: relative;
-  width: 832px;
+  max-width: 832px;
+  width: 100%;
   border: 1px solid #e1e2e5;
-  height: 500px;
+  min-height: 500px;
   background-color: rgba(255, 255, 255, 0.7);
+  box-sizing: border-box;
 }
 
 </style>

@@ -103,7 +103,10 @@ async function getUserIp(){
         margin-top: 50px;
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 0 var(--page-pad);
     }
 }
 

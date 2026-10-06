@@ -48,7 +48,7 @@ if(store.accountMenu!==accountMenu)
 .account-aside{
   position: relative;
   width: 150px;
-  height: 500px;
+  min-height: 500px;
   background-color: rgba(225, 226, 229,0.7);
   text-align: center;
   line-height: 50px;
@@ -58,6 +58,7 @@ if(store.accountMenu!==accountMenu)
   border-radius: 5px 0 0 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, .14);
   user-select: none;
+  flex-shrink: 0;
 
     .title{
     display: block;

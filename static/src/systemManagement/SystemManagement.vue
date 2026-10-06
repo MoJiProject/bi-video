@@ -205,6 +205,8 @@ export default {
   background-color: #f4f6f9;
   user-select: none;
   width: 98%;
+  max-width: var(--page-max);
+  margin: 0 auto;
 }
 
 /* ============ 顶部导航 ============ */

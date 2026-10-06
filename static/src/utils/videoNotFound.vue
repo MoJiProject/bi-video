@@ -37,11 +37,11 @@ import mainHead from "@/components/mainHead.vue";
     box-shadow: 0 2px 4px #00000014;
   }
   .not-found-content{
-    width: 980px;
+    max-width: var(--col-mid);
     margin: 0 auto;
     background: white;
     border-radius: 10px;
-    padding: 70px 0;
+    padding: 70px var(--page-pad);
     display: flex;
     justify-content: center;
     flex-direction: column;
@@ -50,6 +50,8 @@ import mainHead from "@/components/mainHead.vue";
     position: relative;
     overflow: hidden;
     text-align: center;
+    width: 100%;
+    box-sizing: border-box;
 
       img{
         width: 160px;

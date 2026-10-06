@@ -442,17 +442,17 @@ function deleteCheckwaitWatchF(){
 }
 
 .waitWatch-body{
-min-width: fit-content;
-background-color: white;
-padding-top: 30px;
-min-height: calc(100vh - 64px);
-max-width: 2560px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: 30px var(--page-pad) 0;
+    min-height: calc(100vh - 64px);
 
     .head{
-    width: calc(1152px);
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 35px;
+    max-width: var(--col-mid);
+    margin: 0 auto;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -552,11 +552,9 @@ max-width: 2560px;
      z-index: 900;
      width: 100%;
         .controls{
-        width: calc(1152px);
+        max-width: var(--col-mid);
         min-height: 46px;
-        padding-left: 25px;
-        margin-left: auto;
-        margin-right: auto;
+        margin: 0 auto;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -855,16 +853,21 @@ max-width: 2560px;
     .body{
      position: relative;
      display: flex;
-     justify-content: start;
+     flex-direction: column;
+     align-items: center;
      margin: 8.5px auto;
+     max-width: var(--col-mid);
+     margin-left: auto;
+     margin-right: auto;
+     width: 100%;
 
         .video-list{
         margin-top: 3px;
         margin-bottom: 60px;
-        margin-left: 185px;   
+        width: 100%;
         }
         .no-data{
-                position: absolute;
+                position: relative;
                 width: 100%;
                 user-select: none;
                 display: flex;

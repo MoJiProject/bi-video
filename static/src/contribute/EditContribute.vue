@@ -2109,20 +2109,24 @@ export default {
 .main-content4 {
   background-color: #f8f8f8;
   border-radius: 5px;
-  transform: translate(-20px, -20px);
   width: 100%;
   min-height: 1500px;
   height: auto !important;
   overflow: visible;
+  padding: 20px;
+  box-sizing: border-box;
 }
 .white {
-  transform: translate(40px, 20px);
   width: 100%;
+  max-width: 1200px;
   min-height: 1500px;
   height: auto !important;
+  margin: 0 auto;
   z-index: 10;
   background-color: white;
   overflow-x: hidden;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 h1 {

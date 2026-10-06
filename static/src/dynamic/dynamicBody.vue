@@ -1046,25 +1046,25 @@ async function addDynamicF(){
     padding: 0;
     box-sizing: border-box;
 }
-
 .dynamic-body{
 width: 100%;
 background-size: cover;
 background-repeat: no-repeat;
 margin: 0 auto;
-padding-top: 8px;
+padding-top: var(--head-h);
 padding-bottom: 165px;
 min-height: 100vh;
 height: auto;
 display: flex;
-background-attachment: fixed;max-width: 2560px;
+background-attachment: fixed;
+max-width: var(--page-max);
 justify-content: center;
 position: relative;
-top: 64px;
 
   .left{
   width: 264px;
   margin-right: 12px;
+  flex-shrink: 0;
 
     .user-info{
     padding: 20px 16px;
@@ -1158,6 +1158,7 @@ top: 64px;
   .center{
   width: 724px;
   margin-right: 12px;
+  flex-shrink: 0;
 
     .top{
     width: 100%;
@@ -1796,5 +1797,23 @@ top: 64px;
 
 .sortable-ghost {
   opacity: 0;
+}
+
+@media (max-width: 1100px) {
+  .dynamic-body {
+    flex-direction: column;
+    align-items: center;
+  }
+  .dynamic-body .left {
+    width: 100%;
+    max-width: 500px;
+    margin-right: 0;
+    margin-bottom: 12px;
+  }
+  .dynamic-body .center {
+    width: 100%;
+    max-width: 500px;
+    margin-right: 0;
+  }
 }
 </style>

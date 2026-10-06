@@ -48,7 +48,7 @@ function jumpPage(messageMenu){
   top: 56px;
   left: clamp(10.5vw, 2.4vw + 7.2%, 34vw);
     width: clamp(132px, 9.5vw, 182px);
-  height: 100vh;
+  height: calc(100vh - 56px);
   background-color: rgba(255,255,255,0.7);
 
   .title{

@@ -712,18 +712,24 @@ export default {
 .main-content {
   background-color: #f8f8f8;
   border-radius: 5px;
-  transform: translate(-20px, -20px);
+  width: 100%;
   min-height: 1500px;
   height: auto !important;
+  padding: 20px;
+  box-sizing: border-box;
 }
 .white {
   transform: translate(40px, 20px);
   width: 100%;
+  max-width: 1200px;
   overflow: visible;
   z-index: 10;
   min-height: 1500px;
   height: auto !important;
+  margin: 0 auto;
   background-color: white;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .videoTime {
@@ -855,5 +861,14 @@ export default {
 
 .videoTitle:hover{
   color: #0FA68E;
+}
+
+@media (max-width: 1100px) {
+  .main-content {
+    padding: 12px;
+  }
+  .white {
+    padding: 12px;
+  }
 }
 </style>
