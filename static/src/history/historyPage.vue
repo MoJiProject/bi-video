@@ -11,9 +11,7 @@
 </template>
 
 <script setup>
-import mainHead from '@/components/mainHead.vue';
 import historyBody from './historyBody.vue';
-import { ChecklLogin } from '../api/user/index';
 import { useGlobalStore } from '@/store/store';
 import { onMounted } from 'vue';
 
@@ -22,26 +20,20 @@ const store = useGlobalStore();
 onMounted(async()=>{
 
     await getUserIp();
-    ChecklLoginF();
 })
 
 //获取用户ip和token
 // token 由 /auth/login 返回后存在本地，这里不再向后端要 IP + token。
 async function getUserIp(){
-  store.setUserIp("");
+  store.setUserIp("0.0.0.0");
 }
-//检查是否登录
+
+//检查是否登录 - 由于 ChecklLogin 接口已移除，此函数保留为空以避免错误
 async function ChecklLoginF(){
-
-    await ChecklLogin(store.userIp).then(response=>{
-    if (response.data.code === 1) {
-        store.setUserId(response.data.data.id);
-    } else {
-        window.location.href = "./";
-    }
-    })
+  // 由于后端移除了 /user/checkLoginFlag/{userIp} 接口，跳过登录状态检查
+  // 实际登录状态由 mainHead.vue 中的 getToken() 和 store.token 决定
+  console.debug("ChecklLoginF 已停用：后端接口已移除，跳过检查");
 }
-
 </script>
 
 <style lang="scss" scoped>

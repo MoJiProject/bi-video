@@ -53,7 +53,7 @@ import mainhead from '@/components/mainHead.vue';
 import {useGlobalStore} from "@/store/store";
 import { ElMessage } from "element-plus";
 import {getCollectsClassify} from "@/api/home/index";
-import { ChecklLogin, addFollow, deleteFollow, checkFollow, selectUserInfo, putUserInfo } from '../api/user/index';
+import { addFollow, deleteFollow, checkFollow, selectUserInfo, putUserInfo } from '../api/user/index';
 import {addDialogue} from '../api/privateMessage/index';
 
 const store = useGlobalStore();
@@ -61,7 +61,8 @@ const introduce = ref("");
 const introduceInput = ref(null);
 const introduceEditFlag = ref(false);
 const homeMenu = parseInt(new URL(window.location).searchParams.get("homeMenu")) || 1;
-const userId = parseInt(new URL(window.location).searchParams.get("userId")) || null;
+const urlUserId = parseInt(new URL(window.location).searchParams.get("userId")) || null;
+const userId = urlUserId || store.userId;
 const loginDialogVisibleFlag=ref(0);
 const handleContextMenuPosition=ref({x:0,y:0});
 const handleContextMenuVisible=ref(false);
@@ -70,7 +71,6 @@ onMounted(async() => {
 
     try{
         await getUserIp();
-        await ChecklLoginF();
         await selectUserInfoF();
         await checkFollowF();
         getCollectsClassifyF();
@@ -97,18 +97,7 @@ function closeContextMenu(){
 //获取用户ip和token
 // token 由 /auth/login 返回后存在本地，这里不再向后端要 IP + token。
 async function getUserIp(){
-  store.setUserIp("");
-}
-//检查是否登录
-async function ChecklLoginF(){
-
-  await ChecklLogin(store.userIp).then(response=>{
-    if (response.data.code === 1) {
-        store.setUserId(response.data.data.id);
-    } else {
-        store.setUserId(null);
-    }
-    })
+  store.setUserIp("0.0.0.0");
 }
 
 // 获取用户信息

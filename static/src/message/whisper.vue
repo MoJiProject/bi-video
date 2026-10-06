@@ -299,7 +299,7 @@ import {
   deletePrivateMessage,
   selectPrivateMessage
 } from "../api/privateMessage/index";
-import { ChecklLogin } from "../api/user/index";
+import { authApi } from "../api/product/index";
 
 function throttle(fn, limit = 150) {
   let inThrottle = false;
@@ -741,13 +741,11 @@ function changeMessageStatusF(sDialogue) {
 
 //同步服务端最新的未读私信数
 function syncUserMessageNumber() {
-  if (!store.userIp) return;
-  ChecklLogin(store.userIp).then(response => {
-    if (response.data.code !== 1) return;
-    const serverInfo = response.data.data;
-    if (!serverInfo) return;
+  if (!store.userId) return;
+  authApi.me().then(me => {
+    if (!me || !me.id) return;
     const userInformation = { ...store.userInformation };
-    userInformation.messageNumber = Math.max(0, serverInfo.messageNumber || 0);
+    userInformation.messageNumber = Math.max(0, me.messageNumber || 0);
     userInformation.allMessageNumber = userInformation.messageNumber
       + (userInformation.replyCommentNumber || 0)
       + (userInformation.atNumber || 0)

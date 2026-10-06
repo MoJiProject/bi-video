@@ -2837,7 +2837,7 @@ export default {
     //获取用户ip和token
     // token 由 /auth/login 返回后存在本地，这里不再向后端要 IP + token。
     async function getUserIp(){
-      store.setUserIp("");
+      store.setUserIp("0.0.0.0");
     }
     //获取@用户列表
     /* 原端点 /user/getEit/{id} 已下线。新接口没有对应功能，

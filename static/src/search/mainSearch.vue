@@ -805,14 +805,13 @@ watch(
     //获取用户ip和token
     // token 由 /auth/login 返回后存在本地，这里不再向后端要 IP + token。
     async function getUserIp(){
-      store.setUserIp("");
+      store.setUserIp("0.0.0.0");
     }
     onMounted(async () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
       windowWidth.value = window.screen.width;
       onloadPage.value = true;
       await getUserIp();
-      await ChecklLogin();
       searchByKeyWordVideoOnce();
       selectUsersAxios();
       document.title =

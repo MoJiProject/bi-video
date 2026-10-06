@@ -153,30 +153,13 @@ export default {
         onMounted(async()=>{
             store.setAutoPlayVideoList(JSON.parse(localStorage.getItem("autoPlayVideoList")) || false);
             await getUserIp();
-            await ChecklLogin();
             getVideoPageByVideo();
         })
 
 // token 由 /auth/login 返回后存在本地，这里不再向后端要 IP + token
-           async function getUserIp(){
-               store.setUserIp("");
-           }
-
-        //检查是否登录
-        async function ChecklLogin() {
-        try {
-
-            const response = await apiClient.get(`/user/checkLoginFlag/${store.userIp}`);
-            if (response.data.code === 1) {
-            store.setUserId(response.data.data.id);
-            store.setUserInformation(response.data.data);
-            } else 
-            store.setUserId(null);
-
-        } catch (error) {
-            store.setUserId(null);
-        }
-        }
+       async function getUserIp(){
+           store.setUserIp("0.0.0.0");
+       }
 
         //获取视频列表
         async function getVideoPageByVideo(){

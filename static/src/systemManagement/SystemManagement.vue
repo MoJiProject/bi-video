@@ -147,17 +147,18 @@ export default {
     //获取用户ip和token
     // token 由 /auth/login 返回后存在本地，这里不再向后端要 IP + token。
     async function getUserIp(){
-      store.setUserIp("");
+      store.setUserIp("0.0.0.0");
     }
 
     //检查登录并确认管理员身份
+    // ChecklLogin 接口已移除，改用 /auth/me 判断是否登录及是否为管理员
     async function checkLogin() {
       try {
-        const response = await apiClient.get(`/user/checkLoginFlag/${store.userIp}`);
-        if (response.data.code === 1) {
-          store.setUserId(response.data.data.id);
-          store.setUserInformation(response.data.data);
-          isAdmin.value = !!response.data.data.adminFlag;
+        const me = await apiClient.get("/auth/me");
+        if (me.data.code === 1) {
+          store.setUserId(me.data.data.id);
+          store.setUserInformation(me.data.data);
+          isAdmin.value = !!me.data.data.adminFlag;
         } else {
           isAdmin.value = false;
         }

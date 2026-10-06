@@ -170,26 +170,14 @@ export default {
       document.title = "创作中心 - 青芒视频";
       window.scrollTo({top: 0, behavior: "smooth"});
       await getUserIp();
-      await ChecklLogin();
       pageLoad.value=true;
       
     });
     
-    //检查登录
-    async function ChecklLogin() {
-      try {
-        const response = await apiClient.get(`/user/checkLoginFlag/${store.userIp}`,
-        );
-        if (response.data.code === 1) {
-          store.setUserId(response.data.data.id);
-          store.setUserInformation(response.data.data);
-          Object.assign(user, response.data.data);
-        } else {
-          window.location.href="./";
-        }
-      } catch (error) {
-        window.location.href="../";
-      }
+    //获取用户ip和token
+    // token 由 /auth/login 返回后存在本地，这里不再向后端要 IP + token。
+    async function getUserIp(){
+      store.setUserIp("0.0.0.0");
     }
 
     //登出
@@ -235,7 +223,7 @@ export default {
     //获取用户ip和token
     // token 由 /auth/login 返回后存在本地，这里不再向后端要 IP + token。
     async function getUserIp(){
-      store.setUserIp("");
+      store.setUserIp("0.0.0.0");
     }
     //打开消息页面
     function openMessage(menu){

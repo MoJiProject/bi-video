@@ -21,7 +21,8 @@ import { useBodyLayout } from '@/composables/useBodyLayout';
 const store = useGlobalStore();
 const initialLoadFinished = ref(false);
 const menuLoading = ref(false);
-const userId = parseInt(new URL(window.location).searchParams.get("userId")) || null;
+const urlUserId = parseInt(new URL(window.location).searchParams.get("userId")) || null;
+const userId = urlUserId || store.userId;
 
 useBodyLayout({});
 
@@ -52,7 +53,7 @@ const handlePopState = () => {
 
 onMounted(() => {
 
-  if(!userId){
+  if(!userId && !store.userId){
     window.location.href = './';
     return;
   }

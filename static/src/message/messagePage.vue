@@ -32,7 +32,6 @@ import love from './love.vue';
 import config from './config.vue';
 import {useGlobalStore} from "../store/store";
 import { onBeforeUnmount, onMounted, watch } from 'vue';
-import { ChecklLogin } from '../api/user/index';
 import { useBodyLayout } from '../composables/useBodyLayout';
 
 const store = useGlobalStore();
@@ -56,14 +55,12 @@ function handlePopState(){
 }
 
 onMounted(async()=>{
-  
+
   document.title = "消息中心 - 青芒视频";
   localStorage.setItem('backgroundModel', parseInt(localStorage.getItem('backgroundModel')) || 0);
   const urlParams = new URLSearchParams(window.location.search);
   store.setMessageMenu(parseInt(urlParams.get("messageMenu")) || 1,true);
   window.addEventListener('popstate', handlePopState);
-  await getUserIp();
-  await ChecklLoginF();
 })
 
 onBeforeUnmount(()=>{
@@ -72,23 +69,10 @@ onBeforeUnmount(()=>{
   document.documentElement.style.removeProperty('--line-color');
 })
 
-//检查是否登录
-async function ChecklLoginF(){
-
-    ChecklLogin(store.userIp).then(response=>{
-    if (response.data.code === 1) {
-        store.setUserId(response.data.data.id);
-        store.setUserInformation(response.data.data);
-    } else {
-        window.location.href = "./";
-    }
-    })
-}
-
 //获取用户ip
 // token 由 /auth/login 返回后存在本地，这里不再向后端要 IP + token。
 async function getUserIp(){
-  store.setUserIp("");
+  store.setUserIp("0.0.0.0");
 }
 watch(()=>store.userInformation,()=>{
   

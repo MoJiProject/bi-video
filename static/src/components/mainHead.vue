@@ -2027,7 +2027,6 @@ const right1 = "/img/loginRight.png"
 const right2 = "/img/loginPasswordRight.png"
 import { ElLoading } from "element-plus";
 import {useGlobalStore} from "../store/store";
-import {ChecklLogin} from '../api/user/index'
 
 // 主导航。顺序按「内容占比」排，不是按字母；改顺序只改这里，不用动模板。
 const NAV_ITEMS = [
@@ -2575,33 +2574,7 @@ flag.value = 1;
     onMounted(async() => {
       await getUserIp();
       autoLogin();
-
-      setInterval(() => {
-        ChecklLoginF();
-      },60000);
     });
-
-    //检查是否登录
-    async function ChecklLoginF(){
-    ChecklLogin(store.userIp).then(response=>{
-    if (response.data.code === 1) {
-        if(store.userId!==response.data.data.id||!store.userId)
-          autoLogin();
-        else{
-          if(response.data){
-            user.length = 0;
-            store.setUserId(response.data.data.id);
-            Object.assign(user, response.data.data);
-            store.setUserInformation(response.data.data);
-          }else{
-            refreshToHome();
-          }
-        }
-    } else {
-        refreshToHome();
-    }
-    })
-    }
 
 
 
@@ -2636,7 +2609,6 @@ flag.value = 1;
     //自动登录
     async function autoLogin() {
       try {
-
         if (!getToken()) {
           return;
         }
@@ -2667,9 +2639,7 @@ flag.value = 1;
           historyEarlier.length = 0;
           store.setToken(null);
         }
-
       } catch (error) {
-
       }
     }
     
@@ -2825,7 +2795,7 @@ flag.value = 1;
 
     // 用户 IP 只用于风控展示。新后端没有这个接口，这里直接留空即可。
     async function getUserIp(){
-      store.setUserIp("");
+        store.setUserIp("0.0.0.0");
     }
 
     watch(loginDialogVisible,(newValue)=>{
@@ -2989,16 +2959,201 @@ flag.value = 1;
 <style lang="scss" scoped>
 
 @font-face {
-  font-family: "SimHei";
-  src: url("../assets/font/MSYH.woff2") format("truetype"); /* 指定字体文件的位置和格式 */
-  font-weight: normal;
-  font-style: normal;
+   font-family: "SimHei";
+   src: url("../assets/font/MSYH.woff2") format("truetype"); /* 指定字体文件的位置和格式 */
+   font-weight: normal;
+   font-style: normal;
 }
 * {
-  padding: 0; /* 移除内边距 */
-  margin: 0; /* 移除外边距 */
-  box-sizing: border-box; /* 包括内边距和边框在元素的总宽度和高度中 */
-  transition: background-color 0.3s ease, color 0.3s ease;
+   padding: 0; /* 移除内边距 */
+   margin: 0; /* 移除外边距 */
+   box-sizing: border-box; /* 包括内边距和边框在元素的总宽度和高度中 */
+   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 响应式设计 */
+.header {
+   position: relative;
+   display: flex;
+   align-items: center;
+   box-sizing: border-box;
+   width: 100%;
+   max-width: var(--page-max);
+   height: var(--head-h);
+   margin: 0 auto;
+   padding: 0 var(--page-pad);
+}
+
+/* 响应式断点 */
+@media screen and (max-width: 768px) {
+   /* 平板和小屏幕 */
+   .header {
+      height: 50px; /* 降低头部高度 */
+      padding: 0 12px; /* 减少内边距 */
+   }
+   
+   .v-header-ul {
+      margin-right: 20px; /* 减少右边距 */
+   }
+   
+   .v-header-ul li a {
+      font-size: 11px; /* 减小字体 */
+      margin-top: -3px; /* 调整垂直位置 */
+      line-height: 8px;
+   }
+   
+   .v-header-ul li img {
+      margin-right: 4px; /* 减少图片间距 */
+      width: 16px; /* 缩小图片 */
+      height: 16px;
+   }
+   
+   .avatar1 {
+      width: 26px; /* 缩小头像 */
+      height: 26px;
+   }
+   
+   .avatar1 img {
+      width: 100%;
+      height: 100%;
+   }
+   
+   .user-info {
+      width: 220px; /* 缩小用户信息卡片 */
+      height: 350px;
+      font-size: 11px;
+   }
+   
+   .grade .grade1 .exp,
+   .grade .grade1 .exp2 {
+      width: 18px;
+      height: 11px;
+   }
+   
+   .feature div {
+      margin-right: 60px;
+      width: 180px;
+      font-size: 12px;
+   }
+   
+   .feature div span {
+      height: 28px;
+      font-size: 11px;
+      transform: translateX(20px);
+   }
+   
+   .feature div img {
+      width: 14px;
+      height: 14px;
+   }
+   
+   .number-style {
+      font-size: 10px;
+      min-width: 12px;
+      padding: 0 2px;
+   }
+}
+
+@media screen and (max-width: 480px) {
+   /* 手机屏幕 */
+   .header {
+      height: 45px; /* 进一步降低头部高度 */
+      padding: 0 8px; /* 进一步减少内边距 */
+   }
+   
+   .v-header-ul {
+      margin-right: 10px;
+      justify-content: space-between; /* 改为两端对齐 */
+   }
+   
+   .v-header-ul li {
+      flex: 1; /* 均等分配空间 */
+   }
+   
+   .v-header-ul li a {
+      font-size: 10px; /* 进一步减小字体 */
+      margin-top: -2px;
+      line-height: 7px;
+      display: block;
+      text-align: center;
+   }
+   
+   .v-header-ul li img {
+      margin-right: 2px;
+      width: 14px;
+      height: 14px;
+   }
+   
+   /* 隐藏某些不重要的导航项在非常小的屏幕上 */
+   .hd-download,
+   .hd-vip {
+      display: none;
+   }
+   
+   .avatar1 {
+      width: 22px;
+      height: 22px;
+   }
+   
+   .user-info {
+      width: 180px;
+      height: 300px;
+      font-size: 10px;
+   }
+   
+   .user-info div {
+      margin-top: 8px;
+   }
+   
+   .grade {
+      margin-top: 5px;
+   }
+   
+   .grade span {
+      font-size: 10px;
+   }
+   
+   .feature {
+      display: none; /* 隐藏功能区域 */
+   }
+   
+   .hd-message,
+   .hd-dynamic,
+   .hd-collect,
+   .hd-history {
+      display: none; /* 隐藏次级导航 */
+   }
+   
+   .number-style {
+      font-size: 9px;
+      min-width: 10px;
+   }
+   
+   /* 确保搜索框在小屏幕上可见 */
+   .head-search {
+      min-width: 80px;
+   }
+}
+
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+   /* 小桌面和平板横向 */
+   .header {
+      height: 55px;
+      padding: 0 16px;
+   }
+   
+   .v-header-ul li a {
+      font-size: 12px;
+   }
+   
+   .avatar1 {
+      width: 28px;
+      height: 28px;
+   }
+   
+   .feature div {
+      margin-right: 70px;
+   }
 }
 
 a {
@@ -4466,17 +4621,194 @@ a {
   display: none;
 }
 
-/* 视口收窄时先让出主导航，再让出次要入口，搜索框始终保留 */
+/* 视口收窄时先让出次要入口，搜索框始终保留 */
 @media (max-width: 1400px) {
-  .v-header-ul > li.hd-download { display: none; }
+   .v-header-ul > li.hd-download { display: none; }
 }
 
 @media (max-width: 1240px) {
-  .v-header-ul > li.hd-vip { display: none; }
+   .v-header-ul > li.hd-vip { display: none; }
 }
 
 @media (max-width: 1120px) {
-  .v-header-ul > li.hd-nav:nth-child(n + 9) { display: none; }
+   .v-header-ul > li.hd-nav:nth-child(n + 9) { display: none; }
+}
+
+/* 中小屏：整体缩小间距和字号，不改变 flex 单行结构 */
+@media (max-width: 980px) {
+   .header {
+      height: auto;
+      min-height: var(--head-h);
+      padding: 8px var(--page-pad);
+   }
+   
+   .v-header-ul {
+      height: auto;
+      min-height: var(--head-h);
+      margin-right: 16px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+   }
+   
+   .v-header-ul::-webkit-scrollbar {
+      display: none;
+   }
+   
+   .v-header-ul > li {
+      flex: none;
+   }
+   
+   .v-header-ul > li.hd-home > a {
+      font-size: 13px;
+   }
+   
+   .v-header-ul > li.hd-nav > a,
+   .v-header-ul > li.hd-download > a {
+      font-size: 12px;
+      padding: 0 4px;
+   }
+   
+   .v-header-ul li a img {
+      width: 16px;
+      height: 16px;
+      margin-right: 3px;
+   }
+   
+   .v-header-ul > li.hd-search {
+      flex: 1 1 auto;
+      min-width: 0;
+      padding: 0 6px;
+   }
+   
+   .v-header-ul > li.hd-search > * {
+      max-width: 100%;
+   }
+   
+   .v-header-ul > li.hd-vip > a,
+   .v-header-ul > li.hd-message > a,
+   .v-header-ul > li.hd-dynamic > a,
+   .v-header-ul > li.hd-collect > a,
+   .v-header-ul > li.hd-history > a,
+   .v-header-ul > li.hd-create > a {
+      width: auto;
+      min-width: 40px;
+      padding: 2px 4px;
+      font-size: 11px;
+   }
+   
+   .v-header-ul > li img {
+      width: 16px;
+      height: 16px;
+   }
+   
+   .avatar1 {
+      width: 28px;
+      height: 28px;
+   }
+   
+   .avatar1 img {
+      width: 100%;
+      height: 100%;
+   }
+   
+   .user-info {
+      width: 260px;
+      height: 380px;
+      font-size: 12px;
+   }
+   
+   .user-info div {
+      margin-top: 10px;
+   }
+   
+   .grade .grade1 .exp,
+   .grade .grade1 .exp2 {
+      width: 18px;
+      height: 11px;
+   }
+   
+   .feature div {
+      margin-right: 50px;
+      width: 180px;
+      font-size: 12px;
+   }
+   
+   .feature div span {
+      height: 28px;
+      font-size: 11px;
+   }
+   
+   .feature div img {
+      width: 14px;
+      height: 14px;
+   }
+}
+
+/* 超小屏：进一步压缩并隐藏次要入口 */
+@media (max-width: 640px) {
+   .header {
+      padding: 6px 8px;
+   }
+   
+   .v-header-ul {
+      margin-right: 8px;
+      padding: 0 4px;
+   }
+   
+   .v-header-ul > li.hd-nav:nth-child(n + 4) { display: none; }
+   
+   .v-header-ul > li.hd-vip,
+   .v-header-ul > li.hd-message,
+   .v-header-ul > li.hd-dynamic,
+   .v-header-ul > li.hd-collect,
+   .v-header-ul > li.hd-history,
+   .v-header-ul > li.hd-download,
+   .v-header-ul > li.hd-publish {
+      display: none;
+   }
+   
+   .v-header-ul > li.hd-search {
+      flex: 1 1 auto;
+      min-width: 0;
+      padding: 0 4px;
+   }
+   
+   .v-header-ul > li.hd-user {
+      flex: none;
+   }
+   
+   .v-header-ul > li.hd-home > a {
+      font-size: 12px;
+   }
+   
+   .avatar1 {
+      width: 26px;
+      height: 26px;
+   }
+   
+   .user-info {
+      width: 260px;
+      height: 380px;
+      font-size: 11px;
+   }
+   
+   .user-info .feature {
+      display: none;
+   }
+   
+   .user-info .grade {
+      display: none;
+   }
+   
+   .v-header-ul > li.hd-search > * {
+      max-width: 100%;
+   }
+   
+   .number-style {
+      font-size: 10px;
+      min-width: 12px;
+   }
 }
 </style>
 <!-- /header-layout-pass3 -->
