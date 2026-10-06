@@ -103,8 +103,7 @@
                       color:
                         SelectVideoByIdVo.upUser.grade > 4 ? '#F0A03C' : '#000',
                     }"
-                    >{{ SelectVideoByIdVo.upUser.userName }}</span
-                  >
+                    >{{ SelectVideoByIdVo.upUser.userName }}</span>
                   <img
                     v-if="SelectVideoByIdVo.upUser.gender === 1"
                     src="/img/man.png"
@@ -227,8 +226,7 @@
             v-show="intoVideoAllDisplayIngFlag && videoFeatureShowFlag"
             @click="pausedOrPlayUpVideo"
             class="intoVideoAllDisplayIngFlagVideoTitle"
-            >{{ SelectVideoByIdVo.upVideo.title }}</span
-          >
+            >{{ SelectVideoByIdVo.upVideo.title }}</span>
           <div
             v-show="videoFeatureShowFlag"
             :class="{
@@ -260,8 +258,7 @@
                 font-size: 11px;
                 transform: translate(20px, 9px);
               "
-              >关注</span
-            >
+              >关注</span>
           </div>
           <!-- 进度条 -->
           <progress
@@ -423,8 +420,7 @@
             :style="{
               left: `${upVideoProgressImgPosition}px`,
             }"
-            >{{ upVideoPointerMoveTime }}</span
-          >
+            >{{ upVideoPointerMoveTime }}</span>
           <!-- 放大视频后的 -->
           <span
             :class="{
@@ -435,8 +431,7 @@
             :style="{
               left: `${upVideoProgressImgPosition - 19.5}px`,
             }"
-            >{{ upVideoPointerMoveTime }}</span
-          >
+            >{{ upVideoPointerMoveTime }}</span>
           <!-- 开始播放 -->
           <img
             :class="{
@@ -538,8 +533,7 @@
                 position: absolute;
                 transform: translate(-5.5px);
               "
-              >/</span
-            >
+              >/</span>
             <span style="margin-left: 5px">{{ videoTotalTime }}</span>
           </div>
           <div
@@ -582,8 +576,7 @@
               openOrCloseScrollingInfoFlag &&
               intoVideoAllDisplayIngFlag
             "
-            >打开弹幕(d)</span
-          >
+            >打开弹幕(d)</span>
           <img
             class="up-video-play-bottom-video-open-close-scrolling"
             :class="{
@@ -605,8 +598,7 @@
               openOrCloseScrollingInfoFlag &&
               intoVideoAllDisplayIngFlag
             "
-            >关闭弹幕(d)</span
-          >
+            >关闭弹幕(d)</span>
           <!-- 弹幕设置 -->
           <img
             v-show="
@@ -650,8 +642,7 @@
                   cursor: pointer;
                   color: white;
                 "
-                >按类型屏蔽</span
-              >
+                >按类型屏蔽</span>
               <!-- 屏蔽滚动弹幕 -->
               <div
                 class="roll-scrolling-container"
@@ -679,8 +670,7 @@
                     rollScrollingText: scrollingRollOpenFlag,
                     scrollingRollHoverFlag: scrollingRollHoverFlag,
                   }"
-                  >滚动</span
-                >
+                  >滚动</span>
               </div>
               <!-- 屏蔽固定弹幕 -->
               <div
@@ -709,8 +699,7 @@
                     fixedScrollingText: scrollingFilexdOpenFlag,
                     scrollingFilexdHoverFlag: scrollingFilexdHoverFlag,
                   }"
-                  >固定</span
-                >
+                  >固定</span>
               </div>
               <!-- 勾选设置  -->
               <div
@@ -732,8 +721,7 @@
                 <span
                   class="setting-scrolling-text"
                   :class="{ checkBoxHoverFlag: checkBoxHoverFlag }"
-                  >弹幕速度同步播放倍数</span
-                >
+                  >弹幕速度同步播放倍数</span>
               </div>
               <!-- 滑块属性值设置 -->
               <div class="scrolling-slider-container">
@@ -760,20 +748,16 @@
                   <span
                     class="silder-pointer1"
                     @click="scrollingDisplayAreaValue = '0'"
-                  ></span
-                  ><span
+                  ></span><span
                     class="silder-pointer2"
                     @click="scrollingDisplayAreaValue = '25'"
-                  ></span
-                  ><span
+                  ></span><span
                     class="silder-pointer3"
                     @click="scrollingDisplayAreaValue = '50'"
-                  ></span
-                  ><span
+                  ></span><span
                     class="silder-pointer4"
                     @click="scrollingDisplayAreaValue = '75'"
-                  ></span
-                  ><span
+                  ></span><span
                     class="silder-pointer5"
                     @click="scrollingDisplayAreaValue = '100'"
                   ></span>
@@ -784,8 +768,7 @@
                       color: #d2d3d0;
                       word-break: normal !important;
                     "
-                    >{{ scrollingDisplayAreaValue }}%</span
-                  >
+                    >{{ scrollingDisplayAreaValue }}%</span>
                 </div>
                 <div>
                   <span>不透明度</span>
@@ -807,8 +790,7 @@
                       color: #d2d3d0;
                       word-break: normal !important;
                     "
-                    >{{ scrollingDisplayOpacityValue }}%</span
-                  >
+                    >{{ scrollingDisplayOpacityValue }}%</span>
                 </div>
                 <div>
                   <span>弹幕字号</span>
@@ -830,8 +812,7 @@
                       color: #d2d3d0;
                       word-break: normal !important;
                     "
-                    >{{ scrollingDisplayFontSizeValue }}%</span
-                  >
+                    >{{ scrollingDisplayFontSizeValue }}%</span>
                 </div>
                 <div v-show="!checkBoxOpenFlag">
                   <span>弹幕速度</span>
@@ -859,20 +840,16 @@
                   <span
                     class="silder-pointer1"
                     @click="scrollingDisplayAreaValue = '0'"
-                  ></span
-                  ><span
+                  ></span><span
                     class="silder-pointer2"
                     @click="scrollingDisplaySpeedValue = '25'"
-                  ></span
-                  ><span
+                  ></span><span
                     class="silder-pointer3"
                     @click="scrollingDisplaySpeedValue = '50'"
-                  ></span
-                  ><span
+                  ></span><span
                     class="silder-pointer4"
                     @click="scrollingDisplaySpeedValue = '75'"
-                  ></span
-                  ><span
+                  ></span><span
                     class="silder-pointer5"
                     @click="scrollingDisplaySpeedValue = '100'"
                   ></span>
@@ -884,8 +861,7 @@
                       color: #d2d3d0;
                       width: 24px;
                     "
-                    >极慢</span
-                  >
+                    >极慢</span>
                   <span
                     v-show="scrollingDisplaySpeedValue === '25'"
                     style="
@@ -894,8 +870,7 @@
                       color: #d2d3d0;
                       width: 24px;
                     "
-                    >较慢</span
-                  >
+                    >较慢</span>
                   <span
                     v-show="
                       scrollingDisplaySpeedValue === '50' ||
@@ -907,8 +882,7 @@
                       color: #d2d3d0;
                       width: 24px;
                     "
-                    >正常</span
-                  >
+                    >正常</span>
                   <span
                     v-show="scrollingDisplaySpeedValue === '75'"
                     style="
@@ -917,8 +891,7 @@
                       color: #d2d3d0;
                       width: 24px;
                     "
-                    >较快</span
-                  >
+                    >较快</span>
                   <span
                     v-show="scrollingDisplaySpeedValue === '100'"
                     style="
@@ -927,8 +900,7 @@
                       color: #d2d3d0;
                       width: 24px;
                     "
-                    >极快</span
-                  >
+                    >极快</span>
                 </div>
               </div>
             </div>
@@ -950,8 +922,7 @@
             <span
               style="color: #b9b7b8"
               :style="{ display: store.userId ? 'initial' : 'none' }"
-              >已关闭弹幕</span
-            >
+              >已关闭弹幕</span>
             <span
               v-show="store.userId === null"
               style="color: #b9b7b8; position: absolute"
@@ -963,8 +934,7 @@
                     ? (loginDialogVisibleFlag = 1)
                     : (loginDialogVisibleFlag = 0)
                 "
-                >登录</span
-              >
+                >登录</span>
               或
               <span
                 style="color: #0FA68E; cursor: pointer"
@@ -973,17 +943,14 @@
                     ? (loginDialogVisibleFlag = 3)
                     : (loginDialogVisibleFlag = 2)
                 "
-                >注册</span
-              ></span
-            >
+                >注册</span></span>
             <span style="transform: translate(276.5px, -1px)"
               ><a
                 class="scrolling-regulation1"
                 target="_blank"
                 href="https://www.qingmang.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
                 >弹幕礼仪 ></a
-              ></span
-            >
+              ></span>
             <span class="send-scrolling-btn-close1">发送</span>
           </div>
           <!-- 打开 发送弹幕区域 -->
@@ -1026,27 +993,23 @@
                     v-show="sendScrollingFontSize !== 16"
                     style="margin-right: 5px"
                     @click="sendScrollingFontSize = 16"
-                    >小</span
-                  >
+                    >小</span>
                   <span
                     v-show="sendScrollingFontSize === 16"
                     style="margin-right: 5px; background-color: #0FA68E"
                     @click="sendScrollingFontSize = 16"
-                    >小</span
-                  >
+                    >小</span>
                   <span
                     class="ss"
                     v-show="sendScrollingFontSize !== 20"
                     style="margin-left: 5px"
                     @click="sendScrollingFontSize = 20"
-                    >标准</span
-                  >
+                    >标准</span>
                   <span
                     v-show="sendScrollingFontSize === 20"
                     style="margin-left: 5px; background-color: #0FA68E"
                     @click="sendScrollingFontSize = 20"
-                    >标准</span
-                  >
+                    >标准</span>
                 </div>
                 <div style="margin-top: 15px">模式</div>
                 <div
@@ -1174,8 +1137,7 @@
                     ? (loginDialogVisibleFlag = 1)
                     : (loginDialogVisibleFlag = 0)
                 "
-                >登录</span
-              >
+                >登录</span>
               或
               <span
                 style="color: #0FA68E; cursor: pointer"
@@ -1184,20 +1146,16 @@
                     ? (loginDialogVisibleFlag = 3)
                     : (loginDialogVisibleFlag = 2)
                 "
-                >注册</span
-              ></span
-            >
+                >注册</span></span>
             <span style="transform: translate(323.5px, -1px)"
               ><a
                 class="scrolling-regulation1"
                 target="_blank"
                 href="https://www.qingmang.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
                 >弹幕礼仪 ></a
-              ></span
-            >
+              ></span>
             <span class="send-scrolling-btn-open1" @click="sendScrollingAxios"
-              >发送</span
-            >
+              >发送</span>
           </div>
           <!-- 画质没做 -->
           <span
@@ -1208,8 +1166,7 @@
             @mousemove="(videoLeave = true), handlerCleanTime()"
             @mouseleave="videoLeave = false"
             class="up-video-play-bottom-video-image-quality"
-            >1080P 高清</span
-          >
+            >1080P 高清</span>
           <!-- 倍速 -->
           <span
             :class="{ sppedVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag }"
@@ -1224,41 +1181,35 @@
                   (selectVideoSpped = 1), (upVideoPlayer.playbackRate = 2.0)
                 "
                 :class="{ selectVideoSpped: selectVideoSpped === 1 }"
-                >2.0x</span
-              >
+                >2.0x</span>
               <span
                 @click="
                   (selectVideoSpped = 2), (upVideoPlayer.playbackRate = 1.5)
                 "
                 :class="{ selectVideoSpped: selectVideoSpped === 2 }"
-                >1.5x</span
-              >
+                >1.5x</span>
               <span
                 @click="
                   (selectVideoSpped = 3), (upVideoPlayer.playbackRate = 1.25)
                 "
                 :class="{ selectVideoSpped: selectVideoSpped === 3 }"
-                >1.25x</span
-              >
+                >1.25x</span>
               <span
                 @click="(selectVideoSpped = 4), (upVideoPlayer.playbackRate = 1)"
                 :class="{ selectVideoSpped: selectVideoSpped === 4 }"
-                >1.0x</span
-              >
+                >1.0x</span>
               <span
                 @click="
                   (selectVideoSpped = 5), (upVideoPlayer.playbackRate = 0.75)
                 "
                 :class="{ selectVideoSpped: selectVideoSpped === 5 }"
-                >0.75x</span
-              >
+                >0.75x</span>
               <span
                 @click="
                   (selectVideoSpped = 6), (upVideoPlayer.playbackRate = 0.5)
                 "
                 :class="{ selectVideoSpped: selectVideoSpped === 6 }"
-                >0.5x</span
-              >
+                >0.5x</span>
             </div>
           </span>
           <!-- 音量 -->
@@ -1394,8 +1345,7 @@
             }"
             v-show="showFullScreenExitFlag && !openOrCloseFullScreenExitFlag"
             class="up-video-play-bottom-video-fullScreenExit-text"
-            >开启画中画</span
-          >
+            >开启画中画</span>
           <span
             :class="{
               fullScreenExitInfointoVideoAllDisplayIngFlag:
@@ -1403,8 +1353,7 @@
             }"
             v-show="showFullScreenExitFlag && openOrCloseFullScreenExitFlag"
             class="up-video-play-bottom-video-fullScreenExit-text"
-            >退出画中画</span
-          >
+            >退出画中画</span>
           <!-- 宽屏模式没做 -->
           <img
             v-show="videoFeatureShowFlag && !intoVideoAllDisplayIngFlag"
@@ -1451,16 +1400,14 @@
           <span
             v-show="intoVideoAllDisplayFlag && !intoVideoAllDisplayIngFlag"
             class="up-video-play-bottom-video-intoAllDisplay-text"
-            >进入全屏(f)</span
-          >
+            >进入全屏(f)</span>
           <span
             :class="{
               InfoIntoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
             }"
             v-show="intoVideoAllDisplayFlag && intoVideoAllDisplayIngFlag"
             class="up-video-play-bottom-video-intoAllDisplay-text"
-            >退出全屏(f)</span
-          >
+            >退出全屏(f)</span>
           <div
             v-show="videoFeatureShowFlag"
             @mousemove="(videoLeave = true), handlerCleanTime()"
@@ -1551,8 +1498,7 @@
           <span class="watch-num"
             ><span style="font-size: 12px">{{ watchingNumber }}</span>
             人正在看，已装填
-            {{ SelectVideoByIdVo.upVideo.scrollingNumber }} 条弹幕</span
-          >
+            {{ SelectVideoByIdVo.upVideo.scrollingNumber }} 条弹幕</span>
           <!-- 打开或关闭弹幕  -->
           <img
             class="up-video-play-bottom-video-close-open-scrolling"
@@ -1573,8 +1519,7 @@
           <span
             class="up-video-play-bottom-video-close-open-scrolling-info"
             v-show="!openOrCloseScrollingFlag && openOrCloseScrollingInfoFlag"
-            >打开弹幕(d)</span
-          >
+            >打开弹幕(d)</span>
           <img
             class="up-video-play-bottom-video-open-close-scrolling"
             v-show="openOrCloseScrollingFlag"
@@ -1592,8 +1537,7 @@
           <span
             class="up-video-play-bottom-video-close-open-scrolling-info"
             v-show="openOrCloseScrollingFlag && openOrCloseScrollingInfoFlag"
-            >关闭弹幕(d)</span
-          >
+            >关闭弹幕(d)</span>
           <!-- 弹幕设置 -->
           <img
             v-show="!openOrCloseScrollingFlag"
@@ -1624,8 +1568,7 @@
                   cursor: pointer;
                   color: white;
                 "
-                >按类型屏蔽</span
-              >
+                >按类型屏蔽</span>
               <!-- 屏蔽滚动弹幕 -->
               <div
                 class="roll-scrolling-container"
@@ -1653,8 +1596,7 @@
                     rollScrollingText: scrollingRollOpenFlag,
                     scrollingRollHoverFlag: scrollingRollHoverFlag,
                   }"
-                  >滚动</span
-                >
+                  >滚动</span>
               </div>
               <!-- 屏蔽固定弹幕 -->
               <div
@@ -1683,8 +1625,7 @@
                     fixedScrollingText: scrollingFilexdOpenFlag,
                     scrollingFilexdHoverFlag: scrollingFilexdHoverFlag,
                   }"
-                  >固定</span
-                >
+                  >固定</span>
               </div>
               <!-- 勾选设置  -->
               <div
@@ -1706,8 +1647,7 @@
                 <span
                   class="setting-scrolling-text"
                   :class="{ checkBoxHoverFlag: checkBoxHoverFlag }"
-                  >弹幕速度同步播放倍数</span
-                >
+                  >弹幕速度同步播放倍数</span>
               </div>
               <!-- 滑块属性值设置 -->
               <div class="scrolling-slider-container">
@@ -1734,20 +1674,16 @@
                   <span
                     class="silder-pointer1"
                     @click="scrollingDisplayAreaValue = '0'"
-                  ></span
-                  ><span
+                  ></span><span
                     class="silder-pointer2"
                     @click="scrollingDisplayAreaValue = '25'"
-                  ></span
-                  ><span
+                  ></span><span
                     class="silder-pointer3"
                     @click="scrollingDisplayAreaValue = '50'"
-                  ></span
-                  ><span
+                  ></span><span
                     class="silder-pointer4"
                     @click="scrollingDisplayAreaValue = '75'"
-                  ></span
-                  ><span
+                  ></span><span
                     class="silder-pointer5"
                     @click="scrollingDisplayAreaValue = '100'"
                   ></span>
@@ -1758,8 +1694,7 @@
                       color: #d2d3d0;
                       word-break: normal !important;
                     "
-                    >{{ scrollingDisplayAreaValue }}%</span
-                  >
+                    >{{ scrollingDisplayAreaValue }}%</span>
                 </div>
                 <div>
                   <span>不透明度</span>
@@ -1781,8 +1716,7 @@
                       color: #d2d3d0;
                       word-break: normal !important;
                     "
-                    >{{ scrollingDisplayOpacityValue }}%</span
-                  >
+                    >{{ scrollingDisplayOpacityValue }}%</span>
                 </div>
                 <div>
                   <span>弹幕字号</span>
@@ -1804,8 +1738,7 @@
                       color: #d2d3d0;
                       word-break: normal !important;
                     "
-                    >{{ scrollingDisplayFontSizeValue }}%</span
-                  >
+                    >{{ scrollingDisplayFontSizeValue }}%</span>
                 </div>
                 <div v-show="!checkBoxOpenFlag">
                   <span>弹幕速度</span>
@@ -1833,20 +1766,16 @@
                   <span
                     class="silder-pointer1"
                     @click="scrollingDisplayAreaValue = '0'"
-                  ></span
-                  ><span
+                  ></span><span
                     class="silder-pointer2"
                     @click="scrollingDisplaySpeedValue = '25'"
-                  ></span
-                  ><span
+                  ></span><span
                     class="silder-pointer3"
                     @click="scrollingDisplaySpeedValue = '50'"
-                  ></span
-                  ><span
+                  ></span><span
                     class="silder-pointer4"
                     @click="scrollingDisplaySpeedValue = '75'"
-                  ></span
-                  ><span
+                  ></span><span
                     class="silder-pointer5"
                     @click="scrollingDisplaySpeedValue = '100'"
                   ></span>
@@ -1858,8 +1787,7 @@
                       color: #d2d3d0;
                       width: 24px;
                     "
-                    >极慢</span
-                  >
+                    >极慢</span>
                   <span
                     v-show="scrollingDisplaySpeedValue === '25'"
                     style="
@@ -1868,8 +1796,7 @@
                       color: #d2d3d0;
                       width: 24px;
                     "
-                    >较慢</span
-                  >
+                    >较慢</span>
                   <span
                     v-show="
                       scrollingDisplaySpeedValue === '50' ||
@@ -1881,8 +1808,7 @@
                       color: #d2d3d0;
                       width: 24px;
                     "
-                    >正常</span
-                  >
+                    >正常</span>
                   <span
                     v-show="scrollingDisplaySpeedValue === '75'"
                     style="
@@ -1891,8 +1817,7 @@
                       color: #d2d3d0;
                       width: 24px;
                     "
-                    >较快</span
-                  >
+                    >较快</span>
                   <span
                     v-show="scrollingDisplaySpeedValue === '100'"
                     style="
@@ -1901,8 +1826,7 @@
                       color: #d2d3d0;
                       width: 24px;
                     "
-                    >极快</span
-                  >
+                    >极快</span>
                 </div>
               </div>
             </div>
@@ -1915,8 +1839,7 @@
             <span
               :style="{ display: store.userId ? 'initial' : 'none' }"
               style="color: #999999"
-              >已关闭弹幕</span
-            >
+              >已关闭弹幕</span>
             <span
               v-show="store.userId === null"
               style="color: #999999; position: absolute"
@@ -1928,8 +1851,7 @@
                     ? (loginDialogVisibleFlag = 1)
                     : (loginDialogVisibleFlag = 0)
                 "
-                >登录</span
-              >
+                >登录</span>
               或
               <span
                 style="color: #0FA68E; cursor: pointer"
@@ -1938,17 +1860,14 @@
                     ? (loginDialogVisibleFlag = 3)
                     : (loginDialogVisibleFlag = 2)
                 "
-                >注册</span
-              ></span
-            >
+                >注册</span></span>
             <span style="transform: translate(187px, -1px)"
               ><a
                 class="scrolling-regulation"
                 target="_blank"
                 href="https://www.qingmang.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
                 >弹幕礼仪 ></a
-              ></span
-            >
+              ></span>
             <span class="send-scrolling-btn-close">发送</span>
           </div>
           <!-- 打开 发送弹幕区域 -->
@@ -1981,27 +1900,23 @@
                     v-show="sendScrollingFontSize !== 16"
                     style="margin-right: 5px"
                     @click="sendScrollingFontSize = 16"
-                    >小</span
-                  >
+                    >小</span>
                   <span
                     v-show="sendScrollingFontSize === 16"
                     style="margin-right: 5px; background-color: #0FA68E"
                     @click="sendScrollingFontSize = 16"
-                    >小</span
-                  >
+                    >小</span>
                   <span
                     class="ss"
                     v-show="sendScrollingFontSize !== 20"
                     style="margin-left: 5px"
                     @click="sendScrollingFontSize = 20"
-                    >标准</span
-                  >
+                    >标准</span>
                   <span
                     v-show="sendScrollingFontSize === 20"
                     style="margin-left: 5px; background-color: #0FA68E"
                     @click="sendScrollingFontSize = 20"
-                    >标准</span
-                  >
+                    >标准</span>
                 </div>
                 <div style="margin-top: 15px">模式</div>
                 <div
@@ -2128,8 +2043,7 @@
                     ? (loginDialogVisibleFlag = 1)
                     : (loginDialogVisibleFlag = 0)
                 "
-                >登录</span
-              >
+                >登录</span>
               或
               <span
                 style="color: #0FA68E; cursor: pointer"
@@ -2138,20 +2052,16 @@
                     ? (loginDialogVisibleFlag = 3)
                     : (loginDialogVisibleFlag = 2)
                 "
-                >注册</span
-              ></span
-            >
+                >注册</span></span>
             <span style="transform: translate(234px, -1px)"
               ><a
                 class="scrolling-regulation"
                 target="_blank"
                 href="https://www.qingmang.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
                 >弹幕礼仪 ></a
-              ></span
-            >
+              ></span>
             <span class="send-scrolling-btn-open" @click="sendScrollingAxios"
-              >发送</span
-            >
+              >发送</span>
           </div>
         </div>
         <div
@@ -2226,8 +2136,7 @@
               <span
                 :class="{ likeVideoClickFlag: likeVideoClickFlag }"
                 class="up-video-controls-span1"
-                >{{ SelectVideoByIdVo.upVideo.likeNumber }}</span
-              >
+                >{{ SelectVideoByIdVo.upVideo.likeNumber }}</span>
             </span>
           </el-tooltip>
           <!-- 收藏 -->
@@ -2288,8 +2197,7 @@
               <span
                 :class="{ videoCollectClickFlag: videoCollectClickFlag }"
                 class="up-video-controls-span3"
-                >{{ SelectVideoByIdVo.upVideo.collectNumber }}</span
-              >
+                >{{ SelectVideoByIdVo.upVideo.collectNumber }}</span>
               <!-- 收藏对话框 -->
               <el-dialog
                 v-model="collectDialogVisible"
@@ -2333,8 +2241,7 @@
                         <span class="collect-list-item-num"
                           >{{ collectInfo.videoNumber }}
                           <span v-show="collectInfo.collectName !== `默认收藏夹`"
-                            >/1000</span
-                          >
+                            >/1000</span>
                         </span>
                       </div>
                     </div>
@@ -2405,8 +2312,7 @@
               <span
                 class="up-video-controls-span4"
                 :class="{ videoShareClickFlag: videoShareClickFlag }"
-                >{{ SelectVideoByIdVo.upVideo.shareNumber }}</span
-              >
+                >{{ SelectVideoByIdVo.upVideo.shareNumber }}</span>
           </span>
         </div>
         <div
@@ -2438,11 +2344,9 @@
                   <div class="scrolling-list-item-top">
                     <span style="margin-left: 17px; cursor: pointer">时间</span>
                     <span style="margin-left: 27px; cursor: pointer"
-                      >弹幕内容</span
-                    >
+                      >弹幕内容</span>
                     <span style="margin-left: 122px; cursor: pointer"
-                      >发送时间</span
-                    >
+                      >发送时间</span>
                   </div>
                   <div class="scrolling-list-item-bottom-container">
                     <div
@@ -2461,8 +2365,7 @@
                           margin-left: 17px;
                           color: #5D6764;
                         "
-                        >{{ videoTimeFormat(scrollingData.videoTime) }}</span
-                      >
+                        >{{ videoTimeFormat(scrollingData.videoTime) }}</span>
                       <el-tooltip
                         popper-class="custom-tooltip"
                         class="dynamicContent-item-tooltip"
@@ -2498,8 +2401,7 @@
                           store.userId !== scrollingData.userId
                         "
                         class="scrolling-list-item-sendTime"
-                        >{{ scrollingData.sendTime.slice(0, 16) }}</span
-                      >
+                        >{{ scrollingData.sendTime.slice(0, 16) }}</span>
                     </div>
                   </div>
                 </div>
@@ -2531,8 +2433,7 @@
             @click="tagClick(index)"
             v-for="index in SelectVideoByIdVo.upVideo.tag?.split(',')"
             :key="index"
-            >{{ index }}</span
-          >
+            >{{ index }}</span>
         </div>
         <comment />
         <Teleport
