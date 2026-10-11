@@ -3116,9 +3116,10 @@ export default {
     async function ChecklLogin() {
       try {
         const me = await authApi.me();
-        if (me && me.id) {
-          store.setUserId(me.id);
-          store.setUserInformation(me);
+        const meData = me.data || me;
+        if (meData && meData.id) {
+          store.setUserId(meData.id);
+          store.setUserInformation(meData);
         } else {
           store.setUserId(null);
         }

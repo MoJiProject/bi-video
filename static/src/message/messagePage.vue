@@ -1,5 +1,5 @@
 <template>
-  <div v-if="store.userId!== null" class="message-page" :style="{backgroundImage: 'url('+backgroundImgSrc[bIndex]+')'}">
+  <div v-if="store.token" class="message-page" :style="{backgroundImage: 'url('+backgroundImgSrc[bIndex]+')'}">
     <div class="message-head">
     <headComponent :head2-flag="true"/>
     </div>

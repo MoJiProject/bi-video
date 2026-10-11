@@ -2348,7 +2348,7 @@ export default {
        
         let res;
         try {
-res = await authApi.login({
+ res = await authApi.login({
             username: loginForm.userName,
             password: loginForm.password,
           });
@@ -2356,12 +2356,15 @@ res = await authApi.login({
           ElMessage({ message: err.message || "登录失败", type: "info", plain: true, duration: 1700 });
           return;
         }
-        setToken(res.token);
-        store.setUserId(res.userId);
+        const loginData = res.data || res;
+        setToken(loginData.token);
+        store.setToken(loginData.token);
+        store.setUserId(loginData.userId);
         openFullScreen2();
         const me = await authApi.me();
-        Object.assign(user, me);
-        store.setUserInformation(me);
+        const meData = me.data || me;
+        Object.assign(user, meData);
+        store.setUserInformation(meData);
 await getUserIp();
         timewait();
         loginDialogVisible.value = false;
@@ -2508,7 +2511,7 @@ await getUserIp();
 
         let res;
         try {
-res = await authApi.register({
+ res = await authApi.register({
             username: signinForm.userName,
             password: signinForm.password,
             // 注册表单里没有单独的昵称，用账号兜底
@@ -2519,11 +2522,14 @@ res = await authApi.register({
           ElMessage({ message: err.message || "注册失败", type: "info", plain: true, duration: 1700 });
           return;
         }
-        setToken(res.token);
-        store.setUserId(res.userId);
+        const loginData = res.data || res;
+        setToken(loginData.token);
+        store.setToken(loginData.token);
+        store.setUserId(loginData.userId);
         const me = await authApi.me();
-        Object.assign(user, me);
-        store.setUserInformation(me);
+        const meData = me.data || me;
+        Object.assign(user, meData);
+        store.setUserInformation(meData);
 flag.value = 1;
         handleClose();
       } catch (error) {
@@ -2585,8 +2591,8 @@ flag.value = 1;
         store.userInformation={};
         store.setToken(null);
         if(window.location.href.indexOf("message")>0
-        ||(window.location.href.indexOf("dynamc")>0
-        &&window.location.href.indexOf("dynamcDetail")===0)
+        ||(window.location.href.indexOf("dynamic")>0
+        &&window.location.href.indexOf("dynamicDetail")>0)
         ||window.location.href.indexOf("waitWatch")>0
         ||window.location.href.indexOf("history")>0
         ||window.location.href.indexOf("contribute")>0
@@ -2613,10 +2619,12 @@ flag.value = 1;
           return;
         }
         const me = await authApi.me();
-        if (me && me.userId) {
-          store.setUserId(me.userId);
-          Object.assign(user, me);
-          store.setUserInformation(me);
+        const meData = me.data || me;
+        if (meData && meData.userId) {
+          store.setToken(getToken());
+          store.setUserId(meData.userId);
+          Object.assign(user, meData);
+          store.setUserInformation(meData);
           dynamics.length = 0;
           await getDynamicAxiso();
           await getNewFansNumberAxiso();
@@ -2647,10 +2655,11 @@ flag.value = 1;
     async function refreshUser() {
       try {
         const me = await authApi.me();
-        if (me && me.userId) {
+        const meData = me.data || me;
+        if (meData && meData.userId) {
           user.length = 0;
-          Object.assign(user, me);
-          store.setUserInformation(me);
+          Object.assign(user, meData);
+          store.setUserInformation(meData);
         }
       } catch (error) {
 

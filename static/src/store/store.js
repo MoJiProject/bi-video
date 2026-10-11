@@ -2,9 +2,18 @@
 import { defineStore } from 'pinia'
 
 const TOKEN_KEY = 'bi_video_token'
+const USER_ID_KEY = 'bi_video_user_id'
 
 function getStoredToken() {
   return typeof localStorage === 'undefined' ? null : localStorage.getItem(TOKEN_KEY)
+}
+
+function getStoredUserId() {
+  if (typeof localStorage === 'undefined') return null
+  const raw = localStorage.getItem(USER_ID_KEY)
+  if (raw === null || raw === '') return null
+  const parsed = parseInt(raw, 10)
+  return Number.isNaN(parsed) ? null : parsed
 }
 
 export const useGlobalStore = defineStore('global', {
@@ -16,7 +25,7 @@ export const useGlobalStore = defineStore('global', {
       userIp: null,
       searchDisplayFlag2: false,
       loginDialogVisible: false,
-      userId: null,
+      userId: getStoredUserId(),
       loginLoadFlag: false,
       token: getStoredToken(),
       eitUserName: "", 
@@ -79,10 +88,18 @@ export const useGlobalStore = defineStore('global', {
       this.loginDialogVisible = newValue
     },
     setUserId(newValue) {
-      if(newValue===null)
+      if (newValue === null || newValue === '') {
         this.userId = null
-      else
-      this.userId = parseInt(newValue)
+        if (typeof localStorage !== 'undefined') {
+          localStorage.removeItem(USER_ID_KEY)
+        }
+      } else {
+        const parsed = parseInt(newValue, 10)
+        this.userId = Number.isNaN(parsed) ? null : parsed
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem(USER_ID_KEY, String(this.userId))
+        }
+      }
     },
     setLoginLoadFlag(newValue) {
       this.loginLoadFlag = newValue

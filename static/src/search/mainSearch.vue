@@ -1029,7 +1029,8 @@ watch(
     async function ChecklLogin() {
       try {
         const me = await authApi.me();
-        const id = me && me.id;
+        const meData = me.data || me;
+        const id = meData && meData.id;
         acceptSearchData.userId = id || 0;
         store.setUserId(id || null);
       } catch (error) {

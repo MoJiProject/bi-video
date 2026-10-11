@@ -12,6 +12,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import {useGlobalStore} from "../store/store";
+import { authApi } from "../api/product";
 import homeHead from './homeHead.vue';
 import homeAside from './homeAside.vue';
 import homeBody from './homeBody.vue';
@@ -54,6 +55,21 @@ const handlePopState = () => {
 onMounted(() => {
 
   if(!userId && !store.userId){
+    if(store.token){
+      authApi.me().then(me => {
+        if(me && me.userId){
+          store.setUserId(me.userId);
+          const urlParams = new URLSearchParams(window.location.search);
+          store.setHomeMenu(parseInt(urlParams.get("homeMenu")) || 1,true);
+          window.addEventListener('popstate', handlePopState);
+        }else{
+          window.location.href = './';
+        }
+      }).catch(() => {
+        window.location.href = './';
+      });
+      return;
+    }
     window.location.href = './';
     return;
   }

@@ -743,9 +743,10 @@ function changeMessageStatusF(sDialogue) {
 function syncUserMessageNumber() {
   if (!store.userId) return;
   authApi.me().then(me => {
-    if (!me || !me.id) return;
+    const meData = me.data || me;
+    if (!meData || !meData.id) return;
     const userInformation = { ...store.userInformation };
-    userInformation.messageNumber = Math.max(0, me.messageNumber || 0);
+    userInformation.messageNumber = Math.max(0, meData.messageNumber || 0);
     userInformation.allMessageNumber = userInformation.messageNumber
       + (userInformation.replyCommentNumber || 0)
       + (userInformation.atNumber || 0)

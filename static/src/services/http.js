@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const TOKEN_KEY = 'product_token';
+const TOKEN_KEY = 'bi_video_token';
 const BASE_URL = import.meta.env?.VITE_API_BASE || '/api';
 
 /**
