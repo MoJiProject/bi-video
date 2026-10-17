@@ -51,6 +51,24 @@ public class PrivateMessageController {
 
 
     /**
+     * 查询用户的私信未读总数
+     * @param userId
+     * @param token
+     * @return
+     */
+    @GetMapping("/selectNotReadNumber")
+    public R<Integer> selectNotReadNumber(@RequestParam Integer userId,@RequestHeader("Authorization") String token){
+
+        LoginLimiterServer limiterServer=new LoginLimiterServer();
+        if(!limiterServer.checkUser(userId,token))
+            return R.error("获取失败");
+
+        return R.success(privateMessageService.selectNotReadMessageNumber(userId));
+
+    }
+
+
+    /**
      * 修改私信对话的置顶状态
      * @param userId
      * @param id

@@ -332,23 +332,71 @@ public class PrivateMessageServiceImpl extends ServiceImpl<PrivateMessageMapper,
         Users users = userMapper.selectById(userId);
         if(users!=null)
         {
-            users.setMessageNumber(users.getMessageNumber()<privateMessages.size()?0:users.getMessageNumber()-privateMessages.size());
-            users.setAllMessageNumber(users.getMessageNumber() + users.getAtNumber() + users.getLikeAllNumber() + users.getReplyCommentNumber());
-            userMapper.updateById(users);
+            for (PrivateMessage privateMessage : privateMessages) {
+                privateMessage.setStatus(1);
+            }
+            boolean b = this.updateBatchById(privateMessages);
+            if(b)
+            {
+                //先落库已读，再按所有会话的未读数整体重算。
+                //私信数是历史累加出来的、可能有残留，只按本会话的条数减会清不掉，直接重算才准
+                Integer notReadNumber=this.countNotReadMessage(userId,users.getMessageWarn());
+                users.setMessageNumber(notReadNumber);
+                users.setAllMessageNumber(notReadNumber+zeroIfNull(users.getAtNumber())
+                        +zeroIfNull(users.getLikeAllNumber())+zeroIfNull(users.getReplyCommentNumber()));
+                userMapper.updateById(users);
+                cacheService.deleteDialogueByUserId(userId);
+                cacheService.deleteDialogueByUserId(dialogueId);
+                cacheService.deleteMessageByUserId(userId,dialogueId);
+                cacheService.deleteMessageByUserId(dialogueId,userId);
+            }
+            return b;
         }else return false;
+    }
 
-        for (PrivateMessage privateMessage : privateMessages) {
-            privateMessage.setStatus(1);
-        }
-        boolean b = this.updateBatchById(privateMessages);
-        if(b)
-        {
-            cacheService.deleteDialogueByUserId(userId);
-            cacheService.deleteDialogueByUserId(dialogueId);
-            cacheService.deleteMessageByUserId(userId,dialogueId);
-            cacheService.deleteMessageByUserId(dialogueId,userId);
-        }
-        return b;
+    @Override
+    public Integer selectNotReadMessageNumber(Integer userId) {
+
+        Users users = userMapper.selectById(userId);
+        if (users == null)
+            return 0;
+        return this.countNotReadMessage(userId, users.getMessageWarn());
+    }
+
+    //统计用户所有会话的未读私信数（跳过免打扰会话和自己已删除的消息）
+    private Integer countNotReadMessage(Integer userId, Integer messageWarn) {
+
+        if (userId == null)
+            return 0;
+        //私信提醒整体关闭时不再累计
+        if (messageWarn != null && messageWarn == 0)
+            return 0;
+        LambdaQueryWrapper<Dialogue> dialogueLambdaQueryWrapper=new LambdaQueryWrapper<>();
+        dialogueLambdaQueryWrapper.eq(Dialogue::getUserId,userId)
+                .eq(Dialogue::getDnd,0);
+        List<Dialogue> dialogues = dialogueMapper.selectList(dialogueLambdaQueryWrapper);
+        if (dialogues.isEmpty())
+            return 0;
+        List<Integer> senderIds = dialogues.stream()
+                .map(Dialogue::getDialogueId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+        if (senderIds.isEmpty())
+            return 0;
+        LambdaQueryWrapper<PrivateMessage> privateMessageLambdaQueryWrapper=new LambdaQueryWrapper<>();
+        privateMessageLambdaQueryWrapper.eq(PrivateMessage::getReceiverId,userId)
+                .eq(PrivateMessage::getStatus,0)
+                .in(PrivateMessage::getSenderId,senderIds)
+                .and(wrapper->wrapper.isNull(PrivateMessage::getDeleteSign)
+                        .or().ne(PrivateMessage::getDeleteSign,userId));
+        Long count=privateMessageMapper.selectCount(privateMessageLambdaQueryWrapper);
+        return count==null?0:count.intValue();
+    }
+
+    private int zeroIfNull(Integer number) {
+
+        return number == null ? 0 : number;
     }
 
     @Override
