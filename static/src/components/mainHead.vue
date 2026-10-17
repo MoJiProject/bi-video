@@ -14,19 +14,19 @@
         <a :href="item.href" target="_blank">{{ item.name }}</a>
       </li>
       <li class="hd-download">
-        <a href="#" @click.prevent>
+        <a href="./search?keyword=" target="_blank">
           <img
             v-show="!head2Flag"
-            src="/img/下载.png"
-            alt="下载客户端"
+            src="/img/搜索.png"
+            alt="发现"
             height="14px"
           />
           <img
             v-show="head2Flag"
-            src="/img/下载黑.png"
+            src="/img/搜索.png"
             height="14px"
           />
-          下载客户端</a
+          发现</a
         >
       </li>
       <li class="hd-search">
@@ -52,8 +52,8 @@
             <div style="margin-top: 15px; font-size: 18px;" @click="openHome(1)">{{store.userInformation?.userName}}</div>
             <div>
               <span style="font-size: 12px; color: #8F9794;"
-              >硬币：<span style="color: black">{{ user.coinNumber }}</span>
-              &nbsp;&nbsp;b币：<span style="color: black">0</span>
+              >青芒币：<span style="color: black">{{ user.coinNumber }}</span>
+              &nbsp;&nbsp;积分：<span style="color: black">0</span>
               </span>
             </div>
             <div
@@ -244,7 +244,7 @@
                     font-size: 13px;
                     transform: translate(-65px, 10px);
                   "
-                  >开通尊享会员
+                  >开通青芒会员
                   <div
                     style="
                       background-color: white;
@@ -338,8 +338,8 @@
               <li style="margin-left:15px;">
                 <img
                   src="/img/评论弹幕.png"
-                  alt="发表弹幕/评论"
-                />发表弹幕/评论
+                  alt="发表互动字幕/评论"
+                />发表互动字幕/评论
               </li>
               <li 
                 style="
@@ -350,8 +350,8 @@
               >
                 <img
                   src="/img/番剧影视.png"
-                  alt="热门番剧影视看不停"
-                />热门番剧影视看不停
+                  alt="热门动画影视看不停"
+                />热门动画影视看不停
               </li>
             </ul>
             <div style="display: flex; width: 100%; justify-content: center">
@@ -380,9 +380,9 @@
       </li>
       <li class="hd-vip">
         <a href="#">
-          <img v-show="!head2Flag" style="width: 17px;height: 17px;" src="/img/尊享会员.png" alt="尊享会员" />
-          <img v-show="head2Flag" style="width: 17px;height: 17px;" src="/img/尊享会员黑.png" alt="尊享会员" />
-           尊享会员
+          <img v-show="!head2Flag" style="width: 17px;height: 17px;" src="/img/尊享会员.png" alt="青芒会员" />
+          <img v-show="head2Flag" style="width: 17px;height: 17px;" src="/img/尊享会员黑.png" alt="青芒会员" />
+           青芒会员
         </a>
         <div class="transparent-div12"></div>
         <div v-if="store.userId !== null" class="vip-introduce">
@@ -397,7 +397,7 @@
                 margin-top: 10px;
                 transform: translateX(-135px);
               "
-              >尊享会员特权</span
+              >青芒会员权益</span
             ></a
           >
           <div style="margin-top: 15px; display: flex">
@@ -425,7 +425,7 @@
               ><img src="/img/会员免费看.png" /><a
                 style="color: black; margin-bottom: 2px; font-size: 14px"
                 href="#"
-                >会员免费看</a
+                >会员专享</a
               ></span
             >
           </div>
@@ -456,7 +456,7 @@
               ><img src="/img/会员专属装扮.png" /><a
                 style="margin-bottom: 2px; color: black; font-size: 14px"
                 href="#"
-                >会员专属装扮
+                >专属装扮
               </a></span
             >
           </div>
@@ -509,7 +509,7 @@
                 transform: translate(250px, -30px);
               "
             >
-              开通尊享会员
+              开通青芒会员
             </div>
             <span
               style="
@@ -1136,18 +1136,18 @@
               v-show="historyAsideFlag !== 1"
               @click="historyAsideFlag = 1"
               style="margin-right: 20px; margin-left: 20px"
-              >直播</span
+              >稍后</span
             >
             <span
               v-show="historyAsideFlag === 1"
               style="margin-right: 20px; margin-left: 20px; color: #0FA68E"
-              >直播</span
+              >稍后</span
             >
             <span v-show="historyAsideFlag !== 2" @click="historyAsideFlag = 2"
-              >专栏</span
+              >动态</span
             >
             <span v-show="historyAsideFlag === 2" style="color: #0FA68E"
-              >专栏</span
+              >动态</span
             >
             <span
               v-show="historyAsideFlag === 0"
@@ -2031,7 +2031,7 @@ import {useGlobalStore} from "../store/store";
 // 主导航。顺序按「内容占比」排，不是按字母；改顺序只改这里，不用动模板。
 const NAV_ITEMS = [
   { name: "动画", category: "动画" },
-  { name: "番剧", category: "番剧" },
+  { name: "动画剧场", category: "番剧" },
   { name: "影视", category: "影视" },
   { name: "音乐", category: "音乐" },
   { name: "游戏", category: "游戏" },
@@ -2313,6 +2313,29 @@ export default {
       flag.value = 1;
       loginDialogVisible.value = true;
     }
+
+    function normalizeAuthUser(raw) {
+      const data = raw?.data || raw || {};
+      const userId = data.userId ?? data.id;
+      return {
+        ...data,
+        id: data.id ?? userId,
+        userId,
+      };
+    }
+
+    function applyAuthUser(raw, token = getToken()) {
+      const meData = normalizeAuthUser(raw);
+      if (!meData.userId) return false;
+      if (token) {
+        store.setToken(token);
+      }
+      store.setUserId(meData.userId);
+      Object.assign(user, meData);
+      store.setUserInformation(meData);
+      return true;
+    }
+
     //登录请求
     async function loginAxios() { 
       try {
@@ -2359,12 +2382,10 @@ export default {
         const loginData = res.data || res;
         setToken(loginData.token);
         store.setToken(loginData.token);
-        store.setUserId(loginData.userId);
+        store.setUserId(loginData.userId ?? loginData.id);
         openFullScreen2();
         const me = await authApi.me();
-        const meData = me.data || me;
-        Object.assign(user, meData);
-        store.setUserInformation(meData);
+        applyAuthUser(me, loginData.token);
 await getUserIp();
         timewait();
         loginDialogVisible.value = false;
@@ -2525,11 +2546,9 @@ await getUserIp();
         const loginData = res.data || res;
         setToken(loginData.token);
         store.setToken(loginData.token);
-        store.setUserId(loginData.userId);
+        store.setUserId(loginData.userId ?? loginData.id);
         const me = await authApi.me();
-        const meData = me.data || me;
-        Object.assign(user, meData);
-        store.setUserInformation(meData);
+        applyAuthUser(me, loginData.token);
 flag.value = 1;
         handleClose();
       } catch (error) {
@@ -2590,24 +2609,12 @@ flag.value = 1;
         store.setUserId(null);
         store.userInformation={};
         store.setToken(null);
-        if(window.location.href.indexOf("message")>0
-        ||(window.location.href.indexOf("dynamic")>0
-        &&window.location.href.indexOf("dynamicDetail")>0)
-        ||window.location.href.indexOf("waitWatch")>0
-        ||window.location.href.indexOf("history")>0
-        ||window.location.href.indexOf("contribute")>0
-        ||window.location.href.indexOf("account")>0)
-        {
-          ElMessage({
-            message: "您还没有登录",
-            type: "info",
-            plain: true,
-            duration: 1700,
-          });
-          setTimeout(()=>{
-            window.location.href = "../";
-          },1800);
-        }
+        ElMessage({
+          message: "登录状态已失效，请重新登录",
+          type: "info",
+          plain: true,
+          duration: 1700,
+        });
     }
 
 
@@ -2619,12 +2626,7 @@ flag.value = 1;
           return;
         }
         const me = await authApi.me();
-        const meData = me.data || me;
-        if (meData && meData.userId) {
-          store.setToken(getToken());
-          store.setUserId(meData.userId);
-          Object.assign(user, meData);
-          store.setUserInformation(meData);
+        if (applyAuthUser(me)) {
           dynamics.length = 0;
           await getDynamicAxiso();
           await getNewFansNumberAxiso();
@@ -2648,6 +2650,7 @@ flag.value = 1;
           store.setToken(null);
         }
       } catch (error) {
+        refreshToHome();
       }
     }
     
@@ -2655,10 +2658,11 @@ flag.value = 1;
     async function refreshUser() {
       try {
         const me = await authApi.me();
-        const meData = me.data || me;
+        const meData = normalizeAuthUser(me);
         if (meData && meData.userId) {
           user.length = 0;
           Object.assign(user, meData);
+          store.setUserId(meData.userId);
           store.setUserInformation(meData);
         }
       } catch (error) {
@@ -4821,3 +4825,129 @@ a {
 }
 </style>
 <!-- /header-layout-pass3 -->
+
+<style scoped>
+/* header hover pass4：解决浮层被页面内容/横向滚动容器裁掉、右侧面板出屏的问题。 */
+.header,
+.v-header-ul,
+.v-header-ul > li,
+.avatar-container,
+.avatar {
+  overflow: visible;
+}
+
+.v-header-ul > li {
+  isolation: isolate;
+}
+
+.v-header-ul > li:hover,
+.avatar-container:hover,
+.avatar:hover {
+  z-index: var(--z-top);
+}
+
+.v-header-ul > li .vip-introduce,
+.v-header-ul > li .message-info,
+.v-header-ul > li .dynamic-info,
+.v-header-ul > li .collect-info,
+.v-header-ul > li .history-info,
+.v-header-ul > li .login-info2,
+.avatar-container .user-info,
+.avatar .login-info {
+  z-index: var(--z-top) !important;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - var(--head-h) - 32px);
+  border-color: var(--line);
+  box-shadow: 0 18px 48px rgba(28, 35, 33, .16);
+}
+
+.v-header-ul > li .dynamic-info,
+.v-header-ul > li .collect-info,
+.v-header-ul > li .history-info {
+  overflow: hidden;
+}
+
+.v-header-ul > li.hd-message .message-info,
+.v-header-ul > li.hd-message .login-info2,
+.v-header-ul > li.hd-dynamic .dynamic-info,
+.v-header-ul > li.hd-dynamic .login-info2,
+.v-header-ul > li.hd-collect .collect-info,
+.v-header-ul > li.hd-collect .login-info2,
+.v-header-ul > li.hd-history .history-info,
+.v-header-ul > li.hd-history .login-info2 {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+.avatar-container .user-info,
+.avatar .login-info {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+.v-header-ul > li.hd-vip .vip-introduce {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+}
+
+@media (max-width: 1120px) {
+  .v-header-ul > li.hd-nav:nth-child(n + 7) {
+    display: none;
+  }
+}
+
+@media (max-width: 980px) {
+  .v-header-ul {
+    overflow: visible;
+  }
+
+  .v-header-ul > li.hd-dynamic,
+  .v-header-ul > li.hd-collect,
+  .v-header-ul > li.hd-history {
+    display: none;
+  }
+
+  .v-header-ul > li .vip-introduce,
+  .v-header-ul > li .message-info,
+  .v-header-ul > li .dynamic-info,
+  .v-header-ul > li .collect-info,
+  .v-header-ul > li .history-info,
+  .v-header-ul > li .login-info2,
+  .avatar-container .user-info,
+  .avatar .login-info {
+    max-width: calc(100vw - 16px);
+  }
+}
+
+@media (max-width: 768px) {
+  .v-header-ul > li.hd-nav:nth-child(n + 5),
+  .v-header-ul > li.hd-message {
+    display: none;
+  }
+
+  .v-header-ul > li.hd-search {
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 520px) {
+  .v-header-ul > li.hd-nav,
+  .v-header-ul > li.hd-publish {
+    display: none;
+  }
+
+  .avatar-container .user-info,
+  .avatar .login-info {
+    position: fixed;
+    top: calc(var(--head-h) + 8px);
+    left: 8px;
+    right: 8px;
+    width: auto;
+    transform: none;
+  }
+}
+</style>
+<!-- /header-hover-pass4 -->

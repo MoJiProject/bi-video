@@ -318,9 +318,22 @@ const inviteSending = ref(false);
 let client = null;
 let clientToken = null;
 let attachedVideo = null;
-let applyingRemoteAction = false;
-let releaseRemoteTimer = null;
-let remoteSeekUntil = 0;
+// 远程动作落到本地播放器后，浏览器还会补发 play/pause 事件，
+// 这些属于同步回声，不能再发回房间，否则弱网下会互相拉扯。
+let remoteEchoUntil = 0;
+let remoteEchoTypes = new Set();
+// 远程对齐发起的跳转还没等到 seeked；用来把远程回声和用户拖动区分开。
+let remoteSeekPending = 0;
+let remoteSeekAt = 0;
+// 用户正在拖进度条：这段时间内不做任何纠偏，否则会把拖动结果拽回房间进度。
+let userSeekUntil = 0;
+let pointerHeld = false;
+let lastRoomSignature = '';
+let anchor = null;
+let lastServerTime = 0;
+let latency = 0;
+let buffering = false;
+let syncTimer = null;
 let lastSeekSentAt = 0;
 let pendingSeekTimer = null;
 
@@ -401,6 +414,13 @@ const STORAGE_KEY = 'watchTogetherPosition';
 const EDGE_GAP = 8;
 const SEEK_THROTTLE = 120;
 const INVITE_LIMIT = 10;
+const SYNC_INTERVAL = 2000;
+const DRIFT_TOLERANCE_PLAYING = 1;
+const DRIFT_TOLERANCE_PAUSED = 0.3;
+const RATE_TOLERANCE = 0.01;
+const RESYNC_TOLERANCE = 0.2;
+const USER_SEEK_GUARD = 1200;
+const REMOTE_SEEK_TIMEOUT = 1500;
 
 function loadStoredPosition() {
   try {
@@ -511,9 +531,20 @@ function ensureClient() {
   client = createWatchTogetherClient({
     token: clientToken,
     onMessage: handleMessage,
+    onLatency(value) {
+      latency = value;
+    },
     onStatus(status) {
       connected.value = status === 'open';
-      if (status === 'open' && roomId.value && props.videoId) joinRoom();
+      if (status === 'open') {
+        anchor = null;
+        if (roomId.value && props.videoId) joinRoom();
+        return;
+      }
+      if (status === 'closed' || status === 'error') {
+        anchor = null;
+        stopSyncLoop();
+      }
       if (status === 'auth_failed') {
         resetRoom();
         notify('warning', '登录已失效，请重新登录后加入房间');
@@ -559,6 +590,23 @@ function joinRoom() {
   });
 }
 
+function startSyncLoop() {
+  stopSyncLoop();
+  if (!room.value || !roomId.value) return;
+  requestSync();
+  syncTimer = window.setInterval(requestSync, SYNC_INTERVAL);
+}
+
+function stopSyncLoop() {
+  window.clearInterval(syncTimer);
+  syncTimer = null;
+}
+
+function requestSync() {
+  if (!room.value || !roomId.value || !client?.isOpen()) return;
+  client.send({ type: 'sync', roomId: room.value.roomId, videoId: props.videoId });
+}
+
 async function leaveRoom() {
   if (!room.value) return;
   try {
@@ -572,27 +620,62 @@ async function leaveRoom() {
     // 用户取消时无需提示。
     return;
   }
+  stopSyncLoop();
   client?.send({ type: 'leave', roomId: room.value.roomId });
-  runRemoteAction(() => videoElement.value?.pause());
+  runRemoteAction(() => videoElement.value?.pause(), ['pause']);
   resetRoom();
   notify('success', '已退出一起看房间');
 }
 
+function echoWindow() {
+  return Math.max(600, latency * 3);
+}
+
+function isRemoteEcho(type) {
+  return Date.now() < remoteEchoUntil && remoteEchoTypes.has(type);
+}
+
+function runRemoteAction(action, types = []) {
+  remoteEchoTypes = new Set(types);
+  remoteEchoUntil = Date.now() + echoWindow();
+  action();
+}
+
 function sendPlayback(type) {
-  if (!room.value || applyingRemoteAction || !videoElement.value) return;
+  if (!room.value || !videoElement.value) return;
+  if (type !== 'seek' && isRemoteEcho(type)) return;
+  const video = videoElement.value;
+  const expected = expectedTime();
+  const reportTime = type === 'seek' || expected == null ? video.currentTime || 0 : expected;
+  anchor = {
+    position: reportTime,
+    paused: video.paused,
+    rate: video.playbackRate || 1,
+    at: Date.now(),
+  };
   client?.send({
     type,
     roomId: room.value.roomId,
     videoId: props.videoId,
-    currentTime: videoElement.value.currentTime || 0,
-    playbackRate: videoElement.value.playbackRate || 1,
-    paused: videoElement.value.paused,
+    currentTime: reportTime,
+    playbackRate: video.playbackRate || 1,
+    paused: video.paused,
   });
 }
 
-// 远程跳转后短时间内产生的 seeked 属于同步结果，不再回播，避免互相回声形成死循环。
 function markRemoteSeek() {
-  remoteSeekUntil = Date.now() + 600;
+  remoteSeekPending = Math.min(remoteSeekPending + 1, 2);
+  remoteSeekAt = Date.now();
+}
+
+function consumeRemoteSeek() {
+  if (remoteSeekPending <= 0) return false;
+  if (Date.now() - remoteSeekAt > REMOTE_SEEK_TIMEOUT) {
+    remoteSeekPending = 0;
+    return false;
+  }
+  remoteSeekPending -= 1;
+  return true;
 }
 
 function sendSeek() {
@@ -610,10 +693,24 @@ function sendSeek() {
   }, SEEK_THROTTLE - (now - lastSeekSentAt));
 }
 
+function roomSignature(nextRoom) {
+  if (!nextRoom) return '';
+  const members = (nextRoom.participants || [])
+    .map(item => `${item.userId}:${item.online ? 1 : 0}${item.admin ? 'a' : ''}${item.owner ? 'o' : ''}${item.blacklisted ? 'b' : ''}`)
+    .join(',');
+  return `${nextRoom.ownerId}|${nextRoom.videoId}|${(nextRoom.adminIds || []).length}|${nextRoom.ownerName}|${members}`;
+}
+
 function handleMessage(message) {
-  if (message.type === 'state') {
+  if (message.type === 'state' || message.type === 'sync') {
+    if (message.type === 'sync' && roomSignature(message.room) === lastRoomSignature) {
+      applyRoomState(message.room, message);
+      return;
+    }
+    lastRoomSignature = roomSignature(message.room);
     room.value = message.room;
-    applyRoomState(message.room);
+    applyRoomState(message.room, message);
+    if (message.type === 'state' && !syncTimer) startSyncLoop();
     return;
   }
   if (['play', 'pause', 'seek', 'rate'].includes(message.type)) {
@@ -653,12 +750,17 @@ function handleMessage(message) {
     return;
   }
   if (message.type === 'error') {
+    if (message.requestType === 'sync') {
+      stopSyncLoop();
+      return;
+    }
     notify('error', message.message || '一起看操作失败');
   }
 }
 
 function closeClient() {
-  videoElement.value?.pause();
+  runRemoteAction(() => videoElement.value?.pause(), ['pause']);
+  stopSyncLoop();
   client?.close();
   client = null;
   clientToken = null;
@@ -668,12 +770,14 @@ function closeClient() {
 // 房间换了视频：所有端整页跳到新视频，进度由服务端 state 重新同步。
 function applyVideoSwitch(nextRoom) {
   room.value = nextRoom;
+  stopSyncLoop();
+  anchor = null;
   switchVideos.value = [];
   switchKeyword.value = '';
   switchSearched.value = false;
   const target = nextRoom?.videoId;
   if (!target || target === props.videoId) {
-    if (nextRoom) applyRoomState(nextRoom);
+    if (nextRoom) applyRoomState(nextRoom, null);
     return;
   }
   const url = new URL(window.location.href);
@@ -682,33 +786,79 @@ function applyVideoSwitch(nextRoom) {
   window.location.href = url.toString();
 }
 
-function applyRoomState(nextRoom) {
+function isStaleMessage(message) {
+  const sentAt = Number(message?.sentAt);
+  if (!Number.isFinite(sentAt) || !sentAt) return false;
+  if (lastServerTime && sentAt < lastServerTime) return true;
+  lastServerTime = sentAt;
+  return false;
+}
+
+function applyAnchor(state, message) {
+  if (!Number.isFinite(state?.currentTime)) return false;
+  if (isStaleMessage(message)) return false;
+  const paused = Boolean(state.paused);
+  const rate = state.playbackRate || 1;
+  const lag = paused ? 0 : (latency / 2000) * rate;
+  anchor = { position: state.currentTime + lag, paused, rate, at: Date.now() };
+  return true;
+}
+
+function expectedTime(now = Date.now()) {
+  if (!anchor) return null;
+  const raw = anchor.paused
+    ? anchor.position
+    : anchor.position + ((now - anchor.at) / 1000) * anchor.rate;
+  const duration = videoElement.value?.duration;
+  if (Number.isFinite(duration) && duration > 0) return Math.min(raw, duration);
+  return raw;
+}
+
+function applyRoomState(nextRoom, message) {
   if (!videoElement.value || !nextRoom) return;
-  runRemoteAction(() => {
-    if (Math.abs(videoElement.value.currentTime - nextRoom.currentTime) > 0.75) {
-      markRemoteSeek();
-      videoElement.value.currentTime = nextRoom.currentTime;
-    }
-    videoElement.value.playbackRate = nextRoom.playbackRate || 1;
-    if (nextRoom.paused) {
-      videoElement.value.pause();
-    } else {
-      playRemote();
-    }
-  });
+  if (!applyAnchor(nextRoom, message)) return;
+  reconcile(message?.type !== 'sync');
 }
 
 function applyPlaybackMessage(message) {
   if (!videoElement.value) return;
+  if (message.actorUserId && message.actorUserId === currentUserId.value) return;
+  if (!applyAnchor(message, message)) return;
+  reconcile(false);
+}
+
+function reconcile(force = false) {
+  const video = videoElement.value;
+  if (!video || !anchor) return;
+  if (pointerHeld || video.seeking || Date.now() < userSeekUntil) return;
+  const target = expectedTime();
+  if (target == null || !Number.isFinite(target) || target < 0) return;
+
+  const drift = Math.abs(video.currentTime - target);
+  const tolerance = force
+    ? RESYNC_TOLERANCE
+    : anchor.paused ? DRIFT_TOLERANCE_PAUSED : DRIFT_TOLERANCE_PLAYING;
+  const playStateChanged = anchor.paused !== video.paused;
+  const rateChanged = Math.abs(video.playbackRate - anchor.rate) > RATE_TOLERANCE;
+  if (drift <= tolerance && !playStateChanged && !rateChanged) return;
+
+  const shouldSeek = drift > tolerance && (!buffering || video.paused);
+  const shouldPause = anchor.paused && !video.paused;
+  const shouldPlay = !anchor.paused && video.paused;
+  const echoTypes = [];
+  if (shouldPause) echoTypes.push('pause');
+  if (shouldPlay) echoTypes.push('play');
+  if (rateChanged) echoTypes.push('rate');
+
   runRemoteAction(() => {
-    if (Math.abs(videoElement.value.currentTime - message.currentTime) > 0.5) {
+    if (shouldSeek) {
       markRemoteSeek();
-      videoElement.value.currentTime = message.currentTime;
+      video.currentTime = target;
     }
-    videoElement.value.playbackRate = message.playbackRate || 1;
-    if (message.type === 'pause') videoElement.value.pause();
-    if (message.type === 'play') playRemote();
-  });
+    if (rateChanged) video.playbackRate = anchor.rate;
+    if (shouldPause) video.pause();
+    if (shouldPlay) playRemote();
+  }, echoTypes);
 }
 
 // 浏览器不允许自动播放时才提示，避免 play 被 pause 打断时反复弹提示。
@@ -718,15 +868,6 @@ function playRemote() {
   pending.catch(error => {
     if (error?.name === 'NotAllowedError') notify('info', '点击视频开始同步播放');
   });
-}
-
-function runRemoteAction(action) {
-  applyingRemoteAction = true;
-  window.clearTimeout(releaseRemoteTimer);
-  action();
-  releaseRemoteTimer = window.setTimeout(() => {
-    applyingRemoteAction = false;
-  }, 150);
 }
 
 async function copyInvite() {
@@ -1076,8 +1217,11 @@ function updateRoomQuery(value) {
 }
 
 function resetRoom() {
+  stopSyncLoop();
   room.value = null;
   roomId.value = null;
+  anchor = null;
+  lastRoomSignature = '';
   closeSections();
   inviteSelected.value = [];
   switchVideos.value = [];
@@ -1095,6 +1239,13 @@ function attachVideo(video) {
   video.addEventListener('pause', onPause);
   video.addEventListener('seeked', onSeeked);
   video.addEventListener('ratechange', onRateChange);
+  video.addEventListener('seeking', onSeeking);
+  video.addEventListener('waiting', onWaiting);
+  video.addEventListener('canplay', onCanPlay);
+  video.addEventListener('playing', onCanPlay);
+  video.addEventListener('pointerdown', onPointerDown);
+  window.addEventListener('pointerup', onPointerUp);
+  window.addEventListener('pointercancel', onPointerUp);
 }
 
 function detachVideo() {
@@ -1103,28 +1254,64 @@ function detachVideo() {
   attachedVideo.removeEventListener('pause', onPause);
   attachedVideo.removeEventListener('seeked', onSeeked);
   attachedVideo.removeEventListener('ratechange', onRateChange);
+  attachedVideo.removeEventListener('seeking', onSeeking);
+  attachedVideo.removeEventListener('waiting', onWaiting);
+  attachedVideo.removeEventListener('canplay', onCanPlay);
+  attachedVideo.removeEventListener('playing', onCanPlay);
+  attachedVideo.removeEventListener('pointerdown', onPointerDown);
+  window.removeEventListener('pointerup', onPointerUp);
+  window.removeEventListener('pointercancel', onPointerUp);
   attachedVideo = null;
-  remoteSeekUntil = 0;
+  remoteSeekPending = 0;
+  pointerHeld = false;
+  buffering = false;
 }
 
 function onPlay() {
+  if (isRemoteEcho('play')) return;
   sendPlayback('play');
 }
 
 function onPause() {
   // 拖动进度条时页面会先暂停再恢复，这里不当作用户暂停同步给房间。
   if (attachedVideo?.seeking) return;
+  if (isRemoteEcho('pause')) return;
   sendPlayback('pause');
 }
 
 function onSeeked() {
-  // 远程跳转产生的时间窗内不再回播 seek，避免两个客户端互相回声。
-  if (Date.now() < remoteSeekUntil) return;
+  if (consumeRemoteSeek()) return;
+  userSeekUntil = Date.now() + USER_SEEK_GUARD;
   sendSeek();
 }
 
 function onRateChange() {
+  if (isRemoteEcho('rate')) return;
   sendPlayback('rate');
+}
+
+function onSeeking() {
+  userSeekUntil = Date.now() + USER_SEEK_GUARD;
+}
+
+function onWaiting() {
+  buffering = true;
+}
+
+function onCanPlay() {
+  buffering = false;
+  reconcile(false);
+}
+
+function onPointerDown() {
+  pointerHeld = true;
+  userSeekUntil = Date.now() + USER_SEEK_GUARD;
+}
+
+function onPointerUp() {
+  if (!pointerHeld) return;
+  pointerHeld = false;
+  userSeekUntil = Date.now() + USER_SEEK_GUARD;
 }
 
 watch(() => props.videoElement, video => {
@@ -1164,7 +1351,7 @@ function onWindowResize() {
 onBeforeUnmount(() => {
   detachVideo();
   unregisterWatchTogetherBridge(watchTogetherBridge);
-  window.clearTimeout(releaseRemoteTimer);
+  stopSyncLoop();
   window.clearTimeout(pendingSeekTimer);
   if (dragFrame) window.cancelAnimationFrame(dragFrame);
   window.removeEventListener('resize', onWindowResize);

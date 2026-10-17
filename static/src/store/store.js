@@ -88,14 +88,21 @@ export const useGlobalStore = defineStore('global', {
       this.loginDialogVisible = newValue
     },
     setUserId(newValue) {
-      if (newValue === null || newValue === '') {
+      if (newValue === null || newValue === undefined || newValue === '') {
         this.userId = null
         if (typeof localStorage !== 'undefined') {
           localStorage.removeItem(USER_ID_KEY)
         }
       } else {
         const parsed = parseInt(newValue, 10)
-        this.userId = Number.isNaN(parsed) ? null : parsed
+        if (Number.isNaN(parsed)) {
+          this.userId = null
+          if (typeof localStorage !== 'undefined') {
+            localStorage.removeItem(USER_ID_KEY)
+          }
+          return
+        }
+        this.userId = parsed
         if (typeof localStorage !== 'undefined') {
           localStorage.setItem(USER_ID_KEY, String(this.userId))
         }

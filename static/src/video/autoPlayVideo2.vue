@@ -14,11 +14,11 @@
           ></video>
           <span class="autoPlayVideo2-videoTime">{{ video.videoTime }}</span>
           <span class="auto-play-video-item-wait-watch" @click.stop="waitWatch(video.videoId)">
-            <div v-show="store.userId===null" class="auto-play-video-item-wait-watch-title">待看清单</div>
-            <div v-show="video.waitWatch===0" class="auto-play-video-item-wait-watch-title">待看清单</div>
+            <div v-show="store.userId===null" class="auto-play-video-item-wait-watch-title">稍后观看</div>
+            <div v-show="video.waitWatch===0" class="auto-play-video-item-wait-watch-title">稍后观看</div>
             <div v-show="video.waitWatch===1" class="auto-play-video-item-wait-watch-title">移除</div>
-            <div v-show="waitWatchInfoFlag&&video.waitWatch===1"  class="auto-play-video-item-wait-watch-info1">已加待看清单</div>  
-            <div v-show="waitWatchInfoFlag&&video.waitWatch===0"  class="auto-play-video-item-wait-watch-info2">已从待看清单列表中移除</div>
+            <div v-show="waitWatchInfoFlag&&video.waitWatch===1"  class="auto-play-video-item-wait-watch-info1">已加入稍后观看</div>
+            <div v-show="waitWatchInfoFlag&&video.waitWatch===0"  class="auto-play-video-item-wait-watch-info2">已从稍后观看中移除</div>
             <img v-show="store.userId===null" src="/img/waitWatch.png"/>
             <img v-show="video.waitWatch===0" src="/img/waitWatch.png"/>
             <img v-show="video.waitWatch===1" src="/img/addWaitWatch.png"/>
@@ -65,11 +65,11 @@
           ></video>
           <span class="autoPlayVideo2-videoTime">{{ video.videoTime }}</span>
           <span class="auto-play-video-item-wait-watch" @click.stop="waitWatch(video.videoId)">
-            <div v-show="store.userId===null" class="auto-play-video-item-wait-watch-title">待看清单</div>
-            <div v-show="video.waitWatch===0" class="auto-play-video-item-wait-watch-title">待看清单</div>
+            <div v-show="store.userId===null" class="auto-play-video-item-wait-watch-title">稍后观看</div>
+            <div v-show="video.waitWatch===0" class="auto-play-video-item-wait-watch-title">稍后观看</div>
             <div v-show="video.waitWatch===1" class="auto-play-video-item-wait-watch-title">移除</div>
-            <div v-show="waitWatchInfoFlag&&video.waitWatch===1"  class="auto-play-video-item-wait-watch-info1">已加待看清单</div>  
-            <div v-show="waitWatchInfoFlag&&video.waitWatch===0"  class="auto-play-video-item-wait-watch-info2">已从待看清单列表中移除</div>
+            <div v-show="waitWatchInfoFlag&&video.waitWatch===1"  class="auto-play-video-item-wait-watch-info1">已加入稍后观看</div>
+            <div v-show="waitWatchInfoFlag&&video.waitWatch===0"  class="auto-play-video-item-wait-watch-info2">已从稍后观看中移除</div>
             <img v-show="store.userId===null" src="/img/waitWatch.png"/>
             <img v-show="video.waitWatch===0" src="/img/waitWatch.png"/>
             <img v-show="video.waitWatch===1" src="/img/addWaitWatch.png"/>

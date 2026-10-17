@@ -213,7 +213,7 @@
         <img :src="currentTarget?.coverAddress" class="cover-sm" referrerpolicy="no-referrer" />
         <div class="target-meta">
           <div class="target-title">{{ currentTarget?.title }}</div>
-          <div class="sub-text">UP：{{ currentTarget?.userName }}</div>
+          <div class="sub-text">创作者：{{ currentTarget?.userName }}</div>
         </div>
       </div>
       <el-alert
@@ -221,7 +221,7 @@
         type="warning"
         :closable="false"
         show-icon
-        title="下架后该视频将从首页移除，UP 主的投稿数与动态数会同步回滚，已推送给粉丝的动态副本会被删除。"
+        title="下架后该视频将从首页移除，创作者的投稿数与动态数会同步回滚，已推送给粉丝的动态副本会被删除。"
         style="margin-bottom: 14px"
       />
       <el-alert
@@ -229,7 +229,7 @@
         type="info"
         :closable="false"
         show-icon
-        title="退回原因会展示给 UP 主，建议写明具体问题。"
+        title="退回原因会展示给创作者，建议写明具体问题。"
         style="margin-bottom: 14px"
       />
       <el-input
@@ -421,7 +421,7 @@ export default {
     async function handleExamine(row) {
       try {
         await confirmDanger(
-          `确定让「${row.title}」审核通过吗？通过后会重置发布时间并向该 UP 的所有粉丝推送一条动态。`,
+          `确定让「${row.title}」审核通过吗？通过后会重置发布时间并向该创作者的所有粉丝推送一条动态。`,
           "确定通过"
         );
       } catch (error) {

@@ -12,11 +12,28 @@
         <div class="hero-inner page">
           <div class="hero-copy">
             <h1 class="hero-title">青芒视频</h1>
-            <p class="hero-desc">看视频、发弹幕、追创作者 —— 分享每一次观看</p>
+            <p class="hero-desc">看视频、发互动字幕、追创作者 —— 分享每一次观看</p>
             <div class="hero-actions">
               <button class="hero-btn is-primary" @click="scrollToFeed">开始浏览</button>
               <button class="hero-btn" @click="store.loginDialogVisible = true">登录 / 注册</button>
             </div>
+          </div>
+          <div class="hero-panel">
+            <button class="hero-card" @click="goDiscover">
+              <span class="hero-card-kicker">发现内容</span>
+              <strong>按兴趣探索视频</strong>
+              <em>分类、搜索、热度推荐</em>
+            </button>
+            <button class="hero-card" @click="goContribute">
+              <span class="hero-card-kicker">创作发布</span>
+              <strong>上传你的作品</strong>
+              <em>封面、分区、标签管理</em>
+            </button>
+            <button class="hero-card" @click="goWatchLater">
+              <span class="hero-card-kicker">稍后观看</span>
+              <strong>收藏待看的灵感</strong>
+              <em>登录后多端同步</em>
+            </button>
           </div>
         </div>
       </section>
@@ -27,12 +44,12 @@
       <div class="rail page">
         <button
           v-for="c in categories"
-          :key="c"
+          :key="c.value"
           class="rail-chip"
-          :class="{ 'is-on': c === activeCategory }"
+          :class="{ 'is-on': c.value === activeCategory }"
           @click="goCategory(c)"
         >
-          {{ c }}
+          {{ c.label }}
         </button>
       </div>
     </nav>
@@ -40,7 +57,7 @@
     <!-- 视频流 -->
     <main class="page feed" ref="feedRef">
       <div class="section-head">
-        <h2>{{ activeCategory === '推荐' ? '推荐视频' : activeCategory }}</h2>
+        <h2>{{ activeCategory === '推荐' ? '推荐视频' : activeCategoryLabel }}</h2>
         <button class="text-btn" :class="{ 'is-busy': refreshing }" @click="refresh">
           <img class="icon icon-sm" src="/img/换一换.png" alt="" />
           换一换
@@ -71,7 +88,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import head1 from "./mainHead.vue";
 import homeVideoCard from "./homeVideoCard.vue";
 import { videoApi } from "../api/product";
@@ -80,10 +97,29 @@ import { useGlobalStore } from "../store/store";
 const store = useGlobalStore();
 
 const categories = [
-  "推荐", "动画", "番剧", "国创", "综艺", "影视", "电影", "电视剧",
-  "纪录片", "音乐", "舞蹈", "游戏", "知识", "生活", "时尚", "美食", "科技", "资讯",
+  { label: "推荐", value: "推荐" },
+  { label: "动画", value: "动画" },
+  { label: "动画剧场", value: "番剧" },
+  { label: "原创动画", value: "国创" },
+  { label: "综艺", value: "综艺" },
+  { label: "影视", value: "影视" },
+  { label: "电影", value: "电影" },
+  { label: "电视剧", value: "电视剧" },
+  { label: "纪录片", value: "纪录片" },
+  { label: "音乐", value: "音乐" },
+  { label: "舞蹈", value: "舞蹈" },
+  { label: "游戏", value: "游戏" },
+  { label: "知识", value: "知识" },
+  { label: "生活", value: "生活" },
+  { label: "时尚", value: "时尚" },
+  { label: "美食", value: "美食" },
+  { label: "科技", value: "科技" },
+  { label: "资讯", value: "资讯" },
 ];
 const activeCategory = ref("推荐");
+const activeCategoryLabel = computed(() => {
+  return categories.find((c) => c.value === activeCategory.value)?.label || activeCategory.value;
+});
 
 const videos = ref([]);
 const cursorId = ref(null);
@@ -101,7 +137,28 @@ function scrollToFeed() {
   feedRef.value?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-function goCategory(name) {
+function requireLoginThen(url) {
+  if (!store.userId) {
+    store.loginDialogVisible = true;
+    return;
+  }
+  window.open(url, "_blank");
+}
+
+function goDiscover() {
+  window.open("/search?keyword=", "_blank");
+}
+
+function goContribute() {
+  requireLoginThen("/contribute");
+}
+
+function goWatchLater() {
+  requireLoginThen("/waitWatch");
+}
+
+function goCategory(category) {
+  const name = category.value;
   if (name === "推荐") {
     scrollToFeed();
     refresh();
@@ -252,6 +309,48 @@ onUnmounted(() => {
   gap: var(--gap-3);
 }
 
+.hero-panel {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--gap-3);
+  width: min(620px, 52vw);
+}
+
+.hero-card {
+  min-height: 118px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, .34);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .16);
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .12);
+  transition: transform .2s ease, background .2s ease, border-color .2s ease;
+}
+
+.hero-card:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, .24);
+  border-color: rgba(255, 255, 255, .7);
+}
+
+.hero-card-kicker,
+.hero-card em {
+  display: block;
+  color: rgba(255, 255, 255, .78);
+  font-size: 12px;
+  font-style: normal;
+}
+
+.hero-card strong {
+  display: block;
+  margin: 10px 0 8px;
+  font-size: 16px;
+  line-height: 1.35;
+}
+
 .hero-btn {
   height: 38px;
   padding: 0 22px;
@@ -347,7 +446,7 @@ onUnmounted(() => {
 
 @media (max-width: 1120px) {
   .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .hero-stat { display: none; }
+  .hero-panel { display: none; }
 }
 
 @media (max-width: 820px) {

@@ -279,7 +279,7 @@
             placement="top-start"
             :width="300"
             trigger="hover"
-            content="网页端、桌面客户端推荐上传的格式为：mp4,flv
+            content="网页端、桌面端推荐上传的格式为：mp4,flv
                 （推荐上传的格式在转码过程更有优势，审核过程更快哦！）
                 其他允许上传的格式：mp4,flv,avi,wmv,mov,webm,mpeg4,ts,mpg,rm,rmvb,mkv,m4v"
           >
@@ -1428,10 +1428,10 @@ export default {
       { label: "科技", value: "科技" },
       { label: "动物圈", value: "动物圈" },
       { label: "舞蹈", value: "舞蹈" },
-      { label: "国创", value: "国创" },
+      { label: "原创动画", value: "国创" },
       { label: "鬼畜", value: "鬼畜" },
       { label: "纪录片", value: "纪录片" },
-      { label: "番剧", value: "番剧" },
+      { label: "动画剧场", value: "番剧" },
       { label: "电视剧", value: "电视剧" },
       { label: "电影", value: "电影" },
     ];

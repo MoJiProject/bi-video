@@ -949,7 +949,7 @@
                 class="scrolling-regulation1"
                 target="_blank"
                 href="https://www.qingmang.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
-                >弹幕礼仪 ></a
+                >互动规范 ></a
               ></span>
             <span class="send-scrolling-btn-close1">发送</span>
           </div>
@@ -1152,7 +1152,7 @@
                 class="scrolling-regulation1"
                 target="_blank"
                 href="https://www.qingmang.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
-                >弹幕礼仪 ></a
+                >互动规范 ></a
               ></span>
             <span class="send-scrolling-btn-open1" @click="sendScrollingAxios"
               >发送</span>
@@ -1866,7 +1866,7 @@
                 class="scrolling-regulation"
                 target="_blank"
                 href="https://www.qingmang.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
-                >弹幕礼仪 ></a
+                >互动规范 ></a
               ></span>
             <span class="send-scrolling-btn-close">发送</span>
           </div>
@@ -2058,7 +2058,7 @@
                 class="scrolling-regulation"
                 target="_blank"
                 href="https://www.qingmang.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
-                >弹幕礼仪 ></a
+                >互动规范 ></a
               ></span>
             <span class="send-scrolling-btn-open" @click="sendScrollingAxios"
               >发送</span>
@@ -2326,7 +2326,7 @@
           />
           <div class="wait-watch-info" @click="waitWatchAxios">
             <img src="/img/待看清单灰.png" />
-            <span>待看清单</span>
+            <span>稍后观看</span>
           </div>
           <div v-show="waitWatchMsg.length > 0" class="waitWatchMsg">
             {{ waitWatchMsg }}
@@ -2696,7 +2696,7 @@ export default {
     const videoShareClickFlag = ref(false);
     const likeVideoImgFlag = ref(false);
     const videoCollectClickFlag = ref(false);
-    /* 当前用户已投的硬币数，新接口的 /video/{id}/state 直接给 */
+    /* 当前用户已投的青芒币数，新接口的 /video/{id}/state 直接给 */
     const myCoinCount = ref(0);
     const collectInputButtonFlag = ref(false);
     const collectDialogVisible = ref(false);
@@ -2739,9 +2739,13 @@ export default {
     let scrollFlag=true;
     const videoWaitingFlag=ref(true);
     const innerWidth = ref(window.innerWidth);
+    function handleResize() {
+      innerWidth.value = window.innerWidth;
+    }
     //初始化数据
     onMounted(async () => {
       window.addEventListener("wheel",handleWheel);
+      window.addEventListener("resize", handleResize);
       setTimeout(() => {
         if(scrollFlag)
         window.scrollTo({top: 0, behavior: "smooth"});
@@ -2766,7 +2770,7 @@ export default {
       window.addEventListener("webkitfullscreenchange", handleFullscreenChange); // Safari
       window.addEventListener("mozfullscreenchange", handleFullscreenChange); // Firefox
       window.addEventListener("MSFullscreenChange", handleFullscreenChange); // IE/Edge
-      upVideoPlayer.value.addEventListener(
+      upVideoPlayer.value?.addEventListener(
         "leavepictureinpicture",
         handlePictureInPictureChange,
       );
@@ -2809,6 +2813,7 @@ export default {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("click", inputUpVideoTime);
       window.removeEventListener("keydown", handleKeydown);
+      window.removeEventListener("resize", handleResize);
       window.removeEventListener("fullscreenchange", handleFullscreenChange);
       window.removeEventListener(
         "webkitfullscreenchange",
@@ -2816,7 +2821,7 @@ export default {
       );
       window.removeEventListener("mozfullscreenchange", handleFullscreenChange);
       window.removeEventListener("MSFullscreenChange", handleFullscreenChange);
-      upVideoPlayer.value.removeEventListener(
+      upVideoPlayer.value?.removeEventListener(
         "leavepictureinpicture",
         handlePictureInPictureChange,
       );
@@ -8511,3 +8516,222 @@ a:hover {
 }
 </style>
 <!-- /video-layout-pass2 -->
+
+<style>
+/* 视频详情页产品化视觉层：只覆盖布局/视觉，不改播放器、弹幕、收藏、评论逻辑。 */
+.video-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 12% 0, rgba(15, 166, 142, .12), transparent 30%),
+    linear-gradient(180deg, #F7FBFA 0, #F4F7F6 320px, #F4F7F6 100%);
+}
+
+.video-page .video-head {
+  height: var(--head-h);
+  border-bottom: 1px solid rgba(224, 229, 227, .72);
+  box-shadow: 0 8px 24px rgba(28, 35, 33, .05);
+  backdrop-filter: saturate(140%) blur(8px);
+}
+
+.video-page .video-body-container {
+  padding-top: 28px;
+}
+
+.video-page .video-body {
+  max-width: 1180px;
+  row-gap: 14px;
+}
+
+.video-page .up-videoTitle,
+.video-page .up-video-infos-container,
+.video-page .video-content-container,
+.video-page .video-tage-container,
+.video-page .comment-container {
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, .94);
+  border: 1px solid rgba(224, 229, 227, .86);
+  box-shadow: 0 12px 32px rgba(28, 35, 33, .06);
+}
+
+.video-page .up-videoTitle {
+  padding: 22px 24px 6px;
+  border-bottom: 0;
+  border-radius: 18px 18px 0 0;
+  color: #17211F;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 34px;
+  letter-spacing: .2px;
+}
+
+.video-page .up-video-infos-container {
+  margin-top: -14px;
+  padding: 8px 24px 18px;
+  border-top: 0;
+  border-radius: 0 0 18px 18px;
+}
+
+.video-page .prohibition-tag {
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  background: var(--fill);
+}
+
+.video-page .up-user-avatar {
+  width: 44px;
+  height: 44px;
+  border: 2px solid #fff;
+  box-shadow: 0 8px 18px rgba(28, 35, 33, .12);
+}
+
+.video-page .expand-icon-container {
+  justify-self: end;
+  width: 28px;
+  height: 28px;
+  margin-top: -54px;
+  margin-right: 18px;
+  z-index: 2;
+  background: rgba(239, 243, 242, .9);
+}
+
+.video-page .video-stage {
+  margin-top: 8px;
+}
+
+.video-page .up-video-container {
+  border: 1px solid rgba(28, 35, 33, .08);
+  border-radius: 20px;
+  box-shadow: 0 22px 60px rgba(12, 25, 22, .18);
+}
+
+.video-page .video-content-container {
+  margin-top: 10px;
+  padding: 20px 24px;
+  border-radius: 18px 18px 0 0;
+}
+
+.video-page .video-content-container:empty::before {
+  content: "作者暂未添加视频简介";
+  color: var(--ink-3);
+}
+
+.video-page .video-content-container-switch {
+  justify-self: start;
+  margin-top: -10px;
+  padding: 0 24px 10px;
+  color: var(--brand);
+}
+
+.video-page .video-tage-container {
+  margin-top: -14px;
+  padding: 0 24px 18px;
+  border-top: 0;
+  border-radius: 0 0 18px 18px;
+}
+
+.video-page .video-tage-container span {
+  margin-top: 10px;
+  border: 1px solid transparent;
+}
+
+.video-page .video-tage-container span:hover {
+  border-color: var(--brand-light-5);
+  background: var(--brand-soft);
+  color: var(--brand-hover);
+}
+
+.video-page .comment-container {
+  padding: 6px 24px 24px;
+  border-radius: 18px;
+}
+
+.video-page .video-page-backtop {
+  --el-backtop-bg-color: #fff;
+  --el-backtop-hover-bg-color: var(--brand-soft);
+  color: var(--brand);
+  box-shadow: 0 12px 28px rgba(28, 35, 33, .12);
+}
+
+@media (max-width: 768px) {
+  .video-page .video-body-container {
+    padding: 16px 12px 48px;
+  }
+
+  .video-page .up-videoTitle {
+    padding: 16px 16px 4px;
+    font-size: 20px;
+    line-height: 28px;
+  }
+
+  .video-page .up-video-infos-container,
+  .video-page .video-content-container,
+  .video-page .video-tage-container,
+  .video-page .comment-container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .video-page .up-video-container {
+    border-radius: 14px;
+  }
+
+  .video-page .up-video-play-bottom-video-scrolling-container {
+    transform: none !important;
+  }
+
+  .video-page .up-video-controls-container {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .video-page .up-video-controls-container .up-video-controls-span {
+    margin-left: 14px !important;
+  }
+
+  .video-page .up-video-controls-container .up-video-controls-span:first-child {
+    margin-left: 8px !important;
+  }
+
+  .video-page .addWaitWatch {
+    right: 8px;
+    bottom: 58px;
+    transform: scale(.9);
+    transform-origin: right bottom;
+  }
+}
+
+@media (max-width: 520px) {
+  .video-page .up-videoTitle {
+    font-size: 18px;
+    line-height: 25px;
+  }
+
+  .video-page .up-video-infos-container {
+    gap: 6px;
+  }
+
+  .video-page .up-user-avatar-wrapper {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 4px;
+  }
+
+  .video-page .up-user-info {
+    left: 0;
+    right: 0;
+    width: min(350px, calc(100vw - 24px));
+    transform: none !important;
+  }
+
+  .video-page .up-video-controls-container .up-video-controls-span {
+    margin-left: 8px !important;
+  }
+
+  .video-page .up-video-controls-span1,
+  .video-page .up-video-controls-span3,
+  .video-page .up-video-controls-span4 {
+    font-size: 12px;
+  }
+}
+</style>

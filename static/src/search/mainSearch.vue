@@ -552,17 +552,17 @@ const TIME = [
 ];
 
 /* sub 是悬停时展示的子分类词。原先 12 个分类各带一个 el-tooltip 写死这些词。
-   disabled 的几项（番剧/汽车/纪录片/电影/电视剧）原本 tooltip 直接 :disabled="true"，
+   disabled 的几项（动画剧场/汽车/纪录片/电影/电视剧）原本 tooltip 直接 :disabled="true"，
    也就是没有子分类，保留该属性。 */
 const CLASSIFY = [
   { label: "全部分类", value: "全部" },
   { label: "动画", sub: ["MAD·AMV", "MMD·3D", "配音", "模玩·周边", "动漫杂谈", "综合"] },
-  { label: "番剧" },
-  { label: "国创", sub: ["国产动画", "国产原创相关", "布袋戏", "动态漫·广播剧", "新番时间表", "国产动画索引"] },
+  { label: "动画剧场", value: "番剧" },
+  { label: "原创动画", value: "国创", sub: ["国产动画", "国产原创相关", "布袋戏", "动态漫·广播剧", "新番时间表", "国产动画索引"] },
   { label: "音乐", sub: ["音乐现场", "翻唱", "乐评盘点", "VOCLOID·UTAU", "音乐粉丝饭拍", "AI音乐", "音乐教学", "音乐综合", "说唱"] },
   { label: "舞蹈", sub: ["宅舞", "街舞", "国风舞蹈", "舞蹈综合", "舞蹈教程"] },
-  { label: "游戏", sub: ["单机游戏", "电子竞技", "手机游戏", "网络游戏", "GMV", "音游", "游戏赛事"] },
-  { label: "知识", sub: ["科学科普", "社科·法律·心理", "人文历史", "财经商业", "职业职场", "野生技能协会", "游戏赛事"] },
+  { label: "游戏", sub: ["单机游戏", "电子竞技", "手机游戏", "网络游戏", "GMV", "音游", "游戏活动"] },
+  { label: "知识", sub: ["科学科普", "社科·法律·心理", "人文历史", "财经商业", "职业职场", "实用技能", "游戏活动"] },
   { label: "科技", sub: ["数码", "软件应用", "科工机械", "极客DIY"] },
   { label: "运动", sub: ["篮球", "足球", "竞技体育", "运动综合"] },
   { label: "汽车" },
@@ -642,10 +642,8 @@ const clickFlag7 = computed(() => clickFlag.value === 7);
 const resultTabs = computed(() => [
   { flag: 1, label: "综合", total: null },
   { flag: 2, label: "视频", total: acceptSearchData.videoTotal },
-  { flag: 3, label: "番剧", total: 0 },
+  { flag: 3, label: "动画剧场", total: 0 },
   { flag: 4, label: "影视", total: 0 },
-  { flag: 5, label: "直播", total: 0 },
-  { flag: 6, label: "专栏", total: 0 },
   { flag: 7, label: "用户", total: acceptSearchData.userTotal },
 ]);
 
@@ -742,7 +740,7 @@ watch(
        整块 770 行。五组筛选其实是同一个「单选」结构，收成一个 applyFilter。 */
     function applyFilter(dim, index) {
       if (dim === "classify") {
-        acceptSearchData.classify = CLASSIFY[index].label;
+        acceptSearchData.classify = CLASSIFY[index].value || CLASSIFY[index].label;
       } else {
         acceptSearchData[dim] = index;
       }
@@ -814,9 +812,10 @@ watch(
       await getUserIp();
       searchByKeyWordVideoOnce();
       selectUsersAxios();
-      document.title =
-        acceptSearchData.keyWord ||
-        acceptSearchData.classify + "-青芒视频";
+      const classifyTitle =
+        CLASSIFY.find((c) => (c.value || c.label) === acceptSearchData.classify)?.label ||
+        acceptSearchData.classify;
+      document.title = acceptSearchData.keyWord || classifyTitle + "-青芒视频";
       window.addEventListener("scroll", handleScroll); // 监听滚动事件
     });
     onUnmounted(() => {
@@ -1075,7 +1074,7 @@ watch(
       watch(
         () => acceptSearchData.classify,
         (name) => {
-          const i = CLASSIFY.findIndex((c) => c.label === name);
+          const i = CLASSIFY.findIndex((c) => (c.value || c.label) === name || c.label === name);
           classifyIndexRef.value = i < 0 ? 0 : i;
         },
         { immediate: true }

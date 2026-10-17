@@ -1,11 +1,11 @@
 <template>
     <div class="follow-anime">
         <div class="aside">
-            <span>补番</span>
+            <span>追看</span>
             <span>12</span>
         </div>
         <div class="content">
-            <div class="title">Alice推荐的番剧</div>
+            <div class="title">Alice推荐的动画剧场</div>
             <div class="condition">
                 <span :class="{activeStatus:status===''}" @click="status=''">全部</span>
                 <span :class="{activeStatus:status==='更新至第'}" @click="status='更新至第'">未完结</span>
@@ -34,7 +34,7 @@
                 <span :class="{activeTags:typeSource==='原创'}" @click="pushF2('原创')">原创</span>
                 <span :class="{activeTags:typeSource==='小说改'}" @click="pushF2('小说改')">小说改</span>
                 <span :class="{activeTags:typeSource==='游戏改'}" @click="pushF2('游戏改')">游戏改</span>
-                <span :class="{activeTags:typeSource==='漫画改'}" @click="pushF2('漫画改')">漫画改</span>
+                <span :class="{activeTags:typeSource==='漫画改'}" @click="pushF2('漫画改')">图文改编</span>
             </div>
             <div class="anime-list">
                 <followAnimeList :data="animeData"/>

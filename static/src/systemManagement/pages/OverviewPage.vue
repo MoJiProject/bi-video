@@ -63,7 +63,7 @@
               <a :href="'/video?videoId=' + scope.row.id" target="_blank" class="link">
                 {{ scope.row.title }}
               </a>
-              <div class="sub-text">UP：{{ scope.row.userName }}</div>
+              <div class="sub-text">创作者：{{ scope.row.userName }}</div>
             </template>
           </el-table-column>
           <el-table-column label="播放" width="90" align="right">

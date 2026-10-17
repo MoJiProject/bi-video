@@ -42,7 +42,7 @@
                 </div>
               </div>
               <div v-if="store.userId&&store.userId===store.homeUserInformation.id" class="aside-name" @click="openWaitWatch" :class="{'activeAside2': collectAsideOpenFlag}">
-                    <span>待看清单</span>
+                    <span>稍后观看</span>
               </div>
         </div>
         <div class="collect-body">

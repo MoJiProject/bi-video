@@ -26,7 +26,7 @@
       <button
         class="vcard-mark"
         :class="{ 'is-done': inWatchLater }"
-        :title="inWatchLater ? '已加入待看清单' : '加入待看清单'"
+        :title="inWatchLater ? '已加入稍后观看' : '加入稍后观看'"
         @click.stop="toggleMark"
       >
         <img class="icon icon-sm" :src="inWatchLater ? '/img/添加成功.png' : '/img/待看清单.png'" alt="" />
@@ -104,7 +104,7 @@ function formatCount(n) {
 }
 
 function open() {
-  window.open("/video?vId=" + props.video.id, "_blank");
+  window.open("/video?videoId=BV" + props.video.id, "_blank");
 }
 
 function openUser() {
@@ -150,13 +150,26 @@ async function toggleMark() {
   display: flex;
   flex-direction: column;
   gap: var(--gap-2);
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  background: transparent;
   cursor: pointer;
+  transition: transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.vcard:hover {
+  transform: translateY(-4px);
+  border-color: rgba(224, 229, 227, .9);
+  background: #fff;
+  box-shadow: 0 16px 36px rgba(28, 35, 33, .08);
 }
 
 .vcard-cover {
   position: relative;
   aspect-ratio: 16 / 9;
-  border-radius: var(--radius-md);
+  border-radius: 14px;
   overflow: hidden;
   background: var(--fill);
 }
@@ -166,6 +179,11 @@ async function toggleMark() {
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform .28s ease;
+}
+
+.vcard:hover .vcard-cover-img {
+  transform: scale(1.035);
 }
 
 .vcard-duration {
@@ -214,6 +232,7 @@ async function toggleMark() {
   flex-direction: column;
   gap: 6px;
   min-width: 0;
+  padding: 2px 2px 4px;
 }
 
 .vcard-title {

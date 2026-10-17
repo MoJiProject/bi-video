@@ -10,7 +10,7 @@
       <div class="info">
         <div class="name">{{ anime.name }}</div>
         <div class="introduce">{{ anime.introduce }}</div>
-        <div class="source">番剧 · 日本 · {{ anime.episodeCount }}</div>
+        <div class="source">动画剧场 · 日本 · {{ anime.episodeCount }}</div>
         <span class="tags" v-for="anime in anime.tag" :key="anime">
           <el-tag :type="tagType(anime)">{{ anime }}</el-tag>
         </span>
