@@ -2742,6 +2742,16 @@ export default {
     function handleResize() {
       innerWidth.value = window.innerWidth;
     }
+
+    function handleVisibilityChange() {
+      if (
+        document.visibilityState === "visible" &&
+        upVideoPlayer.value?.readyState >= 3
+      ) {
+        upVideoPlayer.value.autoplay = true;
+      }
+    }
+
     //初始化数据
     onMounted(async () => {
       window.addEventListener("wheel",handleWheel);
@@ -2814,6 +2824,7 @@ export default {
       window.removeEventListener("click", inputUpVideoTime);
       window.removeEventListener("keydown", handleKeydown);
       window.removeEventListener("resize", handleResize);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("fullscreenchange", handleFullscreenChange);
       window.removeEventListener(
         "webkitfullscreenchange",
@@ -3444,15 +3455,7 @@ export default {
           videoCloseAudioOrOpenAudioFlag.value = false;
           closeAudioFlag.value = true;
          })
-          // 监听页面的可见性变化
-          document.addEventListener("visibilitychange", () => {
-            if (
-              document.visibilityState === "visible" &&
-              upVideoPlayer.value.readyState >= 3
-            ) {
-              upVideoPlayer.value.autoplay = true;
-            }
-          });
+          document.addEventListener("visibilitychange", handleVisibilityChange);
         }
       } catch (error) {}
     }
