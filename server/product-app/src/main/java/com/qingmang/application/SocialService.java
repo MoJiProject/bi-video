@@ -6,8 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qingmang.common.constant.BizConstants;
 import com.qingmang.common.exception.BizException;
 import com.qingmang.common.exception.ErrorCode;
+import com.qingmang.domain.social.PrivateMessage;
 import com.qingmang.domain.social.UserFollow;
 import com.qingmang.domain.social.UserPost;
+import com.qingmang.domain.social.mapper.PrivateMessageMapper;
 import com.qingmang.domain.social.mapper.UserFollowMapper;
 import com.qingmang.domain.social.mapper.UserPostMapper;
 import com.qingmang.domain.user.mapper.UserStatsMapper;
@@ -27,16 +29,19 @@ public class SocialService {
 
     private final UserFollowMapper followMapper;
     private final UserPostMapper postMapper;
+    private final PrivateMessageMapper privateMessageMapper;
     private final UserStatsMapper statsMapper;
     private final CounterMapper counterMapper;
     private final SocialQueryMapper queryMapper;
     private final ObjectMapper json;
 
     public SocialService(UserFollowMapper followMapper, UserPostMapper postMapper,
+                         PrivateMessageMapper privateMessageMapper,
                          UserStatsMapper statsMapper, CounterMapper counterMapper,
                          SocialQueryMapper queryMapper, ObjectMapper json) {
         this.followMapper = followMapper;
         this.postMapper = postMapper;
+        this.privateMessageMapper = privateMessageMapper;
         this.statsMapper = statsMapper;
         this.counterMapper = counterMapper;
         this.queryMapper = queryMapper;
@@ -130,6 +135,15 @@ public class SocialService {
     /** otherId 为空看我关注的人，否则看关注我的人。 */
     public List<UserBriefVO> follows(Long viewerId, Long otherId, Long cursorId, int size) {
         return queryMapper.selectFollows(viewerId, otherId, cursorId, Math.min(size + 1, 101));
+    }
+
+    public int unreadPrivateMessageCount(Long userId) {
+        if (userId == null) return 0;
+        Long count = privateMessageMapper.selectCount(Wrappers.<PrivateMessage>lambdaQuery()
+                .eq(PrivateMessage::getReceiverId, userId)
+                .eq(PrivateMessage::getIsRead, Boolean.FALSE)
+                .isNull(PrivateMessage::getDeletedAt));
+        return count == null ? 0 : count.intValue();
     }
 
     private List<String> parseImages(String raw) {

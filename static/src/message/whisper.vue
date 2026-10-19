@@ -290,6 +290,7 @@ import { useGlobalStore } from "../store/store";
 import { ElMessage } from "element-plus";
 import {
   selectDialogue,
+  selectNotReadNumber,
   changeUpStatus,
   changeDndStatus,
   deleteDialogue,
@@ -367,6 +368,7 @@ function linkifyHtml(html) {
 onMounted(() => {
   window.addEventListener("click", outSideClick);
   selectDialogueF();
+  refreshUnreadNumber();
 });
 
 onUnmounted(() => {
@@ -1080,8 +1082,32 @@ function handleSaveImg(msg) {
 function updateMessageNumber(sum) {
   let userInformation = store.userInformation;
   userInformation.messageNumber = Math.max(0, (userInformation.messageNumber || 0) + sum);
-  userInformation.allMessageNumber = userInformation.messageNumber + userInformation.replyCommentNumber + userInformation.atNumber + userInformation.likeAllNumber;
+  userInformation.allMessageNumber = userInformation.messageNumber
+    + (userInformation.replyCommentNumber || 0)
+    + (userInformation.atNumber || 0)
+    + (userInformation.likeAllNumber || 0);
   store.setUserInformation(userInformation);
+}
+
+function setMessageNumber(messageNumber) {
+  const userInformation = { ...(store.userInformation || {}) };
+  userInformation.messageNumber = Math.max(0, messageNumber || 0);
+  userInformation.allMessageNumber = userInformation.messageNumber
+    + (userInformation.replyCommentNumber || 0)
+    + (userInformation.atNumber || 0)
+    + (userInformation.likeAllNumber || 0);
+  store.setUserInformation(userInformation);
+}
+
+async function refreshUnreadNumber() {
+  if (store.token === null || store.userId === null) return;
+  try {
+    const res = await selectNotReadNumber(store.token, store.userId);
+    if (res.data.code !== 1) return;
+    setMessageNumber(res.data.data);
+  } catch {
+    // 查询失败保持原数字，避免误清空未读提醒。
+  }
 }
 
 function jumpVideo(videoId) {

@@ -2,6 +2,8 @@ package com.qingmang.interfaces;
 
 import com.qingmang.application.SocialService;
 import com.qingmang.common.api.ApiResponse;
+import com.qingmang.common.exception.BizException;
+import com.qingmang.common.exception.ErrorCode;
 import com.qingmang.interfaces.dto.PostRequest;
 import com.qingmang.interfaces.vo.PostVO;
 import com.qingmang.interfaces.vo.UserBriefVO;
@@ -72,6 +74,15 @@ public class SocialController {
         Long other = "fans".equalsIgnoreCase(type) ? userId : null;
         List<UserBriefVO> rows = social.follows(me, other, cursorId, size);
         return ApiResponse.ok(cursorPage(rows, size));
+    }
+
+    @GetMapping("/privateMessage/selectNotReadNumber")
+    public ApiResponse<Integer> privateMessageUnreadCount(@RequestParam Long userId) {
+        Long me = AuthContext.requireUserId();
+        if (!me.equals(userId)) {
+            throw new BizException(ErrorCode.NO_PERMISSION);
+        }
+        return ApiResponse.ok(social.unreadPrivateMessageCount(userId));
     }
 
     private static Map<String, Object> cursorPage(List<?> rows, int size) {
