@@ -182,6 +182,7 @@ function submitChange() {
 }
 
 .account-user-info{
+min-height: 500px;
 
 .title{
 display: block;
@@ -211,9 +212,13 @@ padding: 20px 20px 0;
 position: relative;
     .content{
         margin-bottom: 22px;
+        display: flex;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 10px 0;
         .label{
         width: 95px;
-        float: left;
+        flex: 0 0 95px;
         text-align: right;
         margin-right: 20px;
         line-height: 30px;
@@ -240,7 +245,7 @@ position: relative;
         border-color: #409eff;
         }
         textarea{
-        width: 618px;
+        width: min(618px, calc(100% - 115px));
         height: 88px;
         resize: none;
         display: block;
@@ -285,6 +290,8 @@ position: relative;
     }
 }
 .btn-container{
+    position: relative;
+    height: 70px;
 
     button{
     width: 110px;
@@ -314,9 +321,39 @@ position: relative;
     }
 }
 
-
-
 }
 
+@media (max-width: 720px){
+    .account-user-info{
+        min-height: auto;
+
+        .title{
+            padding-left: 18px;
+        }
+
+        .user-info{
+            padding: 18px 14px 0;
+
+            .content{
+                flex-direction: column;
+                gap: 8px;
+
+                .label{
+                    width: auto;
+                    flex-basis: auto;
+                    text-align: left;
+                    margin-right: 0;
+                    line-height: 22px;
+                }
+
+                input,
+                textarea{
+                    width: 100%;
+                    margin-right: 0;
+                }
+            }
+        }
+    }
+}
 
 </style>

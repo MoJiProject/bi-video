@@ -108,7 +108,7 @@ watch(()=>store.userInformation,()=>{
   position: relative;
   width: 100%;
   min-height: 100vh;
-  background-position: 0px 50px;
+  background-position: center 50px;
   background-repeat: no-repeat;
   background-size: cover;
 
@@ -123,7 +123,7 @@ watch(()=>store.userInformation,()=>{
   position: fixed;
   background-color: white;
   box-shadow: 2px 0px 4px #d3d3d3;
-  z-index: 999;
+  z-index: 900;
 }
 .message-body {
   position: relative;

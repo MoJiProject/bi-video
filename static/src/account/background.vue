@@ -327,7 +327,7 @@ fill: #19AC96;
     margin-top: 14px;
     padding: 12px 16px 8px;
     background-color: #F4F7F6;
-    border-radius: 4px;
+    border-radius: 14px;
 
     .crop-row{
     display: flex;
@@ -394,6 +394,22 @@ cursor: pointer;
 background-color: #19AC96;
 border-color: #19AC96;}
 
+}
+
+@media (max-width: 720px){
+    .account-user-background{
+        .title{
+            padding-left: 18px;
+        }
+
+        .background-container{
+            padding: 16px 14px 22px;
+
+            .default-background{
+                border-radius: 14px;
+            }
+        }
+    }
 }
 
 </style>

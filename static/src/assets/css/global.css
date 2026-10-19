@@ -90,6 +90,110 @@
 .icon-lg { width: var(--icon-lg); height: var(--icon-lg); }
 .icon-xl { width: var(--icon-xl); height: var(--icon-xl); }
 
+/* 常见数据图标统一占位。老页面里点赞/踩/播放/弹幕等图标来自多套素材，
+   原始宽高不一致时容易出现同一行里高低、大小不齐。 */
+.comment-like-btn,
+.comment-dont-like-btn,
+.video-info-item img,
+.video .info img,
+.vcard-stat img {
+    width: var(--icon-sm) !important;
+    height: var(--icon-sm) !important;
+    object-fit: contain;
+    flex: none;
+    vertical-align: middle;
+}
+
+.video-info-item,
+.video .info > div,
+.vcard-stat {
+    align-items: center;
+}
+
+/* utils/ 下的复用卡片统一兜底。
+ * 这些组件被首页、搜索、历史、收藏、动态等页面复用，之前各组件单独写
+ * 13px/15px/17px 的图标尺寸和 translate 偏移，放在一起看会不齐。
+ */
+.video .video-link,
+.video .cover-img,
+.video .video-content,
+.img-dynamic .dynamic-img,
+.img-dynamic .img-container,
+.follow-anime-list img,
+.video-info img {
+    object-fit: cover;
+}
+
+.video .video-info,
+.img-dynamic .overlay,
+.video .info,
+.dynamic .fotter,
+.dynamic .fotter > div,
+.video .up-user-name,
+.video .watch-time {
+    display: flex;
+    align-items: center;
+}
+
+.video .video-info-item {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px;
+}
+
+.video .video-info-item img,
+.video .info img,
+.img-dynamic .overlay img,
+.video .up-user-name img,
+.video .watch-time img,
+.dynamic .fotter svg,
+.up-user-info-gender,
+.up-user-info-container-footer-add-follow img {
+    width: var(--icon-sm) !important;
+    height: var(--icon-sm) !important;
+    object-fit: contain !important;
+    flex: none;
+    vertical-align: middle;
+}
+
+.up-user-info-level {
+    width: 22px !important;
+    height: 11px !important;
+    object-fit: contain !important;
+}
+
+.wait-watch {
+    display: inline-flex !important;
+    align-items: center !important;
+    height: 28px;
+}
+
+.wait-watch > img {
+    width: var(--icon-sm) !important;
+    height: var(--icon-sm) !important;
+    margin-left: 5px !important;
+    object-fit: contain !important;
+}
+
+.img-dynamic .overlay > div,
+.dynamic .fotter > div {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px;
+}
+
+.img-dynamic .overlay span,
+.video .video-info-item span {
+    position: static !important;
+    transform: none !important;
+}
+
+.video .cover-img,
+.video .video-content,
+.img-dynamic .dynamic-img {
+    border-radius: 10px;
+}
+
 /* 页面容器：所有一级页面共用，保证左右留白一致 */
 .page {
     box-sizing: border-box;

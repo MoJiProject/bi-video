@@ -8653,6 +8653,77 @@ a:hover {
   box-shadow: 0 12px 28px rgba(28, 35, 33, .12);
 }
 
+/* 详情页互动按钮统一：点赞、收藏、分享使用同一按钮盒子和图标尺寸。
+   旧样式通过 inline margin + 绝对定位分别摆放，图标原始比例不同会显得高低不齐。 */
+.video-page .up-video-controls-container {
+  height: 64px;
+  gap: 14px;
+  padding: 0 12px;
+  border-bottom-color: rgba(224, 229, 227, .82);
+}
+
+.video-page .up-VideoProgress {
+  bottom: 66px;
+}
+
+.video-page .up-video-controls-container .up-video-controls-span {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 92px;
+  height: 40px;
+  margin: 0 !important;
+  padding: 0 12px;
+  border-radius: 12px;
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1;
+  transition: color .2s ease, background-color .2s ease, transform .2s ease;
+}
+
+.video-page .up-video-controls-container .up-video-controls-span:hover {
+  background: var(--brand-soft);
+  color: var(--brand);
+  transform: translateY(-1px);
+}
+
+.video-page .up-video-controls-img1,
+.video-page .up-video-controls-img3,
+.video-page .up-video-controls-img4 {
+  position: static;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex: none;
+}
+
+.video-page .up-video-controls-span1,
+.video-page .up-video-controls-span3,
+.video-page .up-video-controls-span4 {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  min-width: 20px;
+  height: 24px;
+  line-height: 24px;
+  font-variant-numeric: tabular-nums;
+}
+
+.video-page .up-video-controls-div1,
+.video-page .up-video-controls-div3 {
+  left: 8px;
+  top: 5px;
+}
+
+.video-page .addWaitWatch .wait-img,
+.video-page .wait-watch-info img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
 @media (max-width: 768px) {
   .video-page .video-body-container {
     padding: 16px 12px 48px;
@@ -8686,11 +8757,13 @@ a:hover {
   }
 
   .video-page .up-video-controls-container .up-video-controls-span {
-    margin-left: 14px !important;
+    min-width: 74px;
+    margin-left: 0 !important;
+    padding: 0 8px;
   }
 
   .video-page .up-video-controls-container .up-video-controls-span:first-child {
-    margin-left: 8px !important;
+    margin-left: 0 !important;
   }
 
   .video-page .addWaitWatch {
@@ -8725,7 +8798,10 @@ a:hover {
   }
 
   .video-page .up-video-controls-container .up-video-controls-span {
-    margin-left: 8px !important;
+    min-width: 52px;
+    gap: 5px;
+    margin-left: 0 !important;
+    padding: 0 6px;
   }
 
   .video-page .up-video-controls-span1,

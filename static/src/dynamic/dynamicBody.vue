@@ -1803,6 +1803,8 @@ position: relative;
   .dynamic-body {
     flex-direction: column;
     align-items: center;
+    padding-left: 12px;
+    padding-right: 12px;
   }
   .dynamic-body .left {
     width: 100%;
@@ -1814,6 +1816,59 @@ position: relative;
     width: 100%;
     max-width: 500px;
     margin-right: 0;
+  }
+}
+
+@media (min-width: 1101px) {
+  .dynamic-body {
+    gap: 16px;
+    padding-left: var(--page-pad);
+    padding-right: var(--page-pad);
+  }
+
+  .dynamic-body > .left {
+    position: sticky;
+    top: calc(var(--head-h, 64px) + 16px);
+    align-self: flex-start;
+    margin-right: 0;
+    z-index: 20;
+  }
+
+  .dynamic-body > .center {
+    width: min(724px, calc(100vw - 420px));
+    margin-right: 0;
+  }
+
+  .dynamic-body > .right {
+    width: clamp(180px, 18vw, 280px);
+  }
+}
+
+.dynamic-body > .left .user-info,
+.dynamic-body > .center > .top .publish-container,
+.dynamic-body > .center > .center,
+.dynamic-body > .center > .center2,
+.dynamic-body > .center > .center3 {
+  border: 1px solid rgba(224,229,227,0.72);
+  box-shadow: 0 18px 45px rgba(16, 41, 37, 0.06);
+}
+
+.dynamic-body > .center > .top .publish-container,
+.dynamic-body > .center > .center,
+.dynamic-body > .center > .center2,
+.dynamic-body > .center > .center3,
+.dynamic-body > .center .bottom .no-data {
+  border-radius: 18px;
+  background: rgba(255,255,255,0.94);
+}
+
+@media (max-width: 720px) {
+  .dynamic-body > .center > .top .publish-container {
+    padding: 24px 14px 12px;
+  }
+
+  .dynamic-body > .center > .center2 .title-list {
+    overflow-x: auto;
   }
 }
 </style>

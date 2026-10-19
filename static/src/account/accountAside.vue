@@ -47,22 +47,24 @@ if(store.accountMenu!==accountMenu)
 
 .account-aside{
   position: relative;
-  width: 150px;
+  width: 170px;
   min-height: 500px;
-  background-color: rgba(225, 226, 229,0.7);
+  background-color: rgba(255, 255, 255,0.86);
+  backdrop-filter: blur(14px);
   text-align: center;
   line-height: 50px;
   font-size: 16px;
   color: #1C2321;
-  border: 1px solid #e1e2e5;
-  border-radius: 5px 0 0 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .14);
+  border: 1px solid rgba(224,229,227,0.72);
+  border-radius: 18px;
+  box-shadow: 0 18px 45px rgba(16, 41, 37, 0.08);
   user-select: none;
   flex-shrink: 0;
+  overflow: hidden;
 
     .title{
     display: block;
-    width: 150px;
+    width: 100%;
     height: 50px;
     text-align: center;
     line-height: 50px;
@@ -74,8 +76,9 @@ if(store.accountMenu!==accountMenu)
 
     .menu-item{
       display: flex;
-      padding: 0px 25px 0px 10px;
-      justify-content: space-around;
+      padding: 0px 20px 0px 16px;
+      justify-content: flex-start;
+      gap: 18px;
       align-items: center;
       font-size: 14px;
       transition: all 0.3s ease;
@@ -110,6 +113,35 @@ if(store.accountMenu!==accountMenu)
         opacity: 1;
       }
     }
+}
+
+@media (max-width: 900px){
+  .account-aside{
+    width: 100%;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 18px;
+    overflow-x: auto;
+
+    .title{
+      display: none;
+    }
+
+    .menu-item{
+      flex: 0 0 auto;
+      min-width: 110px;
+      height: 40px;
+      padding: 0 14px;
+      border-radius: 12px;
+      justify-content: center;
+      gap: 16px;
+      line-height: 40px;
+      white-space: nowrap;
+    }
+  }
 }
 
 </style>

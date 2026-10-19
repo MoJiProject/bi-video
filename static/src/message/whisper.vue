@@ -2308,5 +2308,56 @@ function restoreBodyOverflow() {
     background-color: #2FB4A1;
 }
 
+@media (min-width: 901px){
+  .whisper-container{
+    --message-shell-left: max(16px, calc((100vw - 1180px) / 2));
+    --message-aside-width: 180px;
+    position: fixed;
+    top: 76px;
+    left: calc(var(--message-shell-left) + var(--message-aside-width) + 16px);
+    width: min(984px, calc(100vw - var(--message-shell-left) - var(--message-aside-width) - 40px));
+    min-width: 0;
+    z-index: 40;
+  }
+}
+
+@media (max-width: 900px){
+  .whisper-container{
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    top: 136px;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    z-index: 40;
+
+    .body{
+      height: calc(100vh - 198px);
+      min-height: 420px;
+      border-radius: 16px;
+    }
+
+    .head2{
+      border-radius: 16px;
+    }
+  }
+}
+
+@media (max-width: 640px){
+  .whisper-container{
+    .body{
+      flex-direction: column;
+      height: calc(100vh - 188px);
+
+      .body-left{
+        flex: 0 0 158px;
+        min-width: 0;
+        border-right: 0;
+        border-bottom: 1px solid #e9eaec;
+      }
+    }
+  }
+}
 
 </style>

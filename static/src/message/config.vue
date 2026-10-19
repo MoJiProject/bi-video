@@ -184,5 +184,57 @@
       }
   
   }
+
+  @media (min-width: 901px){
+    .config-container{
+      --message-shell-left: max(16px, calc((100vw - 1180px) / 2));
+      --message-aside-width: 180px;
+      position: fixed;
+      top: 76px;
+      left: calc(var(--message-shell-left) + var(--message-aside-width) + 16px);
+      width: min(984px, calc(100vw - var(--message-shell-left) - var(--message-aside-width) - 40px));
+      min-width: 0;
+      z-index: 40;
+
+      .head2,
+      .config{
+        border-radius: 16px;
+        box-shadow: 0 18px 45px rgba(16, 41, 37, 0.06);
+      }
+    }
+  }
+
+  @media (max-width: 900px){
+    .config-container{
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      top: 136px;
+      width: auto;
+      min-width: 0;
+      z-index: 40;
+      max-height: calc(100vh - 152px);
+      overflow-y: auto;
+
+      .head2,
+      .config{
+        border-radius: 16px;
+      }
+
+      .config{
+        padding: 18px 14px;
+      }
+
+      .switch{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 18px;
+
+        .close{
+          margin-left: 0;
+        }
+      }
+    }
+  }
   
   </style>

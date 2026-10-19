@@ -168,10 +168,84 @@ img{
 
 @media (max-width: 900px){
     .aside-container{
-        left: 0;
-        width: 132px;
+        left: 12px;
+        right: 12px;
+        top: 72px;
+        width: auto;
+        height: auto;
+        min-height: 0;
+        padding: 8px 10px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        overflow-x: auto;
+        background: rgba(255,255,255,0.92);
+        box-shadow: 0 10px 30px rgba(16, 41, 37, 0.08);
+
+        .title{
+            display: none;
+        }
+
+        ul{
+            position: static;
+            display: flex;
+            width: auto;
+            min-width: max-content;
+            left: auto;
+            top: auto;
+            gap: 6px;
+
+            li{
+                list-style: none;
+                width: auto;
+            }
+
+            .active{
+                position: relative;
+                left: auto;
+                top: auto;
+                padding: 0 12px;
+                line-height: 34px;
+                border-radius: 999px;
+                background: #F4F8F7;
+            }
+        }
+
+        .msg-setting{
+            position: static;
+            width: auto;
+            min-width: max-content;
+
+            img{
+                display: none;
+            }
+
+            .active{
+                position: static;
+                display: block;
+                padding: 0 12px;
+                line-height: 34px;
+                border-radius: 999px;
+                background: #F4F8F7;
+            }
+        }
+    }
+}
+
+@media (min-width: 901px){
+    .aside-container{
+        position: fixed;
+        top: 76px;
+        left: max(16px, calc((100vw - 1180px) / 2));
+        width: 180px;
+        height: calc(100vh - 100px);
+        border-radius: 18px;
+        background: rgba(255,255,255,0.88);
+        box-shadow: 0 18px 50px rgba(16, 41, 37, 0.08);
+        border: 1px solid rgba(224,229,227,0.75);
+        z-index: 60;
     }
 }
 
 </style>
-

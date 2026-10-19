@@ -1008,5 +1008,75 @@ function deleteCheckHistoryF(){
     background-color: #E0E5E3;
 }
 
+@media (min-width: 769px) {
+    .history-body{
+        padding-top: 36px;
+    }
+
+    .history-body .control-container{
+        top: 64px;
+        z-index: 70;
+        background: rgba(255,255,255,0.94);
+        backdrop-filter: blur(12px);
+    }
+}
+
+.history-body .head,
+.history-body .control-container .controls,
+.history-body .body{
+    border-radius: 18px;
+}
+
+.history-body .control-container .controls{
+    padding: 12px;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(224,229,227,0.72);
+    box-shadow: 0 18px 45px rgba(16, 41, 37, 0.05);
+}
+
+@media (max-width: 768px) {
+    .history-body{
+        padding: 20px 12px 0;
+    }
+
+    .history-body .head{
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .history-body .head .head-left{
+        font-size: 24px;
+    }
+
+    .history-body .head .head-right{
+        padding-right: 0;
+    }
+
+    .history-body .control-container{
+        top: 64px;
+        padding-top: 12px;
+        z-index: 70;
+        background: rgba(255,255,255,0.95);
+    }
+
+    .history-body .control-container .controls .control,
+    .history-body .control-container .controls .sort{
+        flex-wrap: wrap;
+        gap: 10px;
+        padding-left: 0;
+    }
+
+    .history-body .control-container .controls .control > *,
+    .history-body .control-container .controls .sort > div{
+        margin-right: 0;
+        margin-left: 0;
+    }
+
+    .history-body .control-container .controls .control .search-container{
+        flex: 1 1 220px;
+        width: auto;
+    }
+}
 
 </style>

@@ -14,6 +14,7 @@ import accountBody from "./accountBody.vue";
 import accountHead from "./accountHead.vue";
 import {useGlobalStore} from "../store/store";
 import { useBodyLayout } from "../composables/useBodyLayout";
+import { onBeforeUnmount, onMounted } from "vue";
 
 const backgroundImgSrc=[
   '/img/page-bg-1.png',
@@ -80,14 +81,29 @@ async function getUserIp(){
     .account-body-container{
         position: relative;
         z-index: 5;
-        margin-top: 50px;
+        width: min(1060px, calc(100% - 32px));
+        margin: 40px auto 0;
         display: flex;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: flex-start;
         flex-wrap: wrap;
         gap: 20px;
-        padding: 0 var(--page-pad);
+        padding: 0;
     }
+}
+
+@media (max-width: 900px){
+  .account-page{
+    min-height: 100dvh;
+    overflow-y: auto;
+    background-position: center top;
+
+    .account-body-container{
+      width: calc(100% - 24px);
+      margin-top: 18px;
+      gap: 12px;
+    }
+  }
 }
 
 </style>

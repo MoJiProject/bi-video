@@ -502,7 +502,7 @@ function deleteCheckwaitWatchF(){
                 vertical-align: middle;
                 }
                 .dropdown-menu{
-                z-index: 10000;
+                z-index: 180;
                 position: absolute;
                 left: 0px;
                 bottom: -100px;
@@ -959,5 +959,75 @@ function deleteCheckwaitWatchF(){
     background-color: #E0E5E3;
 }
 
+@media (min-width: 769px) {
+    .waitWatch-body{
+        padding-top: 36px;
+    }
+
+    .waitWatch-body .control-container{
+        top: 64px;
+        z-index: 70;
+        background: rgba(255,255,255,0.94);
+        backdrop-filter: blur(12px);
+    }
+}
+
+.waitWatch-body .head,
+.waitWatch-body .control-container .controls,
+.waitWatch-body .body{
+    border-radius: 18px;
+}
+
+.waitWatch-body .control-container .controls{
+    padding: 12px;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(224,229,227,0.72);
+    box-shadow: 0 18px 45px rgba(16, 41, 37, 0.05);
+}
+
+@media (max-width: 768px) {
+    .waitWatch-body{
+        padding: 20px 12px 0;
+    }
+
+    .waitWatch-body .head{
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .waitWatch-body .head .head-left{
+        font-size: 24px;
+    }
+
+    .waitWatch-body .head .head-right{
+        padding-right: 0;
+    }
+
+    .waitWatch-body .control-container{
+        top: 64px;
+        padding-top: 12px;
+        z-index: 70;
+        background: rgba(255,255,255,0.95);
+    }
+
+    .waitWatch-body .control-container .controls .control,
+    .waitWatch-body .control-container .controls .sort{
+        flex-wrap: wrap;
+        gap: 10px;
+        padding-left: 0;
+    }
+
+    .waitWatch-body .control-container .controls .control > *,
+    .waitWatch-body .control-container .controls .sort > div{
+        margin-right: 0;
+        margin-left: 0;
+    }
+
+    .waitWatch-body .control-container .controls .control .search-container{
+        flex: 1 1 220px;
+        width: auto;
+    }
+}
 
 </style>
