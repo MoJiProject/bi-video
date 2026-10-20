@@ -532,12 +532,13 @@ function openAccount(){
             column-gap: 16px;
             row-gap: 23px;
             display: grid;
-            grid-template-columns: repeat(5,193px);
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 193px), 1fr));
                 .video-item{
                     cursor: pointer;
                     position: relative;
                     top: 21px;
-                    width: 193px;
+                    min-width: 0;
+                    width: 100%;
                     height: 180px;
 
                     .collect-back{
@@ -890,21 +891,17 @@ function openAccount(){
     }
   }
 
-  :deep(.collect-list) {
-    grid-template-columns: repeat(4, 193px) !important;
-  }
 }
 
-@media (max-width: 940px) {
-  :deep(.collect-list) {
-    grid-template-columns: repeat(3, 193px) !important;
+@media (max-width: 720px) {
+  .home .home-div :is(.tribute-video, .collect, .throw-coin-video, .love-video) {
+    .title { flex-wrap: wrap; gap: 8px; }
+    .title .title-name { font-size: 20px; }
+    .title .more { position: static; margin-left: auto; flex: none; }
+    .video-sort { order: 1; flex-basis: 100%; left: auto; gap: 8px; }
+    .video-sort span { padding: 0 10px; font-size: 12px; }
   }
-}
-
-@media (max-width: 730px) {
-  :deep(.collect-list) {
-    grid-template-columns: repeat(2, 193px) !important;
-  }
+  .home-user-info-public { margin-left: 0 !important; }
 }
 
 </style>

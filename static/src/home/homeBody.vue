@@ -86,6 +86,10 @@ onBeforeUnmount(()=>{
 
 .home-component{
   width: 100%;
+  min-width: 0;
 }
+.home-component :deep(.page-container) { flex-wrap: wrap; gap: 12px; }
+.home-component :deep(.el-pagination) { flex-wrap: wrap; justify-content: center; gap: 4px; }
+.home-component :deep(.el-pager) { display: flex; flex-wrap: wrap; justify-content: center; }
 .unavailable { padding: 60px; text-align: center; color: #8D9794; }
 </style>

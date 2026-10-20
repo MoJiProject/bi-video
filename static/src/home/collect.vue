@@ -170,23 +170,26 @@ async function removeVideo(videoId) {
 </script>
 
 <style scoped>
-.collections { display: flex; gap: 32px; padding: 30px 40px; }
+.collections { box-sizing: border-box; display: flex; gap: var(--gap-6); padding: var(--gap-5) var(--page-pad); }
 aside { width: 200px; display: flex; flex-direction: column; gap: 12px; flex-shrink: 0; }
 aside button { text-align: left; border: 0; border-radius: 6px; padding: 12px; cursor: pointer; }
 aside .active { background: #0FA68E; color: white; }
 main { flex: 1; min-width: 0; }
 header { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
 header > img { width: 160px; border-radius: 8px; }
-header > div { flex: 1; }
+header > div { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 header h2 { margin: 0; }
 header p, header span { color: #8D9794; font-size: 13px; }
 .tools { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
 .tools .el-input { width: 240px; }
-.videos { display: grid; grid-template-columns: repeat(auto-fill, minmax(193px, 1fr)); gap: 16px; }
+.videos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 193px), 1fr)); gap: 16px; }
 .no-data { padding: 60px; text-align: center; color: #8D9794; }
 .el-pagination { margin-top: 24px; }
 @media (max-width: 720px) {
-  .collections { flex-direction: column; padding: 20px 16px; }
+  .collections { flex-direction: column; padding: var(--gap-4) var(--page-pad); }
   aside { width: 100%; }
+  aside button { overflow-wrap: anywhere; }
+  .tools > .el-input { width: 100%; }
+  .no-data { padding: 40px 12px; }
 }
 </style>

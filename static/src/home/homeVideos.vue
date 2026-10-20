@@ -20,7 +20,7 @@ defineProps({
 <style scoped>
 .home-videos {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(193px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 193px), 1fr));
   gap: 20px 16px;
 }
 .no-data {
@@ -34,7 +34,7 @@ defineProps({
 .list-layout { grid-template-columns: minmax(0, 1fr); }
 .list-layout :deep(.vcard) { flex-direction: row; }
 .list-layout :deep(.vcard-cover) { width: 240px; flex-shrink: 0; }
-.list-layout :deep(.vcard-body) { flex: 1; }
+.list-layout :deep(.vcard-body) { flex: 1; min-width: 0; }
 @media (max-width: 600px) {
   .list-layout :deep(.vcard-cover) { width: 45%; }
 }

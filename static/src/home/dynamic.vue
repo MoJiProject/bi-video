@@ -347,8 +347,9 @@ function openAccount(){
             div{
                 flex: 1;
             }
-            .home-user-info, .dynamic-list { grid-column: 1; grid-row: auto; }
         }
+
+        .home-user-info, .dynamic-list { grid-column: 1; grid-row: auto; }
     }
 }
 

@@ -227,8 +227,17 @@ async function toggleMark() {
 }
 
 .vcard:hover .vcard-mark,
+.vcard:focus-within .vcard-mark,
 .vcard-mark.is-done {
   opacity: 1;
+}
+
+@media (hover: none) {
+  .vcard-mark {
+    min-width: 36px;
+    min-height: 36px;
+    opacity: 1;
+  }
 }
 
 .vcard-mark:hover,

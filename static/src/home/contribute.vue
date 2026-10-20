@@ -209,8 +209,7 @@ function handleCurrentChange2(event) {
 
 .contribute {
   display: flex;
-  padding-left: 60px;
-  padding-top: 30px;
+  padding: var(--gap-5) var(--page-pad);
 
   .aside-container {
     position: sticky;
@@ -249,6 +248,7 @@ function handleCurrentChange2(event) {
   }
   .content {
     position: relative;
+    min-width: 0;
     width: 100%;
     padding-bottom: 60px;
 
@@ -388,7 +388,7 @@ function handleCurrentChange2(event) {
         span {
           color: #1C2321;
           font-size: 13px;
-          margin-left: 44px;
+          margin-left: 0;
           input {
             width: 50px;
             height: 34px;
@@ -422,8 +422,10 @@ function handleCurrentChange2(event) {
 }
 
 @media (max-width: 720px) {
-  .contribute { flex-direction: column; padding: 20px 16px; }
-  .contribute .aside-container { position: static; flex-direction: row; width: 100%; height: auto; }
-  .contribute .aside-container > div { flex: 1; }
+  .contribute { flex-direction: column; padding: var(--gap-4) var(--page-pad); }
+  .contribute .aside-container { position: static; flex-direction: row; gap: 8px; width: 100%; height: auto; margin-right: 0; }
+  .contribute .aside-container > div { flex: 1; min-width: 0; width: auto; }
+  .contribute .content .contribute-menu .video-sort { gap: 8px; padding-right: 32px; }
+  .contribute .content .contribute-menu .video-sort span { padding: 0 10px; font-size: 12px; }
 }
 </style>

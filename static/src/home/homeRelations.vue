@@ -100,8 +100,8 @@ async function setFollow(user) {
 </script>
 
 <style scoped>
-.relations { display: flex; gap: 32px; padding: 30px 60px; }
-aside { display: flex; flex-direction: column; width: 170px; gap: 12px; }
+.relations { box-sizing: border-box; display: flex; gap: var(--gap-6); padding: var(--gap-5) var(--page-pad); }
+aside { display: flex; flex: none; flex-direction: column; width: 170px; gap: 12px; }
 aside button { padding: 14px; border: 0; border-radius: 6px; cursor: pointer; background: #EFF3F2; }
 aside .active { color: white; background: #0FA68E; }
 section { flex: 1; min-width: 0; }
@@ -109,14 +109,18 @@ h2 { margin: 0 0 20px; font-size: 24px; }
 .el-input { max-width: 260px; margin-bottom: 16px; }
 .relation { display: flex; align-items: center; gap: 20px; padding: 20px 0; border-bottom: 1px solid #EFF3F2; }
 .relation img { width: 60px; height: 60px; border-radius: 50%; }
-.profile { flex: 1; }
+.profile { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 a { color: inherit; text-decoration: none; }
 p, .no-data { color: #8D9794; }
 .no-data { padding: 60px; text-align: center; }
 .el-pagination { margin-top: 24px; }
 @media (max-width: 720px) {
-  .relations { flex-direction: column; padding: 20px 16px; }
+  .relations { flex-direction: column; padding: var(--gap-4) var(--page-pad); }
   aside { flex-direction: row; width: 100%; }
   aside button { flex: 1; }
+  .relation { gap: 12px; }
+  .relation img { width: 44px; height: 44px; }
+  .relation > .el-button { flex: none; padding: 8px 12px; }
+  .no-data { padding: 40px 12px; }
 }
 </style>

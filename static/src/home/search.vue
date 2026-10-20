@@ -252,8 +252,7 @@ function handleCurrentChange2(event) {
 
 .dynamic-container {
   display: flex;
-  padding-left: 60px;
-  padding-top: 30px;
+  padding: var(--gap-5) var(--page-pad);
 
   .aside-container {
     position: sticky;
@@ -292,6 +291,7 @@ function handleCurrentChange2(event) {
   }
   .content-container {
     position: relative;
+    min-width: 0;
     width: 100%;
     padding-bottom: 60px;
 
@@ -303,6 +303,7 @@ function handleCurrentChange2(event) {
         line-height: 34px;
       }
       .find-info {
+        overflow-wrap: anywhere;
         color: #1C2321;
         margin-top: 16px;
         font-size: 14px;
@@ -383,7 +384,7 @@ function handleCurrentChange2(event) {
         span {
           color: #1C2321;
           font-size: 13px;
-          margin-left: 44px;
+          margin-left: 0;
           input {
             width: 50px;
             height: 34px;
@@ -452,5 +453,12 @@ function handleCurrentChange2(event) {
             }
       }
   }
+}
+@media (max-width: 720px) {
+  .dynamic-container { flex-direction: column; padding: var(--gap-4) var(--page-pad); }
+  .dynamic-container .aside-container { position: static; flex-direction: row; gap: 8px; width: 100%; height: auto; margin-right: 0; }
+  .dynamic-container .aside-container > div { flex: 1; min-width: 0; width: auto; }
+  .dynamic-container .content-container .search-menu .video-sort { gap: 8px; padding-right: 32px; }
+  .dynamic-container .content-container .search-menu .video-sort span { padding: 0 10px; font-size: 12px; }
 }
 </style>

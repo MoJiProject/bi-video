@@ -70,14 +70,21 @@ async function remove() {
 
 <style scoped>
 .home-post { padding: 24px; border-bottom: 1px solid #EFF3F2; background: white; }
-header { display: flex; align-items: center; gap: 12px; }
-header img { width: 40px; height: 40px; border-radius: 50%; }
+header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+header img { flex: none; width: 40px; height: 40px; border-radius: 50%; }
+header span { min-width: 0; overflow-wrap: anywhere; }
 time, footer { color: #8D9794; font-size: 13px; }
 p { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; }
-.images { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.images .el-image { height: 160px; border-radius: 6px; }
-a { display: flex; align-items: center; gap: 16px; color: inherit; text-decoration: none; margin: 16px 0; }
-a img { width: 180px; border-radius: 6px; }
+.images { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; max-width: 640px; }
+.images .el-image { min-width: 0; width: 100%; aspect-ratio: 1; border-radius: 6px; }
+a { display: flex; align-items: center; gap: 16px; color: inherit; text-decoration: none; margin: 16px 0; overflow-wrap: anywhere; }
+a img { flex: none; width: 180px; max-width: 40%; border-radius: 6px; }
 footer { margin-top: 16px; display: flex; align-items: center; gap: 16px; }
 footer a { margin: 0; }
+@media (max-width: 640px) {
+  .home-post { padding: 16px 12px; }
+  header { gap: 8px; }
+  header time { flex-basis: 100%; }
+  a { gap: 10px; font-size: 13px; }
+}
 </style>
