@@ -1,314 +1,97 @@
 <template>
-    <div class="settings">
-        <div v-show="!loadMore" class="title">隐私设置</div>
-        <loadingIndicator v-if="loadMore" min-height="160px"/>
-        <div class="content" v-show="canShowSettings&&!loadMore">
-            <div class="item"><span>公开我的收藏</span><el-switch class="custom-switch1" v-model="publicCollect"/> </div>
-            <div class="item"><span>公开我的追剧</span> <el-switch class="custom-switch1" v-model="publicAnime" /> </div>
-            <div class="item"><span>公开最近投币的视频</span> <el-switch class="custom-switch1" v-model="publicCoin"/> </div>
-            <div class="item"><span>公开最近点赞的视频</span> <el-switch class="custom-switch1" v-model="publicLove"/> </div>
-            <div class="item"><span>公开我的关注列表</span> <el-switch class="custom-switch1" v-model="publicFollowList"/> </div>
-            <div class="item"><span>公开我的粉丝列表</span> <el-switch class="custom-switch1" v-model="publicFansList"/> </div>
-            <div class="item"><span>公开我的生日、个人标签</span> <el-switch class="custom-switch1" v-model="publicBirthday"/> </div>
-        </div>
-        <div v-show="!loadMore" class="title">排序设置</div>
-        <div v-show="!loadMore" class="sort">
-            <div class="item" ref="sort">
-                <div><span :sortName="divs[0].class">{{ thumbName(divs[0].class) }}</span><img class="img1" src="/img/排序.png"><img class="img2" src="/img/取消关注白.png"></div>
-                <div><span :sortName="divs[1].class">{{ thumbName(divs[1].class) }}</span><img class="img1" src="/img/排序.png"><img class="img2" src="/img/取消关注白.png"></div>
-                <div><span :sortName="divs[2].class">{{ thumbName(divs[2].class) }}</span><img class="img1" src="/img/排序.png"><img class="img2" src="/img/取消关注白.png"></div>
-                <div><span :sortName="divs[3].class">{{ thumbName(divs[3].class) }}</span><img class="img1" src="/img/排序.png"><img class="img2" src="/img/取消关注白.png"></div>
-                <div><span :sortName="divs[4].class">{{ thumbName(divs[4].class) }}</span><img class="img1" src="/img/排序.png"><img class="img2" src="/img/取消关注白.png"></div>
-                <div><span :sortName="divs[5].class">{{ thumbName(divs[5].class) }}</span><img class="img1" src="/img/排序.png"><img class="img2" src="/img/取消关注白.png"></div>
-            </div>
-        </div>
+  <div class="settings">
+    <h2>隐私设置</h2>
+    <loadingIndicator v-if="loading" min-height="160px"/>
+    <div v-else>
+      <div v-for="setting in privacySettings" :key="setting.key" class="setting">
+        <span>{{ setting.label }}</span>
+        <el-switch :model-value="store.homeUserInformation[setting.key] === 1"
+          :disabled="saving" @change="savePrivacy(setting.key, $event)"/>
+      </div>
+      <p>投币、点赞记录和生日仅自己可见，追剧功能暂未开放。</p>
     </div>
+    <h2>排序设置</h2>
+    <div ref="sortElement">
+      <div v-for="item in divs" :key="item.class" :data-section="item.class" class="sort-item">
+        {{ item.label }} <span>拖动排序</span>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref,reactive, watch } from "vue";
-import { useGlobalStore } from "../store/store";
-import { putHomeSettings } from "../api/user/index";
-import { ElMessage } from "element-plus";
-import Sortable from "sortablejs";
-import loadingIndicator from "@/components/loadingIndicator.vue";
+import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import { ElMessage } from 'element-plus';
+import Sortable from 'sortablejs';
+import { useGlobalStore } from '@/store/store';
+import { putHomeSettings } from '@/api/home/user';
+import loadingIndicator from '@/components/loadingIndicator.vue';
 
 const store = useGlobalStore();
-const publicCollect = ref(false);
-const publicAnime = ref(false);
-const publicCoin = ref(false);
-const publicLove = ref(false);
-const publicFollowList = ref(false);
-const publicFansList = ref(false);
-const publicBirthday = ref(false);
-const sort=ref(null);
-const loadMore=ref(true);
+const loading = ref(true);
+const saving = ref(false);
+const sortElement = ref(null);
+let sortable;
+const privacySettings = [
+  { key: 'publicCollect', label: '公开我的收藏' },
+  { key: 'publicFollowList', label: '公开我的关注列表' },
+  { key: 'publicFansList', label: '公开我的粉丝列表' },
+];
+const sections = [
+  { class: 'magnum-video', label: '代表作' },
+  { class: 'tribute-video', label: '视频' },
+  { class: 'throw-coin-video', label: '最近投币的视频' },
+  { class: 'collect', label: '收藏夹' },
+  { class: 'follow-anime', label: '订阅剧集' },
+  { class: 'love-video', label: '最近点赞的视频' },
+];
+const saved = JSON.parse(localStorage.getItem('homeSort'));
+const validOrder = Array.isArray(saved) && saved.length === sections.length &&
+  new Set(saved.map(item => item.class)).size === sections.length &&
+  saved.every(item => sections.some(section => section.class === item.class));
+const divs = validOrder ? saved.map(item => sections.find(section => section.class === item.class)) : sections;
 
-const divs = reactive([
-    { class: 'magnum-video'},
-    { class: 'tribute-video'},
-    { class: 'throw-coin-video'},
-    { class: 'collect'},
-    { class: 'follow-anime'},
-    { class: 'love-video'}
-]);
+watch(() => store.homeUserInformation.id, (id) => {
+  if (id !== store.userId) return;
+  loading.value = false;
+  store.setHomeLoad(true, 'homeBody');
+  store.setHomeLoadMenuList(7);
+}, { immediate: true });
 
-onMounted(()=>{
-    
-    getSort();
-    if(store.userId!==null&&store.homeUserInformation.id===store.userId)
-    {
-        publicCollect.value=store.userInformation.publicCollect?true:false;
-        publicAnime.value=store.userInformation.publicAnime?true:false;
-        publicCoin.value=store.userInformation.publicCoin?true:false;
-        publicLove.value=store.userInformation.publicLove?true:false;  
-        publicFollowList.value=store.userInformation.publicFollowList?true:false;
-        publicFansList.value=store.userInformation.publicFansList?true:false;
-        publicBirthday.value=store.userInformation.publicBirthday?true:false;
-        onceFlag=false;
-        store.setHomeLoad(true,"homeBody");
-        store.setHomeLoadMenuList(7);
-        loadMore.value=false;
-    }
-    sort.value=Sortable.create(sort.value,{
-        animation: 150,
-        chosenClass: "sortabel-chosen",
-        onEnd: function() {
-            const sortArr = [];
-            const sortList = sort.value.querySelectorAll(".item div");
-            for (let i = 0; i < sortList.length; i++) {
-                let sort={};
-                sort.class=sortList[i].querySelector("span").getAttribute("sortName");
-                sortArr.push(sort);
-            }
-            localStorage.setItem("homeSort", JSON.stringify(sortArr));
-        }
-    });
-    
-
-})
-
-//更新设置
-function putSettingF() {
-
-    let userInfo2=store.userInformation;
-    userInfo2.publicCollect=publicCollect.value?1:0;
-    userInfo2.publicAnime=publicAnime.value?1:0;
-    userInfo2.publicCoin=publicCoin.value?1:0;
-    userInfo2.publicLove=publicLove.value?1:0;
-    userInfo2.publicFollowList=publicFollowList.value?1:0;
-    userInfo2.publicFansList=publicFansList.value?1:0;
-    userInfo2.publicBirthday=publicBirthday.value?1:0;
-    
-    putHomeSettings(store.token,userInfo2).then(res => {
-        if (res.data.code === 0) {
-            ElMessage({
-            message: "修改失败",
-            type: "info",
-            plain: true,
-            duration: 1700,
-            });
-        }else if(res.data.code === 1){
-            store.setUserInformation(userInfo2);
-        }
-    });
+async function savePrivacy(key, value) {
+  saving.value = true;
+  const updated = { ...store.homeUserInformation, [key]: value ? 1 : 0 };
+  try {
+    await putHomeSettings(store.token, updated);
+    store.setHomeUserInformation(updated);
+    store.setUserInformation({ ...store.userInformation, ...updated });
+  } catch (error) {
+    ElMessage.error(error.message);
+  } finally {
+    saving.value = false;
+  }
 }
 
-// 隐私字段全部到位后才允许渲染开关，否则会闪出一排全灭的开关。
-// 原来模板里写的是 v-show="checkValue&&!loadMore"，checkValue 是函数引用恒为真，
-// 这个判断等于没生效；函数体内还直接读 userInformation.publicCollect，
-// store 里还是 null 时会抛错。
-const canShowSettings = computed(()=>{
-    const u=store.userInformation;
-    if(!u)
-        return false;
-    return u.publicCollect!==undefined&&
-    u.publicAnime!==undefined&&
-    u.publicCoin!==undefined&&
-    u.publicLove!==undefined&&
-    u.publicFollowList!==undefined&&
-    u.publicFansList!==undefined&&
-    u.publicBirthday!==undefined;
+onMounted(() => {
+  sortable = Sortable.create(sortElement.value, {
+    animation: 150,
+    onEnd() {
+      const order = Array.from(sortElement.value.children, element => ({ class: element.dataset.section }));
+      localStorage.setItem('homeSort', JSON.stringify(order));
+    },
+  });
 });
-
-let onceFlag=true;
-watch(()=>store.userInformation,()=>{
-
-    if(onceFlag&&canShowSettings.value)
-    {
-        publicCollect.value=store.userInformation.publicCollect?true:false;
-        publicAnime.value=store.userInformation.publicAnime?true:false;
-        publicCoin.value=store.userInformation.publicCoin?true:false;
-        publicLove.value=store.userInformation.publicLove?true:false;  
-        publicFollowList.value=store.userInformation.publicFollowList?true:false;
-        publicFansList.value=store.userInformation.publicFansList?true:false;
-        publicBirthday.value=store.userInformation.publicBirthday?true:false;
-        onceFlag=false;
-        store.setHomeLoad(true,"homeBody");
-        store.setHomeLoadMenuList(7);
-        loadMore.value=false;
-    }
-},{deep:true,immediate:true});
-
-
-//监听设置
-watch(publicCollect,()=>{
-    if(!onceFlag)
-      putSettingF();
-})
-watch(publicAnime,()=>{
-    if(!onceFlag)
-      putSettingF();
-})
-watch(publicCoin,()=>{
-    if(!onceFlag)
-      putSettingF();
-})
-watch(publicLove,()=>{
-    if(!onceFlag)
-      putSettingF();
-})
-watch(publicFollowList,()=>{
-    if(!onceFlag)
-      putSettingF();
-})
-watch(publicFansList,()=>{
-    if(!onceFlag)
-      putSettingF();
-})
-watch(publicBirthday,()=>{
-    if(!onceFlag)
-      putSettingF();
-})
-
-//获取排序
-function getSort(){
-    const homeSort=JSON.parse(localStorage.getItem('homeSort'));
-    if(Array.isArray(homeSort)&&homeSort.length===6){
-        divs.length=0;
-        Object.assign(divs,homeSort);
-    }
-}
-
-//转换名字
-function thumbName(name){
-   if(name==='magnum-video')
-    {
-       return '代表作';
-    }else if(name==='tribute-video')
-    {
-       return '视频';
-    }else if(name==='throw-coin-video')
-    {
-       return '最近投币的视频';
-    }else if(name==='collect')
-    {
-       return '收藏夹';
-    }else if(name==='follow-anime')
-    {
-       return '订阅剧集';
-    }else if(name==='love-video')
-    {
-       return '最近点赞的视频';
-    }
-}
+onBeforeUnmount(() => sortable?.destroy());
 </script>
 
-<style lang="scss" scoped>
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+<style scoped>
+.settings { padding: 30px 60px; }
+h2 { font-size: 24px; margin: 0 0 24px; }
+.setting, .sort-item { display: flex; justify-content: space-between; width: 320px; padding: 12px 0; }
+p, .sort-item span { color: #8D9794; font-size: 13px; }
+.sort-item { cursor: grab; border-bottom: 1px solid #EFF3F2; }
+@media (max-width: 720px) {
+  .settings { padding: 20px 16px; }
+  .setting, .sort-item { width: 100%; max-width: 320px; }
 }
-
-.settings{
-    padding: 30px 60px;
-
-    .title{
-        font-size: 24px;
-        font-weight: 600;
-        color: #1C2321;
-        line-height: 34px;
-    }
-    .content{
-    margin-top: 30px;    
-    display: grid;
-    column-gap: 60px;
-    row-gap: 18px;
-    grid-template-columns: repeat(3, 320px);
-    margin-bottom: 30px;
-
-    .item{
-
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        span{
-        display: inline-block;
-        font-size: 15.5px;
-        line-height: 22px;
-        color: #1C2321;
-        }
-        .custom-switch1 {
-        width: 30px !important;
-        --el-switch-height: 20px; /* 修改高度 */
-        --el-switch-width: 30px !important; /* 修改宽度 */
-        --el-switch-on-color: #0FA68E !important;
-        }   
-    }
-    }   
-    .sort{
-    border: 1px solid #E0E5E3;
-    border-radius: 6px;
-    width: 322px;
-    margin-top: 30px;
-    cursor: grab;
-
-        .item{
-            div{
-            width: 320px;
-            height: 52px;
-            display: flex;
-            align-items: center;
-            user-select: none;
-
-                span{
-                margin: 15px 0 15px 16px;
-                width: 256px;
-                line-height: 22.4px;
-                font-weight: 400;
-                font-size: 16px;
-                color: #1C2321;  
-                }
-                img{
-                    width: 18px;
-                    height: 13.5px;
-                    margin: 14px 14px 14px 11px;
-                }
-
-                .img2{
-                    display: none;
-                }
-            }
-            div:hover{
-                background-color: #0FA68E;
-                    span{
-                        color: white;
-                    }
-                    .img1{
-                        display: none;
-                    }
-                    .img2{
-                        display: block;
-                    }
-                
-            }
-        }
-    }
-}
-
-.sortabel-chosen{
-    opacity: 0;
-}
-
 </style>

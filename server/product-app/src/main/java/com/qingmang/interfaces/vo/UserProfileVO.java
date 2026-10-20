@@ -24,6 +24,9 @@ public class UserProfileVO {
     private Integer role;
     private Boolean followed;
     private Boolean isSelf;
+    private Boolean showFavoriteList;
+    private Boolean showFollowList;
+    private Boolean showFansList;
     private LocalDateTime createdAt;
 
     private Long videoCount;

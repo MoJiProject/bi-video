@@ -21,7 +21,8 @@
                 AND r.reaction_type = 1) AS liked,
         EXISTS (SELECT 1 FROM video_reaction r WHERE r.video_id = v.id AND r.user_id = #{viewerId}
                 AND r.reaction_type = 2) AS coin_given,
-        EXISTS (SELECT 1 FROM favorite_item f WHERE f.video_id = v.id AND f.user_id = #{viewerId}) AS collected
+        EXISTS (SELECT 1 FROM favorite_item f WHERE f.video_id = v.id AND f.user_id = #{viewerId}) AS collected,
+        EXISTS (SELECT 1 FROM watch_later w WHERE w.video_id = v.id AND w.user_id = #{viewerId}) AS watch_later
     </sql>
 
     <!--
@@ -56,6 +57,19 @@
         FROM favorite_item fi JOIN video v ON v.id = fi.video_id
         WHERE fi.folder_id = #{folderId} AND v.deleted_at IS NULL AND v.status = 1
     </select>
+
+    <update id="decreaseDuplicateFolderStats">
+        UPDATE video_stats s
+        JOIN favorite_item src ON src.video_id = s.video_id AND src.folder_id = #{sourceId}
+        JOIN favorite_item dst ON dst.video_id = src.video_id AND dst.folder_id = #{targetId}
+        SET s.favorite_count = CASE WHEN s.favorite_count &gt; 0 THEN s.favorite_count - 1 ELSE 0 END
+    </update>
+
+    <delete id="removeDuplicateFolderItems">
+        DELETE src FROM favorite_item src
+        JOIN favorite_item dst ON dst.video_id = src.video_id AND dst.folder_id = #{targetId}
+        WHERE src.folder_id = #{sourceId}
+    </delete>
 
     <select id="selectWatchLater" resultType="com.qingmang.interfaces.vo.VideoListItemVO">
         SELECT <include refid="videoColumns"/>, <include refid="reactionFlags"/>

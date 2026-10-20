@@ -20,6 +20,10 @@ public interface UserContentQueryMapper {
 
     long countFolderVideos(@Param("folderId") Long folderId);
 
+    int decreaseDuplicateFolderStats(@Param("sourceId") Long sourceId, @Param("targetId") Long targetId);
+
+    int removeDuplicateFolderItems(@Param("sourceId") Long sourceId, @Param("targetId") Long targetId);
+
     /** 待看清单。owner 就是 viewer，所以互动状态用 userId 算。 */
     List<VideoListItemVO> selectWatchLater(@Param("userId") Long userId,
                                            @Param("cursorId") Long cursorId,

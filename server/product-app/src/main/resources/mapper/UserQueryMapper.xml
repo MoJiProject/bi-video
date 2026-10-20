@@ -6,6 +6,9 @@
     <select id="selectProfile" resultType="com.qingmang.interfaces.vo.UserProfileVO">
         SELECT u.id AS user_id, u.username, u.nickname, u.avatar_url, u.background_url, u.signature,
                u.gender, u.birthday, u.level, u.exp, u.coin_balance, u.role, u.created_at,
+               COALESCE(p.show_favorite_list, FALSE) AS show_favorite_list,
+               COALESCE(p.show_follow_list, FALSE) AS show_follow_list,
+               COALESCE(p.show_fans_list, FALSE) AS show_fans_list,
                CASE WHEN f.id IS NULL THEN FALSE ELSE TRUE END AS followed,
                COALESCE(s.video_count, 0)     AS video_count,
                COALESCE(s.post_count, 0)      AS post_count,
@@ -17,6 +20,7 @@
                COALESCE(s.coin_received, 0)   AS coin_received
         FROM `user` u
         LEFT JOIN user_stats s ON s.user_id = u.id
+        LEFT JOIN user_privacy p ON p.user_id = u.id
         LEFT JOIN user_follow f ON f.follower_id = #{viewerId} AND f.followee_id = u.id
         WHERE u.id = #{userId} AND u.deleted_at IS NULL
         LIMIT 1

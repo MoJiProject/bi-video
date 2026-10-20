@@ -2,6 +2,8 @@ package com.qingmang.interfaces.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
 import lombok.Data;
 
 @Data
@@ -15,5 +17,10 @@ public class FolderRequest {
     private String description;
 
     /** 0 私密 1 公开 */
-    private Integer visibility = 1;
+    @Min(0)
+    @Max(1)
+    private Integer visibility;
+
+    @Size(max = 512, message = "封面地址过长")
+    private String coverUrl;
 }

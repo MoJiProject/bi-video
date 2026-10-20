@@ -18,6 +18,8 @@ import com.qingmang.infrastructure.mapper.CounterMapper;
 import com.qingmang.infrastructure.mapper.UserQueryMapper;
 import com.qingmang.interfaces.dto.LoginRequest;
 import com.qingmang.interfaces.dto.RegisterRequest;
+import com.qingmang.interfaces.dto.ProfileUpdateRequest;
+import com.qingmang.interfaces.dto.PrivacyUpdateRequest;
 import com.qingmang.interfaces.vo.LoginRow;
 import com.qingmang.interfaces.vo.UserProfileVO;
 import com.qingmang.support.AuthContext;
@@ -134,6 +136,10 @@ public class AuthService {
             throw new BizException(ErrorCode.ACCOUNT_NOT_FOUND);
         }
         vo.setIsSelf(userId.equals(viewer));
+        if (!userId.equals(viewer)) {
+            vo.setBirthday(null);
+            vo.setCoinBalance(null);
+        }
         if (viewer == null) {
             vo.setFollowed(null);
         }
@@ -142,6 +148,34 @@ public class AuthService {
 
     public UserProfileVO currentProfile() {
         return profile(AuthContext.requireUserId());
+    }
+
+    @Transactional
+    public void updateProfile(Long userId, ProfileUpdateRequest request) {
+        requireActiveUser(userId);
+        userMapper.update(null, Wrappers.<User>lambdaUpdate().eq(User::getId, userId)
+                .set(User::getSignature, request.getSignature()));
+    }
+
+    @Transactional
+    public void updatePrivacy(Long userId, PrivacyUpdateRequest request) {
+        requireActiveUser(userId);
+        UserPrivacy privacy = privacyMapper.selectOne(Wrappers.<UserPrivacy>lambdaQuery()
+                .eq(UserPrivacy::getUserId, userId));
+        if (privacy == null) {
+            privacy = new UserPrivacy();
+            privacy.setUserId(userId);
+            privacy.setShowFavoriteList(request.getShowFavoriteList());
+            privacy.setShowFollowList(request.getShowFollowList());
+            privacy.setShowFansList(request.getShowFansList());
+            privacyMapper.insert(privacy);
+        } else {
+            privacyMapper.update(null, Wrappers.<UserPrivacy>lambdaUpdate()
+                    .eq(UserPrivacy::getUserId, userId)
+                    .set(UserPrivacy::getShowFavoriteList, request.getShowFavoriteList())
+                    .set(UserPrivacy::getShowFollowList, request.getShowFollowList())
+                    .set(UserPrivacy::getShowFansList, request.getShowFansList()));
+        }
     }
 
     private Map<String, Object> tokenPayload(Long uid) {

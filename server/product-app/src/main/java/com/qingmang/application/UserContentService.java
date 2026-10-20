@@ -17,6 +17,7 @@ import com.qingmang.infrastructure.mapper.CounterMapper;
 import com.qingmang.infrastructure.mapper.UserContentQueryMapper;
 import com.qingmang.interfaces.vo.FolderVO;
 import com.qingmang.interfaces.vo.VideoListItemVO;
+import com.qingmang.interfaces.dto.FolderRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,7 +65,7 @@ public class UserContentService {
     }
 
     @Transactional
-    public FolderVO createFolder(Long userId, String name, String description, int visibility) {
+    public FolderVO createFolder(Long userId, String name, String description, int visibility, String coverUrl) {
         long exists = folderMapper.selectCount(Wrappers.<FavoriteFolder>lambdaQuery()
                 .eq(FavoriteFolder::getOwnerId, userId)
                 .eq(FavoriteFolder::getName, name));
@@ -76,6 +77,7 @@ public class UserContentService {
         f.setName(name);
         f.setDescription(description);
         f.setVisibility(visibility);
+        f.setCoverUrl(coverUrl);
         f.setIsDefault(Boolean.FALSE);
         f.setItemCount(0);
         folderMapper.insert(f);
@@ -83,13 +85,19 @@ public class UserContentService {
     }
 
     @Transactional
-    public void renameFolder(Long userId, Long folderId, String name, String description) {
+    public void updateFolder(Long userId, Long folderId, FolderRequest request) {
         requireOwnedFolder(userId, folderId);
+        long duplicates = folderMapper.selectCount(Wrappers.<FavoriteFolder>lambdaQuery()
+                .eq(FavoriteFolder::getOwnerId, userId).eq(FavoriteFolder::getName, request.getName())
+                .ne(FavoriteFolder::getId, folderId));
+        if (duplicates > 0) throw new BizException(ErrorCode.FOLDER_NAME_DUPLICATED);
         folderMapper.update(null, Wrappers.<FavoriteFolder>lambdaUpdate()
                 .eq(FavoriteFolder::getId, folderId)
                 .eq(FavoriteFolder::getOwnerId, userId)
-                .set(FavoriteFolder::getName, name)
-                .set(FavoriteFolder::getDescription, description));
+                .set(FavoriteFolder::getName, request.getName())
+                .set(FavoriteFolder::getDescription, request.getDescription())
+                .set(request.getVisibility() != null, FavoriteFolder::getVisibility, request.getVisibility())
+                .set(request.getCoverUrl() != null, FavoriteFolder::getCoverUrl, request.getCoverUrl()));
     }
 
     /**
@@ -106,6 +114,9 @@ public class UserContentService {
         }
         // 先把内容搬到默认夹，再删空夹
         FavoriteFolder def = defaultFolder(userId);
+        queryMapper.decreaseDuplicateFolderStats(folderId, def.getId());
+        int duplicates = queryMapper.removeDuplicateFolderItems(folderId, def.getId());
+        if (duplicates > 0) counterMapper.increaseUserStat(userId, "favorite_count", -duplicates);
         itemMapper.update(null, Wrappers.<FavoriteItem>lambdaUpdate()
                 .eq(FavoriteItem::getFolderId, folderId)
                 .set(FavoriteItem::getFolderId, def.getId()));
@@ -116,9 +127,10 @@ public class UserContentService {
     @Transactional
     public void removeFromFolder(Long userId, Long folderId, Long videoId) {
         FavoriteFolder f = requireOwnedFolder(userId, folderId);
-        itemMapper.delete(Wrappers.<FavoriteItem>lambdaQuery()
+        int removed = itemMapper.delete(Wrappers.<FavoriteItem>lambdaQuery()
                 .eq(FavoriteItem::getFolderId, folderId)
                 .eq(FavoriteItem::getVideoId, videoId));
+        if (removed == 0) return;
         counterMapper.decreaseVideoStat(videoId, "favorite_count", 1);
         counterMapper.increaseUserStat(userId, "favorite_count", -1);
         syncFolderCount(f.getId());

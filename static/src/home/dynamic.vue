@@ -15,7 +15,7 @@
         </div> 
         <div class="dynamic-list">
             <loadingIndicator v-show="loadMore"/>
-            <div v-show="!loadMore&&dynamicList.length" class="dynamic-item" v-for="dynamic in dynamicList" :key="dynamic.dynamic.id">
+            <div v-show="!loadMore&&dynamicList.length" class="dynamic-item" v-for="dynamic in dynamicList" :key="dynamic.id">
                 <dynamicC :dynamic="dynamic"/>
             </div>
             <div v-if="!dynamicList.length&&!loadMore" class="no-data">
@@ -31,16 +31,16 @@
 <script setup>
 import { onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useGlobalStore } from '../store/store';
-import dynamicC from "@/utils/dynamic.vue";
+import dynamicC from "./homePost.vue";
 import loadingIndicator from "@/components/loadingIndicator.vue";
 import {homeDynamic} from "@/api/home/index";
-import {getEitList} from "@/api/user/index";
+import { ElMessage } from "element-plus";
 
 const store = useGlobalStore();
 const dynamicMenu=ref(1);
 const loadMore=ref(true);
 const loadMore2=ref(false);
-const userId = parseInt(new URL(window.location).searchParams.get("userId"))|| null;
+const userId = parseInt(new URL(window.location).searchParams.get("userId")) || store.userId;
 const pageNum=ref(1);
 const dynamicList=reactive([]);
 const fotterFlag=ref(false);
@@ -49,15 +49,6 @@ const touchMoveY = ref(0)
 const touchEndY = ref(0)
 
 onMounted(()=>{
-
-    if(store.homeUserInformation.id){
-        homeDynamicF();
-    }
-
-    if(store.userId){
-        getEitListF();
-    }
-
     window.addEventListener("scroll",handleScroll);
     document.addEventListener("touchstart", touchStartF)
     document.addEventListener("touchmove", touchMoveF)
@@ -73,32 +64,16 @@ onUnmounted(()=>{
 
   
 // 监听store变化
-let onceFlag=true;
-watch(()=>store.homeUserInformation.id,()=>{
-
-    if(onceFlag&&store.homeUserInformation.id){
-        onceFlag=null;
-        homeDynamicF();
-    } 
-})
-
-let onceFlag2=true;
-watch(()=>store.userId,async()=>{
-
-    if(onceFlag2&&store.userId){
-        onceFlag2=null;
-        await getEitListF();
-    } 
-})
-
-watch(dynamicMenu,()=>{
+let requestId = 0;
+watch([() => store.homeUserInformation.id, dynamicMenu], ([id])=>{
+    if (!id) return;
+    requestId++;
     pageNum.value=1;
     fotterFlag.value=false;
     store.commentOpenFlag=false;
     dynamicList.length=0;
-    if(store.homeUserInformation.id)
-        homeDynamicF();
-})
+    homeDynamicF();
+}, { immediate: true })
 
 function touchStartF(e){
     touchStartY.value = e.touches[0].clientY
@@ -112,7 +87,7 @@ function touchEndF(e){
     touchEndY.value = e.changedTouches[0].clientY
     const delta = touchStartY.value - touchEndY.value
 
-    if(delta > 50){
+    if(delta > 50 && store.homeMenu === 2){
         if(!loadMore2.value && !loadMore.value && !fotterFlag.value){
             if((window.innerHeight + document.documentElement.scrollTop) >= document.documentElement.offsetHeight - 50){
                 homeDynamicF()
@@ -123,6 +98,7 @@ function touchEndF(e){
 
 //获取动态列表
 async function homeDynamicF(){
+    const current = requestId;
     if(dynamicList.length===0)
     {
         loadMore.value=true;
@@ -130,54 +106,39 @@ async function homeDynamicF(){
     else{
         loadMore2.value=true;
     }
-    let date=new Date();
-    homeDynamic(store.homeUserInformation.id,store.userId,pageNum.value++,dynamicMenu.value).then(res=>{
-
-        if(res.data.code===1){
-            pushData(res.data.data.records);
-            if(!res.data.data.records||res.data.data.records.length===0)
-            {
-                fotterFlag.value=true;
-            }
-                const date2=new Date();
-                setTimeout(() => {
-                loadMore.value=false;
-                loadMore2.value=false;
-                store.setHomeLoad(true,"homeBody");
-                store.setHomeLoadMenuList(2);
-            }, date2 - date<300?300:date2 - date);
+    try {
+        const res = await homeDynamic(store.homeUserInformation.id, store.userId, pageNum.value, dynamicMenu.value);
+        if (current !== requestId) return;
+        pushData(res.data.data.records);
+        fotterFlag.value = dynamicList.length >= res.data.data.total;
+        pageNum.value++;
+    } catch (error) {
+        if (current === requestId) {
+            ElMessage.error(error.message);
+            fotterFlag.value = true;
         }
-    })
+    } finally {
+        if (current === requestId) {
+            loadMore.value = false;
+            loadMore2.value = false;
+            store.setHomeLoad(true, "homeBody");
+            store.setHomeLoadMenuList(2);
+        }
+    }
 
 }
-
-//监视置顶动态变化
-watch(()=>store.upFlag,()=>{
-    if(store.upFlag){
-        const index=dynamicList.findIndex(item=>item.dynamic.id===store.upFlag);
-        let temp=dynamicList[index];
-        dynamicList.splice(index,1);
-        dynamicList.unshift(temp);
-        dynamicList.forEach(item=>{
-            if(item.dynamic.id!==store.upFlag)
-                item.dynamic.upFlag=0;
-        })
-        store.upFlag=null;
-    }
-})
 
 //监视删除动态变化
 watch(()=>store.deleteFlag,()=>{
     if(store.deleteFlag){
-        const index=dynamicList.findIndex(item=>item.dynamic.id===store.deleteFlag);
-        dynamicList.splice(index,1);
-        store.deleteFlag=null;
+        const index=dynamicList.findIndex(item=>item.id===store.deleteFlag);
+        if (index !== -1) dynamicList.splice(index,1);
     }
 })
 
 //滚动加载
 function handleScroll(){
-    if(!loadMore2.value&&!loadMore.value&&!fotterFlag.value){
+    if(store.homeMenu === 2 && !loadMore2.value&&!loadMore.value&&!fotterFlag.value){
         if((window.innerHeight+document.documentElement.scrollTop)>=document.documentElement.offsetHeight-100){
             homeDynamicF();
         }
@@ -188,18 +149,9 @@ function handleScroll(){
 function pushData(newData) {
 if(newData===null)
     return;
-    const idSet = new Set(dynamicList.map(item => item.dynamic.id)); // 获取已有数据的 ID
-    const uniqueData = newData.filter(item => !idSet.has(item.dynamic.id)); // 过滤掉重复的
+    const idSet = new Set(dynamicList.map(item => item.id));
+    const uniqueData = newData.filter(item => !idSet.has(item.id));
     dynamicList.push(...uniqueData); // Vue 响应式更新
-}
-
-//获取eit列表
-async function getEitListF(){
-    getEitList(store).then(res=>{
-        if(res.data.code===1){
-            store.setEitList(res.data.data);
-        }
-    })
 }
 
 //打开个人中心
@@ -265,6 +217,8 @@ function openAccount(){
         }
     }
     .home-user-info{
+    grid-column: 3;
+    grid-row: 1;
     position: sticky;
     top: 80px;
     width: 240px;
@@ -318,6 +272,8 @@ function openAccount(){
     }
     }
     .dynamic-list{
+        grid-column: 2;
+        grid-row: 1;
         width: 100%;
         min-width: 0;
         display: flex;
@@ -368,11 +324,13 @@ function openAccount(){
 
         .home-user-info{
             grid-column: 2;
+            grid-row: 1;
             position: static;
             width: 100%;
             height: auto;
             margin-bottom: var(--gap-4);
         }
+        .dynamic-list { grid-row: 2; }
     }
 }
 
@@ -389,6 +347,7 @@ function openAccount(){
             div{
                 flex: 1;
             }
+            .home-user-info, .dynamic-list { grid-column: 1; grid-row: auto; }
         }
     }
 }

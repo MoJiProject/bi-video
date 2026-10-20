@@ -1,6 +1,6 @@
 <template>
-    <div class="home">
-                    <div v-if="!loadMore && ((store.userId!== null && store.userId === userId) || store.homeUserInformation.publicBirthday === 1)" class="home-user-info">
+    <div class="home" :class="{ 'without-profile': !showProfile }">
+        <div v-if="!loadMore && showProfile" class="home-user-info">
             <div>个人资料
                 <span v-if="store.homeUserInformation.id === store.userId" @click="openAccount">
                     编辑 
@@ -17,11 +17,6 @@
         <loadingIndicator v-show="loadMore" min-height="180px"/>
         <!-- 使用 v-for 遍历排序后的数组来渲染其他 div -->
         <div class="home-div" v-for="(item, index) in divs" :key="index">
-            <!-- 代表作部分 -->
-            <div :class="item.class" v-if="item.class === 'magnum-video'&&!loadMore">
-                <div class="title"><span>代表作</span></div>
-                <videoList5 :data="magnumVideos"/>
-            </div>
             <!-- 视频部分 -->
             <div :class="item.class" v-if="item.class === 'tribute-video'&&!loadMore">
                 <div class="title">
@@ -47,7 +42,7 @@
                     <span>最近投币的视频</span>
                     <span v-if="store.userId===store.homeUserInformation.id&&store.homeUserInformation.publicCoin===0" class="home-user-info-public"><img src="/img/隐藏.png">仅自己可见</span> 
                 </div>
-                <videoList2 :data="throwCoinVideos" :sign="'throwCoin'"/>
+                <videoList2 :data="throwCoinVideos"/>
             </div>
             <!-- 收藏夹部分 -->
             <div :class="item.class" v-if="item.class === 'collect'&&!loadMore && ((store.userId!== null && store.userId === userId) || store.homeUserInformation.publicCollect === 1)">
@@ -81,22 +76,13 @@
                     </div>
                 </div>        
             </div>
-            <!-- 订阅剧集部分 -->
-            <div  :class="item.class" v-if="item.class === 'follow-anime'&&!loadMore && ((store.userId!== null && store.userId === userId) || store.homeUserInformation.publicAnime === 1)">
-                <div class="title">
-                    <div class="title-name" @click="store.setHomeMenu(6,userId,true)">订阅剧集</div> · &nbsp;
-                    <span class="contribute-total">12</span>
-                    <span v-if="store.userId===store.homeUserInformation.id&&store.homeUserInformation.publicAnime===0" class="home-user-info-public"><img src="/img/隐藏.png">仅自己可见</span> 
-                </div>
-                <followAnimeList :data="followAnimeData.AnimeData.slice(0,6)"/>
-            </div>
             <!-- 最近点赞的视频部分 -->
             <div :class="item.class" v-if="item.class === 'love-video'&&!loadMore && ((store.userId!== null && store.userId === userId) || store.homeUserInformation.publicLove === 1)">
                 <div class="title">
                     <span>最近点赞的视频</span>
                     <span v-if="store.userId===store.homeUserInformation.id&&store.homeUserInformation.publicLove===0" class="home-user-info-public"><img src="/img/隐藏.png">仅自己可见</span> 
                 </div>
-                <videoList2 :data="loveVideos" :sign="'love'"/>
+                <videoList2 :data="loveVideos"/>
             </div>
         </div>
         </div>
@@ -104,18 +90,17 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import {useGlobalStore} from "@/store/store";
-import videoList from '@/utils/videoList';
-import videoList2 from '@/utils/videoList2';
-import videoList5 from '@/utils/videoList5';
-import followAnimeData from '@/utils/followAnimeData';
-import followAnimeList from '@/utils/followAnimeList';
+import videoList from './homeVideos.vue';
+import videoList2 from './homeVideos.vue';
 import loadingIndicator from '@/components/loadingIndicator.vue';
-import {homeContributeVideos,homeThrowCoinVideos,getCollectsClassify,homeLoveVideos,homeMagnumVideos} from '@/api/home/index';
+import {homeContributeVideos,homeThrowCoinVideos,getCollectsClassify,homeLoveVideos} from '@/api/home/index';
+import { ElMessage } from 'element-plus';
 
-const userId = parseInt(new URL(window.location).searchParams.get("userId"))|| null;
 const store = useGlobalStore();
+const userId = parseInt(new URL(window.location).searchParams.get("userId")) || store.userId;
+const showProfile = computed(() => store.userId === userId || store.homeUserInformation.publicBirthday === 1);
 const contributeVideos=reactive([]);
 const sort=ref(1);
 const contributeTotal=ref(0);
@@ -124,8 +109,6 @@ const collects=reactive([]);
 const collectTotal=ref(0);
 const loveVideos=reactive([]);
 const loadMore=ref(true);
-const magnumVideos=reactive([]);
-let onceFlag=true;
 
 const divs = reactive([
     { class: 'magnum-video'},
@@ -136,124 +119,45 @@ const divs = reactive([
     { class: 'love-video'}
 ]);
 
-onMounted(async()=>{
-    
+async function loadVideos() {
+    const currentSort = sort.value;
+    const res = await homeContributeVideos(userId, store.userId, sort.value, 1);
+    if (currentSort !== sort.value) return;
+    contributeVideos.splice(0, contributeVideos.length, ...res.data.data.records.slice(0, 10));
+    contributeTotal.value = res.data.data.total;
+}
+
+watch(() => store.homeUserInformation.id, async (id) => {
+    if (!id) return;
     getSort();
-    if(store.homeUserInformation.id)
-    {
-        homeMagnumVideosF();
-       if((store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicCoin===1)
-        homeThrowCoinVideosF();
-       if((store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicCollect===1)
-        homeCollectF();
-       if((store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicLove===1)
-        homeLoveVideosF();
-       await homeContributeVideosF();
+    loadMore.value = true;
+    const profile = store.homeUserInformation;
+    const owner = store.userId === userId;
+    const requests = [loadVideos()];
+    if (owner || profile.publicCoin === 1)
+        requests.push(homeThrowCoinVideos(store.userId, userId).then(res => throwCoinVideos.splice(0, throwCoinVideos.length, ...res.data.data)));
+    if (owner || profile.publicLove === 1)
+        requests.push(homeLoveVideos(store.userId, userId).then(res => loveVideos.splice(0, loveVideos.length, ...res.data.data)));
+    if (owner || profile.publicCollect === 1)
+        requests.push(getCollectsClassify(userId).then(res => {
+            collects.splice(0, collects.length, ...res.data.data.slice(0, 10));
+            collectTotal.value = res.data.data.length;
+        }));
+    const results = await Promise.allSettled(requests);
+    const failed = results.find(result => result.status === 'rejected');
+    if (failed) ElMessage.error(failed.reason.message);
+    loadMore.value = false;
+    store.setHomeLoad(true, 'homeBody');
+    store.setHomeLoadMenuList(1);
+}, { immediate: true });
+
+watch(sort, async () => {
+    try {
+        await loadVideos();
+    } catch (error) {
+        ElMessage.error(error.message);
     }
-})
-
-watch([()=>store.homeUserInformation.id,()=>store.updateVideoInfoFlag],async()=>{
-
-    if(onceFlag&&store.homeUserInformation.id&&
-    (store.homeUserInformation.publicCoin===0||store.homeUserInformation.publicCoin===1)&&
-    (store.homeUserInformation.publicCollect===0||store.homeUserInformation.publicCollect===1)&&
-    (store.homeUserInformation.publicLove===0||store.homeUserInformation.publicLove===1)){
-        onceFlag=false;
-        homeMagnumVideosF();
-       if((store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicCoin===1)
-        homeThrowCoinVideosF();
-       if((store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicCollect===1)
-        homeCollectF();
-       if((store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicLove===1)
-        homeLoveVideosF();
-       await homeContributeVideosF();
-    }
-    if(store.updateVideoInfoFlag)
-    {
-        const index=contributeVideos.findIndex(item=>item.videoId===store.updateVideoInfoFlag);
-        if(index!==-1)
-        contributeVideos[index].waitWatch=contributeVideos[index].waitWatch===0?1:0;
-        const index2=throwCoinVideos.findIndex(item=>item.videoId===store.updateVideoInfoFlag);
-        if(index2!==-1)
-        throwCoinVideos[index2].waitWatch=throwCoinVideos[index2].waitWatch===0?1:0;
-        const index3=loveVideos.findIndex(item=>item.videoId===store.updateVideoInfoFlag);
-        if(index3!==-1)
-        loveVideos[index3].waitWatch=loveVideos[index3].waitWatch===0?1:0;
-        const index4=magnumVideos.findIndex(item=>item.videoId===store.updateVideoInfoFlag);
-        if(index4!==-1)
-        magnumVideos[index4].waitWatch=magnumVideos[index4].waitWatch===0?1:0;
-        store.setUpdateVideoInfoFlag(false);
-    }
-
-},{deep: true,immediate: true});
-
-// 获取用户主页投稿的视频
-async function homeContributeVideosF(){
-
-    homeContributeVideos(store.homeUserInformation.id,store.userId,sort.value,1).then(res=>{
-            if(res.data.code===1){
-                contributeVideos.length=0;
-                Object.assign(contributeVideos,res.data.data.records.slice(0,10));
-                contributeTotal.value=res.data.data.total;
-                let date=new Date();
-                let date2=new Date();
-                setTimeout(()=>{
-                    store.setHomeLoad(true,'homeBody');
-                    store.setHomeLoadMenuList(1);
-                    loadMore.value=false;
-                },date2 - date<300?300:date2 - date)
-            }
-    });
-}
-
-// 获取用户最近投币的视频
-async function homeThrowCoinVideosF(){
-    
-    homeThrowCoinVideos(store.userId,store.homeUserInformation.id).then(res=>{
-            if(res.data.code===1){
-                throwCoinVideos.length=0;
-                Object.assign(throwCoinVideos,res.data.data);
-            }
-    });
-}
-
-// 获取用户收藏夹的视频
-async function homeCollectF(){
-    
-    getCollectsClassify(store.homeUserInformation.id,store.userId,store.token).then(res=>{
-            if(res.data.code===1){
-                collects.length=0;
-                Object.assign(collects,res.data.data.slice(0,10));
-                collectTotal.value=res.data.data.length;
-            }
-    });
-}
-
-// 获取用户最近喜欢的视频
-async function homeLoveVideosF(){
-    
-    homeLoveVideos(store.userId,store.homeUserInformation.id).then(res=>{
-            if(res.data.code===1){
-                loveVideos.length=0;
-                Object.assign(loveVideos,res.data.data);
-            }
-    });
-}
-
-watch(sort,()=>{
-    homeContributeVideosF();
-})
-
-//查询代表作视频
-function homeMagnumVideosF(){
-
-    homeMagnumVideos(userId,store.userId).then(res=>{
-        if(res.data.code===1){
-            Object.assign(magnumVideos,res.data.data);
-        }
-    })
-
-}
+});
 
 watch(()=>store.homeMenu,()=>{
     if(store.homeMenu === 1){
@@ -290,6 +194,7 @@ function openAccount(){
 .home-content{
     min-width: 0;
 }
+.home.without-profile { grid-template-columns: minmax(0, 1fr); }
 
 .home{
     position: relative;

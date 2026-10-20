@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qingmang.infrastructure.mapper.HomeQueryMapper">
+    <sql id="videoFilter">
+        v.owner_id = #{q.homeUserId} AND v.deleted_at IS NULL AND v.status = 1
+        <if test="q.keyWord != null and q.keyWord != ''">
+            AND v.title LIKE CONCAT('%', #{q.keyWord}, '%')
+        </if>
+    </sql>
+    <select id="videos" resultType="com.qingmang.interfaces.vo.VideoListItemVO">
+        SELECT <include refid="com.qingmang.infrastructure.mapper.UserContentQueryMapper.videoColumns"/>,
+               <include refid="com.qingmang.infrastructure.mapper.UserContentQueryMapper.reactionFlags"/>
+        FROM video v
+        JOIN `user` u ON u.id = v.owner_id AND u.deleted_at IS NULL
+        LEFT JOIN video_stats s ON s.video_id = v.id
+        WHERE <include refid="videoFilter"/>
+        <choose>
+            <when test="q.sort == 2">ORDER BY s.play_count DESC, v.id DESC</when>
+            <when test="q.sort == 3">ORDER BY s.favorite_count DESC, v.id DESC</when>
+            <otherwise>ORDER BY v.published_at DESC, v.id DESC</otherwise>
+        </choose>
+        LIMIT #{offset}, 20
+    </select>
+    <select id="videoCount" resultType="long">
+        SELECT COUNT(*) FROM video v WHERE <include refid="videoFilter"/>
+    </select>
+    <select id="reactions" resultType="com.qingmang.interfaces.vo.VideoListItemVO">
+        SELECT <include refid="com.qingmang.infrastructure.mapper.UserContentQueryMapper.videoColumns"/>,
+               <include refid="com.qingmang.infrastructure.mapper.UserContentQueryMapper.reactionFlags"/>
+        FROM video_reaction r
+        JOIN <include refid="com.qingmang.infrastructure.mapper.UserContentQueryMapper.baseJoin">
+            <property name="key" value="r.video_id"/>
+        </include>
+        WHERE r.user_id = #{ownerId} AND r.reaction_type = #{reactionType}
+          AND v.deleted_at IS NULL AND v.status = 1
+        ORDER BY r.created_at DESC, r.id DESC LIMIT 10
+    </select>
+    <sql id="folderFilter">
+        ff.owner_id = #{q.homeUserId} AND ff.deleted_at IS NULL
+        AND (ff.owner_id = #{viewerId} OR ff.visibility = 1)
+        <if test="folderId != null">AND ff.id = #{folderId}</if>
+    </sql>
+    <sql id="folderVideoFilter">
+        v.deleted_at IS NULL AND v.status = 1
+        <if test="q.keyWord != null and q.keyWord != ''">
+            AND v.title LIKE CONCAT('%', #{q.keyWord}, '%')
+        </if>
+    </sql>
+    <select id="folderVideos" resultType="com.qingmang.interfaces.vo.VideoListItemVO">
+        SELECT <include refid="com.qingmang.infrastructure.mapper.UserContentQueryMapper.videoColumns"/>,
+               <include refid="com.qingmang.infrastructure.mapper.UserContentQueryMapper.reactionFlags"/>
+        FROM (
+            SELECT fi.video_id, MAX(fi.id) AS saved_id
+            FROM favorite_item fi JOIN favorite_folder ff ON ff.id = fi.folder_id
+            WHERE <include refid="folderFilter"/>
+            GROUP BY fi.video_id
+        ) saved
+        JOIN <include refid="com.qingmang.infrastructure.mapper.UserContentQueryMapper.baseJoin">
+            <property name="key" value="saved.video_id"/>
+        </include>
+        WHERE <include refid="folderVideoFilter"/>
+        <choose>
+            <when test="q.sort == 2">ORDER BY s.play_count DESC, v.id DESC</when>
+            <when test="q.sort == 3">ORDER BY v.published_at DESC, v.id DESC</when>
+            <otherwise>ORDER BY saved.saved_id DESC, v.id DESC</otherwise>
+        </choose>
+        LIMIT #{offset}, 20
+    </select>
+    <select id="folderVideoCount" resultType="long">
+        SELECT COUNT(DISTINCT v.id)
+        FROM favorite_item fi
+        JOIN favorite_folder ff ON ff.id = fi.folder_id
+        JOIN video v ON v.id = fi.video_id
+        JOIN `user` u ON u.id = v.owner_id AND u.deleted_at IS NULL
+        WHERE <include refid="folderFilter"/> AND <include refid="folderVideoFilter"/>
+    </select>
+    <sql id="postFilter">
+        p.author_id = #{q.homeUserId} AND p.status = 1 AND p.deleted_at IS NULL
+        AND (p.visibility = 0 OR p.author_id = #{viewerId})
+        <if test="q.type == 2">AND p.video_id IS NOT NULL</if>
+        <if test="q.keyWord != null and q.keyWord != ''">
+            AND p.content LIKE CONCAT('%', #{q.keyWord}, '%')
+        </if>
+    </sql>
+    <sql id="postColumns">
+        p.id, p.author_id, u.nickname AS author_nickname, u.avatar_url AS author_avatar,
+        u.signature AS author_signature, v.id AS video_id, v.title AS video_title,
+        v.cover_url AS video_cover, v.duration_seconds AS video_duration,
+        p.content, p.image_urls, p.like_count, p.comment_count, p.share_count, p.created_at
+    </sql>
+    <select id="posts" resultType="com.qingmang.interfaces.vo.PostVO">
+        SELECT <include refid="postColumns"/>
+        FROM user_post p
+        JOIN `user` u ON u.id = p.author_id AND u.deleted_at IS NULL
+        LEFT JOIN video v ON v.id = p.video_id AND v.deleted_at IS NULL AND v.status = 1
+        WHERE <include refid="postFilter"/>
+        ORDER BY p.id DESC LIMIT #{offset}, 20
+    </select>
+    <select id="postCount" resultType="long">
+        SELECT COUNT(*) FROM user_post p WHERE <include refid="postFilter"/>
+    </select>
+    <sql id="imageRows">
+        <if test="q.type != 2">
+            SELECT <include refid="postColumns"/>, 3 AS source_type
+            FROM user_post p
+            JOIN `user` u ON u.id = p.author_id AND u.deleted_at IS NULL
+            LEFT JOIN video v ON v.id = p.video_id AND v.deleted_at IS NULL AND v.status = 1
+            WHERE p.author_id = #{q.homeUserId} AND p.status = 1 AND p.deleted_at IS NULL
+              AND (p.visibility = 0 OR p.author_id = #{viewerId})
+              AND p.image_urls IS NOT NULL AND JSON_LENGTH(p.image_urls) &gt; 0
+        </if>
+        <if test="q.type == 1">UNION ALL</if>
+        <if test="q.type != 3">
+            SELECT c.id, c.author_id, u.nickname AS author_nickname, u.avatar_url AS author_avatar,
+                   u.signature AS author_signature, NULL AS video_id, NULL AS video_title,
+                   NULL AS video_cover, NULL AS video_duration,
+                   c.content, c.image_urls, c.like_count, c.reply_count AS comment_count,
+                   0 AS share_count, c.created_at, 2 AS source_type
+            FROM `comment` c
+            JOIN `user` u ON u.id = c.author_id AND u.deleted_at IS NULL
+            LEFT JOIN video cv ON cv.id = c.video_id AND cv.deleted_at IS NULL AND cv.status = 1
+            LEFT JOIN `user` vu ON vu.id = cv.owner_id AND vu.deleted_at IS NULL
+            LEFT JOIN user_post cp ON cp.id = c.post_id AND cp.deleted_at IS NULL AND cp.status = 1
+            LEFT JOIN `user` pu ON pu.id = cp.author_id AND pu.deleted_at IS NULL
+            WHERE c.author_id = #{q.homeUserId} AND c.status = 1 AND c.deleted_at IS NULL
+              AND c.image_urls IS NOT NULL AND JSON_LENGTH(c.image_urls) &gt; 0
+              AND ((cv.id IS NOT NULL AND vu.id IS NOT NULL)
+                   OR (cp.id IS NOT NULL AND pu.id IS NOT NULL
+                       AND (cp.visibility = 0 OR cp.author_id = #{viewerId})))
+        </if>
+    </sql>
+    <select id="images" resultType="com.qingmang.interfaces.vo.HomeImageItemVO">
+        SELECT images.* FROM (<include refid="imageRows"/>) images
+        ORDER BY created_at DESC, source_type DESC, id DESC LIMIT #{offset}, 20
+    </select>
+    <select id="imageCount" resultType="long">
+        SELECT COUNT(*) FROM (<include refid="imageRows"/>) images
+    </select>
+    <sql id="relationFilter">
+        <choose>
+            <when test="fans">f.followee_id = #{ownerId}</when>
+            <otherwise>f.follower_id = #{ownerId}</otherwise>
+        </choose>
+        AND u.deleted_at IS NULL
+        <if test="keyword != null and keyword != ''">AND u.nickname LIKE CONCAT('%', #{keyword}, '%')</if>
+    </sql>
+    <select id="relations" resultType="com.qingmang.interfaces.vo.UserBriefVO">
+        SELECT u.id AS user_id, u.nickname, u.avatar_url, u.signature, u.level,
+               f.created_at AS followed_at,
+               EXISTS(SELECT 1 FROM user_follow mine
+                      WHERE mine.follower_id = #{viewerId} AND mine.followee_id = u.id) AS followed
+        FROM user_follow f JOIN `user` u ON u.id =
+        <choose><when test="fans">f.follower_id</when><otherwise>f.followee_id</otherwise></choose>
+        WHERE <include refid="relationFilter"/>
+        ORDER BY f.id DESC LIMIT #{offset}, 24
+    </select>
+    <select id="relationCount" resultType="long">
+        SELECT COUNT(*) FROM user_follow f JOIN `user` u ON u.id =
+        <choose><when test="fans">f.follower_id</when><otherwise>f.followee_id</otherwise></choose>
+        WHERE <include refid="relationFilter"/>
+    </select>
+</mapper>

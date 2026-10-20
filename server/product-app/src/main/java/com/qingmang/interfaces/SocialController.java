@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,6 +41,18 @@ public class SocialController {
         data.put("userId", userId);
         data.put("following", following);
         return ApiResponse.ok(data);
+    }
+
+    @PutMapping("/user/{userId}/follow")
+    public ApiResponse<Void> addFollow(@PathVariable Long userId) {
+        social.setFollowing(AuthContext.requireUserId(), userId, true);
+        return ApiResponse.ok();
+    }
+
+    @DeleteMapping("/user/{userId}/follow")
+    public ApiResponse<Void> removeFollow(@PathVariable Long userId) {
+        social.setFollowing(AuthContext.requireUserId(), userId, false);
+        return ApiResponse.ok();
     }
 
     /** targetUserId 为空看公开动态流。 */

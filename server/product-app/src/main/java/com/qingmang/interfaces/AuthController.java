@@ -4,12 +4,15 @@ import com.qingmang.application.AuthService;
 import com.qingmang.common.api.ApiResponse;
 import com.qingmang.interfaces.dto.LoginRequest;
 import com.qingmang.interfaces.dto.RegisterRequest;
+import com.qingmang.interfaces.dto.ProfileUpdateRequest;
+import com.qingmang.interfaces.dto.PrivacyUpdateRequest;
 import com.qingmang.interfaces.vo.UserProfileVO;
 import com.qingmang.support.AuthContext;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,6 +52,18 @@ public class AuthController {
     @GetMapping("/user/{userId}")
     public ApiResponse<UserProfileVO> profile(@PathVariable Long userId) {
         return ApiResponse.ok(authService.profile(userId));
+    }
+
+    @PutMapping("/profile")
+    public ApiResponse<Void> updateProfile(@Valid @RequestBody ProfileUpdateRequest request) {
+        authService.updateProfile(AuthContext.requireUserId(), request);
+        return ApiResponse.ok();
+    }
+
+    @PutMapping("/privacy")
+    public ApiResponse<Void> updatePrivacy(@Valid @RequestBody PrivacyUpdateRequest request) {
+        authService.updatePrivacy(AuthContext.requireUserId(), request);
+        return ApiResponse.ok();
     }
 
     /** 只用于探活，不返回业务数据。 */

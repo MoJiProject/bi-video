@@ -1,129 +1,47 @@
-import apiClient from "../../services/apiClient";
+import { get } from '../../services/http';
 
-//根据用户id查询主页投稿的视频
-export async function homeContributeVideos(homeUserId,userId,sort,pageNum,keyWord){
-    const response = await apiClient.get("/home/contribute",{
-        headers: {
-            "Content-Type": "application/json",
-        },
-        params: {
-            userId,
-            homeUserId,
-            sort,
-            pageNum,
-            keyWord,
-        }
-    });
-    return response;    
+// Keep the legacy page envelope while using product-app authentication and data.
+async function request(path, params, transform = (data) => data) {
+  const data = await get(`/home/${path}`, params);
+  return { data: { code: 1, data: transform(data) } };
 }
 
-//根据用户id查询最近投币的视频
-export async function homeThrowCoinVideos(userId,homeUserId){
-    const response = await apiClient.get("/home/throwCoin",{
-        headers: {
-            "Content-Type": "application/json",
-        },
-        params: {
-            userId,
-            homeUserId,
-        }
-    });
-    return response;    
+export function mapFolder(folder) {
+  return {
+    ...folder,
+    userId: folder.ownerId,
+    collectName: folder.name,
+    content: folder.description,
+    coverAddress: folder.coverUrl,
+    status: folder.visibility,
+    videoNumber: folder.itemCount,
+  };
 }
 
-//根据用户id查询最近点赞的视频
-export async function homeLoveVideos(userId,homeUserId){
-    const response = await apiClient.get("/home/love",{
-        headers: {
-            "Content-Type": "application/json",
-        },
-        params: {
-            userId,
-            homeUserId,
-        }
-    });
-    return response;    
+export function homeContributeVideos(homeUserId, userId, sort, pageNum, keyWord) {
+  return request('contribute', { homeUserId, sort, pageNum, keyWord });
 }
 
-//根据用户id查询主页的动态图片
-export async function dynamicImg(homeUserId,type,pageNum){
-    const response = await apiClient.get("/home/dynamicImg",{
-        headers: {
-            "Content-Type": "application/json",
-        },
-        params: {
-            homeUserId,
-            type,
-            pageNum,
-        }
-    });
-    return response;    
+export function homeThrowCoinVideos(userId, homeUserId) {
+  return request('throwCoin', { homeUserId });
 }
 
-//查询用户主页的动态
-export async function homeDynamic(homeUserId,userId,pageNum,type,keyWord){
-
-    const response = await apiClient.get("/home/dynamic",{
-        headers: {
-            "Content-Type": "application/json",
-        },
-        params: {
-            homeUserId,
-            userId,
-            pageNum,
-            type,
-            keyWord
-        }
-    });
-    return response;    
+export function homeLoveVideos(userId, homeUserId) {
+  return request('love', { homeUserId });
 }
 
-//查询代表作
-export async function homeMagnumVideos(homeUserId,userId){
-    const response = await apiClient.get("/home/magnum",{
-        headers: {
-            "Content-Type": "application/json",
-        },
-        params: {
-            homeUserId,
-            userId,
-        }
-    });
-    return response;    
+export function dynamicImg(homeUserId, type, pageNum) {
+  return request('dynamicImg', { homeUserId, type, pageNum });
 }
 
-//获取用户所有收藏夹
-export async function getCollectsClassify(homeUserId,userId,token){
-
-    const response = await apiClient.get("/home/collectsClassify",{
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": token
-        },
-        params: {
-            homeUserId,
-            userId,
-        }
-    });
-    return response;    
+export function homeDynamic(homeUserId, userId, pageNum, type, keyWord) {
+  return request('dynamic', { homeUserId, pageNum, type, keyWord });
 }
 
-//根据收藏夹名称获取收藏
-export async function getCollectByName(collectName,homeUserId,userId,pageNum,type,sort,keyWord){
+export function getCollectsClassify(homeUserId) {
+  return request('collectsClassify', { homeUserId }, (folders) => folders.map(mapFolder));
+}
 
-    const response = await apiClient.get("/home/collectByName",{
-        headers: {
-            "Content-Type": "application/json",
-        },
-        params: {
-            collectName,
-            homeUserId,
-            userId,
-            pageNum,
-            type,
-            sort,
-            keyWord,
-        }
-    });
-    return response;    
+export function getCollectByName(collectName, homeUserId, userId, pageNum, type, sort, keyWord) {
+  return request('collectByName', { collectName, homeUserId, pageNum, type, sort, keyWord });
 }

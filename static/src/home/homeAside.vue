@@ -25,7 +25,7 @@
                     <span>收藏</span>
                     <span class="num" v-if="store.collectClassifyNumber">{{ store.collectClassifyNumber }}</span>
                 </span>
-                <span v-if="(store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicAnime===1" ref="tabEls[5]" :class="{ 'is-on': store.homeMenu === 6 }" @click="changeHomeMenu(6)">
+                <span v-if="store.homeUserInformation.publicAnime===1" ref="tabEls[5]" :class="{ 'is-on': store.homeMenu === 6 }" @click="changeHomeMenu(6)">
                     <img src="/img/主页追剧.png">
                     <span>追剧</span>
                 </span>
@@ -83,7 +83,7 @@ import {homeContributeVideos} from '@/api/home/index';
 import { ElMessage } from "element-plus";
 
 const store = useGlobalStore();
-const userId = parseInt(new URL(window.location).searchParams.get("userId"))|| null;
+const userId = parseInt(new URL(window.location).searchParams.get("userId")) || store.userId;
 const searchContent = ref('');
 const deleteAllSearchFlag = ref(true);
 const searchInput = ref(null);
@@ -160,8 +160,13 @@ function changeHomeMenu(homeMenu){
 }
 
 onMounted(async()=>{
-   await homeContributeVideosF();
-   store.setHomeLoad(true,'homeAside');
+   try {
+     await homeContributeVideosF();
+   } catch (error) {
+     ElMessage.error(error.message);
+   } finally {
+     store.setHomeLoad(true,'homeAside');
+   }
    await nextTick();
    measureTabLine();
 })
@@ -169,7 +174,7 @@ onMounted(async()=>{
 // 获取用户主页投稿的视频
 async function homeContributeVideosF(){
 
-homeContributeVideos(userId,store.userId,1,1).then(res=>{
+await homeContributeVideos(userId,store.userId,1,1).then(res=>{
         if(res.data.code===1){
             contributeTotal.value=res.data.data.total;
         }
@@ -179,7 +184,7 @@ homeContributeVideos(userId,store.userId,1,1).then(res=>{
 function searchJumpPage(){
     
     const searchUrl = new URL(window.location);
-    const keyword = searchUrl.searchParams.get("keyword", searchContent.value);
+    const keyword = searchUrl.searchParams.get("keyword");
     if((store.keyword.length===0&&keyword)||(keyword!==store.keyword&&keyword))
         store.setKeyword(keyword);
     if(searchContent.value.length>0&&keyword!==searchContent.value)

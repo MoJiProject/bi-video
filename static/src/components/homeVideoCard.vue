@@ -26,6 +26,7 @@
       <button
         class="vcard-mark"
         :class="{ 'is-done': inWatchLater }"
+        :disabled="marking"
         :title="inWatchLater ? '已加入稍后观看' : '加入稍后观看'"
         @click.stop="toggleMark"
       >
@@ -64,6 +65,7 @@
 import { computed, ref, watch } from "vue";
 import { useGlobalStore } from "../store/store";
 import { videoApi } from "../api/product";
+import { ElMessage } from "element-plus";
 
 const props = defineProps({
   video: { type: Object, required: true },
@@ -75,13 +77,14 @@ const previewEl = ref(null);
 const coverSrc = ref(props.video.coverUrl || "/img/cover-fallback.png");
 /** 待看清单状态本地维护：props 是只读的，操作成功后由自己更新 */
 const inWatchLater = ref(!!props.video.watchLater);
+const marking = ref(false);
 let timer = null;
 
 const DEFAULT_AVATAR = "/img/avatar-default.png";
 const FALLBACK_COVER = "/img/cover-fallback.png";
 
 watch(
-  () => props.video.id,
+  () => [props.video.id, props.video.watchLater],
   () => {
     coverSrc.value = props.video.coverUrl || FALLBACK_COVER;
     inWatchLater.value = !!props.video.watchLater;
@@ -131,16 +134,22 @@ function onLeave() {
 }
 
 async function toggleMark() {
+  if (marking.value) return;
   if (store.userId === null) {
     store.loginDialogVisible = true;
     return;
   }
   const next = !inWatchLater.value;
   inWatchLater.value = next;
+  marking.value = true;
   try {
-    await videoApi.watchLater(props.video.id);
+    const state = await videoApi.watchLater(props.video.id);
+    inWatchLater.value = state.watchLater;
   } catch (e) {
     inWatchLater.value = !next;
+    ElMessage.error(e.message);
+  } finally {
+    marking.value = false;
   }
 }
 </script>

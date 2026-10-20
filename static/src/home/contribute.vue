@@ -48,7 +48,7 @@
           <videoList3 :data="contributeVideos" />
         </div>
         <div v-show="display == 2 && !loadMore" class="video-list-container">
-          <videoList4 :data="contributeVideos" />
+          <videoList4 :data="contributeVideos" layout="list"/>
         </div>
         <div v-show="!loadMore && contributeTotal > 0" class="page-container">
           <el-pagination
@@ -90,7 +90,7 @@
           <div class="img-list">
             <imgDynamic
               v-for="dynamic in imgDynamicList"
-              :key="dynamic.id"
+              :key="dynamic.sourceType + ':' + dynamic.id"
               :dynamic="dynamic"
             />
           </div>
@@ -127,15 +127,16 @@
 
 <script setup>
 import { useGlobalStore } from "@/store/store";
-import { onMounted, reactive, ref, watch } from "vue";
-import videoList3 from "@/utils/videoList3";
-import videoList4 from "@/utils/videoList4";
+import { reactive, ref, watch } from "vue";
+import videoList3 from "./homeVideos.vue";
+import videoList4 from "./homeVideos.vue";
 import loadingIndicator from "@/components/loadingIndicator.vue";
-import imgDynamic from "@/utils/imgDynamic.vue";
+import imgDynamic from "./homePost.vue";
 import { homeContributeVideos, dynamicImg } from "@/api/home/index";
+import { ElMessage } from "element-plus";
 
 const store = useGlobalStore();
-const userId = parseInt(new URL(window.location).searchParams.get("userId")) || null;
+const userId = parseInt(new URL(window.location).searchParams.get("userId")) || store.userId;
 const contributeMenu = ref(1);
 const contributeVideos = reactive([]);
 const imgDynamicList = reactive([]);
@@ -147,79 +148,40 @@ const imgSource = ref(1);
 const loadMore = ref(true);
 const pageNum = ref(1);
 
-onMounted(() => {
-  if (store.homeUserInformation.id) {
-    homeContributeVideosF();
-    dynamicImgF();
+let requestId = 0;
+watch([() => store.homeUserInformation.id, contributeMenu, pageNum, sort, imgSource], async ([id]) => {
+  if (!id) return;
+  const current = ++requestId;
+  loadMore.value = true;
+  try {
+    const videoRequest = homeContributeVideos(id, store.userId, sort.value, contributeMenu.value === 1 ? pageNum.value : 1);
+    const imageRequest = dynamicImg(id, imgSource.value, contributeMenu.value === 2 ? pageNum.value : 1);
+    const [videos, images] = await Promise.all([videoRequest, imageRequest]);
+    if (current !== requestId) return;
+    contributeVideos.splice(0, contributeVideos.length, ...videos.data.data.records);
+    contributeTotal.value = videos.data.data.total;
+    imgDynamicList.splice(0, imgDynamicList.length, ...images.data.data.records);
+    imgDynamicTotal.value = images.data.data.total;
+  } catch (error) {
+    if (current === requestId) ElMessage.error(error.message);
+  } finally {
+    if (current === requestId) {
+      loadMore.value = false;
+      store.setHomeLoad(true, "homeBody");
+      store.setHomeLoadMenuList(3);
+    }
+  }
+}, { immediate: true });
+
+watch([contributeMenu, sort, imgSource], () => { pageNum.value = 1; }, { flush: 'sync' });
+
+watch(() => store.deleteFlag, (id) => {
+  const index = imgDynamicList.findIndex(post => post.sourceType !== 2 && post.id === id);
+  if (index !== -1) {
+    imgDynamicList.splice(index, 1);
+    imgDynamicTotal.value--;
   }
 });
-
-// 获取用户主页投稿的视频
-async function homeContributeVideosF() {
-  loadMore.value = true;
-  let date = new Date();
-  homeContributeVideos(
-    store.homeUserInformation.id,
-    store.userId,
-    sort.value,
-    pageNum.value,
-  ).then((res) => {
-    if (res.data.code === 1) {
-      contributeVideos.length = 0;
-      Object.assign(contributeVideos, res.data.data.records);
-      contributeTotal.value = res.data.data.total;
-      let date2 = new Date();
-      setTimeout(
-        () => {
-          loadMore.value = false;
-          store.setHomeLoadMenuList(3);
-          store.setHomeLoad(true, "homeBody");
-        },
-        date2 - date < 300 ? 300 : date2 - date,
-      );
-    }
-  });
-}
-
-// 获取动态图文
-async function dynamicImgF() {
-  let date = new Date();
-  loadMore.value = true;
-  dynamicImg(store.homeUserInformation.id, imgSource.value, pageNum.value).then(
-    (res) => {
-      if (res.data.code === 1) {
-        imgDynamicList.length = 0;
-        Object.assign(imgDynamicList, res.data.data.records);
-        imgDynamicTotal.value = res.data.data.total;
-        let date2 = new Date();
-        setTimeout(
-          () => {
-            loadMore.value = false;
-          },
-          date2 - date < 300 ? 300 : date2 - date,
-        );
-      }
-    },
-  );
-}
-
-// 监听sort变化
-watch(sort, () => {
-  if (store.homeUserInformation.id) homeContributeVideosF();
-});
-
-// 监听store变化
-let onceFlag = true;
-watch(
-  () => store.homeUserInformation.id,
-   () => {
-    if (onceFlag && store.homeUserInformation.id) {
-      onceFlag = false;
-      homeContributeVideosF();
-      dynamicImgF();
-    }
-  },
-);
 
 // 更改当前页
 function handleCurrentChange(val) {
@@ -230,33 +192,12 @@ function handleCurrentChange(val) {
 function handleCurrentChange2(event) {
   if (
     event.target.value !== "" &&
-    event.target.value <= Math.ceil(contributeTotal.value / 20) &&
+    event.target.value <= Math.ceil((contributeMenu.value === 1 ? contributeTotal.value : imgDynamicTotal.value) / 20) &&
     event.target.value >= 1
   )
     pageNum.value = parseInt(event.target.value);
 }
 
-//监视页数变化
-watch(pageNum, () => {
-  if (store.homeUserInformation.id && contributeMenu.value === 1)
-    homeContributeVideosF();
-  else if (store.homeUserInformation.id && contributeMenu.value === 2)
-    dynamicImgF();
-});
-
-//重置页数
-watch(contributeMenu, () => {
-  pageNum.value = 1;
-  if (store.homeUserInformation.id && contributeMenu.value === 1)
-    homeContributeVideosF();
-  else if (store.homeUserInformation.id && contributeMenu.value === 2)
-    dynamicImgF();
-});
-
-//监视图片源变化
-watch(imgSource, () => {
-  if (store.homeUserInformation.id && contributeMenu.value === 2) dynamicImgF();
-});
 </script>
 
 <style lang="scss" scoped>
@@ -413,8 +354,9 @@ watch(imgSource, () => {
         padding-bottom: 60px;
 
         .img-list {
-          column-count: 5; /* 让一行有 5 列 */
-          column-gap: 35px; /* 设置列间距 */
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+          gap: 16px;
         }
         .no-data {
           user-select: none;
@@ -479,24 +421,9 @@ watch(imgSource, () => {
   }
 }
 
-@media (max-width: 1300px) {
-  :deep(.img-list) {
-    width: 669px; 
-    column-count: 3 !important;
-  }
-}
-
-@media (max-width: 960px) {
-  :deep(.img-list) {
-    width: 434px; 
-    column-count: 2 !important;
-  }
-}
-
 @media (max-width: 720px) {
-  :deep(.img-list) {
-    width: 234px; 
-    column-count: 1 !important;
-  }
+  .contribute { flex-direction: column; padding: 20px 16px; }
+  .contribute .aside-container { position: static; flex-direction: row; width: 100%; height: auto; }
+  .contribute .aside-container > div { flex: 1; }
 }
 </style>

@@ -53,8 +53,7 @@ import mainhead from '@/components/mainHead.vue';
 import {useGlobalStore} from "@/store/store";
 import { ElMessage } from "element-plus";
 import {getCollectsClassify} from "@/api/home/index";
-import { addFollow, deleteFollow, checkFollow, selectUserInfo, putUserInfo } from '../api/user/index';
-import {addDialogue} from '../api/privateMessage/index';
+import { addFollow, deleteFollow, selectUserInfo, putUserInfo } from '../api/home/user';
 
 const store = useGlobalStore();
 const introduce = ref("");
@@ -70,12 +69,11 @@ const handleContextMenuVisible=ref(false);
 onMounted(async() => {
 
     try{
-        await getUserIp();
         await selectUserInfoF();
-        await checkFollowF();
-        getCollectsClassifyF();
+        if (store.homeUserInformation.id === store.userId || store.homeUserInformation.publicCollect === 1)
+            await getCollectsClassifyF();
     }catch(e){
-        ElMessage.error("首页信息加载失败");
+        ElMessage.error(e.message || "首页信息加载失败");
     }finally{
         // 无论请求是否失败都要结束加载，否则顶部进度条不会结束
         store.setHomeLoad(true,"homeHead");
@@ -94,21 +92,17 @@ function closeContextMenu(){
     handleContextMenuVisible.value=false;
 }
 
-//获取用户ip和token
-// token 由 /auth/login 返回后存在本地，这里不再向后端要 IP + token。
-async function getUserIp(){
-  store.setUserIp("0.0.0.0");
-}
-
 // 获取用户信息
 async function selectUserInfoF(){
  
     if(userId===null||userId===undefined||userId.length===0)
     window.location.href="/";
     else
-    selectUserInfo(userId).then(res => {
+    await selectUserInfo(userId).then(res => {
         if(res.data.code === 1){
             store.setHomeUserInformation(res.data.data);
+            if (res.data.data.id === store.userId)
+                store.setUserInformation({ ...store.userInformation, ...res.data.data });
             if(homeMenu === 1 || homeMenu === 5 || homeMenu === 6 || homeMenu === 7)
             document.title=res.data.data.userName+"的个人空间-"+res.data.data.userName+"个人主页-青芒视频";
             else if(homeMenu === 2)
@@ -131,10 +125,9 @@ async function putUserInfoF(){
     if(store.homeUserInformation.introduce===introduce.value)
     return;
 
-    store.homeUserInformation.introduce=introduce.value;
-    store.homeUserInformation.control=2;
-    putUserInfo(store.token,store.homeUserInformation).then(res=>{
+    putUserInfo(store.token,{ ...store.homeUserInformation, introduce: introduce.value }).then(res=>{
         if(res.data.code===1){
+            store.homeUserInformation.introduce=introduce.value;
             ElMessage({
             message: "修改成功",
             type: "info",
@@ -149,7 +142,7 @@ async function putUserInfoF(){
             duration: 1700,
             });
         }
-    })
+    }).catch(error => ElMessage.error(error.message))
 
     
 
@@ -200,7 +193,7 @@ async function followF(){
             duration: 1700,
             });
         }
-    })
+    }).catch(error => ElMessage.error(error.message))
 }
 
 // 取消关注
@@ -229,15 +222,7 @@ async function unFollowF(){
             duration: 1700,
             });
         }
-    })
-}
-
-// 检查是否关注
-async function checkFollowF(){
-    await checkFollow(store.userId,userId,store.token).then(res=>{
-        if(res.data.code===1)
-          store.homeUserInformation.isFollowFlag=res.data.data;
-    })
+    }).catch(error => ElMessage.error(error.message))
 }
 
 //添加私信对话并跳转
@@ -248,20 +233,7 @@ async function addDialogueF() {
         return;
     }
 
-    let dialogue = {
-    userId: store.userId,
-    dialogueId: userId,
-    }
-    addDialogue(store.token,dialogue).then(res=>{
-
-    if(res.data.code===1)
-    {
-        window.open(
-        `./message?dialogueId=${userId}`,
-        "_blank",
-        );
-    }
-    })
+    ElMessage.info("私信功能暂未开放");
 }
 
 //弹出修改背景菜单
@@ -284,8 +256,8 @@ watch(()=>store.loginDialogVisibleFlag,()=>{
 })
 
 //获取所有收藏夹名称
-function getCollectsClassifyF(){
-    getCollectsClassify(userId,store.userId,store.token).then(res=>{
+async function getCollectsClassifyF(){
+    await getCollectsClassify(userId,store.userId,store.token).then(res=>{
         if(res.data.code === 1){
             store.setCollectClassifyNumber(res.data.data.length);
         }

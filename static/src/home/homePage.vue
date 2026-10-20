@@ -1,5 +1,5 @@
 <template>
-  <div v-if="userId !== null" class="home-page">
+  <div v-if="ready && userId !== null" class="home-page">
     <loadingBar :active="barActive" :percent="barPercent" :min-duration="initialLoadFinished?260:400"/>
     <home-head/>
     <homeAside/>
@@ -13,6 +13,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import {useGlobalStore} from "../store/store";
 import { authApi } from "../api/product";
+import { ElMessage } from 'element-plus';
 import homeHead from './homeHead.vue';
 import homeAside from './homeAside.vue';
 import homeBody from './homeBody.vue';
@@ -23,7 +24,8 @@ const store = useGlobalStore();
 const initialLoadFinished = ref(false);
 const menuLoading = ref(false);
 const urlUserId = parseInt(new URL(window.location).searchParams.get("userId")) || null;
-const userId = urlUserId || store.userId;
+const userId = computed(() => urlUserId || store.userId);
+const ready = ref(false);
 
 useBodyLayout({});
 
@@ -49,33 +51,31 @@ const barPercent = computed(() => {
 
 const handlePopState = () => {
   const urlParams = new URLSearchParams(window.location.search);
-  store.setHomeMenu(parseInt(urlParams.get("homeMenu")) || 1,false);
+  store.setHomeMenu(parseInt(urlParams.get("homeMenu")) || 1, userId.value, false);
 };
 
-onMounted(() => {
-
-  if(!userId && !store.userId){
-    if(store.token){
-      authApi.me().then(me => {
-        if(me && me.userId){
-          store.setUserId(me.userId);
-          const urlParams = new URLSearchParams(window.location.search);
-          store.setHomeMenu(parseInt(urlParams.get("homeMenu")) || 1,true);
-          window.addEventListener('popstate', handlePopState);
-        }else{
+onMounted(async () => {
+  if (store.token && !store.userId) {
+      try {
+        const me = await authApi.me();
+        store.setUserId(me.userId);
+      } catch (error) {
+        ElMessage.error(error.message);
+        if (!urlUserId) {
           window.location.href = './';
+          return;
         }
-      }).catch(() => {
-        window.location.href = './';
-      });
-      return;
-    }
-    window.location.href = './';
-    return;
+      }
+  } else if (!store.token && store.userId) {
+    store.setUserId(null);
   }
-
+  if (!userId.value) {
+      window.location.href = './';
+      return;
+  }
   const urlParams = new URLSearchParams(window.location.search);
-  store.setHomeMenu(parseInt(urlParams.get("homeMenu")) || 1,true);
+  store.setHomeMenu(parseInt(urlParams.get("homeMenu")) || 1, userId.value, false);
+  ready.value = true;
   window.addEventListener('popstate', handlePopState);
   
 });

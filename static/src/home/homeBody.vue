@@ -1,5 +1,7 @@
 <template>
   <div class="home-body">
+    <div v-if="store.homeMenu === 6" class="unavailable">追剧功能暂未开放</div>
+    <div v-else-if="!currentComponent && store.homeLoad.homeHead" class="unavailable">该页面不可访问</div>
     <keep-alive>
       <component class="home-component" :is="currentComponent" />
     </keep-alive>
@@ -13,7 +15,6 @@ import dynamic from './dynamic.vue';
 import contribute from './contribute.vue';
 import lists from './lists.vue';
 import collect from './collect.vue';
-import followAnime from './followAnime.vue';
 import settings from './settings.vue';
 import follow from './follow.vue';
 import fans from './fans.vue';
@@ -21,7 +22,7 @@ import search from './search.vue';
 import { useGlobalStore } from '../store/store';
 
 const store = useGlobalStore();
-const userId = parseInt(new URL(window.location).searchParams.get("userId"))|| null;
+const userId = parseInt(new URL(window.location).searchParams.get("userId")) || store.userId;
 const currentComponent = computed(() => {
   switch (store.homeMenu) {
     case 1: return home;
@@ -31,9 +32,7 @@ const currentComponent = computed(() => {
     case 5:
       return (store.homeUserInformation.publicCollect === 1 ||
               (store.userId !== null && store.userId === userId)) ? collect : null;
-    case 6:
-      return (store.homeUserInformation.publicAnime === 1 ||
-              (store.userId !== null && store.userId === userId)) ? followAnime : null;
+    case 6: return null;
     case 7:
       return (store.userId !== null && store.userId === userId) ? settings : null;
     case 8:
@@ -65,11 +64,12 @@ watch(() => store.homeMenu, (newVal) => {
 },{immediate:true});
 
 // 无权限时菜单对应组件为空，需要直接结束加载，避免顶部进度条一直挂着
-watch(currentComponent, (component) => {
-  if (!component && store.homeLoad.homeHead) {
+watch([currentComponent, () => store.homeLoad.homeHead], ([component, headLoaded]) => {
+  if (!component && headLoaded) {
+    clearTimeout(bodyTimer);
     store.setHomeLoad(true, "homeBody");
   }
-});
+}, { immediate: true });
 
 onBeforeUnmount(()=>{
   clearTimeout(bodyTimer);
@@ -87,4 +87,5 @@ onBeforeUnmount(()=>{
 .home-component{
   width: 100%;
 }
+.unavailable { padding: 60px; text-align: center; color: #8D9794; }
 </style>

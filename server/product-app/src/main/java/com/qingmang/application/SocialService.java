@@ -34,11 +34,12 @@ public class SocialService {
     private final CounterMapper counterMapper;
     private final SocialQueryMapper queryMapper;
     private final ObjectMapper json;
+    private final AuthService auth;
 
     public SocialService(UserFollowMapper followMapper, UserPostMapper postMapper,
                          PrivateMessageMapper privateMessageMapper,
                          UserStatsMapper statsMapper, CounterMapper counterMapper,
-                         SocialQueryMapper queryMapper, ObjectMapper json) {
+                         SocialQueryMapper queryMapper, ObjectMapper json, AuthService auth) {
         this.followMapper = followMapper;
         this.postMapper = postMapper;
         this.privateMessageMapper = privateMessageMapper;
@@ -46,6 +47,30 @@ public class SocialService {
         this.counterMapper = counterMapper;
         this.queryMapper = queryMapper;
         this.json = json;
+        this.auth = auth;
+    }
+
+    @Transactional
+    public void setFollowing(Long userId, Long targetUserId, boolean following) {
+        if (userId.equals(targetUserId)) throw new BizException(ErrorCode.FOLLOW_SELF);
+        auth.requireActiveUser(targetUserId);
+        if (following) {
+            UserFollow relation = new UserFollow();
+            relation.setFollowerId(userId);
+            relation.setFolloweeId(targetUserId);
+            try {
+                followMapper.insert(relation);
+            } catch (org.springframework.dao.DuplicateKeyException e) {
+                return;
+            }
+        } else {
+            int removed = followMapper.delete(Wrappers.<UserFollow>lambdaQuery()
+                    .eq(UserFollow::getFollowerId, userId).eq(UserFollow::getFolloweeId, targetUserId));
+            if (removed == 0) return;
+        }
+        int delta = following ? 1 : -1;
+        counterMapper.increaseUserStat(targetUserId, "follower_count", delta);
+        counterMapper.increaseUserStat(userId, "following_count", delta);
     }
 
     /** 关注/取关。粉丝数与关注数一起改，靠唯一键防重复关注。 */

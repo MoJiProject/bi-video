@@ -50,12 +50,13 @@ public class UserContentController {
     @PostMapping("/folder")
     public ApiResponse<FolderVO> createFolder(@Valid @RequestBody FolderRequest body) {
         return ApiResponse.ok(service.createFolder(AuthContext.requireUserId(),
-                body.getName(), body.getDescription(), body.getVisibility()));
+                body.getName(), body.getDescription(), body.getVisibility() == null ? 1 : body.getVisibility(),
+                body.getCoverUrl()));
     }
 
     @PutMapping("/folder/{folderId}")
     public ApiResponse<Void> renameFolder(@PathVariable Long folderId, @Valid @RequestBody FolderRequest body) {
-        service.renameFolder(AuthContext.requireUserId(), folderId, body.getName(), body.getDescription());
+        service.updateFolder(AuthContext.requireUserId(), folderId, body);
         return ApiResponse.ok();
     }
 

@@ -41,7 +41,7 @@
           <videoList6 :data="contributeVideos" />
         </div>
         <div v-show="display == 2 && !loadMore && contributeVideos.length>0" class="video-list-container">
-          <videoList4 :data="contributeVideos" />
+          <videoList4 :data="contributeVideos" layout="list"/>
         </div>
         <div v-show="!loadMore && contributeTotal > 0" class="page-container">
           <el-pagination
@@ -71,7 +71,7 @@
         </div>
         <div v-show="dynamicList.length>0" class="find-info">共找到关于"{{ keyword }}"的 <span>{{ dynamicTotal }}</span> 个动态</div>
         <div>
-            <div v-show="!loadMore&&dynamicList.length>0" class="dynamic-item" v-for="dynamic in dynamicList" :key="dynamic.dynamic.id">
+            <div v-show="!loadMore&&dynamicList.length>0" class="dynamic-item" v-for="dynamic in dynamicList" :key="dynamic.id">
                 <dynamicC :dynamic="dynamic"/>
             </div>
             <div v-if="fotterFlag&&dynamicList.length>0&&!loadMore2&&!loadMore" class="no-more">你已经到达世界的尽头~</div>
@@ -87,13 +87,13 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref, watch, nextTick } from "vue";
+import { onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useGlobalStore } from "../store/store";
-import dynamicC from "@/utils/dynamic.vue";
+import dynamicC from "./homePost.vue";
 import { homeDynamic,homeContributeVideos } from "@/api/home/index";
-import { getEitList } from "@/api/user/index";
-import videoList4 from "@/utils/videoList4.vue";
-import videoList6 from "@/utils/videoList6.vue";
+import { ElMessage } from "element-plus";
+import videoList4 from "./homeVideos.vue";
+import videoList6 from "./homeVideos.vue";
 import loadingIndicator from "@/components/loadingIndicator.vue";
 
 const store = useGlobalStore();
@@ -102,7 +102,7 @@ const loadMore = ref(true);
 const loadMore2 = ref(false);
 const display = ref(1);
 const sort = ref(1);
-const userId = parseInt(new URL(window.location).searchParams.get("userId")) || null;
+const userId = parseInt(new URL(window.location).searchParams.get("userId")) || store.userId;
 const pageNum = ref(1);
 const pageNum2 = ref(1);
 const dynamicList = reactive([]);
@@ -112,61 +112,16 @@ const contributeTotal = ref(0);
 const dynamicTotal = ref(0);
 const keyword = ref(new URL(window.location).searchParams.get("keyword") || "");
 
-onMounted(async () => {
-   
-  store.setKeyword(keyword.value);
-  if (store.homeUserInformation.id) {
-    await homeDynamicF();
-    homeContributeVideosF();
-  }
-
-  if (store.userId) {
-    getEitListF();
-  }
-
+onMounted(() => {
   window.addEventListener("scroll", handleScroll);
 });
-
-// 监听store变化
-let onceFlag = true;
-watch(
-  () => store.homeUserInformation.id,
-  async () => {
-    if (onceFlag && store.homeUserInformation.id) {
-      onceFlag = null;
-      await homeDynamicF();
-      homeContributeVideosF();
-    }
-  },
-);
-
-let onceFlag2 = true;
-watch(
-  () => store.userId,
-  async () => {
-    if (onceFlag2 && store.userId) {
-      onceFlag2 = null;
-      await getEitListF();
-    }
-  },
-);
-
-watch(searchMenu, () => {
-  pageNum.value = 1;
-  fotterFlag.value = false;
-  store.commentOpenFlag = false;
-  //切换tab时同样保留滚动位置：先清空列表会让文档高度骤减，
-  //浏览器把 scrollTop 截断到新的最大高度，页面就跳动
-  const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
-  dynamicList.length = 0;
-  if (store.homeUserInformation.id) homeDynamicF();
-  nextTick(() => {
-    window.scrollTo({ top: currentScroll, behavior: "auto" });
-  });
-});
+onUnmounted(() => window.removeEventListener("scroll", handleScroll));
+store.setKeyword(keyword.value);
+let requestId = 0;
 
 //获取动态列表
 async function homeDynamicF() {
+  const current = requestId;
   if (dynamicList.length === 0) {
     loadMore.value = true;
   } else {
@@ -176,78 +131,48 @@ async function homeDynamicF() {
   {
     dynamicList.length = 0;
   }
-  let date = new Date();
-  homeDynamic(
-    store.homeUserInformation.id,
-    store.userId,
-    pageNum2.value++,
-    1,
-    keyword.value,
-  ).then((res) => {
-    if (res.data.code === 1) {
+  try {
+    const res = await homeDynamic(store.homeUserInformation.id, store.userId, pageNum2.value, 1, keyword.value);
+    if (current !== requestId) return;
       pushData(res.data.data.records);
       dynamicTotal.value = res.data.data.total;
-      if (!res.data.data.records || res.data.data.records.length === 0) {
-        fotterFlag.value = true;
-      }
-      const date2 = new Date();
-      setTimeout(
-        () => {
-          loadMore.value = false;
-          loadMore2.value = false;
-        },
-        date2 - date < 300 ? 300 : date2 - date,
-      );
+      fotterFlag.value = dynamicList.length >= dynamicTotal.value;
+      pageNum2.value++;
+  } catch (error) {
+    if (current === requestId) {
+      ElMessage.error(error.message);
+      fotterFlag.value = true;
     }
-  });
+  } finally {
+    if (current === requestId) {
+      loadMore.value = false;
+      loadMore2.value = false;
+      store.setHomeLoad(true, "homeBody");
+      store.setHomeLoadMenuList(10);
+    }
+  }
 }
 
 // 获取用户主页投稿的视频
 async function homeContributeVideosF() {
+  const current = requestId;
   loadMore.value = true;
-  let date = new Date();
-  homeContributeVideos(
-    store.homeUserInformation.id,
-    store.userId,
-    sort.value,
-    pageNum.value,
-    keyword.value,
-  ).then((res) => {
-    if (res.data.code === 1) {
+  try {
+    const res = await homeContributeVideos(store.homeUserInformation.id, store.userId, sort.value, pageNum.value, keyword.value);
+    if (current !== requestId) return;
       contributeVideos.length = 0;
       Object.assign(contributeVideos, res.data.data.records);
       contributeTotal.value = res.data.data.total;
-      let date2 = new Date();
-      setTimeout(
-        () => {
-          loadMore.value = false;
-          store.setHomeLoad(true, "homeBody");
-          store.setHomeLoadMenuList(10);
-        },
-        date2 - date < 300 ? 300 : date2 - date,
-      );
+  } catch (error) {
+    if (current === requestId) ElMessage.error(error.message);
+  } finally {
+    if (current === requestId) {
+      loadMore.value = false;
+      store.setHomeLoad(true, "homeBody");
+      store.setHomeLoadMenuList(10);
     }
-  });
+  }
 }
-
-//监视置顶动态变化
-watch(
-  () => store.upFlag,
-  () => {
-    if (store.upFlag) {
-      const index = dynamicList.findIndex(
-        (item) => item.dynamic.id === store.upFlag,
-      );
-      let temp = dynamicList[index];
-      dynamicList.splice(index, 1);
-      dynamicList.unshift(temp);
-      dynamicList.forEach((item) => {
-        if (item.dynamic.id !== store.upFlag) item.dynamic.upFlag = 0;
-      });
-      store.upFlag = null;
-    }
-  },
-);
 
 //监视删除动态变化
 watch(
@@ -255,22 +180,35 @@ watch(
   () => {
     if (store.deleteFlag) {
       const index = dynamicList.findIndex(
-        (item) => item.dynamic.id === store.deleteFlag,
+        (item) => item.id === store.deleteFlag,
       );
-      dynamicList.splice(index, 1);
-      store.deleteFlag = null;
+      if (index !== -1) {
+        dynamicList.splice(index, 1);
+        dynamicTotal.value--;
+      }
     }
   },
 );
 
 // 监听sort变化
-watch(sort, () => {
-  if (store.homeUserInformation.id) homeContributeVideosF();
-});
+watch([sort, searchMenu, () => store.keyword], () => {
+  pageNum.value = 1;
+  pageNum2.value = 1;
+  fotterFlag.value = false;
+  dynamicList.length = 0;
+  keyword.value = store.keyword;
+}, { flush: 'sync' });
+
+watch([() => store.homeUserInformation.id, searchMenu, sort, pageNum, keyword], ([id]) => {
+  if (!id) return;
+  requestId++;
+  if (searchMenu.value === 1) homeContributeVideosF();
+  else homeDynamicF();
+}, { immediate: true });
 
 //滚动加载
 function handleScroll() {
-  if (!loadMore2.value && !loadMore.value && !fotterFlag.value && searchMenu.value === 2) {
+  if (store.homeMenu === 10 && !loadMore2.value && !loadMore.value && !fotterFlag.value && searchMenu.value === 2) {
     if (
       window.innerHeight + document.documentElement.scrollTop >=
       document.documentElement.offsetHeight - 100
@@ -283,18 +221,9 @@ function handleScroll() {
 //去除重复数据
 function pushData(newData) {
   if (newData === null) return;
-  const idSet = new Set(dynamicList.map((item) => item.dynamic.id)); // 获取已有数据的 ID
-  const uniqueData = newData.filter((item) => !idSet.has(item.dynamic.id)); // 过滤掉重复的
+  const idSet = new Set(dynamicList.map((item) => item.id));
+  const uniqueData = newData.filter((item) => !idSet.has(item.id));
   dynamicList.push(...uniqueData); // Vue 响应式更新
-}
-
-//获取eit列表
-async function getEitListF() {
-  getEitList(store).then((res) => {
-    if (res.data.code === 1) {
-      store.setEitList(res.data.data);
-    }
-  });
 }
 
 // 更改当前页
@@ -312,31 +241,6 @@ function handleCurrentChange2(event) {
     pageNum.value = parseInt(event.target.value);
 }
 
-//监视页数变化
-watch(pageNum, () => {
-  if (store.homeUserInformation.id && searchMenu.value === 1)
-    homeContributeVideosF();
-});
-
-//重置页数
-watch(searchMenu, () => {
-  pageNum.value = 1;
-  pageNum2.value = 1;
-  if (store.homeUserInformation.id && searchMenu.value === 1)
-    homeContributeVideosF();
-  else if (store.homeUserInformation.id && searchMenu.value === 2)
-    homeDynamicF();
-});
-
-watch(()=>store.keyword,()=>{
-    pageNum.value = 1;
-    pageNum2.value = 1;
-    keyword.value=store.keyword;
-    if (store.homeUserInformation.id && searchMenu.value === 1)
-        homeContributeVideosF();
-    else if (store.homeUserInformation.id && searchMenu.value === 2)
-        homeDynamicF();
-})
 </script>
 
 <style lang="scss" scoped>
