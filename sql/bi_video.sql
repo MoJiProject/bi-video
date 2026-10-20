@@ -423,4 +423,17 @@ CREATE TABLE `user_ban`  (
   INDEX `idx_user_ban_status`(`status`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
+CREATE TABLE IF NOT EXISTS `banner` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `image_url` varchar(255) NOT NULL COMMENT 'Banner图片地址',
+  `content` varchar(200) NOT NULL DEFAULT '' COMMENT '可选展示内容',
+  `link_url` varchar(2000) NOT NULL DEFAULT '' COMMENT '跳转链接，填写内容时必填',
+  `sort_order` int NOT NULL DEFAULT 0 COMMENT '数值越小越靠前',
+  `enabled` tinyint NOT NULL DEFAULT 1 COMMENT '1展示 0隐藏',
+  `create_time` datetime NOT NULL,
+  `update_time` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_banner_display` (`enabled`, `sort_order`, `id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;

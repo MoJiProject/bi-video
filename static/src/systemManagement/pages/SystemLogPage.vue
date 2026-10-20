@@ -15,6 +15,7 @@
           <el-option label="动态管理" value="dynamic" />
           <el-option label="私信管理" value="message" />
           <el-option label="搜索热词" value="keyWord" />
+          <el-option label="Banner管理" value="banner" />
         </el-select>
         <el-select v-model="query.success" placeholder="全部结果" clearable style="width: 130px" @change="handleSearch">
           <el-option label="成功" :value="1" />

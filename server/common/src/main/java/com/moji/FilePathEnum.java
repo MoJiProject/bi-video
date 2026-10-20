@@ -38,7 +38,8 @@ public enum FilePathEnum {
     /** 用户主页背景上传目录 */
     UPLOAD_IMG_BACKGROUND("file.upload.background", "background", "用户主页背景"),
     /** 用户动态上传目录 */
-    UPLOAD_IMG_DYNAMIC("file.upload.dynamic", "dynamic", "用户动态");
+    UPLOAD_IMG_DYNAMIC("file.upload.dynamic", "dynamic", "用户动态"),
+    UPLOAD_BANNER("file.upload.banner", "banner", "首页Banner");
 
     /** 上传根目录配置项 */
     public static final String ROOT_KEY = "file.upload.root";

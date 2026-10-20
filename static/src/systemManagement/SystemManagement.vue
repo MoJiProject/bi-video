@@ -69,6 +69,7 @@ import {
   Message,
   Key,
   Document,
+  Picture,
 } from "@element-plus/icons-vue";
 import { useGlobalStore } from "../store/store";
 import apiClient from "../services/apiClient";
@@ -81,10 +82,13 @@ import DynamicManagePage from "./pages/DynamicManagePage.vue";
 import MessageManagePage from "./pages/MessageManagePage.vue";
 import KeyWordManagePage from "./pages/KeyWordManagePage.vue";
 import SystemLogPage from "./pages/SystemLogPage.vue";
+import BannerManagePage from "./pages/BannerManagePage.vue";
 
 export default {
   name: "SystemManagement",
   components: {
+    HomeFilled,
+    VideoCameraFilled,
     OverviewPage,
     UserManagePage,
     VideoManagePage,
@@ -93,6 +97,7 @@ export default {
     MessageManagePage,
     KeyWordManagePage,
     SystemLogPage,
+    BannerManagePage,
   },
   setup() {
     const store = useGlobalStore();
@@ -110,6 +115,7 @@ export default {
       { path: "/systemManagement/dynamic", label: "动态管理", icon: Promotion, component: DynamicManagePage },
       { path: "/systemManagement/message", label: "私信管理", icon: Message, component: MessageManagePage },
       { path: "/systemManagement/keyWord", label: "搜索热词", icon: Key, component: KeyWordManagePage },
+      { path: "/systemManagement/banner", label: "Banner管理", icon: Picture, component: BannerManagePage },
       { path: "/systemManagement/log", label: "操作日志", icon: Document, component: SystemLogPage },
     ];
 

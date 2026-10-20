@@ -1,33 +1,49 @@
 <template>
   <div class="carousel">
       <el-carousel
-        style="border-radius: 5px;width: 510px;"
+      style="border-radius: 5px;width: 510px;"
         height="370px"
         :motion-blur="false"
         trigger="click"
         :interval="5000"
       >
-        <el-carousel-item v-for="(item, index) in images" :key="index">
-          <img :src="item" alt="Image" class="carousel-image" />
+        <el-carousel-item v-for="(item, index) in slides" :key="item.id">
+          <component :is="item.linkUrl ? 'a' : 'div'" class="banner-slide"
+            :href="item.linkUrl || undefined" :target="item.linkUrl ? '_blank' : undefined"
+            :rel="item.linkUrl ? 'noopener noreferrer' : undefined"
+            :aria-label="item.content || '首页Banner ' + (index + 1)">
+            <img :src="item.imageUrl" :alt="item.content || '首页Banner ' + (index + 1)" class="carousel-image" />
+            <span v-if="item.content" class="banner-content">{{ item.content }}</span>
+          </component>
         </el-carousel-item>
       </el-carousel>
   </div>
 </template>
 
 <script>
-import { reactive } from "vue";
-const banner1 = "/img/banner1.webp"
-const banner2 = "/img/banner2.webp"
-const banner3 = "/img/banner3.webp"
-const banner4 = "/img/banner4.webp"
+import { computed, onMounted, ref } from "vue";
+import { ElMessage } from "element-plus";
+import { getHomeBanners } from "../api/banner";
 
 export default {
-  name: "Carousel",
+  name: "HomeBannerCarousel",
   setup() {
-    const images = reactive([banner1, banner2, banner3, banner4]);
+    const banners = ref([]);
+    const slides = computed(() => banners.value.length ? banners.value : [
+      { id: "default", imageUrl: "/img/banner1.webp", content: "", linkUrl: "" },
+    ]);
 
+    onMounted(async () => {
+      try {
+        const res = await getHomeBanners();
+        if (res.data.code !== 1) throw new Error(res.data.msg || "Banner加载失败");
+        banners.value = res.data.data.slice(0, 6);
+      } catch (error) {
+        ElMessage.error(error.message || "Banner加载失败");
+      }
+    });
     return {
-      images,
+      slides,
     };
   },
 };
@@ -40,10 +56,25 @@ export default {
   z-index: 100000;
 }
 
+.banner-slide { position: relative; display: block; width: 100%; height: 100%; overflow: hidden; color: white; }
+.banner-slide:focus-visible { outline: 2px solid #00a1d6; outline-offset: -2px; }
+.banner-content {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 28px 16px 36px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, .75));
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
 .carousel-image {
   user-select: none;
   width: 100%; /* 填满轮播项宽度 */
   height: 100%; /* 填满轮播项高度 */
+  display: block;
+  object-fit: cover;
   /* 保持比例填充 */
 }
 </style>

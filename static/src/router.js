@@ -82,6 +82,11 @@ const routes = [
         component: () => import('./systemManagement/SystemManagement.vue'),
       },
       {
+        path: '/systemManagement/banner',
+        name: 'systemBanner',
+        component: () => import('./systemManagement/SystemManagement.vue'),
+      },
+      {
         path: '/systemManagement/log',
         name: 'systemLog',
         component: () => import('./systemManagement/SystemManagement.vue'),

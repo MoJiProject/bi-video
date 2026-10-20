@@ -86,6 +86,7 @@ export const MODULE_LABEL = {
   dynamic: "动态管理",
   message: "私信管理",
   keyWord: "搜索热词",
+  banner: "Banner管理",
 };
 
 //操作动作中文名
@@ -104,6 +105,9 @@ export const ACTION_LABEL = {
   putKeyWord: "修改搜索词",
   putKeyWordCount: "修改搜索次数",
   deleteKeyWord: "删除搜索词",
+  addBanner: "新增Banner",
+  putBanner: "修改Banner",
+  deleteBanner: "删除Banner",
 };
 
 //视频状态中文名与配色
