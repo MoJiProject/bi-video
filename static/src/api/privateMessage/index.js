@@ -18,6 +18,23 @@ export async function selectDialogue(token,userId,pageNum){
 
 }
 
+//查询私信未读总数
+export async function selectNotReadNumber(token,userId){
+
+    const res = await apiClient.get(`/privateMessage/selectNotReadNumber`,
+    {
+        headers: {
+              "Content-Type": "application/json",
+              "Authorization": token,
+        },
+        params:{
+            userId,
+        }
+    });
+    return res;
+
+}
+
 //修改置顶状态
 export async function changeUpStatus(store,dialogueId){
 

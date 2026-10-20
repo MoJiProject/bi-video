@@ -290,6 +290,7 @@ import { useGlobalStore } from "../store/store";
 import { ElMessage } from "element-plus";
 import {
   selectDialogue,
+  selectNotReadNumber,
   changeUpStatus,
   changeDndStatus,
   deleteDialogue,
@@ -367,6 +368,8 @@ function linkifyHtml(html) {
 onMounted(() => {
   window.addEventListener("click", outSideClick);
   selectDialogueF();
+  //进入页面用服务端统计的未读总数覆盖一次私信数
+  refreshUnreadNumber();
 });
 
 onUnmounted(() => {
@@ -1083,6 +1086,30 @@ function updateMessageNumber(sum) {
   userInformation.messageNumber = Math.max(0, (userInformation.messageNumber || 0) + sum);
   userInformation.allMessageNumber = userInformation.messageNumber + userInformation.replyCommentNumber + userInformation.atNumber + userInformation.likeAllNumber;
   store.setUserInformation(userInformation);
+}
+
+//覆盖侧边栏的私信未读数，并同步总消息数
+function setMessageNumber(messageNumber) {
+  let userInformation = store.userInformation;
+  userInformation.messageNumber = Math.max(0, messageNumber || 0);
+  userInformation.allMessageNumber = userInformation.messageNumber
+    + (userInformation.replyCommentNumber || 0)
+    + (userInformation.atNumber || 0)
+    + (userInformation.likeAllNumber || 0);
+  store.setUserInformation(userInformation);
+}
+
+//进入页面时用服务端统计的未读总数覆盖私信数。
+//私信数是历史累加出来的、可能有残留，会话都读完了还会显示数字，用真实未读总数覆盖才准
+async function refreshUnreadNumber() {
+  if (store.token === null || store.userId === null) return;
+  try {
+    const res = await selectNotReadNumber(store.token, store.userId);
+    if (res.data.code !== 1) return;
+    setMessageNumber(res.data.data);
+  } catch (err) {
+    //查询失败保持原样，别把未读数清成 0
+  }
 }
 
 function jumpVideo(videoId) {

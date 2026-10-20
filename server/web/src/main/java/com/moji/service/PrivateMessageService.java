@@ -26,6 +26,9 @@ public interface PrivateMessageService extends IService<PrivateMessage> {
 
     Boolean putMessageStatus(Integer userId, Integer dialogueId);
 
+    //查询用户的私信未读总数
+    Integer selectNotReadMessageNumber(Integer userId);
+
     Boolean deleteMessage(Integer id, Integer userId);
 
     SelectPrivateMessage selectMessage(Integer userId, Integer dialogueId,Integer pageNum);
