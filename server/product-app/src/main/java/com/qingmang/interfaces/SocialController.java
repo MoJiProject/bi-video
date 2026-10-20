@@ -60,9 +60,22 @@ public class SocialController {
     public ApiResponse<Map<String, Object>> posts(@RequestParam(required = false) Long targetUserId,
                                                  @RequestParam(required = false) Long cursorId,
                                                  @RequestParam(defaultValue = "20") int size) {
-        Long me = AuthContext.requireUserId();
+        Long me = AuthContext.currentUserIdOrNull();
         List<PostVO> rows = social.posts(me, targetUserId, cursorId, size);
         return ApiResponse.ok(cursorPage(rows, size));
+    }
+
+    @GetMapping("/post/{postId}")
+    public ApiResponse<PostVO> detail(@PathVariable Long postId) {
+        return ApiResponse.ok(social.detail(postId, AuthContext.currentUserIdOrNull()));
+    }
+
+    @PostMapping("/post/{postId}/like")
+    public ApiResponse<Map<String, Object>> likePost(@PathVariable Long postId) {
+        Long userId = AuthContext.requireUserId();
+        boolean liked = social.togglePostLike(userId, postId);
+        PostVO current = social.detail(postId, userId);
+        return ApiResponse.ok(Map.of("liked", liked, "likeCount", current.getLikeCount()));
     }
 
     @PostMapping("/post")
@@ -101,9 +114,12 @@ public class SocialController {
     private static Map<String, Object> cursorPage(List<?> rows, int size) {
         boolean hasMore = rows.size() > size;
         List<?> page = hasMore ? rows.subList(0, size) : rows;
-        Map<String, Object> data = new HashMap<>(2);
+        Map<String, Object> data = new HashMap<>(3);
         data.put("records", page);
         data.put("hasMore", hasMore);
+        Object last = page.isEmpty() ? null : page.get(page.size() - 1);
+        data.put("cursorId", last instanceof PostVO post ? post.getId() :
+                last instanceof UserBriefVO user ? user.getRelationId() : null);
         return data;
     }
 }

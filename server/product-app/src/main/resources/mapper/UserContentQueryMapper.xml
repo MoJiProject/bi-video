@@ -72,21 +72,36 @@
     </delete>
 
     <select id="selectWatchLater" resultType="com.qingmang.interfaces.vo.VideoListItemVO">
-        SELECT <include refid="videoColumns"/>, <include refid="reactionFlags"/>
+        SELECT <include refid="videoColumns"/>, <include refid="reactionFlags"/>, wl.id AS list_entry_id
         FROM watch_later wl
         JOIN <include refid="baseJoin"><property name="key" value="wl.video_id"/></include>
         WHERE wl.user_id = #{userId} AND v.deleted_at IS NULL AND v.status = 1
         <if test="cursorId != null">AND wl.id &lt; #{cursorId}</if>
+        <if test="keyword != null and keyword != ''">AND v.title LIKE CONCAT('%', #{keyword}, '%')</if>
         ORDER BY wl.id DESC
         LIMIT #{limit}
     </select>
 
     <select id="selectHistory" resultType="com.qingmang.interfaces.vo.VideoListItemVO">
-        SELECT <include refid="videoColumns"/>, <include refid="reactionFlags"/>
+        SELECT <include refid="videoColumns"/>, <include refid="reactionFlags"/>,
+               h.id AS list_entry_id, h.last_watched_at, h.progress_seconds
         FROM watch_history h
         JOIN <include refid="baseJoin"><property name="key" value="h.video_id"/></include>
         WHERE h.user_id = #{userId} AND v.deleted_at IS NULL AND v.status = 1
-        <if test="cursorId != null">AND h.id &lt; #{cursorId}</if>
+        <if test="cursorId != null">
+            <choose>
+                <when test="cursorTime != null">
+                    AND (h.last_watched_at, h.id) &lt; (#{cursorTime}, #{cursorId})
+                </when>
+                <otherwise>
+                    AND (h.last_watched_at, h.id) &lt; (
+                        SELECT anchor.last_watched_at, anchor.id FROM watch_history anchor
+                        WHERE anchor.id = #{cursorId} AND anchor.user_id = #{userId}
+                    )
+                </otherwise>
+            </choose>
+        </if>
+        <if test="keyword != null and keyword != ''">AND v.title LIKE CONCAT('%', #{keyword}, '%')</if>
         ORDER BY h.last_watched_at DESC, h.id DESC
         LIMIT #{limit}
     </select>

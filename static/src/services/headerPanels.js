@@ -24,9 +24,11 @@ export async function fetchFolders() {
   const list = await userContentApi.folders();
   return (list || []).map((f) => ({
     id: f.id,
+    collectClassifyId: f.id,
     collectName: f.name,
     collectNumber: f.itemCount ?? 0,
     isDefault: !!f.isDefault,
+    collectsList: [],
   }));
 }
 
@@ -42,6 +44,13 @@ export async function fetchFolderVideos(folderId) {
     videoDuration: formatDuration(v.durationSeconds),
     videoPlayNumber: v.playCount,
     videoDanmakuNumber: v.danmakuCount,
+    videos: {
+      id: v.id,
+      title: v.title,
+      coverAddress: v.coverUrl,
+      videoTime: formatDuration(v.durationSeconds),
+      userName: v.ownerNickname,
+    },
   }));
 }
 
@@ -71,9 +80,14 @@ export async function fetchHistory() {
     videoCoverAddress: v.coverUrl,
     videoDuration: formatDuration(v.durationSeconds),
     videoPlayNumber: v.playCount,
-    watchVideoDate: '更早',
-    watchedAt: v.publishedAt,
-    dayLabel: dayLabel(v.publishedAt),
+    videoTime: formatDuration(v.durationSeconds),
+    videoUserName: v.ownerNickname,
+    watchVideoDate: dayLabel(v.lastWatchedAt),
+    watchedAt: v.lastWatchedAt,
+    historyId: v.listEntryId,
+    watchVideoTime: formatDuration(v.progressSeconds),
+    watchVideoDateTime: v.lastWatchedAt?.slice(11, 16) || '',
+    dayLabel: dayLabel(v.lastWatchedAt),
   }));
 }
 
@@ -81,32 +95,17 @@ export async function fetchHistory() {
 export async function fetchDynamicPanels() {
   const page = await socialApi.posts({ size: 30 });
   const rows = page?.records || [];
-  const groups = new Map();
-  for (const p of rows) {
-    const key = p.authorId;
-    if (!groups.has(key)) {
-      groups.set(key, {
-        userId: p.authorId,
-        userName: p.authorNickname,
-        userAvatar: p.authorAvatar,
-        videoNumber: 0,
-        newDynamicNumber: 0,
-        videos: [],
-      });
-    }
-    const g = groups.get(key);
-    g.videos.push({
-      ...p,
-      videoId: p.videoId,
-      videoTitle: p.videoTitle,
-      videoCoverAddress: p.videoCover,
-      watchWatch: 0,
-    });
-  }
-  return [...groups.values()].map((g) => ({
-    ...g,
-    videoNumber: g.videos.length,
-    newDynamicNumber: g.videos.length,
+  return rows.map((p) => ({
+    ...p,
+    userId: p.authorId,
+    userName: p.authorNickname,
+    avatarAddress: p.authorAvatar,
+    title: p.videoTitle || p.content || '图文动态',
+    coverAddress: p.videoCover || p.imageList?.[0] || '/img/cover-fallback.png',
+    createTime: p.createdAt?.replace('T', ' ') || '',
+    sortTime: p.createdAt ? new Date(p.createdAt).getTime() : 0,
+    newDynamicNumber: 0,
+    waitWatch: p.videoId ? (p.watchLater ? 1 : 0) : null,
   }));
 }
 

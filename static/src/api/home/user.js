@@ -4,7 +4,7 @@ function envelope(data) {
   return { data: { code: 1, data } };
 }
 
-function mapUser(user) {
+export function mapUser(user) {
   return {
     ...user,
     id: user.userId,
@@ -13,6 +13,13 @@ function mapUser(user) {
     backgroundAddress: user.backgroundUrl,
     introduce: user.signature || '',
     grade: user.level,
+    coinNumber: user.coinBalance,
+    collectNumber: user.favoriteCount,
+    videoNumber: user.videoCount,
+    dynamicNumber: user.postCount,
+    ownDynamicNumber: user.postCount,
+    createTime: user.createdAt,
+    adminFlag: user.role === 1,
     followNumber: user.followingCount,
     fansNumber: user.followerCount,
     likeNumber: user.likeReceived,

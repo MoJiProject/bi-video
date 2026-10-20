@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDateTime;
 
 /** 用户自己的内容：收藏夹、待看清单、观看记录、投稿。 */
 @Service
@@ -137,8 +138,15 @@ public class UserContentService {
     }
 
     /** 待看清单：游标分页。 */
-    public List<VideoListItemVO> watchLater(Long userId, Long cursorId, int size) {
-        return queryMapper.selectWatchLater(userId, cursorId, userId, Math.min(size + 1, 101));
+    public List<VideoListItemVO> watchLater(Long userId, Long cursorId, int size, String keyword) {
+        validateListSize(size, keyword);
+        return queryMapper.selectWatchLater(userId, cursorId, userId, keyword, size + 1);
+    }
+
+    @Transactional
+    public void removeWatchLater(Long userId, Long videoId) {
+        watchLaterMapper.delete(Wrappers.<WatchLater>lambdaQuery()
+                .eq(WatchLater::getUserId, userId).eq(WatchLater::getVideoId, videoId));
     }
 
     @Transactional
@@ -148,8 +156,15 @@ public class UserContentService {
     }
 
     /** 观看记录：按最后观看时间倒序，游标翻页。 */
-    public List<VideoListItemVO> history(Long userId, Long cursorId, int size) {
-        return queryMapper.selectHistory(userId, cursorId, userId, Math.min(size + 1, 101));
+    public List<VideoListItemVO> history(Long userId, Long cursorId, int size, String keyword,
+                                        LocalDateTime cursorTime) {
+        validateListSize(size, keyword);
+        return queryMapper.selectHistory(userId, cursorId, cursorTime, userId, keyword, size + 1);
+    }
+
+    private void validateListSize(int size, String keyword) {
+        if (size < 1 || size > 100 || (keyword != null && keyword.length() > 100))
+            throw new BizException(ErrorCode.PARAM_INVALID);
     }
 
     @Transactional

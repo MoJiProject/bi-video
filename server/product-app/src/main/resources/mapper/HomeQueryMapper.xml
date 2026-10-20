@@ -86,7 +86,8 @@
         p.id, p.author_id, u.nickname AS author_nickname, u.avatar_url AS author_avatar,
         u.signature AS author_signature, v.id AS video_id, v.title AS video_title,
         v.cover_url AS video_cover, v.duration_seconds AS video_duration,
-        p.content, p.image_urls, p.like_count, p.comment_count, p.share_count, p.created_at
+        p.content, p.image_urls, p.like_count, p.comment_count, p.share_count, p.created_at,
+        EXISTS(SELECT 1 FROM post_like l WHERE l.post_id = p.id AND l.user_id = #{viewerId}) AS liked
     </sql>
     <select id="posts" resultType="com.qingmang.interfaces.vo.PostVO">
         SELECT <include refid="postColumns"/>
@@ -115,7 +116,7 @@
                    u.signature AS author_signature, NULL AS video_id, NULL AS video_title,
                    NULL AS video_cover, NULL AS video_duration,
                    c.content, c.image_urls, c.like_count, c.reply_count AS comment_count,
-                   0 AS share_count, c.created_at, 2 AS source_type
+                   0 AS share_count, c.created_at, FALSE AS liked, 2 AS source_type
             FROM `comment` c
             JOIN `user` u ON u.id = c.author_id AND u.deleted_at IS NULL
             LEFT JOIN video cv ON cv.id = c.video_id AND cv.deleted_at IS NULL AND cv.status = 1

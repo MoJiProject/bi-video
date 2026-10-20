@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.time.LocalDateTime;
 
 @Mapper
 public interface UserContentQueryMapper {
@@ -28,12 +29,15 @@ public interface UserContentQueryMapper {
     List<VideoListItemVO> selectWatchLater(@Param("userId") Long userId,
                                            @Param("cursorId") Long cursorId,
                                            @Param("viewerId") Long viewerId,
+                                           @Param("keyword") String keyword,
                                            @Param("limit") int limit);
 
     /** 观看记录。 */
     List<VideoListItemVO> selectHistory(@Param("userId") Long userId,
                                         @Param("cursorId") Long cursorId,
+                                        @Param("cursorTime") LocalDateTime cursorTime,
                                         @Param("viewerId") Long viewerId,
+                                        @Param("keyword") String keyword,
                                         @Param("limit") int limit);
 
     List<VideoListItemVO> selectUserVideos(@Param("userId") Long userId,

@@ -29,6 +29,9 @@ public class VideoListItemVO {
     private Boolean coinGiven = false;
     private Boolean collected = false;
     private Boolean watchLater = false;
+    private Long listEntryId;
+    private LocalDateTime lastWatchedAt;
+    private Integer progressSeconds;
     /** 当前用户已投的硬币数 */
     private Integer myCoinCount = 0;
 }

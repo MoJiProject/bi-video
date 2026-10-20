@@ -9,6 +9,8 @@ import java.util.List;
 
 @Mapper
 public interface SocialQueryMapper {
+    PostVO selectPost(@Param("postId") Long postId, @Param("viewerId") Long viewerId);
+    boolean videoAvailable(@Param("videoId") Long videoId);
 
     /**
      * 动态流。

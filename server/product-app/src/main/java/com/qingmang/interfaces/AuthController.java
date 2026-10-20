@@ -6,6 +6,7 @@ import com.qingmang.interfaces.dto.LoginRequest;
 import com.qingmang.interfaces.dto.RegisterRequest;
 import com.qingmang.interfaces.dto.ProfileUpdateRequest;
 import com.qingmang.interfaces.dto.PrivacyUpdateRequest;
+import com.qingmang.interfaces.dto.AccountUpdateRequest;
 import com.qingmang.interfaces.vo.UserProfileVO;
 import com.qingmang.support.AuthContext;
 import jakarta.validation.Valid;
@@ -57,6 +58,12 @@ public class AuthController {
     @PutMapping("/profile")
     public ApiResponse<Void> updateProfile(@Valid @RequestBody ProfileUpdateRequest request) {
         authService.updateProfile(AuthContext.requireUserId(), request);
+        return ApiResponse.ok();
+    }
+
+    @PutMapping("/account")
+    public ApiResponse<Void> updateAccount(@Valid @RequestBody AccountUpdateRequest request) {
+        authService.updateAccount(AuthContext.requireUserId(), request);
         return ApiResponse.ok();
     }
 

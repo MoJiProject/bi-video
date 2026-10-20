@@ -28,6 +28,7 @@ public class PostVO {
     private Integer commentCount;
     private Integer shareCount;
     private Boolean liked = false;
+    private Boolean watchLater = false;
     private Boolean isSelf = false;
 
     private LocalDateTime createdAt;

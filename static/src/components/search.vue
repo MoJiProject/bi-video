@@ -154,8 +154,8 @@
 </template>
 
 <script>
-import apiClient from "../services/apiClient";
 import { searchApi } from "../api/product";
+import { ElMessage } from "element-plus";
 import {
   ref,
   reactive,
@@ -325,10 +325,9 @@ export default {
         const list = await searchApi.hot(10);
         fireSearch.length = 0;
         list.forEach((k) => fireSearch.push(k.keyword));
-      } catch (error) {}
+      } catch (error) { ElMessage.error(error.message); }
     }
     //获取关键字
-    let keyWordTIme;
 async function selectKeyWord(Value) {
       if (!Value) {
         keyWord.length = 0;
@@ -337,8 +336,9 @@ async function selectKeyWord(Value) {
       try {
         const list = await searchApi.hot(20);
         keyWord.length = 0;
-        Object.assign(keyWord, list.map((k) => k.keyword).filter((w) => w.includes(Value)));
-      } catch (error) {}
+        Object.assign(keyWord, list.map((k) => k.keyword).filter((w) => w.startsWith(Value))
+          .map(word => ({ word: word.slice(Value.length) })));
+      } catch (error) { ElMessage.error(error.message); }
     }
 
     //记录一次搜索。新后端在 searchApi.videos 内部记账，这里不用单独上报。

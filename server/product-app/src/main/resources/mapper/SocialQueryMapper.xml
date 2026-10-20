@@ -2,6 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.qingmang.infrastructure.mapper.SocialQueryMapper">
+    <select id="videoAvailable" resultType="boolean">
+        SELECT EXISTS(SELECT 1 FROM video v JOIN `user` u ON u.id = v.owner_id
+                      WHERE v.id = #{videoId} AND v.status = 1 AND v.deleted_at IS NULL AND u.deleted_at IS NULL)
+    </select>
 
     <resultMap id="postMap" type="com.qingmang.interfaces.vo.PostVO">
         <id column="id" property="id"/>
@@ -19,11 +23,13 @@
         <result column="comment_count" property="commentCount"/>
         <result column="share_count" property="shareCount"/>
         <result column="liked" property="liked"/>
+        <result column="watch_later" property="watchLater"/>
         <result column="created_at" property="createdAt"/>
     </resultMap>
 
     <resultMap id="userBriefMap" type="com.qingmang.interfaces.vo.UserBriefVO">
         <id column="user_id" property="userId"/>
+        <result column="relation_id" property="relationId"/>
         <result column="nickname" property="nickname"/>
         <result column="avatar_url" property="avatarUrl"/>
         <result column="signature" property="signature"/>
@@ -39,8 +45,9 @@
                u.signature AS author_signature,
                v.title AS video_title, v.cover_url AS video_cover,
                v.duration_seconds AS video_duration,
-               EXISTS (SELECT 1 FROM video_reaction r WHERE r.user_id = #{viewerId}
-                       AND r.reaction_type = 3 AND r.video_id = p.video_id) AS liked
+               EXISTS (SELECT 1 FROM post_like r WHERE r.user_id = #{viewerId}
+                       AND r.post_id = p.id) AS liked,
+               EXISTS(SELECT 1 FROM watch_later wl WHERE wl.video_id = p.video_id AND wl.user_id = #{viewerId}) AS watch_later
         FROM user_post p
         JOIN `user` u ON u.id = p.author_id AND u.deleted_at IS NULL
         LEFT JOIN video v ON v.id = p.video_id AND v.deleted_at IS NULL
@@ -56,9 +63,23 @@
         LIMIT #{limit}
     </select>
 
+    <select id="selectPost" resultMap="postMap">
+        SELECT p.id, p.author_id, p.content, p.image_urls, v.id AS video_id,
+               p.like_count, p.comment_count, p.share_count, p.created_at,
+               u.nickname AS author_nickname, u.avatar_url AS author_avatar, u.signature AS author_signature,
+               v.title AS video_title, v.cover_url AS video_cover, v.duration_seconds AS video_duration,
+               EXISTS(SELECT 1 FROM post_like l WHERE l.post_id = p.id AND l.user_id = #{viewerId}) AS liked,
+               EXISTS(SELECT 1 FROM watch_later wl WHERE wl.video_id = p.video_id AND wl.user_id = #{viewerId}) AS watch_later
+        FROM user_post p
+        JOIN `user` u ON u.id = p.author_id AND u.deleted_at IS NULL
+        LEFT JOIN video v ON v.id = p.video_id AND v.deleted_at IS NULL AND v.status = 1
+        WHERE p.id = #{postId} AND p.deleted_at IS NULL AND p.status = 1
+          AND (p.visibility = 0 OR p.author_id = #{viewerId})
+    </select>
+
     <!-- otherId 为空看「我关注的人」，不为空看「关注我的人」 -->
     <select id="selectFollows" resultMap="userBriefMap">
-        SELECT u.id AS user_id, u.nickname, u.avatar_url, u.signature, u.level,
+        SELECT u.id AS user_id, f.id AS relation_id, u.nickname, u.avatar_url, u.signature, u.level,
                f.created_at AS followed_at,
                CASE WHEN EXISTS (SELECT 1 FROM user_follow ff
                                  WHERE ff.follower_id = #{viewerId} AND ff.followee_id = u.id)

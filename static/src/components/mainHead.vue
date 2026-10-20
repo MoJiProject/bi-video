@@ -630,9 +630,9 @@
             <div
               class="dynamicContent-item"
               v-for="dynamic in notHistoryDynamic"
-              :key="dynamic.videoId"
+              :key="dynamic.id"
             >
-              <div @click="locationHerfVideo(dynamic.videoId)">
+              <div @click="openDynamicItem(dynamic)">
                 <el-tooltip
                   popper-class="custom-tooltip"
                   class="dynamicContent-item-tooltip"
@@ -791,11 +791,11 @@
             <div
               class="dynamicContent-item"
               v-for="dynamic in dynamicss"
-              :key="dynamic.videoId"
+              :key="dynamic.id"
             >
               <div
                 v-if="dynamic.newDynamicNumber === 0"
-                @click="locationHerfVideo(dynamic.videoId)"
+                @click="openDynamicItem(dynamic)"
               >
                 <el-tooltip
                   popper-class="custom-tooltip"
@@ -1025,14 +1025,14 @@
             </div>
           </div>
 
-          <div v-if="collectDtoList[changerCollect]" class="collectContent">
+          <div v-if="activeCollect" class="collectContent">
             <div
               class="collectContent-item"
-              v-for="collect in collectDtoList[changerCollect].collectsList"
+              v-for="collect in activeCollect.collectsList"
               :key="collect.id"
             >
               <div
-                v-if="collectDtoList[changerCollect].collectNumber !== 0"
+                v-if="activeCollect.collectNumber !== 0"
                 @click="locationHerfVideo(collect.videos.id)"
               >
                 <img
@@ -1087,14 +1087,14 @@
               </div>
             </div>
             <div
-              v-if="collectDtoList[changerCollect]?.collectNumber===0"
+              v-if="activeCollect.collectNumber===0"
               class="collectIsNull"
             >
               该收藏夹还没有视频哦~
             </div>
           </div>
-          <div v-if="collectDtoList[changerCollect]?.collectNumber !== 0" class="collectFrature">
-            <span class="checkAllCollect" @click="openHome(5,store.userInformation.id,collectDtoList[changerCollect])">查看全部</span>
+          <div v-if="activeCollect && activeCollect.collectNumber !== 0" class="collectFrature">
+            <span class="checkAllCollect" @click="openHome(5,store.userInformation.id,activeCollect)">查看全部</span>
             <span class="playAllCollect"
               ><img src="/img/播放.png" /> 播放全部</span
             >
@@ -2007,15 +2007,17 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted,watch } from "vue";
+import { ref, reactive, onMounted,watch, computed } from "vue";
 import "element-plus/theme-chalk/el-message.css";
 import {
   fetchDynamicPanels,
   fetchFolders,
+  fetchFolderVideos,
   fetchHistory,
   toggleWatchLater,
 } from "../services/headerPanels";
 import { authApi } from "../api/product";
+import { mapUser } from "../api/home/user";
 import { getToken, setToken } from "../services/http";
 import { forgetPassword } from "../services/account";
 import { ElMessage } from "element-plus";
@@ -2063,29 +2065,23 @@ export default {
   },
   setup(props) {
     const propsS=reactive(props);
-    const head2Flag= ref(props.head2Flag);
-    const searchFlag= ref(props.searchFlag);
     const store = useGlobalStore();
     const historyToday = reactive([]);
     const historyYesterday = reactive([]);
     const historyEarlier = reactive([]);
     const historyList = reactive([]);
     const historyAsideFlag = ref(0);
-    const collectDtoList = reactive([
-      {
-        id:0,
-        collectsList:[],
-        collectNumber:0,
-        collectName:"默认收藏夹"
-      },
-      {
-        id:1,
-        collectsList:[],
-        collectNumber:0,
-        collectName:"待看清单"
-      }
-    ]);
+    const collectDtoList = reactive([]);
     const changerCollect = ref(0);
+    const activeCollect = computed(() => collectDtoList.find(folder => folder.id === changerCollect.value));
+    watch(changerCollect, async (id) => {
+      if (!id || !store.token) return;
+      try {
+        const videos = await fetchFolderVideos(id);
+        const folder = collectDtoList.find(item => item.id === id);
+        if (folder) folder.collectsList = videos;
+      } catch (error) { ElMessage.error(error.message); }
+    });
     const notWatchDynamicFlag = ref(false);
     const loginDialogVisible = ref(false); //关闭登录对话框
     const waitWatch = ref(false);
@@ -2318,7 +2314,7 @@ export default {
       const data = raw?.data || raw || {};
       const userId = data.userId ?? data.id;
       return {
-        ...data,
+        ...mapUser(data),
         id: data.id ?? userId,
         userId,
       };
@@ -2666,7 +2662,7 @@ flag.value = 1;
           store.setUserInformation(meData);
         }
       } catch (error) {
-
+        ElMessage.error(error.message);
       }
     }
 
@@ -2695,6 +2691,7 @@ flag.value = 1;
         notHistoryDynamic.length = 0;
         notWatchDynamicFlag.value = false;
         Object.assign(dynamics, groups);
+        sortItems();
         dynamics.forEach((item) => {
           if (item.newDynamicNumber !== 0) {
             notWatchDynamicFlag.value = true;
@@ -2704,6 +2701,7 @@ flag.value = 1;
           }
         });
 } catch (error) {
+        ElMessage.error(error.message);
       }
     }
 
@@ -2724,16 +2722,19 @@ flag.value = 1;
         const list = await fetchFolders();
         collectDtoList.length = 0;
         Object.assign(collectDtoList, list);
+        if (!list.some(folder => folder.id === changerCollect.value)) changerCollect.value = list[0]?.id || 0;
+        else if (activeCollect.value) activeCollect.value.collectsList = await fetchFolderVideos(changerCollect.value);
         const def = list.find((f) => f.isDefault);
         store.setCollectNumber(def ? def.collectNumber : 0);
-} catch (error) {}
+} catch (error) { ElMessage.error(error.message); }
     }
 
     //稍后观看
     async function waitWatchAxios(dynamic) {
       try {
-        await toggleWatchLater(dynamic.videoId);
-        dynamic.waitWatch = dynamic.waitWatch === 1 ? 0 : 1;
+        if (!dynamic.videoId) return;
+        const state = await toggleWatchLater(dynamic.videoId);
+        dynamic.waitWatch = state.watchLater ? 1 : 0;
 } catch (error) {
         ElMessage({ message: error.message || "操作失败", type: "info", plain: true, duration: 1700 });
       }
@@ -2743,7 +2744,6 @@ flag.value = 1;
     function selectOneCollect(collectId) {
       changerCollect.value = collectId;
       store.setCollectSelect(collectId);
-      selectCollect();
     }
 
     //查询历史记录
@@ -2762,6 +2762,7 @@ flag.value = 1;
         Object.assign(historyYesterday, list.filter((i) => i.dayLabel === "昨天"));
         Object.assign(historyEarlier, list.filter((i) => i.dayLabel !== "今天" && i.dayLabel !== "昨天"));
       } catch (error) {
+        ElMessage.error(error.message);
 } finally {
         historyAxiosTimeFlag = false;
       }
@@ -2871,6 +2872,11 @@ flag.value = 1;
       );
     }
 
+    function openDynamicItem(dynamic) {
+      if (dynamic.videoId) locationHerfVideo(dynamic.videoId);
+      else window.open(`./dynamicDetail?dynamicId=${dynamic.id}`, "_blank");
+    }
+
     //打开我的主页
     function openHome(menu,userId,collect){
       if(collect&&collect.collectName!=='待看清单')
@@ -2941,6 +2947,8 @@ flag.value = 1;
       notHistoryDynamic,
       dynamicss,
       changerCollect,
+      activeCollect,
+      openDynamicItem,
       collectDtoList,
       selectCollect,
       getDynamicAxiso,

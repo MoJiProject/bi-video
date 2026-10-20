@@ -22,7 +22,20 @@ bi-video
 访问权限由后端根据登录身份判断，不使用前端传入的浏览者 ID 授权。
 
 当前隐私设置支持收藏、关注列表、粉丝列表；投币记录、点赞记录和生日仅本人可见。
-尚未提供代表作配置、追剧和私信接口，对应入口不会展示模拟数据或调用旧版地址。
+尚未提供代表作配置和追剧接口，对应入口不会展示模拟数据或调用旧版地址。
+
+## 接口与上传部署
+
+页面统一使用 `services/http.js` 和 `token` 请求头。历史及稍后观看使用
+`/api/history/list`、`/api/watch-later/list`，游标为记录 ID，不是视频 ID；
+动态使用 `/api/post`，账号编辑使用 `/api/auth/account`。
+
+已有数据库需执行 `sql/product/03_post_like.sql`，新增动态点赞关系表。
+新建数据库使用更新后的 `01_schema.sql`，无需重复建表。
+上传统一使用 `/api/media/{category}`，图片支持 PNG/JPEG/GIF（10MB），
+视频支持 MP4/WebM/Ogg（500MB）。通过 `app.upload-dir` 配置持久化目录，
+默认路径为相对于后端工作目录的 `../static/public/upload`。
+开发代理和 Nginx 都将 `/upload/` 转发到后端；Nginx 的 `/api/` 转发保留前缀。
 
 ## 注意
 1.弹幕、一起看、后台管理的功能不需要改，之前的功能基本需要保留，不过功能名称展现效果需要更改，可以进行升级优化

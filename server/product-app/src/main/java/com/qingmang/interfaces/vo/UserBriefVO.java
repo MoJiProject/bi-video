@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 public class UserBriefVO {
 
     private Long userId;
+    private Long relationId;
     private String nickname;
     private String avatarUrl;
     private String signature;

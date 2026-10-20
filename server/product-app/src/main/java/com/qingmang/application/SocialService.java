@@ -9,6 +9,9 @@ import com.qingmang.common.exception.ErrorCode;
 import com.qingmang.domain.social.PrivateMessage;
 import com.qingmang.domain.social.UserFollow;
 import com.qingmang.domain.social.UserPost;
+import com.qingmang.domain.social.PostLike;
+import com.qingmang.domain.social.mapper.PostLikeMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.qingmang.domain.social.mapper.PrivateMessageMapper;
 import com.qingmang.domain.social.mapper.UserFollowMapper;
 import com.qingmang.domain.social.mapper.UserPostMapper;
@@ -35,11 +38,12 @@ public class SocialService {
     private final SocialQueryMapper queryMapper;
     private final ObjectMapper json;
     private final AuthService auth;
+    private final PostLikeMapper postLikes;
 
     public SocialService(UserFollowMapper followMapper, UserPostMapper postMapper,
                          PrivateMessageMapper privateMessageMapper,
                          UserStatsMapper statsMapper, CounterMapper counterMapper,
-                         SocialQueryMapper queryMapper, ObjectMapper json, AuthService auth) {
+                         SocialQueryMapper queryMapper, ObjectMapper json, AuthService auth, PostLikeMapper postLikes) {
         this.followMapper = followMapper;
         this.postMapper = postMapper;
         this.privateMessageMapper = privateMessageMapper;
@@ -48,6 +52,7 @@ public class SocialService {
         this.queryMapper = queryMapper;
         this.json = json;
         this.auth = auth;
+        this.postLikes = postLikes;
     }
 
     @Transactional
@@ -106,6 +111,7 @@ public class SocialService {
 
     /** targetUserId 为空看公开动态流，不为空看某个人的。 */
     public List<PostVO> posts(Long viewerId, Long targetUserId, Long cursorId, int size) {
+        if (size < 1 || size > 100) throw new BizException(ErrorCode.PARAM_INVALID);
         List<PostVO> rows = queryMapper.selectPosts(viewerId, targetUserId, cursorId, Math.min(size + 1, 101));
         rows.forEach(r -> {
             r.setIsSelf(r.getAuthorId().equals(viewerId));
@@ -115,8 +121,40 @@ public class SocialService {
         return rows;
     }
 
+    public PostVO detail(Long postId, Long viewerId) {
+        PostVO row = queryMapper.selectPost(postId, viewerId);
+        if (row == null) throw new BizException(ErrorCode.POST_NOT_FOUND);
+        row.setIsSelf(row.getAuthorId().equals(viewerId));
+        row.setImageList(parseImages(row.getImageUrls()));
+        row.setImageUrls(null);
+        return row;
+    }
+
+    @Transactional
+    public boolean togglePostLike(Long userId, Long postId) {
+        detail(postId, userId);
+        PostLike existing = postLikes.selectOne(Wrappers.<PostLike>lambdaQuery()
+                .eq(PostLike::getPostId, postId).eq(PostLike::getUserId, userId));
+        boolean liked = existing == null;
+        if (liked) {
+            PostLike like = new PostLike();
+            like.setPostId(postId);
+            like.setUserId(userId);
+            try { postLikes.insert(like); }
+            catch (org.springframework.dao.DuplicateKeyException e) { throw new BizException(ErrorCode.REQUEST_TOO_FREQUENT); }
+        } else if (postLikes.delete(Wrappers.<PostLike>lambdaQuery()
+                .eq(PostLike::getPostId, postId).eq(PostLike::getUserId, userId)) == 0) {
+            return false;
+        }
+        postMapper.update(null, Wrappers.<UserPost>lambdaUpdate().eq(UserPost::getId, postId)
+                .setSql(liked ? "like_count = like_count + 1" : "like_count = CASE WHEN like_count > 0 THEN like_count - 1 ELSE 0 END"));
+        return liked;
+    }
+
     @Transactional
     public Long post(Long userId, PostRequest req) {
+        if (req.getVideoId() != null && !queryMapper.videoAvailable(req.getVideoId()))
+            throw new BizException(ErrorCode.VIDEO_NOT_FOUND);
         boolean empty = (req.getContent() == null || req.getContent().isBlank())
                 && (req.getImageUrls() == null || req.getImageUrls().isEmpty())
                 && req.getVideoId() == null;
@@ -135,7 +173,7 @@ public class SocialService {
         if (req.getImageUrls() != null && !req.getImageUrls().isEmpty()) {
             try {
                 p.setImageUrls(json.writeValueAsString(req.getImageUrls()));
-            } catch (Exception e) {
+            } catch (JsonProcessingException e) {
                 throw new BizException(ErrorCode.PARAM_INVALID, "图片地址格式不正确");
             }
         }
@@ -178,8 +216,8 @@ public class SocialService {
         try {
             return json.readValue(raw, new TypeReference<List<String>>() {
             });
-        } catch (Exception e) {
-            return List.of();
+        } catch (JsonProcessingException e) {
+            throw new BizException(ErrorCode.OPERATION_FAILED, "动态图片数据格式错误");
         }
     }
 }

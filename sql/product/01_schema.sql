@@ -374,6 +374,7 @@ CREATE TABLE `user_follow`
   COLLATE = utf8mb4_unicode_ci COMMENT
     = '关注关系。旧库另有 fans 表，与本表是同一份数据，这里只保留一份，粉丝列表反向查本表';
 
+DROP TABLE IF EXISTS `post_like`;
 DROP TABLE IF EXISTS `user_post`;
 CREATE TABLE `user_post`
 (
@@ -399,6 +400,18 @@ CREATE TABLE `user_post`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci COMMENT ='用户动态';
+
+CREATE TABLE post_like (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    post_id BIGINT UNSIGNED NOT NULL,
+    user_id BIGINT UNSIGNED NOT NULL,
+    created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_post_like (post_id, user_id),
+    KEY idx_post_like_user (user_id, post_id),
+    CONSTRAINT fk_post_like_post FOREIGN KEY (post_id) REFERENCES user_post(id) ON DELETE CASCADE,
+    CONSTRAINT fk_post_like_user FOREIGN KEY (user_id) REFERENCES `user`(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `notification`;
 CREATE TABLE `notification`

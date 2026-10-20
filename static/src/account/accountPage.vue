@@ -1,10 +1,11 @@
 <template>
-  <div v-if="store.token" class="account-page" :style="{backgroundImage: 'url('+backgroundImgSrc[bIndex]+')'}">
+  <div class="account-page" :style="{backgroundImage: 'url('+backgroundImgSrc[bIndex]+')'}">
       <accountHead class="account-head"/>
-      <div class="account-body-container">
+      <div v-if="store.token" class="account-body-container">
         <accountAside/>
         <accountBody/>
       </div>
+      <el-empty v-else description="请先登录"><el-button @click="store.loginDialogVisible = true">登录</el-button></el-empty>
   </div>
 </template>
 
@@ -52,11 +53,6 @@ onBeforeUnmount(()=>{
   window.removeEventListener('popstate', handlePopState);
 })
 
-//获取用户ip
-// token 由 /auth/login 返回后存在本地，这里不再向后端要 IP + token。
-async function getUserIp(){
-  store.setUserIp("0.0.0.0");
-}
 </script>
 
 <style lang="scss" scoped>

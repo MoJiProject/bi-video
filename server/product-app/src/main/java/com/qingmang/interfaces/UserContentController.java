@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDateTime;
 
 import java.util.HashMap;
 import java.util.List;
@@ -76,9 +78,16 @@ public class UserContentController {
 
     @GetMapping("/watch-later/list")
     public ApiResponse<Map<String, Object>> watchLater(@RequestParam(required = false) Long cursorId,
+                                                       @RequestParam(required = false) String keyword,
                                                        @RequestParam(defaultValue = "20") int size) {
-        List<VideoListItemVO> rows = service.watchLater(AuthContext.requireUserId(), cursorId, size);
-        return ApiResponse.ok(cursorPage(rows, size));
+        List<VideoListItemVO> rows = service.watchLater(AuthContext.requireUserId(), cursorId, size, keyword);
+        return ApiResponse.ok(contentCursorPage(rows, size));
+    }
+
+    @DeleteMapping("/watch-later/{videoId}")
+    public ApiResponse<Void> removeWatchLater(@PathVariable Long videoId) {
+        service.removeWatchLater(AuthContext.requireUserId(), videoId);
+        return ApiResponse.ok();
     }
 
     @DeleteMapping("/watch-later")
@@ -89,9 +98,13 @@ public class UserContentController {
 
     @GetMapping("/history/list")
     public ApiResponse<Map<String, Object>> history(@RequestParam(required = false) Long cursorId,
+                                                    @RequestParam(required = false)
+                                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                                                    LocalDateTime cursorTime,
+                                                    @RequestParam(required = false) String keyword,
                                                     @RequestParam(defaultValue = "20") int size) {
-        List<VideoListItemVO> rows = service.history(AuthContext.requireUserId(), cursorId, size);
-        return ApiResponse.ok(cursorPage(rows, size));
+        List<VideoListItemVO> rows = service.history(AuthContext.requireUserId(), cursorId, size, keyword, cursorTime);
+        return ApiResponse.ok(contentCursorPage(rows, size));
     }
 
     @DeleteMapping("/history/{videoId}")
@@ -117,6 +130,14 @@ public class UserContentController {
     }
 
     /** 游标分页统一出参：多查一条判断还有没有下一页。 */
+    private static Map<String, Object> contentCursorPage(List<VideoListItemVO> rows, int size) {
+        Map<String, Object> page = cursorPage(rows, size);
+        int count = Math.min(rows.size(), size);
+        page.put("cursorId", count == 0 ? null : rows.get(count - 1).getListEntryId());
+        page.put("cursorTime", count == 0 ? null : rows.get(count - 1).getLastWatchedAt());
+        return page;
+    }
+
     private static Map<String, Object> cursorPage(List<VideoListItemVO> rows, int size) {
         boolean hasMore = rows.size() > size;
         List<VideoListItemVO> page = hasMore ? rows.subList(0, size) : rows;

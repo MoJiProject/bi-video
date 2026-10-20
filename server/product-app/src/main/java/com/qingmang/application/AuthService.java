@@ -20,6 +20,7 @@ import com.qingmang.interfaces.dto.LoginRequest;
 import com.qingmang.interfaces.dto.RegisterRequest;
 import com.qingmang.interfaces.dto.ProfileUpdateRequest;
 import com.qingmang.interfaces.dto.PrivacyUpdateRequest;
+import com.qingmang.interfaces.dto.AccountUpdateRequest;
 import com.qingmang.interfaces.vo.LoginRow;
 import com.qingmang.interfaces.vo.UserProfileVO;
 import com.qingmang.support.AuthContext;
@@ -155,6 +156,24 @@ public class AuthService {
         requireActiveUser(userId);
         userMapper.update(null, Wrappers.<User>lambdaUpdate().eq(User::getId, userId)
                 .set(User::getSignature, request.getSignature()));
+    }
+
+    @Transactional
+    public void updateAccount(Long userId, AccountUpdateRequest request) {
+        requireActiveUser(userId);
+        userMapper.update(null, Wrappers.<User>lambdaUpdate().eq(User::getId, userId)
+                .set(User::getNickname, request.getNickname().trim())
+                .set(User::getSignature, request.getSignature())
+                .set(User::getGender, request.getGender()).set(User::getBirthday, request.getBirthday()));
+    }
+
+    @Transactional
+    public void updateMedia(Long userId, String category, String url) {
+        requireActiveUser(userId);
+        if (!"avatar".equals(category) && !"background".equals(category)) throw new BizException(ErrorCode.PARAM_INVALID);
+        userMapper.update(null, Wrappers.<User>lambdaUpdate().eq(User::getId, userId)
+                .set("avatar".equals(category), User::getAvatarUrl, url)
+                .set("background".equals(category), User::getBackgroundUrl, url));
     }
 
     @Transactional

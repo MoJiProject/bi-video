@@ -15,19 +15,41 @@
     <a v-if="dynamic.videoId" :href="'./video?videoId=BV' + dynamic.videoId" target="_blank">
       <img :src="dynamic.videoCover" alt="">{{ dynamic.videoTitle }}
     </a>
-    <footer>{{ dynamic.likeCount || 0 }} 赞 · {{ dynamic.commentCount || 0 }} 评论</footer>
+    <footer v-if="dynamic.sourceType !== 2">
+      <el-button text :type="liked ? 'primary' : ''" :loading="liking" @click="toggleLike">{{ likeCount }} 赞</el-button>
+      <a :href="'./dynamicDetail?dynamicId=' + dynamic.id">{{ dynamic.commentCount || 0 }} 评论</a>
+    </footer>
+    <footer v-else>{{ dynamic.likeCount || 0 }} 赞</footer>
   </article>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { socialApi } from '@/api/product';
 import { useGlobalStore } from '@/store/store';
+import { post } from '@/services/http';
 
 const props = defineProps({ dynamic: { type: Object, required: true } });
 const store = useGlobalStore();
 const deleting = ref(false);
+const liked = ref(!!props.dynamic.liked);
+const likeCount = ref(props.dynamic.likeCount || 0);
+const liking = ref(false);
+watch(() => [props.dynamic.id, props.dynamic.liked, props.dynamic.likeCount], () => {
+  liked.value = !!props.dynamic.liked;
+  likeCount.value = props.dynamic.likeCount || 0;
+});
+async function toggleLike() {
+  if (!store.token) { store.loginDialogVisible = true; return; }
+  liking.value = true;
+  try {
+    const result = await post(`/post/${props.dynamic.id}/like`);
+    likeCount.value = result.likeCount;
+    liked.value = result.liked;
+  } catch (error) { ElMessage.error(error.message); }
+  finally { liking.value = false; }
+}
 
 async function remove() {
   const confirmed = await ElMessageBox.confirm('确定删除这条动态？', '删除动态', {
@@ -56,5 +78,6 @@ p { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; }
 .images .el-image { height: 160px; border-radius: 6px; }
 a { display: flex; align-items: center; gap: 16px; color: inherit; text-decoration: none; margin: 16px 0; }
 a img { width: 180px; border-radius: 6px; }
-footer { margin-top: 16px; }
+footer { margin-top: 16px; display: flex; align-items: center; gap: 16px; }
+footer a { margin: 0; }
 </style>
