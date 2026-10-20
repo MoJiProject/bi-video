@@ -205,7 +205,7 @@ export default {
   min-height: 100vh;
   background-color: #f4f6f9;
   user-select: none;
-  width: 98%;
+  width: 100%;
   max-width: var(--page-max);
   margin: 0 auto;
 }

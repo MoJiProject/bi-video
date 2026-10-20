@@ -1,41 +1,43 @@
 <template>
-  <div class="header" v-external-link>
+  <div ref="headerRoot" class="header header-shell" v-external-link @keydown.esc.stop="closeHeaderMenus">
     <ul class="v-header-ul" :class="{ head2Flag: head2Flag }">
       <li class="hd-home">
-        <a class="head-li1" href="../">
-          <img v-show="!head2Flag" class="icon" src="/img/首页.png" alt="首页" style="margin-top: 1px;" />
-          <img v-show="head2Flag" class="h-logo" src="/img/logo.png" alt="首页" style="animation: none;transform: none;" />
-            首页
-          <img v-show="head2Flag" src="/img/头首页.png" class="head-home" />
-          </a
-        >
+        <a class="head-li1" href="/" aria-label="青芒视频首页">
+          <span class="brand-mark" aria-hidden="true">Q</span>
+          <span class="brand-copy"><strong>青芒视频</strong><small>QINGMANG</small></span>
+        </a>
       </li>
-      <li class="hd-nav" v-for="item in navItems" :key="item.name">
-        <a :href="item.href" target="_blank">{{ item.name }}</a>
-      </li>
-      <li class="hd-download">
-        <a href="./search?keyword=" target="_blank">
-          <img
-            v-show="!head2Flag"
-            src="/img/搜索.png"
-            alt="发现"
-            height="14px"
-          />
-          <img
-            v-show="head2Flag"
-            src="/img/搜索.png"
-            height="14px"
-          />
-          发现</a
+      <li class="hd-explore">
+        <button
+          type="button"
+          class="header-menu-button"
+          aria-label="探索频道"
+          title="探索频道"
+          :aria-expanded="activeMenu === 'explore'"
+          @click="toggleHeaderMenu('explore')"
         >
+          <svg class="header-menu-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="2" /><rect x="14" y="3" width="7" height="7" rx="2" />
+            <rect x="3" y="14" width="7" height="7" rx="2" /><rect x="14" y="14" width="7" height="7" rx="2" />
+          </svg>
+          <span class="header-menu-label">探索频道</span><span class="menu-chevron" aria-hidden="true"></span>
+        </button>
+        <nav v-show="activeMenu === 'explore'" class="channel-panel" aria-label="探索频道">
+          <div class="panel-heading"><strong>发现你的兴趣</strong><span>从一个频道开始探索</span></div>
+          <a class="channel-all" href="/search?keyword=">全部视频 <span aria-hidden="true">↗</span></a>
+          <div class="channel-grid">
+            <a v-for="item in navItems" :key="item.name" :href="item.href">{{ item.name }}</a>
+          </div>
+        </nav>
       </li>
       <li class="hd-search">
-        <search v-if="!searchFlag" class="head-search head-search-inner" :head2Flag="head2Flag" />
-        <div v-if="searchFlag" class="head-search head-search-inner"></div>
+        <div v-if="!searchFlag" class="header-search-wrap" role="search" aria-label="站内搜索" @focusin="closeHeaderMenus">
+          <search class="head-search head-search-inner" :head2Flag="head2Flag" />
+        </div>
       </li>
       <li class="hd-user">
         <div v-if="store.userId !== null" class="avatar-container">
-          <div class="avatar1" @click="openHome(1)">
+          <button type="button" class="avatar1" aria-label="打开个人主页" @click="openHome(1)">
             <img
               :src="store.userInformation?.avatarAddress"
               alt="Avatar"
@@ -47,7 +49,7 @@
                 border: 1.5px solid #ffffff;
               "
             />
-          </div>
+          </button>
           <div class="user-info">
             <div style="margin-top: 15px; font-size: 18px;" @click="openHome(1)">{{store.userInformation?.userName}}</div>
             <div>
@@ -323,7 +325,10 @@
           v-if="!store.userId"
           class="avatar"
         >
-          <span v-if="!store.userId"  @click="loginDialogVisible = true,flag=1">登录 </span>
+          <button type="button" class="header-login" @click="loginDialogVisible = true,flag=1">
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><circle cx="10" cy="6.5" r="3" /><path d="M4 17v-1a6 6 0 0 1 12 0v1" /></svg>
+            登录
+          </button>
 
           <div v-if="loginDialogVisible === false" class="login-info">
             <div class="login-can">登录后你可以:</div>
@@ -378,12 +383,37 @@
        
         </div>
       </li>
-      <li class="hd-vip">
-        <a href="#">
-          <img v-show="!head2Flag" style="width: 17px;height: 17px;" src="/img/尊享会员.png" alt="青芒会员" />
-          <img v-show="head2Flag" style="width: 17px;height: 17px;" src="/img/尊享会员黑.png" alt="青芒会员" />
-           青芒会员
-        </a>
+      <li class="hd-workspace">
+        <button
+          type="button"
+          class="header-menu-button workspace-toggle"
+          aria-label="我的空间"
+          title="我的空间"
+          :aria-expanded="activeMenu === 'workspace'"
+          @click="toggleHeaderMenu('workspace')"
+        >
+          <svg class="header-menu-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="8" r="4" /><path d="M4 21v-2a8 8 0 0 1 16 0v2" />
+          </svg>
+          <span class="header-menu-label">我的空间</span>
+          <span v-if="store.userInformation?.allMessageNumber > 0" class="workspace-unread" aria-label="有未读消息"></span>
+          <span class="menu-chevron" aria-hidden="true"></span>
+        </button>
+        <div v-show="activeMenu === 'workspace'" class="workspace-panel" :class="{ 'has-preview': !!activeTool }">
+          <div class="panel-heading workspace-heading">
+            <img v-if="store.userId" class="workspace-portrait" :src="store.userInformation?.avatarAddress" alt="" />
+            <span v-else class="workspace-emblem" aria-hidden="true">Q</span>
+            <div class="workspace-heading-copy">
+              <small>YOUR CREATIVE SPACE</small>
+              <strong>{{ store.userInformation?.userName || '我的空间' }}</strong>
+              <span>{{ store.userId ? '收藏热爱，记录每一次发现' : '登录后，开启你的专属空间' }}</span>
+            </div>
+          </div>
+          <ul class="workspace-tools">
+      <li class="hd-vip" :class="{ 'is-active': activeTool === 'vip' }">
+        <button type="button" :aria-pressed="activeTool === 'vip'" @click="selectWorkspaceTool('vip')">
+          <img src="/img/尊享会员黑.png" alt="" /><span class="tool-copy">青芒会员<small>发现专属权益</small></span>
+        </button>
         <div class="transparent-div12"></div>
         <div v-if="store.userId !== null" class="vip-introduce">
           <a
@@ -523,23 +553,17 @@
           </div>
         </div>
       </li>
-      <li class="hd-message">
-        <a v-if="store.userId !== null" target="_blank" :href='`./message`'>
+      <li class="hd-message" :class="{ 'is-active': activeTool === 'message' }">
+        <button type="button" :aria-pressed="activeTool === 'message'" @click="selectWorkspaceTool('message')">
           <div
-            v-if="store.userInformation.allMessageNumber>0"
+            v-if="store.userInformation?.allMessageNumber > 0"
             class="number-style"
           >
             {{ store.userInformation.allMessageNumber>99? '99+' : store.userInformation.allMessageNumber }}
           </div>
-          <img v-show="!head2Flag" style="width:18px;" src="/img/消息.png" alt="消息" /> 
-          <img v-show="head2Flag" style="width:18px;" src="/img/消息黑.png" alt="消息" />
-          消息
-        </a>
-        <a v-if="!store.userId" @click="loginDialogVisible = true">
-          <img v-show="!head2Flag" style="width:18px;" src="/img/消息.png" alt="消息" />
-          <img v-show="head2Flag" style="width:18px;" src="/img/消息黑.png" alt="消息" />
-           消息
-        </a>
+          <img src="/img/消息黑.png" alt="" />
+          <span class="tool-copy">消息<small>回复与互动</small></span>
+        </button>
         <div class="login-info2" v-if="!store.userId">
           <span style="font-size: 14px; margin-top: 20px"
             >登录即可查看消息记录</span
@@ -575,22 +599,17 @@
           </span>
         </div>
       </li>
-      <li class="hd-dynamic">
-        <a v-if="!store.userId" @click="loginDialogVisible = true">
-          <img v-show="!head2Flag" style="width:18px;" src="/img/动态.png" alt="动态" />
-          <img v-show="head2Flag" style="width:18px;" src="/img/动态黑.png" alt="动态" /> 动态
-        </a>
-        <a v-if="store.userId !== null" href="./dynamic" target="_blank">
+      <li class="hd-dynamic" :class="{ 'is-active': activeTool === 'dynamic' }">
+        <button type="button" :aria-pressed="activeTool === 'dynamic'" @click="selectWorkspaceTool('dynamic')">
           <div
-            v-if="store.userInformation.dynamicNumber>0"
+            v-if="store.userInformation?.dynamicNumber > 0"
             class="number-style"
           >
             {{ store.userInformation.dynamicNumber>99? '99+' : store.userInformation.dynamicNumber }}
           </div>
-          <img v-show="!head2Flag" style="width:18px;" src="/img/动态.png" alt="动态" />
-          <img v-show="head2Flag" style="width:18px;" src="/img/动态黑.png" alt="动态" />
-          动态
-        </a>
+          <img src="/img/动态黑.png" alt="" />
+          <span class="tool-copy">关注动态<small>关注的人和新鲜事</small></span>
+        </button>
         <div class="login-info2" v-if="!store.userId">
           <span style="font-size: 14px; margin-top: 20px"
             >登录即可查看关注动态</span
@@ -925,16 +944,10 @@
           </div>
         </div>
       </li>
-      <li class="hd-collect" @mouseover="setCollectStore">
-        <a v-if="!store.userId" @click="loginDialogVisible = true">
-          <img v-show="!head2Flag" style="width: 18px;height: 18px;" src="/img/收藏.png" alt="收藏" />
-          <img v-show="head2Flag" style="width: 18px;height: 18px;" src="/img/收藏黑.png" alt="收藏" />
-           收藏
-        </a>
-        <a v-if="store.userId !== null" :href="'./home?userId='+store.userInformation.id+'&homeMenu=5'" target="_blank">
-          <img v-show="!head2Flag" style="width: 18px;height: 18px;" src="/img/收藏.png" alt="收藏" />
-          <img v-show="head2Flag" style="width: 18px;height: 18px;" src="/img/收藏黑.png" alt="收藏" /> 收藏
-        </a>
+      <li class="hd-collect" :class="{ 'is-active': activeTool === 'collect' }">
+        <button type="button" :aria-pressed="activeTool === 'collect'" @click="selectWorkspaceTool('collect')">
+          <img src="/img/收藏黑.png" alt="" /><span class="tool-copy">我的收藏<small>留住喜欢的作品</small></span>
+        </button>
         <div class="login-info2" v-if="!store.userId">
           <span style="font-size: 14px; margin-top: 20px"
             >登录即可查看我的收藏</span
@@ -1101,16 +1114,10 @@
           </div>
         </div>
       </li>
-      <li class="hd-history">
-        <a v-if="!store.userId" @click="loginDialogVisible = true">
-          <img v-show="!head2Flag" style="width:18px;" src="/img/历史.png" alt="历史" /> 
-          <img v-show="head2Flag" style="width:18px;" src="/img/历史黑.png" alt="历史" /> 
-          历史
-        </a>
-        <a v-if="store.userId !== null" href="/history" target="_blank" @mouseover="selectHistoryAxios" @mouseleave="historyAxiosTimeF">
-          <img v-show="!head2Flag" style="width:18px;" src="/img/历史.png" alt="历史" /> 
-          <img v-show="head2Flag" style="width:18px;" src="/img/历史黑.png" alt="历史" /> 历史
-        </a>
+      <li class="hd-history" :class="{ 'is-active': activeTool === 'history' }">
+        <button type="button" :aria-pressed="activeTool === 'history'" @click="selectWorkspaceTool('history')">
+          <img src="/img/历史黑.png" alt="" /><span class="tool-copy">观看记录<small>接着上次看</small></span>
+        </button>
         <div class="login-info2" v-if="!store.userId">
           <span style="font-size: 14px; margin-top: 20px"
             >登录即可查看历史记录</span
@@ -1496,20 +1503,29 @@
         </div>
       </li>
       <li class="hd-create">
-        <a v-if="!store.userId" @click="loginDialogVisible = true">
-          <img v-show="!head2Flag" style="width:15px;height:18px;" src="/img/创作中心.png" alt="创作中心" />
-          <img v-show="head2Flag" style="width:15px;height:18px;" src="/img/创作中心黑.png" alt="创作中心" />
-          创作中心
-        </a>
+        <button v-if="!store.userId" type="button" @click="loginDialogVisible = true, flag = 1">
+          <img src="/img/创作中心黑.png" alt="" />
+          <span class="tool-copy">创作中心<small>管理我的作品</small></span>
+        </button>
         <a v-if="store.userId !== null" href="./contribute" target="_blank">
-          <img v-show="!head2Flag" style="width:15px;height:18px;" src="/img/创作中心.png" alt="创作中心" />
-          <img v-show="head2Flag" style="width:15px;height:18px;" src="/img/创作中心黑.png" alt="创作中心" /> 创作中心
+          <img src="/img/创作中心黑.png" alt="" /><span class="tool-copy">创作中心<small>管理我的作品</small></span>
         </a>
+      </li>
+          </ul>
+          <a class="workspace-mobile-discover" href="/search?keyword=">
+            探索频道与全部视频 <span aria-hidden="true">→</span>
+          </a>
+          <a class="workspace-later" href="/waitWatch" @click="requireWorkspaceLogin">
+            <span>稍后观看 <small>给好内容留点时间</small></span><span aria-hidden="true">→</span>
+          </a>
+        </div>
       </li>
       <li class="hd-publish">
         <div v-if="store.userId !== null" class="upload">
           <a
             href="./contribute"
+            aria-label="发布作品"
+            title="发布作品"
             style="
               animation: none !important;
               width: 100%;
@@ -1519,96 +1535,69 @@
             "
             target="_blank"
           >
-            <img src="/img/投稿.png" alt="投稿" /> <span>投稿</span>
+            <span aria-hidden="true">＋</span><span>发布作品</span>
           </a>
         </div>
-        <div
+        <button
           v-if="!store.userId"
+          type="button"
           class="upload"
-          @click="loginDialogVisible = true"
+          aria-label="发布作品"
+          title="发布作品"
+          @click="loginDialogVisible = true, flag = 1"
         >
-          <a style="animation: none !important" target="_blank">
-            <img src="/img/投稿.png" alt="投稿" /> <span>投稿</span>
-          </a>
-        </div>
+          <span aria-hidden="true">＋</span><span>发布作品</span>
+        </button>
       </li>
     </ul>
       <el-dialog
-                style="
-                  height: 480px !important;
-                  overflow-x:hidden;
-                  overflow-y:hidden !important;
-                "
                 @close="handleClose"
                 append-to-body
+                align-center
                 v-model="loginDialogVisible"
                 :close-on-click-modal="false"
-                width="700"
-                custom-class="my-dialog"
+                width="min(680px, calc(100vw - 32px))"
+                class="auth-dialog"
+                :title="flag === 1 ? '欢迎回到青芒' : flag === 2 ? '创建青芒账号' : '找回密码'"
               >
-                <div class="dialogin-info">
-                  <div
-                    class="dialogin-title"
-                    style="transform: translate(-50%, 20px);left:50%;position: absolute;"
-                  >
-                    <button v-debounce
+                <div class="auth-content">
+                  <div class="auth-tabs" role="tablist" aria-label="账号操作">
+                    <button
+                      type="button"
+                      role="tab"
+                      :aria-selected="flag === 1"
                       :class="{ active: flag === 1 }"
-                      style="
-                        margin-right: 24px;
-                        border: none;
-                        background-color: white;
-                        cursor: pointer;
-                      "
                       @click="passwordLogin"
-                    >
-                      密码登录</button
-                    ><span
-                      style="
-                        margin-right: 24px;
-                        margin-top: 5px;
-                        font-weight: 100;
-                        color: darkgrey;
-                      "
-                      >|</span
-                    ><button v-debounce
+                    >密码登录</button>
+                    <button
+                      type="button"
+                      role="tab"
+                      :aria-selected="flag === 2"
                       :class="{ active: flag === 2 }"
-                      style="border: none; background-color: white; cursor: pointer"
                       @click="siginLogin"
-                    >
-                      账号注册</button
-                    ><span
-                      style="
-                        margin-left: 24px;
-                        font-weight: 100;
-                        margin-top: 5px;
-                        color: darkgrey;
-                      "
-                      >|</span
-                    ><button v-debounce
+                    >账号注册</button>
+                    <button
+                      type="button"
+                      role="tab"
+                      :aria-selected="flag === 3"
                       :class="{ active: flag === 3 }"
-                      style="
-                        border: none;
-                        background-color: white;
-                        margin-left: 24px;
-                        cursor: pointer;
-                      "
                       @click="findPassword"
-                    >
-                      找回密码
-                    </button>
+                    >找回密码</button>
                   </div>
                   <!--密码登录 -->
                   <div
                     v-if="flag === 1"
-                    style="transform: translate(-50%, 80px);position: absolute;left:50%;"
+                    class="auth-panel"
+                    role="tabpanel"
+                    aria-label="密码登录"
                   >
                     <el-form
                       :model="loginForm"
-                      label-width="auto"
-                      style="max-width: 300px; transform:translate(11px); "
+                      label-position="top"
+                      class="auth-form"
                      
                     >
-                      <el-form-item label="账号" style="width: 300px">
+                      <el-form-item label="账号">
                         <el-input
                           v-model="loginForm.userName"
                           @input="removeSpaces"
@@ -1619,7 +1608,7 @@
                         />
                       </el-form-item>
                       <el-form-item label="密码">
-                        <div style="position: absolute; width: 260px">
+                        <div class="auth-password-field">
                           <el-input
                             v-model="loginForm.password"
                             style="background-color: white"
@@ -1631,59 +1620,29 @@
                             @keydown.enter="loginAxios"
                           >
                           </el-input>
-                          <span
+                          <button
+                            type="button"
+                            class="auth-forgot"
                             @click="handleForgotPassword"
-                            style="
-                              position: absolute;
-                              right: 25px;
-                              top: 50%;
-                              transform: translateY(-50%);
-                              font-size: 14px;
-                              color: #409eff; /* Element Plus 默认蓝色 */
-                              cursor: pointer;
-                              border: none; /* 确保没有边框 */
-                              padding: 0; /* 确保没有内边距 */
-                              margin: 0; /* 确保没有外边距 */
-                              /* 根据需要添加其他样式 */
-                            "
                           >
                             忘记密码？
-                          </span>
+                          </button>
                         </div>
                       </el-form-item>
-                      <div class="submit-div">
+                      <div class="auth-actions">
                         <el-button v-debounce
                           @click="handlerSign"
-                          class="zhu-ce"
-                          style="
-                            background-color: rgb(255, 255, 255);
-                            border: 1px solid #dcdcdc;
-                            margin-right: 10px;
-                          "
-                          ><span style="color: black">注册</span></el-button
+                          class="auth-secondary"
+                          >注册</el-button
                         >
                         <el-button v-debounce
                           :disabled="loginForm.userName.length===0 || loginForm.password.length===0"
                           @click="loginAxios"
-                          class="deng-lu"
-                          style="
-                            background-color: #0FA68E;
-                            border: none;
-                            color:white;
-                            margin-left: 10px;
-                          "
+                          class="auth-primary"
                           >登录</el-button
                         >
                       </div>
-                      <span
-                        style="
-                          color: rgb(159, 156, 156);
-                          position: absolute;
-                          margin-top: 150px;
-                          left:50%;
-                          width:109%;
-                          transform:translate(-50%)
-                        "
+                      <span class="auth-legal"
                         >登录或完成注册即代表你同意&nbsp;
                         <a
                           href="#"
@@ -1695,36 +1654,32 @@
                           >隐私政策</a
                         >
                       </span>
-                      <img
-                        :src="loginForm.password.length > 0 ? left2 : left1"
-                        style="
-                          width: 120px;
-                          height: 100px;
-                          transform: translate(-212px, 132px);
-                        "
+                      <div class="auth-companions">
+                      <loginCompanion
+                        :private-mode="loginForm.password.length > 0"
+                        side="left"
                       />
-                      <img
-                        :src="loginForm.password.length > 0 ? right2 : right1"
-                        style="
-                          width: 135px;
-                          height: 100px;
-                          transform: translate(235px, 132px);
-                        "
+                      <loginCompanion
+                        :private-mode="loginForm.password.length > 0"
+                        side="right"
                       />
+                      </div>
                     </el-form>
                   </div>
 
                   <!-- 账号注册 -->
                   <div        
                     v-if="flag === 2"
-                    style="transform: translate(-50%, 80px);position: absolute;left:50%;"
+                    class="auth-panel"
+                    role="tabpanel"
+                    aria-label="账号注册"
                   >
                     <el-form
                       :model="signinForm"
-                      label-width="auto"
-                      style="max-width: 334px"
+                      label-position="top"
+                      class="auth-form"
                     >
-                      <el-form-item label="账号" style="width: 328px">
+                      <el-form-item label="账号">
                         <el-input
                           v-model="signinForm.userName"
                           placeholder="请输入账号"
@@ -1734,7 +1689,7 @@
                           @keydown.enter="sigininAxios"
                         />
                       </el-form-item>
-                      <el-form-item label="密码" style="width: 328px">
+                      <el-form-item label="密码">
                         <el-input
                           v-model="signinForm.password"
                           type="password"
@@ -1746,7 +1701,7 @@
                           show-password
                         />
                       </el-form-item>
-                      <el-form-item label="确认密码" style="width: 328px">
+                      <el-form-item label="确认密码">
                         <el-input
                           v-model="signinForm.againPassword"
                           type="password"
@@ -1757,7 +1712,7 @@
                           @keydown.enter="sigininAxios"
                         />
                       </el-form-item>
-                      <el-form-item label="手机号" style="width: 328px">
+                      <el-form-item label="手机号">
                         <el-input
                           v-model="signinForm.phone"
                           type="text"
@@ -1766,10 +1721,10 @@
                           maxlength="11"
                           @input="removeSpaces1"
                           @keydown.enter="sigininAxios"
-                          style="border: none; width: 328px"
+                          style="border: none"
                         />
                       </el-form-item>
-                      <el-form-item label="密保" style="width: 328px">
+                      <el-form-item label="密保">
                         <el-input
                           @input="removeSpaces1"
                           v-model="signinForm.question"
@@ -1780,7 +1735,7 @@
                         />
                       </el-form-item>
 
-                      <div class="submit-div">
+                      <div class="auth-actions">
                         <el-button v-debounce
                         :disabled="signinForm.userName.length===0
                           || signinForm.password.length ===0
@@ -1788,40 +1743,19 @@
                           || signinForm.question.length ===0
                           || signinForm.phone.length===0
                           "
-                          class="zhu-ce"
+                          class="auth-primary"
                           @click="sigininAxios"
-                          style="
-                            background-color: #0FA68E;
-                            border: 1px solid #dcdcdc;
-                            margin-right: 10px;
-                            transform: translateX(1%);
-                          "
                         >
-                          <span style="color: white">注册</span>
+                          注册
                         </el-button>
                         <el-button v-debounce
-                          class="deng-lu"
-                          style="
-                            background-color: white;
-                            border: none;
-                            border: 1px solid #dcdcdc;
-                            margin-left: 10px;
-                            transform: translateX(2%);
-                          "
+                          class="auth-secondary"
                           @click="passwordLogin"
                         >
-                          <span style="color: black">登录</span>
+                          登录
                         </el-button>
                       </div>
-                      <span
-                      style="
-                          color: rgb(159, 156, 156);
-                          position: absolute;
-                          margin-top: 24px;
-                          left:58.8%;
-                          width:109%;
-                          transform:translate(-50%)
-                        "
+                      <span class="auth-legal"
                       >
                         登录或完成注册即代表你同意&nbsp;
                         <a
@@ -1835,46 +1769,38 @@
                           >隐私政策</a
                         >
                       </span>
-                      <img
-                        :src="
+                      <div class="auth-companions">
+                      <loginCompanion
+                        :private-mode="
                           signinForm.password.length > 0 ||
                           signinForm.againPassword.length > 0
-                            ? left2
-                            : left1
                         "
-                        style="
-                          width: 120px;
-                          height: 100px;
-                          transform: translate(-184px, 6px);
-                        "
+                        side="left"
                       />
-                      <img
-                        :src="
+                      <loginCompanion
+                        :private-mode="
                           signinForm.password.length > 0 ||
                           signinForm.againPassword.length > 0
-                            ? right2
-                            : right1
                         "
-                        style="
-                          width: 135px;
-                          height: 100px;
-                          transform: translate(263px, 6px);
-                        "
+                        side="right"
                       />
+                      </div>
                     </el-form>
                   </div>
 
                   <!-- 忘记密码 -->
                   <div
                     v-if="flag === 3"
-                    style="transform: translate(-50%, 80px);position: absolute;left:50%;"
+                    class="auth-panel"
+                    role="tabpanel"
+                    aria-label="找回密码"
                   >
                     <el-form
                       :model="forgetPasswordForm"
-                      label-width="auto"
-                      style="max-width: 342px;transform:translate(-10px);"
+                      label-position="top"
+                      class="auth-form"
                     >
-                      <el-form-item label="账号" style="width: 342px">
+                      <el-form-item label="账号">
                         <el-input
                           @input="removeSpaces2"
                           maxlength="10"
@@ -1885,7 +1811,7 @@
                         />
                       </el-form-item>
 
-                      <el-form-item label="手机号" style="width: 342px">
+                      <el-form-item label="手机号">
                         <el-input
                           v-model="forgetPasswordForm.phone"
                           type="text"
@@ -1894,10 +1820,10 @@
                           maxlength="11"
                           @input="removeSpaces2"
                           @keydown.enter="putPasswordAxios"
-                          style="border: none; width: 342px"
+                          style="border: none"
                         />
                       </el-form-item>
-                      <el-form-item label="密保" style="width: 342px">
+                      <el-form-item label="密保">
                         <el-input
                           @input="removeSpaces2"
                           maxlength="10"
@@ -1907,7 +1833,7 @@
                           style="border: none"
                         />
                       </el-form-item>
-                      <el-form-item label="密码" style="width: 342px">
+                      <el-form-item label="密码">
                         <el-input
                           v-model="forgetPasswordForm.password"
                           type="password"
@@ -1919,7 +1845,7 @@
                           show-password
                         />
                       </el-form-item>
-                      <el-form-item label="确认新密码" style="width: 342px">
+                      <el-form-item label="确认新密码">
                         <el-input
                           v-model="forgetPasswordForm.againpassword"
                           type="password"
@@ -1930,7 +1856,7 @@
                           @keydown.enter="putPasswordAxios"
                         />
                       </el-form-item>
-                      <div class="submit-div">
+                      <div class="auth-actions">
                         <el-button v-debounce
                           :disabled="forgetPasswordForm.userName.length===0
                           || forgetPasswordForm.password.length ===0
@@ -1938,28 +1864,13 @@
                           || forgetPasswordForm.question.length ===0
                           || forgetPasswordForm.phone.length===0
                           "
-                          class="deng-lu"
-                          style="
-                            background-color: #0FA68E;
-                            border: none;
-                            color:white;
-                            margin-left: 10px;
-                            transform: translateX(10%);
-                          "
+                          class="auth-primary"
                           @click="putPasswordAxios"
                         >
                           确认
                         </el-button>
                       </div>
-                      <span
-                        style="
-                           color: rgb(159, 156, 156);
-                          position: absolute;
-                          margin-top: 24px;
-                          left:62.8%;
-                          width:109%;
-                          transform:translate(-50%)
-                        "
+                      <span class="auth-legal"
                       >
                         登录或完成注册即代表你同意&nbsp;
                         <a
@@ -1973,32 +1884,22 @@
                           >隐私政策</a
                         >
                       </span>
-                      <img
-                        :src="
+                      <div class="auth-companions">
+                      <loginCompanion
+                        :private-mode="
                           forgetPasswordForm.password.length > 0 ||
                           forgetPasswordForm.againpassword.length > 0
-                            ? left2
-                            : left1
                         "
-                        style="
-                          width: 120px;
-                          height: 100px;
-                          transform: translate(-170px, 6px);
-                        "
+                        side="left"
                       />
-                      <img
-                        :src="
+                      <loginCompanion
+                        :private-mode="
                           forgetPasswordForm.password.length > 0 ||
                           forgetPasswordForm.againpassword.length > 0
-                            ? right2
-                            : right1
                         "
-                        style="
-                          width: 135px;
-                          height: 100px;
-                          transform: translate(277px, 6px);
-                        "
+                        side="right"
                       />
+                      </div>
                     </el-form>
                   </div>
                 </div>
@@ -2007,7 +1908,7 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted,watch, computed } from "vue";
+import { ref, reactive, onMounted, onUnmounted, watch, computed } from "vue";
 import "element-plus/theme-chalk/el-message.css";
 import {
   fetchDynamicPanels,
@@ -2022,11 +1923,8 @@ import { getToken, setToken } from "../services/http";
 import { forgetPassword } from "../services/account";
 import { ElMessage } from "element-plus";
 import search from "./search.vue";
+import loginCompanion from "./loginCompanion.vue";
 import "element-plus/dist/index.css";
-const left1 = "/img/loginLeft.png"
-const left2 = "/img/loginPasswordLeft.png"
-const right1 = "/img/loginRight.png"
-const right2 = "/img/loginPasswordRight.png"
 import { ElLoading } from "element-plus";
 import {useGlobalStore} from "../store/store";
 
@@ -2062,10 +1960,51 @@ export default {
   },
   components: {
     search,
+    loginCompanion,
   },
   setup(props) {
     const propsS=reactive(props);
     const store = useGlobalStore();
+    const headerRoot = ref(null);
+    const activeMenu = ref("");
+    const activeTool = ref("");
+
+    function closeHeaderMenus() {
+      activeMenu.value = "";
+      activeTool.value = "";
+    }
+
+    function toggleHeaderMenu(menu) {
+      activeMenu.value = activeMenu.value === menu ? "" : menu;
+      activeTool.value = "";
+    }
+
+    function closeOutsideMenus(event) {
+      if (!headerRoot.value?.contains(event.target)) closeHeaderMenus();
+    }
+
+    function requireWorkspaceLogin(event) {
+      if (store.userId) return;
+      event.preventDefault();
+      closeHeaderMenus();
+      flag.value = 1;
+      loginDialogVisible.value = true;
+    }
+
+    function selectWorkspaceTool(tool) {
+      if (!store.userId) {
+        closeHeaderMenus();
+        flag.value = 1;
+        loginDialogVisible.value = true;
+        return;
+      }
+      activeTool.value = activeTool.value === tool ? "" : tool;
+      if (activeTool.value === "collect") setCollectStore();
+      if (activeTool.value === "history") selectHistoryAxios();
+    }
+
+    onMounted(() => document.addEventListener("pointerdown", closeOutsideMenus));
+    onUnmounted(() => document.removeEventListener("pointerdown", closeOutsideMenus));
     const historyToday = reactive([]);
     const historyYesterday = reactive([]);
     const historyEarlier = reactive([]);
@@ -2312,9 +2251,9 @@ export default {
 
     function normalizeAuthUser(raw) {
       const data = raw?.data || raw || {};
-      const userId = data.userId ?? data.id;
-      return {
-        ...mapUser(data),
+        const userId = data.userId ?? data.id;
+        return {
+          ...mapUser(data),
         id: data.id ?? userId,
         userId,
       };
@@ -2910,6 +2849,13 @@ flag.value = 1;
     
 
     return {
+      headerRoot,
+      activeMenu,
+      activeTool,
+      closeHeaderMenus,
+      toggleHeaderMenu,
+      requireWorkspaceLogin,
+      selectWorkspaceTool,
       loginDialogVisible,
       loginForm,
       signinForm,
@@ -2928,10 +2874,6 @@ flag.value = 1;
       putPasswordAxios,
       sa,
       user,
-      left1,
-      left2,
-      right1,
-      right2,
       togglePasswordVisibility,
       removeSpaces,
       removeSpaces1,
@@ -4959,3 +4901,5 @@ a {
 }
 </style>
 <!-- /header-hover-pass4 -->
+<style lang="scss" scoped src="./mainHeadLayout.scss"></style>
+<style lang="scss" src="./mainHeadAuth.scss"></style>

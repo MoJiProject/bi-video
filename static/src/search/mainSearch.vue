@@ -1,16 +1,10 @@
 <template>
-  <div>
+  <div class="search-page">
     <div id="fixedBox" class="hiddenBox" :class="{ showHiddenBox: isVisible }">
-      <img
-        src="/img/logo.png"
-        style="width: 60px; transform: translate(24px, 18px); cursor: pointer"
-      />
+      <a class="sticky-search-home" href="/" aria-label="返回青芒视频首页">青芒</a>
       <Searcha
         ref="searcha"
-        style="position: relative;
-            left: 50%;
-            transform: translate(-50%,-25px);
-            z-index: 1000;"
+        class="sticky-search-field"
         :mainSearchFlag="true"
         :handleUrlChange="handleUrlChange"
       />
@@ -34,8 +28,10 @@
            算的，父节点宽度又是内容宽度，所以「居中」每次渲染结果都不一样。
            改成容器自己居中，Searcha 内部按 100% 铺满。 -->
       <div class="searchShell">
-        <div class="searchBox2">
-          <Searcha ref="searcha2" class="searchBox2-inner" :handleUrlChange="handleUrlChange" />
+        <div class="search-intro">
+          <div class="searchBox2">
+            <Searcha ref="searcha2" class="searchBox2-inner" :handleUrlChange="handleUrlChange" />
+          </div>
         </div>
         <div class="middle">
           <div class="sort" ref="sortBarEl">
@@ -66,8 +62,24 @@
              坐标、间距、选中态统一由 CSS 的 .filter-row / .chip 负责，
              数据来自脚本里的 SORT / DATE / TIME / CLASSIFY 四张表。 -->
         <div v-show="clickFlag1 || clickFlag2" class="videoSort">
+          <section class="search-filters" aria-label="视频筛选">
+          <div class="filter-section category-section">
+            <span class="filter-label">内容分区</span>
+            <div class="filter-row filter-row-wrap">
+              <button
+                v-for="(opt, i) in CLASSIFY"
+                :key="opt.value"
+                type="button"
+                class="chip"
+                :class="{ 'is-on': classifyIndexRef === i }"
+                :aria-pressed="classifyIndexRef === i"
+                @click="applyFilter('classify', i)"
+              >{{ opt.label }}</button>
+            </div>
+          </div>
           <div class="filter-bar">
-            <div class="filter-row">
+            <span class="filter-label">排序方式</span>
+            <div class="filter-row sort-options">
               <button
                 v-for="(opt, i) in SORT"
                 :key="'sort' + i"
@@ -79,15 +91,17 @@
             </div>
 
             <div class="filter-more">
-              <button type="button" class="filter-toggle" @click="expanded = !expanded">
-                <span>更多筛选</span>
+              <button type="button" class="filter-toggle" :aria-expanded="expanded" @click="expanded = !expanded">
+                <span>{{ expanded ? '收起筛选' : '更多筛选' }}</span>
                 <img src="/img/更多.png" :class="{ 'is-open': expanded }" alt="" />
               </button>
             </div>
           </div>
 
-          <div class="filter-panel" :class="{ expanded }">
-            <div class="filter-row">
+          <div v-show="expanded" class="filter-panel" :class="{ expanded }">
+            <div class="filter-section">
+              <span class="filter-label">发布时间</span>
+              <div class="filter-row">
               <button
                 v-for="(opt, i) in DATE"
                 :key="'date' + i"
@@ -99,14 +113,18 @@
               <el-date-picker
                 v-model="datea"
                 class="filter-date"
+                popper-class="search-date-picker"
                 type="daterange"
                 start-placeholder="开始日期"
                 end-placeholder="结束日期"
                 :default-value="[new Date(), new Date()]"
               />
+              </div>
             </div>
 
-            <div class="filter-row">
+            <div class="filter-section">
+              <span class="filter-label">视频时长</span>
+              <div class="filter-row">
               <button
                 v-for="(opt, i) in TIME"
                 :key="'time' + i"
@@ -115,53 +133,25 @@
                 :class="{ 'is-on': timeIndex === i }"
                 @click="applyFilter('time', i)"
               >{{ opt.label }}</button>
-            </div>
-
-            <div class="filter-row filter-row-wrap">
-              <template v-for="(opt, i) in CLASSIFY" :key="'classify' + i">
-                <el-tooltip
-                  v-if="opt.sub"
-                  :show-arrow="false"
-                  effect="light"
-                  placement="bottom"
-                >
-                  <template #content>
-                    <div class="sub-tags">
-                      <span v-for="tag in opt.sub" :key="tag" class="sub-tag">{{ tag }}</span>
-                    </div>
-                  </template>
-                  <button
-                    type="button"
-                    class="chip chip-has-sub"
-                    :class="{ 'is-on': classifyIndexRef === i }"
-                    @click="applyFilter('classify', i)"
-                  >{{ opt.label }}</button>
-                </el-tooltip>
-                <button
-                  v-else
-                  type="button"
-                  class="chip"
-                  :class="{ 'is-on': classifyIndexRef === i }"
-                  @click="applyFilter('classify', i)"
-                >{{ opt.label }}</button>
-              </template>
+              </div>
             </div>
           </div>
+          </section>
 
           <div v-if="Videos.length === 0" class="empty-state">
             <img src="/img/搜索空.png" alt="" />
-            <span>今天真是寂寞如雪啊~</span>
+            <strong>暂时没有找到相关作品</strong>
+            <span>试试其他关键词，或切换一个感兴趣的分区</span>
           </div>
 
           <div class="bottomVideo">
             <div
               class="video-video"
               v-for="(video, index) in Videos"
-              :key="video.id"
+              :key="video.videoId"
             >
               <div
                 class="videoBox1"
-                style="width: 247px"
                 @mouseover="videoMouseover(video.videoId)"
                 @mouseleave="videoMouseleave(video.videoId)"
               >
@@ -501,19 +491,20 @@
         </div>
       </div>
     </div>
-    <el-backtop :right="5"/>
+    <el-backtop :right="16" :bottom="24"/>
   </div>
 </template>
 
 <script>
 import head1 from "../components/mainHead.vue";
-import Searcha from "./searcha";
+import Searcha from "../components/search.vue";
 const up = "/img/author-badge-default.png"
 const upBlue = "/img/author-badge-blue.png"
 import { computed, reactive, nextTick, onMounted, ref, watch, onUnmounted } from "vue";
 import { authApi, searchApi, socialApi, userContentApi, videoApi } from "../api/product";
 import { ElMessage } from "element-plus";
 import { useGlobalStore } from "../store/store";
+import { HOME_CATEGORIES } from "../constants/contentCategories";
 
 /* 筛选选项表。
    原来 42 个选项散在模板里，每个写两份 span（未选中/选中）并各带一个
@@ -551,32 +542,9 @@ const TIME = [
   { label: "60分钟以上" },
 ];
 
-/* sub 是悬停时展示的子分类词。原先 12 个分类各带一个 el-tooltip 写死这些词。
-   disabled 的几项（动画剧场/汽车/纪录片/电影/电视剧）原本 tooltip 直接 :disabled="true"，
-   也就是没有子分类，保留该属性。 */
 const CLASSIFY = [
   { label: "全部分类", value: "全部" },
-  { label: "动画", sub: ["MAD·AMV", "MMD·3D", "配音", "模玩·周边", "动漫杂谈", "综合"] },
-  { label: "动画剧场", value: "番剧" },
-  { label: "原创动画", value: "国创", sub: ["国产动画", "国产原创相关", "布袋戏", "动态漫·广播剧", "新番时间表", "国产动画索引"] },
-  { label: "音乐", sub: ["音乐现场", "翻唱", "乐评盘点", "VOCLOID·UTAU", "音乐粉丝饭拍", "AI音乐", "音乐教学", "音乐综合", "说唱"] },
-  { label: "舞蹈", sub: ["宅舞", "街舞", "国风舞蹈", "舞蹈综合", "舞蹈教程"] },
-  { label: "游戏", sub: ["单机游戏", "电子竞技", "手机游戏", "网络游戏", "GMV", "音游", "游戏活动"] },
-  { label: "知识", sub: ["科学科普", "社科·法律·心理", "人文历史", "财经商业", "职业职场", "实用技能", "游戏活动"] },
-  { label: "科技", sub: ["数码", "软件应用", "科工机械", "极客DIY"] },
-  { label: "运动", sub: ["篮球", "足球", "竞技体育", "运动综合"] },
-  { label: "汽车" },
-  { label: "生活", sub: ["搞笑", "亲子", "三农", "家居房产", "绘画", "日常"] },
-  { label: "美食", sub: ["美食制作", "美食侦探", "美食测评", "美食记录"] },
-  { label: "动物圈", sub: ["喵星人", "汪星人", "野生动物", "动物综合"] },
-  { label: "鬼畜", sub: ["鬼畜教程", "音MAD", "人力VOCALOID", "教程演示"] },
-  { label: "时尚", sub: ["美妆护肤", "仿妆cos", "时尚潮流"] },
-  { label: "资讯", sub: ["热点", "环球", "综合"] },
-  { label: "娱乐", sub: ["资讯杂谈", "CP安利", "娱乐粉丝创作", "综艺"] },
-  { label: "影视", sub: ["影视杂谈", "影视剪辑", "影视整活", "AI影像", "小剧场", "短片", "影视综合"] },
-  { label: "纪录片" },
-  { label: "电影" },
-  { label: "电视剧" },
+  ...HOME_CATEGORIES.filter(category => category.value !== "推荐"),
 ];
 
 export default {
@@ -615,6 +583,7 @@ export default {
     const upImgFlag = ref(false);
     const windowWidth = ref(0);
     const Videos = reactive([]);
+    const availableCategories = ref(null);
     const searcha = ref(null);
     const searcha2 = ref(null);
     function userContent(fansNumber, videoNumber, introduce) {
@@ -642,8 +611,6 @@ const clickFlag7 = computed(() => clickFlag.value === 7);
 const resultTabs = computed(() => [
   { flag: 1, label: "综合", total: null },
   { flag: 2, label: "视频", total: acceptSearchData.videoTotal },
-  { flag: 3, label: "动画剧场", total: 0 },
-  { flag: 4, label: "影视", total: 0 },
   { flag: 7, label: "用户", total: acceptSearchData.userTotal },
 ]);
 
@@ -741,6 +708,12 @@ watch(
     function applyFilter(dim, index) {
       if (dim === "classify") {
         acceptSearchData.classify = CLASSIFY[index].value || CLASSIFY[index].label;
+        const params = new URLSearchParams(window.location.search);
+        params.delete("categoryId");
+        params.delete("classifyIndex");
+        if (index === 0) params.delete("categoryName");
+        else params.set("categoryName", acceptSearchData.classify);
+        window.history.replaceState({}, document.title, `${window.location.pathname}?${params.toString()}`);
       } else {
         acceptSearchData[dim] = index;
       }
@@ -859,10 +832,16 @@ watch(
     async function searchByKeyWordVideoOnce() {
       try {
         const keyWord = currentKeyword();
-        const classifyIndex = new URLSearchParams(window.location.search).get("classifyIndex");
+        const params = new URLSearchParams(window.location.search);
+        const classifyIndex = params.get("categoryName") || params.get("classifyIndex");
         acceptSearchData.keyWord = keyWord;
         if (classifyIndex) {
           acceptSearchData.classify = classifyIndex;
+        } else if (params.get("categoryId")) {
+          availableCategories.value = await videoApi.categories();
+          const category = availableCategories.value.find(item => String(item.id) === params.get("categoryId"));
+          if (!category) throw new Error("该分区不存在，请重新选择");
+          acceptSearchData.classify = category.name;
         }
         acceptSearchData.classifyIndex = classifyIndex;
         acceptSearchData.videoPageNum = 1;
@@ -870,7 +849,7 @@ watch(
         await fetchVideos();
       } catch (error) {
         ElMessage({
-          message: "未知错误",
+          message: error.message || "搜索失败，请稍后重试",
           type: "info",
           plain: true,
           duration: 1700,
@@ -882,17 +861,13 @@ watch(
     async function searchByKeyWordVideo() {
       try {
         const keyWord = currentKeyword();
-        // 关键词为空且分类还停在「全部分类」时无处可搜
-        if (!keyWord && acceptSearchData.classify === "全部") {
-          return;
-        }
         acceptSearchData.videoPageNum = videoPageNum.value;
         acceptSearchData.keyWord = keyWord;
         userPageNum.value = 1;
         await fetchVideos();
       } catch (error) {
         ElMessage({
-          message: "未知错误",
+          message: error.message || "搜索失败，请稍后重试",
           type: "info",
           plain: true,
           duration: 1700,
@@ -903,11 +878,23 @@ watch(
     /* api/product 的 get 已经把 {code,msg,data} 的 data 拆出来了，
        这里拿到的是 PageResult 本体，不要再取 response.data.data。 */
     async function fetchVideos() {
-      const data = await searchApi.videos({
+      let categoryId;
+      if (acceptSearchData.classify !== "全部") {
+        if (!availableCategories.value) availableCategories.value = await videoApi.categories();
+        const category = availableCategories.value.find(item => item.name === acceptSearchData.classify);
+        if (!category) throw new Error("该分区暂不可用，请选择其他分区");
+        categoryId = category.id;
+      }
+      const params = {
         keyword: acceptSearchData.keyWord,
+        categoryId,
+        sort: sortIndex.value === 2 ? "newest" : "hot",
         pageNum: videoPageNum.value,
         pageSize: 20,
-      });
+      };
+      const data = acceptSearchData.keyWord.trim()
+        ? await searchApi.videos(params)
+        : await videoApi.list({ ...params, sort: sortIndex.value === 2 ? "latest" : "hot" });
       if (!data) return;
       const records = (data.records || []).map(toVideoCard);
       Videos.length = 0;
@@ -1265,18 +1252,28 @@ watch(
 
 .searchBox2-inner {
   width: 100%;
-  max-width: 640px;
+  max-width: 560px;
 }
 
 
 .hiddenBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  box-sizing: border-box;
   width: 100%;
-  height: 65px;
-  box-shadow: 0 0px 4px rgba(0, 0, 0, 0.3); /* 添加底部阴影 */
+  height: var(--head-h);
+  padding: 0 var(--page-pad);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 4px 18px rgba(38, 66, 37, .06);
   position: fixed;
-  transform: translate(0px, -60px);
+  top: 0;
+  left: 0;
+  transform: translateY(-100%);
   visibility: hidden;
   opacity: 0;
+  pointer-events: none;
   background-color: white;
   z-index: -1000;
 }
@@ -1285,8 +1282,24 @@ watch(
   opacity: 1;
   transition: all 0.3s ease;
   visibility: visible;
+  pointer-events: auto;
   transform: translateY(0px);
-  z-index: 100000;
+  z-index: var(--z-head);
+}
+
+.hiddenBox .sticky-search-field {
+  flex: 0 1 560px;
+  min-width: 0;
+  width: 100%;
+}
+
+.sticky-search-home {
+  flex: none;
+  color: #37684a;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-decoration: none;
 }
 
 /* 页头外壳：sticky 高度取全局 --head-h，不再自己写 65px。
@@ -1937,3 +1950,4 @@ watch(
    现在 .bottomVideo 是 auto-fill grid，列数由可用宽度和 minmax(228px,1fr)
    自行决定，不再需要按视口枚举列宽。 */
 </style>
+<style lang="scss" scoped src="./mainSearchLayout.scss"></style>

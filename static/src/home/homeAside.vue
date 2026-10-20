@@ -3,33 +3,33 @@
         <div class="home-aside-logo">
            <div class="left">
                <div class="left-part1" >
-                <span ref="tabEls[0]" :class="{ 'is-on': store.homeMenu === 1 }" @click="changeHomeMenu(1)">
+                <span :ref="el => tabEls[0] = el" :class="{ 'is-on': store.homeMenu === 1 }" @click="changeHomeMenu(1)">
                     <img src="/img/主页.png">
                     <span>主页</span>
                 </span>
-                <span ref="tabEls[1]" :class="{ 'is-on': store.homeMenu === 2 }" @click="changeHomeMenu(2)">
+                <span :ref="el => tabEls[1] = el" :class="{ 'is-on': store.homeMenu === 2 }" @click="changeHomeMenu(2)">
                     <img src="/img/主页动态.png">
                     <span>动态</span>
                 </span>
-                <span ref="tabEls[2]" :class="{ 'is-on': store.homeMenu === 3 }" @click="changeHomeMenu(3)">
+                <span :ref="el => tabEls[2] = el" :class="{ 'is-on': store.homeMenu === 3 }" @click="changeHomeMenu(3)">
                     <img src="/img/主页投稿.png">
                     <span>投稿</span>
                     <span class="num" v-if="contributeTotal">{{ contributeTotal }}</span>
                 </span>
-                <span ref="tabEls[3]" :class="{ 'is-on': store.homeMenu === 4 }" @click="changeHomeMenu(4)">
+                <span :ref="el => tabEls[3] = el" :class="{ 'is-on': store.homeMenu === 4 }" @click="changeHomeMenu(4)">
                     <img src="/img/主页合集.png">
                     <span>合集</span>
                 </span>
-                <span v-if="(store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicCollect===1" ref="tabEls[4]" :class="{ 'is-on': store.homeMenu === 5 }" @click="changeHomeMenu(5)">
+                <span v-if="(store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicCollect===1" :ref="el => tabEls[4] = el" :class="{ 'is-on': store.homeMenu === 5 }" @click="changeHomeMenu(5)">
                     <img src="/img/主页收藏.png">
                     <span>收藏</span>
                     <span class="num" v-if="store.collectClassifyNumber">{{ store.collectClassifyNumber }}</span>
                 </span>
-                <span v-if="store.homeUserInformation.publicAnime===1" ref="tabEls[5]" :class="{ 'is-on': store.homeMenu === 6 }" @click="changeHomeMenu(6)">
+                <span v-if="store.homeUserInformation.publicAnime===1" :ref="el => tabEls[5] = el" :class="{ 'is-on': store.homeMenu === 6 }" @click="changeHomeMenu(6)">
                     <img src="/img/主页追剧.png">
                     <span>追剧</span>
                 </span>
-                <span v-if="store.userId!==null&&store.userId===userId" ref="tabEls[6]" :class="{ 'is-on': store.homeMenu === 7 }" @click="changeHomeMenu(7)">
+                <span v-if="store.userId!==null&&store.userId===userId" :ref="el => tabEls[6] = el" :class="{ 'is-on': store.homeMenu === 7 }" @click="changeHomeMenu(7)">
                     <img src="/img/主页设置.png">
                     <span>设置</span>
                 </span>
@@ -77,7 +77,7 @@
 </template>
 
 <script setup>
-import { nextTick, onMounted, reactive, ref, watch } from 'vue';
+import { nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import {useGlobalStore} from "../store/store";
 import {homeContributeVideos} from '@/api/home/index';
 import { ElMessage } from "element-plus";
@@ -160,6 +160,7 @@ function changeHomeMenu(homeMenu){
 }
 
 onMounted(async()=>{
+   window.addEventListener('resize', measureTabLine);
    try {
      await homeContributeVideosF();
    } catch (error) {
@@ -170,6 +171,8 @@ onMounted(async()=>{
    await nextTick();
    measureTabLine();
 })
+
+onUnmounted(() => window.removeEventListener('resize', measureTabLine));
 
 // 获取用户主页投稿的视频
 async function homeContributeVideosF(){

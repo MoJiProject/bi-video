@@ -5,7 +5,8 @@
       <div
         style="
           color: #8c9195;
-          transform: translate(940px, 130px);
+          transform: translateY(130px);
+          text-align: right;
           font-size: 14px;
         "
       >
@@ -189,15 +190,13 @@ export default {
   background-color: #f8f8f8;
   border-radius: 5px;
   width: 100%;
-  transform: translate(-20px, -20px);
   height: auto !important;
   padding: 20px;
   box-sizing: border-box;
 }
 .white2 {
-  transform: translate(40px, 20px);
   width: 100%;
-  max-width: 1200px;
+  max-width: var(--page-max);
   min-height: 1500px;
   height: auto !important;
   margin: 0 auto;

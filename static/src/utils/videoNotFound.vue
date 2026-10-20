@@ -37,7 +37,7 @@ import mainHead from "@/components/mainHead.vue";
     box-shadow: 0 2px 4px #00000014;
   }
   .not-found-content{
-    max-width: var(--col-mid);
+    max-width: var(--page-max);
     margin: 0 auto;
     background: white;
     border-radius: 10px;

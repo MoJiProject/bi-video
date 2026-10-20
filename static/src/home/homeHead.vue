@@ -1,6 +1,6 @@
 <template>
    <div v-show="store.homeUserInformation.id" class="home-head" :style="{backgroundImage: store.homeUserInformation.backgroundAddress? `url(${store.homeUserInformation.backgroundAddress})`:'url(/img/page-bg.png)'}" @contextmenu="changeBackgroundMenu">
-        <mainhead :head2-flag="false" :login-dialog-visible-flag="loginDialogVisibleFlag"/>
+        <mainhead class="header-stack-search" :head2-flag="false" :login-dialog-visible-flag="loginDialogVisibleFlag"/>
         <div class="overlay"></div>
         <div class="overlay2"></div>
         <a v-if="store.userId&&store.userId===store.homeUserInformation.id" href="./account?accountMenu=3" target="_blank" v-show="handleContextMenuVisible" class="menu" :style="{top:handleContextMenuPosition.y+'px',left:handleContextMenuPosition.x+'px'}">更换背景</a>
@@ -37,7 +37,7 @@
                     </el-tooltip>
             </div>   
             <div v-show="!introduceEditFlag&&store.userId===store.homeUserInformation?.id" class="user-info-introduce2" @click="introduceEditFlag=true" @contextmenu="introduceEditFlag=true">{{ store.homeUserInformation.introduce }}</div>
-            <input v-if="store.userId===store.homeUserInformation?.id" ref="introduceInput" v-show="introduceEditFlag" v-model="introduce" @focus="introduce=store.homeUserInformation.introduce" @blur="introduceEditFlag=false,putUserInfoF()" @keydown.enter="introduceEditFlag=false,putUserInfoF()" type="text" placeholder="编辑个性签名" maxlength="250">
+            <input v-if="store.userId===store.homeUserInformation?.id" ref="introduceInput" v-show="introduceEditFlag" v-model="introduce" @focus="introduce=store.homeUserInformation.introduce" @blur="introduceEditFlag=false,putUserInfoF()" @keydown.enter.prevent="$event.target.blur()" type="text" placeholder="编辑个性签名" maxlength="250">
         </div> 
         <div v-if="(store.userId!==null&&store.userId!==userId)||store.userId===null" class="control-container">
             <div v-show="!store.homeUserInformation.isFollowFlag" class="follow" v-debounce @click="followF"><img src="/img/加关注.png">关注</div>
@@ -241,7 +241,11 @@ function changeBackgroundMenu(event){
     if(event.target&&(event.target.className==="overlay"||event.target.className==="overlay2"||event.target.className==="user-info"))
     {
         event.preventDefault();
-        handleContextMenuPosition.value={x:event.clientX,y:event.clientY};
+        const bounds = event.currentTarget.getBoundingClientRect();
+        handleContextMenuPosition.value = {
+            x: Math.max(0, Math.min(event.clientX - bounds.left, bounds.width - 100)),
+            y: Math.max(0, Math.min(event.clientY - bounds.top, bounds.height - 40)),
+        };
         handleContextMenuVisible.value=true;
     }
    
@@ -293,7 +297,7 @@ watch(()=>store.homeUserInformation.id,()=>{
 .home-head {
 top: 0px;
 width: 100%;
-height: 200px;
+height: calc(var(--head-h) + 152px);
 background-size: cover;
 background-position: 50% 50%;
 background-repeat: no-repeat;
@@ -316,21 +320,22 @@ z-index: 999;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100px;
+    height: 50%;
     background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0));
     z-index: 1;
 }
 .overlay2 {
     position: absolute;
-    top: 100px;
+    top: 50%;
     left: 0;
     width: 100%;
-    height: 100px;
+    height: 50%;
     background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.6));
     z-index: 1;
 }
 .menu{
     position: absolute;
+    z-index: 4;
     padding: 5px 10px;
     font-size: 12px;
     border-radius: 6px;
@@ -345,21 +350,35 @@ z-index: 999;
 }
 .user-info {
     position: absolute;
-    width: 100%;
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    grid-template-rows: 32px 24px;
+    align-content: center;
+    column-gap: 16px;
+    left: var(--page-pad);
+    right: var(--page-pad);
+    width: auto;
     height: 80px;
-    bottom: 0px;
+    bottom: 16px;
     z-index: 2;
 
+    > a,
+    > .user-avatar-link {
+        grid-column: 1;
+        grid-row: 1 / span 2;
+        align-self: center;
+    }
+
     .user-avatar-link {
-        position: absolute;
-        top: 0;
-        left: 85px;
+        position: relative;
+        top: auto;
+        left: auto;
         width: 64px;
         height: 64px;
 
         .user-avatar {
-        width: 66px;
-        height: 66px;
+        width: 64px;
+        height: 64px;
         border-radius: 50%;
         background-color: rgba(0, 0, 0, .5);
         display: flex;
@@ -394,13 +413,22 @@ z-index: 999;
 
     .user-info-top{
         position: relative;
+        display: flex;
+        align-items: center;
+        grid-column: 2;
+        grid-row: 1;
+        min-width: 0;
         width: auto;
-        left: 174px;
-        top: 2px;
+        left: auto;
+        top: auto;
         height: 32px;
         line-height: 32px;
         .user-name{
         position: relative;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
         font-size: 23px;
         font-weight: 700;
         color: white;
@@ -408,6 +436,7 @@ z-index: 999;
         text-shadow: 0px 1px 2px rgba(0, 0, 0, .4);
         }
         .level-icon{
+            flex: none;
             position: relative;
             top: -1px;
             width: 28px;
@@ -415,6 +444,7 @@ z-index: 999;
             margin-right: 8px;
         }
         .gender-icon{
+            flex: none;
             position: relative;
             width: 16px;
             height: 16px;
@@ -424,16 +454,17 @@ z-index: 999;
     /* 原来写死 width:892.5px（配 left:177px，最窄也要 1070px 才不溢出），
        这里改成左偏移固定、右侧留白自适应，窄屏下签名自动收窄而不是把页面撑破。 */
     .user-info-introduce{
-    position: relative;
-    left: 177px;
-    right: 24px;
-    width: auto;
+    position: static;
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
+    width: 100%;
     height: 17px;
-    top: 9px;
     font-size: 12px;
     color: white;
     overflow: hidden;
-    display: -webkit-box;
+    display: block;
+    white-space: nowrap;
     -webkit-box-orient: vertical;
     word-break: break-all;
     text-overflow: ellipsis;
@@ -441,15 +472,16 @@ z-index: 999;
     -webkit-line-clamp: 1;
     }
     .user-info-introduce2{
-    position: relative;
-    left: 177px;
-    right: 24px;
-    width: auto;
+    position: static;
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
+    width: 100%;
     height: 17px;
-    top: 9px;
     font-size: 12px;
     color: white;
-    display: -webkit-box;
+    display: block;
+    white-space: nowrap;
     -webkit-box-orient: vertical;
     overflow: hidden;
     word-break: break-all;
@@ -464,11 +496,11 @@ z-index: 999;
     }
 
     input{
-    position: relative;
-    left: 173px;
-    right: 20px;
-    width: auto;
-    top: 5px;
+    position: static;
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
+    width: 100%;
     padding: 2px 4px;
     font-size: 12px;
     outline: none;
@@ -492,8 +524,8 @@ z-index: 999;
     display: flex;
     width: 324px;
     height: 34px;
-    right: 135px;
-    bottom: 22px;
+    right: var(--page-pad);
+    bottom: 32px;
     z-index: 2;
     user-select: none;
     .follow{  
@@ -572,6 +604,38 @@ z-index: 999;
     }
 
 }
+}
+
+.home-head:has(.control-container) .user-info {
+    right: calc(var(--page-pad) + 350px);
+}
+
+@media (max-width: 900px) {
+    .home-head:has(.control-container) {
+        height: calc(var(--head-h) + 216px);
+        .user-info { right: var(--page-pad); bottom: 76px; }
+    }
+    .home-head .control-container {
+        left: var(--page-pad);
+        right: var(--page-pad);
+        bottom: 20px;
+        width: auto;
+        gap: 12px;
+        .follow,
+        .delete-follow,
+        .send-message { flex: 1 1 0; width: auto; max-width: 160px; margin-right: 0; min-height: 38px; }
+    }
+}
+
+@media (max-width: 520px) {
+    .home-head .user-info {
+        grid-template-columns: 56px minmax(0, 1fr);
+        column-gap: 12px;
+        .user-avatar-link,
+        .user-avatar-link .user-avatar { width: 56px; height: 56px; }
+        .user-avatar-link > div { width: 52px; height: 52px; line-height: 50px; }
+        .user-info-top .user-name { font-size: 20px; }
+    }
 }
 
 @keyframes opacity {

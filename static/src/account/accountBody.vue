@@ -21,8 +21,9 @@ import accountEditor from './accountEditor.vue';
 .account-body{
   position: relative;
   flex: 1 1 720px;
-  max-width: 870px;
-  width: min(100%, 870px);
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
   border: 1px solid rgba(224,229,227,0.72);
   min-height: 500px;
   background-color: rgba(255, 255, 255, 0.9);

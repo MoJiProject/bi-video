@@ -237,7 +237,7 @@ img{
     .aside-container{
         position: fixed;
         top: 76px;
-        left: max(16px, calc((100vw - 1180px) / 2));
+        left: var(--page-pad);
         width: 180px;
         height: calc(100vh - 100px);
         border-radius: 18px;

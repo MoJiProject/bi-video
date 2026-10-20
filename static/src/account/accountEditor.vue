@@ -15,7 +15,7 @@
         <h2>{{ store.accountMenu === 2 ? '头像' : '空间背景' }}</h2>
         <img class="preview" :class="{ avatar: store.accountMenu === 2 }"
           :src="store.accountMenu === 2 ? profile.avatarUrl : profile.backgroundUrl" alt="">
-        <input type="file" accept="image/png,image/jpeg,image/gif" :disabled="saving" @change="upload">
+        <input class="upload-file" type="file" accept="image/png,image/jpeg,image/gif" :disabled="saving" @change="upload">
         <p>支持 PNG、JPEG、GIF，最大 10MB。</p>
       </div>
     </template>
@@ -79,7 +79,22 @@ onMounted(load);
 </script>
 <style scoped>
 .editor { padding: 32px; width: 100%; box-sizing: border-box; }
+.editor > .el-form { max-width: 870px; }
+.upload-file { display: block; max-width: 100%; }
+.editor :deep(.el-form-item__content) { min-width: 0; }
+.editor :deep(.el-date-editor.el-input) { width: 100%; max-width: 260px; }
+.editor :deep(.el-radio-group) { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.editor :deep(.el-radio) { margin-right: 0; }
 .preview { display: block; max-width: 100%; width: 600px; max-height: 300px; object-fit: cover; margin: 20px 0; }
 .avatar { width: 160px; height: 160px; border-radius: 50%; }
 p { color: #8D9794; font-size: 13px; }
+@media (max-width: 520px) {
+  .editor { padding: 24px 16px; }
+  .editor :deep(.el-form-item) { display: block; }
+  .editor :deep(.el-form-item__label) { justify-content: flex-start; width: 100% !important; height: auto; padding: 0 0 8px; line-height: 1.5; }
+  .editor :deep(.el-form-item__content) { margin-left: 0 !important; }
+  .editor :deep(.el-input__wrapper) { min-height: 38px; }
+  .preview { height: auto; }
+  .avatar { width: 128px; height: 128px; }
+}
 </style>

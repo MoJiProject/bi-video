@@ -1,13 +1,13 @@
 <template>
-  <div class="home">
+  <div class="home home-page">
     <!-- 滚动后出现的吸顶栏 -->
     <div class="home-sticky" :class="{ 'is-in': sticky }">
-      <head1 :head2Flag="true" />
+      <head1 class="header-stack-search" :head2Flag="true" />
     </div>
 
     <!-- 首屏 -->
     <div class="home-head" @mousemove="onMouseMove">
-      <head1 />
+      <head1 class="header-stack-search" />
       <section class="hero">
         <div class="hero-inner page">
           <div class="hero-copy">
@@ -47,6 +47,7 @@
           :key="c.value"
           class="rail-chip"
           :class="{ 'is-on': c.value === activeCategory }"
+          :aria-pressed="c.value === activeCategory"
           @click="goCategory(c)"
         >
           {{ c.label }}
@@ -65,7 +66,7 @@
       </div>
 
       <div class="grid" v-show="videos.length">
-        <homeVideoCard v-for="v in videos" :key="v.videoId" :video="v" />
+        <homeVideoCard v-for="v in videos" :key="v.id" :video="v" />
       </div>
 
       <div class="state" v-if="loading && !videos.length">
@@ -93,29 +94,11 @@ import head1 from "./mainHead.vue";
 import homeVideoCard from "./homeVideoCard.vue";
 import { videoApi } from "../api/product";
 import { useGlobalStore } from "../store/store";
+import { HOME_CATEGORIES } from "../constants/contentCategories";
 
 const store = useGlobalStore();
 
-const categories = [
-  { label: "推荐", value: "推荐" },
-  { label: "动画", value: "动画" },
-  { label: "动画剧场", value: "番剧" },
-  { label: "原创动画", value: "国创" },
-  { label: "综艺", value: "综艺" },
-  { label: "影视", value: "影视" },
-  { label: "电影", value: "电影" },
-  { label: "电视剧", value: "电视剧" },
-  { label: "纪录片", value: "纪录片" },
-  { label: "音乐", value: "音乐" },
-  { label: "舞蹈", value: "舞蹈" },
-  { label: "游戏", value: "游戏" },
-  { label: "知识", value: "知识" },
-  { label: "生活", value: "生活" },
-  { label: "时尚", value: "时尚" },
-  { label: "美食", value: "美食" },
-  { label: "科技", value: "科技" },
-  { label: "资讯", value: "资讯" },
-];
+const categories = HOME_CATEGORIES;
 const activeCategory = ref("推荐");
 const activeCategoryLabel = computed(() => {
   return categories.find((c) => c.value === activeCategory.value)?.label || activeCategory.value;
@@ -229,7 +212,13 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+:global(body:has(.home-page)) {
+  min-width: 0;
+}
+
 .home {
+  width: 100%;
+  min-width: 0;
   min-height: 100vh;
   background: var(--fill-soft);
   padding-bottom: 80px;
@@ -242,13 +231,16 @@ onUnmounted(() => {
   right: 0;
   z-index: 900;
   background: #fff;
-  border-bottom: 1px solid var(--line);
   transform: translateY(-100%);
+  visibility: hidden;
+  pointer-events: none;
   transition: transform .28s cubic-bezier(.4, 0, .2, 1);
 }
 
 .home-sticky.is-in {
   transform: translateY(0);
+  visibility: visible;
+  pointer-events: auto;
 }
 
 /* ---------- 首屏 ---------- */
@@ -286,12 +278,14 @@ onUnmounted(() => {
 }
 
 .hero-copy {
+  flex: 1 1 auto;
+  min-width: 0;
   color: #fff;
 }
 
 .hero-title {
   margin: 0 0 var(--gap-2);
-  font-size: 40px;
+  font-size: clamp(28px, 2.5vw, 44px);
   font-weight: 700;
   letter-spacing: 4px;
   text-shadow: 0 2px 12px rgba(0, 0, 0, .18);
@@ -302,11 +296,14 @@ onUnmounted(() => {
   font-size: 15px;
   letter-spacing: 1px;
   color: rgba(255, 255, 255, .9);
+  line-height: 1.8;
+  overflow-wrap: anywhere;
 }
 
 .hero-actions {
   display: flex;
   gap: var(--gap-3);
+  flex-wrap: wrap;
 }
 
 .hero-panel {
@@ -314,9 +311,12 @@ onUnmounted(() => {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--gap-3);
   width: min(620px, 52vw);
+  flex: none;
+  min-width: 0;
 }
 
 .hero-card {
+  min-width: 0;
   min-height: 118px;
   padding: 18px;
   border: 1px solid rgba(255, 255, 255, .34);
@@ -388,7 +388,7 @@ onUnmounted(() => {
 /* ---------- 分类导航 ---------- */
 .rail-wrap {
   position: sticky;
-  top: 0;
+  top: var(--head-h);
   z-index: 800;
   background: #fff;
   border-bottom: 1px solid var(--line);
@@ -398,6 +398,7 @@ onUnmounted(() => {
   display: flex;
   gap: var(--gap-2);
   overflow-x: auto;
+  min-width: 0;
   padding: 10px var(--page-pad);
   scrollbar-width: none;
 }
@@ -432,26 +433,54 @@ onUnmounted(() => {
 /* ---------- 视频流 ---------- */
 .feed {
   background: transparent;
+  scroll-margin-top: calc(var(--head-h) + 70px);
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: var(--gap-5) var(--gap-4);
 }
 
-@media (max-width: 1400px) {
-  .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}
-
 @media (max-width: 1120px) {
-  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .hero-panel { display: none; }
+  .hero-inner { flex-direction: column; align-items: stretch; gap: 24px; }
+  .hero-panel { width: 100%; }
+  .hero-card { min-height: 104px; }
 }
 
 @media (max-width: 820px) {
   .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .hero-title { font-size: 30px; }
+  .hero-inner { padding-top: 28px; padding-bottom: 28px; }
+  .hero-title { font-size: 32px; }
+  .hero-desc { font-size: 14px; }
+  .hero-card { padding: 14px; }
+  .hero-card strong { font-size: 14px; }
+  .hero-card em { font-size: 11px; }
+}
+
+@media (max-width: 640px) {
+  .home { padding-bottom: 40px; }
+  .hero-inner { gap: 22px; padding-top: 24px; padding-bottom: 24px; }
+  .hero-title { font-size: 30px; letter-spacing: 2px; }
+  .hero-desc { margin-bottom: 18px; font-size: 13px; letter-spacing: 0; }
+  .hero-panel { gap: 8px; }
+  .hero-card { min-height: 88px; padding: 12px 10px; border-radius: 12px; }
+  .hero-card-kicker { font-size: 10px; }
+  .hero-card strong { margin: 7px 0 0; font-size: 13px; line-height: 1.5; }
+  .hero-card em { display: none; }
+  .hero-btn { height: 36px; padding: 0 18px; font-size: 13px; }
+  .rail { gap: 6px; padding-top: 10px; padding-bottom: 10px; }
+  .rail-chip { height: 32px; padding: 0 12px; font-size: 12px; }
+  .grid { gap: 20px 12px; }
+  .section-head { gap: 12px; margin-top: 24px; }
+  .section-head h2 { font-size: 18px; }
+  .state { padding: 48px 0; }
+}
+
+@media (max-width: 480px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .hero-title { font-size: 28px; }
+  .hero-card { padding: 10px 8px; }
 }
 
 .state {
@@ -465,7 +494,8 @@ onUnmounted(() => {
 }
 
 .state-img {
-  width: 180px;
+  width: min(180px, 45vw);
+  height: auto;
   object-fit: contain;
 }
 

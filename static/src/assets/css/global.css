@@ -44,11 +44,10 @@
     --shadow-2: 0 2px 4px rgba(0, 0, 0, .08);
     --shadow-3: 0 4px 16px rgba(0, 0, 0, .12);
 
-    /* 容器：全站内容列的最大宽度与左右留白。
-       所有一级页面都用 .page 包内容，视口变窄时靠 --page-pad 收窄而不是定宽。 */
-    --page-max: 1500px;
-    --page-pad: 24px;
-    /* 阅读型内容列（视频详情、动态流、设置页这类窄栏） */
+    /* 页面外层跟随可用宽度，只保留随屏幕变化的左右留白。 */
+    --page-max: 100%;
+    --page-pad: clamp(16px, 2.5vw, 64px);
+    /* 仅用于正文和表单内部，不限制页面外层。 */
     --col-narrow: 900px;
     --col-mid: 1152px;
 
@@ -65,10 +64,20 @@
     --z-top: 3000;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 640px) {
     :root {
         --page-pad: 16px;
     }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --page-pad: 12px;
+    }
+}
+
+body:has(.message-page) {
+    min-width: 0;
 }
 
 /* 图标统一规则：固定成正方形盒子 + object-fit:contain。

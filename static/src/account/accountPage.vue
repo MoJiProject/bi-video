@@ -30,7 +30,7 @@ const backgroundImgSrc=[
 let bIndex=Math.floor(Math.random()*backgroundImgSrc.length);
 const store = useGlobalStore();
 
-useBodyLayout({ overflowY: 'hidden' });
+useBodyLayout({});
 
 function handlePopState(){
   const urlParams = new URLSearchParams(window.location.search);
@@ -72,17 +72,17 @@ onBeforeUnmount(()=>{
     .account-head{
      position: relative;
      z-index: 100;
-     height: 64px; 
+     height: var(--head-h);
     }
     .account-body-container{
         position: relative;
         z-index: 5;
-        width: min(1060px, calc(100% - 32px));
+        width: calc(100% - var(--page-pad) - var(--page-pad));
         margin: 40px auto 0;
         display: flex;
         justify-content: flex-start;
         align-items: flex-start;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         gap: 20px;
         padding: 0;
     }
@@ -95,7 +95,8 @@ onBeforeUnmount(()=>{
     background-position: center top;
 
     .account-body-container{
-      width: calc(100% - 24px);
+      flex-direction: column;
+      width: calc(100% - var(--page-pad) - var(--page-pad));
       margin-top: 18px;
       gap: 12px;
     }

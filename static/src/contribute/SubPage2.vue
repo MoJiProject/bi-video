@@ -348,25 +348,17 @@
           (click3 === 1 && UserVideoVo.videoErrorNumber === 0) ||
           (click4 === 1 && UserVideoVo.videoAllNumber === 0))&&!videoList.length
         "
-        style="transform: translate(440px, 68px)"
+        class="empty-manuscripts"
       >
         <img src="/img/没有稿件.png" style="width: 234px; height: 177px" />
-        <span
-          style="
-            transform: translate(-243px, 226px);
-            font-size: 14px;
-            position: absolute;
-            height: 20px;
-          "
-          >一个稿件都没有，请换个筛选条件</span
-        >
+        <span>一个稿件都没有，请换个筛选条件</span>
       </div>
 
       <div
         style="
           display: flex;
           justify-content: right;
-          width: 1024px;
+          width: 100%;
           margin-top: 30px;
         "
       >
@@ -719,9 +711,8 @@ export default {
   box-sizing: border-box;
 }
 .white {
-  transform: translate(40px, 20px);
   width: 100%;
-  max-width: 1200px;
+  max-width: var(--page-max);
   overflow: visible;
   z-index: 10;
   min-height: 1500px;
@@ -730,6 +721,17 @@ export default {
   background-color: white;
   padding: 20px;
   box-sizing: border-box;
+}
+
+.empty-manuscripts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  padding: 68px 16px;
+  font-size: 14px;
+  text-align: center;
 }
 
 .videoTime {

@@ -1,0 +1,140 @@
+.auth-dialog.el-dialog {
+  box-sizing: border-box;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid #e0e8d9;
+  border-radius: 20px;
+  background: #fffefb;
+  box-shadow: 0 24px 80px rgba(24, 52, 34, .18);
+
+  .el-dialog__header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    margin: 0;
+    padding: 24px 54px 18px 28px;
+    background: #fffefb;
+  }
+
+  .el-dialog__title { color: #304e39; font-size: 22px; font-weight: 600; line-height: 1.4; }
+  .el-dialog__headerbtn { top: 17px; right: 16px; width: 36px; height: 36px; }
+  .el-dialog__body { padding: 0 28px 20px; }
+
+  .auth-content,
+  .auth-panel,
+  .auth-form { box-sizing: border-box; width: 100%; min-width: 0; }
+
+  .auth-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+    max-width: 420px;
+    margin: 0 auto 24px;
+    padding: 4px;
+    border-radius: 12px;
+    background: #f0f4e9;
+
+    button {
+      min-width: 0;
+      min-height: 38px;
+      padding: 8px 4px;
+      border: 0;
+      border-radius: 9px;
+      background: transparent;
+      color: #87967c;
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+
+      &.active { background: #fff; color: #3d6342; font-weight: 600; box-shadow: 0 2px 6px rgba(48, 78, 57, .06); }
+      &:focus-visible { outline: 2px solid #608657; outline-offset: 1px; }
+    }
+  }
+
+  .auth-form { max-width: 420px; margin: 0 auto; }
+  .el-form-item { width: 100%; min-width: 0; margin-bottom: 18px; }
+  .el-form-item__label { height: auto; padding: 0; margin-bottom: 7px; color: #607657; font-size: 12px; line-height: 1.5; }
+  .el-form-item__content { min-width: 0; }
+  .el-input { width: 100%; min-width: 0; }
+  .el-input__wrapper { min-height: 42px; padding: 0 12px; border-radius: 10px; background: #fbfcf8; }
+  .el-input__wrapper.is-focus { box-shadow: 0 0 0 1px #7fa174 inset; }
+  .auth-password-field { display: flex; flex-direction: column; gap: 8px; width: 100%; min-width: 0; }
+
+  .auth-forgot {
+    align-self: flex-end;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #64865b;
+    font-family: inherit;
+    font-size: 12px;
+    line-height: 1.5;
+    cursor: pointer;
+  }
+
+  .auth-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+
+    .el-button {
+      flex: 1 1 0;
+      min-width: 0;
+      height: 42px;
+      margin: 0;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+    .auth-primary { border-color: #476e47; background: #476e47; color: #fff; }
+    .auth-primary:hover { border-color: #355936; background: #355936; }
+    .auth-primary.is-disabled { border-color: #d4dfcb; background: #d4dfcb; color: #fff; }
+    .auth-secondary { border-color: #dce6d5; background: #f7faf2; color: #5c7953; }
+  }
+
+  .auth-legal {
+    display: block;
+    margin-top: 18px;
+    color: #99a28e;
+    font-size: 11px;
+    line-height: 1.8;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  .auth-companions {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-top: 14px;
+
+    .login-companion { width: 104px; height: 90px; }
+  }
+}
+
+@media (max-width: 520px) {
+  .auth-dialog.el-dialog {
+    max-width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
+    border-radius: 16px;
+
+    .el-dialog__header { padding: 22px 48px 16px 20px; }
+    .el-dialog__title { font-size: 20px; }
+    .el-dialog__headerbtn { top: 15px; right: 12px; }
+    .el-dialog__body { padding: 0 20px 16px; }
+    .auth-tabs { margin-bottom: 20px; }
+    .auth-tabs button { font-size: 12px; }
+    .el-form-item { margin-bottom: 14px; }
+    .auth-actions { gap: 10px; }
+    .auth-companions { margin-top: 10px; }
+    .auth-companions .login-companion { width: 84px; height: 74px; }
+  }
+}
+
+@media (max-height: 600px) {
+  .auth-dialog.el-dialog .auth-companions .login-companion { width: 68px; height: 58px; }
+}

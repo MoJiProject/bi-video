@@ -132,15 +132,25 @@ if(store.accountMenu!==accountMenu)
 
     .menu-item{
       flex: 0 0 auto;
-      min-width: 110px;
+      min-width: 0;
+      flex: 1 0 auto;
       height: 40px;
       padding: 0 14px;
       border-radius: 12px;
       justify-content: center;
-      gap: 16px;
+      gap: 10px;
       line-height: 40px;
       white-space: nowrap;
     }
+  }
+}
+
+@media (max-width: 420px) {
+  .account-aside {
+    gap: 4px;
+    padding: 6px;
+    .menu-item { padding: 0 8px; font-size: 12px; }
+    .menu-item > span { flex: none; width: 16px; height: 16px; }
   }
 }
 

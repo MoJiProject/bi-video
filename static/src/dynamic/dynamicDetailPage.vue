@@ -1,7 +1,7 @@
 <template>
     <div class="dynamic-detail-page-container">
         <div class="dynamic-detail-page-head-container">
-            <mainHead :head2-flag="true" :loginDialogVisibleFlag="loginDialogVisibleFlag"/>
+            <mainHead class="header-stack-search" :head2-flag="true" :loginDialogVisibleFlag="loginDialogVisibleFlag"/>
         </div>
         <div class="dynamic-detail-page-body-container">
             <dynamicDetail/>
@@ -54,7 +54,7 @@ watch(()=>store.loginDialogVisibleFlag,()=>{
     left: 0;
     width: 100%;
     background-color: white;
-    height: 64px;
+    height: var(--head-h);
     z-index: 1000;
     box-shadow: 0 2px 4px #00000014;
     }

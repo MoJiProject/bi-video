@@ -2118,7 +2118,7 @@ export default {
 }
 .white {
   width: 100%;
-  max-width: 1200px;
+  max-width: var(--page-max);
   min-height: 1500px;
   height: auto !important;
   margin: 0 auto;

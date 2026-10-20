@@ -1163,12 +1163,14 @@ function addImgFlagF(comment){
 
 @media (min-width: 901px){
   .love-container{
-    --message-shell-left: max(16px, calc((100vw - 1180px) / 2));
+    --message-shell-left: var(--page-pad);
     --message-aside-width: 180px;
     position: fixed;
     top: 76px;
     left: calc(var(--message-shell-left) + var(--message-aside-width) + 16px);
-    width: min(984px, calc(100vw - var(--message-shell-left) - var(--message-aside-width) - 40px));
+    right: var(--page-pad);
+    width: auto;
+    max-width: none;
     min-width: 0;
     z-index: 40;
   }

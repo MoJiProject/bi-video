@@ -82,7 +82,9 @@ watch([mine, () => store.userId], reload, { immediate: true });
 watch(() => store.deleteFlag, id => { rows.value = rows.value.filter(row => row.id !== id); });
 </script>
 <style scoped>
-.feed { max-width: 860px; margin: auto; padding: 32px 20px; }
+.feed { box-sizing: border-box; width: 100%; max-width: var(--page-max); margin: auto; padding: 32px var(--page-pad); }
+.feed :deep(.home-post > p) { max-width: var(--col-narrow); }
+.composer :deep(.el-textarea) { max-width: var(--col-narrow); }
 .composer { margin-bottom: 24px; }
 .attachments { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
 .publish { display: flex; justify-content: space-between; gap: 16px; }

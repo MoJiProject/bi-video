@@ -8365,8 +8365,7 @@ a:hover {
   row-gap: var(--gap-4);
   align-items: start;
   width: 100%;
-  /* 阅读型内容限宽，避免超宽屏上播放器拉得过宽 */
-  max-width: var(--col-mid);
+  max-width: var(--page-max);
   margin: 0 auto;
 }
 
@@ -8541,7 +8540,7 @@ a:hover {
 }
 
 .video-page .video-body {
-  max-width: 1180px;
+  max-width: var(--page-max);
   row-gap: 14px;
 }
 

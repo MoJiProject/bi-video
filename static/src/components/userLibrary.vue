@@ -87,7 +87,7 @@ async function clearAll() {
 watch([() => store.token, () => props.kind], reload, { immediate: true });
 </script>
 <style scoped>
-.library { max-width: 1440px; margin: auto; padding: 32px var(--page-pad, 24px); }
+.library { box-sizing: border-box; width: 100%; max-width: var(--page-max); margin: auto; padding: 32px var(--page-pad); }
 .tools { display: flex; gap: 12px; margin-bottom: 24px; }
 .tools .el-input { max-width: 300px; }
 .videos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px; }

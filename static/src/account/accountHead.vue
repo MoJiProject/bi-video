@@ -1,6 +1,6 @@
 <template>
   <div class="account-head">
-     <mainHead :head2-flag="true"/>
+     <mainHead class="header-stack-search" :head2-flag="true"/>
   </div>
 </template>
 
