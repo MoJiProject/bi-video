@@ -69,9 +69,11 @@ import {
   Message,
   Key,
   Document,
+  Picture,
 } from "@element-plus/icons-vue";
 import { useGlobalStore } from "../store/store";
-import apiClient from "../services/apiClient";
+import { authApi } from "../api/product";
+import { mapUser } from "../api/home/user";
 import { toast } from "./systemCommon";
 import OverviewPage from "./pages/OverviewPage.vue";
 import UserManagePage from "./pages/UserManagePage.vue";
@@ -81,10 +83,13 @@ import DynamicManagePage from "./pages/DynamicManagePage.vue";
 import MessageManagePage from "./pages/MessageManagePage.vue";
 import KeyWordManagePage from "./pages/KeyWordManagePage.vue";
 import SystemLogPage from "./pages/SystemLogPage.vue";
+import BannerManagePage from "./pages/BannerManagePage.vue";
 
 export default {
   name: "SystemManagement",
   components: {
+    HomeFilled,
+    VideoCameraFilled,
     OverviewPage,
     UserManagePage,
     VideoManagePage,
@@ -93,6 +98,7 @@ export default {
     MessageManagePage,
     KeyWordManagePage,
     SystemLogPage,
+    BannerManagePage,
   },
   setup() {
     const store = useGlobalStore();
@@ -110,6 +116,7 @@ export default {
       { path: "/systemManagement/dynamic", label: "动态管理", icon: Promotion, component: DynamicManagePage },
       { path: "/systemManagement/message", label: "私信管理", icon: Message, component: MessageManagePage },
       { path: "/systemManagement/keyWord", label: "搜索热词", icon: Key, component: KeyWordManagePage },
+      { path: "/systemManagement/banner", label: "Banner管理", icon: Picture, component: BannerManagePage },
       { path: "/systemManagement/log", label: "操作日志", icon: Document, component: SystemLogPage },
     ];
 
@@ -154,16 +161,13 @@ export default {
     // ChecklLogin 接口已移除，改用 /auth/me 判断是否登录及是否为管理员
     async function checkLogin() {
       try {
-        const me = await apiClient.get("/auth/me");
-        if (me.data.code === 1) {
-          store.setUserId(me.data.data.id);
-          store.setUserInformation(me.data.data);
-          isAdmin.value = !!me.data.data.adminFlag;
-        } else {
-          isAdmin.value = false;
-        }
+        const me = await authApi.me();
+        store.setUserId(me.userId);
+        store.setUserInformation(mapUser(me));
+        isAdmin.value = me.role === 1;
       } catch (error) {
         isAdmin.value = false;
+        toast(error.message || "管理员身份验证失败", "error");
       }
     }
 

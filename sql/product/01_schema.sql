@@ -18,6 +18,20 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
+DROP TABLE IF EXISTS `banner`;
+CREATE TABLE `banner` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `image_url` VARCHAR(512) NOT NULL COMMENT '图片地址',
+    `content` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '可选内容，填写时链接必填',
+    `link_url` VARCHAR(2000) NOT NULL DEFAULT '' COMMENT 'HTTP/HTTPS或站内链接',
+    `sort_order` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '数字越小越靠前',
+    `enabled` TINYINT(1) NOT NULL DEFAULT 1 COMMENT '是否在首页展示',
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+    PRIMARY KEY (`id`),
+    KEY `idx_banner_display` (`enabled`, `sort_order`, `id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='首页Banner';
+
 -- -----------------------------------------------------------------------------
 -- 1. 用户与账号
 -- -----------------------------------------------------------------------------

@@ -45,6 +45,12 @@ public class MediaStorageService {
         }
     }
 
+    public void requireStoredImage(String url) {
+        if (url == null || !url.matches("/upload/image/[0-9]+_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(png|jpg|gif)")
+                || !Files.isRegularFile(root.resolve(url.substring("/upload/".length()))))
+            throw new BizException(ErrorCode.PARAM_INVALID, "Banner图片不存在，请重新上传");
+    }
+
     private String imageExtension(MultipartFile file) throws IOException {
         try (InputStream input = file.getInputStream(); ImageInputStream image = ImageIO.createImageInputStream(input)) {
             if (image == null) throw new BizException(ErrorCode.PARAM_INVALID, "图片格式不正确");

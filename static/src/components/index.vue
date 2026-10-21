@@ -9,7 +9,9 @@
     <div class="home-head" @mousemove="onMouseMove">
       <head1 class="header-stack-search" />
       <section class="hero">
-        <div class="hero-inner page">
+        <HomeBannerCarousel v-if="banners.length" :banners="banners" />
+        <div class="hero-inner page" :class="{ 'is-banner-placeholder': banners.length }"
+          :inert="banners.length ? true : undefined" :aria-hidden="banners.length ? 'true' : undefined">
           <div class="hero-copy">
             <h1 class="hero-title">青芒视频</h1>
             <p class="hero-desc">看视频、发互动字幕、追创作者 —— 分享每一次观看</p>
@@ -92,6 +94,9 @@
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import head1 from "./mainHead.vue";
 import homeVideoCard from "./homeVideoCard.vue";
+import HomeBannerCarousel from "./HomeBannerCarousel.vue";
+import { getHomeBanners } from "../api/banner";
+import { ElMessage } from "element-plus";
 import { videoApi } from "../api/product";
 import { useGlobalStore } from "../store/store";
 import { HOME_CATEGORIES } from "../constants/contentCategories";
@@ -111,6 +116,15 @@ const hasMore = ref(true);
 const refreshing = ref(false);
 const sticky = ref(false);
 const feedRef = ref(null);
+const banners = ref([]);
+
+async function loadBanners() {
+  try {
+    banners.value = (await getHomeBanners()).slice(0, 6);
+  } catch (error) {
+    ElMessage.error(error.message || "Banner加载失败");
+  }
+}
 
 function onMouseMove(e) {
   store.setMouseX(e.clientX);
@@ -203,7 +217,7 @@ function onScroll() {
 onMounted(async () => {
   window.scrollTo(0, 0);
   window.addEventListener("scroll", onScroll, { passive: true });
-  await load(true);
+  await Promise.all([load(true), loadBanners()]);
 });
 
 onUnmounted(() => {
@@ -282,6 +296,8 @@ onUnmounted(() => {
   min-width: 0;
   color: #fff;
 }
+
+.hero-inner.is-banner-placeholder { visibility: hidden; pointer-events: none; }
 
 .hero-title {
   margin: 0 0 var(--gap-2);

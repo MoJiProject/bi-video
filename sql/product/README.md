@@ -13,6 +13,9 @@ mysql -u<user> -p product < sql/product/02_seed.sql
 
 ## 相比旧库（bi_video）改了什么
 
+已有库增量添加Banner管理时执行 `sql/product/04_banner.sql`，不要重新执行全量建表脚本。
+新建库的 `01_schema.sql` 已包含 `banner` 表。
+
 | 问题 | 旧库 | 现在 |
 |---|---|---|
 | 字符集 | `utf8`（3 字节）与 `utf8mb4` 混用，同一张表里都有 | 全库 `utf8mb4 / utf8mb4_unicode_ci` |
@@ -81,6 +84,7 @@ mysql -u<user> -p product < sql/product/02_seed.sql
 | `search_keyword` | 搜索热榜（累计） |
 | `search_keyword_daily` | 搜索热榜（按天） |
 | `operation_log` | 后台操作审计 |
+| `banner` | 首页Banner，按展示状态、排序和ID查询，最多返回6项 |
 | `user_ban` | 封禁记录 |
 | `sys_config` | 系统配置 |
 | `sys_sensitive_word` | 敏感词库 |
