@@ -28,9 +28,17 @@
         :class="{ 'is-done': inWatchLater }"
         :disabled="marking"
         :title="inWatchLater ? '已加入稍后观看' : '加入稍后观看'"
+        :aria-label="inWatchLater ? '移出稍后观看' : '加入稍后观看'"
+        :aria-pressed="inWatchLater"
         @click.stop="toggleMark"
       >
-        <img class="icon icon-sm" :src="inWatchLater ? '/img/添加成功.png' : '/img/待看清单.png'" alt="" />
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path v-if="inWatchLater" d="m6 12 4 4 8-8" />
+          <template v-else>
+            <circle cx="12" cy="12" r="8" />
+            <path d="M12 7v5l3 2" />
+          </template>
+        </svg>
       </button>
     </div>
 
@@ -50,11 +58,17 @@
       </div>
 
       <div class="vcard-stats">
-        <span class="vcard-stat">
-          <img class="icon icon-sm" src="/img/播放量灰.png" alt="" />{{ formatCount(video.playCount) }}
+        <span class="vcard-stat" title="播放量">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M4 3v10l10-5Z" />
+          </svg>
+          {{ formatCount(video.playCount) }}
         </span>
-        <span class="vcard-stat">
-          <img class="icon icon-sm" src="/img/弹幕灰.png" alt="" />{{ formatCount(video.danmakuCount) }}
+        <span class="vcard-stat" title="弹幕数">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path fill-rule="evenodd" d="M4 2h8a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H4a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3Zm0 3v2h8V5H4Zm0 4v2h5V9H4Z" />
+          </svg>
+          {{ formatCount(video.danmakuCount) }}
         </span>
       </div>
     </div>
@@ -215,34 +229,62 @@ async function toggleMark() {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   padding: 0;
-  border: 0;
-  border-radius: 8px;
-  background: rgba(0, 0, 0, .45);
+  border: 1px solid rgba(255, 255, 255, .4);
+  border-radius: 50%;
+  background: rgba(16, 30, 27, .68);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+  backdrop-filter: blur(8px);
   opacity: 0;
+  pointer-events: none;
   cursor: pointer;
-  transition: opacity .2s ease, background .2s ease;
+  transition: opacity .2s ease, background .2s ease, transform .2s ease;
 }
 
-.vcard:hover .vcard-mark,
-.vcard:focus-within .vcard-mark,
-.vcard-mark.is-done {
+.vcard-mark svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.vcard-cover:hover .vcard-mark,
+.vcard-mark:focus-visible {
   opacity: 1;
+  pointer-events: auto;
 }
 
 @media (hover: none) {
   .vcard-mark {
     min-width: 36px;
     min-height: 36px;
-    opacity: 1;
   }
 }
 
-.vcard-mark:hover,
+.vcard-mark:hover {
+  background: rgba(16, 30, 27, .9);
+  transform: translateY(-1px);
+}
+
 .vcard-mark.is-done {
-  background: var(--brand);
+  border-color: rgba(255, 255, 255, .4);
+  background: rgba(240, 252, 248, .4);
+  color: var(--brand-hover);
+}
+
+.vcard-mark.is-done:hover { background: rgba(240, 252, 248, .9); }
+.vcard-mark:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.vcard-mark:disabled { cursor: wait; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vcard-mark { transition: none; }
+  .vcard-mark:hover { transform: none; }
 }
 
 .vcard-body {
@@ -275,7 +317,7 @@ async function toggleMark() {
   display: flex;
   align-items: center;
   font-size: 12.5px;
-  color: var(--ink-3);
+  color: var(--ink-2);
   min-width: 0;
 }
 
@@ -312,12 +354,23 @@ async function toggleMark() {
   align-items: center;
   gap: var(--gap-4);
   font-size: 12.5px;
-  color: var(--ink-3);
+  color: var(--ink-2);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
 }
 
 .vcard-stat {
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  line-height: 20px;
+}
+
+.vcard-stat svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  opacity: .8;
 }
 </style>

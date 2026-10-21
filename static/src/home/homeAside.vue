@@ -16,10 +16,6 @@
                     <span>投稿</span>
                     <span class="num" v-if="contributeTotal">{{ contributeTotal }}</span>
                 </span>
-                <span :ref="el => tabEls[3] = el" :class="{ 'is-on': store.homeMenu === 4 }" role="button" tabindex="0" :aria-pressed="store.homeMenu === 4" @keydown.enter.prevent="changeHomeMenu(4)" @keydown.space.prevent="changeHomeMenu(4)" @click="changeHomeMenu(4)">
-                    <img src="/img/主页合集.png">
-                    <span>合集</span>
-                </span>
                 <span v-if="(store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicCollect===1" :ref="el => tabEls[4] = el" :class="{ 'is-on': store.homeMenu === 5 }" role="button" tabindex="0" :aria-pressed="store.homeMenu === 5" @keydown.enter.prevent="changeHomeMenu(5)" @keydown.space.prevent="changeHomeMenu(5)" @click="changeHomeMenu(5)">
                     <img src="/img/主页收藏.png">
                     <span>收藏</span>

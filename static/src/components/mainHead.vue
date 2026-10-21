@@ -44,14 +44,7 @@
             :aria-expanded="profileOpen" @click="closeHeaderMenus" @keydown.down.prevent="openProfile">
             <img
               :src="store.userInformation?.avatarAddress"
-              alt="Avatar"
-              style="
-                border-radius: 50%;
-                cursor: pointer;
-                width: 31.5px;
-                height: 31.5px;
-                border: 1.5px solid #ffffff;
-              "
+              alt="个人头像"
             />
           </a>
           <section v-show="profileOpen" class="profile-card" aria-label="个人资料"

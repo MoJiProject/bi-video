@@ -50,8 +50,14 @@ const barPercent = computed(() => {
 });
 
 const handlePopState = () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  store.setHomeMenu(parseInt(urlParams.get("homeMenu")) || 1, userId.value, false);
+  const url = new URL(window.location.href);
+  let homeMenu = parseInt(url.searchParams.get("homeMenu")) || 1;
+  if (homeMenu === 4) {
+    homeMenu = 1;
+    url.searchParams.set("homeMenu", "1");
+    window.history.replaceState(window.history.state, "", url);
+  }
+  store.setHomeMenu(homeMenu, userId.value, false);
 };
 
 onMounted(async () => {
@@ -73,8 +79,7 @@ onMounted(async () => {
       window.location.href = './';
       return;
   }
-  const urlParams = new URLSearchParams(window.location.search);
-  store.setHomeMenu(parseInt(urlParams.get("homeMenu")) || 1, userId.value, false);
+  handlePopState();
   ready.value = true;
   window.addEventListener('popstate', handlePopState);
   

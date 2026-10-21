@@ -168,13 +168,28 @@
 
   .avatar1 img,
   .avatar-container:hover .avatar1 img {
-    width: 32px;
-    height: 32px;
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border: 0;
+    border-radius: 50%;
+    object-fit: cover;
     transform: none;
   }
 
   .avatar-container:hover .avatar1 { transform: none; }
-  .profile-trigger > .avatar1 { margin: 0; padding: 0; }
+  .profile-trigger > .avatar1 {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    background: transparent;
+    box-shadow: none;
+
+    &:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+  }
 
   .profile-trigger.is-profile-open::after {
     content: "";
@@ -212,8 +227,9 @@
       width: 48px;
       height: 48px;
       margin: 0;
-      border: 2px solid var(--brand-light-9);
-      border-radius: 16px;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
       object-fit: cover;
       animation: none !important;
     }
@@ -360,13 +376,25 @@
     width: 48px;
     height: 48px;
     margin: 0;
+    object-fit: cover;
+  }
+
+  .workspace-emblem {
     border: 3px solid #fff;
     border-radius: 16px;
     background: #37684a;
     color: #e1edb9;
     font: 700 30px Arial, sans-serif;
     box-shadow: 0 3px 8px rgba(43, 76, 37, .1);
-    object-fit: cover;
+  }
+
+  .v-header-ul > li img.workspace-portrait {
+    display: block;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    box-shadow: none;
   }
 
   .channel-all,
@@ -446,6 +474,11 @@
       &:hover,
       &:focus-visible { border-color: #e0eadb; background: #f4f8f0; color: #126b58; }
 
+      &:has(> .number-style) {
+        grid-template-columns: 35px minmax(0, 1fr) auto;
+        column-gap: 8px;
+      }
+
       > img {
         box-sizing: content-box;
         flex: none;
@@ -471,13 +504,28 @@
       font-weight: 600;
       text-align: left;
 
-      small { width: 100%; color: #939d90; font-size: 10px; font-weight: 400; text-align: left; }
+      small { width: 100%; overflow: hidden; color: #939d90; font-size: 10px; font-weight: 400; text-align: left; text-overflow: ellipsis; }
     }
 
     > .hd-create > a { grid-column: 1 / -1; }
     > .hd-create > a > img,
     > .hd-create > button > img { background: #eaf3eb; }
-    .number-style { top: -4px; right: -2px; }
+    .number-style {
+      position: static;
+      grid-column: 3;
+      grid-row: 1;
+      justify-self: end;
+      min-width: 24px;
+      height: 16px;
+      padding: 0 7px;
+      border-radius: 999px;
+      background: #c9504c;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      line-height: 16px;
+      text-align: center;
+    }
 
     > li > .vip-introduce,
     > li > .message-info,
@@ -604,7 +652,6 @@
     .v-header-ul > li.hd-publish .upload { height: 30px; }
     .avatar,
     .avatar1 { width: 30px; height: 30px; }
-    .avatar1 img { width: 28px; height: 28px; }
   }
 }
 

@@ -111,8 +111,6 @@ async function selectUserInfoF(){
             document.title=res.data.data.userName+"的个人动态-"+res.data.data.userName+"动态记录-青芒视频";
             else if(homeMenu === 3)
             document.title=res.data.data.userName+"的投稿视频-"+res.data.data.userName+"视频分享-青芒视频";
-            else if(homeMenu === 4)
-            document.title=res.data.data.userName+"的视频专辑-"+res.data.data.userName+"视频合集-青芒视频";
         }
         else{
             window.location.href="/";

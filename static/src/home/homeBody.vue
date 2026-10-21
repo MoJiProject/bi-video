@@ -13,7 +13,6 @@ import { computed, onBeforeUnmount, watch } from 'vue';
 import home from './home.vue'
 import dynamic from './dynamic.vue';
 import contribute from './contribute.vue';
-import lists from './lists.vue';
 import collect from './collect.vue';
 import settings from './settings.vue';
 import follow from './follow.vue';
@@ -28,7 +27,6 @@ const currentComponent = computed(() => {
     case 1: return home;
     case 2: return dynamic;
     case 3: return contribute;
-    case 4: return lists;
     case 5:
       return (store.homeUserInformation.publicCollect === 1 ||
               (store.userId !== null && store.userId === userId)) ? collect : null;
