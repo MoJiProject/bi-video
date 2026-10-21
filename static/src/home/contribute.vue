@@ -25,7 +25,12 @@
               : "TA的视频"
           }}
         </div>
-        <div v-show="contributeVideos.length>0" class="video-sort">
+        <div class="video-filter">
+          <el-input v-model="keyword" placeholder="搜索投稿视频" clearable maxlength="50"
+            @keyup.enter="searchVideos" @clear="searchVideos"/>
+          <el-button @click="searchVideos">搜索</el-button>
+        </div>
+        <div class="video-sort">
           <span :class="{ sortClass: sort === 1 }" @click="sort = 1"
             >最新发布</span
           >
@@ -49,6 +54,10 @@
         </div>
         <div v-show="display == 2 && !loadMore" class="video-list-container">
           <videoList4 :data="contributeVideos" layout="list"/>
+        </div>
+        <div v-if="!loadMore && !contributeVideos.length" class="no-data">
+          <img src="/img/home_nodata.svg" alt="">
+          <div>{{ appliedKeyword ? '没有找到匹配的视频' : '还没有投稿视频' }}</div>
         </div>
         <div v-show="!loadMore && contributeTotal > 0" class="page-container">
           <el-pagination
@@ -92,6 +101,7 @@
               v-for="dynamic in imgDynamicList"
               :key="dynamic.sourceType + ':' + dynamic.id"
               :dynamic="dynamic"
+              @changed="refreshImages"
             />
           </div>
           <div v-if="imgDynamicTotal === 0" class="no-data">
@@ -147,14 +157,22 @@ const display = ref(1);
 const imgSource = ref(1);
 const loadMore = ref(true);
 const pageNum = ref(1);
+const keyword = ref('');
+const appliedKeyword = ref('');
+const refreshVersion = ref(0);
+function refreshImages() { refreshVersion.value++; }
+function searchVideos() {
+  pageNum.value = 1;
+  appliedKeyword.value = keyword.value.trim();
+}
 
 let requestId = 0;
-watch([() => store.homeUserInformation.id, contributeMenu, pageNum, sort, imgSource], async ([id]) => {
+watch([() => store.homeUserInformation.id, contributeMenu, pageNum, sort, imgSource, appliedKeyword, refreshVersion], async ([id]) => {
   if (!id) return;
   const current = ++requestId;
   loadMore.value = true;
   try {
-    const videoRequest = homeContributeVideos(id, store.userId, sort.value, contributeMenu.value === 1 ? pageNum.value : 1);
+    const videoRequest = homeContributeVideos(id, store.userId, sort.value, contributeMenu.value === 1 ? pageNum.value : 1, appliedKeyword.value);
     const imageRequest = dynamicImg(id, imgSource.value, contributeMenu.value === 2 ? pageNum.value : 1);
     const [videos, images] = await Promise.all([videoRequest, imageRequest]);
     if (current !== requestId) return;
@@ -162,6 +180,9 @@ watch([() => store.homeUserInformation.id, contributeMenu, pageNum, sort, imgSou
     contributeTotal.value = videos.data.data.total;
     imgDynamicList.splice(0, imgDynamicList.length, ...images.data.data.records);
     imgDynamicTotal.value = images.data.data.total;
+    if (contributeMenu.value === 2 && pageNum.value > Math.max(1, Math.ceil(imgDynamicTotal.value / 20))) {
+      pageNum.value = Math.max(1, Math.ceil(imgDynamicTotal.value / 20));
+    }
   } catch (error) {
     if (current === requestId) ElMessage.error(error.message);
   } finally {
@@ -251,6 +272,7 @@ function handleCurrentChange2(event) {
     min-width: 0;
     width: 100%;
     padding-bottom: 60px;
+    .video-filter { display: flex; gap: 12px; margin: 16px 0; max-width: 360px; }
 
     .contribute-menu {
       .title {

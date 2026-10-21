@@ -32,9 +32,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class AuthService {
+    private static final List<String> HOME_SECTIONS = List.of("magnum-video", "tribute-video",
+            "throw-coin-video", "collect", "follow-anime", "love-video");
 
     private final UserMapper userMapper;
     private final UserPrivacyMapper privacyMapper;
@@ -137,9 +145,13 @@ public class AuthService {
             throw new BizException(ErrorCode.ACCOUNT_NOT_FOUND);
         }
         vo.setIsSelf(userId.equals(viewer));
+        UserPrivacy privacy = privacyMapper.selectOne(Wrappers.<UserPrivacy>lambdaQuery()
+                .eq(UserPrivacy::getUserId, userId));
+        vo.setHomeSectionOrder(readSectionOrder(privacy == null ? null : privacy.getHomeSectionOrder()));
         if (!userId.equals(viewer)) {
-            vo.setBirthday(null);
+            if (!Boolean.TRUE.equals(vo.getShowBirthday())) vo.setBirthday(null);
             vo.setCoinBalance(null);
+            vo.setRecordHistory(null);
         }
         if (viewer == null) {
             vo.setFollowed(null);
@@ -179,21 +191,61 @@ public class AuthService {
     @Transactional
     public void updatePrivacy(Long userId, PrivacyUpdateRequest request) {
         requireActiveUser(userId);
+        if (request.getShowFavoriteList() == null && request.getShowFollowList() == null &&
+                request.getShowFansList() == null && request.getShowCoinList() == null &&
+                request.getShowLikeList() == null && request.getShowBirthday() == null &&
+                request.getRecordHistory() == null && request.getHomeSectionOrder() == null)
+            throw new BizException(ErrorCode.PARAM_INVALID);
+        if (request.getHomeSectionOrder() != null &&
+                (request.getHomeSectionOrder().size() != HOME_SECTIONS.size() ||
+                 !new HashSet<>(request.getHomeSectionOrder()).equals(Set.copyOf(HOME_SECTIONS))))
+            throw new BizException(ErrorCode.PARAM_INVALID, "首页排序必须包含全部六个栏目");
         UserPrivacy privacy = privacyMapper.selectOne(Wrappers.<UserPrivacy>lambdaQuery()
                 .eq(UserPrivacy::getUserId, userId));
         if (privacy == null) {
             privacy = new UserPrivacy();
             privacy.setUserId(userId);
-            privacy.setShowFavoriteList(request.getShowFavoriteList());
-            privacy.setShowFollowList(request.getShowFollowList());
-            privacy.setShowFansList(request.getShowFansList());
+            privacy.setShowFavoriteList(Boolean.TRUE.equals(request.getShowFavoriteList()));
+            privacy.setShowFollowList(Boolean.TRUE.equals(request.getShowFollowList()));
+            privacy.setShowFansList(Boolean.TRUE.equals(request.getShowFansList()));
+            privacy.setShowCoinList(Boolean.TRUE.equals(request.getShowCoinList()));
+            privacy.setShowLikeList(Boolean.TRUE.equals(request.getShowLikeList()));
+            privacy.setShowBirthday(Boolean.TRUE.equals(request.getShowBirthday()));
+            privacy.setRecordHistory(!Boolean.FALSE.equals(request.getRecordHistory()));
+            privacy.setHomeSectionOrder(writeSectionOrder(request.getHomeSectionOrder()));
             privacyMapper.insert(privacy);
         } else {
             privacyMapper.update(null, Wrappers.<UserPrivacy>lambdaUpdate()
                     .eq(UserPrivacy::getUserId, userId)
-                    .set(UserPrivacy::getShowFavoriteList, request.getShowFavoriteList())
-                    .set(UserPrivacy::getShowFollowList, request.getShowFollowList())
-                    .set(UserPrivacy::getShowFansList, request.getShowFansList()));
+                    .set(request.getShowFavoriteList() != null, UserPrivacy::getShowFavoriteList, request.getShowFavoriteList())
+                    .set(request.getShowFollowList() != null, UserPrivacy::getShowFollowList, request.getShowFollowList())
+                    .set(request.getShowFansList() != null, UserPrivacy::getShowFansList, request.getShowFansList())
+                    .set(request.getShowCoinList() != null, UserPrivacy::getShowCoinList, request.getShowCoinList())
+                    .set(request.getShowLikeList() != null, UserPrivacy::getShowLikeList, request.getShowLikeList())
+                    .set(request.getShowBirthday() != null, UserPrivacy::getShowBirthday, request.getShowBirthday())
+                    .set(request.getRecordHistory() != null, UserPrivacy::getRecordHistory, request.getRecordHistory())
+                    .set(request.getHomeSectionOrder() != null, UserPrivacy::getHomeSectionOrder,
+                            writeSectionOrder(request.getHomeSectionOrder())));
+        }
+    }
+
+    private List<String> readSectionOrder(String raw) {
+        if (raw == null) return HOME_SECTIONS;
+        try {
+            List<String> order = new ObjectMapper().readValue(raw, new TypeReference<List<String>>() {});
+            return order.size() == HOME_SECTIONS.size() && new HashSet<>(order).equals(Set.copyOf(HOME_SECTIONS))
+                    ? order : HOME_SECTIONS;
+        } catch (JsonProcessingException | NullPointerException e) {
+            return HOME_SECTIONS;
+        }
+    }
+
+    private String writeSectionOrder(List<String> order) {
+        if (order == null) return null;
+        try {
+            return new ObjectMapper().writeValueAsString(order);
+        } catch (JsonProcessingException e) {
+            throw new BizException(ErrorCode.PARAM_INVALID);
         }
     }
 
@@ -213,9 +265,10 @@ public class AuthService {
     /** 供其它模块查询某用户是否仍有效，避免各处重复判断。 */
     public User requireActiveUser(Long userId) {
         User u = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getId, userId));
-        if (u == null) {
+        if (u == null || u.getDeletedAt() != null) {
             throw new BizException(ErrorCode.ACCOUNT_NOT_FOUND);
         }
+        if (!Integer.valueOf(1).equals(u.getStatus())) throw new BizException(ErrorCode.ACCOUNT_DISABLED);
         return u;
     }
 

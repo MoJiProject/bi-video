@@ -21,6 +21,8 @@ public class DanmakuPostRequest {
     @Pattern(regexp = "^#[0-9A-Fa-f]{6}$", message = "颜色必须是 #RRGGBB")
     private String color;
 
+    private Boolean colorful;
+
     @Min(12)
     @Max(48)
     private Integer fontSize;

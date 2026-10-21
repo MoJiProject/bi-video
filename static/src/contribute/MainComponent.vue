@@ -760,6 +760,8 @@
 
 <script>
 import apiClient from "../services/apiClient";
+import { fetchMentionUsers, fetchPublishingCategories } from "../api/product";
+import { sanitizeRichText } from "../utils/richText";
 import { uploadVideoByChunks } from "../utils/chunkUpload";
 import "element-plus/theme-chalk/el-message.css";
 import { reactive, onMounted, ref, computed, nextTick, watch, onUnmounted } from "vue";
@@ -770,6 +772,7 @@ import {
   readRemoteDuration,
   formatSecondsToVideoTime,
   fetchDefaultRemoteCover,
+  normalizeCoverFile,
 } from "../utils/remoteVideo";
 import CropperCompVue from "./CropperComp.vue";
 import eit from "../components/eit.vue";
@@ -994,6 +997,8 @@ export default {
     onMounted(() => {
       window.scrollTo({top: 0, behavior: "smooth"});
       getEitList();
+      fetchPublishingCategories().then(rows => { countries.value = rows; })
+        .catch(error => ElMessage.error(error.message || "加载投稿分区失败"));
       window.addEventListener("click", handleClickOutside);
       window.addEventListener("beforeunload",handleOnload);
       
@@ -1166,6 +1171,7 @@ export default {
 
       videoElement.addEventListener("loadeddata", () => {
         const duration = Math.floor(videoElement.duration);
+        video.videoTime = formatSecondsToVideoTime(duration);
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
 
@@ -1314,6 +1320,7 @@ export default {
           //若这里单独append，同一个key出现两次，Spring绑定会拼成"url,"这种带逗号的值
           video.videoSource = 1;
           video.remoteUrl = remoteVideoUrl.value;
+          if (!video.videoTime) video.videoTime = "00:00";
         } else {
           if (!file || !videoUploadPromise.value) {
             ElMessage({
@@ -1339,7 +1346,7 @@ export default {
         // 使用了默认封面（本地视频截帧）或用户上传的封面
         if (fileListCover.value.length === 1) {
           const file2 = fileListCover.value[0];
-          formData.append("file", file2.raw);
+          formData.append("file", await normalizeCoverFile(file2.raw), file2.name);
         } else if (thumbnail.value) {
           const dataImg = thumbnail.value.split(",")[1]; // 去掉前缀部分
           const blob = await (
@@ -1413,28 +1420,7 @@ export default {
     const selectedCountry = ref("");
     const selectedCity = ref("");
     //分类父数据
-    const countries = [
-      { label: "生活", value: "生活" },
-      { label: "游戏", value: "游戏" },
-      { label: "娱乐", value: "娱乐" },
-      { label: "知识", value: "知识" },
-      { label: "影视", value: "影视" },
-      { label: "音乐", value: "音乐" },
-      { label: "动画", value: "动画" },
-      { label: "时尚", value: "时尚" },
-      { label: "美食", value: "美食" },
-      { label: "汽车", value: "汽车" },
-      { label: "运动", value: "运动" },
-      { label: "科技", value: "科技" },
-      { label: "动物圈", value: "动物圈" },
-      { label: "舞蹈", value: "舞蹈" },
-      { label: "原创动画", value: "国创" },
-      { label: "鬼畜", value: "鬼畜" },
-      { label: "纪录片", value: "纪录片" },
-      { label: "动画剧场", value: "番剧" },
-      { label: "电视剧", value: "电视剧" },
-      { label: "电影", value: "电影" },
-    ];
+    const countries = ref([]);
     //分类子数据
     const cities = {
       "生活": [
@@ -1594,7 +1580,7 @@ export default {
 
     // 计算属性，基于选中的国家过滤城市
     const filteredCities = computed(() => {
-      return video.subZoneKey ? cities[video.subZoneKey] : [];
+      return cities[video.subZoneKey] || [];
     });
 
     // 处理国家选择变化
@@ -1683,19 +1669,10 @@ export default {
 
       try {
 
-        const response = await apiClient.get(`/user/getEit/${store.userId}`,
-        {
-          headers:{
-            "Content-Type": "application/json",
-            "Authorization": store.token,
-          }
-        });
-
-        if(response.data.code===1)
-          Object.assign(eitList, response.data.data);
+        Object.assign(eitList, await fetchMentionUsers());
         
       } catch (error) {
-        
+        ElMessage.error(error.message || "加载可提及用户失败");
       }
 
     }
@@ -1902,7 +1879,7 @@ export default {
         }
         }
     }
-    video.contentHtml = container.innerHTML.replace(/(<div>\s*<br\s*\/?>\s*<\/div>\s*)+$/, ''); // 更新最终 HTML
+    video.contentHtml = sanitizeRichText(container.innerHTML.replace(/(<div>\s*<br\s*\/?>\s*<\/div>\s*)+$/, ''));
     }
    
 

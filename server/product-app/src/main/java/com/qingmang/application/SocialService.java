@@ -130,6 +130,30 @@ public class SocialService {
         return row;
     }
 
+    public List<PostVO> feed(Long viewerId, Long targetUserId, Long cursorId, int size, boolean followingOnly, int type) {
+        if (size < 1 || size > 100 || type < 1 || type > 3) throw new BizException(ErrorCode.PARAM_INVALID);
+        if (followingOnly && viewerId == null) throw new BizException(ErrorCode.NOT_LOGIN);
+        List<PostVO> rows = queryMapper.selectFeed(viewerId, targetUserId, cursorId, size + 1, followingOnly, type);
+        rows.forEach(row -> {
+            row.setIsSelf(row.getAuthorId().equals(viewerId));
+            row.setImageList(parseImages(row.getImageUrls()));
+            row.setImageUrls(null);
+        });
+        return rows;
+    }
+
+    @Transactional
+    public boolean pin(Long userId, Long postId) {
+        PostVO post = detail(postId, userId);
+        if (!userId.equals(post.getAuthorId())) throw new BizException(ErrorCode.NO_PERMISSION);
+        boolean pin = !Boolean.TRUE.equals(post.getIsPinned());
+        postMapper.update(null, Wrappers.<UserPost>lambdaUpdate()
+                .eq(UserPost::getAuthorId, userId).set(UserPost::getIsPinned, false));
+        if (pin) postMapper.update(null, Wrappers.<UserPost>lambdaUpdate()
+                .eq(UserPost::getId, postId).eq(UserPost::getAuthorId, userId).set(UserPost::getIsPinned, true));
+        return pin;
+    }
+
     @Transactional
     public boolean togglePostLike(Long userId, Long postId) {
         detail(postId, userId);
@@ -165,6 +189,7 @@ public class SocialService {
         p.setAuthorId(userId);
         p.setVideoId(req.getVideoId());
         p.setContent(req.getContent());
+        p.setTitle(req.getTitle() == null ? "" : req.getTitle());
         p.setVisibility(req.getVisibility() == null ? 0 : req.getVisibility());
         p.setStatus(1);
         p.setLikeCount(0);
@@ -198,6 +223,18 @@ public class SocialService {
     /** otherId 为空看我关注的人，否则看关注我的人。 */
     public List<UserBriefVO> follows(Long viewerId, Long otherId, Long cursorId, int size) {
         return queryMapper.selectFollows(viewerId, otherId, cursorId, Math.min(size + 1, 101));
+    }
+
+    public List<UserBriefVO> mentions(Long viewerId, Long cursorId) {
+        return queryMapper.selectMentions(viewerId, cursorId, 101);
+    }
+
+    public List<UserBriefVO> feedAuthors(Long viewerId, Long cursorId) {
+        return queryMapper.selectFeedAuthors(viewerId, cursorId, 101);
+    }
+
+    public void markFeedRead(Long viewerId, Long targetUserId) {
+        queryMapper.markFeedRead(viewerId, targetUserId);
     }
 
     public int unreadPrivateMessageCount(Long userId) {

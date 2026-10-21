@@ -1,4 +1,4 @@
-import { get } from '../../services/http';
+import { del, get, post, put } from '../../services/http';
 
 // Keep the legacy page envelope while using product-app authentication and data.
 async function request(path, params, transform = (data) => data) {
@@ -22,6 +22,14 @@ export function homeContributeVideos(homeUserId, userId, sort, pageNum, keyWord)
   return request('contribute', { homeUserId, sort, pageNum, keyWord });
 }
 
+export function homeMagnumVideos(homeUserId) {
+  return request('featured', { homeUserId });
+}
+
+export function updateFeaturedVideos(videoIds) {
+  return put('/home/featured', videoIds);
+}
+
 export function homeThrowCoinVideos(userId, homeUserId) {
   return request('throwCoin', { homeUserId });
 }
@@ -42,6 +50,14 @@ export function getCollectsClassify(homeUserId) {
   return request('collectsClassify', { homeUserId }, (folders) => folders.map(mapFolder));
 }
 
-export function getCollectByName(collectName, homeUserId, userId, pageNum, type, sort, keyWord) {
-  return request('collectByName', { collectName, homeUserId, pageNum, type, sort, keyWord });
+export function getCollectByName(collectName, homeUserId, userId, pageNum, type, sort, keyWord, folderId) {
+  return request('collectByName', { collectName, homeUserId, pageNum, type, sort, keyWord, folderId });
+}
+
+export function batchFolderVideos(folderId, operation, videoIds, targetFolderId) {
+  return post(`/home/folders/${folderId}/batch`, { operation, videoIds, targetFolderId });
+}
+
+export function clearInvalidFolderVideos(folderId) {
+  return del(`/home/folders/${folderId}/invalid`);
 }

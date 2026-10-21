@@ -1,8 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.qingmang.infrastructure.mapper.HomeQueryMapper">
+    <select id="lockOwner" resultType="long">
+        SELECT id FROM `user` WHERE id = #{ownerId} AND deleted_at IS NULL FOR UPDATE
+    </select>
+    <select id="countOwnedVideos" resultType="long">
+        SELECT COUNT(*) FROM video WHERE owner_id = #{ownerId} AND deleted_at IS NULL AND status = 1 AND id IN
+        <foreach collection="videoIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+    <update id="clearFeatured">
+        UPDATE video SET is_featured = FALSE WHERE owner_id = #{ownerId} AND is_featured = TRUE
+    </update>
+    <update id="setFeatured">
+        UPDATE video SET is_featured = TRUE WHERE owner_id = #{ownerId} AND deleted_at IS NULL AND status = 1 AND id IN
+        <foreach collection="videoIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </update>
     <sql id="videoFilter">
         v.owner_id = #{q.homeUserId} AND v.deleted_at IS NULL AND v.status = 1
+        <if test="q.featured">AND v.is_featured = TRUE</if>
         <if test="q.keyWord != null and q.keyWord != ''">
             AND v.title LIKE CONCAT('%', #{q.keyWord}, '%')
         </if>
@@ -79,14 +94,15 @@
         AND (p.visibility = 0 OR p.author_id = #{viewerId})
         <if test="q.type == 2">AND p.video_id IS NOT NULL</if>
         <if test="q.keyWord != null and q.keyWord != ''">
-            AND p.content LIKE CONCAT('%', #{q.keyWord}, '%')
+            AND (p.title LIKE CONCAT('%', #{q.keyWord}, '%')
+                 OR p.content LIKE CONCAT('%', #{q.keyWord}, '%'))
         </if>
     </sql>
     <sql id="postColumns">
         p.id, p.author_id, u.nickname AS author_nickname, u.avatar_url AS author_avatar,
         u.signature AS author_signature, v.id AS video_id, v.title AS video_title,
         v.cover_url AS video_cover, v.duration_seconds AS video_duration,
-        p.content, p.image_urls, p.like_count, p.comment_count, p.share_count, p.created_at,
+        p.title, p.content, p.image_urls, p.like_count, p.comment_count, p.share_count, p.is_pinned, p.created_at,
         EXISTS(SELECT 1 FROM post_like l WHERE l.post_id = p.id AND l.user_id = #{viewerId}) AS liked
     </sql>
     <select id="posts" resultType="com.qingmang.interfaces.vo.PostVO">
@@ -95,7 +111,7 @@
         JOIN `user` u ON u.id = p.author_id AND u.deleted_at IS NULL
         LEFT JOIN video v ON v.id = p.video_id AND v.deleted_at IS NULL AND v.status = 1
         WHERE <include refid="postFilter"/>
-        ORDER BY p.id DESC LIMIT #{offset}, 20
+        ORDER BY p.is_pinned DESC, p.id DESC LIMIT #{offset}, 20
     </select>
     <select id="postCount" resultType="long">
         SELECT COUNT(*) FROM user_post p WHERE <include refid="postFilter"/>
@@ -115,8 +131,8 @@
             SELECT c.id, c.author_id, u.nickname AS author_nickname, u.avatar_url AS author_avatar,
                    u.signature AS author_signature, NULL AS video_id, NULL AS video_title,
                    NULL AS video_cover, NULL AS video_duration,
-                   c.content, c.image_urls, c.like_count, c.reply_count AS comment_count,
-                   0 AS share_count, c.created_at, FALSE AS liked, 2 AS source_type
+                   NULL AS title, c.content, c.image_urls, c.like_count, c.reply_count AS comment_count,
+                   0 AS share_count, FALSE AS is_pinned, c.created_at, FALSE AS liked, 2 AS source_type
             FROM `comment` c
             JOIN `user` u ON u.id = c.author_id AND u.deleted_at IS NULL
             LEFT JOIN video cv ON cv.id = c.video_id AND cv.deleted_at IS NULL AND cv.status = 1

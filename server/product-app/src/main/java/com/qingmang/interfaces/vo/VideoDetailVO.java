@@ -10,6 +10,11 @@ public class VideoDetailVO {
     private Long id;
     private String title;
     private String description;
+    private String descriptionHtml;
+    private String tags;
+    private Integer originalType;
+    private Boolean allowRemix;
+    private String subCategoryName;
     private String coverUrl;
     private String playUrl;
     private Integer source;

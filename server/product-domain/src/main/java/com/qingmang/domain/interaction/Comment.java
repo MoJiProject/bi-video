@@ -45,6 +45,9 @@ public class Comment implements Serializable {
 
     private Integer status;
 
+    @TableField("is_pinned")
+    private Boolean pinned;
+
     @TableField("like_count")
     private Integer likeCount;
 

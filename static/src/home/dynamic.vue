@@ -16,7 +16,7 @@
         <div class="dynamic-list">
             <loadingIndicator v-show="loadMore"/>
             <div v-show="!loadMore&&dynamicList.length" class="dynamic-item" v-for="dynamic in dynamicList" :key="dynamic.id">
-                <dynamicC :dynamic="dynamic"/>
+                <dynamicC :dynamic="dynamic" @changed="reloadPosts"/>
             </div>
             <div v-if="!dynamicList.length&&!loadMore" class="no-data">
                 <img src="/img/home_nodata.svg">
@@ -67,13 +67,18 @@ onUnmounted(()=>{
 let requestId = 0;
 watch([() => store.homeUserInformation.id, dynamicMenu], ([id])=>{
     if (!id) return;
+    reloadPosts();
+}, { immediate: true })
+
+function reloadPosts() {
     requestId++;
     pageNum.value=1;
     fotterFlag.value=false;
+    loadMore2.value=false;
     store.commentOpenFlag=false;
     dynamicList.length=0;
     homeDynamicF();
-}, { immediate: true })
+}
 
 function touchStartF(e){
     touchStartY.value = e.touches[0].clientY

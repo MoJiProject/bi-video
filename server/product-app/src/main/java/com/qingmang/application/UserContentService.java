@@ -18,12 +18,13 @@ import com.qingmang.infrastructure.mapper.UserContentQueryMapper;
 import com.qingmang.interfaces.vo.FolderVO;
 import com.qingmang.interfaces.vo.VideoListItemVO;
 import com.qingmang.interfaces.dto.FolderRequest;
+import com.qingmang.interfaces.dto.UserLibraryQuery;
+import com.qingmang.interfaces.vo.UserLibraryVideoVO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.time.LocalDateTime;
 
 /** 用户自己的内容：收藏夹、待看清单、观看记录、投稿。 */
 @Service
@@ -138,9 +139,20 @@ public class UserContentService {
     }
 
     /** 待看清单：游标分页。 */
-    public List<VideoListItemVO> watchLater(Long userId, Long cursorId, int size, String keyword) {
-        validateListSize(size, keyword);
-        return queryMapper.selectWatchLater(userId, cursorId, userId, keyword, size + 1);
+    public List<UserLibraryVideoVO> watchLater(Long userId, UserLibraryQuery query) {
+        validateLibraryQuery(query);
+        return queryMapper.selectWatchLater(userId, query, query.getSize() + 1);
+    }
+
+    public long countWatchLater(Long userId, UserLibraryQuery query) {
+        validateLibraryQuery(query);
+        return queryMapper.countWatchLater(userId, query);
+    }
+
+    @Transactional
+    public void removeWatchLaterBatch(Long userId, List<Long> videoIds) {
+        watchLaterMapper.delete(Wrappers.<WatchLater>lambdaQuery()
+                .eq(WatchLater::getUserId, userId).in(WatchLater::getVideoId, videoIds));
     }
 
     @Transactional
@@ -156,15 +168,25 @@ public class UserContentService {
     }
 
     /** 观看记录：按最后观看时间倒序，游标翻页。 */
-    public List<VideoListItemVO> history(Long userId, Long cursorId, int size, String keyword,
-                                        LocalDateTime cursorTime) {
-        validateListSize(size, keyword);
-        return queryMapper.selectHistory(userId, cursorId, cursorTime, userId, keyword, size + 1);
+    public List<UserLibraryVideoVO> history(Long userId, UserLibraryQuery query) {
+        validateLibraryQuery(query);
+        return queryMapper.selectHistory(userId, userId, query, query.getSize() + 1);
     }
 
-    private void validateListSize(int size, String keyword) {
-        if (size < 1 || size > 100 || (keyword != null && keyword.length() > 100))
+    private void validateLibraryQuery(UserLibraryQuery query) {
+        if (query.getSize() < 1 || query.getSize() > 100
+                || (query.getKeyword() != null && query.getKeyword().length() > 100)
+                || (!"newest".equals(query.getOrder()) && !"oldest".equals(query.getOrder()))
+                || (query.getStartTime() != null && query.getEndTime() != null
+                    && !query.getStartTime().isBefore(query.getEndTime())))
             throw new BizException(ErrorCode.PARAM_INVALID);
+        if (query.getKeyword() != null) query.setKeyword(query.getKeyword().trim());
+    }
+
+    @Transactional
+    public void deleteHistoryBatch(Long userId, List<Long> videoIds) {
+        historyMapper.delete(Wrappers.<WatchHistory>lambdaQuery()
+                .eq(WatchHistory::getUserId, userId).in(WatchHistory::getVideoId, videoIds));
     }
 
     @Transactional

@@ -1,14 +1,18 @@
 package com.qingmang.interfaces.dto;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import java.util.List;
 import lombok.Data;
 
 @Data
 public class PrivacyUpdateRequest {
-    @NotNull
     private Boolean showFavoriteList;
-    @NotNull
     private Boolean showFollowList;
-    @NotNull
     private Boolean showFansList;
+    private Boolean showCoinList;
+    private Boolean showLikeList;
+    private Boolean showBirthday;
+    private Boolean recordHistory;
+    @Size(min = 6, max = 6)
+    private List<String> homeSectionOrder;
 }

@@ -18,6 +18,7 @@ import com.qingmang.interfaces.vo.CategoryVO;
 import com.qingmang.interfaces.vo.UserReactionVO;
 import com.qingmang.interfaces.vo.VideoDetailVO;
 import com.qingmang.interfaces.vo.VideoListItemVO;
+import com.qingmang.interfaces.vo.VideoPageVO;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -74,7 +75,7 @@ public class VideoQueryService {
         fillReactions(rows, userId);
 
         long total = cursor == null ? rows.size() : -1; // 游标分页不算总数
-        return ApiResponse.ok(PageResult.of(rows, total, q.getPageNum() == null ? 1 : q.getPageNum(), size));
+        return ApiResponse.ok(new VideoPageVO(rows, total, q.getPageNum() == null ? 1 : q.getPageNum(), size, hasMore));
     }
 
     /** 一次 IN 补齐互动状态，整页只多一次查询。 */

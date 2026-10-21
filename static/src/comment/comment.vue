@@ -1355,11 +1355,12 @@
 import { onMounted, onUnmounted, reactive, ref, watch, nextTick } from "vue";
 import eit from "../components/eit";
 import { ElMessage } from "element-plus";
-import apiClient from "../services/apiClient";
+import { post as postRequest } from "../services/http";
+import { commentApi } from "../api/product";
+import { createVideoCommentClient, fetchVideoComment, pinVideoComment } from "../api/comment/videoDetail";
 import { useGlobalStore } from "../store/store";
 import userInfo from "../utils/userInfo";
 import {addDialogue} from '../api/privateMessage/index';
-import {putUpStatus,selectOneComment} from "@/api/comment/index"
 export default {
   name: "Comment",
   components: {
@@ -1439,10 +1440,13 @@ export default {
     const scrollFooterFlag = ref(false);
     const searchCommentId=ref(parseInt(new URLSearchParams(location.search).get("commentId"))||null);
     const searchReplyId=ref(parseInt(new URLSearchParams(location.search).get("replyId"))||null);
-    const videoId = new URLSearchParams(window.location.search).get("videoId").replace("BV", "");
+    const videoId = (new URLSearchParams(window.location.search).get("videoId") || "").replace("BV", "");
+    const apiClient = createVideoCommentClient(videoId);
     const loading=ref(false);
 
     onMounted(() => {
+      selectComment();
+      selectCommentFromAxios();
       commentPlaceholderr.value =
         commentPlaceholder[
           Math.floor(Math.random() * commentPlaceholder.length)
@@ -1944,7 +1948,7 @@ export default {
     }
 
     //上传图片触发
-    function handleImg(event) {
+    async function handleImg(event) {
       let files = event.target.files;
       for (let i = 0; i < files.length; i++) {
         if (
@@ -1973,19 +1977,13 @@ export default {
         });
       }
 
-      commentImgFiles.forEach((file) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-          if (commentImg.length < 9) commentImg.push(reader.result);
-        };
-      });
+      await uploadCommentImages(commentImgFiles, commentImg);
       event.target.value = "";
       commentImgFiles.length = 0;
     }
 
     //上传图片触发
-    function handleImg2(event) {
+    async function handleImg2(event) {
       let files = event.target.files;
       for (let i = 0; i < files.length; i++) {
         if (
@@ -2014,15 +2012,26 @@ export default {
         });
       }
 
-      commentImgFiles2.forEach((file) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-          if (commentImg2.length < 9) commentImg2.push(reader.result);
-        };
-      });
+      await uploadCommentImages(commentImgFiles2, commentImg2);
       event.target.value = "";
       commentImgFiles2.length = 0;
+    }
+
+    async function uploadCommentImages(files, target) {
+      loading.value = true;
+      try {
+        for (const file of [...files]) {
+          if (target.length >= 9) break;
+          const body = new FormData();
+          body.append('file', file);
+          const result = await postRequest('/media/image', body);
+          target.push(result.url);
+        }
+      } catch (error) {
+        ElMessage.error(error.message || '上传失败');
+      } finally {
+        loading.value = false;
+      }
     }
 
     //删除评论图片
@@ -2150,11 +2159,11 @@ export default {
 
     //发布评论
     async function publishComment() {
-      if (commentContent.value.trim() === "" || !commentImg.length === 0)
+      if (loading.value || (commentContent.value.trim() === "" && commentImg.length === 0))
         return;
 
-      if(commentImg.length)
-          loading.value=true;
+      loading.value = true;
+      try {
 
       // 网址超链接
       commentContent.value = commentContent.value.replace(
@@ -2236,13 +2245,13 @@ export default {
       commentContent.value = container.innerHTML.replace(/(<div>\s*<br\s*\/?>\s*<\/div>\s*)+$/, '');
 
       let comments = {
-        content: commentContent.value,
+        content: commentContent.value || "分享图片",
         imgAddress: commentImg.length > 0 ? commentImg.join(",,") : null,
         userId: store.userId,
         videoId,
         userName: store.userInformation.userName,
         dynamicFlag: dynamicCheckFlag.value,
-        replyUserId: store.selectUpVideo.upVideo.userId,
+        replyUserId: store.upUserId,
         upFlag: 0
       };
 
@@ -2251,6 +2260,12 @@ export default {
         ats:atUserList,
       }
 
+      const res = await apiClient.post("/comment/addComment", addComment, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: store.token,
+        },
+      });
       commentRef.value.innerHTML = "";
       commentImg.length = 0;
       commentContent.value = "";
@@ -2260,13 +2275,6 @@ export default {
       commentFocusFlag.value = false;
       emojiFlag.value = false;
       emojiFlag3.value = false;
-
-      const res = await apiClient.post("/comment/addComment", addComment, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: store.token,
-        },
-      });
       commentRef.value.blur();
       commentRef2.value.blur();
       if (res.data.code === 1) {
@@ -2279,6 +2287,8 @@ export default {
 
         store.updateVideoInfoFlag = true;
         commentList.unshift(res.data.data);
+        store.setCommentNumber(store.commentNumber + 1);
+        if (res.data.data.dynamicError) ElMessage.warning(`评论已发送，转发失败：${res.data.data.dynamicError}`);
       } else {
         ElMessage({
           message: "发送失败",
@@ -2287,16 +2297,18 @@ export default {
           duration: 1700,
         });
       }
-      loading.value=false;
+      } catch (error) {
+        ElMessage.error(error.message || "发送失败");
+      } finally { loading.value=false; }
     }
 
     //发布评论
     async function publishComment2() {
-      if (commentContent2.value.trim() === "" || !commentImg2.length === 0)
+      if (loading.value || (commentContent2.value.trim() === "" && commentImg2.length === 0))
         return;
 
-      if(commentImg2.length)
-          loading.value=true;
+      loading.value = true;
+      try {
 
       // 网址超链接
       commentContent2.value = commentContent2.value.replace(
@@ -2388,7 +2400,7 @@ export default {
       }
 
       let comments = {
-        content: commentContent2.value,
+        content: commentContent2.value || "分享图片",
         imgAddress: commentImg2.length > 0 ? commentImg2.join(",,") : null,
         userId: store.userId,
         videoId,
@@ -2404,6 +2416,12 @@ export default {
         ats:atUserList,
       }
 
+      const res = await apiClient.post("/comment/addComment", addComment, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: store.token,
+        },
+      });
       commentContent2.value = "";
       emojiFlag2.value = false;
       eitFlag2.value = false;
@@ -2411,13 +2429,7 @@ export default {
       commentImg2.length = 0;
       dynamicCheckFlag2.value = 0;
       replyComment.value = null;
-
-      const res = await apiClient.post("/comment/addComment", addComment, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: store.token,
-        },
-      });
+      if (replyInputDom) replyInputDom.innerHTML = "";
 
       if (res.data.code === 1) {
         ElMessage({
@@ -2427,6 +2439,8 @@ export default {
           duration: 1700,
         });
         store.updateVideoInfoFlag = true;
+        store.setCommentNumber(store.commentNumber + 1);
+        if (res.data.data.dynamicError) ElMessage.warning(`评论已发送，转发失败：${res.data.data.dynamicError}`);
 
         const index=commentList.findIndex((item)=> item.comments.id === comments.mainCommentId);
         if(index!==-1)
@@ -2442,7 +2456,9 @@ export default {
           duration: 1700,
         });
       }
-      loading.value=false;
+      } catch (error) {
+        ElMessage.error(error.message || "发送失败");
+      } finally { loading.value=false; }
     }
 
     //查询评论
@@ -2458,20 +2474,23 @@ export default {
         return false;
       }
 
+      try {
       let res = await apiClient.get(`/comment/selectCommentByVideoId`, {
         params: {
           videoId: videoId,
           userId: store.userId !== null ? store.userId : 0,
           commentSortFlag: commentSortFlag.value,
-          pageNum: pageNum.value++,
+          pageNum: pageNum.value,
         },
       });
       if (res.data.code === 1) {
         if(replace)
           commentList.length = 0;
         pushData(res.data.data.records);
+        pageNum.value++;
+        store.setCommentNumber(res.data.data.total ?? store.commentNumber);
         selectFlag=true;
-        if(!res.data.data.records||res.data.data.records.length===0){
+        if(!res.data.data.hasMore){
           scrollFooterFlag.value=true;
         }
       } else {
@@ -2482,6 +2501,9 @@ export default {
           duration: 1700,
         });
       }
+      } catch (error) {
+        ElMessage.error(error.message || "评论加载失败");
+      } finally { selectFlag=true; }
     }
 
     //去除重复数据
@@ -2577,64 +2599,11 @@ export default {
         store.setLoginDialogVisibleFlag(true);
         return;
       }
-      let commentControls = {
-        commentId: comment.comments.id,
-        userId: store.userId,
-        videoId: comment.comments.videoId,
-        controls: controls,
-      };
-      let res = await apiClient.post(
-        "/comment/controlsComment",
-        commentControls,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: store.token,
-          },
-        },
-      );
-      if (res.data.code === 1) {
-        
-        if(comment.comments.mainCommentId===null)
-      {  
-        const index = commentList.findIndex(
-          (item) => item.comments.id === comment.comments.id,
-        );
-        if (index !== -1) {
-          if(comment.replyCommentList)
-          res.data.data.replyCommentList=comment.replyCommentList;
-          res.data.data.replyNumber=comment.replyNumber;
-          if(comment.replyFlag)
-          res.data.data.replyFlag=comment.replyFlag;
-          res.data.data.userInfo.isFansFlag=comment.userInfo.isFansFlag;
-          res.data.data.userInfo.isFollowFlag=comment.userInfo.isFollowFlag;
-          if(store.userId===store.upUserId)
-          res.data.data.upLikeFlag=res.data.data.commentControls?.controls;
-          else
-          res.data.data.upLikeFlag=comment.upLikeFlag;
-          commentList[index] = res.data.data;
-        }
-      }else{
-          const index = commentList.findIndex(
-          (item) => item.comments.id === comment.comments.mainCommentId,
-        );
-        if (index !== -1) {
-          const index2 = commentList[index].replyCommentList.findIndex(
-          (item) => item.comments.id === comment.comments.id,
-        );
-          if (index2 !== -1) {
-            commentList[index].replyCommentList[index2] = res.data.data;
-          }
-        }
-      } 
-      } else if (res.data.code === 0) {
-        ElMessage({
-          message: res.data.msg,
-          type: "info",
-          plain: true,
-          duration: 1700,
-        });
-      }
+      try {
+        const result = await commentApi.like(comment.comments.id, controls === 0);
+        comment.comments.likeCommentNumber = result.likeCount;
+        comment.commentControls = { controls: result.active ? (result.dislike ? 0 : 1) : null };
+      } catch (error) { ElMessage.error(error.message || "操作失败"); }
     }
 
     //延迟显示用户信息
@@ -2918,17 +2887,16 @@ export default {
         return;
       }
 
-    putUpStatus(store.token,store.userId,commentId).then(res=>{
-        if(res.data.code===1){
-          putUpStatusF(commentId,up);
+      try {
+          const result = await pinVideoComment(commentId);
+          putUpStatusF(commentId, result.pinned ? 0 : 1);
           ElMessage({
-            message: up===0 ? "置顶成功" : "取消置顶成功",
+            message: result.pinned ? "置顶成功" : "取消置顶成功",
             type: "info",
             plain: true,
             duration: 1700,
           });
-        }
-      })
+      } catch (error) { ElMessage.error(error.message || "置顶失败"); }
     }
 
     async function putUpStatusF(commentId,up){
@@ -2961,7 +2929,7 @@ export default {
      
       if(searchCommentId.value===null)
       return;
-      selectOneComment(store.token,store.userId,searchCommentId.value,searchReplyId.value).then(res=>{
+      fetchVideoComment(searchCommentId.value, videoId).then(data=>({data:{code:1,data}})).then(res=>{
         if(res.data.code===1){
           if(res.data.data!==null){
             const index=commentList.findIndex(item=>item.comments.id===searchCommentId.value);
@@ -2993,7 +2961,7 @@ export default {
              }, 500);
           }
         }
-        })
+        }).catch(error => ElMessage.error(error.message || "评论加载失败"))
 
     }
 

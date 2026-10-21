@@ -27,11 +27,14 @@ public class UserPost implements Serializable {
     private Long videoId;
 
     private String content;
+    private String title;
 
     @TableField("image_urls")
     private String imageUrls;
 
     private Integer visibility;
+
+    private Boolean isPinned;
 
     private Integer status;
 

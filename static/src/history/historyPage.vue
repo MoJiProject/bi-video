@@ -1,5 +1,5 @@
-<template><mainHead :head2-flag="true"/><userLibrary kind="history"/></template>
+<template><mainHead :head2-flag="true"/><historyBody/></template>
 <script setup>
 import mainHead from '@/components/mainHead.vue';
-import userLibrary from '@/components/userLibrary.vue';
+import historyBody from './historyBody.vue';
 </script>

@@ -11,6 +11,10 @@ import java.util.List;
 
 @Mapper
 public interface HomeQueryMapper {
+    Long lockOwner(@Param("ownerId") Long ownerId);
+    long countOwnedVideos(@Param("ownerId") Long ownerId, @Param("videoIds") List<Long> videoIds);
+    int clearFeatured(@Param("ownerId") Long ownerId);
+    int setFeatured(@Param("ownerId") Long ownerId, @Param("videoIds") List<Long> videoIds);
     List<VideoListItemVO> videos(@Param("q") HomeQueryRequest query, @Param("viewerId") Long viewerId,
                                 @Param("offset") int offset);
     long videoCount(@Param("q") HomeQueryRequest query);

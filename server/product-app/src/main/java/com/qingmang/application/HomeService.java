@@ -20,6 +20,8 @@ import com.qingmang.interfaces.vo.VideoListItemVO;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
+import java.util.HashSet;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class HomeService {
@@ -45,9 +47,27 @@ public class HomeService {
 
     public List<VideoListItemVO> reactions(Long ownerId, Long viewerId, int type) {
         auth.requireActiveUser(ownerId);
-        // The schema exposes received-count privacy, not consent to publish interaction history.
-        if (!Objects.equals(ownerId, viewerId)) throw new BizException(ErrorCode.NO_PERMISSION);
+        if (!Objects.equals(ownerId, viewerId)) {
+            UserPrivacy privacy = privacyMapper.selectOne(Wrappers.<UserPrivacy>lambdaQuery()
+                    .eq(UserPrivacy::getUserId, ownerId));
+            boolean visible = privacy != null && Boolean.TRUE.equals(type == 1
+                    ? privacy.getShowLikeList() : privacy.getShowCoinList());
+            if (!visible) throw new BizException(ErrorCode.NO_PERMISSION);
+        }
         return query.reactions(ownerId, viewerId, type);
+    }
+
+    @Transactional
+    public void updateFeatured(Long ownerId, List<Long> videoIds) {
+        auth.requireActiveUser(ownerId);
+        if (videoIds == null || videoIds.size() > 3 || videoIds.stream().anyMatch(id -> id == null || id <= 0) ||
+                new HashSet<>(videoIds).size() != videoIds.size())
+            throw new BizException(ErrorCode.PARAM_INVALID);
+        query.lockOwner(ownerId);
+        if (!videoIds.isEmpty() && query.countOwnedVideos(ownerId, videoIds) != videoIds.size())
+            throw new BizException(ErrorCode.NO_PERMISSION, "只能选择自己的已发布视频");
+        query.clearFeatured(ownerId);
+        if (!videoIds.isEmpty()) query.setFeatured(ownerId, videoIds);
     }
 
     public List<FolderVO> folders(Long ownerId, Long viewerId) {
@@ -62,7 +82,9 @@ public class HomeService {
         if (q.getType() == 3) throw new BizException(ErrorCode.PARAM_INVALID);
         Long folderId = null;
         if (q.getType() == 1) {
-            FolderVO selected = folders.stream().filter(f -> Objects.equals(f.getName(), q.getCollectName()))
+            FolderVO selected = folders.stream().filter(f -> q.getFolderId() != null
+                            ? Objects.equals(f.getId(), q.getFolderId())
+                            : Objects.equals(f.getName(), q.getCollectName()))
                     .findFirst().orElseThrow(() -> new BizException(ErrorCode.FOLDER_NOT_FOUND));
             folderId = selected.getId();
         }

@@ -1,39 +1,26 @@
-import apiClient from "../../services/apiClient";
+import { del, post, put } from '../../services/http';
 
-//新增收藏夹
-export async function addCollectClassify(token,collectClassify){
-    const res = await apiClient.post("/collectClassify/addCollectClassify", collectClassify, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-    });
-    return res;
+function request(folder) {
+  return {
+    name: folder.collectName,
+    description: folder.content || '',
+    coverUrl: folder.coverAddress || '',
+    visibility: folder.status ?? 1,
+  };
 }
 
-//删除收藏夹
-export async function deleteCollectClassify(token,userId,id){
-    const res = await apiClient.delete("/collectClassify/deleteCollectClassify", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-        params: {
-            id,
-            userId,
-        },
-    });
-    return res;
+function envelope(data) {
+  return { data: { code: 1, data } };
 }
 
-//修改收藏夹
-export async function updateCollectClassify(token,collectClassify){
-    const res = await apiClient.put("/collectClassify/putCollectClassify", collectClassify, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-    });
-    return res;
+export async function addCollectClassify(token, folder) {
+  return envelope(await post('/folder', request(folder)));
 }
 
+export async function deleteCollectClassify(token, userId, id) {
+  return envelope(await del(`/folder/${id}`));
+}
+
+export async function updateCollectClassify(token, folder) {
+  return envelope(await put(`/folder/${folder.id}`, request(folder)));
+}

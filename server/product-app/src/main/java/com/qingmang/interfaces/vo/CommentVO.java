@@ -10,6 +10,7 @@ public class CommentVO {
 
     private Long id;
     private Long videoId;
+    private Long postId;
     private Long authorId;
     private String authorNickname;
     private String authorAvatar;
@@ -27,6 +28,7 @@ public class CommentVO {
 
     private Integer likeCount;
     private Integer replyCount;
+    private Boolean pinned;
     /** 当前登录用户是否赞过、是否踩过 */
     private Boolean liked = false;
     private Boolean disliked = false;

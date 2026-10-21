@@ -34,7 +34,7 @@ export function setToken(token) {
 }
 
 http.interceptors.request.use((config) => {
-  const token = getToken();
+  const token = getToken() || config.headers.Authorization;
   if (token) config.headers.token = token;
   return config;
 });

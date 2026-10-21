@@ -3,7 +3,7 @@
         <div class="title">{{ store.userId!==null&&store.userId==userId? "我的合集列表" : "TA的合集列表" }}</div>
         <div class="no-data">
             <img src="/img/home_nodata.svg">
-            <div>暂无数据</div>
+            <div>合集功能暂未开放</div>
         </div>
     </div>
 </template>
@@ -13,7 +13,7 @@ import { useGlobalStore } from "@/store/store";
 import { onMounted } from "vue";
 
 const store = useGlobalStore();
-const userId = parseInt(new URL(window.location).searchParams.get("userId")) || null;
+const userId = parseInt(new URL(window.location).searchParams.get("userId")) || store.userId;
 
 onMounted(()=>{
     store.setHomeLoad(true,'homeBody');
@@ -30,8 +30,7 @@ onMounted(()=>{
 }
 
 .home-lists{
-    padding-left: 60px;
-    padding-top: 30px;
+    padding: var(--gap-5) var(--page-pad);
     .title{
     font-size: 24px;
     font-weight: 600;

@@ -4,6 +4,9 @@ import com.qingmang.application.UserContentService;
 import com.qingmang.common.api.ApiResponse;
 import com.qingmang.common.api.PageResult;
 import com.qingmang.interfaces.dto.FolderRequest;
+import com.qingmang.interfaces.dto.UserLibraryQuery;
+import com.qingmang.interfaces.dto.UserLibraryBatchRequest;
+import com.qingmang.interfaces.vo.UserLibraryVideoVO;
 import com.qingmang.interfaces.vo.FolderVO;
 import com.qingmang.interfaces.vo.VideoListItemVO;
 import com.qingmang.support.AuthContext;
@@ -17,8 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.format.annotation.DateTimeFormat;
-import java.time.LocalDateTime;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.util.HashMap;
 import java.util.List;
@@ -77,11 +79,18 @@ public class UserContentController {
     /* ---------------- 待看清单 / 观看记录 ---------------- */
 
     @GetMapping("/watch-later/list")
-    public ApiResponse<Map<String, Object>> watchLater(@RequestParam(required = false) Long cursorId,
-                                                       @RequestParam(required = false) String keyword,
-                                                       @RequestParam(defaultValue = "20") int size) {
-        List<VideoListItemVO> rows = service.watchLater(AuthContext.requireUserId(), cursorId, size, keyword);
-        return ApiResponse.ok(contentCursorPage(rows, size));
+    public ApiResponse<Map<String, Object>> watchLater(@Valid @ModelAttribute UserLibraryQuery query) {
+        Long userId = AuthContext.requireUserId();
+        List<UserLibraryVideoVO> rows = service.watchLater(userId, query);
+        Map<String, Object> page = contentCursorPage(rows, query.getSize(), false);
+        page.put("total", service.countWatchLater(userId, query));
+        return ApiResponse.ok(page);
+    }
+
+    @DeleteMapping("/watch-later/batch")
+    public ApiResponse<Void> removeWatchLaterBatch(@Valid @RequestBody UserLibraryBatchRequest body) {
+        service.removeWatchLaterBatch(AuthContext.requireUserId(), body.getVideoIds());
+        return ApiResponse.ok();
     }
 
     @DeleteMapping("/watch-later/{videoId}")
@@ -97,14 +106,15 @@ public class UserContentController {
     }
 
     @GetMapping("/history/list")
-    public ApiResponse<Map<String, Object>> history(@RequestParam(required = false) Long cursorId,
-                                                    @RequestParam(required = false)
-                                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-                                                    LocalDateTime cursorTime,
-                                                    @RequestParam(required = false) String keyword,
-                                                    @RequestParam(defaultValue = "20") int size) {
-        List<VideoListItemVO> rows = service.history(AuthContext.requireUserId(), cursorId, size, keyword, cursorTime);
-        return ApiResponse.ok(contentCursorPage(rows, size));
+    public ApiResponse<Map<String, Object>> history(@Valid @ModelAttribute UserLibraryQuery query) {
+        List<UserLibraryVideoVO> rows = service.history(AuthContext.requireUserId(), query);
+        return ApiResponse.ok(contentCursorPage(rows, query.getSize(), true));
+    }
+
+    @DeleteMapping("/history/batch")
+    public ApiResponse<Void> deleteHistoryBatch(@Valid @RequestBody UserLibraryBatchRequest body) {
+        service.deleteHistoryBatch(AuthContext.requireUserId(), body.getVideoIds());
+        return ApiResponse.ok();
     }
 
     @DeleteMapping("/history/{videoId}")
@@ -130,17 +140,18 @@ public class UserContentController {
     }
 
     /** 游标分页统一出参：多查一条判断还有没有下一页。 */
-    private static Map<String, Object> contentCursorPage(List<VideoListItemVO> rows, int size) {
+    private static Map<String, Object> contentCursorPage(List<UserLibraryVideoVO> rows, int size, boolean history) {
         Map<String, Object> page = cursorPage(rows, size);
         int count = Math.min(rows.size(), size);
         page.put("cursorId", count == 0 ? null : rows.get(count - 1).getListEntryId());
-        page.put("cursorTime", count == 0 ? null : rows.get(count - 1).getLastWatchedAt());
+        page.put("cursorTime", count == 0 ? null : history
+                ? rows.get(count - 1).getLastWatchedAt() : rows.get(count - 1).getAddedAt());
         return page;
     }
 
-    private static Map<String, Object> cursorPage(List<VideoListItemVO> rows, int size) {
+    private static <T extends VideoListItemVO> Map<String, Object> cursorPage(List<T> rows, int size) {
         boolean hasMore = rows.size() > size;
-        List<VideoListItemVO> page = hasMore ? rows.subList(0, size) : rows;
+        List<T> page = hasMore ? rows.subList(0, size) : rows;
         Map<String, Object> data = new HashMap<>(3);
         data.put("records", page);
         data.put("hasMore", hasMore);

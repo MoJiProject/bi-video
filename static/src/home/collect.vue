@@ -25,19 +25,38 @@
           <el-select v-model="scope" style="width: 150px">
             <el-option label="当前收藏夹" :value="1"/><el-option label="全部收藏夹" :value="2"/>
           </el-select>
-          <el-input v-model="keyword" placeholder="搜索视频" clearable @keyup.enter="search" @clear="search"/>
+          <el-input v-model="keyword" placeholder="搜索视频" maxlength="50" clearable @keyup.enter="search" @clear="search"/>
+          <el-button @click="search">搜索</el-button>
+          <template v-if="isOwner && scope === 1">
+            <el-button :disabled="busy" @click="batchMode = !batchMode">{{ batchMode ? '退出批量' : '批量操作' }}</el-button>
+            <el-button :loading="busy" @click="clearInvalid">清除失效内容</el-button>
+          </template>
+        </div>
+        <div v-if="batchMode && isOwner && scope === 1" class="batch-tools">
+          <el-checkbox :model-value="allSelected" :indeterminate="selectedVideoIds.length > 0 && !allSelected"
+            :disabled="busy || loadingVideos" @change="selectAll">本页全选</el-checkbox>
+          <span>已选择 {{ selectedVideoIds.length }} 个视频</span>
+          <el-button :disabled="!selectedVideoIds.length || busy" @click="openTransfer('copy')">复制至</el-button>
+          <el-button :disabled="!selectedVideoIds.length || busy" @click="openTransfer('move')">移动至</el-button>
+          <el-button type="danger" :disabled="!selectedVideoIds.length || busy" @click="deleteSelected">删除所选</el-button>
         </div>
         <loadingIndicator v-if="loadingVideos"/>
         <template v-else>
           <div class="videos">
             <div v-for="video in videos" :key="video.id">
+              <el-checkbox v-if="batchMode && isOwner && scope === 1" :model-value="selectedVideoIds.includes(video.id)"
+                :disabled="busy" @change="toggleVideo(video.id, $event)">选择视频</el-checkbox>
               <homeVideoCard :video="video"/>
-              <el-button v-if="isOwner && scope === 1" text type="danger" @click="removeVideo(video.id)">移出收藏夹</el-button>
+              <div v-if="isOwner && scope === 1 && !batchMode" class="video-actions">
+                <el-button text :disabled="busy" @click="openTransfer('copy', video.id)">复制</el-button>
+                <el-button text :disabled="busy" @click="openTransfer('move', video.id)">移动</el-button>
+                <el-button text type="danger" :disabled="busy" @click="removeVideo(video.id)">移出收藏夹</el-button>
+              </div>
             </div>
           </div>
           <div v-if="!videos.length" class="no-data">暂无数据</div>
           <el-pagination v-if="total" v-model:current-page="pageNum" :page-size="20"
-            layout="prev, pager, next" :total="total"/>
+            layout="total, prev, pager, next, jumper" :total="total"/>
         </template>
       </template>
       <div v-else-if="!loadingFolders" class="no-data">暂无收藏夹</div>
@@ -52,6 +71,18 @@
       <template #footer><el-button @click="editorVisible = false">取消</el-button>
         <el-button type="primary" :loading="saving" @click="saveFolder">保存</el-button></template>
     </el-dialog>
+    <el-dialog v-model="transferVisible" :title="transferOperation === 'copy' ? '复制视频至' : '移动视频至'"
+      width="min(90vw, 500px)" :close-on-click-modal="!busy" :show-close="!busy">
+      <p>已选择 {{ transferVideoIds.length }} 个视频，目标中已有的视频不会重复添加。</p>
+      <el-select v-model="targetFolderId" placeholder="选择目标收藏夹" style="width: 100%" :disabled="busy">
+        <el-option v-for="folder in folders.filter(item => item.id !== selectedId)" :key="folder.id"
+          :label="folder.name" :value="folder.id"/>
+      </el-select>
+      <template #footer>
+        <el-button :disabled="busy" @click="transferVisible = false">取消</el-button>
+        <el-button type="primary" :loading="busy" :disabled="!targetFolderId" @click="transfer">确认</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -59,7 +90,7 @@
 import { computed, reactive, ref, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useGlobalStore } from '@/store/store';
-import { getCollectsClassify, getCollectByName } from '@/api/home';
+import { getCollectsClassify, getCollectByName, batchFolderVideos, clearInvalidFolderVideos } from '@/api/home';
 import { userContentApi } from '@/api/product';
 import homeVideoCard from '@/components/homeVideoCard.vue';
 import loadingIndicator from '@/components/loadingIndicator.vue';
@@ -82,6 +113,14 @@ const loadingVideos = ref(false);
 const editorVisible = ref(false);
 const editingId = ref(null);
 const saving = ref(false);
+const busy = ref(false);
+const batchMode = ref(false);
+const selectedVideoIds = ref([]);
+const allSelected = computed(() => videos.value.length > 0 && videos.value.every(video => selectedVideoIds.value.includes(video.id)));
+const transferVisible = ref(false);
+const transferOperation = ref('copy');
+const transferVideoIds = ref([]);
+const targetFolderId = ref(null);
 const form = reactive({ name: '', description: '', coverUrl: '', visibility: 1 });
 let requestId = 0;
 
@@ -101,6 +140,17 @@ async function loadFolders() {
   }
 }
 watch(() => store.homeUserInformation.id, id => { if (id) loadFolders(); }, { immediate: true });
+watch(() => store.homeMenu, menu => {
+  if (menu !== 5) return;
+  const id = parseInt(new URL(window.location).searchParams.get('collectId'));
+  if (folders.value.some(folder => folder.id === id)) selectedId.value = id;
+});
+watch(selectedId, id => {
+  if (!id || store.homeMenu !== 5) return;
+  const url = new URL(window.location);
+  url.searchParams.set('collectId', id);
+  window.history.replaceState({}, '', url);
+});
 
 async function loadVideos() {
   if (!selected.value) return;
@@ -108,7 +158,7 @@ async function loadVideos() {
   loadingVideos.value = true;
   try {
     const response = await getCollectByName(selected.value.name, homeUserId, store.userId,
-      pageNum.value, scope.value, sort.value, appliedKeyword.value);
+      pageNum.value, scope.value, sort.value, appliedKeyword.value, selectedId.value);
     if (current !== requestId) return;
     videos.value = response.data.data.records;
     total.value = response.data.data.total;
@@ -122,9 +172,65 @@ async function loadVideos() {
   }
 }
 watch([selectedId, scope, sort, appliedKeyword], () => { pageNum.value = 1; }, { flush: 'sync' });
+watch([selectedId, scope, sort, pageNum, appliedKeyword], () => {
+  selectedVideoIds.value = [];
+  transferVisible.value = false;
+}, { flush: 'sync' });
 watch([selected, scope, sort, pageNum, appliedKeyword], loadVideos);
 
-function search() { appliedKeyword.value = keyword.value.trim(); }
+function search() { pageNum.value = 1; appliedKeyword.value = keyword.value.trim(); }
+function selectAll(value) { selectedVideoIds.value = value ? videos.value.map(video => video.id) : []; }
+function toggleVideo(id, value) {
+  selectedVideoIds.value = value ? [...new Set([...selectedVideoIds.value, id])] : selectedVideoIds.value.filter(item => item !== id);
+}
+function openTransfer(operation, videoId) {
+  if (folders.value.length < 2) { ElMessage.info('请先新建另一个收藏夹'); return; }
+  transferOperation.value = operation;
+  transferVideoIds.value = videoId ? [videoId] : [...selectedVideoIds.value];
+  targetFolderId.value = null;
+  transferVisible.value = true;
+}
+async function refreshAfterMutation() {
+  selectedVideoIds.value = [];
+  await loadFolders();
+  await loadVideos();
+  if (!videos.value.length && pageNum.value > 1) pageNum.value--;
+}
+async function transfer() {
+  if (busy.value || !targetFolderId.value) return;
+  busy.value = true;
+  try {
+    await batchFolderVideos(selectedId.value, transferOperation.value, transferVideoIds.value, targetFolderId.value);
+    transferVisible.value = false;
+    ElMessage.success(transferOperation.value === 'copy' ? '复制完成' : '移动完成');
+    await refreshAfterMutation();
+  } catch (error) { ElMessage.error(error.message); }
+  finally { busy.value = false; }
+}
+async function deleteSelected() {
+  const confirmed = await ElMessageBox.confirm(`确定从当前收藏夹移除所选 ${selectedVideoIds.value.length} 个视频？`, '批量删除',
+    { type: 'warning' }).then(() => true, () => false);
+  if (!confirmed || busy.value) return;
+  busy.value = true;
+  try {
+    await batchFolderVideos(selectedId.value, 'delete', selectedVideoIds.value);
+    await refreshAfterMutation();
+    ElMessage.success('已移出收藏夹');
+  } catch (error) { ElMessage.error(error.message); }
+  finally { busy.value = false; }
+}
+async function clearInvalid() {
+  const confirmed = await ElMessageBox.confirm('确定清除当前收藏夹中已删除、下架或作者已注销的视频？', '清除失效内容',
+    { type: 'warning' }).then(() => true, () => false);
+  if (!confirmed || busy.value) return;
+  busy.value = true;
+  try {
+    const count = await clearInvalidFolderVideos(selectedId.value);
+    await refreshAfterMutation();
+    ElMessage.success(`已清除 ${count} 条失效内容`);
+  } catch (error) { ElMessage.error(error.message); }
+  finally { busy.value = false; }
+}
 function openEditor(folder) {
   editingId.value = folder?.id || null;
   Object.assign(form, { name: folder?.name || '', description: folder?.description || '',
@@ -160,12 +266,12 @@ async function removeFolder() {
   } catch (error) { ElMessage.error(error.message); }
 }
 async function removeVideo(videoId) {
+  busy.value = true;
   try {
-    await userContentApi.removeFromFolder(selectedId.value, videoId);
-    await loadFolders();
-    if (pageNum.value > 1 && videos.value.length === 1) pageNum.value--;
-    else await loadVideos();
+    await batchFolderVideos(selectedId.value, 'delete', [videoId]);
+    await refreshAfterMutation();
   } catch (error) { ElMessage.error(error.message); }
+  finally { busy.value = false; }
 }
 </script>
 
@@ -175,6 +281,9 @@ aside { width: 200px; display: flex; flex-direction: column; gap: 12px; flex-shr
 aside button { text-align: left; border: 0; border-radius: 6px; padding: 12px; cursor: pointer; }
 aside .active { background: #0FA68E; color: white; }
 main { flex: 1; min-width: 0; }
+.batch-tools, .video-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.batch-tools { padding: 12px; background: #EFF3F2; border-radius: 8px; }
+.video-actions .el-button { margin-left: 0; }
 header { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
 header > img { width: 160px; border-radius: 8px; }
 header > div { flex: 1; min-width: 0; overflow-wrap: anywhere; }

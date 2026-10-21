@@ -2022,7 +2022,7 @@ export default {
       } catch (error) { ElMessage.error(error.message); }
     });
     const notWatchDynamicFlag = ref(false);
-    const loginDialogVisible = ref(false); //关闭登录对话框
+    const loginDialogVisible = ref(store.loginDialogVisible); //关闭登录对话框
     const waitWatch = ref(false);
     const fullscreenLoading = ref(true);
     const loginForm = reactive({
@@ -2755,6 +2755,10 @@ flag.value = 1;
        
        store.setLoginDialogVisible(newValue);  
     })
+    watch(() => store.loginDialogVisible, (visible) => {
+      if (visible && !loginDialogVisible.value) flag.value = 1;
+      loginDialogVisible.value = visible;
+    });
 
     let beforeLoginDialogVisibleFlag=0;
     watch(propsS,()=>{

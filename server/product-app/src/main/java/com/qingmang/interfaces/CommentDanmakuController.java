@@ -31,16 +31,28 @@ public class CommentDanmakuController {
     }
 
     @GetMapping("/comment/list")
-    public ApiResponse<Map<String, Object>> list(@RequestParam Long videoId,
+    public ApiResponse<Map<String, Object>> list(@RequestParam(required = false) Long videoId,
+                                                 @RequestParam(required = false) Long postId,
                                                  @RequestParam(required = false) Long cursorId,
+                                                 @RequestParam(defaultValue = "new") String sort,
                                                  @RequestParam(defaultValue = "20") int size) {
-        return ApiResponse.ok(service.list(videoId, cursorId, size, AuthContext.currentUserIdOrNull()));
+        return ApiResponse.ok(service.list(videoId, postId, cursorId, size, AuthContext.currentUserIdOrNull(), sort));
     }
 
     @PostMapping("/comment")
     public ApiResponse<Map<String, Object>> post(@Valid @RequestBody CommentPostRequest req) {
         Long id = service.post(AuthContext.requireUserId(), req);
         return ApiResponse.ok(Map.of("commentId", id));
+    }
+
+    @GetMapping("/comment/{commentId}")
+    public ApiResponse<CommentVO> detail(@PathVariable Long commentId) {
+        return ApiResponse.ok(service.detail(commentId, AuthContext.currentUserIdOrNull()));
+    }
+
+    @PostMapping("/comment/{commentId}/pin")
+    public ApiResponse<Map<String, Object>> pin(@PathVariable Long commentId) {
+        return ApiResponse.ok(Map.of("pinned", service.togglePin(AuthContext.requireUserId(), commentId)));
     }
 
     @PostMapping("/comment/{commentId}/like")
@@ -64,5 +76,11 @@ public class CommentDanmakuController {
     @PostMapping("/danmaku")
     public ApiResponse<DanmakuVO> postDanmaku(@Valid @RequestBody DanmakuPostRequest req) {
         return ApiResponse.ok(service.postDanmaku(AuthContext.requireUserId(), req));
+    }
+
+    @DeleteMapping("/danmaku/{danmakuId}")
+    public ApiResponse<Void> deleteDanmaku(@PathVariable Long danmakuId) {
+        service.deleteDanmaku(AuthContext.requireUserId(), danmakuId);
+        return ApiResponse.ok();
     }
 }

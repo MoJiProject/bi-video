@@ -30,6 +30,8 @@ public class Danmaku implements Serializable {
 
     private String color;
 
+    private Boolean colorful;
+
     @TableField("font_size")
     private Integer fontSize;
 

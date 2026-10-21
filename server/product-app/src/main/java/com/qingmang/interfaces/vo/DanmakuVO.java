@@ -9,6 +9,7 @@ public class DanmakuVO {
     private Long videoId;
     private String content;
     private String color;
+    private Boolean colorful;
     private Integer fontSize;
     private Integer mode;
     private Integer videoTimeMs;

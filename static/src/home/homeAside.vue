@@ -185,14 +185,14 @@ await homeContributeVideos(userId,store.userId,1,1).then(res=>{
 }
 
 function searchJumpPage(){
-    
-    const searchUrl = new URL(window.location);
-    const keyword = searchUrl.searchParams.get("keyword");
-    if((store.keyword.length===0&&keyword)||(keyword!==store.keyword&&keyword))
+    const keyword = searchContent.value.trim();
+    if(keyword.length > 50) {
+        ElMessage.info('搜索关键词不能超过 50 个字符');
+        return;
+    }
+    if(keyword.length > 0)
+    {
         store.setKeyword(keyword);
-    if(searchContent.value.length>0&&keyword!==searchContent.value)
-    {    
-        store.setKeyword(searchContent.value);
         store.setHomeMenu(10,userId,true);
     }
      

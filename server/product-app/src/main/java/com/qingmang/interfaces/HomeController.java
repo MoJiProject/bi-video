@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 @RestController
@@ -23,6 +25,18 @@ import java.util.List;
 public class HomeController {
     private final HomeService service;
     public HomeController(HomeService service) { this.service = service; }
+
+    @GetMapping("/featured")
+    public ApiResponse<PageResult<VideoListItemVO>> featured(@Valid @ModelAttribute HomeQueryRequest q) {
+        q.setFeatured(true);
+        return ApiResponse.ok(service.videos(q, AuthContext.currentUserIdOrNull()));
+    }
+
+    @PutMapping("/featured")
+    public ApiResponse<Void> updateFeatured(@RequestBody List<Long> videoIds) {
+        service.updateFeatured(AuthContext.requireUserId(), videoIds);
+        return ApiResponse.ok();
+    }
 
     @GetMapping("/contribute")
     public ApiResponse<PageResult<VideoListItemVO>> videos(@Valid @ModelAttribute HomeQueryRequest q) {

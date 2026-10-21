@@ -2,11 +2,12 @@ package com.qingmang.infrastructure.mapper;
 
 import com.qingmang.interfaces.vo.FolderVO;
 import com.qingmang.interfaces.vo.VideoListItemVO;
+import com.qingmang.interfaces.vo.UserLibraryVideoVO;
+import com.qingmang.interfaces.dto.UserLibraryQuery;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-import java.time.LocalDateTime;
 
 @Mapper
 public interface UserContentQueryMapper {
@@ -26,18 +27,16 @@ public interface UserContentQueryMapper {
     int removeDuplicateFolderItems(@Param("sourceId") Long sourceId, @Param("targetId") Long targetId);
 
     /** 待看清单。owner 就是 viewer，所以互动状态用 userId 算。 */
-    List<VideoListItemVO> selectWatchLater(@Param("userId") Long userId,
-                                           @Param("cursorId") Long cursorId,
-                                           @Param("viewerId") Long viewerId,
-                                           @Param("keyword") String keyword,
+    List<UserLibraryVideoVO> selectWatchLater(@Param("userId") Long userId,
+                                           @Param("query") UserLibraryQuery query,
                                            @Param("limit") int limit);
 
+    long countWatchLater(@Param("userId") Long userId, @Param("query") UserLibraryQuery query);
+
     /** 观看记录。 */
-    List<VideoListItemVO> selectHistory(@Param("userId") Long userId,
-                                        @Param("cursorId") Long cursorId,
-                                        @Param("cursorTime") LocalDateTime cursorTime,
+    List<UserLibraryVideoVO> selectHistory(@Param("userId") Long userId,
                                         @Param("viewerId") Long viewerId,
-                                        @Param("keyword") String keyword,
+                                        @Param("query") UserLibraryQuery query,
                                         @Param("limit") int limit);
 
     List<VideoListItemVO> selectUserVideos(@Param("userId") Long userId,

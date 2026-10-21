@@ -11,8 +11,10 @@ import java.util.List;
 @Data
 public class PostRequest {
 
-    @Size(max = 1000, message = "动态正文最长 1000 字")
+    @Size(max = 20000, message = "动态内容过长")
     private String content;
+    @Size(max = 20, message = "动态标题最多 20 字")
+    private String title;
 
     /** 转发视频时带上 */
     private Long videoId;

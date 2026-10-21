@@ -17,6 +17,8 @@ import com.qingmang.domain.interaction.mapper.VideoReactionMapper;
 import com.qingmang.domain.video.Video;
 import com.qingmang.domain.video.mapper.VideoMapper;
 import com.qingmang.domain.video.mapper.VideoStatsMapper;
+import com.qingmang.domain.user.UserPrivacy;
+import com.qingmang.domain.user.mapper.UserPrivacyMapper;
 import com.qingmang.infrastructure.mapper.CounterMapper;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.time.LocalDateTime;
 
 /**
  * 视频互动：点赞 / 投币 / 收藏 / 待看清单 / 观看记录。
@@ -44,12 +47,13 @@ public class VideoInteractionService {
     private final VideoStatsMapper statsMapper;
     private final CounterMapper counterMapper;
     private final AuthService authService;
+    private final UserPrivacyMapper privacyMapper;
 
     public VideoInteractionService(VideoReactionMapper reactionMapper, WatchLaterMapper watchLaterMapper,
                                    WatchHistoryMapper historyMapper, FavoriteFolderMapper folderMapper,
                                    FavoriteItemMapper favoriteItemMapper, VideoMapper videoMapper,
                                    VideoStatsMapper statsMapper, CounterMapper counterMapper,
-                                   AuthService authService) {
+                                   AuthService authService, UserPrivacyMapper privacyMapper) {
         this.reactionMapper = reactionMapper;
         this.watchLaterMapper = watchLaterMapper;
         this.historyMapper = historyMapper;
@@ -59,6 +63,7 @@ public class VideoInteractionService {
         this.statsMapper = statsMapper;
         this.counterMapper = counterMapper;
         this.authService = authService;
+        this.privacyMapper = privacyMapper;
     }
 
     /** 点赞/取消点赞。返回操作后的状态。 */
@@ -175,6 +180,15 @@ public class VideoInteractionService {
     /** 观看记录上报。同一个人同一个视频只保留一条，重复上报就更新进度。 */
     @Transactional
     public Map<String, Object> reportWatch(Long userId, Long videoId, int progressSeconds) {
+        requirePublished(videoId);
+        Map<String, Object> data = new HashMap<>(2);
+        data.put("progressSeconds", Math.max(0, progressSeconds));
+        UserPrivacy privacy = privacyMapper.selectOne(Wrappers.<UserPrivacy>lambdaQuery()
+                .eq(UserPrivacy::getUserId, userId));
+        boolean recording = privacy == null || !Boolean.FALSE.equals(privacy.getRecordHistory());
+        data.put("recorded", recording);
+        if (!recording) return data;
+        LocalDateTime watchedAt = LocalDateTime.now();
         WatchHistory h = historyMapper.selectOne(Wrappers.<WatchHistory>lambdaQuery()
                 .eq(WatchHistory::getUserId, userId)
                 .eq(WatchHistory::getVideoId, videoId));
@@ -184,6 +198,7 @@ public class VideoInteractionService {
             h.setVideoId(videoId);
             h.setProgressSeconds(Math.max(0, progressSeconds));
             h.setWatchedTimes(1);
+            h.setLastWatchedAt(watchedAt);
             try {
                 historyMapper.insert(h);
             } catch (DuplicateKeyException e) {
@@ -191,15 +206,15 @@ public class VideoInteractionService {
                         .eq(WatchHistory::getUserId, userId)
                         .eq(WatchHistory::getVideoId, videoId)
                         .set(WatchHistory::getProgressSeconds, Math.max(0, progressSeconds))
+                        .set(WatchHistory::getLastWatchedAt, watchedAt)
                         .setSql("watched_times = watched_times + 1"));
             }
         } else {
             h.setProgressSeconds(Math.max(0, progressSeconds));
             h.setWatchedTimes(h.getWatchedTimes() == null ? 1 : h.getWatchedTimes() + 1);
+            h.setLastWatchedAt(watchedAt);
             historyMapper.updateById(h);
         }
-        Map<String, Object> data = new HashMap<>(2);
-        data.put("progressSeconds", Math.max(0, progressSeconds));
         return data;
     }
 

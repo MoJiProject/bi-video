@@ -14,5 +14,7 @@ public class UserBriefVO {
     private String signature;
     private Integer level;
     private Boolean followed = false;
+    private Long followerCount;
+    private Long unreadCount;
     private LocalDateTime followedAt;
 }

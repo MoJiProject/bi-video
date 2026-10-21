@@ -415,6 +415,7 @@
 <script>
 import { ref, reactive, onMounted, watch } from "vue";
 import apiClient from "../services/apiClient";
+import { fetchPublishingCategories } from "../api/product";
 import { ElMessage } from "element-plus";
 const editsBlue = "/img/编辑蓝.png"
 const edits = "/img/编辑.png"
@@ -446,6 +447,7 @@ export default {
     const click3 = ref(0);
     const click4 = ref(1);
     function waitUpload() {
+      pageNum.value = 1;
       click1.value = 1;
       click2.value = 0;
       click3.value = 0;
@@ -454,6 +456,7 @@ export default {
       selectAllUploadVideo();
     }
     function successUpload() {
+      pageNum.value = 1;
       click1.value = 0;
       click2.value = 1;
       click3.value = 0;
@@ -462,6 +465,7 @@ export default {
       selectAllUploadVideo();
     }
     function errorUpload() {
+      pageNum.value = 1;
       click1.value = 0;
       click2.value = 0;
       click3.value = 1;
@@ -470,6 +474,7 @@ export default {
       selectAllUploadVideo();
     }
     function allUpload() {
+      pageNum.value = 1;
       click1.value = 0;
       click2.value = 0;
       click3.value = 0;
@@ -478,29 +483,9 @@ export default {
       selectAllUploadVideo();
     }
 
-    const classify = [
+    const classify = ref([
       { label: "全部分类", value: "全部分类" },
-      { label: "生活", value: "生活" },
-      { label: "游戏", value: "游戏" },
-      { label: "娱乐", value: "娱乐" },
-      { label: "知识", value: "知识" },
-      { label: "影视", value: "影视" },
-      { label: "音乐", value: "音乐" },
-      { label: "动画", value: "动画" },
-      { label: "时尚", value: "时尚" },
-      { label: "美食", value: "美食" },
-      { label: "汽车", value: "汽车" },
-      { label: "运动", value: "运动" },
-      { label: "科技", value: "科技" },
-      { label: "动物圈", value: "动物圈" },
-      { label: "舞蹈", value: "舞蹈" },
-      { label: "原创动画", value: "国创" },
-      { label: "鬼畜", value: "鬼畜" },
-      { label: "纪录片", value: "纪录片" },
-      { label: "动画剧场", value: "番剧" },
-      { label: "电视剧", value: "电视剧" },
-      { label: "电影", value: "电影" },
-    ];
+    ]);
 
     const sort = [
       { label: "发布时间排序", value: "发布时间排序" },
@@ -577,16 +562,21 @@ export default {
     onMounted(() => {
       window.scrollTo({top: 0, behavior: "smooth"});
       selectAllUploadVideo();
+      fetchPublishingCategories().then(rows => { classify.value.push(...rows); })
+        .catch(error => ElMessage.error(error.message || "加载投稿分区失败"));
     });
 
     function searchVideo() {
+      pageNum.value = 1;
       selectAllUploadVideo();
     }
 
     function selectsubZoneKeyVideo() {
+      pageNum.value = 1;
       selectAllUploadVideo();
     }
     function sortVideo() {
+      pageNum.value = 1;
       selectAllUploadVideo();
     }
 

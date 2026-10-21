@@ -28,9 +28,9 @@ export function mapUser(user) {
     publicCollect: user.showFavoriteList ? 1 : 0,
     publicFollowList: user.showFollowList ? 1 : 0,
     publicFansList: user.showFansList ? 1 : 0,
-    publicCoin: 0,
-    publicLove: 0,
-    publicBirthday: 0,
+    publicCoin: user.showCoinList ? 1 : 0,
+    publicLove: user.showLikeList ? 1 : 0,
+    publicBirthday: user.showBirthday ? 1 : 0,
     publicAnime: 0,
   };
 }
@@ -48,7 +48,14 @@ export async function putHomeSettings(token, user) {
     showFavoriteList: user.publicCollect === 1,
     showFollowList: user.publicFollowList === 1,
     showFansList: user.publicFansList === 1,
+    showCoinList: user.publicCoin === 1,
+    showLikeList: user.publicLove === 1,
+    showBirthday: user.publicBirthday === 1,
   }));
+}
+
+export async function putHomeSectionOrder(order) {
+  return put('/auth/privacy', { homeSectionOrder: order });
 }
 
 export async function addFollow(token, userId, targetId) {

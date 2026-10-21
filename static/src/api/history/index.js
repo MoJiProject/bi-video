@@ -1,54 +1,13 @@
-import apiClient from "../../services/apiClient";
-import qs from "qs";
+import apiClient from '@/services/apiClient';
 
-
-//清空历史记录
-export async function deleteAllHistory(userId,token){
-    const response = await apiClient.delete("/history/deleteAllHistory",{
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": token,
-        },
-        params: {
-            userId,
-        }
-    });
-    return response;    
+export function selectHistoryList(params, config = {}) {
+  return apiClient.get('/history/list', { ...config, params });
 }
 
-//查询历史记录
-export async function selectHistoryList(token,userId,pageNum,sort,startTime,endTime,keyWord){
-    const response = await apiClient.get("/history/selectHistoryList",{
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": token,
-        },
-        params: {
-            userId,
-            pageNum,
-            sort,
-            startTime,
-            endTime,
-            keyWord,
-        }
-    });
-    return response;    
+export function deleteHistory(videoIds) {
+  return apiClient.delete('/history/batch', { data: { videoIds } });
 }
 
-//批量删除历史记录
-export async function deleteHistory(token,userId,ids){
-    const response = await apiClient.delete("/history/deleteHistory",{
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": token,
-        },
-        params: {
-            userId,
-            ids,
-        },
-        paramsSerializer: params => qs.stringify(params, {
-            arrayFormat: 'repeat'
-          }),
-    });
-    return response;    
+export function deleteAllHistory() {
+  return apiClient.delete('/history');
 }

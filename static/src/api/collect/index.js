@@ -56,37 +56,15 @@ export async function controlCollect(token,userId,collectIds,collectClassifyIds,
 }
 
 //查询待看清单的视频
-export async function selectWaitWatch(token,userId,pageNum,sort,sort2,keyWord,startTime,endTime){
-
-    const res = await apiClient.get("/collect/selectWaitWatch", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-        params: {
-            userId,
-            pageNum,
-            sort,
-            sort2,
-            keyWord,
-            startTime,
-            endTime,
-        },
-    });
-    return res;
+export function selectWaitWatch(params, config = {}) {
+    return apiClient.get('/watch-later/list', { ...config, params });
 }
 
 //清除所有待看清单
-export async function cleanAllWaitWatch(token,userId){
+export function cleanAllWaitWatch() {
+    return apiClient.delete('/watch-later');
+}
 
-    const res = await apiClient.delete("/collect/cleanAllWaitWatch", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-        params: {
-            userId,
-        },
-    });
-    return res;
+export function deleteWaitWatch(videoIds) {
+    return apiClient.delete('/watch-later/batch', { data: { videoIds } });
 }

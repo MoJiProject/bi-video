@@ -45,4 +45,9 @@ public class VideoController {
         }
         return ApiResponse.ok(vo);
     }
+
+    @GetMapping("/getVideoTitle/{videoId}")
+    public ApiResponse<String> title(@PathVariable Long videoId) {
+        return ApiResponse.ok(videoQueryService.detail(videoId, AuthContext.currentUserIdOrNull()).getTitle());
+    }
 }

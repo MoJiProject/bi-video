@@ -20,6 +20,7 @@ public class PostVO {
     private Integer videoDuration;
 
     private String content;
+    private String title;
     /** 库里存的原始 JSON，取出后在 Service 里转成 imageUrls */
     private String imageUrls;
     private List<String> imageList;
@@ -30,6 +31,7 @@ public class PostVO {
     private Boolean liked = false;
     private Boolean watchLater = false;
     private Boolean isSelf = false;
+    private Boolean isPinned = false;
 
     private LocalDateTime createdAt;
 }

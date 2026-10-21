@@ -73,7 +73,32 @@ export function formatSecondsToVideoTime(seconds) {
  */
 export async function fetchDefaultRemoteCover() {
   const response = await fetch("/img/page-bg-7.png");
+  if (!response.ok) throw new Error("读取默认封面失败");
   return await response.blob();
+}
+
+export async function normalizeCoverFile(file) {
+  if (!["image/webp", "image/bmp", "image/x-ms-bmp"].includes(file.type)) return file;
+  const url = URL.createObjectURL(file);
+  try {
+    const image = new Image();
+    await new Promise((resolve, reject) => {
+      image.onload = resolve;
+      image.onerror = () => reject(new Error("读取封面失败，请重新选择图片"));
+      image.src = url;
+    });
+    const canvas = document.createElement("canvas");
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("当前浏览器不支持封面转换");
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(image, 0, 0);
+    return await new Promise((resolve, reject) => {
+      canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("封面转换失败")), "image/jpeg", 0.92);
+    });
+  } finally { URL.revokeObjectURL(url); }
 }
 
 export function isRemoteVideo(video) {

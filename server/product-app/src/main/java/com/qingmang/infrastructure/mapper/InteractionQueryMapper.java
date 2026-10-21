@@ -20,12 +20,19 @@ public interface InteractionQueryMapper {
     List<CommentVO> selectComments(@Param("videoId") Long videoId,
                                   @Param("cursorId") Long cursorId,
                                   @Param("limit") int limit,
-                                  @Param("viewerId") Long viewerId);
+                                  @Param("viewerId") Long viewerId,
+                                  @Param("sort") String sort);
 
     List<CommentVO> selectReplies(@Param("rootIds") List<Long> rootIds,
                                   @Param("viewerId") Long viewerId);
 
+    CommentVO selectComment(@Param("commentId") Long commentId, @Param("viewerId") Long viewerId);
+
     long countComments(@Param("videoId") Long videoId);
+    List<CommentVO> selectPostComments(@Param("postId") Long postId, @Param("cursorId") Long cursorId,
+                                      @Param("limit") int limit, @Param("viewerId") Long viewerId,
+                                      @Param("sort") String sort);
+    long countPostComments(@Param("postId") Long postId);
 
     List<DanmakuVO> selectDanmaku(@Param("videoId") Long videoId, @Param("limit") int limit);
 }

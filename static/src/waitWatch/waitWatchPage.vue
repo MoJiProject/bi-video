@@ -1,5 +1,5 @@
-<template><mainHead :head2-flag="true"/><userLibrary kind="watch-later"/></template>
+<template><mainHead :head2-flag="true"/><waitWatchBody/></template>
 <script setup>
 import mainHead from '@/components/mainHead.vue';
-import userLibrary from '@/components/userLibrary.vue';
+import waitWatchBody from './waitWatchBody.vue';
 </script>

@@ -6,6 +6,7 @@
     <resultMap id="commentMap" type="com.qingmang.interfaces.vo.CommentVO">
         <id column="id" property="id"/>
         <result column="video_id" property="videoId"/>
+        <result column="post_id" property="postId"/>
         <result column="author_id" property="authorId"/>
         <result column="author_nickname" property="authorNickname"/>
         <result column="author_avatar" property="authorAvatar"/>
@@ -18,6 +19,7 @@
         <result column="created_at" property="createdAt"/>
         <result column="like_count" property="likeCount"/>
         <result column="reply_count" property="replyCount"/>
+        <result column="is_pinned" property="pinned"/>
         <result column="liked" property="liked"/>
         <result column="disliked" property="disliked"/>
     </resultMap>
@@ -28,11 +30,11 @@
       点赞数已经冗余在 comment.like_count 上，赞踩明细只在写时维护。
     -->
     <sql id="commentColumns">
-        c.id, c.video_id, c.author_id,
+        c.id, c.video_id, c.post_id, c.author_id,
         u.nickname AS author_nickname, u.avatar_url AS author_avatar, u.level AS author_level,
         c.root_id, c.reply_to_user_id,
         ru.nickname AS reply_to_nickname,
-        c.content, c.image_urls, c.created_at, c.like_count, c.reply_count,
+        c.content, c.image_urls, c.created_at, c.like_count, c.reply_count, c.is_pinned,
         CASE WHEN EXISTS (SELECT 1 FROM comment_like cl
                           WHERE cl.comment_id = c.id AND cl.user_id = #{viewerId}
                             AND cl.is_dislike = 0) THEN TRUE ELSE FALSE END AS liked,
@@ -51,10 +53,29 @@
           AND c.status = 1
           AND c.deleted_at IS NULL
         <if test="cursorId != null">
-          AND c.id &lt; #{cursorId}
+          AND (
+            c.is_pinned &lt; (SELECT is_pinned FROM comment WHERE id=#{cursorId})
+            OR (c.is_pinned = (SELECT is_pinned FROM comment WHERE id=#{cursorId}) AND
+              <choose>
+                <when test="sort == 'hot'">
+                  (c.like_count &lt; (SELECT like_count FROM comment WHERE id=#{cursorId})
+                    OR (c.like_count = (SELECT like_count FROM comment WHERE id=#{cursorId}) AND c.id &lt; #{cursorId}))
+                </when>
+                <otherwise>c.id &lt; #{cursorId}</otherwise>
+              </choose>
+            )
+          )
         </if>
-        ORDER BY c.id DESC
+        ORDER BY c.is_pinned DESC, <if test="sort == 'hot'">c.like_count DESC,</if> c.id DESC
         LIMIT #{limit}
+    </select>
+
+    <select id="selectComment" resultMap="commentMap">
+        SELECT <include refid="commentColumns"/>
+        FROM comment c
+        JOIN `user` u ON u.id=c.author_id
+        LEFT JOIN `user` ru ON ru.id=c.reply_to_user_id
+        WHERE c.id=#{commentId} AND c.status=1 AND c.deleted_at IS NULL
     </select>
 
     <select id="selectReplies" resultMap="commentMap">
@@ -71,13 +92,34 @@
         ORDER BY c.id ASC
     </select>
 
+    <select id="selectPostComments" resultMap="commentMap">
+        SELECT <include refid="commentColumns"/>
+        FROM comment c
+        JOIN `user` u ON u.id=c.author_id
+        LEFT JOIN `user` ru ON ru.id=c.reply_to_user_id
+        WHERE c.post_id=#{postId} AND c.root_id IS NULL AND c.status=1 AND c.deleted_at IS NULL
+        <if test="cursorId != null">
+          <choose>
+            <when test="sort == 'hot'">
+              AND (c.like_count &lt; COALESCE((SELECT like_count FROM comment WHERE id=#{cursorId}),0)
+                OR (c.like_count=COALESCE((SELECT like_count FROM comment WHERE id=#{cursorId}),0) AND c.id &lt; #{cursorId}))
+            </when>
+            <otherwise>AND c.id &lt; #{cursorId}</otherwise>
+          </choose>
+        </if>
+        ORDER BY <if test="sort == 'hot'">c.like_count DESC,</if> c.id DESC LIMIT #{limit}
+    </select>
+    <select id="countPostComments" resultType="long">
+        SELECT COUNT(*) FROM comment WHERE post_id=#{postId} AND status=1 AND deleted_at IS NULL
+    </select>
+
     <select id="countComments" resultType="long">
         SELECT COUNT(*) FROM comment
         WHERE video_id = #{videoId} AND status = 1 AND deleted_at IS NULL
     </select>
 
     <select id="selectDanmaku" resultType="com.qingmang.interfaces.vo.DanmakuVO">
-        SELECT d.id, d.video_id, d.content, d.color, d.font_size, d.mode, d.video_time_ms,
+        SELECT d.id, d.video_id, d.content, d.color, d.colorful, d.font_size, d.mode, d.video_time_ms,
                d.user_id, u.nickname AS user_nickname
         FROM danmaku d
         LEFT JOIN `user` u ON u.id = d.user_id

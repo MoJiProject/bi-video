@@ -2470,6 +2470,8 @@ const watchEffect = (...a) => __vueWatchEffect(...a);
 const sendMessageGray = "/img/发消息灰.png"
 const sendMessageBlue = "/img/发消息蓝.png"
 import apiClient from "../services/apiClient";
+import { mapUser } from "../api/home/user";
+import { sanitizeRichText } from "../utils/richText";
 import {
   authApi,
   commentApi,
@@ -2765,8 +2767,7 @@ export default {
       autoPlayVideoFlag.value = urlParams.get("autoFlag");
       await getUserIp();
       await ChecklLogin();
-      getVideoAndUser(true);
-      getHistory();
+      await getVideoAndUser(true);
       getEitList();
       setTimeout(() => {
         closePostionFlag.value = false;
@@ -2803,9 +2804,10 @@ export default {
           ? true
           : false;
       upDateOpenAutoPlayVideo();
-      setTimeout(() => {
-        updateScrolling();
-      }, 1000);
+      await updateScrolling(true);
+      danmakuRefreshTimer = window.setInterval(() => {
+        if (!document.hidden) updateScrolling();
+      }, 15000);
       
     });
 
@@ -2817,7 +2819,7 @@ export default {
     onBeforeUnmount(() => {
       stopScrollingClock();
       stopMoving();
-      socket.close();
+      window.clearInterval(danmakuRefreshTimer);
       window.removeEventListener("wheel",handleWheel);
       window.removeEventListener("click", handleClickCollectInputOutside);
       window.removeEventListener("mousemove", handleMouseMove);
@@ -3016,17 +3018,18 @@ export default {
     function mapUpVideo(v) {
       return {
         id: v.id,
+        userId: v.ownerId,
         title: v.title,
-        /* 简介原是 contentHtml（已渲染好的 HTML），新接口给纯文本 */
-        contentHtml: v.description || "",
-        tag: (v.tags || []).join(","),
+        contentHtml: sanitizeRichText(v.descriptionHtml || v.description || ""),
+        tag: v.tags || "",
+        type: v.originalType || 0,
         videoAddress: v.playUrl || "",
         videoSource: v.source === 1 ? 1 : 0,
         remoteUrl: v.remoteUrl || "",
-        videoTime: v.durationSeconds || 0,
+        videoTime: videoTimeFormat(v.durationSeconds || 0),
+        coverAddress: v.coverUrl || "",
         length: v.durationSeconds || 0,
-        /* 新接口没有独立的「禁止转载」位，固定为未开启 */
-        allowTwo: 0,
+        allowTwo: v.allowRemix ? 1 : 0,
         playNumber: v.playCount || 0,
         scrollingNumber: v.danmakuCount || 0,
         likeNumber: v.likeCount || 0,
@@ -3034,8 +3037,8 @@ export default {
         commentNumber: v.commentCount || 0,
         shareNumber: v.shareCount || 0,
         coinNumber: v.coinCount || 0,
-        shareNumber: v.shareCount || 0,
         createTime: (v.publishedAt || "").replace("T", " ").slice(0, 16),
+        subCategoryName: v.subCategoryName || "",
       };
     }
 
@@ -3087,7 +3090,7 @@ export default {
            补不到不阻塞渲染：先按详情里已有的最小字段显示。 */
         try {
           const profile = await authApi.profile(video.ownerId);
-          if (profile) Object.assign(upUser, mapUpUser(profile));
+          if (profile) Object.assign(upUser, mapUser(profile));
         } catch (e) {
           /* 保持最小信息 */
         }
@@ -3095,9 +3098,9 @@ export default {
         Object.assign(SelectVideoByIdVo, {
           upVideo,
           upUser,
-          length: upVideo.videoTime,
+          length: upVideo.length,
           controlsType: 0,
-          isFansFlag: false,
+          isFansFlag: video.ownerFollowed ? 1 : 0,
           userId: userId.value,
         });
 
@@ -3111,14 +3114,19 @@ export default {
         likeVideoClickFlag.value = !!state.liked;
         videoCollectClickFlag.value = !!state.collected;
         myCoinCount.value = state.myCoinCount || 0;
+        videoThrowCoinClickFlag.value = myCoinCount.value > 0;
 
         store.setCommentNumber(upVideo.commentNumber);
         store.setUpUserId(upUser.id);
-        store.setSelectUpVideo({ upVideo, upUser });
+        store.setSelectUpVideo({ upVideo, upUser, isFansFlag: SelectVideoByIdVo.isFansFlag });
         document.title = upVideo.title + "-青芒视频";
         checkVideoTitle(upVideo.title);
         onloadPage.value = true;
         handleVideoContentHeight();
+        if (isInit && video.watchProgress > 0) {
+          history.watchCurrentTime = video.watchProgress;
+          seekUpVideo(video.watchProgress);
+        }
       } catch (error) {
         if (isInit) {
           window.location.href = "./videoNotFound";
@@ -3133,9 +3141,9 @@ export default {
       try {
         const me = await authApi.me();
         const meData = me.data || me;
-        if (meData && meData.id) {
-          store.setUserId(meData.id);
-          store.setUserInformation(meData);
+        if (meData && meData.userId) {
+          store.setUserId(meData.userId);
+          store.setUserInformation(mapUser(meData));
         } else {
           store.setUserId(null);
         }
@@ -3778,133 +3786,41 @@ export default {
         ScrollingData.value.videoTime = upVideoPlayer.value.currentTime;
         ScrollingData.value.location = scrollingPattern.value;
         ScrollingData.value.colorful = sendScrollingColorful.value;
-        const response = await apiClient.post(
-          "/video/sendScrolling",
-          ScrollingData,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: store.token,
-            },
-          },
-        );
-        if (response.data.code === 1) {
-          updateScrolling();
-        }
+        await danmakuApi.create({
+          videoId: ScrollingData.value.videoId,
+          content: ScrollingData.value.content,
+          color: ScrollingData.value.color,
+          fontSize: Number(ScrollingData.value.size) === 1 ? 18 : 25,
+          mode: Number(ScrollingData.value.location) - 1,
+          colorful: Number(ScrollingData.value.colorful) === 1,
+          videoTimeMs: Math.round(ScrollingData.value.videoTime * 1000),
+        });
+        await updateScrolling(true);
         sendScrollingText.value = "";
-      } catch (error) {}
+      } catch (error) { ElMessage.error(error.message || "弹幕发送失败"); }
     }
 
-    //连接websocket实时更新滚动弹幕（支持断线重连）
-    class ReconnectingWebSocket {
-      constructor(url, protocols) {
-        this.url = url;
-        this.protocols = protocols;
-        this.reconnectAttempts = 0;
-        this.maxReconnectAttempts = 10;
-        this.messageQueue = [];
-        this.shouldReconnect = true;
-        this.ws = null;
-        this.onopen = null;
-        this.onmessage = null;
-        this.onclose = null;
-        this.onerror = null;
-        this.connect();
-      }
-
-      connect() {
-        try {
-          const ws = new WebSocket(this.url, this.protocols);
-          this.ws = ws;
-
-          ws.onopen = async (e) => {
-            this.reconnectAttempts = 0;
-            if (typeof this.onopen === 'function') this.onopen(e);
-            while (this.messageQueue.length > 0 && ws.readyState === WebSocket.OPEN) {
-              try {
-                ws.send(this.messageQueue.shift());
-              } catch (err) {
-                break;
-              }
-            }
-          };
-
-          ws.onmessage = (e) => {
-            if (typeof this.onmessage === 'function') this.onmessage(e);
-          };
-
-          ws.onclose = (e) => {
-            if (typeof this.onclose === 'function') this.onclose(e);
-            if (!this.shouldReconnect) return;
-            this.reconnectAttempts++;
-            if (this.maxReconnectAttempts && this.reconnectAttempts > this.maxReconnectAttempts) return;
-            const delay = Math.min(30000, 1000 * Math.pow(2, this.reconnectAttempts - 1));
-            setTimeout(() => this.connect(), delay);
-          };
-
-          ws.onerror = (e) => {
-            if (typeof this.onerror === 'function') this.onerror(e);
-          };
-        } catch (err) {
-          this.reconnectAttempts++;
-          const delay = Math.min(30000, 1000 * Math.pow(2, this.reconnectAttempts - 1));
-          setTimeout(() => this.connect(), delay);
-        }
-      }
-
-      send(data) {
-        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-          this.ws.send(data);
-        } else {
-          this.messageQueue.push(data);
-        }
-      }
-
-      close(code, reason) {
-        this.shouldReconnect = false;
-        if (this.ws) this.ws.close(code, reason);
-      }
-
-      addEventListener(...args) {
-        return this.ws && this.ws.addEventListener(...args);
-      }
-
-      removeEventListener(...args) {
-        return this.ws && this.ws.removeEventListener(...args);
-      }
-    }
-
-    const socket = new ReconnectingWebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/api/scrolling`);
-    socket.onopen = async () => {
-      await getVideoAndUser();
-      if(SelectVideoByIdVo.upVideo?.id != null)
-      socket.send(SelectVideoByIdVo.upVideo.id + ":open");
-    };
-
-    //接收websocket实时更新滚动弹幕
-    socket.onmessage = (event) => {
-      let data = event.data;
+    let danmakuRefreshTimer;
+    let danmakuLoading = false;
+    async function updateScrolling(showError = false) {
+      if (danmakuLoading || !SelectVideoByIdVo.upVideo?.id) return;
+      danmakuLoading = true;
       try {
-        data = JSON.parse(event.data);
+        const rows = await danmakuApi.list(SelectVideoByIdVo.upVideo.id, 5000);
+        const mapped = rows.map((row, index) => ({
+          ...row,
+          videoTime: row.videoTimeMs / 1000,
+          location: row.mode + 1,
+          size: row.fontSize < 25 ? 1 : 2,
+          colorful: row.colorful ? 1 : 0,
+          top: (index % 12) / 12 * 100,
+          allDisplayTop: (index % 26) / 26 * 100,
+          sendTime: (row.createdAt || "").replace("T", " "),
+        }));
+        ScrollingDataList.splice(0, ScrollingDataList.length, ...mapped);
       } catch (error) {
-        watchingNumber.value = event.data;
-        return;
-      }
-
-      if (Array.isArray(data)) {
-        ScrollingDataList.length = 0;
-        Object.assign(ScrollingDataList, data);
-        SelectVideoByIdVo.upVideo.scrollingNumber = ScrollingDataList.length;
-        return;
-      }
-
-      if (event.data != null)
-        watchingNumber.value = event.data;
-    };
-
-    // 更新滚动弹幕
-    function updateScrolling() {
-      socket.send(SelectVideoByIdVo.upVideo?.id + ":" + store.userId);
+        if (showError) ElMessage.error(error.message || "弹幕加载失败");
+      } finally { danmakuLoading = false; }
     }
 
     //读取本地保存的弹幕开关
@@ -3940,30 +3856,16 @@ export default {
     async function revocationScrollingAxios(id) {
       try {
         if (store.userId === null) return;
-        const response = await apiClient.delete("/video/revocationScrolling", {
-          params: { scrollingId: id},
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: store.token,
-          },
-        });
-        if (response.data.code === 1) {
-          updateScrolling();
+        await danmakuApi.remove(id);
+          SelectVideoByIdVo.upVideo.scrollingNumber = Math.max(0, SelectVideoByIdVo.upVideo.scrollingNumber - 1);
+          await updateScrolling(true);
           ElMessage({
             message: "撤回成功",
             type: "info",
             plain: true,
             duration: 1700,
           });
-        } else {
-          ElMessage({
-            message: "撤回失败",
-            type: "info",
-            plain: true,
-            duration: 1700,
-          });
-        }
-      } catch (error) {}
+      } catch (error) { ElMessage.error(error.message || "撤回失败"); }
     }
 
     function updateScrollingCurrentTime() {
@@ -4329,8 +4231,8 @@ export default {
           videoNumber: 0,
         };
         const res = await apiClient.post(
-          "/collectClassify/addCollectClassify",
-          obj,
+          "/folder",
+          { name: obj.collectName, visibility: 1 },
           {
             headers: {
               "Content-Type": "application/json",

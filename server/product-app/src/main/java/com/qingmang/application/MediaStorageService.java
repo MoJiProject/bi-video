@@ -51,6 +51,36 @@ public class MediaStorageService {
             throw new BizException(ErrorCode.PARAM_INVALID, "Banner图片不存在，请重新上传");
     }
 
+    public void requireOwnedVideo(String url, Long userId) {
+        Path path = ownedVideoPath(url, userId);
+        if (!Files.isRegularFile(path))
+            throw new BizException(ErrorCode.PARAM_INVALID, "视频不存在或不属于当前用户");
+    }
+
+    public void deleteOwnedVideo(String url, Long userId) {
+        Path path = ownedVideoPath(url, userId);
+        try { Files.deleteIfExists(path); }
+        catch (IOException e) { throw new BizException(ErrorCode.UPLOAD_FAILED, "清理视频失败"); }
+    }
+
+    private Path ownedVideoPath(String url, Long userId) {
+        if (userId == null || url == null || !url.matches("/upload/video/" + userId
+                + "_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(mp4|webm|ogg)"))
+            throw new BizException(ErrorCode.PARAM_INVALID, "视频不属于当前用户");
+        return root.resolve(url.substring("/upload/".length()));
+    }
+
+    public String storeMergedVideo(Path file, Long userId) throws IOException {
+        byte[] header;
+        try (InputStream input = Files.newInputStream(file)) { header = input.readNBytes(12); }
+        String extension = videoExtension(header);
+        Path directory = root.resolve("video");
+        Files.createDirectories(directory);
+        String name = userId + "_" + UUID.randomUUID() + "." + extension;
+        Files.move(file, directory.resolve(name));
+        return "/upload/video/" + name;
+    }
+
     private String imageExtension(MultipartFile file) throws IOException {
         try (InputStream input = file.getInputStream(); ImageInputStream image = ImageIO.createImageInputStream(input)) {
             if (image == null) throw new BizException(ErrorCode.PARAM_INVALID, "图片格式不正确");
@@ -71,6 +101,10 @@ public class MediaStorageService {
     private String videoExtension(MultipartFile file) throws IOException {
         byte[] header;
         try (InputStream input = file.getInputStream()) { header = input.readNBytes(12); }
+        return videoExtension(header);
+    }
+
+    private String videoExtension(byte[] header) {
         if (header.length >= 8 && "ftyp".equals(new String(header, 4, 4, StandardCharsets.US_ASCII))) return "mp4";
         if (header.length >= 4 && Arrays.equals(Arrays.copyOf(header, 4),
                 new byte[]{0x1a, 0x45, (byte) 0xdf, (byte) 0xa3})) return "webm";

@@ -59,10 +59,33 @@ public class SocialController {
     @GetMapping("/post/list")
     public ApiResponse<Map<String, Object>> posts(@RequestParam(required = false) Long targetUserId,
                                                  @RequestParam(required = false) Long cursorId,
-                                                 @RequestParam(defaultValue = "20") int size) {
+                                                 @RequestParam(defaultValue = "20") int size,
+                                                 @RequestParam(defaultValue = "false") boolean followingOnly,
+                                                 @RequestParam(defaultValue = "1") int type) {
         Long me = AuthContext.currentUserIdOrNull();
-        List<PostVO> rows = social.posts(me, targetUserId, cursorId, size);
+        List<PostVO> rows = social.feed(me, targetUserId, cursorId, size, followingOnly, type);
         return ApiResponse.ok(cursorPage(rows, size));
+    }
+
+    @PostMapping("/post/{postId}/pin")
+    public ApiResponse<Boolean> pin(@PathVariable Long postId) {
+        return ApiResponse.ok(social.pin(AuthContext.requireUserId(), postId));
+    }
+
+    @GetMapping("/user/mentions")
+    public ApiResponse<Map<String, Object>> mentions(@RequestParam(required = false) Long cursorId) {
+        return ApiResponse.ok(cursorPage(social.mentions(AuthContext.requireUserId(), cursorId), 100));
+    }
+
+    @GetMapping("/post/authors")
+    public ApiResponse<Map<String, Object>> feedAuthors(@RequestParam(required = false) Long cursorId) {
+        return ApiResponse.ok(cursorPage(social.feedAuthors(AuthContext.requireUserId(), cursorId), 100));
+    }
+
+    @PostMapping("/post/read")
+    public ApiResponse<Void> markFeedRead(@RequestParam(required = false) Long targetUserId) {
+        social.markFeedRead(AuthContext.requireUserId(), targetUserId);
+        return ApiResponse.ok();
     }
 
     @GetMapping("/post/{postId}")

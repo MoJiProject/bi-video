@@ -72,7 +72,7 @@
         <div v-show="dynamicList.length>0" class="find-info">共找到关于"{{ keyword }}"的 <span>{{ dynamicTotal }}</span> 个动态</div>
         <div>
             <div v-show="!loadMore&&dynamicList.length>0" class="dynamic-item" v-for="dynamic in dynamicList" :key="dynamic.id">
-                <dynamicC :dynamic="dynamic"/>
+                <dynamicC :dynamic="dynamic" @changed="refreshPosts"/>
             </div>
             <div v-if="fotterFlag&&dynamicList.length>0&&!loadMore2&&!loadMore" class="no-more">你已经到达世界的尽头~</div>
         </div>
@@ -87,7 +87,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useGlobalStore } from "../store/store";
 import dynamicC from "./homePost.vue";
 import { homeDynamic,homeContributeVideos } from "@/api/home/index";
@@ -98,7 +98,9 @@ import loadingIndicator from "@/components/loadingIndicator.vue";
 
 const store = useGlobalStore();
 const searchMenu = ref(1);
-const loadMore = ref(true);
+const videoLoading = ref(true);
+const dynamicLoading = ref(true);
+const loadMore = computed(() => searchMenu.value === 1 ? videoLoading.value : dynamicLoading.value);
 const loadMore2 = ref(false);
 const display = ref(1);
 const sort = ref(1);
@@ -117,13 +119,24 @@ onMounted(() => {
 });
 onUnmounted(() => window.removeEventListener("scroll", handleScroll));
 store.setKeyword(keyword.value);
-let requestId = 0;
+let videoRequestId = 0;
+let dynamicRequestId = 0;
+
+function refreshPosts() {
+  dynamicRequestId++;
+  dynamicList.length = 0;
+  pageNum2.value = 1;
+  fotterFlag.value = false;
+  loadMore2.value = false;
+  homeDynamicF();
+}
 
 //获取动态列表
 async function homeDynamicF() {
-  const current = requestId;
+  const current = ++dynamicRequestId;
+  const page = pageNum2.value;
   if (dynamicList.length === 0) {
-    loadMore.value = true;
+    dynamicLoading.value = true;
   } else {
     loadMore2.value = true;
   }
@@ -132,20 +145,20 @@ async function homeDynamicF() {
     dynamicList.length = 0;
   }
   try {
-    const res = await homeDynamic(store.homeUserInformation.id, store.userId, pageNum2.value, 1, keyword.value);
-    if (current !== requestId) return;
+    const res = await homeDynamic(store.homeUserInformation.id, store.userId, page, 1, keyword.value);
+    if (current !== dynamicRequestId) return;
       pushData(res.data.data.records);
       dynamicTotal.value = res.data.data.total;
       fotterFlag.value = dynamicList.length >= dynamicTotal.value;
-      pageNum2.value++;
+      pageNum2.value = page + 1;
   } catch (error) {
-    if (current === requestId) {
+    if (current === dynamicRequestId) {
       ElMessage.error(error.message);
       fotterFlag.value = true;
     }
   } finally {
-    if (current === requestId) {
-      loadMore.value = false;
+    if (current === dynamicRequestId) {
+      dynamicLoading.value = false;
       loadMore2.value = false;
       store.setHomeLoad(true, "homeBody");
       store.setHomeLoadMenuList(10);
@@ -155,19 +168,19 @@ async function homeDynamicF() {
 
 // 获取用户主页投稿的视频
 async function homeContributeVideosF() {
-  const current = requestId;
-  loadMore.value = true;
+  const current = ++videoRequestId;
+  videoLoading.value = true;
   try {
     const res = await homeContributeVideos(store.homeUserInformation.id, store.userId, sort.value, pageNum.value, keyword.value);
-    if (current !== requestId) return;
+    if (current !== videoRequestId) return;
       contributeVideos.length = 0;
       Object.assign(contributeVideos, res.data.data.records);
       contributeTotal.value = res.data.data.total;
   } catch (error) {
-    if (current === requestId) ElMessage.error(error.message);
+    if (current === videoRequestId) ElMessage.error(error.message);
   } finally {
-    if (current === requestId) {
-      loadMore.value = false;
+    if (current === videoRequestId) {
+      videoLoading.value = false;
       store.setHomeLoad(true, "homeBody");
       store.setHomeLoadMenuList(10);
     }
@@ -190,21 +203,27 @@ watch(
   },
 );
 
-// 监听sort变化
-watch([sort, searchMenu, () => store.keyword], () => {
+watch([() => store.homeUserInformation.id, () => store.keyword], ([id, text]) => {
+  if (!id || !text) return;
+  videoRequestId++;
+  dynamicRequestId++;
+  keyword.value = text.trim();
   pageNum.value = 1;
   pageNum2.value = 1;
   fotterFlag.value = false;
   dynamicList.length = 0;
-  keyword.value = store.keyword;
-}, { flush: 'sync' });
-
-watch([() => store.homeUserInformation.id, searchMenu, sort, pageNum, keyword], ([id]) => {
-  if (!id) return;
-  requestId++;
-  if (searchMenu.value === 1) homeContributeVideosF();
-  else homeDynamicF();
+  contributeVideos.length = 0;
+  contributeTotal.value = 0;
+  dynamicTotal.value = 0;
+  loadMore2.value = false;
+  homeContributeVideosF();
+  homeDynamicF();
 }, { immediate: true });
+
+watch(sort, () => { pageNum.value = 1; }, { flush: 'sync' });
+watch([sort, pageNum], () => {
+  if (store.homeUserInformation.id && keyword.value) homeContributeVideosF();
+});
 
 //滚动加载
 function handleScroll() {

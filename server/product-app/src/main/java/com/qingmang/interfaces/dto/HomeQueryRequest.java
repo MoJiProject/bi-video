@@ -25,4 +25,7 @@ public class HomeQueryRequest {
     private String keyWord;
     @Size(max = 64)
     private String collectName;
+    @Positive
+    private Long folderId;
+    private boolean featured;
 }

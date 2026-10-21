@@ -8,7 +8,9 @@
       <h2>{{ store.userId === homeUserId ? '我的' : 'TA的' }}{{ type === 8 ? '关注' : '粉丝' }}</h2>
       <el-input v-model="keyword" placeholder="输入关键词" clearable maxlength="20"
         @keyup.enter="search" @clear="search"/>
+      <el-button @click="search">搜索</el-button>
       <loadingIndicator v-if="loading" min-height="200px"/>
+      <div v-else-if="loadError" class="no-data">{{ loadError }} <el-button text @click="loadRelations">重试</el-button></div>
       <template v-else>
         <div v-for="user in users" :key="user.id" class="relation">
           <a :href="'./home?userId=' + user.id" target="_blank"><img :src="user.avatarAddress" alt=""></a>
@@ -16,13 +18,13 @@
             <a :href="'./home?userId=' + user.id" target="_blank">{{ user.userName }}</a>
             <p>{{ user.introduce }}</p>
           </div>
-          <el-button v-if="user.id !== store.userId" :loading="busyId === user.id" @click="setFollow(user)">
-            {{ user.isFollowFlag ? '已关注' : '关注' }}
+          <el-button v-if="user.id !== store.userId" :loading="busyId === user.id" :disabled="busyId !== null" @click="setFollow(user)">
+            {{ user.isFollowFlag ? '取消关注' : (type === 9 && store.userId === homeUserId ? '回关' : '关注') }}
           </el-button>
         </div>
         <div v-if="!users.length" class="no-data">暂无数据</div>
         <el-pagination v-if="total" v-model:current-page="pageNum" :page-size="24"
-          layout="prev, pager, next" :total="total"/>
+          layout="total, prev, pager, next, jumper" :total="total"/>
       </template>
     </section>
   </div>
@@ -32,7 +34,7 @@
 import { ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useGlobalStore } from '@/store/store';
-import { fansOrFollow, addFollow, deleteFollow } from '@/api/home/user';
+import { fansOrFollow, addFollow, deleteFollow, selectUserInfo } from '@/api/home/user';
 import loadingIndicator from '@/components/loadingIndicator.vue';
 
 const props = defineProps({ type: { type: Number, required: true } });
@@ -41,6 +43,7 @@ const homeUserId = parseInt(new URL(window.location).searchParams.get('userId'))
 const users = ref([]);
 const total = ref(0);
 const loading = ref(true);
+const loadError = ref('');
 const busyId = ref(null);
 const pageNum = ref(1);
 const keyword = ref('');
@@ -61,17 +64,22 @@ function changeMenu(menu) {
   store.setHomeMenu(menu, homeUserId, true);
 }
 
-watch([() => store.homeUserInformation.id, () => props.type, pageNum, appliedKeyword], async ([id]) => {
-  if (!id) return;
+async function loadRelations() {
+  if (!store.homeUserInformation.id) return;
   const current = ++requestId;
   loading.value = true;
+  loadError.value = '';
   try {
     const res = await fansOrFollow(homeUserId, store.userId, props.type, pageNum.value, appliedKeyword.value, store.token);
     if (current !== requestId) return;
     users.value = res.data.data.records;
     total.value = res.data.data.total;
   } catch (error) {
-    ElMessage.error(error.message);
+    if (current === requestId) {
+      users.value = [];
+      total.value = 0;
+      loadError.value = error.message;
+    }
   } finally {
     if (current === requestId) {
       loading.value = false;
@@ -79,7 +87,13 @@ watch([() => store.homeUserInformation.id, () => props.type, pageNum, appliedKey
       store.setHomeLoadMenuList(props.type);
     }
   }
-}, { immediate: true });
+}
+watch(() => props.type, () => {
+  pageNum.value = 1;
+  keyword.value = '';
+  appliedKeyword.value = '';
+}, { flush: 'sync' });
+watch([() => store.homeUserInformation.id, () => props.type, pageNum, appliedKeyword], loadRelations, { immediate: true });
 
 async function setFollow(user) {
   if (!store.userId) {
@@ -88,9 +102,20 @@ async function setFollow(user) {
   }
   busyId.value = user.id;
   try {
+    const wasFollowing = !!user.isFollowFlag;
     const action = user.isFollowFlag ? deleteFollow : addFollow;
     await action(store.token, store.userId, user.id);
     user.isFollowFlag = user.isFollowFlag ? 0 : 1;
+    ElMessage.success(wasFollowing ? '已取消关注' : '关注成功');
+    const profile = await selectUserInfo(homeUserId);
+    store.setHomeUserInformation(profile.data.data);
+    if (store.userId === homeUserId) {
+      store.setUserInformation({ ...store.userInformation, ...profile.data.data });
+      if (props.type === 8 && wasFollowing) {
+        if (users.value.length === 1 && pageNum.value > 1) pageNum.value--;
+        else await loadRelations();
+      }
+    }
   } catch (error) {
     ElMessage.error(error.message);
   } finally {

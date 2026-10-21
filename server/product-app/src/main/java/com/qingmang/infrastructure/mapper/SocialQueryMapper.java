@@ -9,8 +9,16 @@ import java.util.List;
 
 @Mapper
 public interface SocialQueryMapper {
+    List<UserBriefVO> selectMentions(@Param("viewerId") Long viewerId, @Param("cursorId") Long cursorId,
+                                     @Param("limit") int limit);
+    List<UserBriefVO> selectFeedAuthors(@Param("viewerId") Long viewerId, @Param("cursorId") Long cursorId,
+                                        @Param("limit") int limit);
+    void markFeedRead(@Param("viewerId") Long viewerId, @Param("targetUserId") Long targetUserId);
     PostVO selectPost(@Param("postId") Long postId, @Param("viewerId") Long viewerId);
     boolean videoAvailable(@Param("videoId") Long videoId);
+    List<PostVO> selectFeed(@Param("viewerId") Long viewerId, @Param("targetUserId") Long targetUserId,
+                           @Param("cursorId") Long cursorId, @Param("limit") int limit,
+                           @Param("followingOnly") boolean followingOnly, @Param("type") int type);
 
     /**
      * 动态流。

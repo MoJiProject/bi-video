@@ -1,7 +1,7 @@
 package com.qingmang.interfaces.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -10,8 +10,14 @@ import java.util.List;
 @Data
 public class CommentPostRequest {
 
-    @NotNull(message = "缺少视频ID")
     private Long videoId;
+    private Long postId;
+
+    @AssertTrue(message = "必须指定一个视频或动态")
+    public boolean isTargetValid() {
+        return (videoId != null && videoId > 0 && postId == null)
+                || (postId != null && postId > 0 && videoId == null);
+    }
 
     @NotBlank(message = "评论内容不能为空")
     @Size(max = 1000, message = "评论最多 1000 字")

@@ -21,8 +21,10 @@ bi-video
 关注及粉丝列表使用 `/api/home/relations`。
 访问权限由后端根据登录身份判断，不使用前端传入的浏览者 ID 授权。
 
-当前隐私设置支持收藏、关注列表、粉丝列表；投币记录、点赞记录和生日仅本人可见。
-尚未提供代表作配置和追剧接口，对应入口不会展示模拟数据或调用旧版地址。
+隐私设置支持收藏、关注列表、粉丝列表、投币列表、点赞列表及生日；个人空间首页分区顺序可保存。
+投稿支持搜索、排序、分页和最多 3 个代表作；关注及粉丝支持搜索、取消关注。
+收藏夹支持管理、批量删除、复制、移动和清除失效内容，写操作由服务端校验收藏夹归属。
+合集在 main 原为占位，追剧原为本地演示；此处不将模拟数据包装成真实的持久化功能。
 
 ## 响应式布局
 
@@ -52,12 +54,36 @@ bi-video
 
 页面统一使用 `services/http.js` 和 `token` 请求头。历史及稍后观看使用
 `/api/history/list`、`/api/watch-later/list`，游标为记录 ID，不是视频 ID；
-动态使用 `/api/post`，账号编辑使用 `/api/auth/account`。
+动态使用 `/api/post`，资料及隐私使用 `/api/auth/profile`、`/api/auth/privacy`。
 
-已有数据库需执行 `sql/product/03_post_like.sql`，新增动态点赞关系表。
-新建数据库使用更新后的 `01_schema.sql`，无需重复建表。
+历史与稍后再看支持全部/今天/昨天/近一周及自定义日期筛选、标题或 UP 昵称搜索、
+单条/批量删除和清空；历史按观看时间分组，稍后再看可切换最近/最早添加。
+列表使用 `cursorId`、`cursorTime` 双游标；`startTime` 含起点，`endTime` 不含终点
+（选择结束日期时前端传次日零点），稍后再看排序参数为 `order=newest|oldest`。
+批量删除分别使用 `DELETE /api/history/batch`、`DELETE /api/watch-later/batch`，
+JSON 为 `{ "videoIds": [1, 2] }`（单次最多 1000 条），用户身份仅由登录态决定。
+历史记录开关读取 `/api/auth/me` 的 `recordHistory`，通过
+`PUT /api/auth/privacy` 部分更新 `{ "recordHistory": false }`；关闭后观看上报不再写入历史，
+重新开启不会清空原有记录。对应字段在 `sql/product/01_schema.sql` 的 `user_privacy` 中定义。
+
+动态支持关注 UP 筛选、全部/视频/图文分类、未读提醒、标题/正文/表情/@用户及最多 9 张图片发布，
+以及置顶、点赞、删除、分享链接、稍后再看；详情评论支持回复、图片、表情、赞踩和删除。
+提醒通过 `/api/post/authors` 查询，`POST /api/post/read` 清除已查看用户的提醒；
+置顶为 `POST /api/post/{id}/pin`；评论复用 `/api/comment`，`postId` 与 `videoId` 二选一。
+
+创作中心保留 main 的本地/远程投稿、封面、标签、原创/转载、二创、分区、编辑、作品管理及统计界面。
+分片协议为 `/api/upload/uploadVideoChunk`、`/api/upload/mergeVideoChunks` 和
+`DELETE /api/upload/cleanVideoUpload`；发布/编辑为 `/api/upload/uploadVideo`、
+`/api/upload/updateVideo`。身份以登录态为准，不使用表单中的用户 ID 授权。
+投稿仍需审核，编辑后重新进入审核状态，不将接口修复改成自动发布。
+投稿、编辑与作品管理的分区选项统一读取 product 已启用分区；不新增 main 独有的分区初始化记录。
+
+本轮新增字段仅写入 `sql/product/01_schema.sql`，未新增迁移脚本，也未执行数据库变更。
+该文件为全量初始化脚本，包含 DROP TABLE，**已有数据库不得直接执行以升级**；
+已有库需按实际结构单独安排非破坏性字段同步。新建数据库再使用更新后的初始化脚本。
 上传统一使用 `/api/media/{category}`，图片支持 PNG/JPEG/GIF（10MB），
-视频支持 MP4/WebM/Ogg（500MB）。通过 `app.upload-dir` 配置持久化目录，
+视频支持 MP4/WebM/Ogg（单文件接口 500MB，投稿页面保留原有 50MB 限制）。
+投稿选取的 BMP/WebP 封面由浏览器转成 JPEG 后上传。通过 `app.upload-dir` 配置持久化目录，
 默认路径为相对于后端工作目录的 `../static/public/upload`。
 开发代理和 Nginx 都将 `/upload/` 转发到后端；Nginx 的 `/api/` 转发保留前缀。
 

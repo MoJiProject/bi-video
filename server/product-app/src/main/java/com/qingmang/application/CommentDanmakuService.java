@@ -13,6 +13,8 @@ import com.qingmang.domain.interaction.mapper.CommentMapper;
 import com.qingmang.domain.interaction.mapper.DanmakuMapper;
 import com.qingmang.domain.video.mapper.VideoMapper;
 import com.qingmang.domain.video.mapper.VideoStatsMapper;
+import com.qingmang.domain.social.UserPost;
+import com.qingmang.domain.social.mapper.UserPostMapper;
 import com.qingmang.infrastructure.mapper.CounterMapper;
 import com.qingmang.infrastructure.mapper.InteractionQueryMapper;
 import com.qingmang.interfaces.dto.CommentPostRequest;
@@ -26,6 +28,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.time.LocalDateTime;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @Service
 public class CommentDanmakuService {
@@ -38,11 +43,12 @@ public class CommentDanmakuService {
     private final CounterMapper counterMapper;
     private final InteractionQueryMapper queryMapper;
     private final ObjectMapper json;
+    private final UserPostMapper postMapper;
 
     public CommentDanmakuService(CommentMapper commentMapper, CommentLikeMapper commentLikeMapper,
                                  DanmakuMapper danmakuMapper, VideoMapper videoMapper,
                                  VideoStatsMapper statsMapper, CounterMapper counterMapper,
-                                 InteractionQueryMapper queryMapper, ObjectMapper json) {
+                                 InteractionQueryMapper queryMapper, ObjectMapper json, UserPostMapper postMapper) {
         this.commentMapper = commentMapper;
         this.commentLikeMapper = commentLikeMapper;
         this.danmakuMapper = danmakuMapper;
@@ -51,11 +57,25 @@ public class CommentDanmakuService {
         this.counterMapper = counterMapper;
         this.queryMapper = queryMapper;
         this.json = json;
+        this.postMapper = postMapper;
     }
 
     /** 一级评论分页 + 一次性批量取回它们的回复。 */
     public Map<String, Object> list(Long videoId, Long cursorId, int size, Long viewerId) {
-        List<CommentVO> roots = queryMapper.selectComments(videoId, cursorId, size + 1, viewerId);
+        return list(videoId, null, cursorId, size, viewerId);
+    }
+
+    public Map<String, Object> list(Long videoId, Long postId, Long cursorId, int size, Long viewerId) {
+        return list(videoId, postId, cursorId, size, viewerId, "new");
+    }
+
+    public Map<String, Object> list(Long videoId, Long postId, Long cursorId, int size, Long viewerId, String sort) {
+        if ((videoId == null) == (postId == null) || size < 1 || size > 100)
+            throw new BizException(ErrorCode.PARAM_INVALID);
+        if (!List.of("new", "hot").contains(sort)) throw new BizException(ErrorCode.PARAM_INVALID);
+        if (postId != null) requirePost(postId, viewerId);
+        List<CommentVO> roots = postId == null ? queryMapper.selectComments(videoId, cursorId, size + 1, viewerId, sort)
+                : queryMapper.selectPostComments(postId, cursorId, size + 1, viewerId, sort);
         boolean hasMore = roots.size() > size;
         if (hasMore) {
             roots = roots.subList(0, size);
@@ -65,6 +85,7 @@ public class CommentDanmakuService {
             List<CommentVO> replies = queryMapper.selectReplies(rootIds, viewerId);
             Map<Long, List<CommentVO>> grouped = new HashMap<>();
             for (CommentVO r : replies) {
+                parseImages(r);
                 grouped.computeIfAbsent(r.getRootId(), k -> new ArrayList<>()).add(r);
             }
             roots.forEach(r -> r.setReplies(grouped.getOrDefault(r.getId(), List.of())));
@@ -72,7 +93,7 @@ public class CommentDanmakuService {
         roots.forEach(this::parseImages);
         Map<String, Object> data = new HashMap<>(4);
         data.put("records", roots);
-        data.put("total", queryMapper.countComments(videoId));
+        data.put("total", postId == null ? queryMapper.countComments(videoId) : queryMapper.countPostComments(postId));
         data.put("hasMore", hasMore);
         data.put("cursorId", roots.isEmpty() ? cursorId : roots.get(roots.size() - 1).getId());
         return data;
@@ -80,6 +101,9 @@ public class CommentDanmakuService {
 
     @Transactional
     public Long post(Long userId, CommentPostRequest req) {
+        if (!req.isTargetValid()) throw new BizException(ErrorCode.PARAM_INVALID);
+        if (req.getPostId() != null) requirePost(req.getPostId(), userId);
+        else {
         var video = videoMapper.selectById(req.getVideoId());
         if (video == null) {
             throw new BizException(ErrorCode.VIDEO_NOT_FOUND);
@@ -87,36 +111,46 @@ public class CommentDanmakuService {
         if (video.getAllowComment() != null && !video.getAllowComment()) {
             throw new BizException(ErrorCode.COMMENT_CLOSED);
         }
+        }
         Long rootId = null;
+        Long replyToUserId = null;
         if (req.getRootId() != null) {
             Comment root = commentMapper.selectById(req.getRootId());
-            if (root == null) {
+            if (root == null || root.getDeletedAt() != null || !Integer.valueOf(1).equals(root.getStatus())
+                    || !Objects.equals(root.getVideoId(), req.getVideoId())
+                    || !Objects.equals(root.getPostId(), req.getPostId())) {
                 throw new BizException(ErrorCode.COMMENT_NOT_FOUND);
             }
             // 回复要挂在一级评论下，不能把楼中楼再套一层
             rootId = root.getRootId() == null ? root.getId() : root.getRootId();
+            Comment parent = commentMapper.selectById(rootId);
+            if (parent == null || parent.getDeletedAt() != null) throw new BizException(ErrorCode.COMMENT_NOT_FOUND);
+            replyToUserId = root.getAuthorId();
         }
 
         Comment c = new Comment();
         c.setVideoId(req.getVideoId());
+        c.setPostId(req.getPostId());
         c.setAuthorId(userId);
         c.setRootId(rootId);
-        c.setReplyToUserId(req.getReplyToUserId());
+        c.setReplyToId(req.getRootId());
+        c.setReplyToUserId(replyToUserId);
         c.setContent(req.getContent());
         c.setStatus(1);
+        c.setPinned(false);
         c.setLikeCount(0);
         c.setReplyCount(0);
         if (req.getImageUrls() != null && !req.getImageUrls().isEmpty()) {
             try {
                 c.setImageUrls(json.writeValueAsString(req.getImageUrls()));
-            } catch (Exception e) {
+            } catch (JsonProcessingException e) {
                 throw new BizException(ErrorCode.PARAM_INVALID, "图片地址格式不正确");
             }
         }
         commentMapper.insert(c);
 
         // 回复也计入视频总评论数；根节点的 replyCount 单独维护
-        counterMapper.increaseVideoStat(req.getVideoId(), "comment_count", 1);
+        adjustCommentCount(c, 1);
         if (rootId != null) {
             commentMapper.update(null, Wrappers.<Comment>lambdaUpdate()
                     .eq(Comment::getId, rootId)
@@ -129,13 +163,15 @@ public class CommentDanmakuService {
     @Transactional
     public Map<String, Object> toggleLike(Long userId, Long commentId, boolean dislike) {
         Comment c = commentMapper.selectById(commentId);
-        if (c == null) {
+        if (c == null || c.getDeletedAt() != null || !Integer.valueOf(1).equals(c.getStatus())) {
             throw new BizException(ErrorCode.COMMENT_NOT_FOUND);
         }
+        if (c.getPostId() != null) requirePost(c.getPostId(), userId);
         CommentLike exist = commentLikeMapper.selectOne(Wrappers.<CommentLike>lambdaQuery()
                 .eq(CommentLike::getCommentId, commentId)
                 .eq(CommentLike::getUserId, userId));
 
+        int before = exist != null && !Boolean.TRUE.equals(exist.getIsDislike()) ? 1 : 0;
         boolean active;
         int after;
         if (exist == null) {
@@ -161,7 +197,6 @@ public class CommentDanmakuService {
             after = dislike ? 0 : 1;
         }
         // like_count 只统计赞，所以只有「赞位」的有无变化才动它
-        int before = exist != null && !Boolean.TRUE.equals(exist.getIsDislike()) ? 1 : 0;
         if (after - before != 0) {
             bumpLikeCount(commentId, after - before);
         }
@@ -183,23 +218,89 @@ public class CommentDanmakuService {
     @Transactional
     public void delete(Long userId, Long commentId, boolean admin) {
         Comment c = commentMapper.selectById(commentId);
-        if (c == null) {
+        if (c == null || c.getDeletedAt() != null) {
             throw new BizException(ErrorCode.COMMENT_NOT_FOUND);
         }
         if (!admin && !c.getAuthorId().equals(userId)) {
             throw new BizException(ErrorCode.NO_PERMISSION);
         }
-        commentMapper.deleteById(commentId);
-        counterMapper.decreaseVideoStat(c.getVideoId(), "comment_count", 1);
+        int removed = 1;
+        if (c.getRootId() == null) {
+            removed += commentMapper.update(null, Wrappers.<Comment>lambdaUpdate()
+                    .eq(Comment::getRootId, commentId).isNull(Comment::getDeletedAt)
+                    .set(Comment::getDeletedAt, LocalDateTime.now()));
+        }
+        commentMapper.update(null, Wrappers.<Comment>lambdaUpdate()
+                .eq(Comment::getId, commentId).set(Comment::getDeletedAt, LocalDateTime.now()));
+        adjustCommentCount(c, -removed);
         if (c.getRootId() != null) {
-            counterMapper.increaseVideoStat(c.getVideoId(), "comment_count", 1);
             commentMapper.update(null, Wrappers.<Comment>lambdaUpdate()
                     .eq(Comment::getId, c.getRootId()).setSql("reply_count = GREATEST(reply_count - 1, 0)"));
         }
     }
 
+    private UserPost requirePost(Long postId, Long viewerId) {
+        UserPost post = postMapper.selectById(postId);
+        if (post == null || post.getDeletedAt() != null || !Integer.valueOf(1).equals(post.getStatus())
+                || (Integer.valueOf(1).equals(post.getVisibility()) && !post.getAuthorId().equals(viewerId)))
+            throw new BizException(ErrorCode.POST_NOT_FOUND);
+        return post;
+    }
+
+    private void adjustCommentCount(Comment comment, int delta) {
+        if (comment.getPostId() == null) {
+            if (delta < 0) counterMapper.decreaseVideoStat(comment.getVideoId(), "comment_count", -delta);
+            else counterMapper.increaseVideoStat(comment.getVideoId(), "comment_count", delta);
+        }
+        else postMapper.update(null, Wrappers.<UserPost>lambdaUpdate().eq(UserPost::getId, comment.getPostId())
+                .setSql("comment_count=GREATEST(comment_count+" + delta + ",0)"));
+    }
+
     public List<DanmakuVO> danmaku(Long videoId, int limit) {
         return queryMapper.selectDanmaku(videoId, Math.min(Math.max(limit, 1), 5000));
+    }
+
+    @Transactional
+    public boolean togglePin(Long userId, Long commentId) {
+        Comment c = commentMapper.selectById(commentId);
+        if (c == null || c.getDeletedAt() != null || !Integer.valueOf(1).equals(c.getStatus())
+                || c.getVideoId() == null || c.getRootId() != null)
+            throw new BizException(ErrorCode.COMMENT_NOT_FOUND);
+        var video = videoMapper.selectById(c.getVideoId());
+        if (video == null || !Objects.equals(video.getOwnerId(), userId))
+            throw new BizException(ErrorCode.OPERATION_FAILED, "仅视频作者可置顶一级评论");
+        boolean pinned = !Boolean.TRUE.equals(c.getPinned());
+        if (pinned) commentMapper.update(null, Wrappers.<Comment>lambdaUpdate()
+                .eq(Comment::getVideoId, c.getVideoId()).eq(Comment::getPinned, true).set(Comment::getPinned, false));
+        commentMapper.update(null, Wrappers.<Comment>lambdaUpdate().eq(Comment::getId, commentId)
+                .set(Comment::getPinned, pinned));
+        return pinned;
+    }
+
+    public CommentVO detail(Long commentId, Long viewerId) {
+        Comment c = commentMapper.selectById(commentId);
+        if (c == null || c.getDeletedAt() != null || !Integer.valueOf(1).equals(c.getStatus()))
+            throw new BizException(ErrorCode.COMMENT_NOT_FOUND);
+        if (c.getPostId() != null) requirePost(c.getPostId(), viewerId);
+        else if (videoMapper.selectById(c.getVideoId()) == null)
+            throw new BizException(ErrorCode.VIDEO_NOT_FOUND);
+        Long rootId = c.getRootId() == null ? c.getId() : c.getRootId();
+        CommentVO root = queryMapper.selectComment(rootId, viewerId);
+        if (root == null) throw new BizException(ErrorCode.COMMENT_NOT_FOUND);
+        List<CommentVO> replies = queryMapper.selectReplies(List.of(rootId), viewerId);
+        replies.forEach(this::parseImages);
+        root.setReplies(replies);
+        parseImages(root);
+        return root;
+    }
+
+    @Transactional
+    public void deleteDanmaku(Long userId, Long danmakuId) {
+        Danmaku d = danmakuMapper.selectById(danmakuId);
+        if (d == null || !Objects.equals(d.getUserId(), userId))
+            throw new BizException(ErrorCode.OPERATION_FAILED, "仅可撤回自己的弹幕");
+        if (danmakuMapper.deleteById(danmakuId) > 0)
+            counterMapper.decreaseVideoStat(d.getVideoId(), "danmaku_count", 1);
     }
 
     @Transactional
@@ -216,6 +317,7 @@ public class CommentDanmakuService {
         d.setUserId(userId);
         d.setContent(req.getContent());
         d.setColor(req.getColor() == null || req.getColor().isBlank() ? "#FFFFFF" : req.getColor());
+        d.setColorful(Boolean.TRUE.equals(req.getColorful()));
         d.setFontSize(req.getFontSize() == null ? 25 : req.getFontSize());
         d.setMode(req.getMode() == null ? 0 : req.getMode());
         d.setVideoTimeMs(Math.max(0, req.getVideoTimeMs() == null ? 0 : req.getVideoTimeMs()));
@@ -227,6 +329,7 @@ public class CommentDanmakuService {
         vo.setVideoId(d.getVideoId());
         vo.setContent(d.getContent());
         vo.setColor(d.getColor());
+        vo.setColorful(d.getColorful());
         vo.setFontSize(d.getFontSize());
         vo.setMode(d.getMode());
         vo.setVideoTimeMs(d.getVideoTimeMs());
@@ -245,8 +348,8 @@ public class CommentDanmakuService {
         try {
             vo.setImageUrls(json.readValue(raw, new TypeReference<List<String>>() {
             }));
-        } catch (Exception e) {
-            vo.setImageUrls(List.of());
+        } catch (JsonProcessingException e) {
+            throw new BizException(ErrorCode.DB_ERROR, "评论图片数据格式错误");
         }
     }
 }

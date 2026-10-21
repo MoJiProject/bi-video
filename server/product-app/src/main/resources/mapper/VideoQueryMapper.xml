@@ -77,7 +77,8 @@
     </select>
 
     <select id="selectVideoDetail" resultType="com.qingmang.interfaces.vo.VideoDetailVO">
-        SELECT v.id, v.title, v.description, v.cover_url, v.play_url, v.source, v.remote_url,
+        SELECT v.id, v.title, v.description, v.description_html, v.tags, v.original_type, v.allow_remix,
+               v.sub_category_name, v.cover_url, v.play_url, v.source, v.remote_url,
                v.duration_seconds, v.published_at,
                u.id AS owner_id, u.nickname AS owner_nickname, u.avatar_url AS owner_avatar,
                u.signature AS owner_signature,

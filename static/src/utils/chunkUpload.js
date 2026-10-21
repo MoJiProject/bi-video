@@ -19,8 +19,8 @@ export async function uploadVideoByChunks({ apiClient, file, userId, token, onPr
   const chunkProgress = new Map();
   let nextChunkIndex = 0;
   let merged = false;
+  let failed = false;
 
-  //清理残留分片，失败不影响主流程，仅忽略
   const cleanupChunks = async () => {
     try {
       await apiClient.delete("/upload/cleanVideoUpload", {
@@ -28,7 +28,7 @@ export async function uploadVideoByChunks({ apiClient, file, userId, token, onPr
         headers: { "Authorization": token },
       });
     } catch (e) {
-      //忽略清理失败
+      console.error("清理视频分片失败", e);
     }
   };
 
@@ -71,17 +71,20 @@ export async function uploadVideoByChunks({ apiClient, file, userId, token, onPr
   };
 
   const uploadWorker = async () => {
-    while (nextChunkIndex < totalChunks) {
+    while (!failed && nextChunkIndex < totalChunks) {
       const chunkIndex = nextChunkIndex;
       nextChunkIndex += 1;
-      await uploadChunk(chunkIndex);
+      try { await uploadChunk(chunkIndex); }
+      catch (error) { failed = true; throw error; }
     }
   };
 
   try {
     onProgress?.(0);
     const workerCount = Math.min(MAX_CONCURRENT_UPLOADS, totalChunks);
-    await Promise.all(Array.from({ length: workerCount }, () => uploadWorker()));
+    const results = await Promise.allSettled(Array.from({ length: workerCount }, () => uploadWorker()));
+    const failure = results.find(result => result.status === 'rejected');
+    if (failure) throw failure.reason;
 
     const mergeData = new FormData();
     mergeData.append("uploadId", uploadId);

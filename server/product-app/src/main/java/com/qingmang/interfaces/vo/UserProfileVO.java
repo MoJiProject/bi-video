@@ -27,6 +27,11 @@ public class UserProfileVO {
     private Boolean showFavoriteList;
     private Boolean showFollowList;
     private Boolean showFansList;
+    private Boolean showCoinList;
+    private Boolean showLikeList;
+    private Boolean showBirthday;
+    private Boolean recordHistory;
+    private java.util.List<String> homeSectionOrder;
     private LocalDateTime createdAt;
 
     private Long videoCount;

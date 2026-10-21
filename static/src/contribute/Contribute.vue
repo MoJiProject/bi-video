@@ -15,7 +15,6 @@
               <span>主站</span>
             </a>
           </div>
-
           <div class="cu-actions">
             <div class="cu-up-days">成为创作者的第{{ daysAsUP }}天 &gt;</div>
             <span class="cu-divider"></span>
@@ -91,12 +90,23 @@
       </el-container>
     </el-container>
   </div>
+  <div v-else>
+    <mainHead :head2-flag="true"/>
+    <el-result icon="info" :title="loginError || '登录后进入创作中心'">
+      <template #extra>
+        <el-button type="primary" @click="store.loginDialogVisible = true">登录</el-button>
+        <el-button v-if="store.token" @click="loadUser">重试</el-button>
+      </template>
+    </el-result>
+  </div>
 </template>
 
 <script>
-import { reactive, onMounted, computed, ref } from "vue";
+import { reactive, onMounted, computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import apiClient from "../services/apiClient";
+import { authApi } from "../api/product";
+import { mapUser } from "../api/home/user";
+import { setToken } from "../services/http";
 import {useGlobalStore} from "../store/store";
 import "element-plus/theme-chalk/el-message.css";
 import { ElMessage } from "element-plus";
@@ -105,6 +115,7 @@ import MainComponent from "./MainComponent.vue";
 import EditContribute from "./EditContribute.vue";
 import SubPage1 from "./SubPage1.vue";
 import SubPage2 from "./SubPage2.vue";
+import mainHead from "../components/mainHead.vue";
 export default {
   name: "ContributePage",
   components: {
@@ -113,10 +124,12 @@ export default {
     EditContribute,
     SubPage1,
     SubPage2,
+    mainHead,
   },
   setup() {
     
     const pageLoad=ref(false);
+    const loginError = ref('');
     const store = useGlobalStore();
     const route = useRoute();
     const contentComponentMap = {
@@ -166,51 +179,41 @@ export default {
     const atNumber = computed(() => unreadCount("atNumber"));
     const likeAllNumber = computed(() => unreadCount("likeAllNumber"));
 
-    onMounted(async() => {
+    onMounted(() => {
       document.title = "创作中心 - 青芒视频";
       window.scrollTo({top: 0, behavior: "smooth"});
-      await getUserIp();
-      pageLoad.value=true;
-      
+      if (store.token) loadUser();
     });
-    
-    //获取用户ip和token
-    // token 由 /auth/login 返回后存在本地，这里不再向后端要 IP + token。
-    async function getUserIp(){
-      store.setUserIp("0.0.0.0");
+    watch(() => store.token, token => { if (token) loadUser(); else pageLoad.value = false; });
+    async function loadUser() {
+      loginError.value = '';
+      try {
+        const profile = mapUser(await authApi.me());
+        Object.assign(user, profile);
+        store.setUserId(profile.id);
+        store.setUserInformation(profile);
+        pageLoad.value = true;
+      } catch (error) {
+        pageLoad.value = false;
+        loginError.value = error.message || "请先登录创作中心";
+        store.loginDialogVisible = true;
+        ElMessage.error(loginError.value);
+      }
     }
 
     //登出
     async function logout() {
 
-    let limiterLoginDto={
-        user: user,
-        userIp: store.userIp,
-      };
     try {
-      const response = await apiClient.post("/user/signOut",limiterLoginDto,{
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": store.token,
-        },          
-      });
-      if(response.data.code === 1){
-        location.reload(); 
-      }
-      else{
-        ElMessage({
-          message: response.data.msg,
-          type: "info",
-          plain: true,
-          duration: 1700,
-        });
-        if(response.data.msg==="您还没有登录")
-        location.reload(); 
-      }
+      await authApi.logout();
+      setToken('');
+      store.setToken(null);
+      store.setUserId(null);
+      location.href = "/";
 
     } catch (error) {
       ElMessage({
-        message: "未知错误",
+        message: error.message || "退出登录失败",
         type: "info",
         plain: true,
         duration: 1700,
@@ -220,11 +223,6 @@ export default {
 
     }
 
-    //获取用户ip和token
-    // token 由 /auth/login 返回后存在本地，这里不再向后端要 IP + token。
-    async function getUserIp(){
-      store.setUserIp("0.0.0.0");
-    }
     //打开消息页面
     function openMessage(menu){
 
@@ -254,6 +252,8 @@ export default {
       store,
       logout,
       pageLoad,
+      loginError,
+      loadUser,
       daysAsUP,
       openMessage,
       currentContentComponent,

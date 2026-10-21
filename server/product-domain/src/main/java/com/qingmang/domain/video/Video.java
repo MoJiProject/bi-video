@@ -32,6 +32,11 @@ public class Video implements Serializable {
 
     @TableField("description_html")
     private String descriptionHtml;
+    private String tags;
+    private Integer originalType;
+    private Boolean allowRemix;
+    private String subCategoryName;
+    private Boolean isFeatured;
 
     @TableField("cover_url")
     private String coverUrl;

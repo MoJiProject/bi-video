@@ -1,4 +1,21 @@
 import { del, get, post, put } from '../../services/http';
+import { mapUser } from '../home/user';
+
+export async function fetchMentionUsers() {
+  const users = [];
+  let cursorId;
+  let more = true;
+  while (more) {
+    const page = await get('/user/mentions', { cursorId });
+    users.push(...page.records);
+    cursorId = page.cursorId;
+    more = page.hasMore;
+  }
+  return {
+    friendList: users.filter(user => user.followed).map(mapUser),
+    otherList: users.filter(user => !user.followed).map(mapUser),
+  };
+}
 
 /** 视频：列表、详情、分类。 */
 export const videoApi = {
@@ -15,6 +32,13 @@ export const videoApi = {
   reportWatch: (videoId, progressSeconds) => post(`/video/${videoId}/watch`, null, { params: { progressSeconds } }),
 };
 
+export async function fetchPublishingCategories() {
+  return (await videoApi.categories()).map(category => ({
+    label: category.name === '国创' ? '原创动画' : category.name === '番剧' ? '动画剧场' : category.name,
+    value: category.name,
+  }));
+}
+
 /** 评论与弹幕。 */
 export const commentApi = {
   list: (params) => get('/comment/list', params),
@@ -26,6 +50,7 @@ export const commentApi = {
 export const danmakuApi = {
   list: (videoId, limit = 2000) => get('/danmaku/list', { videoId, limit }),
   create: (body) => post('/danmaku', body),
+  remove: (id) => del(`/danmaku/${id}`),
 };
 
 /** 用户自己的内容。 */
@@ -54,6 +79,9 @@ export const socialApi = {
   createPost: (body) => post('/post', body),
   deletePost: (postId) => del(`/post/${postId}`),
   relations: (params) => get('/relation/list', params),
+  authors: (params) => get('/post/authors', params),
+  read: (targetUserId) => post('/post/read', null, { params: { targetUserId } }),
+  pin: (id) => post(`/post/${id}/pin`),
 };
 
 /** 搜索。 */

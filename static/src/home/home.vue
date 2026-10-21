@@ -17,6 +17,15 @@
         <loadingIndicator v-show="loadMore" min-height="180px"/>
         <!-- 使用 v-for 遍历排序后的数组来渲染其他 div -->
         <div class="home-div" v-for="(item, index) in divs" :key="index">
+            <div v-if="item.class === 'magnum-video' && !loadMore && (featuredVideos.length || store.userId === userId)"
+                class="magnum-video">
+                <div class="title">
+                    <span>代表作</span>
+                    <el-button v-if="store.userId === userId" text @click="openFeatured">设置代表作</el-button>
+                </div>
+                <videoList :data="featuredVideos"/>
+                <p v-if="!featuredVideos.length" class="featured-empty">选择最多 3 个已发布的视频展示在首页</p>
+            </div>
             <!-- 视频部分 -->
             <div :class="item.class" v-if="item.class === 'tribute-video'&&!loadMore">
                 <div class="title">
@@ -85,6 +94,28 @@
                 <videoList2 :data="loveVideos"/>
             </div>
         </div>
+            <el-dialog v-model="featuredVisible" title="设置代表作（最多 3 个）" width="min(90vw, 720px)">
+                <div class="featured-tools">
+                    <el-input v-model="featuredKeyword" placeholder="搜索自己的视频" maxlength="50" clearable
+                        @keyup.enter="searchFeatured" @clear="searchFeatured"/>
+                    <el-button @click="searchFeatured">搜索</el-button>
+                </div>
+                <p>已选择 {{ featuredSelection.length }} / 3，可取消全部代表作。</p>
+                <loadingIndicator v-if="featuredLoading" min-height="120px"/>
+                <div v-else class="featured-options">
+                    <el-checkbox v-for="video in featuredOptions" :key="video.id"
+                        :model-value="featuredSelection.includes(video.id)"
+                        :disabled="featuredSaving || (!featuredSelection.includes(video.id) && featuredSelection.length >= 3)"
+                        @change="selectFeatured(video.id, $event)">{{ video.title }}</el-checkbox>
+                    <p v-if="!featuredOptions.length">暂无匹配视频</p>
+                </div>
+                <el-pagination v-if="featuredTotal" v-model:current-page="featuredPage" :page-size="20"
+                    layout="prev, pager, next" :total="featuredTotal" :disabled="featuredSaving"/>
+                <template #footer>
+                    <el-button :disabled="featuredSaving" @click="featuredVisible = false">取消</el-button>
+                    <el-button type="primary" :loading="featuredSaving" @click="saveFeatured">保存</el-button>
+                </template>
+            </el-dialog>
         </div>
     </div>
 </template>
@@ -95,7 +126,7 @@ import {useGlobalStore} from "@/store/store";
 import videoList from './homeVideos.vue';
 import videoList2 from './homeVideos.vue';
 import loadingIndicator from '@/components/loadingIndicator.vue';
-import {homeContributeVideos,homeThrowCoinVideos,getCollectsClassify,homeLoveVideos} from '@/api/home/index';
+import {homeContributeVideos,homeThrowCoinVideos,getCollectsClassify,homeLoveVideos,homeMagnumVideos,updateFeaturedVideos} from '@/api/home/index';
 import { ElMessage } from 'element-plus';
 
 const store = useGlobalStore();
@@ -109,6 +140,57 @@ const collects=reactive([]);
 const collectTotal=ref(0);
 const loveVideos=reactive([]);
 const loadMore=ref(true);
+const featuredVideos = ref([]);
+const featuredVisible = ref(false);
+const featuredSelection = ref([]);
+const featuredOptions = ref([]);
+const featuredKeyword = ref('');
+const featuredAppliedKeyword = ref('');
+const featuredPage = ref(1);
+const featuredTotal = ref(0);
+const featuredLoading = ref(false);
+const featuredSaving = ref(false);
+let featuredRequestId = 0;
+
+async function openFeatured() {
+    featuredSelection.value = featuredVideos.value.map(video => video.id);
+    featuredVisible.value = true;
+    featuredKeyword.value = '';
+    featuredAppliedKeyword.value = '';
+    featuredPage.value = 1;
+    await loadFeaturedOptions();
+}
+function selectFeatured(id, selected) {
+    featuredSelection.value = selected ? [...new Set([...featuredSelection.value, id])]
+        : featuredSelection.value.filter(videoId => videoId !== id);
+}
+function searchFeatured() {
+    featuredPage.value = 1;
+    featuredAppliedKeyword.value = featuredKeyword.value.trim();
+}
+async function loadFeaturedOptions() {
+    const current = ++featuredRequestId;
+    featuredLoading.value = true;
+    try {
+        const response = await homeContributeVideos(userId, store.userId, 1, featuredPage.value, featuredAppliedKeyword.value);
+        if (current !== featuredRequestId) return;
+        featuredOptions.value = response.data.data.records;
+        featuredTotal.value = response.data.data.total;
+    } catch (error) { if (current === featuredRequestId) ElMessage.error(error.message); }
+    finally { if (current === featuredRequestId) featuredLoading.value = false; }
+}
+watch([featuredPage, featuredAppliedKeyword], () => { if (featuredVisible.value) loadFeaturedOptions(); });
+async function saveFeatured() {
+    featuredSaving.value = true;
+    try {
+        await updateFeaturedVideos(featuredSelection.value);
+        const response = await homeMagnumVideos(userId);
+        featuredVideos.value = response.data.data.records;
+        featuredVisible.value = false;
+        ElMessage.success('代表作已保存');
+    } catch (error) { ElMessage.error(error.message); }
+    finally { featuredSaving.value = false; }
+}
 
 const divs = reactive([
     { class: 'magnum-video'},
@@ -133,7 +215,9 @@ watch(() => store.homeUserInformation.id, async (id) => {
     loadMore.value = true;
     const profile = store.homeUserInformation;
     const owner = store.userId === userId;
-    const requests = [loadVideos()];
+    const requests = [loadVideos(), homeMagnumVideos(userId).then(res => {
+        featuredVideos.value = res.data.data.records;
+    })];
     if (owner || profile.publicCoin === 1)
         requests.push(homeThrowCoinVideos(store.userId, userId).then(res => throwCoinVideos.splice(0, throwCoinVideos.length, ...res.data.data)));
     if (owner || profile.publicLove === 1)
@@ -168,10 +252,11 @@ watch(()=>store.homeMenu,()=>{
 
 //获取排序
 function getSort(){
-    const homeSort=JSON.parse(localStorage.getItem('homeSort'));
-    if(Array.isArray(homeSort)&&homeSort.length===6){
-        divs.length=0;
-        Object.assign(divs,homeSort);
+    const homeSort = store.homeUserInformation.homeSectionOrder;
+    const allowed = ['magnum-video', 'tribute-video', 'throw-coin-video', 'collect', 'follow-anime', 'love-video'];
+    if(Array.isArray(homeSort) && homeSort.length === allowed.length && new Set(homeSort).size === allowed.length &&
+        homeSort.every(key => allowed.includes(key))){
+        divs.splice(0, divs.length, ...homeSort.map(key => ({ class: key })));
     }
 }
 
@@ -194,6 +279,11 @@ function openAccount(){
 .home-content{
     min-width: 0;
 }
+.featured-tools { display: flex; gap: 12px; }
+.featured-options { display: flex; flex-direction: column; align-items: flex-start; max-height: 360px; overflow: auto; }
+.featured-options :deep(.el-checkbox__label) { white-space: normal; overflow-wrap: anywhere; }
+.featured-options .el-checkbox { height: auto; min-height: 36px; }
+.featured-empty { color: #8D9794; padding: 20px 0; }
 .home.without-profile { grid-template-columns: minmax(0, 1fr); }
 
 .home{
