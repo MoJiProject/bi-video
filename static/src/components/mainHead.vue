@@ -36,8 +36,12 @@
         </div>
       </li>
       <li class="hd-user">
-        <div v-if="store.userId !== null" class="avatar-container">
-          <button type="button" class="avatar1" aria-label="打开个人主页" @click="openHome(1)">
+        <div v-if="store.userId !== null" ref="profileRoot" class="avatar-container profile-trigger"
+          :class="{ 'is-profile-open': profileOpen }" @pointerenter="enterProfile" @pointerleave="scheduleProfileClose"
+          @focusin="focusProfile" @focusout="scheduleProfileClose">
+          <a ref="profileButton" class="avatar1" :href="'/home?homeMenu=1&userId='+store.userId"
+            target="_blank" rel="noopener noreferrer" aria-label="打开个人主页，悬停或聚焦查看个人资料"
+            :aria-expanded="profileOpen" @click="closeHeaderMenus" @keydown.down.prevent="openProfile">
             <img
               :src="store.userInformation?.avatarAddress"
               alt="Avatar"
@@ -49,277 +53,49 @@
                 border: 1.5px solid #ffffff;
               "
             />
-          </button>
-          <div class="user-info">
-            <div style="margin-top: 15px; font-size: 18px;" @click="openHome(1)">{{store.userInformation?.userName}}</div>
-            <div>
-              <span style="font-size: 12px; color: #8F9794;"
-              >青芒币：<span style="color: black">{{ user.coinNumber }}</span>
-              &nbsp;&nbsp;积分：<span style="color: black">0</span>
-              </span>
-            </div>
-            <div
-              style="display: flex; justify-content: center; margin-top: 10px"
-              class="grade"
-            >
-              <span class="grade1" v-if="user.grade === 0">
-                <img class="exp" src="/img/0级.png" alt="0级" />
-                <el-progress
-                  :percentage="user.exp"
-                  color="#edcc8e"
-                  :show-text="false"
-                  style="width: 180px; transform: translateX(-6%)" /><img
-                  class="exp2"
-                  src="/img/1级.png"
-                  alt="1级" /></span
-              ><span
-                v-if="user.grade === 0"
-                style="
-                  font-size: 12px;
-                  color: #caccd0;
-                  transform: translateX(-5%);
-                  margin-top: 5px;
-                "
-                >当前成长{{ user.exp * 10 }}，距离升级Lv.1还需要{{
-                  100 * 10 - user.exp * 10
-                }}</span
-              >
-              <span class="grade1" v-if="user.grade === 1">
-                <img class="exp" src="/img/1级.png" alt="1级" />
-                <el-progress
-                  :percentage="user.exp"
-                  color="#edcc8e"
-                  :show-text="false"
-                  style="width: 180px; transform: translateX(-6%)" /><img
-                  class="exp2"
-                  src="/img/2级灰色.png"
-                  alt="2级" /></span
-              ><span
-                v-if="user.grade === 1"
-                style="
-                  font-size: 12px;
-                  color: #caccd0;
-                  transform: translateX(-5%);
-                  margin-top: 5px;
-                "
-                >当前成长{{ user.exp * 20 }}，距离升级Lv.2还需要{{
-                  100 * 20 - user.exp * 20
-                }}</span
-              >
-              <span class="grade1" v-if="user.grade === 2">
-                <img class="exp" src="/img/2级.png" alt="2级" />
-                <el-progress
-                  :percentage="user.exp"
-                  color="#edcc8e"
-                  :show-text="false"
-                  style="width: 180px; transform: translateX(-6%)" /><img
-                  class="exp2"
-                  src="/img/3级灰色.png"
-                  alt="3级" /></span
-              ><span
-                v-if="user.grade === 2"
-                style="
-                  font-size: 12px;
-                  color: #caccd0;
-                  transform: translateX(-5%);
-                  margin-top: 5px;
-                "
-                >当前成长{{ user.exp * 30 }}，距离升级Lv.3还需要{{
-                  100 * 30 - user.exp * 30
-                }}</span
-              >
-              <span class="grade1" v-if="user.grade === 3">
-                <img class="exp" src="/img/3级.png" alt="3级" />
-                <el-progress
-                  :percentage="user.exp"
-                  color="#edcc8e"
-                  :show-text="false"
-                  style="width: 180px; transform: translateX(-6%)" /><img
-                  class="exp2"
-                  src="/img/4级灰色.png"
-                  alt="4级" /></span
-              ><span
-                v-if="user.grade === 3"
-                style="
-                  font-size: 12px;
-                  color: #caccd0;
-                  transform: translateX(-5%);
-                  margin-top: 5px;
-                "
-                >当前成长{{ user.exp * 40 }}，距离升级Lv.4还需要{{
-                  100 * 40 - user.exp * 40
-                }}</span
-              >
-              <span class="grade1" v-if="user.grade === 4">
-                <img class="exp" src="/img/4级.png" alt="4级" />
-                <el-progress
-                  :percentage="user.exp"
-                  color="#edcc8e"
-                  :show-text="false"
-                  style="width: 180px; transform: translateX(-6%)" /><img
-                  class="exp2"
-                  src="/img/5级灰色.png"
-                  alt="5级" /></span
-              ><span
-                v-if="user.grade === 4"
-                style="
-                  font-size: 12px;
-                  color: #caccd0;
-                  transform: translateX(-5%);
-                  margin-top: 5px;
-                "
-                >当前成长{{ user.exp * 50 }}，距离升级Lv.5还需要{{
-                  100 * 50 - user.exp * 50
-                }}</span
-              >
-              <span class="grade1" v-if="user.grade === 5">
-                <img class="exp" src="/img/5级.png" alt="5级" />
-                <el-progress
-                  :percentage="user.exp"
-                  color="#edcc8e"
-                  :show-text="false"
-                  style="width: 180px; transform: translateX(-6%)" /><img
-                  class="exp2"
-                  src="/img/6级灰色.png"
-                  alt="6级" /></span
-              ><span
-                v-if="user.grade === 5"
-                style="
-                  font-size: 12px;
-                  color: #caccd0;
-                  transform: translateX(-5%);
-                  margin-top: 5px;
-                "
-                >当前成长{{ user.exp * 60 }}，距离升级Lv.6还需要{{
-                  100 * 60 - user.exp * 60
-                }}</span
-              >
-              <span class="grade1" v-if="user.grade === 6">
-                <img class="exp" src="/img/6级.png" alt="6级" />
-                <el-progress
-                  :percentage="user.exp"
-                  color="red"
-                  :show-text="false"
-                  style="width: 180px; transform: translateX(-6%)" /></span
-              ><span
-                v-if="user.grade === 6"
-                style="font-size: 12px; color: #caccd0; margin-top: 5px"
-                >你已经满级了！</span
-              >
-            </div>
-             <div class="user-info-number">
-               <span @click="openHome(8)">
-                 <div>{{ user.followNumber }}</div>
-                 <div>关注</div>
-              </span>
-               <span @click="openHome(9)">
-                 <div>{{ user.fansNumber }} <span v-if="NewFansNumber.value">+{{ NewFansNumber.value }}11</span></div>
-                 <div>粉丝</div>
-              </span>
-               <span @click="openDynamic">
-                 <div>{{ user.ownDynamicNumber }}</div>
-                 <div>动态</div>
-               </span>
-             </div>
-            <a
-              style="animation: none !important"
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://www.qingmang.com/#:~:text=%E5%8A%A8%E6%80%81-,%E6%88%90%E4%B8%BA%E5%A4%A7%E4%BC%9A%E5%91%98,-%E4%BA%86%E8%A7%A3%E6%9B%B4%E5%A4%9A%E6%9D%83%E7%9B%8A"
-            >
-              <div
-                style="
-                  width: 220px;
-                  display: flex;
-                  flex-direction: column;
-                  height: 50px;
-                  background-color: #FDEEE4;
-                  margin-left: 16px;
-                  margin-top: 10px;
-                  border-radius: 5px;
-                  margin-bottom: 10px;
-                "
-              >
-                <span
-                  style="
-                    color: #E56A2E;
-                    font-size: 13px;
-                    transform: translate(-65px, 10px);
-                  "
-                  >开通青芒会员
-                  <div
-                    style="
-                      background-color: white;
-                      width: 70px;
-                      border-radius: 5px;
-                      height: 25px;
-                      font-size: 12px;
-                      color: black;
-                      z-index: 10;
-                      transform: translate(205px, -10px);
-                      margin-bottom: 2px;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      color: #E5762F;
-                    "
-                  >
-                    立即开通
-                  </div></span
-                >
-
-                <span
-                  style="
-                    color: #746e71;
-                    font-size: 13px;
-                    transform: translate(-59px, -10px);
-                  "
-                  >了解更多权益</span
-                >
+          </a>
+          <section v-show="profileOpen" class="profile-card" aria-label="个人资料"
+            @pointerenter="openProfile" @pointerleave="scheduleProfileClose">
+            <a class="profile-identity" :href="'/home?homeMenu=1&userId='+store.userId"
+              target="_blank" rel="noopener noreferrer" @click="closeHeaderMenus">
+              <img :src="profileUser.avatarAddress" alt="个人头像"/>
+              <div class="profile-identity-copy">
+                <strong :title="profileUser.userName">{{ profileUser.userName || '个人空间' }}</strong>
+                <small>UID {{ store.userId }}</small>
               </div>
+              <span class="profile-arrow" aria-hidden="true">›</span>
             </a>
-            <div
-              class="feature"
-              style="
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                margin-top: 5px;
-              "
-            >
-              <a href="./account" target="_blank"
-                >
-                <div>
-                  <img src="/img/个人中心.png" style="animation: none !important"/> <span>个人中心 </span
-                  ><span style="transform: translateX(120px)"> > </span>
-                </div>
-              </a>
-              <a
-                href="/contribute/subpage2"
-                target="_blank"
-                ><div>
-                  <img src="/img/投稿管理.png" style="animation: none !important"/> <span>投稿管理 </span
-                  ><span style="transform: translateX(120px)"> > </span>
-                </div></a
-              >
-              <div>
-                <img src="/img/推荐服务.png" /> <span>推荐服务 </span
-                ><span style="transform: translateX(120px)"> > </span>
-              </div>
-              <hr
-                style="
-                  color: #8F9794;
-                  width: 220px;
-                  margin-top: 10px;
-                  height: 1px;
-                "
-              />
-              <div style="margin-top: 10px; cursor: pointer" @click="logout">
-                <img src="/img/退出登录.png" /> <span>退出登录</span>
-              </div>
+            <p class="profile-signature" :title="profileUser.introduce">
+              {{ profileUser.introduce || '还没有填写个人简介' }}
+            </p>
+            <div class="profile-meta">
+              <span v-if="profileUser.grade != null && profileUser.grade !== ''" class="profile-level">Lv.{{ profileUser.grade }}</span>
+              <span>青芒币 <b>{{ profileUser.coinNumber ?? '--' }}</b></span>
+              <span v-if="profileUser.exp != null">当前经验 <b>{{ profileUser.exp }}</b></span>
             </div>
-          </div>
+            <nav class="profile-stats" aria-label="个人数据">
+              <a :href="'/home?homeMenu=8&userId='+store.userId" target="_blank" rel="noopener noreferrer" @click="closeHeaderMenus">
+                <strong :title="String(profileUser.followNumber ?? '--')">{{ profileUser.followNumber ?? '--' }}</strong><span>关注</span>
+              </a>
+              <a :href="'/home?homeMenu=9&userId='+store.userId" target="_blank" rel="noopener noreferrer" @click="closeHeaderMenus">
+                <strong :title="String(profileUser.fansNumber ?? '--')">{{ profileUser.fansNumber ?? '--' }}</strong><span>粉丝</span>
+              </a>
+              <a :href="'/home?homeMenu=2&userId='+store.userId" target="_blank" rel="noopener noreferrer" @click="closeHeaderMenus">
+                <strong :title="String(profileUser.ownDynamicNumber ?? '--')">{{ profileUser.ownDynamicNumber ?? '--' }}</strong><span>动态</span>
+              </a>
+            </nav>
+            <nav class="profile-links" aria-label="账号管理">
+              <a href="/account" target="_blank" rel="noopener noreferrer" @click="closeHeaderMenus">
+                <img src="/img/个人中心.png" alt=""/><span>个人中心</span><span class="profile-arrow" aria-hidden="true">›</span>
+              </a>
+              <a href="/contribute/subpage2" target="_blank" rel="noopener noreferrer" @click="closeHeaderMenus">
+                <img src="/img/投稿管理.png" alt=""/><span>投稿管理</span><span class="profile-arrow" aria-hidden="true">›</span>
+              </a>
+            </nav>
+            <button type="button" class="profile-logout" @click="closeHeaderMenus(), logout()">
+              <img src="/img/退出登录.png" alt=""/><span>退出登录</span>
+            </button>
+          </section>
         </div>
         <div
           v-if="!store.userId"
@@ -399,7 +175,7 @@
           <span v-if="store.userInformation?.allMessageNumber > 0" class="workspace-unread" aria-label="有未读消息"></span>
           <span class="menu-chevron" aria-hidden="true"></span>
         </button>
-        <div v-show="activeMenu === 'workspace'" class="workspace-panel" :class="{ 'has-preview': !!activeTool }">
+        <div v-show="activeMenu === 'workspace'" class="workspace-panel">
           <div class="panel-heading workspace-heading">
             <img v-if="store.userId" class="workspace-portrait" :src="store.userInformation?.avatarAddress" alt="" />
             <span v-else class="workspace-emblem" aria-hidden="true">Q</span>
@@ -410,151 +186,8 @@
             </div>
           </div>
           <ul class="workspace-tools">
-      <li class="hd-vip" :class="{ 'is-active': activeTool === 'vip' }">
-        <button type="button" :aria-pressed="activeTool === 'vip'" @click="selectWorkspaceTool('vip')">
-          <img src="/img/尊享会员黑.png" alt="" /><span class="tool-copy">青芒会员<small>发现专属权益</small></span>
-        </button>
-        <div class="transparent-div12"></div>
-        <div v-if="store.userId !== null" class="vip-introduce">
-          <a
-            style="animation: none !important"
-            href="#"
-            ><span
-              style="
-                color: black;
-                font-size: 16px;
-                font-weight: 900;
-                margin-top: 10px;
-                transform: translateX(-135px);
-              "
-              >青芒会员权益</span
-            ></a
-          >
-          <div style="margin-top: 15px; display: flex">
-            <span
-              style="
-                transform: translateX(15px);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-              "
-            >
-              <img src="/img/热剧抢先看.png" />
-              <a
-                style="color: black; font-size: 14px"
-                href="#"
-                >热剧抢先看</a
-              ></span
-            ><span
-              style="
-                transform: translateX(40px);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-              "
-              ><img src="/img/会员免费看.png" /><a
-                style="color: black; margin-bottom: 2px; font-size: 14px"
-                href="#"
-                >会员专享</a
-              ></span
-            >
-          </div>
-          <div style="margin-top: 15px; display: flex">
-            <span
-              style="
-                font-size: 14px;
-                transform: translateX(17px);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-              "
-            >
-              <img src="/img/4K超清画质.png" />
-              <a
-                style="color: black; font-size: 14px"
-                href="#"
-                >4K超清画质</a
-              ></span
-            ><span
-              style="
-                font-size: 14px;
-                transform: translateX(37px);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-              "
-              ><img src="/img/会员专属装扮.png" /><a
-                style="margin-bottom: 2px; color: black; font-size: 14px"
-                href="#"
-                >专属装扮
-              </a></span
-            >
-          </div>
-          <div
-            style="
-              margin-top: 15px;
-              background-color: #FDEEE4;
-              width: 380px;
-              height: 60px;
-            "
-          >
-            <span
-              style="
-                display: flex;
-                font-size: 14px;
-                color: #E56A2E;
-                transform: translate(23px, 10px);
-              "
-              >首月15元</span
-            ><br />
-            <div
-              style="
-                display: flex;
-                font-size: 10px;
-                background: linear-gradient(to right, #fceecb, #f6c970);
-                width: 42px;
-                height: 14px;
-                align-items: center;
-                transform: translate(329px, -38px);
-                position: absolute;
-                z-index: 10;
-                border-radius: 3px;
-              "
-            >
-              限时特惠
-            </div>
-            <div
-              style="
-                cursor: pointer;
-                position: relative;
-                display: flex;
-                background-color: #E5762F;
-                width: 120px;
-                border-radius: 5px;
-                height: 40px;
-                color: white;
-                justify-content: center;
-                align-items: center;
-                font-size: 14px;
-                transform: translate(250px, -30px);
-              "
-            >
-              开通青芒会员
-            </div>
-            <span
-              style="
-                font-size: 12px;
-                color: #E56A2E;
-                display: flex;
-                transform: translate(23px, -48px);
-              "
-              >海量热播内容免费看</span
-            >
-          </div>
-        </div>
-      </li>
-      <li class="hd-message" :class="{ 'is-active': activeTool === 'message' }">
-        <button type="button" :aria-pressed="activeTool === 'message'" @click="selectWorkspaceTool('message')">
+      <li class="hd-message">
+        <a href="/message?messageMenu=1" target="_blank" rel="noopener noreferrer" @click="requireWorkspaceLogin">
           <div
             v-if="store.userInformation?.allMessageNumber > 0"
             class="number-style"
@@ -563,7 +196,7 @@
           </div>
           <img src="/img/消息黑.png" alt="" />
           <span class="tool-copy">消息<small>回复与互动</small></span>
-        </button>
+        </a>
         <div class="login-info2" v-if="!store.userId">
           <span style="font-size: 14px; margin-top: 20px"
             >登录即可查看消息记录</span
@@ -599,8 +232,8 @@
           </span>
         </div>
       </li>
-      <li class="hd-dynamic" :class="{ 'is-active': activeTool === 'dynamic' }">
-        <button type="button" :aria-pressed="activeTool === 'dynamic'" @click="selectWorkspaceTool('dynamic')">
+      <li class="hd-dynamic">
+        <a href="/dynamic" target="_blank" rel="noopener noreferrer" @click="requireWorkspaceLogin">
           <div
             v-if="store.userInformation?.dynamicNumber > 0"
             class="number-style"
@@ -609,7 +242,7 @@
           </div>
           <img src="/img/动态黑.png" alt="" />
           <span class="tool-copy">关注动态<small>关注的人和新鲜事</small></span>
-        </button>
+        </a>
         <div class="login-info2" v-if="!store.userId">
           <span style="font-size: 14px; margin-top: 20px"
             >登录即可查看关注动态</span
@@ -944,10 +577,10 @@
           </div>
         </div>
       </li>
-      <li class="hd-collect" :class="{ 'is-active': activeTool === 'collect' }">
-        <button type="button" :aria-pressed="activeTool === 'collect'" @click="selectWorkspaceTool('collect')">
+      <li class="hd-collect">
+        <a :href="'/home?homeMenu=5&userId='+store.userId" target="_blank" rel="noopener noreferrer" @click="requireWorkspaceLogin">
           <img src="/img/收藏黑.png" alt="" /><span class="tool-copy">我的收藏<small>留住喜欢的作品</small></span>
-        </button>
+        </a>
         <div class="login-info2" v-if="!store.userId">
           <span style="font-size: 14px; margin-top: 20px"
             >登录即可查看我的收藏</span
@@ -1114,10 +747,10 @@
           </div>
         </div>
       </li>
-      <li class="hd-history" :class="{ 'is-active': activeTool === 'history' }">
-        <button type="button" :aria-pressed="activeTool === 'history'" @click="selectWorkspaceTool('history')">
+      <li class="hd-history">
+        <a href="/history" target="_blank" rel="noopener noreferrer" @click="requireWorkspaceLogin">
           <img src="/img/历史黑.png" alt="" /><span class="tool-copy">观看记录<small>接着上次看</small></span>
-        </button>
+        </a>
         <div class="login-info2" v-if="!store.userId">
           <span style="font-size: 14px; margin-top: 20px"
             >登录即可查看历史记录</span
@@ -1503,11 +1136,7 @@
         </div>
       </li>
       <li class="hd-create">
-        <button v-if="!store.userId" type="button" @click="loginDialogVisible = true, flag = 1">
-          <img src="/img/创作中心黑.png" alt="" />
-          <span class="tool-copy">创作中心<small>管理我的作品</small></span>
-        </button>
-        <a v-if="store.userId !== null" href="./contribute" target="_blank">
+        <a href="/contribute" target="_blank" rel="noopener noreferrer" @click="requireWorkspaceLogin">
           <img src="/img/创作中心黑.png" alt="" /><span class="tool-copy">创作中心<small>管理我的作品</small></span>
         </a>
       </li>
@@ -1967,44 +1596,75 @@ export default {
     const store = useGlobalStore();
     const headerRoot = ref(null);
     const activeMenu = ref("");
-    const activeTool = ref("");
+    const profileRoot = ref(null);
+    const profileButton = ref(null);
+    const profileOpen = ref(false);
+    const profileUser = computed(() => store.userInformation);
+    let profileCloseTimer;
 
-    function closeHeaderMenus() {
+    function closeProfile() {
+      clearTimeout(profileCloseTimer);
+      profileOpen.value = false;
+    }
+
+    function openProfile() {
+      clearTimeout(profileCloseTimer);
       activeMenu.value = "";
-      activeTool.value = "";
+      profileOpen.value = true;
+    }
+
+    function enterProfile(event) {
+      if (event.pointerType !== "touch") openProfile();
+    }
+
+    function focusProfile(event) {
+      clearTimeout(profileCloseTimer);
+      if (event.relatedTarget instanceof Node && profileRoot.value?.contains(event.relatedTarget)) return;
+      openProfile();
+    }
+
+    function scheduleProfileClose(event) {
+      if (event.relatedTarget instanceof Node && profileRoot.value?.contains(event.relatedTarget)) return;
+      clearTimeout(profileCloseTimer);
+      profileCloseTimer = setTimeout(() => {
+        if (!profileRoot.value?.contains(document.activeElement)) profileOpen.value = false;
+      }, 240);
+    }
+
+    function closeHeaderMenus(event) {
+      activeMenu.value = "";
+      const restoreFocus = event?.key === "Escape" && profileRoot.value?.contains(document.activeElement);
+      closeProfile();
+      if (restoreFocus) profileButton.value?.focus();
     }
 
     function toggleHeaderMenu(menu) {
+      closeProfile();
       activeMenu.value = activeMenu.value === menu ? "" : menu;
-      activeTool.value = "";
     }
 
     function closeOutsideMenus(event) {
+      if (!profileRoot.value?.contains(event.target)) closeProfile();
       if (!headerRoot.value?.contains(event.target)) closeHeaderMenus();
     }
 
     function requireWorkspaceLogin(event) {
-      if (store.userId) return;
+      if (store.userId) {
+        closeHeaderMenus();
+        return;
+      }
       event.preventDefault();
       closeHeaderMenus();
       flag.value = 1;
       loginDialogVisible.value = true;
     }
 
-    function selectWorkspaceTool(tool) {
-      if (!store.userId) {
-        closeHeaderMenus();
-        flag.value = 1;
-        loginDialogVisible.value = true;
-        return;
-      }
-      activeTool.value = activeTool.value === tool ? "" : tool;
-      if (activeTool.value === "collect") setCollectStore();
-      if (activeTool.value === "history") selectHistoryAxios();
-    }
-
     onMounted(() => document.addEventListener("pointerdown", closeOutsideMenus));
-    onUnmounted(() => document.removeEventListener("pointerdown", closeOutsideMenus));
+    onUnmounted(() => {
+      clearTimeout(profileCloseTimer);
+      document.removeEventListener("pointerdown", closeOutsideMenus);
+    });
+    watch(() => store.userId, closeProfile);
     const historyToday = reactive([]);
     const historyYesterday = reactive([]);
     const historyEarlier = reactive([]);
@@ -2854,12 +2514,18 @@ flag.value = 1;
 
     return {
       headerRoot,
+      profileRoot,
+      profileButton,
+      profileOpen,
+      profileUser,
+      openProfile,
+      enterProfile,
+      focusProfile,
+      scheduleProfileClose,
       activeMenu,
-      activeTool,
       closeHeaderMenus,
       toggleHeaderMenu,
       requireWorkspaceLogin,
-      selectWorkspaceTool,
       loginDialogVisible,
       loginForm,
       signinForm,
