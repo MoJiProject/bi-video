@@ -1,8 +1,12 @@
 <template>
   <main class="detail">
+    <header class="detail-heading">
+      <a href="/dynamic"><span aria-hidden="true">←</span> 返回动态</a>
+      <h1>动态详情</h1>
+    </header>
     <loadingIndicator v-if="loading"/>
     <template v-else-if="dynamic">
-      <homePost :dynamic="dynamic" @changed="load"/>
+      <div class="dynamic-posts"><homePost :dynamic="dynamic" @changed="load"/></div>
       <postComments :post-id="id" @count="dynamic.commentCount = $event"/>
     </template>
     <AppEmptyState v-else kind="unavailable" title="暂时无法查看这条动态" description="动态可能已被删除，或作者设置了访问权限"/>
@@ -38,9 +42,15 @@ watch([() => route.query.dynamicId, () => store.userId], ([value]) => { id.value
 watch(() => store.deleteFlag, value => { if (value === id.value) { generation++; dynamic.value = null; } });
 </script>
 <style scoped>
-.detail { box-sizing: border-box; width: 100%; max-width: var(--page-max); margin: auto; padding: 24px var(--page-pad); }
-.detail :deep(.home-post > p) { max-width: var(--col-narrow); }
-.discussion { padding: 20px 24px; background: #fff; border-top: 1px solid #eff3f2; }
-.discussion a { color: #126b58; text-decoration: none; }
-.discussion p { margin: 0; color: #8d9794; font-size: 13px; }
+.detail { --el-color-primary: #126b58; box-sizing: border-box; display: grid; gap: 18px; width: 100%; min-width: 0; max-width: var(--page-max); margin: auto; padding: 28px var(--page-pad) 48px; color: var(--ink); }
+.detail-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+.detail-heading > a { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; color: #126b58; font-size: 13px; text-decoration: none; }
+.detail-heading > a:focus-visible { outline: 2px solid #126b58; outline-offset: 3px; }
+.detail-heading h1 { margin: 0; font-size: 24px; font-weight: 600; }
+@media (max-width: 640px) {
+  .detail { gap: 14px; padding-top: 18px; padding-bottom: 32px; }
+  .detail-heading { padding-bottom: 16px; }
+  .detail-heading h1 { font-size: 20px; }
+}
 </style>
+<style lang="scss" scoped src="./dynamicPost.scss"></style>

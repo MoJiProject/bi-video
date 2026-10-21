@@ -47,6 +47,10 @@ watch(()=>store.loginDialogVisibleFlag,()=>{
 }
 
 .dynamic-detail-page-container{
+    width: 100%;
+    min-width: 0;
+    min-height: 100dvh;
+    background: linear-gradient(180deg, #edf5ef 0, #f5f7f5 300px);
     
     .dynamic-detail-page-head-container{
     position: sticky;
@@ -55,8 +59,7 @@ watch(()=>store.loginDialogVisibleFlag,()=>{
     width: 100%;
     background-color: white;
     height: var(--head-h);
-    z-index: 1000;
-    box-shadow: 0 2px 4px #00000014;
+    z-index: var(--z-head);
     }
 
 }

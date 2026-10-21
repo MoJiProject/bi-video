@@ -1,7 +1,7 @@
 <template>
   <section class="discussion">
-    <div class="heading"><h2>评论 {{ total }}</h2>
-      <el-radio-group v-model="sort" size="small"><el-radio-button value="hot">最热</el-radio-button><el-radio-button value="new">最新</el-radio-button></el-radio-group>
+    <div class="heading"><h2>评论 <span class="comment-total">{{ total }}</span></h2>
+      <el-radio-group v-model="sort" size="small" aria-label="评论排序"><el-radio-button value="hot">最热</el-radio-button><el-radio-button value="new">最新</el-radio-button></el-radio-group>
     </div>
     <form class="comment-form" @submit.prevent="send">
       <el-tag v-if="replyTo" closable @close="replyTo = null">回复 @{{ replyTo.authorNickname }}</el-tag>
@@ -11,7 +11,7 @@
           <el-button text type="danger" @click="images.splice(index, 1)">移除</el-button></div>
       </div>
       <div class="actions">
-        <label>添加图片<input type="file" accept="image/png,image/jpeg,image/gif" multiple :disabled="uploading || images.length >= 9" @change="upload"></label>
+        <label class="comment-upload" :class="{ disabled: uploading || images.length >= 9 }">添加图片 <span>{{ images.length }}/9</span><input type="file" accept="image/png,image/jpeg,image/gif" multiple aria-label="添加评论图片，最多九张" :disabled="uploading || images.length >= 9" @change="upload"></label>
         <el-popover trigger="click" :width="260">
           <template #reference><el-button text>表情</el-button></template>
           <div class="emoji-list"><button v-for="number in 176" :key="number" type="button" @click="emoji = number; sendEmoji()">
@@ -23,7 +23,7 @@
     </form>
     <div v-for="root in rows" :key="root.id" class="comment">
       <article v-for="comment in [root, ...(root.replies || [])]" :key="comment.id" :class="{ reply: comment.rootId }">
-        <header><a :href="`/home?homeMenu=1&userId=${comment.authorId}`"><img :src="comment.authorAvatar" alt="">{{ comment.authorNickname }}</a>
+        <header><a :href="`/home?homeMenu=1&userId=${comment.authorId}`"><img :src="comment.authorAvatar" alt=""><span>{{ comment.authorNickname }}</span></a>
           <time>{{ comment.createdAt?.replace('T', ' ') }}</time></header>
         <small v-if="comment.replyToNickname">回复 @{{ comment.replyToNickname }}</small>
         <richContent :content="comment.content"/>
@@ -39,8 +39,8 @@
       </article>
     </div>
     <loadingIndicator v-if="loading"/>
-    <AppEmptyState v-if="!loading && !rows.length" compact title="还没有评论" description="分享你的想法，成为第一个留言的人"/>
-    <el-button v-if="hasMore" :loading="loading" @click="load">加载更多评论</el-button>
+    <AppEmptyState v-if="!loading && !rows.length" compact title="暂无评论"/>
+    <el-button v-if="hasMore" class="load-more" :loading="loading" @click="load">加载更多评论</el-button>
   </section>
 </template>
 <script setup>
@@ -156,25 +156,50 @@ watch([() => props.postId, sort, () => store.userId], reload, { immediate: true 
 onUnmounted(() => { generation++; });
 </script>
 <style scoped>
-.discussion { padding: 24px; background: #fff; border-top: 1px solid #eff3f2; }
+.discussion { box-sizing: border-box; min-width: 0; padding: 24px; border: 1px solid var(--line); border-radius: 20px; background: #fff; color: var(--ink); overflow-wrap: anywhere; }
 .heading, header, footer, .actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.heading { justify-content: space-between; margin-bottom: 20px; }
-h2 { margin: 0; font-size: 18px; }
+.heading { justify-content: space-between; margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 18px; font-weight: 600; }
+.comment-total { padding: 3px 8px; border-radius: 7px; background: var(--fill-soft); color: var(--ink-2); font-size: 12px; font-weight: 400; }
+.comment-form { padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--fill-soft); }
 .comment-form .el-textarea { margin: 10px 0; }
-.actions { justify-content: flex-end; font-size: 13px; color: #0a8271; }
-.actions label { margin-right: auto; max-width: 100%; }
-.actions input { display: block; max-width: 100%; }
+.comment-form :deep(.el-textarea__inner) { border-radius: 10px; background: #fff; font-size: 13px; line-height: 1.8; }
+.comment-form :deep(.el-input__count) { background: transparent; font-size: 11px; }
+.actions { justify-content: flex-end; gap: 8px; font-size: 12px; color: #126b58; }
+.actions > .el-button { min-height: 34px; margin: 0; border-radius: 9px; }
+.comment-upload { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 34px; margin-right: auto; cursor: pointer; }
+.comment-upload > span { color: var(--ink-3); font-size: 11px; }
+.comment-upload.disabled { opacity: .55; cursor: not-allowed; }
+.comment-upload:focus-within { outline: 2px solid #126b58; outline-offset: 3px; }
+.actions input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .attachments, .comment-images { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
 .attachments > div { width: 90px; }
-.el-image { width: 90px; height: 90px; border-radius: 6px; }
-.comment { padding: 20px 0; border-bottom: 1px solid #eff3f2; }
-.reply { margin: 16px 0 0 36px; }
-header a { display: flex; align-items: center; gap: 8px; color: inherit; text-decoration: none; }
-header img { width: 32px; height: 32px; border-radius: 50%; }
+.el-image { width: 90px; max-width: 100%; height: 90px; border-radius: 10px; }
+.attachments .el-button { margin: 0; font-size: 12px; }
+.comment { min-width: 0; padding: 24px 0; border-bottom: 1px solid var(--line); }
+.comment article { min-width: 0; }
+.reply { margin: 18px 0 0 40px; padding-left: 16px; border-left: 2px solid #edf2ef; }
+header a { display: flex; align-items: center; gap: 10px; min-width: 0; max-width: 100%; color: inherit; text-decoration: none; font-size: 13px; font-weight: 500; }
+header a span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+header img { flex: none; width: 32px; height: 32px; border-radius: 10px; object-fit: cover; }
 time, small { color: #8d9794; font-size: 12px; }
-.rich-content { margin: 10px 0; }
+time { margin-left: auto; }
+.rich-content { margin: 12px 0; color: #3e4c45; font-size: 13px; }
+footer { gap: 6px; }
+footer .el-button { margin: 0; padding: 6px 8px; font-size: 12px; }
+.load-more { display: flex; min-height: 38px; margin: 20px auto 0; border-radius: 10px; }
 .emoji-list { display: grid; grid-template-columns: repeat(6, 1fr); max-height: 240px; overflow: auto; }
 .emoji-list button { border: 0; background: transparent; cursor: pointer; }
 .emoji-list img { width: 28px; height: 28px; }
-@media (max-width: 640px) { .discussion { padding: 16px 12px; } .reply { margin-left: 16px; } }
+@media (max-width: 640px) {
+  .discussion { padding: 16px; border-radius: 16px; }
+  .heading { gap: 10px; padding-bottom: 14px; }
+  .comment-form { padding: 10px; }
+  .reply { margin-left: 12px; padding-left: 12px; }
+  header { gap: 8px; }
+  time { margin-left: 42px; }
+}
+@media (max-width: 380px) {
+  .actions > .el-button[type="submit"] { flex-basis: 100%; }
+}
 </style>

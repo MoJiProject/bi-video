@@ -20,7 +20,7 @@
       <div class="control-container">
         <div class="tools" :class="{ 'tools--managing': managing }">
           <template v-if="!managing">
-            <el-input v-model="keyword" class="library-search" placeholder="搜索标题/UP主昵称" maxlength="100" clearable aria-label="搜索标题或UP主昵称"
+            <el-input v-model="keyword" class="library-search" placeholder="搜索标题或创作者昵称" maxlength="100" clearable aria-label="搜索标题或创作者昵称"
               @keyup.enter="search" @clear="search">
               <template #append><el-button @click="search">搜索</el-button></template>
             </el-input>
@@ -78,7 +78,7 @@
                 <el-button text type="danger" :disabled="busy" :aria-label="`删除 ${video.title}`" @click="remove([video.id])">删除</el-button>
               </div>
               <a v-if="video.ownerId && video.available !== false" :href="`/home?userId=${video.ownerId}`" class="author" target="_blank" rel="noopener noreferrer" @click="selectInstead($event, video.id)">
-                <img src="/img/author-badge-default.png" alt="UP主"/>
+                <img src="/img/author-badge-default.png" alt="创作者"/>
                 <template v-for="(part, index) in highlight(video.ownerNickname)" :key="index"><mark v-if="part.match">{{ part.text }}</mark><template v-else>{{ part.text }}</template></template>
               </a>
               <p class="entry-time">{{ isHistory ? '观看于' : '添加于' }} {{ displayTime(isHistory ? video.lastWatchedAt : video.addedAt) }}</p>

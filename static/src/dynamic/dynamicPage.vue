@@ -11,6 +11,6 @@ import mainHead from '@/components/mainHead.vue';
 import dynamicBody from './dynamicBody.vue';
 </script>
 <style scoped>
-.dynamic-page { width: 100%; min-width: 0; }
+.dynamic-page { width: 100%; min-width: 0; min-height: 100dvh; background: linear-gradient(180deg, #edf5ef 0, #f5f7f5 300px); }
 .dynamic-page-head { position: sticky; top: 0; height: var(--head-h); background: #fff; z-index: var(--z-head); }
 </style>
