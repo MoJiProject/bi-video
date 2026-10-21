@@ -47,17 +47,16 @@ if(store.accountMenu!==accountMenu)
 
 .account-aside{
   position: relative;
-  width: 170px;
+  width: 150px;
   min-height: 500px;
-  background-color: rgba(255, 255, 255,0.86);
-  backdrop-filter: blur(14px);
+  background-color: rgba(225, 226, 229, 0.7);
   text-align: center;
   line-height: 50px;
   font-size: 16px;
-  color: #1C2321;
-  border: 1px solid rgba(224,229,227,0.72);
-  border-radius: 18px;
-  box-shadow: 0 18px 45px rgba(16, 41, 37, 0.08);
+  color: #181818;
+  border: 1px solid #e1e2e5;
+  border-radius: 5px 0 0 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .14);
   user-select: none;
   flex-shrink: 0;
   overflow: hidden;
@@ -69,16 +68,16 @@ if(store.accountMenu!==accountMenu)
     text-align: center;
     line-height: 50px;
     font-size: 16px;
-    color: #1C2321;
+    color: #181818;
     cursor: default;
     border-bottom: 1px solid rgba(171, 171, 171, 0.7);
     }
 
     .menu-item{
       display: flex;
-      padding: 0px 20px 0px 16px;
+      padding: 0 20px;
       justify-content: flex-start;
-      gap: 18px;
+      gap: 16px;
       align-items: center;
       font-size: 14px;
       transition: all 0.3s ease;
@@ -86,6 +85,9 @@ if(store.accountMenu!==accountMenu)
 
         span{
           display: flex;
+          flex: none;
+          width: 16px;
+          height: 16px;
           justify-content: center;
           align-items: center;
         }
@@ -103,7 +105,7 @@ if(store.accountMenu!==accountMenu)
      background-color: rgb(225, 228, 234, 0.7);
     }
     .active{
-      background-color: rgba(14,156,133, 0.7) !important;
+      background-color: var(--brand) !important;
       color: white !important;
 
       img:nth-child(1){
@@ -123,7 +125,7 @@ if(store.accountMenu!==accountMenu)
     align-items: center;
     gap: 8px;
     padding: 8px;
-    border-radius: 18px;
+    border-radius: 5px;
     overflow-x: auto;
 
     .title{
@@ -136,7 +138,7 @@ if(store.accountMenu!==accountMenu)
       flex: 1 0 auto;
       height: 40px;
       padding: 0 14px;
-      border-radius: 12px;
+      border-radius: 4px;
       justify-content: center;
       gap: 10px;
       line-height: 40px;

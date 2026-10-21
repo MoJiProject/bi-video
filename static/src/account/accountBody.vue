@@ -20,16 +20,15 @@ import accountEditor from './accountEditor.vue';
 
 .account-body{
   position: relative;
-  flex: 1 1 720px;
+  flex: 1 1 832px;
   min-width: 0;
   max-width: 100%;
   width: 100%;
-  border: 1px solid rgba(224,229,227,0.72);
+  border: 1px solid #e1e2e5;
+  border-left: 0;
   min-height: 500px;
-  background-color: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(14px);
-  border-radius: 18px;
-  box-shadow: 0 18px 45px rgba(16, 41, 37, 0.08);
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 0 5px 5px 0;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -39,7 +38,9 @@ import accountEditor from './accountEditor.vue';
     flex-basis: 100%;
     width: 100%;
     max-width: none;
-    min-height: calc(100dvh - 160px);
+    min-height: 500px;
+    border-left: 1px solid #e1e2e5;
+    border-radius: 5px;
   }
 }
 

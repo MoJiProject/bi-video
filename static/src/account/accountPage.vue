@@ -82,13 +82,14 @@ onBeforeUnmount(()=>{
         position: relative;
         z-index: 5;
         width: calc(100% - var(--page-pad) - var(--page-pad));
-        margin: 40px auto 0;
+        max-width: 982px;
+        margin: 50px auto 0;
         display: flex;
         justify-content: flex-start;
-        align-items: flex-start;
+        align-items: stretch;
         flex-wrap: nowrap;
-        gap: 20px;
-        padding: 0;
+        gap: 0;
+        padding: 0 0 40px;
     }
 }
 
