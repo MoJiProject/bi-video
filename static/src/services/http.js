@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { offlinePreviewEnabled, PREVIEW_TOKEN } from '../preview/config';
 
 const TOKEN_KEY = 'bi_video_token';
 const BASE_URL = import.meta.env?.VITE_API_BASE || '/api';
@@ -17,6 +18,7 @@ const http = axios.create({
 });
 
 export function getToken() {
+  if (offlinePreviewEnabled) return PREVIEW_TOKEN;
   try {
     return localStorage.getItem(TOKEN_KEY) || '';
   } catch {
@@ -25,6 +27,7 @@ export function getToken() {
 }
 
 export function setToken(token) {
+  if (offlinePreviewEnabled) return;
   try {
     if (token) localStorage.setItem(TOKEN_KEY, token);
     else localStorage.removeItem(TOKEN_KEY);

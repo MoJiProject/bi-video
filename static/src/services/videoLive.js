@@ -1,6 +1,16 @@
 import http from './http';
+import { offlinePreviewEnabled } from '../preview/config';
 
 export function connectVideoLive(videoId, handlers) {
+  if (offlinePreviewEnabled) {
+    let stopped = false;
+    Promise.resolve().then(() => {
+      if (stopped) return;
+      handlers.status('preview');
+      return handlers.open();
+    }).catch(handlers.error);
+    return () => { stopped = true; };
+  }
   const url = new URL(`${http.defaults.baseURL.replace(/\/$/, '')}/video/live`, location.origin);
   url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
   url.searchParams.set('videoId', videoId);

@@ -515,6 +515,7 @@
 
 <script>
 import apiClient from "../services/apiClient";
+import { offlinePreviewEnabled } from "../preview/config";
 import { fetchMentionUsers, fetchPublishingCategories } from "../api/product";
 import { sanitizeRichText, extractMentionIds } from "../utils/richText";
 import { uploadVideoByChunks } from "../utils/chunkUpload";
@@ -603,7 +604,7 @@ export default {
       parseRemoteVideoUrl(remoteVideoCode.value)
     );
     const showEditor = computed(
-      () => fileListVideo.value.length === 1 || video.videoSource === 1
+      () => offlinePreviewEnabled || fileListVideo.value.length === 1 || video.videoSource === 1
     );
     //远程视频取不到首帧时投稿使用的默认封面
     const defaultCoverSrc = "/img/page-bg-7.png";

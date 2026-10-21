@@ -222,6 +222,7 @@
             @waiting="videoWaitingF"
             @canplaythrough="onCanPlayThrough"
             :src="playVideoSrc"
+            :poster="offlinePreviewEnabled ? SelectVideoByIdVo.upVideo.coverAddress : undefined"
             referrerpolicy="no-referrer"
             playsinline
             class="up-user-video-player"
@@ -1434,7 +1435,8 @@
             class="up-video-controls-img0"
           />
           <span class="watch-num">
-            <span v-if="liveStatus === 'connected' && watchingNumber !== null">{{ watchingNumber }} 人正在看 · </span>
+            <span v-if="offlinePreviewEnabled">离线预览 · </span>
+            <span v-else-if="liveStatus === 'connected' && watchingNumber !== null">{{ watchingNumber }} 人正在看 · </span>
             <span v-else>{{ liveStatus === 'unavailable' ? '实时连接不可用' : liveStatus === 'reconnecting' ? '断线重连中' : '实时连接中' }} · </span>
             {{ SelectVideoByIdVo.upVideo.scrollingNumber }} 条弹幕</span>
           <!-- 打开或关闭弹幕  -->
@@ -2410,6 +2412,7 @@
 
 <script>
 import { connectVideoLive } from '../services/videoLive';
+import { offlinePreviewEnabled } from '../preview/config';
 import {
   onMounted,
   onBeforeUnmount,
@@ -2747,7 +2750,7 @@ export default {
       "#aeff00",
     ]);
     let scrollFlag=true;
-    const videoWaitingFlag=ref(true);
+    const videoWaitingFlag=ref(!offlinePreviewEnabled);
     const innerWidth = ref(window.innerWidth);
     function handleResize() {
       innerWidth.value = window.innerWidth;
@@ -2895,6 +2898,10 @@ export default {
 
     //播放视频
     function playUpVideo() {
+      if (offlinePreviewEnabled) {
+        ElMessage.info("离线预览仅展示封面和控件，真实视频播放需要后端或视频源");
+        return;
+      }
       if (upVideoPlayer.value.paused) {
         pausedOrPlayVideoFlag.value = true;
         //吞掉play()被快速pause打断时产生的rejection
@@ -3309,6 +3316,10 @@ export default {
 
     // 暂停或播放视频
     function pausedOrPlayUpVideo() {
+      if (offlinePreviewEnabled) {
+        playUpVideo();
+        return;
+      }
       if (upVideoClickToggleTimer) clearTimeout(upVideoClickToggleTimer);
       upVideoClickToggleTimer = setTimeout(() => {
         upVideoClickToggleTimer = null;
@@ -4623,6 +4634,7 @@ export default {
 
     //添加历史记录
     function addHistoryAxios() {
+      if (offlinePreviewEnabled) return;
       const player = upVideoPlayer.value;
       const id = SelectVideoByIdVo.upVideo?.id;
       const token = getToken();
@@ -4800,6 +4812,7 @@ export default {
       isRemoteVideo,
       remoteVideoSrc,
       playVideoSrc,
+      offlinePreviewEnabled,
       videoTotalTime,
       onloadPage,
       titleShowFlag,

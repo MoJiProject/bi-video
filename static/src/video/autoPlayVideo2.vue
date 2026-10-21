@@ -6,6 +6,7 @@
          <span class="autoPlayVideo2-item-left" @click="intoVideo(video)" @mousemove="videoMouseover(video.videoId)" @mouseleave="videoMouseleave(video.videoId)">
           <img class="autoPlayVideo2-cover" :src="video.coverAddress">
           <video :src="video.videoAddress"
+          :poster="video.coverAddress"
           :id="video.videoId"
           preload="none"
           disablePictureInPicture
@@ -57,6 +58,7 @@
          <span class="autoPlayVideo2-item-left" @click="intoVideo(video)" @mousemove="videoMouseover(video.videoId)" @mouseleave="videoMouseleave(video.videoId)">
           <img class="autoPlayVideo2-cover" :src="video.coverAddress">
           <video :src="video.videoAddress"
+          :poster="video.coverAddress"
           :id="video.videoId"
           preload="none"
           disablePictureInPicture

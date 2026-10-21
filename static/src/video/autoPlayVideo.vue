@@ -53,6 +53,7 @@
                 </span>
                 <img class="auto-play-video-item-cover" :src="video.coverAddress">
                 <video :src="video.videoAddress"
+                :poster="video.coverAddress"
                         class="auto-play-video-item-video"
                         :id="video.videoId+'auto1'"
                         preload="none"
@@ -90,6 +91,7 @@
                 </span>
                 <img class="auto-play-video-item-cover" :src="video.coverAddress">
                 <video :src="video.videoAddress"
+                :poster="video.coverAddress"
                         class="auto-play-video-item-video"
                         :id="video.videoId+'auto2'"
                         preload="none"

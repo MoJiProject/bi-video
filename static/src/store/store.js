@@ -1,14 +1,17 @@
 // store.js
 import { defineStore } from 'pinia'
+import { offlinePreviewEnabled, PREVIEW_USER_ID, PREVIEW_TOKEN } from '../preview/config'
 
 const TOKEN_KEY = 'bi_video_token'
 const USER_ID_KEY = 'bi_video_user_id'
 
 function getStoredToken() {
+  if (offlinePreviewEnabled) return PREVIEW_TOKEN
   return typeof localStorage === 'undefined' ? null : localStorage.getItem(TOKEN_KEY)
 }
 
 function getStoredUserId() {
+  if (offlinePreviewEnabled) return PREVIEW_USER_ID
   if (typeof localStorage === 'undefined') return null
   const raw = localStorage.getItem(USER_ID_KEY)
   if (raw === null || raw === '') return null
@@ -47,7 +50,7 @@ export const useGlobalStore = defineStore('global', {
       selectUpVideo: {},//当前播放视频信息
       shareVideoFocusFlag: false,//分享视频输入框焦点标识
       shareHover: false,//分享按钮hover标识
-      homeMenu: 0,//1主页 2动态 3投稿 4合集 5收藏 6追剧 7设置 8关注 9粉丝 10搜索
+      homeMenu: 0,//1主页 2动态 3投稿 5收藏 6追剧 7设置 8关注 9粉丝 10搜索
       homeUserInformation: {},//home用户信息
       homeLoad:{
         homeHead: false,
@@ -90,20 +93,20 @@ export const useGlobalStore = defineStore('global', {
     setUserId(newValue) {
       if (newValue === null || newValue === undefined || newValue === '') {
         this.userId = null
-        if (typeof localStorage !== 'undefined') {
+        if (!offlinePreviewEnabled && typeof localStorage !== 'undefined') {
           localStorage.removeItem(USER_ID_KEY)
         }
       } else {
         const parsed = parseInt(newValue, 10)
         if (Number.isNaN(parsed)) {
           this.userId = null
-          if (typeof localStorage !== 'undefined') {
+          if (!offlinePreviewEnabled && typeof localStorage !== 'undefined') {
             localStorage.removeItem(USER_ID_KEY)
           }
           return
         }
         this.userId = parsed
-        if (typeof localStorage !== 'undefined') {
+        if (!offlinePreviewEnabled && typeof localStorage !== 'undefined') {
           localStorage.setItem(USER_ID_KEY, String(this.userId))
         }
       }
@@ -114,7 +117,7 @@ export const useGlobalStore = defineStore('global', {
     setToken(newValue) {
       if (newValue === undefined) return
       this.token = newValue
-      if (typeof localStorage === 'undefined') return
+      if (offlinePreviewEnabled || typeof localStorage === 'undefined') return
       if (newValue === null || newValue === '') {
         localStorage.removeItem(TOKEN_KEY)
       } else {

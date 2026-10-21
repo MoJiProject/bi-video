@@ -306,6 +306,7 @@ import {
   selectPrivateMessage
 } from "../api/privateMessage/index";
 import { authApi } from "../api/product/index";
+import { offlinePreviewEnabled } from "../preview/config";
 
 function throttle(fn, limit = 150) {
   let inThrottle = false;
@@ -856,6 +857,7 @@ class ReconnectingWebSocket {
       }
 
       connect() {
+        if (offlinePreviewEnabled) return;
         try {
           const ws = new WebSocket(this.url, this.protocols);
           this.ws = ws;

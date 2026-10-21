@@ -485,6 +485,7 @@
 
 <script>
 import apiClient from "../services/apiClient";
+import { offlinePreviewEnabled } from "../preview/config";
 import { fetchMentionUsers, fetchPublishingCategories } from "../api/product";
 import { sanitizeRichText, extractMentionIds } from "../utils/richText";
 import { uploadVideoByChunks } from "../utils/chunkUpload";
@@ -605,7 +606,7 @@ export default {
       thumbnail.value = temp.value;
     }
     const beforeRouteLeave = (to, from, next) => {
-      if (fileListVideo.value.length > 0) {
+      if (!offlinePreviewEnabled && fileListVideo.value.length > 0) {
         // 检查条件
         nextRoute = next; // 保存即将离开的路由
         dialogVisible.value = true; // 显示对话框
@@ -859,6 +860,7 @@ export default {
     })
 
     function handleOnload(event){
+      if (offlinePreviewEnabled) return;
       if(fileListVideo.value.length>0)
        {
         window.addEventListener("beforeunload",handleOnload);
@@ -902,7 +904,7 @@ export default {
           placeholderFlag.value=false;
         if (video.allowTwo === 1) video.allowTwo = true;
         else video.allowTwo = false;
-        if (video.videoSource !== 1) await generateThumbnailsFromUrl(video.videoAddress);
+        if (!offlinePreviewEnabled && video.videoSource !== 1) await generateThumbnailsFromUrl(video.videoAddress);
         }
       } catch (error) {
         ElMessage({
