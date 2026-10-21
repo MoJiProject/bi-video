@@ -42,7 +42,6 @@ public class VideoLiveSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.setOrder(-1);
         registry.addHandler(new Handler(), "/api/video/live").setAllowedOriginPatterns("*");
     }
 
