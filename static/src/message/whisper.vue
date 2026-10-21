@@ -1,12 +1,14 @@
 <template>
-  <div class="whisper-container" v-loading.fullscreen="loading" element-loading-background="rgba(122, 122, 122, 0)">
+  <div class="whisper-container" :class="{ 'conversation-open': mobileConversationOpen && !!currentDialogue }" @keydown.esc="messageDialogFlag=false, emojiFlag=false, handleContextMenuFlag=false" v-loading.fullscreen="loading" element-loading-background="rgba(122, 122, 122, 0)">
     <div class="head2">我的消息</div>
     <div class="body">
         <div class="body-left">
         <div class="recent-message">近期消息</div>
         <div class="message-user-list" @scroll="dialogueListScroll">
-            <div class="message-user-item" :style="{marginBottom: index===dialogueList.length-1&&dialogueLoadingFlag? '30px' : '0px'}" @click="currentDialogue = sDialogue" :class="{'message-user-itemBackground': sDialogue===currentDialogue}" v-for="(sDialogue,index) in dialogueList" :key="sDialogue.dialogue.id">
-                <svg class="delete-message" @click="deleteDialogueF(sDialogue)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" d="M764.288 214.592 512 466.88 259.712 214.592a31.936 31.936 0 0 0-45.12 45.12L466.752 512 214.528 764.224a31.936 31.936 0 1 0 45.12 45.184L512 557.184l252.288 252.288a31.936 31.936 0 0 0 45.12-45.12L557.12 512.064l252.288-252.352a31.936 31.936 0 1 0-45.12-45.184z"></path></svg>
+            <div v-if="dialogueState==='loading'" class="conversation-loading" role="status">正在加载会话…</div>
+            <AppEmptyState v-if="dialogueState==='error'" kind="unavailable" title="加载会话失败" action-text="重新加载" compact @action="selectDialogueF"/>
+            <div class="message-user-item" role="button" tabindex="0" :aria-label="'与' + sDialogue.userInfo.userName + '的会话'" :aria-pressed="sDialogue===currentDialogue" :style="{marginBottom: index===dialogueList.length-1&&dialogueLoadingFlag? '30px' : '0px'}" @click="currentDialogue = sDialogue, mobileConversationOpen = true" @keydown.enter.self="currentDialogue = sDialogue, mobileConversationOpen = true" @keydown.space.self.prevent="currentDialogue = sDialogue, mobileConversationOpen = true" :class="{'message-user-itemBackground': sDialogue===currentDialogue}" v-for="(sDialogue,index) in dialogueList" :key="sDialogue.dialogue.id">
+                <button type="button" class="delete-message" @click.stop="deleteDialogueF(sDialogue)" aria-label="删除会话"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" d="M764.288 214.592 512 466.88 259.712 214.592a31.936 31.936 0 0 0-45.12 45.12L466.752 512 214.528 764.224a31.936 31.936 0 1 0 45.12 45.184L512 557.184l252.288 252.288a31.936 31.936 0 0 0 45.12-45.12L557.12 512.064l252.288-252.352a31.936 31.936 0 1 0-45.12-45.184z"></path></svg></button>
                 <el-tooltip
                   popper-class="custom-tooltip"
                   effect="light"
@@ -71,17 +73,32 @@
              </div>
            </div>
         </div> 
+        <AppEmptyState v-if="dialogueList.length===0&&dialogueState==='ready'" title="暂无会话" compact/>
         </div>
         <div v-show="currentDialogue" class="body-right">
-         <div class="message-username-title">{{ dialogueUserInfo?.userName }}
-            <div class="message-setting-dialog-img-container" @mouseover="messageSettingHoverFlag = true" 
+         <div class="message-username-title">
+            <button type="button" class="conversation-back" @click="mobileConversationOpen=false, messageDialogFlag=false, emojiFlag=false">‹ 会话列表</button>
+            <span class="dialogue-title">{{ dialogueUserInfo?.userName }}</span>
+            <button type="button" class="message-setting-dialog-img-container" aria-label="会话设置" :aria-expanded="messageDialogFlag" @mouseover="messageSettingHoverFlag = true"
                 @mouseleave="messageSettingHoverFlag = false">
                 <img class="message-setting-dialog-img" 
                 :src="messageSettingHoverFlag? '/img/弹幕列表蓝.png' : '/img/弹幕列表.png'">
+            </button>
+            <div v-show="messageDialogFlag" class="message-setting-dialog" :class="{
+                'message-setting-dialog-class': messageDialogFlag,
+                'message-setting-dialog-class2': !messageDialogFlag,
+            }">
+              <button type="button" class="message-setting-action" v-show="currentDialogue?.dialogue.upDateTime===null" @click="changeUpStatusF(currentDialogue)">置顶聊天</button>
+              <button type="button" class="message-setting-action" v-show="currentDialogue?.dialogue.upDateTime!==null" @click="changeUpStatusF(currentDialogue)">取消置顶</button>
+              <button type="button" class="message-setting-action" v-show="currentDialogue?.dialogue.dnd===0" @click="changeDndStatusF(currentDialogue)">开启免打扰</button>
+              <button type="button" class="message-setting-action" v-show="currentDialogue?.dialogue.dnd===1" @click="changeDndStatusF(currentDialogue)">关闭免打扰</button>
+              <button type="button" disabled>加入黑名单</button>
+              <button type="button" disabled>举报该用户</button>
+              <button type="button" disabled>不接收推送</button>
             </div>
          </div>
          <div ref="messageContent" class="message-content-container" @scroll="messageListScroll">
-            <div v-show="!messageDialogFlag&&!messageLoading&&!messageLoadingFlag" class="no-message">没有更多消息了～</div>
+            <div v-show="!messageDialogFlag&&!messageLoading&&!messageLoadingFlag" class="no-message">没有更多消息了</div>
              <div v-show="messageLoading" class="loading-icon-container">
                 <div class="loading-icon">
                 <div></div>
@@ -166,6 +183,7 @@
                         </div>
                     </div> 
                 </div>
+                <button type="button" class="message-more-actions" @click.stop="handleContextMenu($event,message.messageType===2),messageObj=message" aria-label="消息操作">···</button>
              </div>
              <div v-if="message.senderId===store.userId&&index===privateMessageList.length-1&&message.status===0" class="read-message">未读</div>
              <div v-if="message.senderId===store.userId&&index===privateMessageList.length-1&&message.status===1" class="read-message2">已读</div>
@@ -173,23 +191,23 @@
              <div v-if="message.status===2&&message.senderId===store.userId" class="notify-message">您撤回了一条消息</div>
              <div v-if="message.status===2&&message.senderId!==store.userId" class="notify-message">对方撤回了一条消息</div>
              </div>
-             <div v-show="handleContextMenuFlag" class="context-menu"
+             <div v-show="handleContextMenuFlag" class="context-menu" role="group" aria-label="消息操作"
              @contextmenu="handleContextMenu2" 
              :style="{
                 top: handleContextMenuPosition.y+'px',
                 left: handleContextMenuPosition.x+'px',
              }"
              >
-                 <div v-if="!messageIsImgFlag&&messageObj?.messageType===1" @click="handleCopyMessage">复制</div>
-                 <div v-if="messageObj?.senderId===store.userId" @click="revocationMessageF(messageObj)">撤回</div>
-                 <div @click="deleteMessageDialogFlag=true">删除</div>
-                 <div v-if="messageIsImgFlag" @click="handleSaveImg(messageObj)">保存图片</div>
+                 <button type="button" v-if="!messageIsImgFlag&&messageObj?.messageType===1" @click="handleCopyMessage">复制</button>
+                 <button type="button" v-if="messageObj?.senderId===store.userId" @click="revocationMessageF(messageObj)">撤回</button>
+                 <button type="button" @click="deleteMessageDialogFlag=true">删除</button>
+                 <button type="button" v-if="messageIsImgFlag" @click="handleSaveImg(messageObj)">保存图片</button>
              </div>
          </div>
 
-         <div v-show="showScrollToBottom" class="scroll-to-bottom-btn" @click="scrollToBottomF" title="回到底部">
+         <button type="button" v-show="showScrollToBottom" class="scroll-to-bottom-btn" @click="scrollToBottomF" title="回到底部">
            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-         </div>
+         </button>
 
          <div class="message-send-container">
             <div class="message-feature-container">
@@ -203,7 +221,7 @@
                   :show-arrow="false"
                   :hide-after="0"
                 >
-                <img @click="addSendImg" @mouseover="imgFeatureHoverFlag = true" @mouseleave="imgFeatureHoverFlag = false" class="message-feature-img" :src="imgFeatureHoverFlag ? '/img/媒体按钮蓝.png' : '/img/媒体按钮.png'">
+                <button type="button" class="message-feature-button" aria-label="发送图片" @click="addSendImg" @mouseover="imgFeatureHoverFlag = true" @mouseleave="imgFeatureHoverFlag = false"><img class="message-feature-img" :src="imgFeatureHoverFlag ? '/img/媒体按钮蓝.png' : '/img/媒体按钮.png'"></button>
                 </el-tooltip>
                 <el-tooltip
                   popper-class="custom-tooltip"
@@ -215,7 +233,7 @@
                   :show-arrow="false"
                   :hide-after="0"
                 >
-                <img @mouseover="emojiHoverFlag = true" @mouseleave="emojiHoverFlag = false" class="message-feature-emoji" :src="emojiHoverFlag ? '/img/表情按钮蓝.png' : '/img/表情按钮.png'">
+                <button type="button" class="message-feature-emoji message-feature-button" aria-label="表情" :aria-expanded="emojiFlag" @mouseover="emojiHoverFlag = true" @mouseleave="emojiHoverFlag = false"><img class="message-feature-emoji" :src="emojiHoverFlag ? '/img/表情按钮蓝.png' : '/img/表情按钮.png'"></button>
                 </el-tooltip>
                 <div v-show="emojiFlag" class="message-emoji-list">
                    <span class="emoji-title">表情</span>
@@ -232,7 +250,7 @@
                 <input type="file" class="message-file-input" style="display: none;" accept="image/*" @change="handleFileChange">
             </div>
             <div class="message-input-focus" @click="messageInput.focus()">
-                <div class="message-input-container" ref="messageInput" @blur="getAfterBlurIndex" @input="updateFontNumber"  contenteditable="true"></div>
+                <div class="message-input-container" ref="messageInput" @blur="getAfterBlurIndex" @input="updateFontNumber" contenteditable="true" role="textbox" aria-label="输入消息" aria-multiline="true" data-placeholder="输入消息"></div>
             </div>
             <div class="message-footer-container">
                 <span>{{messageNumber}}/500</span>
@@ -241,29 +259,16 @@
          </div>
         </div>
         <div v-show="!currentDialogue" class="no-message-container">
-            <img src="/img/no_message.png">
-            <div>快找小伙伴聊天吧</div>
+            <AppEmptyState title="选择一个会话"/>
         </div>
     </div>
-    <div v-show="messageDialogFlag" class="message-setting-dialog" :class="{
-        'message-setting-dialog-class': messageDialogFlag,
-        'message-setting-dialog-class2': !messageDialogFlag,
-    }">
-       <div v-show="currentDialogue?.dialogue.upDateTime===null" @click="changeUpStatusF(currentDialogue)">置顶聊天</div> 
-       <div v-show="currentDialogue?.dialogue.upDateTime!==null" @click="changeUpStatusF(currentDialogue)">取消置顶</div> 
-       <div v-show="currentDialogue?.dialogue.dnd===0" @click="changeDndStatusF(currentDialogue)">开启免打扰</div>
-       <div v-show="currentDialogue?.dialogue.dnd===1" @click="changeDndStatusF(currentDialogue)">关闭免打扰</div>  
-       <div>加入黑名单</div> 
-       <div>举报该用户</div> 
-       <div>不接收推送</div> 
-    </div> 
     <el-dialog
       v-model="deleteMessageDialogFlag"
       append-to-body
-      width="464"
+      width="min(464px, calc(100vw - 32px))"
+      class="message-confirm-dialog"
       :lock-scroll="false"
       align-center
-      style="height: 152.8px; border-radius: 12px"
     >
       <div class="delete-dialog-content">
         消息删除后不再显示在聊天记录里，确认删除吗？
@@ -324,6 +329,8 @@ const dialogueList = reactive([]);
 const dialoguePageNum = ref(1);
 const messagePageNum = ref(1);
 const currentDialogue = ref(null);
+const mobileConversationOpen = ref(false);
+const dialogueState = ref("loading");
 const handleContextMenuFlag = ref(false);
 const handleContextMenuPosition = ref({ x: 0, y: 0 });
 const privateMessageList = reactive([]);
@@ -468,6 +475,7 @@ function readFileAsBase64(file) {
 
 function selectDialogueF() {
   if (store.token === null || store.userId === null) return;
+  dialogueState.value = "loading";
   selectDialogue(store.token, store.userId, dialoguePageNum.value).then(res => {
     if (res.data.code === 1) {
       dialogueList.push(...res.data.data);
@@ -482,7 +490,14 @@ function selectDialogueF() {
       } else {
         if (dialogueList.length > 0) currentDialogue.value = dialogueList[0];
       }
+      dialogueState.value = "ready";
+    } else {
+      dialogueState.value = "error";
+      ElMessage.error(res.data.msg || "加载会话失败");
     }
+  }).catch(error => {
+    dialogueState.value = "error";
+    ElMessage.error(error.message || "加载会话失败");
   });
 }
 
@@ -564,9 +579,13 @@ function deleteDialogueF(sDialogue) {
 function handleContextMenu(e, flag) {
   messageIsImgFlag.value = flag;
   e.preventDefault();
-  handleContextMenuPosition.value = { x: e.clientX, y: e.clientY };
+  const bounds = e.currentTarget.getBoundingClientRect();
+  handleContextMenuPosition.value = {
+    x: Math.max(8, Math.min(e.clientX || bounds.left, window.innerWidth - 168)),
+    y: Math.max(8, Math.min(e.clientY || bounds.bottom, window.innerHeight - 168)),
+  };
   handleContextMenuFlag.value = true;
-  copyMessage.value = e.target.innerText;
+  copyMessage.value = e.currentTarget.closest(".message-content-container-item")?.querySelector(".message-content")?.innerText || e.target.innerText;
 }
 
 function handleContextMenu2(e) {
@@ -636,7 +655,12 @@ const selectPrivateMessageF2 =async (sDialogue) => {
 };
 
 watch(currentDialogue, async (newVal) => {
+  if (newVal === null) mobileConversationOpen.value = false;
   if (newVal !== null) {
+    mobileConversationOpen.value = true;
+    messageDialogFlag.value = false;
+    handleContextMenuFlag.value = false;
+    emojiFlag.value = false;
     userInfo.value = null;
     messageNumber.value = 0;
     dialogueUserInfo.value = null;

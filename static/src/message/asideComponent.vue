@@ -1,20 +1,20 @@
 <template>
-  <div class="aside-container">
+  <nav class="aside-container" aria-label="消息中心导航">
     <div class="title">
         <img src="/img/消息中心.png">
         <span>消息中心</span>
     </div>
     <ul>
-        <li :class="{liColor: store.messageMenu === 1}"><span @click="jumpPage(1)" class="active">我的消息<span v-show="store?.userInformation.messageNumber > 0" class="message-num">{{ store.userInformation.messageNumber<100? store.userInformation.messageNumber : '99+' }}</span></span></li>
-        <li :class="{liColor: store.messageMenu === 2}"><span @click="jumpPage(2)" class="active">回复我的<span v-show="store?.userInformation.replyCommentNumber > 0" class="message-num">{{ store.userInformation.replyCommentNumber<100? store.userInformation.replyCommentNumber : '99+' }}</span></span></li>
-        <li :class="{liColor: store.messageMenu === 3}"><span @click="jumpPage(3)" class="active">@ 我的<span v-show="store?.userInformation.atNumber > 0" class="message-num">{{ store.userInformation.atNumber<100? store.userInformation.atNumber : '99+' }}</span></span></li>
-        <li :class="{liColor: store.messageMenu === 4}"><span @click="jumpPage(4)" class="active">收到的赞<span v-show="store?.userInformation.likeAllNumber > 0" class="message-num">{{ store.userInformation.likeAllNumber<100? store.userInformation.likeAllNumber : '99+' }}</span></span></li>
+        <li :class="{liColor: store.messageMenu === 1}"><button type="button" @click="jumpPage(1)" :aria-current="store.messageMenu === 1 ? 'page' : undefined" class="active">我的消息<span v-show="store?.userInformation.messageNumber > 0" class="message-num">{{ store.userInformation.messageNumber<100? store.userInformation.messageNumber : '99+' }}</span></button></li>
+        <li :class="{liColor: store.messageMenu === 2}"><button type="button" @click="jumpPage(2)" :aria-current="store.messageMenu === 2 ? 'page' : undefined" class="active">回复我的<span v-show="store?.userInformation.replyCommentNumber > 0" class="message-num">{{ store.userInformation.replyCommentNumber<100? store.userInformation.replyCommentNumber : '99+' }}</span></button></li>
+        <li :class="{liColor: store.messageMenu === 3}"><button type="button" @click="jumpPage(3)" :aria-current="store.messageMenu === 3 ? 'page' : undefined" class="active">@ 我的<span v-show="store?.userInformation.atNumber > 0" class="message-num">{{ store.userInformation.atNumber<100? store.userInformation.atNumber : '99+' }}</span></button></li>
+        <li :class="{liColor: store.messageMenu === 4}"><button type="button" @click="jumpPage(4)" :aria-current="store.messageMenu === 4 ? 'page' : undefined" class="active">收到的赞<span v-show="store?.userInformation.likeAllNumber > 0" class="message-num">{{ store.userInformation.likeAllNumber<100? store.userInformation.likeAllNumber : '99+' }}</span></button></li>
     </ul>
-    <div :class="{liColor: store.messageMenu === 5}" @click="jumpPage(5)" class="msg-setting" @mouseover="msgSettingHoverFlag = true" @mouseleave="msgSettingHoverFlag = false">
+    <button type="button" :class="{liColor: store.messageMenu === 5}" :aria-current="store.messageMenu === 5 ? 'page' : undefined" @click="jumpPage(5)" class="msg-setting" @mouseover="msgSettingHoverFlag = true" @mouseleave="msgSettingHoverFlag = false">
         <img :src="msgSettingHoverFlag||store.messageMenu===5 ?'/img/消息设置蓝.png' :  '/img/消息设置.png'">
         <span class="active" >消息设置</span>
-    </div>
-  </div>
+    </button>
+  </nav>
 
 </template>
 

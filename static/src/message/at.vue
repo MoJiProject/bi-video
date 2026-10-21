@@ -62,15 +62,15 @@
                 </a>
                 <div class="at-right-content-bottom">
                     <span class="at-time">{{ at.comments.commentTime }}</span>
-                    <span class="at-comment" @click="openReplyComment(at)" @mouseover="replyCommentHoverFlag=true" @mouseleave="replyCommentHoverFlag=false"><img :src="replyCommentHoverFlag?'/img/回复蓝.png':'/img/回复.png'"> <span>回复</span></span>
-                    <span v-show="at.commentControls?.controls!==1" class="love-comment" v-debounce @click="commentControlesF(at)" @mouseover="loveCommentHoverFlag=true" @mouseleave="loveCommentHoverFlag=false"><img :src="loveCommentHoverFlag?'/img/评论点赞hover.png':'/img/评论点赞灰.png'"> <span>点赞</span></span>
-                    <span v-show="at.commentControls?.controls===1" class="love-comment2" v-debounce @click="commentControlesF(at)"><img src="/img/评论点赞蓝.png"> <span>已赞</span></span>
-                    <span class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id" @mouseover="deleteCommentNotificaitonHoverFlag=true" @mouseleave="deleteCommentNotificaitonHoverFlag=false"><img :src="deleteCommentNotificaitonHoverFlag?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除该通知</span></span>
+                    <button type="button" class="at-comment" @click="openReplyComment(at)" @mouseover="replyCommentHoverFlag=true" @mouseleave="replyCommentHoverFlag=false"><img :src="replyCommentHoverFlag?'/img/回复蓝.png':'/img/回复.png'"> <span>回复</span></button>
+                    <button type="button" v-show="at.commentControls?.controls!==1" class="love-comment" v-debounce @click="commentControlesF(at)" @mouseover="loveCommentHoverFlag=true" @mouseleave="loveCommentHoverFlag=false"><img :src="loveCommentHoverFlag?'/img/评论点赞hover.png':'/img/评论点赞灰.png'"> <span>点赞</span></button>
+                    <button type="button" v-show="at.commentControls?.controls===1" class="love-comment2" v-debounce @click="commentControlesF(at)"><img src="/img/评论点赞蓝.png"> <span>已赞</span></button>
+                    <button type="button" class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id" @mouseover="deleteCommentNotificaitonHoverFlag=true" @mouseleave="deleteCommentNotificaitonHoverFlag=false"><img :src="deleteCommentNotificaitonHoverFlag?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除</span></button>
                 </div>
                 <div v-show="at?.replyFlag" class="at-comment-container">
                   <img src="/img/avatar-default.png">
-                  <textarea :id="'at'+at.at.id" class="at-comment-input" v-model="commentContent" placeholder="请自觉遵守互联网相关的政策法规，严禁发布色情、暴力、反动的言论。"></textarea>
-                  <button v-debounce class="commit-comment" @click="replayCommentF(at)">发表<br>评论</button>
+                  <textarea :id="'at'+at.at.id" class="at-comment-input" v-model="commentContent" placeholder="输入回复内容" aria-label="回复内容"></textarea>
+                  <button type="button" v-debounce class="commit-comment" @click="replayCommentF(at)">发送回复</button>
                 </div>
                 <el-tooltip
                     v-if="at.comments.mainCommentId!==null"
@@ -87,8 +87,8 @@
                   </template>
                   <a v-if="at.comments.mainCommentId!==null&&(at.comments.deleteSign===0&&at.comments.status===0)&&!at.comments.dynamicId" class="comment-content" :href="'./video?videoId=BV'+at.at.videoId+'&commentId='+`${at.comments.mainCommentId?at.comments.mainCommentId:at.comments.id}`+'&replyId='+at.comments.id" target="videoWindow"><span v-html="addImgFlagF(at.mainComments)"></span></a>
                   <a v-else-if="at.comments.mainCommentId!==null&&(at.comments.deleteSign===1||at.comments.status===1)&&!at.comments.dynamicId" class="comment-content" :href="'./video?videoId=BV'+at.at.videoId" target="videoWindow"><span v-html="addImgFlagF(at.mainComments)"></span></a>
-                  <a v-else-if="at.comments.mainCommentId!==null&&(at.comments.deleteSign===0&&at.comments.status===0)&&at.comments.dynamicId" class="comment-content" :href="'./dynamic?dynamicId='+at.comments.dynamicId+'&commentId='+`${at.comments.mainCommentId?at.comments.mainCommentId:at.comments.id}`+'&replyId='+at.comments.id" target="dynamicWindow"><span v-html="addImgFlagF(at.mainComments)"></span></a>
-                  <a v-else-if="at.comments.mainCommentId!==null&&(at.comments.deleteSign===1||at.comments.status===1)&&at.comments.dynamicId" class="comment-content" :href="'./dynamic?dynamicId='+at.comments.dynamicId" target="dynamicWindow"><span v-html="addImgFlagF(at.mainComments)"></span></a>
+                  <a v-else-if="at.comments.mainCommentId!==null&&(at.comments.deleteSign===0&&at.comments.status===0)&&at.comments.dynamicId" class="comment-content" :href="'./dynamicDetail?dynamicId='+at.comments.dynamicId+'&commentId='+`${at.comments.mainCommentId?at.comments.mainCommentId:at.comments.id}`+'&replyId='+at.comments.id" target="dynamicWindow"><span v-html="addImgFlagF(at.mainComments)"></span></a>
+                  <a v-else-if="at.comments.mainCommentId!==null&&(at.comments.deleteSign===1||at.comments.status===1)&&at.comments.dynamicId" class="comment-content" :href="'./dynamicDetail?dynamicId='+at.comments.dynamicId" target="dynamicWindow"><span v-html="addImgFlagF(at.mainComments)"></span></a>
                 </el-tooltip>
                 <el-tooltip
                     v-if="at.comments.mainCommentId===null&&!at.comments.dynamicId"
@@ -145,7 +145,7 @@
                 </a>
                 <div class="at-right-content-bottom">
                     <span class="at-time">{{ at.dynamic?.publishTime }}</span>
-                    <span class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id" @mouseover="deleteCommentNotificaitonHoverFlag=true" @mouseleave="deleteCommentNotificaitonHoverFlag=false"><img :src="deleteCommentNotificaitonHoverFlag?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除该通知</span></span>
+                    <button type="button" class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id" @mouseover="deleteCommentNotificaitonHoverFlag=true" @mouseleave="deleteCommentNotificaitonHoverFlag=false"><img :src="deleteCommentNotificaitonHoverFlag?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除</span></button>
                 </div>
                 <el-tooltip
                     v-if="at.dynamic?.imgAddress"
@@ -165,7 +165,7 @@
            </div>
         </div>
         <div v-show="atList.length===0&&selectAtCommentFFlag" class="no-at-data">
-          <img src="/img/没有消息数据.png">
+          <AppEmptyState title="暂无提及通知" compact/>
         </div>
         <div v-show="atList.length===0&&!selectAtCommentFFlag" class="at-loading">
           <img src="/img/loading.png">
@@ -174,10 +174,10 @@
       <el-dialog
       v-model="deleteCommentDialogFlag"
       append-to-body
-      width="464"
+      width="min(464px, calc(100vw - 32px))"
+      class="message-confirm-dialog"
       :lock-scroll="false"
       align-center
-      style="height: 169.8px; border-radius: 12px"
     >
       <span class="delete-dialog-title">删除</span>
       <div class="delete-dialog-content">

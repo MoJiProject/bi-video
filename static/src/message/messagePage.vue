@@ -1,9 +1,9 @@
 <template>
-  <div v-if="store.token" class="message-page" :style="{backgroundImage: 'url('+backgroundImgSrc[bIndex]+')'}">
-    <div class="message-head">
-    <headComponent :head2-flag="true"/>
-    </div>
+  <div class="message-page" :style="{backgroundImage: backgroundModel === 1 ? 'url('+backgroundImgSrc[bIndex]+')' : 'none'}">
+    <headComponent class="header-stack-search message-page-head" :head2-flag="true"/>
+    <main v-if="store.token" class="message-workspace">
     <asideComponent/>
+    <section class="message-main" aria-label="消息内容">
     <div v-if="store.messageMenu === 1" class="message-body">
       <whisper/>
     </div>
@@ -19,6 +19,11 @@
     <div v-else-if="store.messageMenu === 5" class="message-body">
       <config/>
     </div>
+    </section>
+    </main>
+    <div v-else class="message-empty">
+      <AppEmptyState kind="login" title="登录后查看消息" action-text="登录" @action="store.setLoginDialogVisible(true)"/>
+    </div>
   </div>
 </template>
 
@@ -31,10 +36,11 @@ import at from './at.vue';
 import love from './love.vue';
 import config from './config.vue';
 import {useGlobalStore} from "../store/store";
-import { onBeforeUnmount, onMounted, watch } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useBodyLayout } from '../composables/useBodyLayout';
 
 const store = useGlobalStore();
+const backgroundModel = ref(parseInt(localStorage.getItem('backgroundModel')) || 0);
 const backgroundImgSrc=[
   '/img/page-bg-1.png',
   '/img/page-bg-2.png',
@@ -76,9 +82,9 @@ async function getUserIp(){
 }
 watch(()=>store.userInformation,()=>{
   
-  const backgroundModel=parseInt(localStorage.getItem('backgroundModel')) || 0;
+  backgroundModel.value=parseInt(localStorage.getItem('backgroundModel')) || 0;
 
-  if(backgroundModel===1)
+  if(backgroundModel.value===1)
   {
     document.documentElement.style.setProperty('--background-color', 'rgb(255,255,255,0.7)');
     document.documentElement.style.setProperty('--line-color', 'rgb(179, 179, 179)');
@@ -88,7 +94,7 @@ watch(()=>store.userInformation,()=>{
     document.documentElement.style.setProperty('--background-color', 'rgb(255,255,255,1)');
     document.documentElement.style.setProperty('--line-color', '#e5e9ef');
   }
-},{deep:true})
+},{deep:true,immediate:true})
 
 
  
@@ -96,39 +102,4 @@ watch(()=>store.userInformation,()=>{
 
 </script>
 
-<style lang="scss" scoped>
-
-*{
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-.message-page{
-  position: relative;
-  width: 100%;
-  min-height: 100vh;
-  background-position: center 50px;
-  background-repeat: no-repeat;
-  background-size: cover;
-
-}
-
-
-.message-head {
-  top: 0px;
-  left: 0;
-  width: 100%;
-  height: 64px;
-  position: fixed;
-  background-color: white;
-  box-shadow: 2px 0px 4px #d3d3d3;
-  z-index: 900;
-}
-.message-body {
-  position: relative;
-}
-
-
-
-</style>
+<style lang="scss" scoped src="./messageLayout.scss"></style>

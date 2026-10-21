@@ -1,17 +1,20 @@
 <template>
   <div
     v-show="onloadPage && SelectVideoByIdVo.upVideo"
-    class="video-page"
-    :class="{ userselect: threeAnmationBeforeFlag }"
+    class="video-page video-detail-shell"
+    :class="{ userselect: threeAnmationBeforeFlag, 'is-theater': isTheaterMode }"
+    :style="{ '--player-height': `${playerMetrics.height}px`, '--chrome-height': `${playerMetrics.chromeHeight}px` }"
   >
     <div class="video-head">
       <head1
+        class="header-stack-search"
         :head2Flag="true"
         :loginDialogVisibleFlag="loginDialogVisibleFlag"
       />
     </div>
     <div class="video-body-container">
       <div class="video-body">
+        <header class="video-detail-heading">
         <el-tooltip
           popper-class="custom-tooltip"
           class="dynamicContent-item-tooltip"
@@ -67,7 +70,11 @@
             <span class="prohibition-sign"></span>
             <span>未经作者授权，禁止转载</span>
           </div>
-          <div class="up-user-avatar-wrapper">
+          <div
+            class="up-user-avatar-wrapper"
+            @focusin="delayUserInfo(1)"
+            @focusout="!$event.currentTarget.contains($event.relatedTarget) && delayUserInfo(0)"
+          >
             <img
               @click="openHome(1,SelectVideoByIdVo.upUser.id)"
               :src="SelectVideoByIdVo.upUser?.avatarAddress"
@@ -75,14 +82,19 @@
               @mouseover="delayUserInfo(1)"
               @mouseleave="delayUserInfo(0)"
             />
+            <button type="button" class="video-creator-name" @click="openHome(1,SelectVideoByIdVo.upUser.id)">
+              {{ SelectVideoByIdVo.upUser.userName }}
+            </button>
+            <span class="video-creator-followers">{{ SelectVideoByIdVo.upUser.fansNumber }} 位关注者</span>
+            <button
+              v-if="String(SelectVideoByIdVo.upUser.id) !== String(store.userId)"
+              type="button"
+              class="video-creator-follow"
+              :aria-pressed="SelectVideoByIdVo.isFansFlag === 1"
+              @click="SelectVideoByIdVo.isFansFlag === 1 ? deleteFollowAxios(SelectVideoByIdVo.upUser.id) : addFollowAxios(SelectVideoByIdVo.upUser.id)"
+            >{{ SelectVideoByIdVo.isFansFlag === 1 ? '已关注' : '关注' }}</button>
             <div
               v-show="nameOrAvatarHoverFlag !== 0"
-              :style="{
-                transform:
-                  nameOrAvatarHoverFlag === 1
-                    ? 'translate(0px, 0px)'
-                    : 'translate(55px, -35px)',
-              }"
               class="up-user-info"
               @mouseover="nameOrAvatarHoverFlag2=true"
               @mouseleave="nameOrAvatarHoverFlag2=false,delayUserInfo(0)"
@@ -183,8 +195,17 @@
             </div>
           </div>
         </div>
+        </header>
         <div class="video-stage">
-        <div id="upvideocontainer" ref="upVideoContainer" class="up-video-container">
+        <div
+          id="upvideocontainer"
+          ref="upVideoContainer"
+          class="up-video-container"
+          :class="{ 'is-expanded': intoVideoAllDisplayIngFlag, 'is-web-fullscreen': isWebFullscreen }"
+          @pointermove="videoMove"
+          @pointerdown="videoMove"
+          @focusin="videoFeatureShowFlag = true, handlerCleanTime()"
+        >
           <video
             :class="{
               setVideoMirrorFlag: setVideoMirrorFlag,
@@ -202,6 +223,7 @@
             @canplaythrough="onCanPlayThrough"
             :src="playVideoSrc"
             referrerpolicy="no-referrer"
+            playsinline
             class="up-user-video-player"
           ></video>
           <div
@@ -219,7 +241,6 @@
               :likeVideoClickFlag="likeVideoClickFlag"
               :videoShareClickFlag="videoShareClickFlag"
               :videoCollectClickFlag="videoCollectClickFlag"
-              style="position: absolute"
             />
           </div>
           <span
@@ -260,179 +281,14 @@
               "
               >关注</span>
           </div>
-          <!-- 进度条 -->
-          <progress
-            v-show="videoFeatureShowFlag && !intoVideoAllDisplayIngFlag"
-            @mousedown.prevent="startProgressDrag($event, false)"
-            @mousemove="updateupVideoProgressImgPosition($event, false)"
-            @mouseover="
-              (upVideoProgressImg = true), handlerCleanTime(), (videoLeave = true)
-            "
-            @mouseleave="(upVideoProgressImg = false), (videoLeave = false)"
-            :value="upVideoProgress"
-            max="100"
-            class="up-VideoProgress"
-          ></progress>
-          <!-- 放大视频后的 -->
-          <progress
-            :class="{
-              progressintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
-            }"
-            v-show="videoFeatureShowFlag && intoVideoAllDisplayIngFlag"
-            @mousedown.prevent="startProgressDrag($event, true)"
-            @mousemove="updateupVideoProgressImgPosition($event, true)"
-            @mouseover="
-              (upVideoProgressImg = true), handlerCleanTime(), (videoLeave = true)
-            "
-            @mouseleave="(upVideoProgressImg = false), (videoLeave = false)"
-            :value="upVideoProgress"
-            max="100"
-            class="up-VideoProgress"
-          ></progress>
-          <!-- 进度条图片 -->
-          <img
-            v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
-            @mousedown.prevent="startProgressDrag($event, false)"
-            @mouseover="upVideoProgressImg = true"
-            @mouseleave="upVideoProgressImg = false"
-            src="/img/视频进度图片.png"
-            class="up-video-progress-img"
-            :style="{
-              left: `${upVideoProgress*676/100-6}px`,
-            }"
-          />
-          <!-- 放大视频后的 -->
-          <img
-            :class="{
-              progressImgintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
-            }"
-            v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
-            @mousedown.prevent="startProgressDrag($event, true)"
-            @mouseover="upVideoProgressImg = true"
-            @mouseleave="upVideoProgressImg = false"
-            src="/img/视频进度图片.png"
-            class="up-video-progress-img"
-            :style="{
-              left: `${upVideoProgress*0.97+1.3}%`,
-            }"
-          />
-          <!-- 指示器 -->
-          <img
-            v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
-            @mousedown.prevent="startProgressDrag($event, false)"
-            @mousemove="updateupVideoProgressImgPosition($event, false)"
-            @mouseover="upVideoProgressImg = true"
-            @mouseleave="upVideoProgressImg = false"
-            src="/img/指示器上.png"
-            class="pointer-top"
-            :style="{
-              left: `${upVideoProgressImgPosition}px`,
-            }"
-          />
-          <div
-            class="pointer-top-container"
-            v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
-            @mousedown.prevent="startProgressDrag($event, false)"
-            @mousemove="updateupVideoProgressImgPosition($event, false)"
-            @mouseover="upVideoProgressImg = true"
-            @mouseleave="upVideoProgressImg = false"
-          ></div>
-          <img
-            v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
-            @mousedown.prevent="startProgressDrag($event, false)"
-            @mousemove="updateupVideoProgressImgPosition($event, false)"
-            @mouseover="upVideoProgressImg = true"
-            @mouseleave="upVideoProgressImg = false"
-            src="/img/指示器下.png"
-            class="pointer-bottom"
-            :style="{
-              left: `${upVideoProgressImgPosition}px`,
-            }"
-          />
-          <div
-            class="pointer-bottom-container"
-            v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
-            @mousedown.prevent="startProgressDrag($event, false)"
-            @mousemove="updateupVideoProgressImgPosition($event, false)"
-            @mouseover="upVideoProgressImg = true"
-            @mouseleave="upVideoProgressImg = false"
-          ></div>
-          <!-- 放大视频后的 -->
-          <img
-            :class="{
-              progressPointerTopintoVideoAllDisplayIngFlag:
-                intoVideoAllDisplayIngFlag,
-            }"
-            v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
-            @mousedown.prevent="startProgressDrag($event, true)"
-            @mousemove="updateupVideoProgressImgPosition($event, true)"
-            @mouseover="upVideoProgressImg = true"
-            @mouseleave="upVideoProgressImg = false"
-            src="/img/指示器上.png"
-            class="pointer-top"
-            :style="{
-              left: `${upVideoProgressImgPosition - 3.5}px`,
-            }"
-          />
-          <div
-            :class="{
-              topContainerintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
-            }"
-            class="pointer-top-container"
-            v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
-            @mousedown.prevent="startProgressDrag($event, true)"
-            @mousemove="updateupVideoProgressImgPosition($event, true)"
-            @mouseover="upVideoProgressImg = true"
-            @mouseleave="upVideoProgressImg = false"
-          ></div>
-          <img
-            :class="{
-              progressPointerBottomintoVideoAllDisplayIngFlag:
-                intoVideoAllDisplayIngFlag,
-            }"
-            v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
-            @mousedown.prevent="startProgressDrag($event, true)"
-            @mousemove="updateupVideoProgressImgPosition($event, true)"
-            @mouseover="upVideoProgressImg = true"
-            @mouseleave="upVideoProgressImg = false"
-            src="/img/指示器下.png"
-            class="pointer-bottom"
-            :style="{
-              left: `${upVideoProgressImgPosition - 3.5}px`,
-            }"
-          />
-          <div
-            :class="{
-              bottomContainerintoVideoAllDisplayIngFlag:
-                intoVideoAllDisplayIngFlag,
-            }"
-            class="pointer-bottom-container"
-            v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
-            @mousedown.prevent="startProgressDrag($event, true)"
-            @mousemove="updateupVideoProgressImgPosition($event, true)"
-            @mouseover="upVideoProgressImg = true"
-            @mouseleave="upVideoProgressImg = false"
-          ></div>
-          <!-- 指示器时间 -->
-          <span
-            v-show="upVideoProgressImg && !intoVideoAllDisplayIngFlag"
-            class="up-video-play-bottom-video-pointer-time"
-            :style="{
-              left: `${upVideoProgressImgPosition}px`,
-            }"
-            >{{ upVideoPointerMoveTime }}</span>
-          <!-- 放大视频后的 -->
-          <span
-            :class="{
-              pointerTImeintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
-            }"
-            v-show="upVideoProgressImg && intoVideoAllDisplayIngFlag"
-            class="up-video-play-bottom-video-pointer-time"
-            :style="{
-              left: `${upVideoProgressImgPosition - 19.5}px`,
-            }"
-            >{{ upVideoPointerMoveTime }}</span>
           <!-- 开始播放 -->
+          <button
+            v-show="!pausedOrPlayVideoFlag && upVideoProgress < 100"
+            class="player-start-button"
+            type="button"
+            aria-label="播放"
+            @click="playUpVideo"
+          >
           <img
             :class="{
               startplaywhiteintoVideoAllDisplayIngFlag:
@@ -449,43 +305,82 @@
                 intoVideoAllDisplayIngFlag,
             }"
             v-show="!pausedOrPlayVideoFlag && upVideoStartPlayFlag"
-            @click="playUpVideo"
             @mouseleave="upVideoStartPlayFlag = false"
             src="/img/开始播放白.png"
             class="up-video-start-play-white"
           />
+          </button>
+          <div v-show="videoWaitingFlag" class="video-waiting">
+            <div></div>
+          </div>
+          <div
+            ref="playerChrome"
+            class="player-chrome"
+            :class="{ 'is-visible': videoFeatureShowFlag || !pausedOrPlayVideoFlag }"
+            @pointerenter="videoFeatureShowFlag = true, handlerCleanTime(), videoLeave = true"
+            @pointerleave="videoLeave = false, videoMove()"
+          >
+            <div
+              class="player-timeline"
+              role="slider"
+              tabindex="0"
+              aria-label="播放进度"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              :aria-valuenow="Math.round(upVideoProgress)"
+              :aria-valuetext="`${formattedTime} / ${videoTotalTime}`"
+              @pointerdown.prevent="startProgressDrag($event)"
+              @pointermove="updateupVideoProgressImgPosition($event)"
+              @pointerenter="upVideoProgressImg = true"
+              @pointerleave="upVideoProgressImg = false"
+              @keydown="handleProgressKeydown"
+            >
+              <progress
+                ref="progressTrack"
+                class="up-VideoProgress"
+                :value="upVideoProgress"
+                max="100"
+              ></progress>
+              <span class="player-progress-thumb" :style="{ left: `${upVideoProgress}%` }"></span>
+              <span
+                v-show="upVideoProgressImg"
+                class="player-progress-time"
+                :style="{ '--hover-position': `${upVideoProgressImgPosition}%` }"
+              >{{ upVideoPointerMoveTime }}</span>
+            </div>
+            <div class="player-transport">
+          <button type="button" class="player-tool-button" v-show="videoFeatureShowFlag && !pausedOrPlayVideoFlag" aria-label="播放" title="播放 (Space)" @click="playUpVideo">
           <img
             :class="{
               playwhiteintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
             }"
             v-show="videoFeatureShowFlag && !pausedOrPlayVideoFlag"
             class="up-video-play-bottom-play"
-            @click="playUpVideo"
             :src="upVideoPlayFlag ? upVideoPlayWhite : upVideoPlayGray"
             @mousemove="
               (upVideoPlayFlag = true),
                 handlerCleanTime(),
-                video,
                 (videoLeave = true)
             "
             @mouseleave="(upVideoPlayFlag = false), (videoLeave = false)"
           />
+          </button>
+          <button type="button" class="player-tool-button" v-show="videoFeatureShowFlag && pausedOrPlayVideoFlag" aria-label="暂停" title="暂停 (Space)" @click="pausedUpVideo">
           <img
             :class="{
               playwhiteintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
             }"
             v-show="videoFeatureShowFlag && pausedOrPlayVideoFlag"
             class="up-video-play-bottom-play"
-            @click="pausedUpVideo"
             :src="videoPausedFlag ? pausedVideoWhite : pausedVideoGray"
             @mousemove="
               (videoPausedFlag = true),
                 handlerCleanTime(),
-                video,
                 (videoLeave = true)
             "
             @mouseleave="(videoPausedFlag = false), (videoLeave = false)"
           />
+          </button>
           <!-- 播放时间定位 -->
           <div
             class="videoPostion"
@@ -554,6 +449,7 @@
           </div>
           <!-- 弹幕  -->
           <!-- 打开或关闭弹幕  -->
+          <button type="button" class="player-tool-button" v-show="intoVideoAllDisplayIngFlag && videoFeatureShowFlag" :aria-pressed="openOrCloseScrollingFlag" aria-label="弹幕开关" title="弹幕开关 (D)" @click="openOrCloseScrollingFlag = !openOrCloseScrollingFlag">
           <img
             class="up-video-play-bottom-video-close-open-scrolling"
             style="width: 22px"
@@ -567,7 +463,6 @@
               videoFeatureShowFlag
             "
             :src="openScrollingWhite"
-            @click="openOrCloseScrollingFlag = false"
           />
           <span
             class="up-video-play-bottom-video-close-open-scrolling-info"
@@ -589,7 +484,6 @@
               videoFeatureShowFlag
             "
             :src="closeScrollingWhite"
-            @click="openOrCloseScrollingFlag = true"
           />
           <span
             class="up-video-play-bottom-video-close-open-scrolling-info"
@@ -599,6 +493,7 @@
               intoVideoAllDisplayIngFlag
             "
             >关闭弹幕(d)</span>
+          </button>
           <!-- 弹幕设置 -->
           <img
             v-show="
@@ -622,15 +517,20 @@
             "
             :class="{
               settingScrollintovideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
+              'is-panel-open': openPlayerPanel === 'danmaku',
             }"
-            class="up-video-play-bottom-video-setting-scrolling-container"
+            class="up-video-play-bottom-video-setting-scrolling-container player-popover"
+            @pointerenter="openPlayerPopover($event, 'danmaku')"
+            @pointerleave="leavePlayerPopover"
           >
+            <button type="button" class="player-tool-button" aria-label="弹幕设置" :aria-expanded="openPlayerPanel === 'danmaku'" @click="togglePlayerPanel('danmaku')">
             <img
               style="width: 23px; height: 20.5px"
               class="up-video-play-bottom-video-setting-scrolling"
               :class="{settingScrollintovideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,}"
               :src="scrollingSettingWhite"
             />
+            </button>
             <div
               class="up-video-play-bottom-video-setting-scrolling-info-container"
               :class="{intoUpVideoPlayBottomVideoSettingScrollingInfoContainer: intoVideoAllDisplayIngFlag,}"
@@ -744,6 +644,8 @@
                     max="100"
                     step="25"
                     v-model="scrollingDisplayAreaValue"
+                    aria-label="弹幕显示区域"
+                    :style="{ background: `linear-gradient(to right, var(--brand) ${scrollingDisplayAreaValue}%, #424242 ${scrollingDisplayAreaValue}%, #424242 100%)` }"
                   />
                   <span
                     class="silder-pointer1"
@@ -775,13 +677,14 @@
                   <input
                     class="scrolling-display-slider"
                     :style="{
-                      background: `linear-gradient(to right, #0FA68E ${scrollingDisplayOpacityValue}%, #424242 ${scrollingDisplayOpacityValue}%, #424242 170px)`,
+                      background: `linear-gradient(to right, var(--brand) ${scrollingDisplayOpacityValue}%, #424242 ${scrollingDisplayOpacityValue}%, #424242 100%)`,
                     }"
                     type="range"
                     min="0"
                     max="100"
                     step="1"
                     v-model="scrollingDisplayOpacityValue"
+                    aria-label="弹幕不透明度"
                   />
                   <span
                     style="
@@ -797,13 +700,14 @@
                   <input
                     class="scrolling-display-slider"
                     :style="{
-                      background: `linear-gradient(to right, #0FA68E ${scrollingDisplayFontSizeValue}%, #424242 ${scrollingDisplayFontSizeValue}%, #424242 170px)`,
+                      background: `linear-gradient(to right, var(--brand) ${scrollingDisplayFontSizeValue}%, #424242 ${scrollingDisplayFontSizeValue}%, #424242 100%)`,
                     }"
                     type="range"
                     min="0"
                     max="100"
                     step="1"
                     v-model="scrollingDisplayFontSizeValue"
+                    aria-label="弹幕字号"
                   />
                   <span
                     style="
@@ -836,10 +740,12 @@
                     max="100"
                     step="25"
                     v-model="scrollingDisplaySpeedValue"
+                    aria-label="弹幕速度"
+                    :style="{ background: `linear-gradient(to right, var(--brand) ${scrollingDisplaySpeedValue}%, #424242 ${scrollingDisplaySpeedValue}%, #424242 100%)` }"
                   />
                   <span
                     class="silder-pointer1"
-                    @click="scrollingDisplayAreaValue = '0'"
+                    @click="scrollingDisplaySpeedValue = '0'"
                   ></span><span
                     class="silder-pointer2"
                     @click="scrollingDisplaySpeedValue = '25'"
@@ -968,8 +874,12 @@
           >
             <div
             :style="{ display: store.userId ? 'initial' : 'none' }"
-              class="up-video-play-bottom-video-open-scrolling-color-container"
+              class="up-video-play-bottom-video-open-scrolling-color-container player-popover"
+              :class="{ 'is-panel-open': openPlayerPanel === 'text' }"
+              @pointerenter="openPlayerPopover($event, 'text')"
+              @pointerleave="leavePlayerPopover"
             >
+              <button type="button" class="player-tool-button" aria-label="弹幕样式" :aria-expanded="openPlayerPanel === 'text'" @click="togglePlayerPanel('text')">
               <img
                 class="up-video-play-bottom-video-close-scrolling-color"
                 :src="
@@ -980,6 +890,7 @@
                 @mouseover="showScrollingColorFlag = true"
                 @mouseleave="showScrollingColorFlag = false"
               />
+              </button>
               <div
                 :class="{ predefineColorsHoverFlag: predefineColorsHoverFlag }"
                 class="up-video-play-bottom-video-open-scrolling-color-info-container"
@@ -1099,6 +1010,7 @@
                   <div style="transform: translate(0px, 60px)">颜色</div>
                   <el-color-picker
                     class="scrolling-color-picker"
+                    popper-class="video-danmaku-color-palette"
                     :teleported="false"
                     v-model="sendScrollingColor"
                     :sizeshow-alpha="false"
@@ -1124,7 +1036,7 @@
               @blur="sendScrollingInputStatus = false"
               v-model="sendScrollingText"
               @keydown.enter="sendScrollingAxios"
-              placeholder="发个友善的弹幕见证当下"
+              placeholder="输入弹幕"
             />
             <span
               v-show="store.userId === null"
@@ -1166,67 +1078,69 @@
             @mousemove="(videoLeave = true), handlerCleanTime()"
             @mouseleave="videoLeave = false"
             class="up-video-play-bottom-video-image-quality"
-            >1080P 高清</span>
+            title="当前视频源的原始画质"
+            >原画</span>
           <!-- 倍速 -->
-          <span
-            :class="{ sppedVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag }"
+          <div
+            :class="{ sppedVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag, 'is-panel-open': openPlayerPanel === 'speed' }"
             v-show="videoFeatureShowFlag"
             @mousemove="(videoLeave = true), handlerCleanTime()"
             @mouseleave="videoLeave = false"
-            class="up-video-play-bottom-video-spped"
-            >倍速
-            <div class="up-video-play-bottom-video-speed-container">
-              <span
+            class="up-video-play-bottom-video-spped player-popover"
+            @pointerenter="openPlayerPopover($event, 'speed')"
+            @pointerleave="leavePlayerPopover"
+            >
+            <button type="button" class="player-tool-button" :aria-expanded="openPlayerPanel === 'speed'" @click="togglePlayerPanel('speed')">倍速</button>
+            <div class="up-video-play-bottom-video-speed-container" @click="openPlayerPanel = null">
+              <button type="button"
                 @click="
                   (selectVideoSpped = 1), (upVideoPlayer.playbackRate = 2.0)
                 "
                 :class="{ selectVideoSpped: selectVideoSpped === 1 }"
-                >2.0x</span>
-              <span
+                >2.0x</button>
+              <button type="button"
                 @click="
                   (selectVideoSpped = 2), (upVideoPlayer.playbackRate = 1.5)
                 "
                 :class="{ selectVideoSpped: selectVideoSpped === 2 }"
-                >1.5x</span>
-              <span
+                >1.5x</button>
+              <button type="button"
                 @click="
                   (selectVideoSpped = 3), (upVideoPlayer.playbackRate = 1.25)
                 "
                 :class="{ selectVideoSpped: selectVideoSpped === 3 }"
-                >1.25x</span>
-              <span
+                >1.25x</button>
+              <button type="button"
                 @click="(selectVideoSpped = 4), (upVideoPlayer.playbackRate = 1)"
                 :class="{ selectVideoSpped: selectVideoSpped === 4 }"
-                >1.0x</span>
-              <span
+                >1.0x</button>
+              <button type="button"
                 @click="
                   (selectVideoSpped = 5), (upVideoPlayer.playbackRate = 0.75)
                 "
                 :class="{ selectVideoSpped: selectVideoSpped === 5 }"
-                >0.75x</span>
-              <span
+                >0.75x</button>
+              <button type="button"
                 @click="
                   (selectVideoSpped = 6), (upVideoPlayer.playbackRate = 0.5)
                 "
                 :class="{ selectVideoSpped: selectVideoSpped === 6 }"
-                >0.5x</span>
+                >0.5x</button>
             </div>
-          </span>
+          </div>
           <!-- 音量 -->
           <div
-            :class="{ audioVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag }"
-            class="up-video-play-bottom-video-audio-container"
+            :class="{ audioVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag, 'is-panel-open': openPlayerPanel === 'volume' }"
+            class="up-video-play-bottom-video-audio-container player-popover"
+            @pointerenter="openPlayerPopover($event, 'volume')"
+            @pointerleave="leavePlayerPopover"
             v-show="videoFeatureShowFlag"
             @mousemove="(videoLeave = true), handlerCleanTime()"
             @mouseleave="videoLeave = false"
           >
+            <button type="button" class="player-tool-button" v-show="videoCloseAudioOrOpenAudioFlag" aria-label="静音" title="静音 (M)" @click="(videoCloseAudioOrOpenAudioFlag = false), (upVideoPlayer.muted = true), (closeAudioFlag = true)">
             <img
               v-show="videoFeatureShowFlag && videoCloseAudioOrOpenAudioFlag"
-              @click="
-                (videoCloseAudioOrOpenAudioFlag = false),
-                  (upVideoPlayer.muted = true),
-                  (closeAudioFlag = true)
-              "
               @mousemove="
                 (audioFlag = true), (videoLeave = true), handlerCleanTime()
               "
@@ -1235,13 +1149,10 @@
               class="up-video-play-bottom-video-audio"
               :class="{intoAllDisplayFlagUpVideoPlayBottomVideoAudio: intoVideoAllDisplayIngFlag}"
             />
+            </button>
+            <button type="button" class="player-tool-button" v-show="!videoCloseAudioOrOpenAudioFlag" aria-label="取消静音" title="取消静音 (M)" @click="(videoCloseAudioOrOpenAudioFlag = true), (upVideoPlayer.muted = false), (audioFlag = true)">
             <img
               v-show="videoFeatureShowFlag && !videoCloseAudioOrOpenAudioFlag"
-              @click="
-                (videoCloseAudioOrOpenAudioFlag = true),
-                  (upVideoPlayer.muted = false),
-                  (audioFlag = true)
-              "
               @mousemove="
                 (closeAudioFlag = true), (videoLeave = true), handlerCleanTime()
               "
@@ -1250,9 +1161,11 @@
               class="up-video-play-bottom-video-colse-audio"
               :class="{intoAllDisplayFlagUpVideoPlayBottomVideoAudio2: intoVideoAllDisplayIngFlag}"
             />
+            </button>
             <div class="up-video-play-bottom-video-audio-value">
               {{ videoAudio }}
             </div>
+            <button type="button" class="player-tool-button player-volume-trigger" :aria-expanded="openPlayerPanel === 'volume'" @click="togglePlayerPanel('volume')">音量</button>
             <div
               :class="{
                 videoCloseAudioOrOpenAudioFlag: !videoCloseAudioOrOpenAudioFlag,
@@ -1263,7 +1176,7 @@
               <div>
                 <input
                   :style="{
-                    background: `linear-gradient(to right, #0FA68E ${videoAudio}%, white ${videoAudio}%, white 170px)`,
+                    background: `linear-gradient(to right, var(--brand) ${videoAudio}%, white ${videoAudio}%, white 100%)`,
                   }"
                   class="volume-slider"
                   type="range"
@@ -1278,12 +1191,15 @@
           </div>
           <!-- 设置 -->
           <div
-            :class="{ setVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag }"
+            :class="{ setVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag, 'is-panel-open': openPlayerPanel === 'settings' }"
             v-show="videoFeatureShowFlag"
-            class="up-video-play-bottom-video-setting-container"
+            class="up-video-play-bottom-video-setting-container player-popover"
+            @pointerenter="openPlayerPopover($event, 'settings')"
+            @pointerleave="leavePlayerPopover"
             @mousemove="(videoLeave = true), handlerCleanTime()"
             @mouseleave="videoLeave = false"
           >
+            <button type="button" class="player-tool-button" :aria-expanded="openPlayerPanel === 'settings'" aria-label="播放设置" @click="togglePlayerPanel('settings')">
             <img
               :src="videoSettingFlag ? videoSettingWhite : videoSettingGray"
               @mousemove="
@@ -1292,6 +1208,7 @@
               @mouseleave="(videoSettingFlag = false), (videoLeave = false)"
               class="up-video-play-bottom-video-setting"
             />
+            </button>
             <div class="up-video-play-bottom-video-set-container">
               <span @click="setVideoMirrorFlag = !setVideoMirrorFlag"
                 >镜像画面
@@ -1301,7 +1218,7 @@
                   v-model="setVideoMirrorFlag"
               /></span>
               <span @click="setVideoAutoRePlayFlag = !setVideoAutoRePlayFlag"
-                >洗脑循环
+                >循环播放
                 <el-switch
                   @click.stop
                   class="custom-switch"
@@ -1317,13 +1234,13 @@
             </div>
           </div>
           <!-- 画中画 -->
+          <button v-show="videoFeatureShowFlag" type="button" class="player-tool-button" aria-label="画中画" title="画中画" @click="togglePictureInPicture">
           <img
             :class="{
               fullScreenExitintoVideoAllDisplayIngFlag:
                 intoVideoAllDisplayIngFlag,
             }"
             v-show="videoFeatureShowFlag"
-            @click="togglePictureInPicture"
             :src="fullScreenExitFlag ? fullScreenExitWhite : fullScreenExitGray"
             @mousemove="
               (fullScreenExitFlag = true),
@@ -1338,6 +1255,7 @@
             "
             class="up-video-play-bottom-video-fullScreenExit"
           />
+          </button>
           <span
             :class="{
               fullScreenExitInfointoVideoAllDisplayIngFlag:
@@ -1354,7 +1272,16 @@
             v-show="showFullScreenExitFlag && openOrCloseFullScreenExitFlag"
             class="up-video-play-bottom-video-fullScreenExit-text"
             >退出画中画</span>
-          <!-- 宽屏模式没做 -->
+          <!-- 宽屏模式 -->
+          <button
+            v-show="videoFeatureShowFlag && !intoVideoAllDisplayIngFlag"
+            type="button"
+            class="player-tool-button player-theater-button"
+            :aria-pressed="isTheaterMode"
+            :aria-label="isTheaterMode ? '退出宽屏' : '宽屏模式'"
+            :title="isTheaterMode ? '退出宽屏' : '宽屏模式'"
+            @click="isTheaterMode = !isTheaterMode"
+          >
           <img
             v-show="videoFeatureShowFlag && !intoVideoAllDisplayIngFlag"
             :src="fullScreenFlag ? fullScreenWhite : fullScreenGray"
@@ -1364,9 +1291,20 @@
             @mouseleave="(fullScreenFlag = false), (videoLeave = false)"
             class="up-video-play-bottom-video-fullScreen"
           />
-          <!-- 网页全屏没做 -->
+          </button>
+          <!-- 网页全屏 -->
+          <button
+            v-show="videoFeatureShowFlag"
+            type="button"
+            class="player-tool-button player-web-fullscreen-button"
+            :disabled="nativeFullscreen"
+            :aria-pressed="isWebFullscreen"
+            :aria-label="isWebFullscreen ? '退出网页全屏' : '网页全屏'"
+            :title="isWebFullscreen ? '退出网页全屏 (Esc)' : '网页全屏'"
+            @click="isWebFullscreen = !isWebFullscreen"
+          >
           <img
-            v-show="videoFeatureShowFlag && !intoVideoAllDisplayIngFlag"
+            v-show="videoFeatureShowFlag"
             :src="webFullScreenFlag ? webFullScreenWhite : webFullScreenGray"
             @mousemove="
               (webFullScreenFlag = true), (videoLeave = true), handlerCleanTime()
@@ -1374,15 +1312,12 @@
             @mouseleave="(webFullScreenFlag = false), (videoLeave = false)"
             class="up-video-play-bottom-video-webFullScreen"
           />
-          <!-- 视频加载中... -->
-          <div v-show="videoWaitingFlag" class="video-waiting">
-              <div></div>
-          </div>
+          </button>
           <!-- 进入全屏 -->
+          <button v-show="videoFeatureShowFlag" type="button" class="player-tool-button" :aria-label="nativeFullscreen ? '退出浏览器全屏' : '进入浏览器全屏'" title="浏览器全屏 (F)" @click="toggleFullscreen">
           <img
             :class="{ IntoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag }"
             v-show="videoFeatureShowFlag"
-            @click="toggleFullscreen"
             :src="intoAllDisplayFlag ? intoAllDisplayWhite : intoAllDisplayGray"
             @mousemove="
               (intoAllDisplayFlag = true),
@@ -1397,6 +1332,7 @@
             "
             class="up-video-play-bottom-video-intoAllDisplay"
           />
+          </button>
           <span
             v-show="intoVideoAllDisplayFlag && !intoVideoAllDisplayIngFlag"
             class="up-video-play-bottom-video-intoAllDisplay-text"
@@ -1418,6 +1354,8 @@
             }"
             class="video-false-container"
           ></div>
+            </div>
+          </div>
           <!-- 弹幕 -->
           <div v-show="!intoVideoAllDisplayIngFlag">
             <scrollingList
@@ -1500,6 +1438,7 @@
             <span v-else>{{ liveStatus === 'unavailable' ? '实时连接不可用' : liveStatus === 'reconnecting' ? '断线重连中' : '实时连接中' }} · </span>
             {{ SelectVideoByIdVo.upVideo.scrollingNumber }} 条弹幕</span>
           <!-- 打开或关闭弹幕  -->
+          <button type="button" class="player-tool-button" :aria-pressed="openOrCloseScrollingFlag" aria-label="弹幕开关" title="弹幕开关 (D)" @click="openOrCloseScrollingFlag = !openOrCloseScrollingFlag">
           <img
             class="up-video-play-bottom-video-close-open-scrolling"
             v-show="!openOrCloseScrollingFlag"
@@ -1514,7 +1453,6 @@
               (showCloseScrollingFlag = false),
                 (openOrCloseScrollingInfoFlag = false)
             "
-            @click="openOrCloseScrollingFlag = true"
           />
           <span
             class="up-video-play-bottom-video-close-open-scrolling-info"
@@ -1532,12 +1470,12 @@
               (showOpenScrollingFlag = false),
                 (openOrCloseScrollingInfoFlag = false)
             "
-            @click="openOrCloseScrollingFlag = false"
           />
           <span
             class="up-video-play-bottom-video-close-open-scrolling-info"
             v-show="openOrCloseScrollingFlag && openOrCloseScrollingInfoFlag"
             >关闭弹幕(d)</span>
+          </button>
           <!-- 弹幕设置 -->
           <img
             v-show="!openOrCloseScrollingFlag"
@@ -1546,8 +1484,12 @@
           />
           <div
             v-show="openOrCloseScrollingFlag"
-            class="up-video-play-bottom-video-setting-scrolling-container"
+            class="up-video-play-bottom-video-setting-scrolling-container player-popover"
+            :class="{ 'is-panel-open': openPlayerPanel === 'danmaku' }"
+            @pointerenter="openPlayerPopover($event, 'danmaku')"
+            @pointerleave="leavePlayerPopover"
           >
+            <button type="button" class="player-tool-button" aria-label="弹幕设置" :aria-expanded="openPlayerPanel === 'danmaku'" @click="togglePlayerPanel('danmaku')">
             <img
               class="up-video-play-bottom-video-setting-scrolling"
               :src="
@@ -1558,6 +1500,7 @@
               @mouseover="showScrollingSettingFlag = true"
               @mouseleave="showScrollingSettingFlag = false"
             />
+            </button>
             <div
               class="up-video-play-bottom-video-setting-scrolling-info-container"
             >
@@ -1670,6 +1613,8 @@
                     max="100"
                     step="25"
                     v-model="scrollingDisplayAreaValue"
+                    aria-label="弹幕显示区域"
+                    :style="{ background: `linear-gradient(to right, var(--brand) ${scrollingDisplayAreaValue}%, #424242 ${scrollingDisplayAreaValue}%, #424242 100%)` }"
                   />
                   <span
                     class="silder-pointer1"
@@ -1701,13 +1646,14 @@
                   <input
                     class="scrolling-display-slider"
                     :style="{
-                      background: `linear-gradient(to right, #0FA68E ${scrollingDisplayOpacityValue}%, #424242 ${scrollingDisplayOpacityValue}%, #424242 170px)`,
+                      background: `linear-gradient(to right, var(--brand) ${scrollingDisplayOpacityValue}%, #424242 ${scrollingDisplayOpacityValue}%, #424242 100%)`,
                     }"
                     type="range"
                     min="0"
                     max="100"
                     step="1"
                     v-model="scrollingDisplayOpacityValue"
+                    aria-label="弹幕不透明度"
                   />
                   <span
                     style="
@@ -1723,13 +1669,14 @@
                   <input
                     class="scrolling-display-slider"
                     :style="{
-                      background: `linear-gradient(to right, #0FA68E ${scrollingDisplayFontSizeValue}%, #424242 ${scrollingDisplayFontSizeValue}%, #424242 170px)`,
+                      background: `linear-gradient(to right, var(--brand) ${scrollingDisplayFontSizeValue}%, #424242 ${scrollingDisplayFontSizeValue}%, #424242 100%)`,
                     }"
                     type="range"
                     min="0"
                     max="100"
                     step="1"
                     v-model="scrollingDisplayFontSizeValue"
+                    aria-label="弹幕字号"
                   />
                   <span
                     style="
@@ -1762,10 +1709,12 @@
                     max="100"
                     step="25"
                     v-model="scrollingDisplaySpeedValue"
+                    aria-label="弹幕速度"
+                    :style="{ background: `linear-gradient(to right, var(--brand) ${scrollingDisplaySpeedValue}%, #424242 ${scrollingDisplaySpeedValue}%, #424242 100%)` }"
                   />
                   <span
                     class="silder-pointer1"
-                    @click="scrollingDisplayAreaValue = '0'"
+                    @click="scrollingDisplaySpeedValue = '0'"
                   ></span><span
                     class="silder-pointer2"
                     @click="scrollingDisplaySpeedValue = '25'"
@@ -1876,9 +1825,13 @@
             class="up-video-play-bottom-video-open-scrolling-container"
           >
             <div
-              class="up-video-play-bottom-video-open-scrolling-color-container"
+              class="up-video-play-bottom-video-open-scrolling-color-container player-popover"
+              :class="{ 'is-panel-open': openPlayerPanel === 'text' }"
+              @pointerenter="openPlayerPopover($event, 'text')"
+              @pointerleave="leavePlayerPopover"
               :style="{ display: store.userId ? 'initial' : 'none' }"
             >
+              <button type="button" class="player-tool-button" aria-label="弹幕样式" :aria-expanded="openPlayerPanel === 'text'" @click="togglePlayerPanel('text')">
               <img
                 class="up-video-play-bottom-video-close-scrolling-color"
                 :src="
@@ -1887,6 +1840,7 @@
                 @mouseover="showScrollingColorFlag = true"
                 @mouseleave="showScrollingColorFlag = false"
               />
+              </button>
               <div
                 :class="{ predefineColorsHoverFlag: predefineColorsHoverFlag }"
                 class="up-video-play-bottom-video-open-scrolling-color-info-container"
@@ -2006,6 +1960,7 @@
                   <div style="transform: translate(0px, 60px)">颜色</div>
                   <el-color-picker
                     class="scrolling-color-picker"
+                    popper-class="video-danmaku-color-palette"
                     v-model="sendScrollingColor"
                     :sizeshow-alpha="false"
                     :predefine="predefineColors"
@@ -2030,7 +1985,7 @@
               @blur="sendScrollingInputStatus = false"
               v-model="sendScrollingText"
               @keydown.enter="sendScrollingAxios"
-              placeholder="发个友善的弹幕见证当下"
+              placeholder="输入弹幕"
             />
             <span
               v-show="store.userId === null"
@@ -2201,10 +2156,11 @@
               <!-- 收藏对话框 -->
               <el-dialog
                 v-model="collectDialogVisible"
-                width="420.5"
+                width="min(420px, calc(100vw - 32px))"
                 center
                 append-to-body
-                class="collect-dialog"
+                :append-to="watchTogetherHost"
+                class="collect-dialog video-collect-dialog"
               >
                 <div class="collect-dialog-title">添加到收藏夹</div>
                 <template #footer>
@@ -2277,17 +2233,18 @@
                       </div>
                     </span>
                   </div>
-                  <div v-show="!collectSubimtFlag" class="dialog-footer-item">
+                  <button type="button" disabled v-show="!collectSubimtFlag" class="dialog-footer-item">
                     确定
-                  </div>
-                  <div
+                  </button>
+                  <button type="button"
                     v-show="collectSubimtFlag"
                     class="dialog-footer-item1"
                     @click="addCollectVideoAxios"
                   >
                     确定
-                  </div>
+                  </button>
                 </template>
+
               </el-dialog>
             </span>
           </el-tooltip>
@@ -2324,10 +2281,10 @@
             class="wait-img"
             :src="addWaitWatchHoverFlag ? addWaitWatchBlue : addWaitWatch"
           />
-          <div class="wait-watch-info" @click="waitWatchAxios">
+          <button type="button" class="wait-watch-info" @click="waitWatchAxios">
             <img src="/img/待看清单灰.png" />
             <span>稍后观看</span>
-          </div>
+          </button>
           <div v-show="waitWatchMsg.length > 0" class="waitWatchMsg">
             {{ waitWatchMsg }}
           </div>
@@ -2339,7 +2296,7 @@
             <span class="scrolling-list-title">弹幕列表</span>
             <img src="/img/弹幕列表.png" class="scrolling-list-img" />
             <el-collapse class="scrolling-list">
-              <el-collapse-item name="1">
+              <el-collapse-item name="1" title="弹幕列表">
                 <div class="scrolling-list-item">
                   <div class="scrolling-list-item-top">
                     <span style="margin-left: 17px; cursor: pointer">时间</span>
@@ -2386,20 +2343,14 @@
                           >{{ scrollingData.content }}
                         </span>
                       </el-tooltip>
-                      <span
-                        v-show="
-                          ScrollingReocationHoverFlag === scrollingData.id &&
-                          store.userId === scrollingData.userId
-                        "
+                      <button
+                        type="button"
+                        v-show="store.userId === scrollingData.userId"
                         class="scrolling-reocation"
                         @click="revocationScrollingAxios(scrollingData.id)"
                         >撤回
-                      </span>
+                      </button>
                       <span
-                        v-show="
-                          ScrollingReocationHoverFlag !== scrollingData.id ||
-                          store.userId !== scrollingData.userId
-                        "
                         class="scrolling-list-item-sendTime"
                         >{{ scrollingData.sendTime.slice(0, 16) }}</span>
                     </div>
@@ -2454,6 +2405,8 @@
     </div>
   </div>
 </template>
+
+<style scoped lang="scss" src="./videoDetailLayout.scss"></style>
 
 <script>
 import { connectVideoLive } from '../services/videoLive';
@@ -2581,7 +2534,7 @@ export default {
       collectName: [],
     });
     const isDeleteFollowFlag = ref(0);
-    const videoFeatureShowFlag = ref(false);
+    const videoFeatureShowFlag = ref(true);
     const upVideoProgressImg = ref(false);
     const upVideoProgressRight = ref(1);
     const upVideoProgressImgPosition = ref(0);
@@ -2611,8 +2564,52 @@ export default {
     const showFullScreenExitFlag = ref(false);
     const openOrCloseFullScreenExitFlag = ref(false);
     const intoVideoAllDisplayFlag = ref(false);
-    const intoVideoAllDisplayIngFlag = ref(false);
+    const nativeFullscreen = ref(false);
+    const isWebFullscreen = ref(false);
+    const isTheaterMode = ref(false);
+    const intoVideoAllDisplayIngFlag = computed(() => nativeFullscreen.value || isWebFullscreen.value);
     const upVideoContainer = ref(null);
+    const progressTrack = ref(null);
+    const playerChrome = ref(null);
+    const playerMetrics = reactive({ height: 0, chromeHeight: 0 });
+    let playerResizeObserver = null;
+    function measurePlayer() {
+      playerMetrics.height = upVideoContainer.value?.clientHeight || 0;
+      playerMetrics.chromeHeight = playerChrome.value?.offsetHeight || 0;
+    }
+    const openPlayerPanel = ref(null);
+    let previousBodyOverflow = "";
+    watch(isWebFullscreen, (expanded) => {
+      if (expanded) {
+        previousBodyOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = previousBodyOverflow;
+      }
+      openPlayerPanel.value = null;
+      videoFeatureShowFlag.value = true;
+    });
+
+    function togglePlayerPanel(panel) {
+      openPlayerPanel.value = openPlayerPanel.value === panel ? null : panel;
+      videoFeatureShowFlag.value = true;
+      handlerCleanTime();
+    }
+
+    function openPlayerPopover(event, panel) {
+      if (event.pointerType === "mouse") openPlayerPanel.value = panel;
+    }
+
+    function leavePlayerPopover(event) {
+      if (openPlayerPanel.value === "text") return;
+      if (event.pointerType === "mouse" && !event.currentTarget.contains(document.activeElement)) {
+        openPlayerPanel.value = null;
+      }
+    }
+
+    function closePlayerPanelsOutside(event) {
+      if (!event.target.closest(".player-popover")) openPlayerPanel.value = null;
+    }
     //远程视频：只存一条视频直链，用同一个video元素播放，流量走源站CDN
     const isRemoteVideo = computed(
       () =>
@@ -2726,6 +2723,9 @@ export default {
     const likeVideoFlag = ref(true);
     
     const loginDialogVisibleFlag = ref(0);
+    watch(loginDialogVisibleFlag, () => {
+      if (!store.userId && intoVideoAllDisplayIngFlag.value) toggleFullscreen2();
+    });
     const videoContentFlag = ref(false);
     const videoContentFlag1 = ref(false);
     const autoPlayVideoFlag = ref(0);
@@ -2751,7 +2751,10 @@ export default {
     const innerWidth = ref(window.innerWidth);
     function handleResize() {
       innerWidth.value = window.innerWidth;
-      nextTick(handleVideoContentHeight);
+      nextTick(() => {
+        handleVideoContentHeight();
+        measurePlayer();
+      });
     }
 
     function handleVisibilityChange() {
@@ -2765,7 +2768,14 @@ export default {
 
     //初始化数据
     onMounted(async () => {
+      measurePlayer();
+      if (typeof ResizeObserver !== "undefined") {
+        playerResizeObserver = new ResizeObserver(measurePlayer);
+        playerResizeObserver.observe(upVideoContainer.value);
+        playerResizeObserver.observe(playerChrome.value);
+      }
       window.addEventListener("wheel",handleWheel);
+      window.addEventListener("pointerdown", closePlayerPanelsOutside);
       window.addEventListener("resize", handleResize);
       setTimeout(() => {
         if(scrollFlag)
@@ -2827,13 +2837,16 @@ export default {
     //卸载时移除事件监听
     onBeforeUnmount(() => {
       stopScrollingClock();
-      stopMoving();
+      playerResizeObserver?.disconnect();
+      stopMoving(null, false);
+      if (isWebFullscreen.value) document.body.style.overflow = previousBodyOverflow;
       liveReady = false;
       pageDisposed = true;
       danmakuGeneration++;
       pendingDanmakuEvents.length = 0;
       stopVideoLive?.();
       window.removeEventListener("wheel",handleWheel);
+      window.removeEventListener("pointerdown", closePlayerPanelsOutside);
       window.removeEventListener("click", handleClickCollectInputOutside);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("click", inputUpVideoTime);
@@ -2974,12 +2987,11 @@ export default {
     }
 
     function getVisibleProgressRect() {
-      const progressList = Array.from(document.querySelectorAll(".up-VideoProgress"));
-      const progress = progressList.find((item) => item.offsetParent !== null);
-      return progress?.getBoundingClientRect() || null;
+      const rect = progressTrack.value?.getBoundingClientRect();
+      return rect?.width > 0 ? rect : null;
     }
 
-    function updateProgressByPointer(event, isAllDisplay = intoVideoAllDisplayIngFlag.value) {
+    function updateProgressByPointer(event) {
       const rect = getVisibleProgressRect();
       const duration = getVideoDurationSeconds();
       if (!rect || !duration) return null;
@@ -2989,16 +3001,31 @@ export default {
       const pointerTime = percent * duration;
 
       upVideoPointerMoveTime.value = formatPointerTime(pointerTime);
-      upVideoProgressImgPosition.value = isAllDisplay
-        ? rect.left + relativeX
-        : relativeX - 3;
+      upVideoProgressImgPosition.value = percent * 100;
 
       return pointerTime;
     }
 
-    const updateupVideoProgressImgPosition = (event, isAllDisplay = false) => {
-      updateProgressByPointer(event, isAllDisplay);
+    const updateupVideoProgressImgPosition = (event) => {
+      updateProgressByPointer(event);
     };
+
+    function handleProgressKeydown(event) {
+      const duration = getVideoDurationSeconds();
+      const currentTime = upVideoPlayer.value?.currentTime || 0;
+      const times = {
+        ArrowLeft: currentTime - 5,
+        ArrowRight: currentTime + 5,
+        ArrowDown: currentTime - 5,
+        ArrowUp: currentTime + 5,
+        Home: 0,
+        End: duration,
+      };
+      if (!(event.key in times)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      seekUpVideo(times[event.key]);
+    }
 
     // 汉字的个数
     function countChineseCharacters(str) {
@@ -3248,39 +3275,33 @@ export default {
     });
 
     let timer = null; // 用于存储定时器
-    let isMoving = false; // 标志位，指示是否正在移动
     const videoLeave = ref(false);
     function videoMove() {
       if (videoLeave.value) return;
-
-      //如果是弹幕输入状态不会关闭
-      if (sendScrollingInputStatus.value) {
-        videoFeatureShowFlag.value = true;
-        return;
-      }
-
-      if (isMoving) return; // 如果正在执行，直接返回
-
-      isMoving = true; // 设置为正在执行
-      videoFeatureShowFlag.value = true; // 显示特性
-
-      // 清除任何已有的定时器，防止闪烁
-      if (timer) {
-        clearTimeout(timer);
-      }
-
-      // 使用 setTimeout
+      videoFeatureShowFlag.value = true;
+      clearTimeout(timer);
       timer = setTimeout(() => {
-        videoFeatureShowFlag.value = false; // 隐藏特性
-        isMoving = false; // 重新设置为可执行状态
+        if (
+          pausedOrPlayVideoFlag.value &&
+          !sendScrollingInputStatus.value &&
+          !openPlayerPanel.value &&
+          !upVideoContainer.value?.querySelector(":focus-visible")
+        ) videoFeatureShowFlag.value = false;
       }, 3000);
     }
 
     // 鼠标移出视频区域
     function handlerCleanTime() {
       clearTimeout(timer);
-      isMoving = false; // 重新设置为可执行状态
     }
+    watch(pausedOrPlayVideoFlag, (playing) => {
+      if (!playing) {
+        handlerCleanTime();
+        videoFeatureShowFlag.value = true;
+      } else {
+        videoMove();
+      }
+    });
 
     // 双击会先触发两次 click 再触发 dblclick，这里延迟处理并允许被双击取消，
     // 避免双击进全屏时误触播放/暂停（也会触发 play() 被 pause() 打断的警告）
@@ -3328,36 +3349,44 @@ export default {
 
     let isProgressImgMoving = false;
     let progressWasPlayingBeforeDrag = false;
+    let progressPointerId = null;
+    let progressDragTarget = null;
     //点击或拖动时间进度条
-    function startProgressDrag(event, isAllDisplay = false) {
-      if (!event) return;
+    function startProgressDrag(event) {
+      if (!event || event.button !== 0 || event.isPrimary === false) return;
       //拖拽进度条前取消视频上待执行的单击播放/暂停切换，
       //否则250ms后自动play会与拖拽的pause竞争，触发
       //"play() request was interrupted by a call to pause()"
       cancelClickToggle();
       //拖动开始就复位加载标记，避免加载中的waiting事件把加载动画留在屏幕上
       videoLoadFlag = false;
-      const pointerTime = updateProgressByPointer(event, isAllDisplay);
+      const pointerTime = updateProgressByPointer(event);
       if (pointerTime === null) return;
 
       progressWasPlayingBeforeDrag = pausedOrPlayVideoFlag.value;
+      progressPointerId = event.pointerId;
+      progressDragTarget = event.currentTarget;
+      progressDragTarget.setPointerCapture?.(progressPointerId);
       isProgressImgMoving = true;
       seekUpVideo(pointerTime);
       pausedUpVideo();
-      window.addEventListener("mousemove", changeUpVideoTimeImg);
-      window.addEventListener("mouseup", stopMoving);
+      window.addEventListener("pointermove", changeUpVideoTimeImg);
+      window.addEventListener("pointerup", stopMoving);
+      window.addEventListener("pointercancel", stopMoving);
+      window.addEventListener("lostpointercapture", stopMoving);
     }
 
     //跟随鼠标移动滑动时间进度条
     function changeUpVideoTimeImg(event) {
-      if (!isProgressImgMoving) return;
-      const pointerTime = updateProgressByPointer(event, intoVideoAllDisplayIngFlag.value);
+      if (!isProgressImgMoving || event.pointerId !== progressPointerId) return;
+      const pointerTime = updateProgressByPointer(event);
       if (pointerTime !== null) seekUpVideo(pointerTime);
     }
 
     //点击关闭滑动时间进度条
-    function stopMoving() {
-      if (isProgressImgMoving && progressWasPlayingBeforeDrag && upVideoPlayer.value?.paused) {
+    function stopMoving(event, resumePlayback = true) {
+      if (event && event.pointerId !== progressPointerId) return;
+      if (resumePlayback && isProgressImgMoving && progressWasPlayingBeforeDrag && upVideoPlayer.value?.paused) {
         pausedOrPlayVideoFlag.value = true;
         //play()返回Promise，若期间再次被pause打断会reject，
         //此处吞掉异常避免控制台报错
@@ -3366,10 +3395,17 @@ export default {
           playResult.catch(() => {});
         }
       }
+      const capturedId = progressPointerId;
+      const capturedTarget = progressDragTarget;
       isProgressImgMoving = false;
       progressWasPlayingBeforeDrag = false;
-      window.removeEventListener("mousemove", changeUpVideoTimeImg);
-      window.removeEventListener("mouseup", stopMoving);
+      progressPointerId = null;
+      progressDragTarget = null;
+      window.removeEventListener("pointermove", changeUpVideoTimeImg);
+      window.removeEventListener("pointerup", stopMoving);
+      window.removeEventListener("pointercancel", stopMoving);
+      window.removeEventListener("lostpointercapture", stopMoving);
+      if (capturedTarget?.hasPointerCapture(capturedId)) capturedTarget.releasePointerCapture(capturedId);
     }
 
     //输入视频时间
@@ -3482,65 +3518,53 @@ export default {
             await document.exitPictureInPicture();
             openOrCloseFullScreenExitFlag.value = false;
           } else {
+            if (!document.pictureInPictureEnabled || !upVideoPlayer.value.requestPictureInPicture) {
+              ElMessage.warning({ message: "当前浏览器不支持画中画", appendTo: intoVideoAllDisplayIngFlag.value ? upVideoContainer.value : document.body });
+              return;
+            }
             // 否则，进入画中画模式
             await upVideoPlayer.value.requestPictureInPicture();
             openOrCloseFullScreenExitFlag.value = true;
           }
-        } catch (error) {}
+        } catch (error) {
+          ElMessage.error({ message: error.message || "无法切换画中画", appendTo: intoVideoAllDisplayIngFlag.value ? upVideoContainer.value : document.body });
+        }
       }
     };
     // 切换/退出 全屏模式
-    function toggleFullscreen() {
+    async function toggleFullscreen() {
       // 双击进入全屏，取消尚未执行的单击播放/暂停切换
       cancelClickToggle();
-      const videoContainer = document.getElementById("upvideocontainer");
-
-      if (document.fullscreenElement) {
-        // 退出全屏
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen(); // Safari
-        } else if (document.msExitFullscreen) {
-          document.msExitFullscreen(); // IE/Edge
-        }
-        intoVideoAllDisplayIngFlag.value = false;
-      } else {
-        // 进入全屏
-        if (videoContainer.requestFullscreen) {
-          videoContainer.requestFullscreen();
-          intoVideoAllDisplayIngFlag.value = true;
-        } else if (videoContainer.webkitRequestFullscreen) {
-          videoContainer.webkitRequestFullscreen(); // Safari
-          intoVideoAllDisplayIngFlag.value = true;
-        } else if (videoContainer.msRequestFullscreen) {
-          videoContainer.msRequestFullscreen(); // IE/Edge
-          intoVideoAllDisplayIngFlag.value = true;
-        }
+      const videoContainer = upVideoContainer.value;
+      if (!videoContainer) return;
+      const active = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+      const target = active ? document : videoContainer;
+      const action = active
+        ? document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen
+        : videoContainer.requestFullscreen || videoContainer.webkitRequestFullscreen || videoContainer.msRequestFullscreen;
+      if (!action) {
+        ElMessage.warning({ message: "当前浏览器不支持全屏，可使用网页全屏", appendTo: intoVideoAllDisplayIngFlag.value ? upVideoContainer.value : document.body });
+        return;
+      }
+      try {
+        await action.call(target);
+        handleFullscreenChange();
+      } catch (error) {
+        ElMessage.error({ message: error.message || "无法切换全屏", appendTo: intoVideoAllDisplayIngFlag.value ? upVideoContainer.value : document.body });
       }
     }
     //退出全屏
     function toggleFullscreen2() {
-      if (document.fullscreenElement) {
-        // 退出全屏
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen(); // Safari
-        } else if (document.msExitFullscreen) {
-          document.msExitFullscreen(); // IE/Edge
-        }
-        intoVideoAllDisplayIngFlag.value = false;
-      }
+      if (nativeFullscreen.value) return toggleFullscreen();
+      isWebFullscreen.value = false;
     }
 
     // 检测全屏状态变化
     const handleFullscreenChange = () => {
-      if (document.fullscreenElement) {
-        intoVideoAllDisplayIngFlag.value = true; // 更新状态
-      } else {
-        intoVideoAllDisplayIngFlag.value = false; // 更新状态
-      }
+      nativeFullscreen.value = (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) === upVideoContainer.value;
+      if (nativeFullscreen.value) isWebFullscreen.value = false;
+      openPlayerPanel.value = null;
+      videoFeatureShowFlag.value = true;
     };
 
     let keyInfoTime;
@@ -3561,6 +3585,15 @@ export default {
     const NORMAL_REPEAT_THROTTLE = 500;
     // 监听键盘状态
     const handleKeydown = async (event) => {
+      if (event.key === "Escape") {
+        if (collectDialogVisible.value) return;
+        if (openPlayerPanel.value) {
+          openPlayerPanel.value = null;
+          return;
+        }
+        if (!nativeFullscreen.value) isWebFullscreen.value = false;
+        return;
+      }
       const isFastRepeatKey = FAST_REPEAT_KEYS.includes(event.key);
       // 检查当前焦点元素
       var activeElement = document.activeElement;
@@ -3569,7 +3602,18 @@ export default {
         activeElement.tagName == "TEXTAREA" ||
         activeElement.isContentEditable;
 
-      if (isInputField || !keyNoMoreClike) return;
+      if (
+        isInputField ||
+        event.altKey || event.ctrlKey || event.metaKey ||
+        activeElement.closest(".el-dialog, .el-select") ||
+        (activeElement.closest("button, [role='button'], [role='slider'], [role='checkbox']") &&
+          [" ", "Enter", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) ||
+        ![" ", "f", "d", "m", "q", "w", "e", "ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown"].includes(event.key.length === 1 ? event.key.toLowerCase() : event.key)
+      ) return;
+      if (!keyNoMoreClike) {
+        event.preventDefault();
+        return;
+      }
 
       event.preventDefault();
       //  空格键 播放
@@ -4742,6 +4786,17 @@ export default {
 
     
     return {
+      nativeFullscreen,
+      isWebFullscreen,
+      isTheaterMode,
+      playerChrome,
+      playerMetrics,
+      progressTrack,
+      handleProgressKeydown,
+      openPlayerPanel,
+      togglePlayerPanel,
+      openPlayerPopover,
+      leavePlayerPopover,
       isRemoteVideo,
       remoteVideoSrc,
       playVideoSrc,

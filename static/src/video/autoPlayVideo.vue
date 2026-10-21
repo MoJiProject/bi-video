@@ -3,26 +3,25 @@
        <div class="auto-play-video-header">
          <img @click="openHome(1,store.selectUpVideo.upUser?.id)" class="auto-play-video-avatar" :src="store.selectUpVideo.upUser?.avatarAddress">
          <span @click="openHome(1,store.selectUpVideo.upUser?.id)" class="auto-play-video-username">{{ store.selectUpVideo.upUser?.userName }}</span>
-         <span class="auto-play-video-vip"> <img src="/img/charge.png"> 充电</span>
          <span v-show="store.selectUpVideo?.isFansFlag===0" class="auto-play-video-follow" @click="store.setAddFollowFlag(1)"> <img src="/img/加关注.png"/> 关注 {{ store.selectUpVideo.upUser?.fansNumber }}</span>
          <span v-show="store.selectUpVideo?.isFansFlag===1" class="auto-play-video-delete-follow" @click="store.setAddFollowFlag(2)">已关注</span>
-         <span class="auto-play-video-replay" @click="store.setReVideoPlayerFlag(true)">
+         <button type="button" class="auto-play-video-replay" @click="store.setReVideoPlayerFlag(true)">
             <img src="/img/重播灰.png">
             <span>重播</span>
-         </span>
+         </button>
          <div class="auto-play-video-operation">
             <span class="auto-play-video-operation1" @click="waitLike">
                 <img v-show="!propss.likeVideoClickFlag" src="/img/点赞灰.png">
                 <img v-show="propss.likeVideoClickFlag" src="/img/点赞蓝小.png">
-                <span :style="{color: propss.likeVideoClickFlag? '#0cbeff':'white'}">好评</span></span>
+                <span :style="{color: propss.likeVideoClickFlag? 'var(--brand)':'white'}">点赞</span></span>
             <span class="auto-play-video-operation3" @click="store.setLTCAFlag(3)">
                 <img v-show="!propss.videoCollectClickFlag" src="/img/收藏灰.png">
                 <img v-show="propss.videoCollectClickFlag" src="/img/视频收藏蓝.png">
-                <span style="margin-left: 1px;" :style="{color: propss.videoCollectClickFlag? '#0cbeff':'white'}">收藏</span></span>
+                <span style="margin-left: 1px;" :style="{color: propss.videoCollectClickFlag? 'var(--brand)':'white'}">收藏</span></span>
             <span class="auto-play-video-operation4" @click="shareHoverF2()" @mouseleave="shareHoverF(false)">
                 <img v-show="!propss.videoShareClickFlag" src="/img/分享灰.png">
                 <img v-show="propss.videoShareClickFlag" src="/img/视频分享蓝.png">
-                <span style="margin-left: 1px;" :style="{color: propss.videoShareClickFlag? '#0cbeff':'white'}">分享</span></span>
+                <span style="margin-left: 1px;" :style="{color: propss.videoShareClickFlag? 'var(--brand)':'white'}">分享</span></span>
             </div>
        </div>
        <div class="auto-play-video-body">

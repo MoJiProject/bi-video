@@ -4,74 +4,74 @@
       <div class="config">
         <div>消息提醒<span class="tips">（关闭后，消息将不再进行提醒）</span></div>
         <div class="switch">
-          <span @click=setSetting(1,1)>
+          <button type="button" @click="setSetting(1,1)" :aria-pressed="store.userInformation.messageWarn===1">
             <img class="open" :src="store.userInformation.messageWarn===1? '/img/消息框开.png' : '/img/消息框关.png' ">
             <span>开启</span>
-          </span>
-          <span @click="setSetting(1,0)">
+          </button>
+          <button type="button" @click="setSetting(1,0)" :aria-pressed="store.userInformation.messageWarn===0">
             <img class="close" :src="store.userInformation.messageWarn===0? '/img/消息框开.png' : '/img/消息框关.png' ">
             <span>关闭</span>
-          </span>
+          </button>
         </div>
       </div>
       <div class="config">
         <div>回复我的消息提醒<span class="tips">（接受谁的评论消息提醒）</span></div>
         <div class="switch">
-          <span @click="setSetting(2,1)">
+          <button type="button" @click="setSetting(2,1)" :aria-pressed="store.userInformation.replyMessageWarn===1">
             <img class="open" :src="store.userInformation.replyMessageWarn===1? '/img/消息框开.png' : '/img/消息框关.png' ">
             <span>所有人</span>
-          </span>
-          <span @click="setSetting(2,2)">
+          </button>
+          <button type="button" @click="setSetting(2,2)" :aria-pressed="store.userInformation.replyMessageWarn===2">
             <img class="close" :src="store.userInformation.replyMessageWarn===2? '/img/消息框开.png' : '/img/消息框关.png' ">
             <span>关注的人</span>
-          </span>
-          <span @click="setSetting(2,0)">
+          </button>
+          <button type="button" @click="setSetting(2,0)" :aria-pressed="store.userInformation.replyMessageWarn===0">
             <img class="close" :src="store.userInformation.replyMessageWarn===0? '/img/消息框开.png' : '/img/消息框关.png' ">
             <span>不接受任何消息提醒</span>
-          </span>
+          </button>
         </div>
       </div>
       <div class="config">
         <div>@我的消息提醒<span class="tips">（接受谁的@消息提醒）</span></div>
         <div class="switch">
-          <span @click="setSetting(3,1)">
+          <button type="button" @click="setSetting(3,1)" :aria-pressed="store.userInformation.atMessageWarn===1">
             <img class="open" :src="store.userInformation.atMessageWarn===1? '/img/消息框开.png' : '/img/消息框关.png' ">
             <span>所有人</span>
-          </span>
-          <span @click="setSetting(3,2)">
+          </button>
+          <button type="button" @click="setSetting(3,2)" :aria-pressed="store.userInformation.atMessageWarn===2">
             <img class="close" :src="store.userInformation.atMessageWarn===2? '/img/消息框开.png' : '/img/消息框关.png' ">
             <span>关注的人</span>
-          </span>
-          <span @click="setSetting(3,0)">
+          </button>
+          <button type="button" @click="setSetting(3,0)" :aria-pressed="store.userInformation.atMessageWarn===0">
             <img class="close" :src="store.userInformation.atMessageWarn===0? '/img/消息框开.png' : '/img/消息框关.png' ">
             <span>不接受任何消息提醒</span>
-          </span>
+          </button>
         </div>
       </div>
       <div class="config">
         <div>收到的赞消息提醒</div>
         <div class="switch">
-          <span @click="setSetting(4,1)">
+          <button type="button" @click="setSetting(4,1)" :aria-pressed="store.userInformation.likeMessageWarn===1">
             <img class="open" :src="store.userInformation.likeMessageWarn===1? '/img/消息框开.png' : '/img/消息框关.png' ">
             <span>开启</span>
-          </span>
-          <span @click="setSetting(4,0)">
+          </button>
+          <button type="button" @click="setSetting(4,0)" :aria-pressed="store.userInformation.likeMessageWarn===0">
             <img class="close" :src="store.userInformation.likeMessageWarn===0? '/img/消息框开.png' : '/img/消息框关.png' ">
             <span>关闭</span>
-          </span>
+          </button>
         </div>
       </div>
       <div class="config">
         <div>背景图片模式</div>
         <div class="switch">
-          <span @click="setSetting(5,1)">
+          <button type="button" @click="setSetting(5,1)" :aria-pressed="backgroundModel===1">
             <img class="open" :src="backgroundModel===1? '/img/消息框开.png' : '/img/消息框关.png' ">
             <span>开启</span>
-          </span>
-          <span @click="setSetting(5,0)">
+          </button>
+          <button type="button" @click="setSetting(5,0)" :aria-pressed="backgroundModel===0">
             <img class="close" :src="backgroundModel===0? '/img/消息框开.png' : '/img/消息框关.png' ">
             <span>关闭</span>
-          </span>
+          </button>
         </div>
       </div>
     </div>

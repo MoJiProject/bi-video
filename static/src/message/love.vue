@@ -1,7 +1,7 @@
 <template>
     <div class="love-container">
       <div v-show="likeUserList.length===0" class="head2">收到的赞</div>
-      <div v-show="likeUserList.length>0" class="head2"><span class="detail" @click="likeUserList.length=0">收到的赞</span> > 点赞详情</div>
+      <div v-show="likeUserList.length>0" class="head2"><button type="button" class="detail" @click="likeUserList.length=0">‹ 收到的赞</button><span>点赞详情</span></div>
       <a v-if="likeUserList.length!==0&&loves&&loves.likes.likeType===1" :href="'./video?videoId=BV'+loves.videos?.id" target="videoWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">视频：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.videos.title"></span></span></div></a>
       <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===2&&(loves.comments.deleteSign===0&&loves.comments.status===0)&&!loves.comments.dynamicId" :href="'./video?videoId=BV'+loves.comments.videoId+'&commentId='+`${loves.comments.mainCommentId?loves.comments.mainCommentId:loves.comments?.id}`+'&replyId='+loves.comments?.id" target="videoWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">评论：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.videos.title"></span></span></div></a>
       <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===2&&(loves.comments.deleteSign===1||loves.comments.status===1)&&!loves.comments.dynamicId" :href="'./video?videoId=BV'+loves.comments.videoId" target="videoWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">评论：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.videos.title"></span></span></div></a>
@@ -91,7 +91,7 @@
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a v-if="love.likes.likeType===3&&love.dynamic.imgAddress" class="love-video-cover-container" :href="'./video?videoId=BV'+love.videos?.id" target="videoWindow"><img class="love-video-cover" :src="love.dynamic.imgAddress.split(',')[0]"></a>
+                  <a v-if="love.likes.likeType===3&&love.dynamic.imgAddress" class="love-video-cover-container" :href="'./dynamicDetail?dynamicId='+love.dynamic.id" target="dynamicWindow"><img class="love-video-cover" :src="love.dynamic.imgAddress.split(',')[0]"></a>
                 </el-tooltip>
                 <div class="love-line"></div>
               </div>
@@ -198,7 +198,7 @@
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a v-if="love.likes.likeType===3&&love.dynamic.imgAddress" class="love-video-cover-container" :href="'./video?videoId=BV'+love.videos?.id" target="videoWindow"><img class="love-video-cover" :src="love.dynamic.imgAddress.split(',')[0]"></a>
+                  <a v-if="love.likes.likeType===3&&love.dynamic.imgAddress" class="love-video-cover-container" :href="'./dynamicDetail?dynamicId='+love.dynamic.id" target="dynamicWindow"><img class="love-video-cover" :src="love.dynamic.imgAddress.split(',')[0]"></a>
                 </el-tooltip>
                 <div class="love-line"></div>
               </div>
@@ -305,20 +305,20 @@
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a v-if="love.likes.likeType===3&&love.dynamic.imgAddress" class="love-video-cover-container" :href="'./video?videoId=BV'+love.videos?.id" target="videoWindow"><img class="love-video-cover" :src="love.dynamic.imgAddress.split(',')[0]"></a>
+                  <a v-if="love.likes.likeType===3&&love.dynamic.imgAddress" class="love-video-cover-container" :href="'./dynamicDetail?dynamicId='+love.dynamic.id" target="dynamicWindow"><img class="love-video-cover" :src="love.dynamic.imgAddress.split(',')[0]"></a>
                 </el-tooltip>
                 <div class="love-line"></div>
               </div>
            </div>
         </div>
         <div v-show="loveList.length===0&&selectLikeCommentFFlag" class="no-love-data">
-          <img src="/img/没有消息数据.png">
+          <AppEmptyState title="暂无点赞通知" compact/>
         </div>
         <div v-show="loveList.length===0&&!selectLikeCommentFFlag" class="love-loading">
           <img src="/img/loading.png">
         </div>
       </div>
-      <div class="love-content" style="padding-bottom: 200px;" v-show="likeUserList.length>0" @scroll="handleScroll2">
+      <div class="love-content" v-show="likeUserList.length>0" @scroll="handleScroll2">
         <div v-show="loveList.length>0" class="love-item" v-for="love in likeUserList" :key="love?.id">
           <div class="love-item-content" style="cursor: default;">
                 <el-tooltip
@@ -365,10 +365,10 @@
       <el-dialog
         v-model="deleteLoveDialogFlag"
         append-to-body
-        width="464"
+        width="min(464px, calc(100vw - 32px))"
+        class="message-confirm-dialog"
         :lock-scroll="false"
         align-center
-        style="height: 169.8px; border-radius: 12px"
       >
       <span class="delete-dialog-title">删除</span>
       <div class="delete-dialog-content">
