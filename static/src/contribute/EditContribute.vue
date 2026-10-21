@@ -1,92 +1,24 @@
 <template>
-  <div class="main-content4" v-loading.fullscreen="loading" element-loading-background="rgba(122, 122, 122, 0)">
-    <div class="white">
-      <a href="./subpage2"
-        ><img
-          src="/img/返回.png"
-          style="position:relative;transform: translate(20px, 20px); width: 24px; height: 18px;z-index: 100;"
-      /></a>
-      <div
-        style="
-          transform: translate(505px, 20px);
-          height: 40px;
-          width: 1200px;
-          background-color: white;
-          color: #0E9C85;
-          font-weight: 800;
-        "
-      >
-        视频投稿
-        <div
-          style="
-            width: 1200px;
-            height: 3px;
-            background-color: #f8f8f8;
-            transform: translate(-600px, 20px);
-          "
-        ></div>
-        <div
-          style="
-            width: 65px;
-            height: 3px;
-            background-color: #0E9C85;
-            transform: translate(0px, 17px);
-          "
-        ></div>
+  <div class="main-content4 creator-upload" v-loading.fullscreen="loading" element-loading-background="rgba(122, 122, 122, 0)">
+    <div class="white creator-upload-panel">
+      <div class="upload-heading">
+        <h1>编辑稿件</h1>
+        <router-link to="/contribute/subpage2">返回稿件管理 →</router-link>
       </div>
       <div
         v-if="fileListVideo.length === 1 && video.videoSource === 0"
-        style="font-weight: 800; margin-left: 40px; margin-top: 60px"
+        class="uploaded-summary"
       >
-        编辑视频
-      </div>
-      <div
-        v-if="fileListVideo.length === 1 && video.videoSource === 0"
-        style="
-          width: 800px;
-          height: 150px;
-          background-color: #f8f8f8;
-          transform: translate(75px, 30px);
-        "
-      >
-        <div style="font-size: 14px; transform: translate(50px, 60px)">
-          {{ fileVideoname }}
+        <img src="/img/uploadVideoImg.png" alt="" />
+        <div>
+          <p class="file-name">{{ fileVideoname }}</p>
+          <p class="file-size">文件大小：{{ formatFileSize(videoSize) }}</p>
+          <el-progress :percentage="progress" />
         </div>
-        <div
-          style="
-            color: #9a9a9a;
-            font-size: 10px;
-            transform: translate(50px, 65px);
-          "
-        >
-          已经上传：{{ formatFileSize(videoSize) }}/{{
-            formatFileSize(videoSize)
-          }}
-        </div>
-        <img
-          @click="reVideo"
-          src="/img/重新选择.png"
-          style="width: 18px;transform: translate(670px, 50px); position: absolute;cursor: pointer;"
-        />
-        <img
-          src="/img/uploadVideoImg.png"
-          style="width: 28px; transform: translate(10px, 30px)"
-        />
-        <el-progress
-          :percentage="progress"
-          style="width: 700px; transform: translate(50px, 30px)"
-        />
+        <el-button @click="reVideo" plain>重新选择</el-button>
       </div>
 
-      <!-- 视频来源选择 -->
-      <div
-        style="
-          transform: translate(130px, 40px);
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        "
-      >
+      <div class="source-selector">
         <el-radio-group
           v-model="video.videoSource"
           class="contribute-type"
@@ -95,23 +27,16 @@
           <el-radio class="contribute-radio" :value="0">本地视频</el-radio>
           <el-radio class="contribute-radio" :value="1">远程链接</el-radio>
         </el-radio-group>
-        <span style="font-size: 12px; color: #9c9f9f">
+        <span>
           远程链接只保存一条视频直链，播放时流量走源站CDN，本站不存储文件
         </span>
       </div>
 
       <div
         v-if="video.videoSource === 1"
-        style="
-          transform: translate(130px, 40px);
-          width: 850px;
-          background-color: #f8f8f8;
-          border-radius: 5px;
-          padding: 20px;
-          box-sizing: border-box;
-        "
+        class="remote-source"
       >
-        <div style="font-size: 13px; color: #0E9C85; margin-bottom: 10px">
+        <div style="font-size: 13px; color: var(--brand-hover); margin-bottom: 10px">
           视频直链
         </div>
         <el-input
@@ -144,12 +69,11 @@
 
       <el-upload
         v-show="fileListVideo.length === 0 && video.videoSource === 0"
-        style="transform: translate(130px, 40px); width: 850px"
         ref="uploadRef2"
         :headers="{
                 'Authorization': store.token
               }"
-        class="upload-demo"
+        class="creator-video-upload"
         action="/api/upload/uploadVideo"
         :data="{ uId: 0 }"
         show-file-list
@@ -164,62 +88,23 @@
       >
         <el-icon class="el-icon--upload"><upload-filled /></el-icon>
         <div class="el-upload__text">
-          <img
-            src="/img/upload.png"
-            style="
-              width: 34px;
-              transform: translate(-35px, -95px);
-              position: absolute;
-            "
-          />
-          <span
-            style="
-              font-size: 12px;
-              color: #b3b3b3;
-              transform: translate(345px, -55px);
-              display: flex;
-            "
-            >拖拽到此处也可上传</span
-          >
-          <div
-            style="
-              transform: translate(308px, -35px);
-              position: absolute;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              background-color: #0E9C85;
-              width: 180px;
-              border-radius: 5px;
-              height: 40px;
-            "
-          >
-            <span style="color: white">上传视频</span>
-          </div>
+          <span class="upload-pick-label">选择视频</span>
+          <span>也可以拖拽视频文件到这里</span>
         </div>
       </el-upload>
 
       <div
         v-if="showEditor"
-        style="
-          font-weight: 800;
-          margin-left: 40px;
-          margin-top: 60px;
-          transform: translateY(20px);
-        "
+        class="form-section-heading"
       >
         基本设置
       </div>
 
       <div
         v-if="!showEditor"
-        style="
-          transform: translate(275px, 200px);
-          display: flex;
-          flex-direction: column;
-        "
+        class="upload-guidance"
       >
-        <div style="transform: translate(210px, -15px)">
+        <div>
           <span style="display: flex; transform: translate(-130px, 23px)"
             ><a
               class="forbind"
@@ -235,10 +120,7 @@
             placement="top-start"
             :width="300"
             trigger="hover"
-            content="网页端上传的文件大小上限为16G
-                  视频内容时长最大10小时
-                  （提升电磁力，即可体验64G超大文件上限哦！前往创作实验室了解更多）
-                  过长或过大视频建议拆分后使用分p或合集功能进行投稿～"
+            content="本地视频文件大小上限为 50MB。"
           >
             <template #reference>
               <el-button v-debounce
@@ -294,14 +176,14 @@
         <div class="forter2" style="font-size: 12px; color: #9c9f9f">
           上传视频，即表示您已同意
           <a
-            style="font-size: 12px; color: #0E9C85; text-decoration: none"
+            style="font-size: 12px; color: var(--brand-hover); text-decoration: none"
             target="_blank"
             href="https://member.qingmang.com/platform/upload/video/frame?page_from=creative_home_top_upload#:~:text=%E6%82%A8%E5%B7%B2%E5%90%8C%E6%84%8F-,%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E4%BD%BF%E7%94%A8%E5%8D%8F%E8%AE%AE,-%E4%B8%8E%20%E5%93%94%E5%93%A9"
             >青芒视频用户协议</a
           >
           与
           <a
-            style="font-size: 12px; color: #0E9C85; text-decoration: none"
+            style="font-size: 12px; color: var(--brand-hover); text-decoration: none"
             target="_blank"
             href="https://member.qingmang.com/platform/upload/video/frame?page_from=creative_home_top_upload#:~:text=%E4%BD%BF%E7%94%A8%E5%8D%8F%E8%AE%AE%20%E4%B8%8E-,%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%A4%BE%E5%8C%BA%E5%85%AC%E7%BA%A6,-%EF%BC%8C%E8%AF%B7%E5%8B%BF%E4%B8%8A"
             >青芒视频社区公约</a
@@ -309,7 +191,7 @@
           ，请勿上传色情，反动等违法视频。
         </div>
 
-        <div style="margin-top: 20px; margin-left: 67px">
+        <div>
           <span style="color: #9c9f9f; font-size: 12px">第三方工具</span>
           <span
             style="
@@ -342,105 +224,50 @@
         v-show="showEditor"
         :model="video"
         label-width="auto"
-        style="max-width: 600px"
+        class="creator-form"
       >
-        <div style="margin-left: 28px; margin-top: 20px">
+        <div class="form-field cover-field">
           <span style="font-size: 14px"
             ><span style="color: red">*&nbsp;</span>封面</span
           >
-          <span
-            style="
-              transform: translate(280px, 50px);
-              position: absolute;
-              font-size: 12px;
-              color: #878787;
-            "
-            >系统默认选中第一帧为视频封面</span
+          <span class="cover-hint"
+            >可以从视频中选择画面，或上传封面</span
           >
-          <div @click="centerDialogVisible = true" class="cover">选择封面</div>
+          <button type="button" @click="centerDialogVisible = true" class="cover">选择封面</button>
           <img
             v-if="fileListCover.length === 0"
             :src="thumbnail || selectedThumbnail || video.coverAddress || defaultCoverSrc"
             alt="Video Thumbnail"
-            style="
-              width: 169px;
-              height: 127px;
-              transform: translate(83px, 40px);
-              z-index: 0;
-            "
           />
           <img
             v-if="fileListCover.length === 1"
             :src="getImageUrl(fileListCover[0])"
             alt="Video Thumbnail"
-            style="
-              width: 169px;
-              height: 127px;
-              transform: translate(83px, 40px);
-              z-index: 0;
-            "
           />
 
           <el-dialog
-            style="transform: translate(-55px, -20px); height: 700px"
+            class="creator-dialog creator-cover-dialog"
+            title="选择封面"
             :modal="false"
             :lock-scroll="false"
             v-model="centerDialogVisible"
-            width="700"
+            width="min(760px, calc(100vw - 24px))"
             center
           >
-            <div
+            <button type="button"
               @click="coverImg = 1"
-              style="
-                cursor: pointer;
-                display: inline-block;
-                transform: translate(120px, -10px);
-                font-size: 16px;
-                color: #0E9C85;
-              "
+              class="cover-tab"
+              :class="{ active: coverImg === 1 }"
             >
               上传封面
-            </div>
-            <div
+            </button>
+            <button type="button"
               @click="coverImg = 0"
-              style="
-                cursor: pointer;
-                display: inline-block;
-                transform: translate(-50px, -10px);
-                font-size: 16px;
-                color: #0E9C85;
-              "
+              class="cover-tab"
+              :class="{ active: coverImg === 0 }"
             >
               截取封面
-            </div>
-            <span>
-              <div
-                style="
-                  width: 700px;
-                  height: 3px;
-                  background-color: #f8f8f8;
-                  transform: translate(-16px, 10px);
-                "
-              ></div>
-              <div
-                v-if="coverImg === 0"
-                style="
-                  width: 66px;
-                  height: 3px;
-                  background-color: #0E9C85;
-                  transform: translate(14px, 7px);
-                "
-              ></div>
-              <div
-                v-if="coverImg === 1"
-                style="
-                  width: 66px;
-                  height: 3px;
-                  background-color: #0E9C85;
-                  transform: translate(119px, 7px);
-                "
-              ></div>
-            </span>
+            </button>
             <el-upload
               v-if="coverImg === 1"
               ref="uploadRef"
@@ -456,47 +283,36 @@
               :before-upload="beforeUploadCover"
               :on-change="handleChangeCover"
               :on-remove="handleRemoveCover"
-              style="width: 550px; transform: translate(60px, 40px)"
+              class="creator-cover-upload"
             >
               <el-icon class="el-icon--upload"><upload-filled /></el-icon>
               <div class="el-upload__text">
                 <img
                   src="/img/uploadCover.png"
-                  style="width: 100px; transform: translate(-10px, -70px)"
+                  style="width: 64px"
                 />
-                <div
-                  style="
-                    color: #0E9C85;
-                    font-size: 12px;
-                    transform: translate(-10px, -50px);
-                  "
-                >
+                <div>
                   拖拽图片到此或点击上传
                 </div>
-                <div
-                  style="
-                    color: #b3b3b3;
-                    font-size: 12px;
-                    transform: translate(-10px, -40px);
-                  "
-                >
+                <div>
                   建议上传4:3比例高清图片，尺寸≥1200*900
                 </div>
               </div>
             </el-upload>
-            <div v-if="coverImg === 0" style="transform: translate(15px, 25px)">
+            <div v-if="coverImg === 0" class="creator-crop-hint">
               拖拽选框裁剪
             </div>
+            <div v-if="coverImg === 0" class="creator-crop-viewport">
             <CropperCompVue
               v-if="coverImg === 0"
               @cut="handleCut"
               :imgURL="thumbnail || selectedThumbnail || video.coverAddress || defaultCoverSrc"
               :title="fileNameWithoutExtension"
-              style="transform: translate(20px, 20px)"
             />
-            <div v-if="coverImg === 0" @click="defaultCover" class="crop">
-              使用封面模板
             </div>
+            <button type="button" v-if="coverImg === 0" @click="defaultCover" class="crop">
+              使用封面模板
+            </button>
             <div v-show="coverImg === 0" class="thumbnail-slider">
               <div class="thumbnails" ref="thumbnailsRef">
                 <img
@@ -509,63 +325,56 @@
               </div>
             </div>
             <template #footer>
-              <div
+              <button type="button"
                 v-if="coverImg === 1 && fileListCover.length === 0"
                 class="uploadCoverImg"
                 @click="handleUploadClick"
               >
-                <span style="color: white">上传图片</span>
-              </div>
-              <div
+                上传图片
+              </button>
+              <button type="button"
                 v-if="coverImg === 1 && fileListCover.length === 1"
                 class="uploadCoverImg"
                 @click="centerDialogVisible = false"
               >
-                <span style="color: white">完成</span>
-              </div>
+                完成
+              </button>
             </template>
           </el-dialog>
         </div>
 
-        <div style="margin-left: 28px; margin-top: 90px">
+        <div class="form-field">
           <span style="font-size: 14px"
             ><span style="color: red">*&nbsp;</span>标题</span
           >
           <el-input
             v-model="video.title"
-            style="
-              width: 700px;
-              height: 40px;
-              transform: translate(120px, -30px);
-            "
             maxlength="80"
             placeholder="标题建议提炼内容亮点"
             show-word-limit
             type="text"
           />
         </div>
-        <div style="margin-left: 27px; margin-top: -10px">
+        <div class="form-field">
           <span style="font-size: 14px"
             ><span style="color: red">*&nbsp;</span>类型</span
           >
           <el-radio-group
             v-model="video.type"
-            style="transform: translate(85px, 0px);"
           >
             <el-radio class="contribute-radio" :value="0">自制</el-radio>
             <el-radio class="contribute-radio" :value="1">转载</el-radio>
           </el-radio-group>
         </div>
 
-        <div style="margin-left: 28px; margin-top: 30px">
+        <div class="form-field">
           <span style="font-size: 14px"
             ><span style="color: red">*&nbsp;</span>分区</span
           >
-          <div style="transform: translate(120px, -27px)">
+          <div class="category-selects">
             <el-select
               v-model="video.subZoneKey"
               placeholder="请选择分区"
-              style="width: 240px"
               @change="handleCountryChange"
             >
               <el-option
@@ -579,7 +388,6 @@
             <el-select
               v-model="video.subZoneValue"
               placeholder="请选择分类"
-              style="width: 240px"
               :disabled="!video.subZoneKey"
             >
               <el-option
@@ -592,14 +400,7 @@
           </div>
         </div>
 
-        <div
-          style="
-            margin-left: 27px;
-            margin-top: 20px;
-            height: auto;
-            width: 850px;
-          "
-        >
+        <div class="form-field tags-field">
           <span style="font-size: 14px"
             ><span style="color: red">*&nbsp;</span>标签</span
           >
@@ -608,11 +409,6 @@
             :key="tag"
             closable
             @close="handleClose(tag)"
-            style="
-              transform: translateX(80px);
-              background-color: #0E9C85;
-              color: white;
-            "
           >
             &nbsp;&nbsp; {{ tag }}
           </el-tag>
@@ -624,20 +420,12 @@
             ref="InputRef"
             placeholder="按回车键Enter创建标签"
             size="small"
-            style="width: 200px; margin-left: 85px; height: 30px"
             @input="removeSpaces"
           >
           </el-input>
         </div>
 
-        <div
-          style="
-            margin-left: 27px;
-            margin-top: 60px;
-            height: 200px;
-            width: 200px;
-          "
-        >
+        <div class="form-field description-field">
           <span style="font-size: 14px"
             ><span style="color: red">*&nbsp;</span>简介</span
           >
@@ -654,71 +442,38 @@
             <eit :eitList="eitList" :eitKeyWord="eitKeyWord"/>
           </div>
         </div>
-        <div
-          style="
-            margin-left: 40px;
-            margin-bottom: 60px;
-            height: 200px;
-            width: 200px;
-          "
-        >
+        <div class="form-field permission-field">
           <span style="font-size: 14px">二创设置</span
-          ><span
-            style="
-              font-size: 14px;
-              position: absolute;
-              transform: translate(110px, 5px);
-            "
-            >允许二创</span
+          ><span>允许二创</span
           >
-          <el-switch v-model="video.allowTwo" style="margin-left: 55px" />
+          <el-switch v-model="video.allowTwo" aria-label="允许二创" />
         </div>
 
-        <div class="commit" @click="uploadFile">
-          <span style="color: white; font-size: 14px">立即投稿</span>
+        <div class="submit-actions">
+          <button type="button" class="commit" @click="uploadFile">保存修改</button>
         </div>
       </el-form>
 
       <el-dialog
         v-model="dialogVisible"
+        class="creator-dialog"
         title="确定要离开吗？"
-        width="392"
+        width="min(392px, calc(100vw - 32px))"
         center
         :modal="false"
-        style="transform: translate(-80px, 80px); height: 167px"
       >
-        <span
-          style="
-            transform: translate(45px, 10px);
-            position: absolute;
-            font-size: 12px;
-          "
-        >
-          系统可能不会保存填写的稿件信息噢...(´；ω；`)
+        <span>
+          离开后，未提交的稿件信息将不会保存。
         </span>
         <template #footer>
-          <div class="dialog-footer" style="transform: translate(0px, 40px)">
+          <div class="dialog-footer">
             <el-button v-debounce
               @click="confirmLeave"
-              style="
-                background-color: #0E9C85;
-                color: white;
-                border: none;
-                width: 90px;
-                height: 28px;
-              "
+              type="primary"
               >确定</el-button
             >
             <el-button v-debounce
-              type="primary"
               @click="cancelLeave"
-              style="
-                background-color: white;
-                color: black;
-                border: 1px solid #b3b3b3;
-                width: 90px;
-                height: 28px;
-              "
               >取消</el-button
             >
           </div>
@@ -2202,11 +1957,11 @@ h1 {
   background-color: white;
 }
 .m-2:hover {
-  color: #0E9C85 !important;
+  color: var(--brand-hover) !important;
   background-color: white;
 }
 .forbind:hover {
-  color: #0E9C85 !important;
+  color: var(--brand-hover) !important;
 }
 
 :global(.el-popover.contribute-upload-popover) {

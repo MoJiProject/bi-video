@@ -1,8 +1,7 @@
 <template>
   <div
   v-if="store.userId!== null&&pageLoad"
-    class="common-layout"
-    style="user-select: none;"
+    class="common-layout creator-center"
   >
     <el-container>
       <el-header class="cu-header">
@@ -80,8 +79,8 @@
           </div>
         </div>
       </el-header>
-      <el-container >
-        <el-aside width="200px" class="contribute-aside">
+      <el-container class="creator-workspace">
+        <el-aside width="100%" class="contribute-aside">
           <AsideComponent />
         </el-aside>
         <el-main class="contribute-main">
@@ -91,10 +90,10 @@
     </el-container>
   </div>
   <div v-else class="contribute-empty-page">
-    <mainHead :head2-flag="true"/>
+    <mainHead class="header-stack-search" :head2-flag="true"/>
     <div class="contribute-empty">
       <AppEmptyState :kind="loginError && store.token ? 'unavailable' : 'login'"
-        :title="loginError || '登录后进入创作中心'" description="发布精彩作品，管理投稿与创作数据">
+        :title="loginError || '登录后进入创作中心'">
         <template #actions>
           <el-button type="primary" @click="store.loginDialogVisible = true">立即登录</el-button>
           <el-button v-if="store.token" @click="loadUser">重新加载</el-button>
@@ -568,3 +567,4 @@ export default {
   }
 }
 </style>
+<style lang="scss" scoped src="./creatorLayout.scss"></style>

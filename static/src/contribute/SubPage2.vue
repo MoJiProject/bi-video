@@ -1,124 +1,29 @@
 <template>
-  <div class="main-content">
-    <div class="white">
-      <div
-        style="
-          width: 100%;
-          height: 3px;
-          background-color: #f8f8f8;
-          transform: translate(0px, 60px);
-        "
-      ></div>
-      <div
-        style="
-          color: #0E9C85;
-          font-weight: 800;
-          transform: translate(50px, 22px);
-          cursor: pointer;
-        "
-      >
-        视频管理
-      </div>
-      <div
-        style="
-          width: 65px;
-          height: 3px;
-          background-color: #0E9C85;
-          transform: translate(50px, 35px);
-        "
-      ></div>
-      <div
-        style="
-          position: absolute;
-          z-index: 10;
-          background-color: #f8f8f8;
-          transform: translate(1060px, -50px);
-          width: 200px;
-          height: 1800px;
-        "
-      ></div>
-      <el-input
-        @keypress.enter="searchVideo"
-        v-model="videoTitle"
-        maxlength="30"
-        style="
-          width: 230px;
-          height: 32px;
-          font-size: 12px;
-          transform: translate(790px, -7px);
-        "
-        placeholder="搜索稿件"
-      />
-      <img
-        @click="searchVideo"
-        src="/img/搜索稿件.png"
-        style="transform: translate(768px, -3px); width: 14px;cursor: pointer;"
-      />
-      <div
-        @click="allUpload"
-        v-if="click4 === 0"
-        style="
-          font-size: 14px;
-          transform: translate(50px, 20px);
-          cursor: pointer;
-        "
-      >
-        全部稿件&nbsp;&nbsp;{{ UserVideoVo.videoAllNumber }}
-      </div>
-      <div
-        @click="allUpload"
-        v-else
-        style="
-          font-size: 14px;
-          color: #0E9C85;
-          transform: translate(50px, 20px);
-          cursor: pointer;
-        "
-      >
-        全部稿件&nbsp;&nbsp;{{ UserVideoVo.videoAllNumber }}
-      </div>
-      <div
-        style="
-          display: flex;
-          justify-content: space-around;
-          width: 256px;
-          font-size: 14px;
-          color: #8c9195;
-          transform: translate(42px, 28px);
-        "
-      >
-        <span v-if="click1 === 0" @click="waitUpload" style="cursor: pointer"
-          >进行中&nbsp;{{ UserVideoVo.videoWaitNumber }}</span
-        >
-        <span v-else @click="waitUpload" style="cursor: pointer; color: #0E9C85"
-          >进行中&nbsp;{{ UserVideoVo.videoWaitNumber }}</span
-        >
-        <span style="color: #e1e1e1">|</span>
-        <span v-if="click2 === 0" @click="successUpload" style="cursor: pointer"
-          >已通过&nbsp;{{ UserVideoVo.videoSuccessNumber }}</span
-        >
-        <span
-          v-else
-          @click="successUpload"
-          style="cursor: pointer; color: #0E9C85"
-          >已通过&nbsp;{{ UserVideoVo.videoSuccessNumber }}</span
-        >
-        <span style="color: #e1e1e1">|</span>
-        <span v-if="click3 === 0" @click="errorUpload" style="cursor: pointer"
-          >未通过&nbsp;{{ UserVideoVo.videoErrorNumber }}</span
-        >
-        <span
-          v-else
-          @click="errorUpload"
-          style="cursor: pointer; color: #0E9C85"
-          >未通过&nbsp;{{ UserVideoVo.videoErrorNumber }}</span
-        >
-      </div>
-
-      <el-select
-        v-model="subZoneKey"
-        style="width: 110px; height: 30px; transform: translate(740px, -25px)"
-      >
+  <div class="creator-manager">
+    <div class="manager-heading">
+      <h1>稿件管理</h1>
+      <router-link to="/contribute">＋ 视频投稿</router-link>
+    </div>
+    <div class="manuscript-statuses" aria-label="稿件状态">
+      <button type="button" @click="allUpload" :class="{ active: click4 === 1 }" :aria-pressed="click4 === 1">
+        <span>全部稿件</span><strong>{{ UserVideoVo.videoAllNumber }}</strong>
+      </button>
+      <button type="button" @click="waitUpload" :class="{ active: click1 === 1 }" :aria-pressed="click1 === 1">
+        <span>进行中</span><strong>{{ UserVideoVo.videoWaitNumber }}</strong>
+      </button>
+      <button type="button" @click="successUpload" :class="{ active: click2 === 1 }" :aria-pressed="click2 === 1">
+        <span>已通过</span><strong>{{ UserVideoVo.videoSuccessNumber }}</strong>
+      </button>
+      <button type="button" @click="errorUpload" :class="{ active: click3 === 1 }" :aria-pressed="click3 === 1">
+        <span>未通过</span><strong>{{ UserVideoVo.videoErrorNumber }}</strong>
+      </button>
+    </div>
+    <div class="manuscript-panel">
+      <div class="manuscript-filters">
+        <el-input @keypress.enter="searchVideo" v-model="videoTitle" maxlength="30" placeholder="搜索稿件" aria-label="搜索稿件" class="manuscript-search">
+          <template #append><el-button @click="searchVideo" aria-label="搜索">搜索</el-button></template>
+        </el-input>
+      <el-select v-model="subZoneKey" aria-label="筛选分类">
         <el-option
           @click="selectsubZoneKeyVideo"
           v-for="item in classify"
@@ -128,10 +33,7 @@
         />
       </el-select>
 
-      <el-select
-        v-model="sortWay"
-        style="width: 162px; height: 30px; transform: translate(750px, -25px)"
-      >
+      <el-select v-model="sortWay" aria-label="稿件排序">
         <el-option
           @click="sortVideo"
           v-for="item in sort"
@@ -140,41 +42,31 @@
           :value="item.value"
         />
       </el-select>
-      <div v-for="(video, index) in videoList" :key="index">
-        <div style="margin-bottom: -20px">
+      </div>
+      <div class="manuscript-list">
+      <article v-for="(video, index) in videoList" :key="index" class="manuscript-card">
+        <div class="manuscript-cover">
           <img
             @click="openVideo(video)"
             :src="video.coverAddress"
-            style="
-              width: 154px;
-              height: 87px;
-              object-fit: cover;
-              border-radius: 5px;
-              cursor: pointer;
-              transform: translate(50px, 30px);
-            "
+            :alt="video.title"
+            tabindex="0"
+            role="button"
+            @keydown.enter="openVideo(video)"
+            @keydown.space.prevent="openVideo(video)"
           />
           <span class="videoTime">{{ video.videoTime }}</span>
-            <span
+        </div>
+            <button
+              type="button"
               class="videoTitle"
               @click="openVideo(video)"
-              style="
-                cursor: pointer;
-                font-size: 16px;
-                width: 780px;
-                position: absolute;
-                transform: translate(75px, 25px);
-              "
-              >{{ video.title }}</span>
-          <span
-            style="
-              color: #50505b;
-              font-size: 13px;
-              position: absolute;
-              transform: translate(75px, 67px);
-            "
-            >{{ video.createTime }}</span
-          >
+              >{{ video.title }}</button>
+          <div class="manuscript-meta">
+            <span class="manuscript-state" :class="`state-${video.status}`">{{ video.status === 0 ? '进行中' : video.status === 2 ? '未通过' : '已通过' }}</span>
+            <time>{{ video.createTime }}</time>
+          </div>
+          <div class="manuscript-actions">
           <router-link
             :to="{ path: '/contribute/edit', query: { videoId: video.id } }"
             style="text-decoration: none;"
@@ -194,7 +86,8 @@
               />编辑
             </div>
           </router-link>
-          <div
+          <button
+            type="button"
             v-if="video.status !== 0 || video.status !== 2"
             @click="viewVideoData"
             class="datas"
@@ -205,15 +98,10 @@
               :src="video.hover2 ? datassBlue : datass"
               style="transform: translate(1px, 0px); width: 14px; height: 14px"
             />数据
-          </div>
+          </button>
           <div
             v-if="video.status === 2"
-            style="
-              color: red;
-              transform: translate(500px, -54px);
-              position: absolute;
-              font-size: 12px;
-            "
+            class="manuscript-rejection"
           >
             退回原因：{{ video.examineFiledMessage }}
           </div>
@@ -230,16 +118,12 @@
                 position: absolute;
               "
             />
-            <div class="deleteUpload" @click="tempDelete(video)">删除</div>
+            <button type="button" class="deleteUpload" @click="tempDelete(video)">删除</button>
+          </div>
           </div>
           <div
             v-if="video.status !== 0 || video.status !== 2"
-            style="
-              display: flex;
-              justify-content: space-around;
-              width: 380px;
-              transform: translate(225px, -45px);
-            "
+            class="manuscript-metrics"
           >
             <el-tooltip
               content="播放"
@@ -331,25 +215,10 @@
               </span>
             </el-tooltip>
           </div>
-          <hr
-            style="
-              width: 970px;
-              transform: translate(50px, -30px);
-              position: absolute;
-              border-top: 1px solid rgb(222, 222, 222);
-            "
-          />
-        </div>
+      </article>
       </div>
-      <div
-        v-show="
-         ( (click1 === 1 && UserVideoVo.videoWaitNumber === 0) ||
-          (click2 === 1 && UserVideoVo.videoSuccessNumber === 0) ||
-          (click3 === 1 && UserVideoVo.videoErrorNumber === 0) ||
-          (click4 === 1 && UserVideoVo.videoAllNumber === 0))&&!videoList.length
-        "
-      >
-        <AppEmptyState title="没有符合条件的稿件" description="换个筛选条件，或发布你的下一部作品"/>
+      <div v-if="!videoList.length">
+        <AppEmptyState title="没有符合条件的稿件"/>
       </div>
 
       <div
@@ -372,36 +241,21 @@
     </div>
     <el-dialog
       v-model="dialogVisible"
+      class="creator-dialog"
       append-to-body
-      width="392"
+      width="min(392px, calc(100vw - 32px))"
+      title="删除稿件"
       center
       :modal="false"
-      style="transform: translate(0px, 100px); height: 167px"
     >
-      <span
-        style="
-          transform: translate(80px, 0px);
-          position: absolute;
-          font-size: 18px;
-          font-weight: 800;
-          color: #8c9195;
-        "
-      >
+      <span>
         确定要删除该稿件吗？
       </span>
       <template #footer>
-        <div class="dialog-footer" style="transform: translate(-10px, 50px)">
+        <div class="dialog-footer">
           <el-button v-debounce class="yesDelete" @click="deleteVideo">确定</el-button>
           <el-button v-debounce
-            type="primary"
             @click="dialogVisible = false"
-            style="
-              background-color: white;
-              color: black;
-              border: 1px solid #b3b3b3;
-              width: 90px;
-              height: 28px;
-            "
             >取消</el-button
           >
         </div>
@@ -860,5 +714,71 @@ export default {
   .white {
     padding: 12px;
   }
+}
+</style>
+<style scoped lang="scss">
+.creator-manager { min-width: 0; color: var(--ink); }
+.manager-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+.manager-heading h1 { margin: 0; font-size: 24px; font-weight: 600; }
+.manager-heading a { display: inline-flex; align-items: center; min-height: 38px; padding: 0 16px; border-radius: 10px; background: var(--brand); color: #fff; text-decoration: none; font-size: 13px; }
+.manuscript-statuses { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
+.manuscript-statuses button { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: #fff; color: var(--ink-2); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.manuscript-statuses button.active { border-color: var(--brand-light-5); background: var(--brand-light-9); color: var(--brand-hover); }
+.manuscript-statuses strong { font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; min-width: 0; }
+.manuscript-panel { padding: 24px; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
+.manuscript-filters { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+.manuscript-filters .manuscript-search { flex: 1; min-width: min(240px, 100%); margin-right: auto; }
+.manuscript-filters .el-select { width: 164px; }
+.manuscript-filters :deep(.el-input__wrapper), .manuscript-filters :deep(.el-select__wrapper) { min-height: 40px; }
+.manuscript-list { display: flex; flex-direction: column; gap: 16px; padding-top: 20px; }
+.manuscript-card { display: grid; grid-template-columns: 176px minmax(0, 1fr); gap: 10px 20px; min-width: 0; padding: 18px; border: 1px solid var(--line); border-radius: 14px; }
+.manuscript-cover { position: relative; grid-column: 1; grid-row: 1 / 5; align-self: start; min-width: 0; border-radius: 10px; overflow: hidden; }
+.manuscript-cover > img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; cursor: pointer; }
+.manuscript-card .videoTime { position: absolute; right: 6px; bottom: 6px; width: auto; height: auto; padding: 2px 5px; transform: none; font-size: 10px; }
+.manuscript-card .videoTitle { grid-column: 2; grid-row: 1; min-width: 0; padding: 0; border: 0; background: none; font: inherit; font-size: 15px; line-height: 1.6; text-align: left; color: var(--ink); overflow-wrap: anywhere; cursor: pointer; }
+.manuscript-card .videoTitle:hover { color: var(--brand); }
+.manuscript-meta { grid-column: 2; grid-row: 2; display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; color: var(--ink-3); font-size: 12px; }
+.manuscript-state { padding: 3px 8px; border-radius: 6px; background: var(--brand-light-9); color: var(--brand-hover); font-size: 11px; }
+.manuscript-state.state-0 { background: #fff7e7; color: #966400; }
+.manuscript-state.state-2 { background: #fff0f0; color: #b44242; }
+.manuscript-actions { grid-column: 2; grid-row: 4; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding-top: 2px; }
+.manuscript-actions > a { text-decoration: none; }
+.manuscript-actions .edit, .manuscript-actions .datas, .manuscript-actions .deleteUpload { position: static; display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: auto; min-height: 32px; height: auto; padding: 5px 12px; border: 1px solid var(--line); border-radius: 8px; transform: none; background: #fff; color: var(--ink-2); font: inherit; font-size: 12px; cursor: pointer; }
+.manuscript-actions .edit:hover, .manuscript-actions .datas:hover { color: var(--brand-hover); border-color: var(--brand-light-5); }
+.manuscript-actions .more { display: contents; }
+.manuscript-actions .more > img { display: none; }
+.manuscript-actions .deleteUpload { opacity: 1; visibility: visible; color: #b44242; }
+.manuscript-actions .deleteUpload:hover { border-color: #efb7b7; background: #fff5f5; }
+.manuscript-rejection { order: 1; flex-basis: 100%; padding-top: 4px; color: #b44242; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.manuscript-metrics { grid-column: 2; grid-row: 3; display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.manuscript-metrics .ai { gap: 5px; color: var(--ink-3); font-size: 11px; }
+.manuscript-metrics .ai img { width: 13px; height: 13px; object-fit: contain; transform: none; }
+.creator-manager button:focus-visible, .creator-manager a:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+.yesDelete { background: var(--brand); }
+.yesDelete:hover { background: var(--brand-hover); }
+@media (max-width: 900px) {
+  .manuscript-statuses button { flex-direction: column; align-items: flex-start; padding: 16px; }
+  .manuscript-card { grid-template-columns: 144px minmax(0, 1fr); gap: 10px 16px; }
+}
+@media (max-width: 640px) {
+  .manager-heading { margin-bottom: 18px; }
+  .manager-heading h1 { font-size: 21px; }
+  .manuscript-statuses { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .manuscript-statuses button { flex-direction: row; align-items: center; padding: 14px; }
+  .manuscript-statuses strong { font-size: 23px; }
+  .manuscript-panel { padding: 14px; border-radius: 14px; }
+  .manuscript-filters { gap: 10px; }
+  .manuscript-filters .manuscript-search { flex-basis: 100%; }
+  .manuscript-filters .el-select { flex: 1; min-width: 0; }
+  .manuscript-card { grid-template-columns: 104px minmax(0, 1fr); gap: 10px 12px; padding: 12px; }
+  .manuscript-cover { grid-row: 1 / 3; }
+  .manuscript-card .videoTitle { font-size: 13px; }
+  .manuscript-meta { gap: 6px; font-size: 11px; }
+  .manuscript-metrics { grid-column: 1 / -1; gap: 10px 14px; }
+  .manuscript-actions { grid-column: 1 / -1; }
+}
+@media (max-width: 360px) {
+  .manuscript-card { grid-template-columns: minmax(0, 1fr); }
+  .manuscript-cover, .manuscript-card .videoTitle, .manuscript-meta, .manuscript-metrics, .manuscript-actions { grid-column: 1; grid-row: auto; }
 }
 </style>

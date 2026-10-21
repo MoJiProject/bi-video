@@ -1,122 +1,29 @@
 <template>
-  <div class="main-content2">
-    <div class="white2">
-      <span class="title"> 视频数据 </span>
-      <div
-        style="
-          color: #8c9195;
-          transform: translateY(130px);
-          text-align: right;
-          font-size: 14px;
-        "
-      >
-        实时更新
-      </div>
-      <div
-        style="
-          display: flex;
-          flex-direction: column;
-          transform: translate(35px, 150px);
-        "
-      >
-        <div
-          class="a"
-          style="display: flex; justify-content: space-around; width: 1000px"
-        >
-          <span
-            ><div>
-              <img
-                src="/img/新增粉丝.png"
-                style="width: 18px; transform: translate(3px, 3px);margin-right: 8px"
-              />净增粉丝
-            </div>
-            <div class="aa">{{ videoDto.newFansNumber }}</div>
-          </span>
-          <span
-            ><div>
-              <img
-                src="/img/播放量.png"
-                style="width: 14px; transform: translate(6px, 2px);margin-right: 8px"
-              />
-              播放量
-            </div>
-            <div class="aa">{{ videoDto.playNumber }}</div>
-          </span>
-          <span
-            ><div>
-              <img
-                src="/img/评论.png"
-                style="width: 18px; transform: translate(6px, 3px);margin-right: 8px"
-              />
-              评论
-            </div>
-            <div class="aa">{{ videoDto.commentNumber }}</div>
-          </span>
-          <span
-            ><div>
-              <img
-                src="/img/弹幕.png"
-                style="width: 18px; transform: translate(6px, 2px);margin-right: 8px"
-              />
-              弹幕
-            </div>
-            <div class="aa">{{ videoDto.scrollingNumber }}</div>
-          </span>
-        </div>
-
-        <div
-          class="a"
-          style="
-            display: flex;
-            justify-content: space-around;
-            width: 1000px;
-            transform: translateY(20px);
-          "
-        >
-          <span style="transform: translate(-4px)"
-            ><div>
-              <img
-                src="/img/点赞.png"
-                style="width: 18px; transform: translate(7px, 2px);margin-right: 8px"
-              />
-              点赞
-            </div>
-            <div class="aa">{{ videoDto.likeNumber }}</div>
-          </span>
-          <span style="transform: translate(-3px)"
-            ><div>
-              <img
-                src="/img/分享.png"
-                style="width: 18px; transform: translate(7px, 1px);margin-right: 8px"
-              />
-              分享
-            </div>
-            <div class="aa">{{ videoDto.shareNumber }}</div>
-          </span>
-          <span style="transform: translate(0px)"
-            ><div>
-              <img
-                src="/img/真收藏.png"
-                style="width: 18px; transform: translate(6px, 3px);margin-right: 8px"
-              />
-              收藏
-            </div>
-            <div class="aa">{{ videoDto.collectNumber }}</div>
-          </span>
-          <span style="transform: translate(-1px)"
-            ><div>
-              <img
-                src="/img/投币.png"
-                style="width: 18px; transform: translate(5px, 4px);margin-right: 8px"
-              />
-              投币
-            </div>
-            <div class="aa">{{ videoDto.coinThrowNumber }}</div>
-          </span>
-        </div>
-      </div>
+  <section class="creator-dashboard">
+    <div class="dashboard-heading">
+      <h1>创作数据</h1>
+      <router-link to="/contribute/subpage2">查看稿件 →</router-link>
     </div>
-  </div>
+    <dl class="creator-metrics">
+      <div
+        v-for="metric in [
+          { key: 'newFansNumber', label: '净增粉丝', icon: '/img/新增粉丝.png' },
+          { key: 'playNumber', label: '播放量', icon: '/img/播放量.png' },
+          { key: 'commentNumber', label: '评论', icon: '/img/评论.png' },
+          { key: 'scrollingNumber', label: '弹幕', icon: '/img/弹幕.png' },
+          { key: 'likeNumber', label: '点赞', icon: '/img/点赞.png' },
+          { key: 'shareNumber', label: '分享', icon: '/img/分享.png' },
+          { key: 'collectNumber', label: '收藏', icon: '/img/真收藏.png' },
+          { key: 'coinThrowNumber', label: '青芒币', icon: '/img/投币.png' }
+        ]"
+        :key="metric.key"
+        class="metric-card"
+      >
+        <dt><span class="metric-icon"><img :src="metric.icon" alt="" /></span>{{ metric.label }}</dt>
+        <dd>{{ videoDto[metric.key] }}</dd>
+      </div>
+    </dl>
+  </section>
 </template>
 
 <script>
@@ -185,61 +92,26 @@ export default {
   },
 };
 </script>
-<style scoped>
-.main-content2 {
-  background-color: #f8f8f8;
-  border-radius: 5px;
-  width: 100%;
-  height: auto !important;
-  padding: 20px;
-  box-sizing: border-box;
+<style scoped lang="scss">
+.creator-dashboard { min-width: 0; color: var(--ink); }
+.dashboard-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+.dashboard-heading h1 { margin: 0; font-size: 24px; font-weight: 600; }
+.dashboard-heading a { color: var(--brand-hover); font-size: 13px; text-decoration: none; }
+.creator-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; margin: 0; }
+.metric-card { min-width: 0; padding: 24px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+.metric-card dt { display: flex; align-items: center; gap: 10px; color: var(--ink-2); font-size: 13px; }
+.metric-icon { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: var(--brand-light-9); flex-shrink: 0; }
+.metric-icon img { width: 18px; height: 18px; object-fit: contain; }
+.metric-card dd { margin: 22px 0 0; color: var(--ink); font-size: clamp(24px, 2.6vw, 36px); font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+@media (max-width: 1100px) { .creator-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) {
+  .dashboard-heading { margin-bottom: 18px; }
+  .dashboard-heading h1 { font-size: 21px; }
+  .creator-metrics { gap: 12px; }
+  .metric-card { padding: 16px; border-radius: 12px; }
+  .metric-card dt { gap: 8px; font-size: 12px; }
+  .metric-icon { width: 28px; height: 28px; border-radius: 8px; }
+  .metric-card dd { margin-top: 16px; }
 }
-.white2 {
-  width: 100%;
-  max-width: var(--page-max);
-  min-height: 1500px;
-  height: auto !important;
-  margin: 0 auto;
-  z-index: 10;
-  background-color: white;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-.title {
-  position: absolute;
-  font-weight: 800;
-  color: #0E9C85;
-  margin-left: 50px;
-  margin-top: 100px;
-}
-
-.a span {
-  width: 221px;
-  height: 88px;
-  background-color: #f8fcfe;
-  border-radius: 20px;
-}
-
-.a span div {
-  color: #8c9195;
-  transform: translate(16px, 14px);
-  height: 20px;
-}
-
-.aa {
-  color: #0E9C85 !important;
-  font-size: 22px;
-  font-weight: 800;
-  transform: translate(20px, 22px) !important;
-}
-
-@media (max-width: 1100px) {
-  .main-content2 {
-    padding: 12px;
-  }
-  .white2 {
-    padding: 12px;
-  }
-}
+@media (max-width: 360px) { .creator-metrics { grid-template-columns: minmax(0, 1fr); } }
 </style>

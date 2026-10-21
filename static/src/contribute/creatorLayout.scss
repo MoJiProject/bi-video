@@ -1,0 +1,120 @@
+:global(body:has(.creator-center)) { min-width: 0; }
+
+.creator-center {
+  min-width: 0;
+  min-height: 100dvh;
+  background: var(--fill-soft);
+  color: var(--ink);
+  user-select: auto;
+
+  .cu-header { height: 64px; border-bottom: 1px solid var(--line); box-shadow: none; z-index: var(--z-head); }
+  .cu-brand-title { color: var(--ink); font-size: 18px; letter-spacing: 0; }
+  .cu-logo { width: 38px; }
+  .creator-workspace { flex-direction: column; min-width: 0; padding: 24px var(--page-pad) 48px; }
+  .contribute-aside { overflow: visible; width: 100%; border: 1px solid var(--line); border-radius: 14px; background: #fff; z-index: var(--z-sticky); }
+  .contribute-main { min-width: 0; padding: 20px 0 0; }
+  .contribute-content { min-width: 0; width: 100%; }
+
+  :deep(.creator-upload) { min-width: 0; min-height: 0; padding: 0; background: transparent; }
+  :deep(.creator-upload-panel) { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; width: 100%; min-height: 0; padding: 24px; border: 1px solid var(--line); border-radius: 18px; background: #fff; overflow: visible; }
+  :deep(.creator-upload-panel > .upload-heading) { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin: 0; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+  :deep(.upload-heading h1) { margin: 0; color: var(--ink); font-size: 24px; font-weight: 600; }
+  :deep(.upload-heading a) { color: var(--brand-hover); font-size: 13px; text-decoration: none; }
+  :deep(.source-selector) { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 20px; }
+  :deep(.source-selector > span) { color: var(--ink-3); font-size: 12px; line-height: 1.7; }
+  :deep(.source-selector .el-radio-group) { display: flex; flex-wrap: wrap; }
+  :deep(.source-selector .el-radio) { margin-right: 18px; }
+  :deep(.uploaded-summary) { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--fill-soft); }
+  :deep(.uploaded-summary > img) { width: 32px; height: 32px; object-fit: contain; }
+  :deep(.uploaded-summary .file-name) { margin: 0 0 6px; color: var(--ink); font-size: 14px; overflow-wrap: anywhere; }
+  :deep(.uploaded-summary .file-size) { margin: 0 0 10px; color: var(--ink-3); font-size: 12px; }
+  :deep(.remote-source) { min-width: 0; padding: 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--fill-soft); }
+  :deep(.remote-source div:has(> video)) { width: min(100%, 480px) !important; height: auto !important; aspect-ratio: 16 / 9; }
+  :deep(.creator-video-upload) { width: 100%; min-width: 0; }
+  :deep(.creator-video-upload .el-upload) { display: block; width: 100%; }
+  :deep(.creator-video-upload .el-upload-dragger) { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; padding: 36px 16px; border: 1px dashed var(--brand-light-5); border-radius: 14px; background: var(--brand-light-9); }
+  :deep(.creator-video-upload .el-icon--upload) { margin: 0; color: var(--brand); font-size: 44px; line-height: 1; }
+  :deep(.creator-video-upload .el-upload__text) { display: flex; flex-direction: column; gap: 8px; align-items: center; color: var(--ink-2); font-size: 12px; }
+  :deep(.upload-pick-label) { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 24px; border-radius: 10px; background: var(--brand); color: #fff; font-size: 14px; }
+  :deep(.form-section-heading) { margin: 4px 0 0; color: var(--ink); font-size: 18px; font-weight: 600; }
+  :deep(.upload-guidance) { display: flex; flex-direction: column; gap: 14px; min-width: 0; color: var(--ink-3); font-size: 12px; line-height: 1.8; }
+  :deep(.upload-guidance > div:first-child) { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+  :deep(.upload-guidance > div:first-child > span) { display: block !important; transform: none !important; }
+  :deep(.upload-guidance .forter2) { margin: 0; }
+  :deep(.creator-form) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 24px; width: 100%; max-width: none; padding: 0; }
+  :deep(.creator-form > .form-field) { position: relative; display: flex; flex-wrap: wrap; gap: 12px; min-width: 0; margin: 0; width: auto; height: auto; }
+  :deep(.creator-form > .form-field > span:first-child) { flex-basis: 100%; color: var(--ink-2); font-size: 13px !important; }
+  :deep(.creator-form .cover-field) { grid-row: span 3; padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--fill-soft); }
+  :deep(.creator-form .cover-field > .cover) { position: static; width: auto; height: auto; margin: 0; padding: 8px 12px; transform: none; border: 1px solid var(--brand-light-5); border-radius: 8px; background: #fff; color: var(--brand-hover); font-size: 12px; }
+  :deep(.creator-form .cover-field > .cover-hint) { position: static; flex-basis: 100%; transform: none; order: 2; color: var(--ink-3); font-size: 12px; }
+  :deep(.creator-form .cover-field > img) { width: 100%; height: auto; max-height: 200px; aspect-ratio: 16 / 10; margin: 0; transform: none; object-fit: contain; border-radius: 8px; background: var(--fill); }
+  :deep(.creator-form .form-field > .el-input), :deep(.creator-form .form-field > .el-radio-group) { width: 100%; height: auto; margin: 0; transform: none; }
+  :deep(.creator-form .el-input__wrapper), :deep(.creator-form .el-select__wrapper) { min-height: 40px; border-radius: 9px; }
+  :deep(.creator-form .category-selects) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%; min-width: 0; transform: none; }
+  :deep(.creator-form .category-selects .el-select) { width: 100%; min-width: 0; }
+  :deep(.creator-form .tags-field), :deep(.creator-form .description-field), :deep(.creator-form .permission-field), :deep(.creator-form .submit-actions) { grid-column: 1 / -1; }
+  :deep(.creator-form .tags-field .el-tag) { max-width: 100%; margin: 0; transform: none; border-color: var(--brand-light-7); background: var(--brand-light-9); color: var(--brand-hover); }
+  :deep(.creator-form .tags-field > .el-input) { width: min(100%, 240px); }
+  :deep(.creator-form .description-field .content-input) { width: 100%; min-height: 160px; height: auto; max-height: 360px; margin: 0; padding: 12px 14px 32px; transform: none; border: 1px solid var(--line); border-radius: 12px; overflow-y: auto; overflow-wrap: anywhere; font-size: 14px; line-height: 1.8; }
+  :deep(.creator-form .description-field .content-input:focus) { border-color: var(--brand); box-shadow: 0 0 0 2px var(--brand-light-9); }
+  :deep(.creator-form .description-field .placeholder) { top: 42px; left: 14px; transform: none; color: var(--ink-3); font-size: 13px; }
+  :deep(.creator-form .description-field .content-length) { right: 12px; bottom: 10px; transform: none; color: var(--ink-3); font-size: 11px; }
+  :deep(.creator-form .description-field .eit-container) { position: absolute; top: 100% !important; left: 0 !important; max-width: 100%; max-height: 260px; overflow: auto; z-index: var(--z-panel); }
+  :deep(.creator-form .permission-field) { align-items: center; padding-top: 18px; border-top: 1px solid var(--line); }
+  :deep(.creator-form .permission-field > span:first-child) { flex-basis: auto; }
+  :deep(.creator-form .permission-field > span:nth-child(2)) { position: static; transform: none; font-size: 13px; }
+  :deep(.creator-form .permission-field .el-switch) { margin: 0 0 0 auto; }
+  :deep(.submit-actions) { display: flex; justify-content: flex-end; padding-top: 18px; border-top: 1px solid var(--line); }
+  :deep(.creator-form .commit) { position: static; display: inline-flex; justify-content: center; align-items: center; min-width: 140px; width: auto; height: 42px; padding: 0 24px; transform: none; border: 0; border-radius: 10px; background: var(--brand); color: #fff; font: inherit; font-size: 14px; cursor: pointer; }
+  :deep(.creator-form .commit:hover) { background: var(--brand-hover); }
+  :deep(.creator-form .commit:focus-visible) { outline: 2px solid var(--brand-hover); outline-offset: 3px; }
+}
+
+@media (max-width: 900px) {
+  .creator-center :deep(.creator-form) { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .creator-center :deep(.creator-form .cover-field) { grid-row: auto; }
+}
+@media (max-width: 640px) {
+  .creator-center {
+    .cu-header-inner { gap: 10px; }
+    .cu-logo { width: 30px; }
+    .cu-brand-title { font-size: 16px; }
+    .creator-workspace { padding-top: 16px; padding-bottom: 32px; }
+    .contribute-main { padding-top: 16px; }
+    :deep(.creator-upload-panel) { gap: 18px; padding: 16px; border-radius: 14px; }
+    :deep(.upload-heading h1) { font-size: 21px; }
+    :deep(.source-selector) { align-items: flex-start; }
+    :deep(.uploaded-summary) { grid-template-columns: 28px minmax(0, 1fr); padding: 14px; }
+    :deep(.uploaded-summary > .el-button) { grid-column: 2; justify-self: start; margin: 0; }
+    :deep(.creator-form .category-selects) { grid-template-columns: minmax(0, 1fr); }
+    :deep(.creator-form .commit) { width: 100%; }
+  }
+
+  :global(.el-dialog.creator-dialog) {
+    --el-color-primary: var(--brand);
+    --el-color-primary-light-3: var(--brand-light-3);
+    --el-color-primary-light-5: var(--brand-light-5);
+    --el-color-primary-light-7: var(--brand-light-7);
+    --el-color-primary-light-9: var(--brand-light-9);
+    --el-color-primary-dark-2: var(--brand-hover);
+    border-radius: 16px;
+  }
+  :global(.el-dialog.creator-dialog .el-dialog__title) { color: var(--ink); font-weight: 600; }
+  :global(.el-dialog.creator-cover-dialog .cover-tab) { margin: 0 8px 18px 0; padding: 8px 14px; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--ink-2); font: inherit; font-size: 13px; cursor: pointer; }
+  :global(.el-dialog.creator-cover-dialog .cover-tab.active) { border-color: var(--brand-light-5); background: var(--brand-light-9); color: var(--brand-hover); }
+  :global(.el-dialog.creator-cover-dialog .creator-cover-upload) { width: 100%; }
+  :global(.el-dialog.creator-cover-dialog .creator-cover-upload .el-upload) { display: block; width: 100%; }
+  :global(.el-dialog.creator-cover-dialog .creator-cover-upload .el-upload-dragger) { width: 100%; padding: 24px 12px; border-radius: 12px; background: var(--fill-soft); }
+  :global(.el-dialog.creator-cover-dialog .creator-cover-upload .el-icon--upload) { display: none; }
+  :global(.el-dialog.creator-cover-dialog .creator-cover-upload .el-upload__text) { display: flex; flex-direction: column; align-items: center; gap: 12px; font-size: 12px; color: var(--ink-2); }
+  :global(.el-dialog.creator-cover-dialog .creator-crop-hint) { color: var(--ink-3); font-size: 12px; }
+  :global(.el-dialog.creator-cover-dialog .creator-crop-viewport) { width: 100%; overflow-x: auto; padding-bottom: 8px; }
+  :global(.el-dialog.creator-cover-dialog .creator-crop-viewport .cropper) { min-width: 680px; }
+  :global(.el-dialog.creator-cover-dialog .creator-crop-viewport .cropper-body-left) { flex-shrink: 0; }
+  :global(.el-dialog.creator-cover-dialog .crop), :global(.el-dialog.creator-cover-dialog .uploadCoverImg) { position: static; width: auto; height: auto; min-height: 34px; margin: 12px 0; padding: 6px 14px; transform: none; border: 1px solid var(--brand-light-5); border-radius: 8px; background: var(--brand-light-9); color: var(--brand-hover); font: inherit; font-size: 13px; cursor: pointer; }
+  :global(.el-dialog.creator-cover-dialog .uploadCoverImg) { display: inline-flex; margin: 0; background: var(--brand); color: #fff; }
+  :global(.el-dialog.creator-cover-dialog .thumbnail-slider) { box-sizing: border-box; width: 100%; height: auto; padding: 10px; transform: none; border: 1px solid var(--line); border-radius: 10px; }
+  :global(.el-dialog.creator-cover-dialog .thumbnails) { display: flex; gap: 8px; }
+  :global(.el-dialog.creator-cover-dialog .thumbnail) { flex-shrink: 0; width: 100px; height: 64px; margin: 0; object-fit: cover; border-radius: 6px; }
+  :global(.el-popper.el-popover.contribute-upload-popover) { max-width: calc(100vw - 24px); background: #fff !important; border-color: var(--line) !important; color: var(--ink-2) !important; }
+}
