@@ -2,7 +2,10 @@
   <div class="video-share-info" :style="{height: heightFlag?'270px':'250px'}">
       <span class="title">分享给</span>
       <div v-if="shareUserList.length===0" class="not-share-container">
-         您还没有朋友哦，快去寻找吧！
+         <span v-if="loadingRecipients">正在加载分享对象...</span>
+         <span v-else-if="recipientError">{{ recipientError }} <button @click="selectFollowAndFansF">重试</button></span>
+         <span v-else-if="!store.token">请先登录后选择分享对象</span>
+         <span v-else>您还没有朋友哦，快去寻找吧！</span>
       </div>
       <div v-else-if="shareUserList.length>0" class="share-container"  ref="scrollContainer"  @wheel.prevent="handleWheel">
           <div class="share-item" v-for="user in shareUserList" :key="user.id" @click="clickUser(user)">
@@ -16,6 +19,7 @@
         class="share-textarea"
         placeholder="请输入分享内容"
         maxlength="500"
+        :disabled="sending"
         v-model="videoShareContent"
         @focus="store.setShareVideoFocusFlag(true)"
         @blur="store.setShareVideoFocusFlag(checkSelectUser())"
@@ -34,7 +38,7 @@
         >
         <img class="cover" :src="store.selectUpVideo.upVideo?.coverAddress">
       </el-tooltip>
-      <button v-debounce v-if="shareUserList.length>0&&checkSelectUser()" class="share-btn" @click="shareVideoF">发送</button>
+      <button v-debounce v-if="shareUserList.length>0&&checkSelectUser()" class="share-btn" :disabled="sending" @click="shareVideoF">{{ sending ? '发送中' : '发送' }}</button>
       <button v-debounce v-else-if="shareUserList.length===0||!checkSelectUser()" class="not-share-btn">发送</button>
   </div>
 </template>
@@ -42,8 +46,7 @@
 <script>
 import { reactive, ref, watch } from "vue";
 import { useGlobalStore } from "../store/store";
-import {selectFollowAndFans} from '../api/user/index';
-import {shareVideoAxios} from '../api/privateMessage/index';
+import { get, post } from '../services/http';
 import { ElMessage } from "element-plus";
 
  
@@ -73,9 +76,14 @@ const scrollContainer=ref(null);
 const videoShareContent=ref('');
 const store = useGlobalStore();
 const shareUserList=reactive([]);
-const pageNum=ref(1);
+const recipientCursor = ref(null);
+const sending = ref(false);
+const loadingRecipients = ref(false);
+const recipientError = ref('');
 const heightFlag=ref(props.heightFlag);
 let scrolledFlag=true;
+let recipientGeneration = 0;
+let recipientOwner = store.userId;
 
 //横向滚动
 let targetScrollLeft = 0;
@@ -99,7 +107,7 @@ function handleWheel(e){
     smoothScroll();
   }
 
-  if (scrolledFlag && e.target.scrollWidth - e.target.scrollLeft <= e.target.clientWidth + 1)
+  if (scrolledFlag && scrollContainer.value.scrollWidth - scrollContainer.value.scrollLeft <= scrollContainer.value.clientWidth + 1)
     selectFollowAndFansF();
 }
 
@@ -122,36 +130,41 @@ const smoothScroll = () => {
 
 
 // 获取分享列表
-function selectFollowAndFansF(){
-  scrolledFlag=true;
-  selectFollowAndFans(store,pageNum.value++).then(res => {
-      if(res.data.code===1){
-          shareUserList.push(...res.data.data);
-        if(res.data.data===null||res.data.data.length===0)
-          scrolledFlag=false;
-        else{
-          scrolledFlag=true;
-        }
-      }
-  })
+async function selectFollowAndFansF(){
+  if (!store.token) { store.loginDialogVisible = true; return; }
+  if (loadingRecipients.value || !scrolledFlag) return;
+  loadingRecipients.value = true;
+  recipientError.value = '';
+  const generation = recipientGeneration;
+  try {
+    const page = await get('/share/recipients', { cursorId: recipientCursor.value });
+    if (generation !== recipientGeneration) return;
+    const ids = new Set(shareUserList.map(user => user.id));
+    shareUserList.push(...page.records.filter(user => !ids.has(user.id)));
+    recipientCursor.value = page.cursorId;
+    scrolledFlag = page.hasMore;
+  } catch (error) {
+    if (generation === recipientGeneration) {
+      recipientError.value = error.message || "加载分享对象失败";
+      ElMessage.error(recipientError.value);
+    }
+  }
+  finally { if (generation === recipientGeneration) loadingRecipients.value = false; }
 }
 
 //监听props变化
-let onceFlag=true;
-watch(()=>props.shareHover,()=>{
-  if(onceFlag){
-    onceFlag=false;
-    selectFollowAndFansF();
+watch(() => [props.shareHover, props.openFlag, store.userId, store.token], () => {
+  if (recipientOwner !== store.userId) {
+    recipientOwner = store.userId;
+    recipientGeneration++;
+    shareUserList.length = 0;
+    recipientCursor.value = null;
+    scrolledFlag = true;
+    loadingRecipients.value = false;
+    recipientError.value = '';
   }
-});
-
-//监听props变化
-watch(()=>props.openFlag,()=>{
-  if(onceFlag){
-    onceFlag=false;
-    selectFollowAndFansF();
-  }
-});
+  if ((props.shareHover || props.openFlag) && !shareUserList.length) selectFollowAndFansF();
+}, { immediate: true });
 
 //检查是否有选择的用户
 function checkSelectUser(){
@@ -160,6 +173,7 @@ function checkSelectUser(){
 
 //判断选中用户数量不能超过10个
 function clickUser(user){
+  if (sending.value) return;
    
   if(shareUserList.filter(item => item.checkFlag).length>=10&&!user.checkFlag)
     {
@@ -176,7 +190,8 @@ function clickUser(user){
 }
 
 //发送消息
-function shareVideoF(){
+async function shareVideoF(){
+  if (sending.value) return;
 
   const shareUserListArr=shareUserList.filter(item => item.checkFlag);
   let userIds=[];
@@ -184,15 +199,11 @@ function shareVideoF(){
     userIds.push(item.id);
   });
 
-  let shareVideo={
-    userId: store.userId,
-    videoId: store.selectUpVideo.upVideo.id||props.dynamic.dynamic.videoId,
-    content: videoShareContent.value,
-    userIdList: userIds,
-  };
-
-  shareVideoAxios(store.token,shareVideo).then(res => {
-     if(res.data.code===1)
+  const videoId = props.dynamic?.dynamic?.videoId || store.selectUpVideo.upVideo?.id;
+  if (!videoId || !userIds.length) { ElMessage.warning("请选择视频和分享对象"); return; }
+  sending.value = true;
+  try {
+      const result = await post(`/video/${videoId}/share`, { content: videoShareContent.value, userIdList: userIds });
        ElMessage({
             message: "分享成功",
             type: "info",
@@ -200,13 +211,14 @@ function shareVideoF(){
             duration: 1700,
        });
       videoShareContent.value='';
-      store.selectUpVideo.upVideo.shareNumber++;
+       if (String(store.selectUpVideo.upVideo?.id) === String(videoId))
+         store.selectUpVideo.upVideo.shareNumber = result.shareCount;
       store.setShareHover(false);
       shareUserList.forEach(item => {
         item.checkFlag=false;
       });
-  });
-
+  } catch (error) { ElMessage.error(error.message || "分享失败"); }
+  finally { sending.value = false; }
 }
 
 
@@ -220,6 +232,10 @@ return {
   checkSelectUser,
   clickUser,
   shareVideoF,
+  sending,
+  loadingRecipients,
+  recipientError,
+  selectFollowAndFansF,
 }
 
 

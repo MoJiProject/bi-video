@@ -11,18 +11,27 @@ import org.springframework.web.multipart.MultipartFile;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 @Service
 public class PublishingService {
     private final JdbcTemplate jdbc;
     private final MediaStorageService media;
     private final AuthService auth;
+    private final MentionNotificationService mentions;
 
-    public PublishingService(JdbcTemplate jdbc, MediaStorageService media, AuthService auth) {
+    public PublishingService(JdbcTemplate jdbc, MediaStorageService media, AuthService auth,
+                             MentionNotificationService mentions) {
         this.jdbc = jdbc;
         this.media = media;
         this.auth = auth;
+        this.mentions = mentions;
     }
 
     @Transactional
@@ -97,6 +106,7 @@ public class PublishingService {
         }
         jdbc.update("INSERT INTO video_status_log(video_id,from_status,to_status,reason,operator_id) VALUES(?,?,2,?,?)",
                 id, edit ? number(before.get("status")) : 0, edit ? "作者编辑后重新审核" : "作者投稿", actor);
+        mentions.publish(actor, 1, id, req.getMentionUserIds(), req.getContent());
     }
 
     public Map<String, Object> detail(Long actor, Long id) { return legacy(owned(actor, id)); }

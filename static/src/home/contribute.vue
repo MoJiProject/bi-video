@@ -49,16 +49,15 @@
           <img v-show="display === 1" src="/img/grid5.png" />
           <img v-show="display === 1" src="/img/grid5蓝.png" />
         </div>
-        <div v-show="display == 1 && !loadMore" class="video-list-container">
+        <div v-show="display == 1 && !loadMore && contributeVideos.length" class="video-list-container">
           <videoList3 :data="contributeVideos" />
         </div>
-        <div v-show="display == 2 && !loadMore" class="video-list-container">
+        <div v-show="display == 2 && !loadMore && contributeVideos.length" class="video-list-container">
           <videoList4 :data="contributeVideos" layout="list"/>
         </div>
-        <div v-if="!loadMore && !contributeVideos.length" class="no-data">
-          <img src="/img/home_nodata.svg" alt="">
-          <div>{{ appliedKeyword ? '没有找到匹配的视频' : '还没有投稿视频' }}</div>
-        </div>
+        <AppEmptyState v-if="!loadMore && !contributeVideos.length" :kind="appliedKeyword ? 'search' : 'empty'"
+          :title="appliedKeyword ? '没有找到匹配的视频' : '还没有投稿视频'"
+          :description="appliedKeyword ? '试试其他关键词，发现更多作品' : '精彩作品值得期待，发布后会在这里展示'"/>
         <div v-show="!loadMore && contributeTotal > 0" class="page-container">
           <el-pagination
             :current-page="pageNum"
@@ -104,13 +103,7 @@
               @changed="refreshImages"
             />
           </div>
-          <div v-if="imgDynamicTotal === 0" class="no-data">
-            <img src="/img/home_nodata.svg" />
-            <div v-if="store.userId !== null && store.userId == userId">
-              你还没有发布图文内容
-            </div>
-            <div v-else>空间主人还没投过图文内容，这里什么也没有...</div>
-          </div>
+          <AppEmptyState v-if="imgDynamicTotal === 0" title="还没有图文内容" description="发布的图文与生活分享会在这里展示"/>
         </div>
         <div v-show="!loadMore && imgDynamicTotal > 0" class="page-container">
           <el-pagination

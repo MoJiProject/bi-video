@@ -39,7 +39,7 @@
       </article>
     </div>
     <loadingIndicator v-if="loading"/>
-    <el-empty v-if="!loading && !rows.length" description="还没有评论，来说两句吧"/>
+    <AppEmptyState v-if="!loading && !rows.length" compact title="还没有评论" description="分享你的想法，成为第一个留言的人"/>
     <el-button v-if="hasMore" :loading="loading" @click="load">加载更多评论</el-button>
   </section>
 </template>

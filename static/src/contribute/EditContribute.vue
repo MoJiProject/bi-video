@@ -731,7 +731,7 @@
 <script>
 import apiClient from "../services/apiClient";
 import { fetchMentionUsers, fetchPublishingCategories } from "../api/product";
-import { sanitizeRichText } from "../utils/richText";
+import { sanitizeRichText, extractMentionIds } from "../utils/richText";
 import { uploadVideoByChunks } from "../utils/chunkUpload";
 import "element-plus/theme-chalk/el-message.css";
 import { reactive, onMounted, ref, computed, nextTick,watch,onUnmounted } from "vue";
@@ -1491,6 +1491,7 @@ export default {
           formData.append("file", blob, "pageBg7.webp");
         }
         await publishComment();
+        extractMentionIds(video.contentHtml).forEach(id => formData.append("mentionUserIds", id));
         // 填充视频信息
         video.userId = store.userId;
         video.createTime = ""; // 根据需要设置

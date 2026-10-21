@@ -1,5 +1,6 @@
 import { del, get, post, put } from '../../services/http';
 import { mapUser } from '../home/user';
+import { extractMentionIds } from '../../utils/richText';
 
 export async function fetchMentionUsers() {
   const users = [];
@@ -42,12 +43,13 @@ export async function fetchPublishingCategories() {
 /** 评论与弹幕。 */
 export const commentApi = {
   list: (params) => get('/comment/list', params),
-  create: (body) => post('/comment', body),
+  create: (body) => post('/comment', { ...body, mentionUserIds: extractMentionIds(body.content) }),
   like: (commentId, dislike = false) => post(`/comment/${commentId}/like`, null, { params: { dislike } }),
   remove: (commentId) => del(`/comment/${commentId}`),
 };
 
 export const danmakuApi = {
+  snapshot: (videoId, limit = 2000) => get('/danmaku/snapshot', { videoId, limit }),
   list: (videoId, limit = 2000) => get('/danmaku/list', { videoId, limit }),
   create: (body) => post('/danmaku', body),
   remove: (id) => del(`/danmaku/${id}`),
@@ -76,7 +78,7 @@ export const userContentApi = {
 export const socialApi = {
   follow: (userId) => post(`/user/${userId}/follow`),
   posts: (params) => get('/post/list', params),
-  createPost: (body) => post('/post', body),
+  createPost: (body) => post('/post', { ...body, mentionUserIds: extractMentionIds(body.content) }),
   deletePost: (postId) => del(`/post/${postId}`),
   relations: (params) => get('/relation/list', params),
   authors: (params) => get('/post/authors', params),

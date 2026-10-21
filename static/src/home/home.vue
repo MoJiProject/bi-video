@@ -23,9 +23,11 @@
                     <span>代表作</span>
                     <el-button v-if="store.userId === userId" text @click="openFeatured">设置代表作</el-button>
                 </div>
-                <videoList :data="featuredVideos"/>
-                <p v-if="!featuredVideos.length" class="featured-empty">选择最多 3 个已发布的视频展示在首页</p>
+                <videoList v-if="featuredVideos.length" :data="featuredVideos"/>
+                <AppEmptyState v-else compact title="还没有设置代表作" description="选择最多 3 个已发布的视频，展示你的精彩创作"
+                    action-text="设置代表作" @action="openFeatured"/>
             </div>
+            <AppEmptyState v-if="!collects.length" compact title="暂无收藏夹" description="收藏的内容会在这里展示"/>
             <!-- 视频部分 -->
             <div :class="item.class" v-if="item.class === 'tribute-video'&&!loadMore">
                 <div class="title">
@@ -107,7 +109,7 @@
                         :model-value="featuredSelection.includes(video.id)"
                         :disabled="featuredSaving || (!featuredSelection.includes(video.id) && featuredSelection.length >= 3)"
                         @change="selectFeatured(video.id, $event)">{{ video.title }}</el-checkbox>
-                    <p v-if="!featuredOptions.length">暂无匹配视频</p>
+                    <AppEmptyState v-if="!featuredOptions.length" compact kind="search" title="暂无匹配视频" description="仅可选择已发布的视频作为代表作"/>
                 </div>
                 <el-pagination v-if="featuredTotal" v-model:current-page="featuredPage" :page-size="20"
                     layout="prev, pager, next" :total="featuredTotal" :disabled="featuredSaving"/>
@@ -283,7 +285,6 @@ function openAccount(){
 .featured-options { display: flex; flex-direction: column; align-items: flex-start; max-height: 360px; overflow: auto; }
 .featured-options :deep(.el-checkbox__label) { white-space: normal; overflow-wrap: anywhere; }
 .featured-options .el-checkbox { height: auto; min-height: 36px; }
-.featured-empty { color: #8D9794; padding: 20px 0; }
 .home.without-profile { grid-template-columns: minmax(0, 1fr); }
 
 .home{

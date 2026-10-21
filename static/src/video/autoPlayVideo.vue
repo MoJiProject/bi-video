@@ -15,10 +15,6 @@
                 <img v-show="!propss.likeVideoClickFlag" src="/img/点赞灰.png">
                 <img v-show="propss.likeVideoClickFlag" src="/img/点赞蓝小.png">
                 <span :style="{color: propss.likeVideoClickFlag? '#0cbeff':'white'}">好评</span></span>
-            <span class="auto-play-video-operation2" @click="store.setLTCAFlag(2)">
-                <img v-show="!propss.videoThrowCoinClickFlag" src="/img/投币灰.png">
-                <img v-show="propss.videoThrowCoinClickFlag" src="/img/视频投币蓝.png">
-                <span style="height: 18.5px;" :style="{color: propss.videoThrowCoinClickFlag? '#0cbeff':'white'}">投币</span></span>
             <span class="auto-play-video-operation3" @click="store.setLTCAFlag(3)">
                 <img v-show="!propss.videoCollectClickFlag" src="/img/收藏灰.png">
                 <img v-show="propss.videoCollectClickFlag" src="/img/视频收藏蓝.png">
@@ -112,7 +108,7 @@
 
 <script>
 import { reactive, onMounted, ref, watch } from "vue";
-import apiClient from "../services/apiClient";
+import apiClient from "../api/video/detail";
 import { useGlobalStore } from "../store/store";
 import videoShareC from '../utils/videoShare.vue';
 import { navigateToVideo } from '../services/watchTogetherBridge';
@@ -270,8 +266,16 @@ export default {
             }
 
             // 延迟播放视频
-            videoAutoPlayTIme[id] = setTimeout(() => {
+            videoAutoPlayTIme[id] = setTimeout(async () => {
                 const video = document.getElementById(id);
+                if (video && !video.getAttribute("src")) {
+                    try {
+                        const result = await apiClient.get(`/video/${parseInt(id)}`);
+                        if (!videoAutoPlayTIme[id]) return;
+                        const row = result.data.data;
+                        video.src = row.source === 1 ? row.remoteUrl : row.playUrl;
+                    } catch { return; }
+                }
                 if(video)
                 if (video.paused) {  // 只有在视频处于暂停状态时才播放
                     video.play().catch(function(error) {
@@ -283,6 +287,7 @@ export default {
         function videoMouseleave(id) {
             // 清除之前的视频播放定时器
             clearTimeout(videoAutoPlayTIme[id]);
+            videoAutoPlayTIme[id] = null;
 
             const video = document.getElementById(id);
             if(video)

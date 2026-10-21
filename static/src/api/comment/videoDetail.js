@@ -1,6 +1,6 @@
 import http, { get, post, del } from '../../services/http';
 import { mapUser } from '../home/user';
-import { sanitizeRichText } from '../../utils/richText';
+import { sanitizeRichText, extractMentionIds } from '../../utils/richText';
 
 const envelope = data => ({ data: { code: 1, data } });
 
@@ -61,7 +61,7 @@ export function createVideoCommentClient(videoId) {
       }
       if (url === '/user/selectFollow' || url === '/user/selectUserInfoById') {
         const profile = await get(`/auth/user/${params.viewUserId || params.eitUserId}`);
-        return envelope(url === '/user/selectFollow' ? (profile.followed ? 1 : 0) : mapUser(profile));
+        return envelope(mapUser(profile));
       }
       return http.get(url, config);
     },
@@ -69,14 +69,15 @@ export function createVideoCommentClient(videoId) {
       if (url === '/comment/addComment') {
         const c = body.comments;
         const content = sanitizeRichText(c.content);
+        const mentionUserIds = extractMentionIds(content);
         const imageUrls = c.imgAddress ? c.imgAddress.split(',,').filter(Boolean) : [];
         const created = await post('/comment', {
-          videoId, content, imageUrls, rootId: c.replyCommentId || c.mainCommentId || null,
+          videoId, content, imageUrls, mentionUserIds, rootId: c.replyCommentId || c.mainCommentId || null,
         });
         const root = await fetchVideoComment(created.commentId, videoId);
         // 单独保留“同时转发到动态”的行为，不把失败的转发当成评论发送失败。
         if (c.dynamicFlag) {
-          try { await post('/post', { content, imageUrls, videoId: Number(videoId), visibility: 0 }); }
+          try { await post('/post', { content, imageUrls, mentionUserIds, videoId: Number(videoId), visibility: 0 }); }
           catch (error) { root.dynamicError = error.message; }
         }
         return envelope(root);

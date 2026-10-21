@@ -1145,7 +1145,8 @@
         <div class="comment-line"></div>
       </div>
     </div>
-    <div v-if="(scrollFooterFlag&&store.userId!==null)||store.commentNumber===0" class="comment-footer-info">没有更多评论</div>
+    <AppEmptyState v-if="store.commentNumber===0" compact title="还没有评论" description="分享你的想法，成为第一个留言的人"/>
+    <div v-else-if="scrollFooterFlag&&store.userId!==null" class="comment-footer-info">没有更多评论</div>
     <div v-show="scrollInputCommentFlag>920&&store.userId!==null" class="comment-input-container2">
       <img
         @click="openHome(1,store.userId)"
@@ -2704,7 +2705,8 @@ export default {
       });
       if (response.data.code === 1) {
         isDeleteFollowFlag.value = comment.comments.id;
-        comment.userInfo.isFansFlag = response.data.data;
+        Object.assign(comment.userInfo, response.data.data);
+        comment.userInfo.isFansFlag = response.data.data.isFollowFlag;
       }
     }
 
@@ -2824,7 +2826,7 @@ export default {
          
       clearTimeout(eitUserInfoTime);
 
-      if(event.target.classList.contains("at-msg")&&store.eitUserInfo===null)
+      if(event.target.hasAttribute("data-eit-userid")&&store.eitUserInfo===null)
       {
         const eitUserId=event.target.getAttribute("data-eit-userid");
 

@@ -90,14 +90,17 @@
       </el-container>
     </el-container>
   </div>
-  <div v-else>
+  <div v-else class="contribute-empty-page">
     <mainHead :head2-flag="true"/>
-    <el-result icon="info" :title="loginError || '登录后进入创作中心'">
-      <template #extra>
-        <el-button type="primary" @click="store.loginDialogVisible = true">登录</el-button>
-        <el-button v-if="store.token" @click="loadUser">重试</el-button>
-      </template>
-    </el-result>
+    <div class="contribute-empty">
+      <AppEmptyState :kind="loginError && store.token ? 'unavailable' : 'login'"
+        :title="loginError || '登录后进入创作中心'" description="发布精彩作品，管理投稿与创作数据">
+        <template #actions>
+          <el-button type="primary" @click="store.loginDialogVisible = true">立即登录</el-button>
+          <el-button v-if="store.token" @click="loadUser">重新加载</el-button>
+        </template>
+      </AppEmptyState>
+    </div>
   </div>
 </template>
 
@@ -268,6 +271,16 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.contribute-empty-page {
+  min-height: 100dvh;
+  background: var(--fill-soft);
+}
+.contribute-empty {
+  width: calc(100% - var(--page-pad) - var(--page-pad));
+  max-width: 560px;
+  margin: clamp(32px, 8vh, 88px) auto;
+}
+
 /* ---------- 页头 ----------
    原来是 logo translate(30px,8px)、标题 translate(90px,-25px)、主站 translate(220px,-52px)、
    消息图标 translate(1200px,-63px) 这类硬像素偏移，视口一变就整排散开。

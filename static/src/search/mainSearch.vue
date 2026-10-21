@@ -138,11 +138,8 @@
           </div>
           </section>
 
-          <div v-if="Videos.length === 0" class="empty-state">
-            <img src="/img/搜索空.png" alt="" />
-            <strong>暂时没有找到相关作品</strong>
-            <span>试试其他关键词，或切换一个感兴趣的分区</span>
-          </div>
+          <AppEmptyState v-if="Videos.length === 0" kind="search" title="没有找到相关作品"
+            description="试试其他关键词，或切换一个感兴趣的分区"/>
 
           <div class="bottomVideo">
             <div
@@ -380,10 +377,8 @@
           </div>
         </div>
 
-        <div v-if="clickFlag3 || clickFlag4 || clickFlag5 || clickFlag6" class="empty-state">
-          <img src="/img/搜索空.png" alt="" />
-          <span>今天真是寂寞如雪啊~</span>
-        </div>
+        <AppEmptyState v-if="clickFlag3 || clickFlag4 || clickFlag5 || clickFlag6" kind="search"
+          title="暂无相关内容" description="切换搜索类型，继续发现感兴趣的内容"/>
 
         <div v-if="clickFlag7" class="videoSort">
           <div class="filter-row">
@@ -397,6 +392,7 @@
             >{{ opt.label }}</button>
           </div>
           <div class="searchUsers">
+              <AppEmptyState v-if="!searchUserList.length" kind="search" title="没有找到相关用户" description="试试其他昵称或关键词"/>
               <div
                 class="usersContent"
                 v-for="(user, index) in searchUserList"

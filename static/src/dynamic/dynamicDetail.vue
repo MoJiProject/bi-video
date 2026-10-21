@@ -5,7 +5,7 @@
       <homePost :dynamic="dynamic" @changed="load"/>
       <postComments :post-id="id" @count="dynamic.commentCount = $event"/>
     </template>
-    <el-empty v-else description="动态不存在或无权查看"/>
+    <AppEmptyState v-else kind="unavailable" title="暂时无法查看这条动态" description="动态可能已被删除，或作者设置了访问权限"/>
   </main>
 </template>
 <script setup>

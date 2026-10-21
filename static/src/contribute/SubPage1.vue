@@ -171,7 +171,7 @@ export default {
         }
       } catch (error) {
         ElMessage({
-          message: "未知错误",
+          message: error.message || "加载投稿统计失败",
           type: "info",
           plain: true,
           duration: 1700,

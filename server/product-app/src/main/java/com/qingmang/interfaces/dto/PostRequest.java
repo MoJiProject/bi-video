@@ -15,6 +15,8 @@ public class PostRequest {
     private String content;
     @Size(max = 20, message = "动态标题最多 20 字")
     private String title;
+    @Size(max = 100)
+    private List<@jakarta.validation.constraints.Positive Long> mentionUserIds;
 
     /** 转发视频时带上 */
     private Long videoId;

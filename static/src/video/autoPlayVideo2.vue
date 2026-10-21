@@ -109,7 +109,7 @@
 
 <script>
 import { onMounted, ref, watch } from 'vue';
-import apiClient from "../services/apiClient";
+import apiClient from "../api/video/detail";
 import {useGlobalStore} from "../store/store";
 import { navigateToVideo } from "../services/watchTogetherBridge";
 import { ElMessage } from "element-plus";
@@ -199,8 +199,16 @@ export default {
     }
 
     // 延迟播放视频
-    videoAutoPlayTIme[id] = setTimeout(() => {
+    videoAutoPlayTIme[id] = setTimeout(async () => {
         const video = document.getElementById(id);
+        if (video && !video.getAttribute("src")) {
+            try {
+                const result = await apiClient.get(`/video/${parseInt(id)}`);
+                if (!videoAutoPlayTIme[id]) return;
+                const row = result.data.data;
+                video.src = row.source === 1 ? row.remoteUrl : row.playUrl;
+            } catch { return; }
+        }
         if(video)
         if (video.paused) {  // 只有在视频处于暂停状态时才播放
             video.play().catch(function(error) {
@@ -212,6 +220,7 @@ export default {
         function videoMouseleave(id) {
             // 清除之前的视频播放定时器
             clearTimeout(videoAutoPlayTIme[id]);
+            videoAutoPlayTIme[id] = null;
 
             const video = document.getElementById(id);
             if(video)

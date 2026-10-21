@@ -1,5 +1,19 @@
 const tags = new Set(['P', 'DIV', 'BR', 'SPAN', 'B', 'STRONG', 'I', 'EM', 'U']);
 
+export function extractMentionIds(value) {
+  const source = new DOMParser().parseFromString(sanitizeRichText(value), 'text/html');
+  const ids = new Set();
+  for (const link of source.querySelectorAll('a')) {
+    const url = new URL(link.href, location.origin);
+    const raw = link.getAttribute('data-eit-userid')
+      || (url.origin === location.origin && url.pathname === '/home' && link.textContent.trim().startsWith('@')
+        ? url.searchParams.get('userId') : null);
+    const id = Number(raw);
+    if (Number.isSafeInteger(id) && id > 0) ids.add(id);
+  }
+  return [...ids];
+}
+
 export function sanitizeRichText(value) {
   const source = new DOMParser().parseFromString(value || '', 'text/html').body;
   const result = document.createElement('div');

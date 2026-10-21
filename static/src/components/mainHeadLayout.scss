@@ -123,7 +123,7 @@
 
   .header-search-wrap {
     position: relative;
-    min-width: 220px;
+    min-width: 0;
 
     > .head-search { width: 100%; max-width: none; min-width: 0; }
   }
@@ -476,7 +476,7 @@
     .header-menu-button { padding: 0 8px; font-size: 13px; }
     .v-header-ul > li.hd-search {
       padding: 0 4px;
-      &:has(.header-search-wrap) { min-width: 208px; }
+      &:has(.header-search-wrap) { min-width: 0; }
     }
     .v-header-ul > li.hd-publish .upload { min-width: 96px; padding: 0 10px; }
     .workspace-panel { right: -100px; }
@@ -491,7 +491,7 @@
       min-width: 0;
       padding: 0;
 
-      &:has(.header-search-wrap) { min-width: 200px; }
+      &:has(.header-search-wrap) { min-width: 0; }
       > .header-search-wrap { max-width: 100%; }
     }
     .v-header-ul > li.hd-publish { display: flex; }

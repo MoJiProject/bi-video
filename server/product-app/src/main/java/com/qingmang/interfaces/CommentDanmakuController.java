@@ -78,9 +78,14 @@ public class CommentDanmakuController {
         return ApiResponse.ok(service.postDanmaku(AuthContext.requireUserId(), req));
     }
 
+    @GetMapping("/danmaku/snapshot")
+    public ApiResponse<Map<String, Object>> danmakuSnapshot(@RequestParam Long videoId,
+                                                           @RequestParam(defaultValue = "2000") int limit) {
+        return ApiResponse.ok(service.danmakuSnapshot(videoId, limit));
+    }
+
     @DeleteMapping("/danmaku/{danmakuId}")
-    public ApiResponse<Void> deleteDanmaku(@PathVariable Long danmakuId) {
-        service.deleteDanmaku(AuthContext.requireUserId(), danmakuId);
-        return ApiResponse.ok();
+    public ApiResponse<Map<String, Long>> deleteDanmaku(@PathVariable Long danmakuId) {
+        return ApiResponse.ok(Map.of("count", service.deleteDanmaku(AuthContext.requireUserId(), danmakuId)));
     }
 }

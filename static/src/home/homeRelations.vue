@@ -10,7 +10,8 @@
         @keyup.enter="search" @clear="search"/>
       <el-button @click="search">搜索</el-button>
       <loadingIndicator v-if="loading" min-height="200px"/>
-      <div v-else-if="loadError" class="no-data">{{ loadError }} <el-button text @click="loadRelations">重试</el-button></div>
+      <AppEmptyState v-else-if="loadError" kind="unavailable" title="暂时无法加载列表"
+        :description="loadError" action-text="重新加载" @action="loadRelations"/>
       <template v-else>
         <div v-for="user in users" :key="user.id" class="relation">
           <a :href="'./home?userId=' + user.id" target="_blank"><img :src="user.avatarAddress" alt=""></a>
@@ -22,7 +23,9 @@
             {{ user.isFollowFlag ? '取消关注' : (type === 9 && store.userId === homeUserId ? '回关' : '关注') }}
           </el-button>
         </div>
-        <div v-if="!users.length" class="no-data">暂无数据</div>
+        <AppEmptyState v-if="!users.length" :kind="appliedKeyword ? 'search' : 'empty'"
+          :title="appliedKeyword ? '没有找到相关用户' : type === 8 ? '暂无关注' : '暂无粉丝'"
+          :description="appliedKeyword ? '试试其他昵称或关键词' : '与喜欢的创作者和朋友建立更多连接'"/>
         <el-pagination v-if="total" v-model:current-page="pageNum" :page-size="24"
           layout="total, prev, pager, next, jumper" :total="total"/>
       </template>

@@ -26,6 +26,8 @@ public class CommentPostRequest {
     /** 回复某条评论时传，被回复人从 rootId 链路上推导，这里只作冗余展示。 */
     private Long rootId;
     private Long replyToUserId;
+    @Size(max = 100)
+    private List<@jakarta.validation.constraints.Positive Long> mentionUserIds;
 
     @Size(max = 9, message = "最多 9 张图片")
     private List<@Size(max = 512) String> imageUrls;

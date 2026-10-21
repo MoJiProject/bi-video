@@ -29,7 +29,11 @@
       <div v-if="images.length" class="attachments">
         <div v-for="(image, index) in images" :key="image" class="attachment">
           <el-image :src="image" :preview-src-list="images" preview-teleported fit="cover"/>
-          <el-button text type="danger" @click="images.splice(index, 1)">移除</el-button>
+          <div class="image-actions">
+            <el-button text :disabled="index === 0" @click="moveImage(index, -1)">前移</el-button>
+            <el-button text :disabled="index === images.length - 1" @click="moveImage(index, 1)">后移</el-button>
+            <el-button text type="danger" @click="images.splice(index, 1)">移除</el-button>
+          </div>
         </div>
       </div>
       <div class="publish">
@@ -64,7 +68,7 @@
         <el-alert v-if="reminderError" :title="reminderError" type="error" :closable="false" show-icon/>
         <homePost v-for="item in rows" :key="item.id" :dynamic="item" @changed="reload"/>
         <loadingIndicator v-if="loading"/>
-        <el-empty v-if="!loading && !rows.length" description="暂无动态"/>
+        <AppEmptyState v-if="!loading && !rows.length" title="暂无动态" description="换个筛选条件，或稍后回来看看新的分享"/>
         <el-button v-if="hasMore" :loading="loading" @click="load">加载更多</el-button>
       </section>
     </section>
@@ -104,6 +108,7 @@ const unreadCount = computed(() => authors.value
   .filter(author => !targetUserId.value || author.userId === targetUserId.value)
   .reduce((total, author) => total + Number(author.unreadCount || 0), 0));
 let generation = 0;
+let active = true;
 let reminderTimer;
 let savedRange;
 
@@ -181,7 +186,7 @@ async function refreshAuthors() {
     cursor = page.cursorId;
     more = page.hasMore;
   }
-  if (store.userId === userId) authors.value = result;
+  if (active && store.userId === userId) authors.value = result;
 }
 async function reload() {
   generation++; rows.value = []; cursorId.value = null; hasMore.value = false; loading.value = false;
@@ -212,6 +217,11 @@ async function upload(event) {
   } catch (error) { ElMessage.error(error.message); }
   finally { uploading.value = false; event.target.value = ''; }
 }
+function moveImage(index, direction) {
+  const target = index + direction;
+  if (target < 0 || target >= images.value.length) return;
+  [images.value[index], images.value[target]] = [images.value[target], images.value[index]];
+}
 async function publish() {
   updateContent();
   if (!contentLength.value && !images.value.length) { ElMessage.warning('请输入内容或添加图片'); return; }
@@ -235,7 +245,7 @@ watch(() => store.userId, async id => {
   if (!id || store.userId !== id) return;
   try {
     const [users] = await Promise.all([fetchMentionUsers(), refreshAuthors()]);
-    if (store.userId !== id) return;
+    if (!active || store.userId !== id) return;
     mentions.value = [...users.friendList, ...users.otherList];
     reminderTimer = setInterval(async () => {
       try { await refreshAuthors(); reminderError.value = ''; }
@@ -244,7 +254,7 @@ watch(() => store.userId, async id => {
   } catch (error) { reminderError.value = error.message; }
 }, { immediate: true });
 watch(() => store.deleteFlag, id => { rows.value = rows.value.filter(row => row.id !== id); });
-onUnmounted(() => { generation++; clearInterval(reminderTimer); });
+onUnmounted(() => { active = false; generation++; clearInterval(reminderTimer); });
 </script>
 <style scoped>
 .feed { box-sizing: border-box; width: 100%; max-width: var(--page-max); margin: auto; padding: var(--gap-5) var(--page-pad); }
@@ -261,6 +271,8 @@ onUnmounted(() => { generation++; clearInterval(reminderTimer); });
 .attachments { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
 .attachment { width: 100px; }
 .attachment .el-image { width: 100px; height: 100px; border-radius: 6px; }
+.image-actions { display: flex; flex-wrap: wrap; }
+.image-actions .el-button { margin: 0; padding: 4px; font-size: 12px; }
 .emoji-list { display: grid; grid-template-columns: repeat(7, 1fr); max-height: 240px; overflow: auto; }
 .emoji-list button, .mention-list button, .authors button { border: 0; background: transparent; cursor: pointer; }
 .emoji-list img { width: 28px; height: 28px; }

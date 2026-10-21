@@ -122,7 +122,7 @@
                 </div>
                 <div class="up-user-info-container-content">
                   <div class="up-user-info-container-introduce">
-                    <span class="up-user-info-introduce-content">获赞数：{{ SelectVideoByIdVo.upUser.likedNumber }}</span>
+                    <span class="up-user-info-introduce-content">获赞数：{{ SelectVideoByIdVo.upUser.likeNumber }}</span>
                   </div>
                   <div class="up-user-info-container-introduce">
                     <span class="up-user-info-introduce-content">粉丝数：{{ SelectVideoByIdVo.upUser.fansNumber }}</span>
@@ -1495,9 +1495,9 @@
             src="/img/like-burst.png"
             class="up-video-controls-img0"
           />
-          <span class="watch-num"
-            ><span style="font-size: 12px">{{ watchingNumber }}</span>
-            人正在看，已装填
+          <span class="watch-num">
+            <span v-if="liveStatus === 'connected' && watchingNumber !== null">{{ watchingNumber }} 人正在看 · </span>
+            <span v-else>{{ liveStatus === 'unavailable' ? '实时连接不可用' : liveStatus === 'reconnecting' ? '断线重连中' : '实时连接中' }} · </span>
             {{ SelectVideoByIdVo.upVideo.scrollingNumber }} 条弹幕</span>
           <!-- 打开或关闭弹幕  -->
           <img
@@ -2333,7 +2333,7 @@
           </div>
         </div>
         </div>
-        <div style="position: absolute; z-index: -5;height: 0;">
+        <div class="video-detail-sidebar">
           <!-- 弹幕列表 -->
           <div class="scrolling-list-container">
             <span class="scrolling-list-title">弹幕列表</span>
@@ -2416,7 +2416,8 @@
           class="video-content-container"
           :class="{ videoContentFlag: videoContentFlag1 && !videoContentFlag }"
         >
-          <span v-html="SelectVideoByIdVo.upVideo.contentHtml"></span>
+          <span v-if="SelectVideoByIdVo.upVideo.contentHtml" v-html="SelectVideoByIdVo.upVideo.contentHtml"></span>
+          <span v-else class="video-description-empty">作者暂未添加视频简介</span>
         </div>
         <div
           v-show="videoContentFlag1"
@@ -2431,7 +2432,7 @@
           <span
             class="video-tage-item"
             @click="tagClick(index)"
-            v-for="index in SelectVideoByIdVo.upVideo.tag?.split(',')"
+            v-for="index in SelectVideoByIdVo.upVideo.tag?.split(',').filter(Boolean)"
             :key="index"
             >{{ index }}</span>
         </div>
@@ -2455,6 +2456,7 @@
 </template>
 
 <script>
+import { connectVideoLive } from '../services/videoLive';
 import {
   onMounted,
   onBeforeUnmount,
@@ -2469,11 +2471,13 @@ const watch = (...a) => __vueWatch(...a);
 const watchEffect = (...a) => __vueWatchEffect(...a);
 const sendMessageGray = "/img/发消息灰.png"
 const sendMessageBlue = "/img/发消息蓝.png"
-import apiClient from "../services/apiClient";
+import apiClient from "../api/video/detail";
+import { getToken } from "../services/http";
 import { mapUser } from "../api/home/user";
 import { sanitizeRichText } from "../utils/richText";
 import {
   authApi,
+  fetchMentionUsers,
   commentApi,
   danmakuApi,
   socialApi,
@@ -2713,7 +2717,11 @@ export default {
     const waitWatchMsg = ref("");
     const keyInfo = ref("");
     const audioInfoFlag = ref(false);
-    const watchingNumber = ref(0);
+    const watchingNumber = ref(null);
+    const liveStatus = ref('connecting');
+    let stopVideoLive;
+    let liveReady = false;
+    let pageDisposed = false;
     
     const likeVideoFlag = ref(true);
     
@@ -2743,6 +2751,7 @@ export default {
     const innerWidth = ref(window.innerWidth);
     function handleResize() {
       innerWidth.value = window.innerWidth;
+      nextTick(handleVideoContentHeight);
     }
 
     function handleVisibilityChange() {
@@ -2805,9 +2814,9 @@ export default {
           : false;
       upDateOpenAutoPlayVideo();
       await updateScrolling(true);
-      danmakuRefreshTimer = window.setInterval(() => {
-        if (!document.hidden) updateScrolling();
-      }, 15000);
+      if (pageDisposed) return;
+      liveReady = true;
+      startVideoLive();
       
     });
 
@@ -2819,7 +2828,11 @@ export default {
     onBeforeUnmount(() => {
       stopScrollingClock();
       stopMoving();
-      window.clearInterval(danmakuRefreshTimer);
+      liveReady = false;
+      pageDisposed = true;
+      danmakuGeneration++;
+      pendingDanmakuEvents.length = 0;
+      stopVideoLive?.();
       window.removeEventListener("wheel",handleWheel);
       window.removeEventListener("click", handleClickCollectInputOutside);
       window.removeEventListener("mousemove", handleMouseMove);
@@ -2858,19 +2871,10 @@ export default {
       store.setUserIp("0.0.0.0");
     }
     //获取@用户列表
-    /* 原端点 /user/getEit/{id} 已下线。新接口没有对应功能，
-       失败静默处理：@ 列表只影响输入框的补全提示，
-       缺了不影响发评论本身。 */
     async function getEitList() {
       if (!store.userId) return;
       try {
-        const list = await socialApi.posts({ targetUserId: store.userId, size: 50 });
-        if (Array.isArray(list) && list.length) {
-          Object.assign(
-            store.eitList,
-            list.map((p) => (p.authorName || "").replace(/^@/, "")).filter(Boolean),
-          );
-        }
+        store.setEitList(await fetchMentionUsers());
       } catch (error) {
         /* 补全列表取不到不影响主流程 */
       }
@@ -2912,7 +2916,8 @@ export default {
       div.innerHTML = SelectVideoByIdVo.upVideo.contentHtml;
       div.style.fontSize = '14px';
       div.style.lineHeight = '24px';
-      div.style.width = '690px';
+      const host = document.querySelector(".video-content-container");
+      div.style.width = `${Math.max(120, (host?.clientWidth || 700) - 48)}px`;
       div.style.paddingBottom = '5px';
       div.style.visibility = 'hidden';
       // 4. 插入 DOM（必须插入才能获取尺寸）
@@ -3114,7 +3119,6 @@ export default {
         likeVideoClickFlag.value = !!state.liked;
         videoCollectClickFlag.value = !!state.collected;
         myCoinCount.value = state.myCoinCount || 0;
-        videoThrowCoinClickFlag.value = myCoinCount.value > 0;
 
         store.setCommentNumber(upVideo.commentNumber);
         store.setUpUserId(upUser.id);
@@ -3122,6 +3126,7 @@ export default {
         document.title = upVideo.title + "-青芒视频";
         checkVideoTitle(upVideo.title);
         onloadPage.value = true;
+        await nextTick();
         handleVideoContentHeight();
         if (isInit && video.watchProgress > 0) {
           history.watchCurrentTime = video.watchProgress;
@@ -3786,41 +3791,90 @@ export default {
         ScrollingData.value.videoTime = upVideoPlayer.value.currentTime;
         ScrollingData.value.location = scrollingPattern.value;
         ScrollingData.value.colorful = sendScrollingColorful.value;
-        await danmakuApi.create({
+        const created = await danmakuApi.create({
           videoId: ScrollingData.value.videoId,
           content: ScrollingData.value.content,
           color: ScrollingData.value.color,
-          fontSize: Number(ScrollingData.value.size) === 1 ? 18 : 25,
+          fontSize: Number(ScrollingData.value.size),
           mode: Number(ScrollingData.value.location) - 1,
           colorful: Number(ScrollingData.value.colorful) === 1,
           videoTimeMs: Math.round(ScrollingData.value.videoTime * 1000),
         });
-        await updateScrolling(true);
+        applyDanmakuEvent({ type: 'danmaku.created', danmaku: created, count: created.totalCount });
         sendScrollingText.value = "";
       } catch (error) { ElMessage.error(error.message || "弹幕发送失败"); }
     }
 
-    let danmakuRefreshTimer;
     let danmakuLoading = false;
+    let danmakuGeneration = 0;
+    let liveVideoId;
+    const pendingDanmakuEvents = [];
+    function mapDanmaku(row, index) {
+      return {
+        ...row,
+        mine: String(row.userId) === String(store.userId),
+        videoTime: row.videoTimeMs / 1000,
+        location: row.mode + 1,
+        size: row.fontSize,
+        colorful: row.colorful ? 1 : 0,
+        top: (row.mode === 2 ? 6 + index % 6 : row.mode === 1 ? index % 6 : index % 12) / 12 * 100,
+        allDisplayTop: (row.mode === 2 ? 13 + index % 13 : row.mode === 1 ? index % 13 : index % 26) / 26 * 100,
+        sendTime: (row.createdAt || "").replace("T", " "),
+      };
+    }
+    function applyDanmakuEvent(message) {
+      if (message.type === 'presence') { watchingNumber.value = message.count; return; }
+      if (!['danmaku.created', 'danmaku.deleted'].includes(message.type)) return;
+      if (danmakuLoading) { pendingDanmakuEvents.push(message); return; }
+      const id = message.danmaku?.id ?? message.id;
+      const index = ScrollingDataList.findIndex(row => String(row.id) === String(id));
+      if (message.type === 'danmaku.deleted') {
+        if (index >= 0) ScrollingDataList.splice(index, 1);
+      } else {
+        const mapped = mapDanmaku(message.danmaku, Math.max(index, ScrollingDataList.length));
+        if (index >= 0) ScrollingDataList.splice(index, 1, mapped);
+        else ScrollingDataList.push(mapped);
+        ScrollingDataList.sort((a, b) => a.videoTime - b.videoTime || a.id - b.id);
+      }
+      if (typeof message.count === 'number') SelectVideoByIdVo.upVideo.scrollingNumber = message.count;
+    }
+    function startVideoLive() {
+      if (pageDisposed) return;
+      stopVideoLive?.();
+      danmakuGeneration++;
+      danmakuLoading = false;
+      if (liveVideoId && String(liveVideoId) !== String(SelectVideoByIdVo.upVideo?.id))
+        ScrollingDataList.splice(0);
+      liveVideoId = SelectVideoByIdVo.upVideo?.id;
+      watchingNumber.value = null;
+      pendingDanmakuEvents.length = 0;
+      if (!SelectVideoByIdVo.upVideo?.id) return;
+      stopVideoLive = connectVideoLive(SelectVideoByIdVo.upVideo.id, {
+        open: () => updateScrolling(true),
+        message: applyDanmakuEvent,
+        status: status => { liveStatus.value = status; if (status !== 'connected') watchingNumber.value = null; },
+        error: error => ElMessage.error(error.message),
+      });
+    }
+    watch(() => SelectVideoByIdVo.upVideo?.id, () => { if (liveReady) startVideoLive(); });
     async function updateScrolling(showError = false) {
       if (danmakuLoading || !SelectVideoByIdVo.upVideo?.id) return;
       danmakuLoading = true;
+      const generation = danmakuGeneration;
       try {
-        const rows = await danmakuApi.list(SelectVideoByIdVo.upVideo.id, 5000);
-        const mapped = rows.map((row, index) => ({
-          ...row,
-          videoTime: row.videoTimeMs / 1000,
-          location: row.mode + 1,
-          size: row.fontSize < 25 ? 1 : 2,
-          colorful: row.colorful ? 1 : 0,
-          top: (index % 12) / 12 * 100,
-          allDisplayTop: (index % 26) / 26 * 100,
-          sendTime: (row.createdAt || "").replace("T", " "),
-        }));
+        const snapshot = await danmakuApi.snapshot(SelectVideoByIdVo.upVideo.id, 5000);
+        if (generation !== danmakuGeneration) return;
+        const mapped = snapshot.records.map(mapDanmaku);
         ScrollingDataList.splice(0, ScrollingDataList.length, ...mapped);
+        SelectVideoByIdVo.upVideo.scrollingNumber = snapshot.count;
       } catch (error) {
-        if (showError) ElMessage.error(error.message || "弹幕加载失败");
-      } finally { danmakuLoading = false; }
+        if (generation === danmakuGeneration && showError) ElMessage.error(error.message || "弹幕加载失败");
+      } finally {
+        if (generation === danmakuGeneration) {
+          danmakuLoading = false;
+          pendingDanmakuEvents.splice(0).forEach(applyDanmakuEvent);
+        }
+      }
     }
 
     //读取本地保存的弹幕开关
@@ -3856,9 +3910,8 @@ export default {
     async function revocationScrollingAxios(id) {
       try {
         if (store.userId === null) return;
-        await danmakuApi.remove(id);
-          SelectVideoByIdVo.upVideo.scrollingNumber = Math.max(0, SelectVideoByIdVo.upVideo.scrollingNumber - 1);
-          await updateScrolling(true);
+        const result = await danmakuApi.remove(id);
+          applyDanmakuEvent({ type: 'danmaku.deleted', id, count: result.count });
           ElMessage({
             message: "撤回成功",
             type: "info",
@@ -3947,13 +4000,15 @@ export default {
 
         //清除定时器
         clearInterval(intervalId);
-        getLTCAxios();
+        const updated = await getLTCAxios();
+        if (!updated) {
+          threeAnmationBeforeFlag.value = false;
+          return;
+        }
         videoLikeHoverFlag.value = true;
         threeAnmationBeforeFlag.value = false;
         threeAnmationAfterFlag.value = true;
-        likeVideoClickFlag.value = true;
         likeVideoImgFlag.value = true;
-        videoCollectClickFlag.value = true;
         setTimeout(() => {
           threeAnmationAfterFlag.value = false;
           setTimeout(() => {
@@ -3968,9 +4023,8 @@ export default {
 
     //发送点赞点赞收藏请求
     async function getLTCAxios() {
+      if (!likeNoMoreClick || store.userId === null) return false;
       try {
-        threeForCount++;
-        if (threeForCount === 1 || !likeNoMoreClick) return;
         likeNoMoreClick = false;
         if (store.userId === null) {
           loginDialogVisibleFlag.value =
@@ -3987,6 +4041,7 @@ export default {
             plain: true,
             duration: 1700,
           });
+          return false;
         } else SelectVideoByIdVo.videoShareClickFlag = true;
 
         SelectVideoByIdVo.controlsType = 3;
@@ -4005,8 +4060,10 @@ export default {
           },
         );
         if (response.data.code === 1) {
-          SelectVideoByIdVo.length = 0;
           Object.assign(SelectVideoByIdVo, response.data.data);
+          likeVideoClickFlag.value = !!response.data.data.likeVideoClickFlag;
+          videoCollectClickFlag.value = !!response.data.data.videoCollectClickFlag;
+          return true;
         }
         threeForCount = 0;
       } catch (error) {
@@ -4016,24 +4073,23 @@ export default {
           plain: true,
           duration: 1700,
         });
-      }
-      likeNoMoreClick=true;
+        return false;
+      } finally { likeNoMoreClick=true; }
     }
 
     //发送点赞请求
     let likeNoMoreClick = true;
     async function sendLikeRequest() {
+      if (!likeNoMoreClick) return;
+      if (store.userId === null) { store.loginDialogVisible = true; return; }
       try {
-        if (!likeNoMoreClick) return;
         likeNoMoreClick = false;
         store.setLTCAFlag(0);
         if (store.userId === null) {
           store.loginDialogVisible = true;
           return;
         }
-        likeVideoClickFlag.value = !likeVideoClickFlag.value;
         SelectVideoByIdVo.controlsType = 1;
-        SelectVideoByIdVo.likeVideoClickFlag = likeVideoClickFlag.value;
         SelectVideoByIdVo.videoShareClickFlag = false;
         SelectVideoByIdVo.userId = store.userId;
         const response = await apiClient.post(
@@ -4047,8 +4103,8 @@ export default {
           },
         );
         if (response.data.code === 1) {
-          SelectVideoByIdVo.length = 0;
           Object.assign(SelectVideoByIdVo, response.data.data);
+          likeVideoClickFlag.value = !!response.data.data.likeVideoClickFlag;
         }
       } catch (error) {
         ElMessage({
@@ -4079,10 +4135,10 @@ export default {
             plain: true,
             duration: 1700,
           });
+          return;
         } else SelectVideoByIdVo.videoShareClickFlag = true;
 
         if (likeVideoFlag.value) {
-          likeVideoClickFlag.value = false;
           await sendLikeRequest();
           if (likeVideoClickFlag.value) {
             likeNoMoreClick = true;
@@ -4277,12 +4333,12 @@ export default {
       collectInfoList,
       () => {
         for (let i = 0; i < collectInfoList.length; i++) {
-          if (collectInfoList[i].flag !== collectInfoList2[i].flag) {
+          if (collectInfoList[i].flag !== collectInfoList2[i]?.flag) {
             collectSubimtFlag.value = true;
             break;
           }
           if (
-            collectInfoList[i].flag === collectInfoList2[i].flag &&
+            collectInfoList[i].flag === collectInfoList2[i]?.flag &&
             i === collectInfoList.length - 1
           )
             collectSubimtFlag.value = false;
@@ -4523,37 +4579,14 @@ export default {
 
     //添加历史记录
     function addHistoryAxios() {
-      if (store.userIp === null || store.token === null || store.userId === null || !store.userInformation.historyFlag) return;
-
-      let history = {
-        userId: store.userId,
-        videoId: SelectVideoByIdVo.upVideo.id,
-        watchCurrentTime:
-          upVideoPlayer.value.currentTime !== upVideoPlayer.value.duration
-            ? upVideoPlayer.value.currentTime
-            : 0,
-        watchVideoFlag:
-          upVideoPlayer.value.currentTime === upVideoPlayer.value.duration
-            ? 1
-            : 0,
-      };
-
-      let acceptHistory = {
-        history: history,
-        userIp: store.userIp,
-        token: store.token,
-      };
-
-      const url = "/api/history/addHistory";
-
-      // 将数据转换为 JSON 字符串
-      const payload = JSON.stringify(acceptHistory);
-
-      // 将 headers 追加到 Beacon 的请求体中
-      const blob = new Blob([payload], { type: "text/plain" });
-
-      // 使用 sendBeacon 发送数据
-      navigator.sendBeacon(url, blob);
+      const player = upVideoPlayer.value;
+      const id = SelectVideoByIdVo.upVideo?.id;
+      const token = getToken();
+      if (!store.userId || !id || !player || !token || !Number.isFinite(player.currentTime)) return;
+      const progress = Math.max(0, Math.floor(player.ended ? 0 : player.currentTime));
+      fetch(`${apiClient.defaults.baseURL}/video/${id}/watch?progressSeconds=${progress}`, {
+        method: "POST", headers: { token }, keepalive: true, credentials: "same-origin",
+      }).catch(() => {});
     }
 
     //查询历史记录
@@ -4896,6 +4929,7 @@ export default {
       audioBlack,
       closeAudioBlack,
       watchingNumber,
+      liveStatus,
       likeVideoFlag,
       sendScrollingInputStatus,
       copyScrolling,
@@ -8713,5 +8747,186 @@ a:hover {
   .video-page .up-video-controls-span4 {
     font-size: 12px;
   }
+}
+
+/* 播放区外的发送栏和互动栏进入正常文档流，避免盖住画面和播放控件。 */
+.video-page .video-stage {
+  display: flex;
+  flex-direction: column;
+  isolation: isolate;
+}
+.video-page .video-stage > .up-video-play-bottom-video-scrolling-container,
+.video-page .video-stage > .up-video-controls-container {
+  position: relative;
+  inset: auto;
+  transform: none;
+  width: 100%;
+  box-sizing: border-box;
+  background: #fff;
+  overflow: visible;
+}
+.video-page .video-stage > .up-video-play-bottom-video-scrolling-container {
+  min-height: 54px;
+  border-radius: 0 0 12px 12px;
+  z-index: 6;
+}
+.video-page .video-stage > .up-video-play-bottom-video-scrolling-container > .up-video-play-bottom-video-close-scrolling-container,
+.video-page .video-stage > .up-video-play-bottom-video-scrolling-container > .up-video-play-bottom-video-open-scrolling-container {
+  left: 299px;
+  right: 12px;
+  transform: none;
+  width: auto;
+}
+.video-page .video-stage > .up-video-play-bottom-video-scrolling-container .up-video-play-bottom-video-close-scrolling-input {
+  width: calc(100% - 110px);
+}
+.video-page .video-stage > .up-video-play-bottom-video-scrolling-container .send-scrolling-btn-open,
+.video-page .video-stage > .up-video-play-bottom-video-scrolling-container .send-scrolling-btn-close {
+  position: absolute;
+  right: 0;
+  transform: none;
+}
+.video-page .video-stage > .up-video-play-bottom-video-scrolling-container .scrolling-regulation {
+  display: none;
+}
+.video-page .video-stage > .up-video-controls-container {
+  min-height: 64px;
+  flex-wrap: wrap;
+  height: auto;
+  padding: 10px 12px;
+  padding-right: 58px;
+  z-index: 5;
+}
+.video-page .video-stage > div[style*="height: 5px"] {
+  display: none;
+}
+.video-page .video-stage > .addWaitWatch {
+  bottom: 16px;
+}
+.video-page .up-video-container .up-VideoProgress {
+  bottom: 57px;
+}
+.video-page .video-stage > .video-share-container {
+  position: absolute;
+  right: 0;
+  bottom: 64px;
+  z-index: 20;
+}
+.video-page .video-detail-sidebar {
+  display: grid;
+  gap: 48px;
+  align-content: start;
+  min-width: 0;
+}
+.video-page .video-detail-sidebar .scrolling-list-container,
+.video-page .video-detail-sidebar .autoPlayVideo2-container {
+  position: relative;
+  inset: auto;
+  transform: none;
+  z-index: auto;
+  width: 100%;
+}
+.video-page .video-detail-sidebar .scrolling-list {
+  width: 100%;
+}
+.video-page .video-detail-sidebar .scrolling-list-item {
+  height: auto;
+}
+.video-page .video-detail-sidebar .scrolling-list-item-bottom-container {
+  height: auto;
+  max-height: 315px;
+  overflow-y: auto;
+}
+.video-page .video-detail-sidebar .autoPlayVideo2-item {
+  width: 100%;
+}
+.video-page .video-detail-sidebar .autoPlayVideo2-item-left video {
+  z-index: 1;
+}
+.video-page .video-detail-sidebar .autoPlayVideo2-item-left .auto-play-video-item-wait-watch,
+.video-page .video-detail-sidebar .autoPlayVideo2-videoTime {
+  z-index: 2;
+}
+.video-page .video-description-empty { color: var(--ink-3); }
+.video-page .up-videoTitle { white-space: normal; overflow-wrap: anywhere; }
+.video-page .video-content-container.videoContentFlag { height: auto; max-height: 120px; overflow: hidden; }
+.video-page .show-up-videoTitle-container { max-width: calc(100vw - 40px); }
+.video-page .up-user-info { z-index: 30; }
+.video-page .comment-container {
+  left: 0;
+  top: 0;
+}
+.video-page .comment-container .comment-body,
+.video-page .comment-container .comment-input-container2 {
+  width: 100%;
+}
+.video-page .comment-container .comment-header > div[style*="width: 0px"] {
+  width: 100% !important;
+}
+.video-page .comment-container .not-login-commit-comment-container,
+.video-page .comment-container .comment-content-container,
+.video-page .comment-container .comment-list > .comment-content {
+  width: calc(100% - 80px);
+}
+.video-page .comment-container .login-commit-comment-container { width: 100%; }
+.video-page .comment-container .reply-line,
+.video-page .comment-container .replyCommentClass,
+.video-page .comment-container .replyCommentClass2 {
+  width: calc(100% - 80px);
+}
+.video-page .comment-container .reply-content { max-width: 100%; }
+.video-page .comment-container .comment-content { overflow-wrap: anywhere; }
+.video-page .inline-emoji {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  vertical-align: middle;
+  object-fit: contain;
+}
+.video-page .time-span,
+.video-page a[data-eit-userid] {
+  color: var(--brand);
+  cursor: pointer;
+}
+@media (min-width: 1200px) {
+  .video-page .video-body { grid-template-columns: minmax(0, 1fr) 350px; }
+  .video-page .video-detail-sidebar { grid-column: 2; grid-row: 1 / span 8; }
+}
+@media (max-width: 1199px) {
+  .video-page .video-detail-sidebar { grid-column: 1; grid-row: auto; }
+}
+@media (max-width: 768px) {
+  .video-page .video-stage > .up-video-play-bottom-video-scrolling-container {
+    height: 94px;
+    align-items: flex-start;
+  }
+  .video-page .video-stage > .up-video-play-bottom-video-scrolling-container .watch-num {
+    top: 14px;
+    left: 12px;
+    transform: none;
+  }
+  .video-page .video-stage > .up-video-play-bottom-video-scrolling-container > .up-video-play-bottom-video-close-scrolling-container,
+  .video-page .video-stage > .up-video-play-bottom-video-scrolling-container > .up-video-play-bottom-video-open-scrolling-container {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: 48px;
+    transform: none;
+    width: auto;
+    max-width: none;
+  }
+  .video-page .video-stage > .up-video-play-bottom-video-scrolling-container .up-video-play-bottom-video-close-scrolling-input {
+    width: calc(100% - 110px);
+  }
+  .video-page .video-stage > .up-video-play-bottom-video-scrolling-container .scrolling-regulation {
+    display: none;
+  }
+  .video-page .video-stage > .up-video-play-bottom-video-scrolling-container .send-scrolling-btn-open,
+  .video-page .video-stage > .up-video-play-bottom-video-scrolling-container .send-scrolling-btn-close {
+    left: auto;
+    right: 0;
+    transform: none;
+  }
+  .video-page .video-stage > .up-video-controls-container { gap: 8px; }
 }
 </style>

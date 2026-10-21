@@ -18,10 +18,7 @@
             <div v-show="!loadMore&&dynamicList.length" class="dynamic-item" v-for="dynamic in dynamicList" :key="dynamic.id">
                 <dynamicC :dynamic="dynamic" @changed="reloadPosts"/>
             </div>
-            <div v-if="!dynamicList.length&&!loadMore" class="no-data">
-                <img src="/img/home_nodata.svg">
-                <div>好像没有东西诶</div>
-            </div>
+            <AppEmptyState v-if="!dynamicList.length&&!loadMore" title="暂无动态" description="新的作品和生活分享会在这里展示"/>
             <loadingIndicator v-show="loadMore2" inline min-height="0px"/>
             <div v-if="fotterFlag&&dynamicList.length>0&&!loadMore2&&!loadMore" class="no-more">你已经到达世界的尽头</div>
         </div>

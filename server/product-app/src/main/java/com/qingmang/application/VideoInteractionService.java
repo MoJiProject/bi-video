@@ -26,6 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 
 /**
@@ -132,6 +135,9 @@ public class VideoInteractionService {
     public Map<String, Object> toggleFavorite(Long userId, Long videoId, Long folderId) {
         requirePublished(videoId);
         Long target = folderId == null ? defaultFolderId(userId) : folderId;
+        var folder = folderMapper.selectById(target);
+        if (folder == null || !userId.equals(folder.getOwnerId()))
+            throw new BizException(ErrorCode.FOLDER_NOT_FOUND);
         FavoriteItem exist = favoriteItemMapper.selectOne(Wrappers.<FavoriteItem>lambdaQuery()
                 .eq(FavoriteItem::getFolderId, target)
                 .eq(FavoriteItem::getVideoId, videoId));
@@ -152,8 +158,27 @@ public class VideoInteractionService {
             collected = false;
         }
         syncFolderCount(target);
-        syncReactionFlag(userId, videoId, ReactionType.FAVORITE, collected);
-        return state(videoId, null, null, collected, null, null);
+        boolean anyCollected = favoriteItemMapper.selectCount(Wrappers.<FavoriteItem>lambdaQuery()
+                .eq(FavoriteItem::getUserId, userId).eq(FavoriteItem::getVideoId, videoId)) > 0;
+        syncReactionFlag(userId, videoId, ReactionType.FAVORITE, anyCollected);
+        return state(videoId, null, null, anyCollected, null, null);
+    }
+
+    public List<Map<String, Object>> videoFolders(Long userId, Long videoId) {
+        requirePublished(videoId);
+        Set<Long> containing = favoriteItemMapper.selectList(Wrappers.<FavoriteItem>lambdaQuery()
+                .eq(FavoriteItem::getUserId, userId).eq(FavoriteItem::getVideoId, videoId))
+                .stream().map(FavoriteItem::getFolderId).collect(Collectors.toSet());
+        return folderMapper.selectList(Wrappers.<com.qingmang.domain.favorite.FavoriteFolder>lambdaQuery()
+                .eq(com.qingmang.domain.favorite.FavoriteFolder::getOwnerId, userId)).stream()
+                .map(folder -> {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("id", folder.getId());
+                    row.put("name", folder.getName());
+                    row.put("itemCount", folder.getItemCount());
+                    row.put("containsVideo", containing.contains(folder.getId()));
+                    return row;
+                }).toList();
     }
 
     /** 加入/移出待看清单。 */

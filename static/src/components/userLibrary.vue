@@ -1,5 +1,5 @@
 <template>
-  <section class="library" :aria-label="title">
+  <section class="library" :class="{ 'library--logged-out': !store.token }" :aria-label="title">
     <header class="library-head">
       <h1><img v-if="isHistory" src="/img/历史记录图标.png" alt=""/>{{ title }}
         <span v-if="!isHistory && store.token" class="total">· {{ total }}</span>
@@ -18,13 +18,13 @@
     </header>
     <template v-if="store.token">
       <div class="control-container">
-        <div class="tools">
+        <div class="tools" :class="{ 'tools--managing': managing }">
           <template v-if="!managing">
-            <el-button :aria-expanded="showDates" @click="showDates = !showDates">时间筛选 {{ showDates ? '⌃' : '⌄' }}</el-button>
-            <el-input v-model="keyword" placeholder="搜索标题/UP主昵称" maxlength="100" clearable aria-label="搜索标题或UP主昵称"
+            <el-input v-model="keyword" class="library-search" placeholder="搜索标题/UP主昵称" maxlength="100" clearable aria-label="搜索标题或UP主昵称"
               @keyup.enter="search" @clear="search">
               <template #append><el-button @click="search">搜索</el-button></template>
             </el-input>
+            <el-button :aria-expanded="showDates" @click="showDates = !showDates">时间筛选 {{ showDates ? '⌃' : '⌄' }}</el-button>
             <el-button :disabled="busy" @click="clearAll">清空{{ isHistory ? '历史' : '稍后再看' }}</el-button>
           </template>
           <template v-else>
@@ -35,10 +35,13 @@
           <el-button class="manage" :disabled="busy" @click="toggleManagement">{{ managing ? '退出管理' : '批量管理' }}</el-button>
         </div>
         <div v-if="showDates && !managing" class="date-tools">
-          <el-button v-for="option in dateOptions" :key="option.value" :type="timeFilter === option.value ? 'primary' : ''"
-            :plain="timeFilter === option.value" :disabled="busy" @click="chooseTime(option.value)">{{ option.label }}</el-button>
+          <div class="date-presets">
+            <el-button v-for="option in dateOptions" :key="option.value" :type="timeFilter === option.value ? 'primary' : ''"
+              :plain="timeFilter === option.value" :disabled="busy" @click="chooseTime(option.value)">{{ option.label }}</el-button>
+          </div>
           <el-date-picker v-model="customDates" type="daterange" value-format="YYYY-MM-DD" range-separator="至"
-            start-placeholder="开始日期" end-placeholder="结束日期" aria-label="自定义日期范围" :disabled="busy" @change="chooseCustomDates"/>
+            start-placeholder="开始日期" end-placeholder="结束日期" aria-label="自定义日期范围"
+            popper-class="library-date-picker" :disabled="busy" @change="chooseCustomDates"/>
         </div>
       </div>
       <el-alert v-if="error" :title="error" type="error" :closable="false" show-icon>
@@ -83,13 +86,17 @@
           </div>
         </section>
       </div>
-      <el-empty v-if="!loading && !error && !rows.length" :description="appliedKeyword || timeFilter !== 'all' ? '没有符合条件的记录' : isHistory ? '还没有观看记录' : '这里什么都没有哦~'"/>
+      <AppEmptyState v-if="!loading && !error && !rows.length"
+        :kind="appliedKeyword || timeFilter !== 'all' ? 'search' : 'empty'"
+        :title="appliedKeyword || timeFilter !== 'all' ? '没有符合条件的记录' : isHistory ? '还没有观看记录' : '稍后再看列表为空'"
+        :description="appliedKeyword || timeFilter !== 'all' ? '试试其他关键词，或调整时间筛选条件' : isHistory ? '看过的视频会出现在这里，方便下次继续观看' : '将感兴趣的视频加入稍后再看，留给下次慢慢欣赏'"/>
       <div ref="loadAnchor" class="load-more">
         <el-button v-if="hasMore" :loading="loading" :disabled="busy" @click="load">加载更多</el-button>
         <span v-else-if="!loading && !error && rows.length">{{ isHistory ? '已经到底啦~' : '已经探索到底啦~' }}</span>
       </div>
     </template>
-    <el-empty v-else description="请先登录"><el-button @click="store.loginDialogVisible = true">登录</el-button></el-empty>
+    <AppEmptyState v-else kind="login" :title="`登录后查看${title}`"
+      description="登录账号，同步你的专属视频清单" action-text="立即登录" @action="store.loginDialogVisible = true"/>
   </section>
 </template>
 
@@ -391,59 +398,87 @@ onBeforeUnmount(() => { generation++; activeRequest?.abort(); observer?.disconne
 </script>
 
 <style scoped>
-.library { box-sizing: border-box; width: 100%; max-width: var(--page-max); margin: auto; padding: 32px var(--page-pad); color: #18191c; }
-.library-head, .library-head h1, .head-actions, .tools, .date-tools { display: flex; align-items: center; gap: 12px; }
+.library { box-sizing: border-box; width: 100%; min-width: 0; max-width: var(--page-max); margin: auto; padding: 32px var(--page-pad); color: var(--ink); }
+.library--logged-out { min-height: calc(100dvh - var(--head-h)); background: var(--fill-soft); }
+.library--logged-out > .app-empty-state { max-width: 560px; margin: clamp(24px, 6vh, 64px) auto; }
+.library-head, .library-head h1, .head-actions, .date-presets { display: flex; align-items: center; gap: 12px; }
 .library-head { justify-content: space-between; flex-wrap: wrap; margin-bottom: 24px; }
 .library-head h1 { margin: 0; font-size: 24px; font-weight: 500; }
 .library-head h1 img { width: 28px; height: 28px; object-fit: contain; }
-.head-actions { font-size: 14px; color: #61666d; flex-wrap: wrap; }
+.head-actions { min-width: 0; font-size: 14px; color: var(--ink-2); flex-wrap: wrap; }
 .head-actions .el-select { width: 140px; }
 .total { font-size: 18px; color: #9499a0; }
-.control-container { position: sticky; top: var(--header-height, 64px); z-index: 5; padding: 16px 0; background: var(--bg, #fff); border-bottom: 1px solid #e3e5e7; }
-.tools, .date-tools { flex-wrap: wrap; }
-.tools .el-input { width: 280px; max-width: 100%; }
+.control-container { position: sticky; top: var(--head-h); z-index: var(--z-sticky); padding: 16px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius-md); }
+.tools { display: grid; grid-template-columns: minmax(180px, 1fr) auto auto auto; align-items: center; gap: 12px; }
+.tools--managing { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+.tools .library-search { width: 100%; min-width: 0; }
+.tools > .el-button { min-width: 0; min-height: 38px; height: auto; margin: 0; padding: 8px 12px; line-height: 1.5; white-space: normal; }
 .tools :deep(.el-button + .el-button), .date-tools :deep(.el-button + .el-button) { margin-left: 0; }
-.manage { margin-left: auto; }
-.selection-count { color: #61666d; font-size: 14px; }
-.date-tools { margin-top: 16px; }
-.date-tools :deep(.el-date-editor) { flex: 0 1 290px; max-width: 100%; box-sizing: border-box; }
+.selection-count { min-width: 0; color: var(--ink-2); font-size: 14px; overflow-wrap: anywhere; }
+.date-tools { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 320px); align-items: center; gap: 12px; margin-top: 16px; }
+.date-presets { min-width: 0; flex-wrap: wrap; gap: 8px; }
+.date-tools :deep(.el-date-editor) { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; }
+.date-tools :deep(.el-range-input) { min-width: 0; }
 .library-content { padding-top: 28px; }
 .timeline { padding-left: 22px; }
 .video-group { position: relative; margin-bottom: 32px; }
 .timeline .video-group { border-left: 1px solid #e3e5e7; padding: 0 0 28px 28px; margin-bottom: 0; }
 .group-title { margin: 0 0 22px; color: #61666d; font-size: 16px; font-weight: 500; }
 .group-title::before { content: ''; position: absolute; left: -6px; top: 5px; height: 10px; width: 10px; border-radius: 50%; border: 1px solid #9499a0; background: #fff; }
-.videos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 28px 20px; }
+.videos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 28px 20px; }
 .library-video { min-width: 0; border-radius: 8px; }
 .cover { position: relative; overflow: hidden; border-radius: 8px; aspect-ratio: 16 / 9; background: #f1f2f3; }
 .cover a, .select-cover { display: block; width: 100%; height: 100%; padding: 0; border: 0; cursor: pointer; }
 .cover img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .2s; }
 .cover a:hover img { transform: scale(1.04); }
-.selected .cover { outline: 2px solid #00aeec; outline-offset: -2px; }
+.selected .cover { outline: 2px solid var(--brand); outline-offset: -2px; }
 .video-checkbox { position: absolute; top: 5px; left: 10px; z-index: 1; }
 .video-overlay { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; gap: 8px; padding: 20px 8px 8px; color: #fff; font-size: 12px; background: linear-gradient(transparent, #0009); pointer-events: none; }
-.progress { position: absolute; left: 0; bottom: 0; height: 3px; background: #00aeec; pointer-events: none; }
+.progress { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--brand); pointer-events: none; }
 .video-heading { display: flex; align-items: flex-start; gap: 4px; margin-top: 8px; }
 .video-title { flex: 1; min-width: 0; min-height: 40px; color: #18191c; font-size: 14px; line-height: 20px; text-decoration: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .video-heading .el-button { flex-shrink: 0; height: 24px; padding: 2px 4px; }
-.video-title:hover, .author:hover { color: #00aeec; }
+.video-title:hover, .author:hover { color: var(--brand); }
 .author { display: block; margin-top: 5px; color: #9499a0; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none; }
 .author img { width: 16px; height: 16px; vertical-align: middle; margin-right: 4px; }
 .entry-time { margin: 6px 0 0; color: #9499a0; font-size: 12px; }
-mark { color: #00aeec; background: none; }
+mark { color: var(--brand); background: none; }
 .unavailable { display: grid; place-items: center; height: 100%; color: #9499a0; }
 .unavailable-title { color: #9499a0; }
 .load-more { display: flex; justify-content: center; min-height: 48px; margin-top: 24px; color: #9499a0; font-size: 14px; }
+@media (max-width: 900px) {
+  .date-tools { grid-template-columns: minmax(0, 1fr); }
+  .date-tools :deep(.el-date-editor) { max-width: 400px; }
+}
+@media (max-width: 768px) {
+  .control-container { position: static; }
+}
 @media (max-width: 640px) {
   .library { padding-top: 20px; }
+  .library-head { gap: 16px; margin-bottom: 20px; }
   .library-head h1 { font-size: 21px; }
-  .tools { gap: 8px; }
-  .tools .el-input { width: 100%; order: 4; }
-  .selection-count { flex: 1; }
-  .timeline { padding-left: 6px; }
-  .timeline .video-group { padding-left: 14px; }
+  .head-actions { width: 100%; gap: 8px; }
+  .control-container { padding: 12px; }
+  .tools { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; align-items: stretch; }
+  .tools .library-search, .tools .manage { grid-column: 1 / -1; }
+  .tools--managing { align-items: center; }
+  .tools--managing .manage { grid-column: auto; }
+  .selection-count { font-size: 13px; }
+  .date-tools :deep(.el-date-editor) { max-width: 100%; }
+  .timeline { padding-left: 0; }
+  .timeline .video-group { border-left: 0; padding-left: 0; }
+  .group-title::before { display: none; }
   .videos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 12px; }
   .video-overlay { font-size: 10px; flex-wrap: wrap; gap: 2px; padding: 16px 6px 6px; }
 }
-@media (max-width: 360px) { .videos { grid-template-columns: 1fr; } }
+@media (max-width: 480px) { .videos { grid-template-columns: minmax(0, 1fr); } }
+</style>
+
+<style>
+@media (max-width: 640px) {
+  .library-date-picker .el-date-range-picker { width: min(360px, calc(100vw - 24px)); min-width: 0; }
+  .library-date-picker .el-date-range-picker__body { min-width: 0; max-height: 70dvh; overflow-y: auto; }
+  .library-date-picker .el-date-range-picker__content { box-sizing: border-box; float: none; width: 100%; padding: 12px; }
+  .library-date-picker .el-date-range-picker__content.is-left { border-right: 0; border-bottom: 1px solid var(--line); }
+}
 </style>

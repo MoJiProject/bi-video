@@ -39,11 +39,13 @@ public class SocialService {
     private final ObjectMapper json;
     private final AuthService auth;
     private final PostLikeMapper postLikes;
+    private final MentionNotificationService mentions;
 
     public SocialService(UserFollowMapper followMapper, UserPostMapper postMapper,
                          PrivateMessageMapper privateMessageMapper,
                          UserStatsMapper statsMapper, CounterMapper counterMapper,
-                         SocialQueryMapper queryMapper, ObjectMapper json, AuthService auth, PostLikeMapper postLikes) {
+                         SocialQueryMapper queryMapper, ObjectMapper json, AuthService auth, PostLikeMapper postLikes,
+                         MentionNotificationService mentions) {
         this.followMapper = followMapper;
         this.postMapper = postMapper;
         this.privateMessageMapper = privateMessageMapper;
@@ -53,6 +55,7 @@ public class SocialService {
         this.json = json;
         this.auth = auth;
         this.postLikes = postLikes;
+        this.mentions = mentions;
     }
 
     @Transactional
@@ -204,6 +207,7 @@ public class SocialService {
         }
         postMapper.insert(p);
         counterMapper.increaseUserStat(userId, "post_count", 1);
+        if (p.getVisibility() == 0) mentions.publish(userId, 3, p.getId(), req.getMentionUserIds(), p.getContent());
         return p.getId();
     }
 

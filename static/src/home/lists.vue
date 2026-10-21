@@ -1,10 +1,7 @@
 <template>
     <div class="home-lists">
         <div class="title">{{ store.userId!==null&&store.userId==userId? "我的合集列表" : "TA的合集列表" }}</div>
-        <div class="no-data">
-            <img src="/img/home_nodata.svg">
-            <div>合集功能暂未开放</div>
-        </div>
+        <AppEmptyState title="合集功能暂未开放" description="更多内容整理方式，敬请期待"/>
     </div>
 </template>
 

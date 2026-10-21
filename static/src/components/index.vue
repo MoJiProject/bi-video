@@ -76,10 +76,7 @@
         <p>正在加载…</p>
       </div>
 
-      <div class="state" v-else-if="!videos.length">
-        <img class="state-img" src="/img/home_nodata.svg" alt="" />
-        <p>这里还没有视频</p>
-      </div>
+      <AppEmptyState v-else-if="!videos.length" title="这里还没有视频" description="换个分区看看，或稍后回来发现更多精彩内容"/>
 
       <p class="feed-end" v-show="videos.length && !hasMore">— 已经到底了 —</p>
     </main>

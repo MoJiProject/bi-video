@@ -487,7 +487,7 @@ CREATE TABLE `private_message`
     `conversation_id` BIGINT UNSIGNED NOT NULL COMMENT '会话ID',
     `sender_id`       BIGINT UNSIGNED NOT NULL COMMENT '发送者',
     `receiver_id`     BIGINT UNSIGNED NOT NULL COMMENT '接收者（冗余，便于按人查）',
-    `message_type`    TINYINT         NOT NULL DEFAULT 1 COMMENT '类型 1文本 2图片 3系统',
+    `message_type`    TINYINT         NOT NULL DEFAULT 1 COMMENT '类型 1文本 2图片 3系统 4视频分享',
     `content`         VARCHAR(2000)   NOT NULL COMMENT '内容',
     `is_read`         TINYINT(1)      NOT NULL DEFAULT 0 COMMENT '已读',
     `created_at`      DATETIME(3)     NOT NULL DEFAULT CURRENT_TIMESTAMP(3),

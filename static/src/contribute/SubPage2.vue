@@ -348,10 +348,8 @@
           (click3 === 1 && UserVideoVo.videoErrorNumber === 0) ||
           (click4 === 1 && UserVideoVo.videoAllNumber === 0))&&!videoList.length
         "
-        class="empty-manuscripts"
       >
-        <img src="/img/没有稿件.png" style="width: 234px; height: 177px" />
-        <span>一个稿件都没有，请换个筛选条件</span>
+        <AppEmptyState title="没有符合条件的稿件" description="换个筛选条件，或发布你的下一部作品"/>
       </div>
 
       <div
@@ -551,7 +549,7 @@ export default {
         }
       } catch (error) {
         ElMessage({
-          message: "未知错误",
+          message: error.message || "加载投稿列表失败",
           type: "info",
           plain: true,
           duration: 1700,

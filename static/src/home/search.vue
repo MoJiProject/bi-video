@@ -78,10 +78,9 @@
         </div>
       </div>
       <loadingIndicator v-show="loadMore" min-height="160px"/>
-      <div v-show="!loadMore&&(searchMenu===1?contributeVideos.length===0:dynamicList.length===0)" class="no-data">
-            <img src="/img/home_nodata.svg">
-            <div>{{'没有找到任何关于"'+keyword+(searchMenu===1?'"的视频':'"的动态')}}</div>
-      </div>
+      <AppEmptyState v-show="!loadMore&&(searchMenu===1?contributeVideos.length===0:dynamicList.length===0)"
+        kind="search" :title="'没有找到关于「'+keyword+'」的'+(searchMenu===1?'视频':'动态')"
+        description="试试缩短关键词，或切换其他内容类型"/>
     </div>
   </div>
 </template>

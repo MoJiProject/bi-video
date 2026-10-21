@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import App from '../src/App.vue';
+import AppEmptyState from './components/AppEmptyState.vue';
 import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
 import { createPinia } from 'pinia';
@@ -13,6 +14,7 @@ createApp(App)
 .use(ElementPlus)
 .use(createPinia())
 .use(router)
+.component('AppEmptyState', AppEmptyState)
 .directive('debounce', buttonDebounce)
 .directive('external-link', ExternalLinkDirective)
 .mount('#app')

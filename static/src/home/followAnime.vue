@@ -38,10 +38,7 @@
             </div>
             <div class="anime-list">
                 <followAnimeList :data="animeData"/>
-                <div v-show="animeData.length===0" class="no-data">
-                    <img src="/img/home_nodata.svg">
-                    <div>没有该动漫啊━━━∑(ﾟ□ﾟ*川━</div>
-                </div>
+                <AppEmptyState v-show="animeData.length===0" kind="search" title="没有找到相关内容" description="调整筛选条件，看看其他感兴趣的作品"/>
             </div>
         </div>
     </div>

@@ -12,7 +12,7 @@ import com.qingmang.domain.interaction.mapper.CommentLikeMapper;
 import com.qingmang.domain.interaction.mapper.CommentMapper;
 import com.qingmang.domain.interaction.mapper.DanmakuMapper;
 import com.qingmang.domain.video.mapper.VideoMapper;
-import com.qingmang.domain.video.mapper.VideoStatsMapper;
+import com.qingmang.domain.user.mapper.UserMapper;
 import com.qingmang.domain.social.UserPost;
 import com.qingmang.domain.social.mapper.UserPostMapper;
 import com.qingmang.infrastructure.mapper.CounterMapper;
@@ -22,6 +22,7 @@ import com.qingmang.interfaces.dto.DanmakuPostRequest;
 import com.qingmang.interfaces.vo.CommentVO;
 import com.qingmang.interfaces.vo.DanmakuVO;
 import org.springframework.stereotype.Service;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -39,25 +40,30 @@ public class CommentDanmakuService {
     private final CommentLikeMapper commentLikeMapper;
     private final DanmakuMapper danmakuMapper;
     private final VideoMapper videoMapper;
-    private final VideoStatsMapper statsMapper;
+    private final UserMapper userMapper;
     private final CounterMapper counterMapper;
     private final InteractionQueryMapper queryMapper;
     private final ObjectMapper json;
     private final UserPostMapper postMapper;
+    private final ApplicationEventPublisher events;
+    private final MentionNotificationService mentions;
 
     public CommentDanmakuService(CommentMapper commentMapper, CommentLikeMapper commentLikeMapper,
                                  DanmakuMapper danmakuMapper, VideoMapper videoMapper,
-                                 VideoStatsMapper statsMapper, CounterMapper counterMapper,
-                                 InteractionQueryMapper queryMapper, ObjectMapper json, UserPostMapper postMapper) {
+                                 UserMapper userMapper, CounterMapper counterMapper,
+                                 InteractionQueryMapper queryMapper, ObjectMapper json, UserPostMapper postMapper,
+                                 ApplicationEventPublisher events, MentionNotificationService mentions) {
         this.commentMapper = commentMapper;
         this.commentLikeMapper = commentLikeMapper;
         this.danmakuMapper = danmakuMapper;
         this.videoMapper = videoMapper;
-        this.statsMapper = statsMapper;
+        this.userMapper = userMapper;
         this.counterMapper = counterMapper;
         this.queryMapper = queryMapper;
         this.json = json;
         this.postMapper = postMapper;
+        this.events = events;
+        this.mentions = mentions;
     }
 
     /** 一级评论分页 + 一次性批量取回它们的回复。 */
@@ -148,6 +154,8 @@ public class CommentDanmakuService {
             }
         }
         commentMapper.insert(c);
+        if (req.getPostId() == null || requirePost(req.getPostId(), userId).getVisibility() == 0)
+            mentions.publish(userId, 2, c.getId(), req.getMentionUserIds(), c.getContent());
 
         // 回复也计入视频总评论数；根节点的 replyCount 单独维护
         adjustCommentCount(c, 1);
@@ -221,7 +229,9 @@ public class CommentDanmakuService {
         if (c == null || c.getDeletedAt() != null) {
             throw new BizException(ErrorCode.COMMENT_NOT_FOUND);
         }
-        if (!admin && !c.getAuthorId().equals(userId)) {
+        var video = c.getVideoId() == null ? null : videoMapper.selectById(c.getVideoId());
+        boolean videoOwner = video != null && Objects.equals(video.getOwnerId(), userId);
+        if (!admin && !c.getAuthorId().equals(userId) && !videoOwner) {
             throw new BizException(ErrorCode.NO_PERMISSION);
         }
         int removed = 1;
@@ -260,6 +270,14 @@ public class CommentDanmakuService {
         return queryMapper.selectDanmaku(videoId, Math.min(Math.max(limit, 1), 5000));
     }
 
+    @Transactional(readOnly = true)
+    public Map<String, Object> danmakuSnapshot(Long videoId, int limit) {
+        var video = videoMapper.selectById(videoId);
+        if (video == null || !Integer.valueOf(1).equals(video.getStatus()))
+            throw new BizException(ErrorCode.VIDEO_NOT_FOUND);
+        return Map.of("records", danmaku(videoId, limit), "count", danmakuCount(videoId));
+    }
+
     @Transactional
     public boolean togglePin(Long userId, Long commentId) {
         Comment c = commentMapper.selectById(commentId);
@@ -282,8 +300,11 @@ public class CommentDanmakuService {
         if (c == null || c.getDeletedAt() != null || !Integer.valueOf(1).equals(c.getStatus()))
             throw new BizException(ErrorCode.COMMENT_NOT_FOUND);
         if (c.getPostId() != null) requirePost(c.getPostId(), viewerId);
-        else if (videoMapper.selectById(c.getVideoId()) == null)
-            throw new BizException(ErrorCode.VIDEO_NOT_FOUND);
+        else {
+            var video = videoMapper.selectById(c.getVideoId());
+            if (video == null || !Integer.valueOf(1).equals(video.getStatus()))
+                throw new BizException(ErrorCode.VIDEO_NOT_FOUND);
+        }
         Long rootId = c.getRootId() == null ? c.getId() : c.getRootId();
         CommentVO root = queryMapper.selectComment(rootId, viewerId);
         if (root == null) throw new BizException(ErrorCode.COMMENT_NOT_FOUND);
@@ -295,18 +316,24 @@ public class CommentDanmakuService {
     }
 
     @Transactional
-    public void deleteDanmaku(Long userId, Long danmakuId) {
+    public long deleteDanmaku(Long userId, Long danmakuId) {
         Danmaku d = danmakuMapper.selectById(danmakuId);
         if (d == null || !Objects.equals(d.getUserId(), userId))
             throw new BizException(ErrorCode.OPERATION_FAILED, "仅可撤回自己的弹幕");
-        if (danmakuMapper.deleteById(danmakuId) > 0)
+        if (danmakuMapper.deleteById(danmakuId) > 0) {
             counterMapper.decreaseVideoStat(d.getVideoId(), "danmaku_count", 1);
+            events.publishEvent(new DanmakuChanged(d.getVideoId(), null, danmakuId,
+                    danmakuCount(d.getVideoId())));
+        }
+        return danmakuCount(d.getVideoId());
     }
 
     @Transactional
     public DanmakuVO postDanmaku(Long userId, DanmakuPostRequest req) {
+        var sender = userMapper.selectById(userId);
+        if (sender == null) throw new BizException(ErrorCode.ACCOUNT_NOT_FOUND);
         var video = videoMapper.selectById(req.getVideoId());
-        if (video == null) {
+        if (video == null || !Integer.valueOf(1).equals(video.getStatus())) {
             throw new BizException(ErrorCode.VIDEO_NOT_FOUND);
         }
         if (video.getAllowDanmaku() != null && !video.getAllowDanmaku()) {
@@ -321,6 +348,7 @@ public class CommentDanmakuService {
         d.setFontSize(req.getFontSize() == null ? 25 : req.getFontSize());
         d.setMode(req.getMode() == null ? 0 : req.getMode());
         d.setVideoTimeMs(Math.max(0, req.getVideoTimeMs() == null ? 0 : req.getVideoTimeMs()));
+        d.setCreatedAt(LocalDateTime.now());
         danmakuMapper.insert(d);
 
         counterMapper.increaseVideoStat(req.getVideoId(), "danmaku_count", 1);
@@ -334,8 +362,16 @@ public class CommentDanmakuService {
         vo.setMode(d.getMode());
         vo.setVideoTimeMs(d.getVideoTimeMs());
         vo.setUserId(userId);
+        vo.setUserNickname(sender.getNickname());
+        vo.setCreatedAt(d.getCreatedAt());
+        vo.setTotalCount(danmakuCount(d.getVideoId()));
+        events.publishEvent(new DanmakuChanged(d.getVideoId(), json.convertValue(vo, DanmakuVO.class), null, vo.getTotalCount()));
         vo.setMine(Boolean.TRUE);
         return vo;
+    }
+
+    private long danmakuCount(Long videoId) {
+        return danmakuMapper.selectCount(Wrappers.<Danmaku>lambdaQuery().eq(Danmaku::getVideoId, videoId));
     }
 
     private void parseImages(CommentVO vo) {

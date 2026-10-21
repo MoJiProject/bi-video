@@ -1,11 +1,15 @@
 <template>
-  <div class="account-page" :style="{backgroundImage: 'url('+backgroundImgSrc[bIndex]+')'}">
+  <div class="account-page" :class="{ 'is-logged-out': !store.token }"
+    :style="{backgroundImage: store.token ? 'url('+backgroundImgSrc[bIndex]+')' : 'none'}">
       <accountHead class="account-head"/>
       <div v-if="store.token" class="account-body-container">
         <accountAside/>
         <accountBody/>
       </div>
-      <el-empty v-else description="请先登录"><el-button @click="store.loginDialogVisible = true">登录</el-button></el-empty>
+      <div v-else class="account-empty">
+        <AppEmptyState kind="login" title="登录后管理个人资料" description="登录账号，完善资料并管理你的个人设置"
+          action-text="立即登录" @action="store.loginDialogVisible = true"/>
+      </div>
   </div>
 </template>
 
@@ -86,6 +90,13 @@ onBeforeUnmount(()=>{
         gap: 20px;
         padding: 0;
     }
+}
+
+.account-page.is-logged-out { background-color: var(--fill-soft); }
+.account-empty {
+  width: calc(100% - var(--page-pad) - var(--page-pad));
+  max-width: 560px;
+  margin: clamp(32px, 8vh, 88px) auto;
 }
 
 @media (max-width: 900px){

@@ -14,6 +14,8 @@ public class DanmakuVO {
     private Integer mode;
     private Integer videoTimeMs;
     private Long userId;
+    private Long totalCount;
     private String userNickname;
     private Boolean mine = false;
+    private java.time.LocalDateTime createdAt;
 }

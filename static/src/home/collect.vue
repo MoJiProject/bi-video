@@ -54,12 +54,14 @@
               </div>
             </div>
           </div>
-          <div v-if="!videos.length" class="no-data">暂无数据</div>
+          <AppEmptyState v-if="!videos.length" :kind="appliedKeyword ? 'search' : 'empty'"
+            :title="appliedKeyword ? '没有找到相关视频' : '收藏夹还是空的'"
+            :description="appliedKeyword ? '试试其他关键词，或切换收藏夹继续查找' : '收藏喜欢的视频，下次就能在这里轻松找到'"/>
           <el-pagination v-if="total" v-model:current-page="pageNum" :page-size="20"
             layout="total, prev, pager, next, jumper" :total="total"/>
         </template>
       </template>
-      <div v-else-if="!loadingFolders" class="no-data">暂无收藏夹</div>
+      <AppEmptyState v-else-if="!loadingFolders" title="暂无收藏夹" description="这里还没有可以查看的收藏夹"/>
     </main>
     <el-dialog v-model="editorVisible" :title="editingId ? '编辑收藏夹' : '新建收藏夹'" width="min(90vw, 500px)">
       <el-form label-width="80px">
