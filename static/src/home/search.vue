@@ -74,7 +74,7 @@
             <div v-show="!loadMore&&dynamicList.length>0" class="dynamic-item" v-for="dynamic in dynamicList" :key="dynamic.id">
                 <dynamicC :dynamic="dynamic" @changed="refreshPosts"/>
             </div>
-            <div v-if="fotterFlag&&dynamicList.length>0&&!loadMore2&&!loadMore" class="no-more">你已经到达世界的尽头~</div>
+            <div v-if="fotterFlag&&dynamicList.length>0&&!loadMore2&&!loadMore" class="no-more">没有更多动态了</div>
         </div>
       </div>
       <loadingIndicator v-show="loadMore" min-height="160px"/>

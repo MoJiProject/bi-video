@@ -1,28 +1,32 @@
 <template>
-    <div class="dynamic-container">
-        <div class="aside-container">
-            <div :class="{activeMenu:dynamicMenu!==1}" @click="dynamicMenu=1">
-                <span>全部</span>
+    <section class="space-activity" :class="{ 'has-profile': (store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicBirthday===1 }" aria-label="空间动态">
+        <header class="activity-toolbar">
+            <h2>动态</h2>
+            <div class="activity-tabs" role="group" aria-label="动态类型">
+                <button type="button" :class="{ 'is-active': dynamicMenu===1 }" :aria-pressed="dynamicMenu===1" @click="dynamicMenu=1">全部动态</button>
+                <button type="button" :class="{ 'is-active': dynamicMenu===2 }" :aria-pressed="dynamicMenu===2" @click="dynamicMenu=2">视频动态</button>
             </div>
-            <div :class="{activeMenu:dynamicMenu!==2}" @click="dynamicMenu=2">
-                <span>视频</span>
+        </header>
+        <aside v-if="(store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicBirthday===1" class="activity-profile">
+            <div class="activity-profile-heading">
+                <h3>个人资料</h3>
+                <button v-if="store.homeUserInformation.id===store.userId" type="button" @click="openAccount">编辑</button>
             </div>
-        </div>
-        <div v-if="(store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicBirthday===1" class="home-user-info">
-            <div>个人资料 <span v-if="store.homeUserInformation.id===store.userId" @click="openAccount">编辑 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path></svg></span></div>
-            <div><img src="/img/uid.png"> {{ store.homeUserInformation.id }}</div>
-            <div v-if="store.homeUserInformation.birthday"><img src="/img/birthday.png"> {{ store.homeUserInformation?.birthday?.split(' ')[0] }}</div>
-        </div> 
-        <div class="dynamic-list">
+            <dl>
+                <div><dt>UID</dt><dd>{{ store.homeUserInformation.id }}</dd></div>
+                <div v-if="store.homeUserInformation.birthday"><dt>生日</dt><dd>{{ store.homeUserInformation?.birthday?.split(' ')[0] }}</dd></div>
+            </dl>
+        </aside>
+        <div class="activity-stream">
             <loadingIndicator v-show="loadMore"/>
-            <div v-show="!loadMore&&dynamicList.length" class="dynamic-item" v-for="dynamic in dynamicList" :key="dynamic.id">
+            <div v-show="!loadMore&&dynamicList.length" class="activity-item" v-for="dynamic in dynamicList" :key="dynamic.id">
                 <dynamicC :dynamic="dynamic" @changed="reloadPosts"/>
             </div>
-            <AppEmptyState v-if="!dynamicList.length&&!loadMore" title="暂无动态" description="新的作品和生活分享会在这里展示"/>
+            <AppEmptyState v-if="!dynamicList.length&&!loadMore" title="暂无动态"/>
             <loadingIndicator v-show="loadMore2" inline min-height="0px"/>
-            <div v-if="fotterFlag&&dynamicList.length>0&&!loadMore2&&!loadMore" class="no-more">你已经到达世界的尽头</div>
+            <div v-if="fotterFlag&&dynamicList.length>0&&!loadMore2&&!loadMore" class="no-more">没有更多动态了</div>
         </div>
-    </div>
+    </section>
 </template>
   
 <script setup>
@@ -165,194 +169,43 @@ function openAccount(){
 
 </script>
 
-<style lang="scss" scoped>
-
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+<style scoped>
+.space-activity { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; min-width: 0; }
+.space-activity.has-profile { grid-template-columns: 240px minmax(0, 1fr); }
+.space-activity *, .space-activity *::before { box-sizing: border-box; }
+.activity-toolbar { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 16px 20px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+.activity-toolbar h2 { margin: 0; color: var(--ink); font-size: 20px; font-weight: 600; }
+.activity-tabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 10px; background: var(--fill-soft); }
+.activity-tabs button { min-height: 36px; padding: 8px 16px; border: 0; border-radius: 8px; background: transparent; color: var(--ink-2); font: inherit; font-size: 13px; cursor: pointer; }
+.activity-tabs button.is-active { background: var(--brand-light-9); color: var(--brand-hover); font-weight: 600; }
+.activity-tabs button:focus-visible, .activity-profile button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.activity-profile { position: sticky; top: 20px; min-width: 0; padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+.activity-profile-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.activity-profile h3 { margin: 0; color: var(--ink); font-size: 15px; font-weight: 600; }
+.activity-profile button { padding: 4px 8px; border: 0; border-radius: 6px; background: var(--brand-light-9); color: var(--brand-hover); font: inherit; font-size: 12px; cursor: pointer; }
+.activity-profile dl { display: grid; gap: 14px; margin: 18px 0 0; font-size: 13px; }
+.activity-profile dl > div { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 8px; }
+.activity-profile dt { color: var(--ink-3); }
+.activity-profile dd { min-width: 0; margin: 0; color: var(--ink-2); overflow-wrap: anywhere; }
+.activity-stream { display: flex; min-width: 0; flex-direction: column; gap: 18px; }
+.activity-item { position: relative; min-width: 0; padding-left: 24px; }
+.activity-item::before { content: ""; position: absolute; top: 28px; left: 0; width: 9px; height: 9px; border: 2px solid var(--brand); border-radius: 50%; background: var(--fill-soft); }
+.activity-item::after { content: ""; position: absolute; top: 42px; bottom: -34px; left: 4px; width: 1px; background: var(--line); }
+.activity-item:not(:has(~ .activity-item))::after { bottom: 0; }
+.no-more { margin: 0; color: var(--ink-3); font-size: 12px; line-height: 1.8; text-align: center; }
+@media (max-width: 960px) {
+  .space-activity.has-profile { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .activity-profile { position: static; padding: 16px 20px; }
+  .activity-profile dl { display: flex; flex-wrap: wrap; gap: 12px 28px; margin-top: 12px; }
 }
-
-.dynamic-container{
-    display: grid;
-    grid-template-columns: 150px minmax(0, 1fr) 240px;
-    align-items: start;
-    gap: 0 var(--gap-5);
-    width: 100%;
-    max-width: var(--page-max);
-    margin: 0 auto;
-    padding: var(--gap-5) var(--page-pad);
-
-    .aside-container{
-        position: sticky;
-        user-select: none;
-        top: 80px;
-        width: 150px;
-        height: 130px;
-        flex-shrink: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-right: 0;
-
-        div{
-        width: 150px;
-        height: 52px;
-        font-size: 14px;
-        cursor: pointer;
-        border-radius: 6px;
-        padding: 14px 16px;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background-color: #0FA68E;
-        margin-bottom: 8px;
-        }
-        .activeMenu{
-            background-color: white;
-            color: #1C2321;
-            transition: background-color 0.3s ease;
-        }
-        .activeMenu:hover{
-            background-color: #EFF3F2;
-        }
-    }
-    .home-user-info{
-    grid-column: 3;
-    grid-row: 1;
-    position: sticky;
-    top: 80px;
-    width: 240px;
-    height: 125px;
-    padding: 20px 16px 24px;
-    background-color: #F4F7F6;
-    border-radius: 6px;
-
-    div:nth-child(1){
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: #1C2321;
-    font-size: 16px;
-    font-weight: 500;
-        span{
-        color: #5C6664;
-        font-size: 12px;
-        transition: color 0.3s ease;
-        cursor: pointer;
-        svg{
-            position: relative;
-            top: 2px;
-            width: 12px;
-            height: 12px;
-            
-        }
-        }
-        span:hover{
-            color: #0FA68E;
-        }
-    }
-    div:nth-child(2){
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-        font-size: 13px;
-    }
-    div:nth-child(3){
-        display: flex;
-        align-items: center;
-        font-size: 13px;
-    }
-    div{
-        img{
-            width: 19px;
-            height: 16px;
-            margin-right: 8px;
-        }
-    }
-    }
-    .dynamic-list{
-        grid-column: 2;
-        grid-row: 1;
-        width: 100%;
-        min-width: 0;
-        display: flex;
-        flex-direction: column;
-
-            .dynamic-item{
-                margin-bottom: 12px;
-            }
-            .no-data{
-            user-select: none;
-            width: 100%;
-            height: 50vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;  
-                img{
-                    width: 140px;
-                    height: 140px;
-                }
-                div{
-                    margin-top: 6px;
-                    font-size: 14px;
-                    line-height: 20px;
-                    font-weight: 400;
-                    color: #8D9794;
-                    
-                }
-            }
-            .no-more{
-                padding-top: 12px;
-                width: 100%;
-                display: flex;
-                align-items: end;
-                justify-content: center;
-                font-size: 14px;
-                color: #8D9794;
-                user-select: none;
-                margin-bottom: 10px;
-            }
-    }
+@media (max-width: 640px) {
+  .activity-toolbar { padding: 14px 16px; }
+  .activity-toolbar h2 { font-size: 18px; }
+  .activity-tabs button { padding: 8px 12px; font-size: 12px; }
+  .activity-profile { padding: 16px; }
+  .activity-profile dl { display: grid; }
+  .activity-item { padding-left: 14px; }
+  .activity-item::before { left: 0; width: 7px; height: 7px; }
+  .activity-item::after { left: 3px; }
 }
-
-/* 资料卡在中等屏先让位给列表，窄屏整体单列 */
-@media (max-width: 1200px) {
-    .dynamic-container{
-        grid-template-columns: 150px minmax(0, 1fr);
-
-        .home-user-info{
-            grid-column: 2;
-            grid-row: 1;
-            position: static;
-            width: 100%;
-            height: auto;
-            margin-bottom: var(--gap-4);
-        }
-        .dynamic-list { grid-row: 2; }
-    }
-}
-
-@media (max-width: 860px) {
-    .dynamic-container{
-        grid-template-columns: minmax(0, 1fr);
-
-        .aside-container{
-            position: static;
-            flex-direction: row;
-            width: 100%;
-            height: auto;
-
-            div{
-                flex: 1;
-            }
-        }
-
-        .home-user-info, .dynamic-list { grid-column: 1; grid-row: auto; }
-    }
-}
-
 </style>

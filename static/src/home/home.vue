@@ -27,7 +27,6 @@
                 <AppEmptyState v-else compact title="还没有设置代表作" description="选择最多 3 个已发布的视频，展示你的精彩创作"
                     action-text="设置代表作" @action="openFeatured"/>
             </div>
-            <AppEmptyState v-if="!collects.length" compact title="暂无收藏夹" description="收藏的内容会在这里展示"/>
             <!-- 视频部分 -->
             <div :class="item.class" v-if="item.class === 'tribute-video'&&!loadMore">
                 <div class="title">
@@ -68,6 +67,7 @@
                         </svg>
                     </div>
                 </div>
+                <AppEmptyState v-if="!collects.length" compact title="暂无收藏夹"/>
                 <div class="collect-list">
                     <div class="video-item" v-for="collect in collects" :key="collect.id">
                         <div class="collect-back"></div>

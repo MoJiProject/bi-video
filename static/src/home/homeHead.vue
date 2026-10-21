@@ -1,6 +1,6 @@
 <template>
    <div v-show="store.homeUserInformation.id" class="home-head" :style="{backgroundImage: store.homeUserInformation.backgroundAddress? `url(${store.homeUserInformation.backgroundAddress})`:'url(/img/page-bg.png)'}" @contextmenu="changeBackgroundMenu">
-        <mainhead class="header-stack-search" :head2-flag="false" :login-dialog-visible-flag="loginDialogVisibleFlag"/>
+        <mainhead class="header-stack-search space-header" :head2-flag="false" :login-dialog-visible-flag="loginDialogVisibleFlag"/>
         <div class="overlay"></div>
         <div class="overlay2"></div>
         <a v-if="store.userId&&store.userId===store.homeUserInformation.id" href="./account?accountMenu=3" target="_blank" v-show="handleContextMenuVisible" class="menu" :style="{top:handleContextMenuPosition.y+'px',left:handleContextMenuPosition.x+'px'}">更换背景</a>
@@ -36,7 +36,9 @@
                     {{ store.homeUserInformation.introduce }}
                     </el-tooltip>
             </div>   
-            <div v-show="!introduceEditFlag&&store.userId===store.homeUserInformation?.id" class="user-info-introduce2" @click="introduceEditFlag=true" @contextmenu="introduceEditFlag=true">{{ store.homeUserInformation.introduce }}</div>
+            <div v-show="!introduceEditFlag&&store.userId===store.homeUserInformation?.id" class="user-info-introduce2"
+                role="button" tabindex="0" aria-label="编辑个人签名" @keydown.enter.prevent="introduceEditFlag=true"
+                @click="introduceEditFlag=true" @contextmenu="introduceEditFlag=true">{{ store.homeUserInformation.introduce || '编辑个人签名' }}</div>
             <input v-if="store.userId===store.homeUserInformation?.id" ref="introduceInput" v-show="introduceEditFlag" v-model="introduce" @focus="introduce=store.homeUserInformation.introduce" @blur="introduceEditFlag=false,putUserInfoF()" @keydown.enter.prevent="$event.target.blur()" type="text" placeholder="编辑个性签名" maxlength="250">
         </div> 
         <div v-if="(store.userId!==null&&store.userId!==userId)||store.userId===null" class="control-container">

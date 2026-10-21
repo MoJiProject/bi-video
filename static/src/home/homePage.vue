@@ -124,3 +124,4 @@ watch(()=>store.homeLoad.homeBody,(value)=>{
 }
 
 </style>
+<style lang="scss" scoped src="./homeLayout.scss"></style>

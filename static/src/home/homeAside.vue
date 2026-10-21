@@ -1,35 +1,35 @@
 <template>
-    <div class="home-aside">
+    <nav class="home-aside" aria-label="个人空间导航">
         <div class="home-aside-logo">
            <div class="left">
                <div class="left-part1" >
-                <span :ref="el => tabEls[0] = el" :class="{ 'is-on': store.homeMenu === 1 }" @click="changeHomeMenu(1)">
+                <span :ref="el => tabEls[0] = el" :class="{ 'is-on': store.homeMenu === 1 }" role="button" tabindex="0" :aria-pressed="store.homeMenu === 1" @keydown.enter.prevent="changeHomeMenu(1)" @keydown.space.prevent="changeHomeMenu(1)" @click="changeHomeMenu(1)">
                     <img src="/img/主页.png">
                     <span>主页</span>
                 </span>
-                <span :ref="el => tabEls[1] = el" :class="{ 'is-on': store.homeMenu === 2 }" @click="changeHomeMenu(2)">
+                <span :ref="el => tabEls[1] = el" :class="{ 'is-on': store.homeMenu === 2 }" role="button" tabindex="0" :aria-pressed="store.homeMenu === 2" @keydown.enter.prevent="changeHomeMenu(2)" @keydown.space.prevent="changeHomeMenu(2)" @click="changeHomeMenu(2)">
                     <img src="/img/主页动态.png">
                     <span>动态</span>
                 </span>
-                <span :ref="el => tabEls[2] = el" :class="{ 'is-on': store.homeMenu === 3 }" @click="changeHomeMenu(3)">
+                <span :ref="el => tabEls[2] = el" :class="{ 'is-on': store.homeMenu === 3 }" role="button" tabindex="0" :aria-pressed="store.homeMenu === 3" @keydown.enter.prevent="changeHomeMenu(3)" @keydown.space.prevent="changeHomeMenu(3)" @click="changeHomeMenu(3)">
                     <img src="/img/主页投稿.png">
                     <span>投稿</span>
                     <span class="num" v-if="contributeTotal">{{ contributeTotal }}</span>
                 </span>
-                <span :ref="el => tabEls[3] = el" :class="{ 'is-on': store.homeMenu === 4 }" @click="changeHomeMenu(4)">
+                <span :ref="el => tabEls[3] = el" :class="{ 'is-on': store.homeMenu === 4 }" role="button" tabindex="0" :aria-pressed="store.homeMenu === 4" @keydown.enter.prevent="changeHomeMenu(4)" @keydown.space.prevent="changeHomeMenu(4)" @click="changeHomeMenu(4)">
                     <img src="/img/主页合集.png">
                     <span>合集</span>
                 </span>
-                <span v-if="(store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicCollect===1" :ref="el => tabEls[4] = el" :class="{ 'is-on': store.homeMenu === 5 }" @click="changeHomeMenu(5)">
+                <span v-if="(store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicCollect===1" :ref="el => tabEls[4] = el" :class="{ 'is-on': store.homeMenu === 5 }" role="button" tabindex="0" :aria-pressed="store.homeMenu === 5" @keydown.enter.prevent="changeHomeMenu(5)" @keydown.space.prevent="changeHomeMenu(5)" @click="changeHomeMenu(5)">
                     <img src="/img/主页收藏.png">
                     <span>收藏</span>
                     <span class="num" v-if="store.collectClassifyNumber">{{ store.collectClassifyNumber }}</span>
                 </span>
-                <span v-if="store.homeUserInformation.publicAnime===1" :ref="el => tabEls[5] = el" :class="{ 'is-on': store.homeMenu === 6 }" @click="changeHomeMenu(6)">
+                <span v-if="store.homeUserInformation.publicAnime===1" :ref="el => tabEls[5] = el" :class="{ 'is-on': store.homeMenu === 6 }" role="button" tabindex="0" :aria-pressed="store.homeMenu === 6" @keydown.enter.prevent="changeHomeMenu(6)" @keydown.space.prevent="changeHomeMenu(6)" @click="changeHomeMenu(6)">
                     <img src="/img/主页追剧.png">
                     <span>追剧</span>
                 </span>
-                <span v-if="store.userId!==null&&store.userId===userId" :ref="el => tabEls[6] = el" :class="{ 'is-on': store.homeMenu === 7 }" @click="changeHomeMenu(7)">
+                <span v-if="store.userId!==null&&store.userId===userId" :ref="el => tabEls[6] = el" :class="{ 'is-on': store.homeMenu === 7 }" role="button" tabindex="0" :aria-pressed="store.homeMenu === 7" @keydown.enter.prevent="changeHomeMenu(7)" @keydown.space.prevent="changeHomeMenu(7)" @click="changeHomeMenu(7)">
                     <img src="/img/主页设置.png">
                     <span>设置</span>
                 </span>
@@ -40,7 +40,7 @@
                 ></div>
                </div>
                <div class="search-box">
-                    <input class="left-part2" type="text" ref="searchInput" placeholder="搜索视频、动态" maxlength="50" v-model="searchContent" @keydown.enter="searchJumpPage" @blur="searchInputFoucsFlag=false">
+                    <input class="left-part2" type="text" ref="searchInput" placeholder="搜索视频、动态" aria-label="搜索空间内的视频和动态" maxlength="50" v-model="searchContent" @keydown.enter="searchJumpPage" @blur="searchInputFoucsFlag=false">
                     <img
                     v-show="searchContent.length>0"
                     @mouseover="deleteAllSearchFlag = false"
@@ -54,13 +54,13 @@
            </div>
            <div class="right">
               <div class="user-middle-info">
-                  <span @click="changeHomeMenu(8)">
-                    <span :style="{color: store.homeMenu===8? '#0FA68E' : '#1C2321'}">关注数</span>
-                    <span :style="{color: store.homeMenu===8? '#0FA68E' : '#1C2321'}">{{ store?.homeUserInformation?.followNumber }}</span>
+                  <span role="button" tabindex="0" :aria-pressed="store.homeMenu===8" @keydown.enter.prevent="changeHomeMenu(8)" @keydown.space.prevent="changeHomeMenu(8)" @click="changeHomeMenu(8)">
+                    <span :style="{color: store.homeMenu===8? 'var(--brand)' : 'var(--ink-2)'}">关注数</span>
+                    <span :style="{color: store.homeMenu===8? 'var(--brand)' : 'var(--ink)'}">{{ store?.homeUserInformation?.followNumber }}</span>
                   </span>
-                  <span @click="changeHomeMenu(9)">
-                    <span :style="{color: store.homeMenu===9? '#0FA68E' : '#1C2321'}">粉丝数</span>
-                    <span :style="{color: store.homeMenu===9? '#0FA68E' : '#1C2321'}">{{ store?.homeUserInformation?.fansNumber }}</span>
+                  <span role="button" tabindex="0" :aria-pressed="store.homeMenu===9" @keydown.enter.prevent="changeHomeMenu(9)" @keydown.space.prevent="changeHomeMenu(9)" @click="changeHomeMenu(9)">
+                    <span :style="{color: store.homeMenu===9? 'var(--brand)' : 'var(--ink-2)'}">粉丝数</span>
+                    <span :style="{color: store.homeMenu===9? 'var(--brand)' : 'var(--ink)'}">{{ store?.homeUserInformation?.fansNumber }}</span>
                   </span>
                   <div>
                     <span>获赞数</span>
@@ -73,7 +73,7 @@
               </div>
            </div>
         </div>
-    </div>
+    </nav>
 </template>
 
 <script setup>
