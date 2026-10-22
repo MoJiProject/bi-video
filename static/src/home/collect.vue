@@ -47,7 +47,7 @@
             </div>
           </div>
         </div>
-        <div v-if="batchMode && isOwner && scope === 1" class="batch-tools">
+        <div v-if="selecting" class="batch-tools">
           <div class="batch-selection">
             <el-checkbox :model-value="allSelected" :indeterminate="selectedVideoIds.length > 0 && !allSelected"
               :disabled="busy || loadingVideos" @change="selectAll">本页全选</el-checkbox>
@@ -63,9 +63,9 @@
         <template v-else>
           <div class="videos">
             <div v-for="video in videos" :key="video.id">
-              <el-checkbox v-if="batchMode && isOwner && scope === 1" :model-value="selectedVideoIds.includes(video.id)"
-                :disabled="busy" @change="toggleVideo(video.id, $event)">选择视频</el-checkbox>
-              <homeVideoCard :video="video">
+              <homeVideoCard :video="video" :selection-mode="selecting"
+                :selected="selectedVideoIds.includes(video.id)" :selection-disabled="busy || loadingVideos"
+                @select="toggleVideo(video.id, $event)">
                 <template v-if="isOwner && scope === 1 && !batchMode" #actions>
                   <ContentMoreMenu :label="`${video.title}的收藏操作`" :disabled="busy">
                     <el-dropdown-item :disabled="busy" @click="openTransfer('copy', video.id)">复制至</el-dropdown-item>
@@ -171,6 +171,7 @@ const coverInput = ref(null);
 const coverUploading = ref(false);
 const busy = ref(false);
 const batchMode = ref(false);
+const selecting = computed(() => batchMode.value && isOwner.value && scope.value === 1);
 const selectedVideoIds = ref([]);
 const allSelected = computed(() => videos.value.length > 0 && videos.value.every(video => selectedVideoIds.value.includes(video.id)));
 const transferVisible = ref(false);

@@ -176,6 +176,8 @@
     border-radius: 50%;
     object-fit: cover;
     transform: none;
+    animation: none !important;
+    transition: none;
   }
 
   .avatar-container:hover .avatar1 { transform: none; }
@@ -187,6 +189,7 @@
     overflow: hidden;
     background: transparent;
     box-shadow: none;
+    transition: none;
 
     &:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
   }
@@ -257,11 +260,10 @@
     .profile-stats span { color: var(--ink-2); font-size: 12px; }
     .profile-stats a:hover { background: var(--fill-soft); color: var(--brand-hover); }
     .profile-links { display: flex; flex-direction: column; gap: 4px; }
-    .profile-links a, .profile-logout { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 40px; padding: 10px; border-radius: 10px; font-size: 13px; }
-    .profile-links img, .profile-logout img { flex: none; width: 18px; height: 18px; margin: 0; object-fit: contain; animation: none !important; }
-    .profile-links a:hover { background: var(--fill-soft); color: var(--brand-hover); }
-    .profile-logout { margin-top: 12px; border: 0; border-top: 1px solid var(--line); border-radius: 0 0 10px 10px; background: #fff; color: var(--ink-2); text-align: left; }
-    .profile-logout:hover { background: #fff4f0; color: #bd542f; }
+    .profile-links a, .profile-logout { box-sizing: border-box; display: flex; align-items: center; gap: 10px; width: 100%; min-height: 40px; padding: 10px; border-radius: 10px; font-family: inherit; font-size: 13px; font-weight: 400; line-height: 1.5; }
+    .profile-links svg { display: block; flex: none; width: 18px; height: 18px; margin: 0; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .profile-links a:hover, .profile-logout:hover { background: var(--fill-soft); color: var(--brand-hover); }
+    .profile-logout { margin: 0; border: 0; background: #fff; color: var(--ink-2); text-align: left; }
   }
 
   .header-login {
@@ -347,58 +349,7 @@
     span { color: var(--ink-3); font-size: 12px; }
   }
 
-  .workspace-heading {
-    flex-direction: row;
-    align-items: center;
-    gap: 14px;
-    margin: 0;
-    padding: 22px 20px;
-    border-bottom: 1px solid #e8ede3;
-    background: linear-gradient(115deg, #edf5e8, #faf9f1);
-  }
-
-  .workspace-heading-copy {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    min-width: 0;
-
-    small { color: #7c9079; font-size: 9px; font-weight: 600; letter-spacing: 1.5px; }
-    strong { color: #294935; font-size: 19px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    > span { color: #7e8a7e; font-size: 11px; }
-  }
-
-  .workspace-emblem,
-  .v-header-ul > li img.workspace-portrait {
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: 48px;
-    height: 48px;
-    margin: 0;
-    object-fit: cover;
-  }
-
-  .workspace-emblem {
-    border: 3px solid #fff;
-    border-radius: 16px;
-    background: #37684a;
-    color: #e1edb9;
-    font: 700 30px Arial, sans-serif;
-    box-shadow: 0 3px 8px rgba(43, 76, 37, .1);
-  }
-
-  .v-header-ul > li img.workspace-portrait {
-    display: block;
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
-    background: transparent;
-    box-shadow: none;
-  }
-
-  .channel-all,
-  .workspace-later {
+  .channel-all {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -479,7 +430,8 @@
         column-gap: 8px;
       }
 
-      > img {
+      > img,
+      > svg {
         box-sizing: content-box;
         flex: none;
         width: 17px;
@@ -507,7 +459,6 @@
       small { width: 100%; overflow: hidden; color: #939d90; font-size: 10px; font-weight: 400; text-align: left; text-overflow: ellipsis; }
     }
 
-    > .hd-create > a { grid-column: 1 / -1; }
     > .hd-create > a > img,
     > .hd-create > button > img { background: #eaf3eb; }
     .number-style {
@@ -554,20 +505,6 @@
     .transparent-div14,
     .transparent-div15,
     .transparent-div16 { display: none; }
-  }
-
-  .workspace-later {
-    margin: 0 12px 12px;
-    padding: 13px 14px;
-    border: 1px solid #e6ebdf;
-    border-radius: 12px;
-    background: #f7f8f1;
-    color: #55724e;
-    font-size: 12px;
-
-    small { margin-left: 8px; color: #a0a796; font-size: 10px; }
-    > span:last-child { font-size: 18px; }
-    &:hover { background: #edf3e6; }
   }
 
   a:focus-visible,

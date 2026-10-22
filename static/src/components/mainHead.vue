@@ -32,7 +32,7 @@
       </li>
       <li class="hd-search">
         <div v-if="!searchFlag" class="header-search-wrap" role="search" aria-label="站内搜索" @focusin="closeHeaderMenus">
-          <search class="head-search head-search-inner" :head2Flag="head2Flag" />
+          <search class="head-search head-search-inner" :head2Flag="head2Flag" :preserve-on-scroll="preserveSearchOnScroll" />
         </div>
       </li>
       <li class="hd-user">
@@ -79,15 +79,15 @@
             </nav>
             <nav class="profile-links" aria-label="账号管理">
               <a href="/account" target="_blank" rel="noopener noreferrer" @click="closeHeaderMenus">
-                <img src="/img/个人中心.png" alt=""/><span>个人中心</span><span class="profile-arrow" aria-hidden="true">›</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg><span>个人中心</span><span class="profile-arrow" aria-hidden="true">›</span>
               </a>
-              <a href="/contribute/subpage2" target="_blank" rel="noopener noreferrer" @click="closeHeaderMenus">
-                <img src="/img/投稿管理.png" alt=""/><span>投稿管理</span><span class="profile-arrow" aria-hidden="true">›</span>
+              <a v-if="profileUser.adminFlag === true" href="/systemManagement" target="_blank" rel="noopener noreferrer" @click="closeHeaderMenus">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>后台管理</span><span class="profile-arrow" aria-hidden="true">›</span>
               </a>
+              <button type="button" class="profile-logout" @click="closeHeaderMenus(), logout()">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M9 12h12m-5-5 5 5-5 5"/></svg><span>退出登录</span>
+              </button>
             </nav>
-            <button type="button" class="profile-logout" @click="closeHeaderMenus(), logout()">
-              <img src="/img/退出登录.png" alt=""/><span>退出登录</span>
-            </button>
           </section>
         </div>
         <div
@@ -169,15 +169,6 @@
           <span class="menu-chevron" aria-hidden="true"></span>
         </button>
         <div v-show="activeMenu === 'workspace'" class="workspace-panel">
-          <div class="panel-heading workspace-heading">
-            <img v-if="store.userId" class="workspace-portrait" :src="store.userInformation?.avatarAddress" alt="" />
-            <span v-else class="workspace-emblem" aria-hidden="true">Q</span>
-            <div class="workspace-heading-copy">
-              <small>YOUR CREATIVE SPACE</small>
-              <strong>{{ store.userInformation?.userName || '我的空间' }}</strong>
-              <span>{{ store.userId ? '收藏热爱，记录每一次发现' : '登录后，开启你的专属空间' }}</span>
-            </div>
-          </div>
           <ul class="workspace-tools">
       <li class="hd-message">
         <a href="/message?messageMenu=1" target="_blank" rel="noopener noreferrer" @click="requireWorkspaceLogin">
@@ -1133,12 +1124,15 @@
           <img src="/img/创作中心黑.png" alt="" /><span class="tool-copy">创作中心<small>管理我的作品</small></span>
         </a>
       </li>
+      <li class="hd-later">
+        <a href="/waitWatch" target="_blank" rel="noopener noreferrer" @click="requireWorkspaceLogin">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="3"/><path d="m10 8 5 3-5 3ZM8 21h8"/></svg>
+          <span class="tool-copy">稍后再看<small>给好内容留点时间</small></span>
+        </a>
+      </li>
           </ul>
           <a class="workspace-mobile-discover" href="/search?keyword=">
             探索频道与全部视频 <span aria-hidden="true">→</span>
-          </a>
-          <a class="workspace-later" href="/waitWatch" @click="requireWorkspaceLogin">
-            <span>稍后观看 <small>给好内容留点时间</small></span><span aria-hidden="true">→</span>
           </a>
         </div>
       </li>
@@ -1539,7 +1533,7 @@ import {
   fetchHistory,
   toggleWatchLater,
 } from "../services/headerPanels";
-import { authApi } from "../api/product";
+import { authApi, fetchPublishingCategories } from "../api/product";
 import { mapUser } from "../api/home/user";
 import { getToken, setToken } from "../services/http";
 import { forgetPassword } from "../services/account";
@@ -1550,19 +1544,6 @@ import "element-plus/dist/index.css";
 import { ElLoading } from "element-plus";
 import {useGlobalStore} from "../store/store";
 
-// 主导航。顺序按「内容占比」排，不是按字母；改顺序只改这里，不用动模板。
-const NAV_ITEMS = [
-  { name: "动画", category: "动画" },
-  { name: "动画剧场", category: "番剧" },
-  { name: "影视", category: "影视" },
-  { name: "音乐", category: "音乐" },
-  { name: "游戏", category: "游戏" },
-  { name: "知识", category: "知识" },
-  { name: "生活", category: "生活" },
-  { name: "美食", category: "美食" },
-  { name: "资讯", category: "资讯" },
-];
-
 export default {
   name: "mainHead",
   props:{
@@ -1571,6 +1552,10 @@ export default {
       default: false,
     },
     searchFlag: {
+      type: Boolean,
+      default: false,
+    },
+    preserveSearchOnScroll: {
       type: Boolean,
       default: false,
     },
@@ -1588,6 +1573,7 @@ export default {
     const propsS=reactive(props);
     const store = useGlobalStore();
     const headerRoot = ref(null);
+    const navItems = ref([]);
     const activeMenu = ref("");
     const profileRoot = ref(null);
     const profileButton = ref(null);
@@ -2185,6 +2171,12 @@ flag.value = 1;
     }
     //初始化时执行检查是否登录过，有token则免登录
     onMounted(async() => {
+      fetchPublishingCategories().then(categories => {
+        navItems.value = categories.map(category => ({
+          name: category.label,
+          href: `/search?keyword=&categoryId=${encodeURIComponent(category.id)}`,
+        }));
+      }).catch(error => ElMessage.error(error.message || "探索频道加载失败"));
       await getUserIp();
       autoLogin();
     });
@@ -2573,10 +2565,7 @@ flag.value = 1;
       openHome,
       openHistory,
       openDynamic,
-    navItems: NAV_ITEMS.map((n) => ({
-      name: n.name,
-      href: `./search?keyword=&categoryName=${encodeURIComponent(n.category)}`,
-    })),
+      navItems,
     };
   },
 };

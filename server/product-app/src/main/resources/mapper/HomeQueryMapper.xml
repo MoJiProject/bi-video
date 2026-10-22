@@ -93,6 +93,7 @@
         p.author_id = #{q.homeUserId} AND p.status = 1 AND p.deleted_at IS NULL
         AND (p.visibility = 0 OR p.author_id = #{viewerId})
         <if test="q.type == 2">AND p.video_id IS NOT NULL</if>
+        <if test="q.type == 3">AND <include refid="com.qingmang.infrastructure.mapper.SocialQueryMapper.postHasImages"/></if>
         <if test="q.keyWord != null and q.keyWord != ''">
             AND (p.title LIKE CONCAT('%', #{q.keyWord}, '%')
                  OR p.content LIKE CONCAT('%', #{q.keyWord}, '%'))
@@ -102,6 +103,7 @@
         p.id, p.author_id, u.nickname AS author_nickname, u.avatar_url AS author_avatar,
         u.signature AS author_signature, v.id AS video_id, v.title AS video_title,
         v.cover_url AS video_cover, v.duration_seconds AS video_duration,
+        <include refid="com.qingmang.infrastructure.mapper.SocialQueryMapper.postVideoDetails"/>,
         p.title, p.content, p.image_urls, p.like_count, p.comment_count, p.share_count, p.is_pinned, p.created_at,
         EXISTS(SELECT 1 FROM post_like l WHERE l.post_id = p.id AND l.user_id = #{viewerId}) AS liked
     </sql>
@@ -110,6 +112,7 @@
         FROM user_post p
         JOIN `user` u ON u.id = p.author_id AND u.deleted_at IS NULL
         LEFT JOIN video v ON v.id = p.video_id AND v.deleted_at IS NULL AND v.status = 1
+        LEFT JOIN video_stats vs ON vs.video_id = v.id
         WHERE <include refid="postFilter"/>
         ORDER BY p.is_pinned DESC, p.id DESC LIMIT #{offset}, 20
     </select>
@@ -122,15 +125,18 @@
             FROM user_post p
             JOIN `user` u ON u.id = p.author_id AND u.deleted_at IS NULL
             LEFT JOIN video v ON v.id = p.video_id AND v.deleted_at IS NULL AND v.status = 1
+            LEFT JOIN video_stats vs ON vs.video_id = v.id
             WHERE p.author_id = #{q.homeUserId} AND p.status = 1 AND p.deleted_at IS NULL
               AND (p.visibility = 0 OR p.author_id = #{viewerId})
-              AND p.image_urls IS NOT NULL AND JSON_LENGTH(p.image_urls) &gt; 0
+              AND <include refid="com.qingmang.infrastructure.mapper.SocialQueryMapper.postHasImages"/>
         </if>
         <if test="q.type == 1">UNION ALL</if>
         <if test="q.type != 3">
             SELECT c.id, c.author_id, u.nickname AS author_nickname, u.avatar_url AS author_avatar,
                    u.signature AS author_signature, NULL AS video_id, NULL AS video_title,
                    NULL AS video_cover, NULL AS video_duration,
+                   NULL AS video_description, NULL AS video_play_count,
+                   NULL AS video_danmaku_count,
                    NULL AS title, c.content, c.image_urls, c.like_count, c.reply_count AS comment_count,
                    0 AS share_count, FALSE AS is_pinned, c.created_at, FALSE AS liked, 2 AS source_type
             FROM `comment` c

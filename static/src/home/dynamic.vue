@@ -5,6 +5,8 @@
                 :aria-pressed="dynamicMenu===1" @click="dynamicMenu=1">全部动态</button>
             <button type="button" class="content-type-tab" :class="{ activeMenu: dynamicMenu!==2 }"
                 :aria-pressed="dynamicMenu===2" @click="dynamicMenu=2">视频动态</button>
+            <button type="button" class="content-type-tab" :class="{ activeMenu: dynamicMenu!==3 }"
+                :aria-pressed="dynamicMenu===3" @click="dynamicMenu=3">图片动态</button>
         </aside>
         <div class="activity-content">
             <header class="activity-toolbar">
@@ -14,9 +16,12 @@
                 <SpaceProfileCard v-if="(store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicBirthday===1" class="activity-profile"/>
                 <div class="activity-stream">
                     <loadingIndicator v-show="loadMore"/>
-                    <div v-show="!loadMore&&dynamicList.length" class="activity-item" v-for="dynamic in dynamicList" :key="dynamic.id">
-                        <dynamicC :dynamic="dynamic" @changed="reloadPosts"/>
-                    </div>
+                    <ImagePostWaterfall v-if="dynamicMenu===3" :posts="dynamicList"/>
+                    <template v-else>
+                        <div v-show="!loadMore&&dynamicList.length" class="activity-item" v-for="dynamic in dynamicList" :key="dynamic.id">
+                            <dynamicC :dynamic="dynamic" @changed="reloadPosts"/>
+                        </div>
+                    </template>
                     <AppEmptyState v-if="!dynamicList.length&&!loadMore" title="暂无动态"/>
                     <loadingIndicator v-show="loadMore2" inline min-height="0px"/>
                     <div v-if="fotterFlag&&dynamicList.length>0&&!loadMore2&&!loadMore" class="no-more">没有更多动态了</div>
@@ -32,6 +37,7 @@ import { useGlobalStore } from '../store/store';
 import dynamicC from "./homePost.vue";
 import loadingIndicator from "@/components/loadingIndicator.vue";
 import SpaceProfileCard from "./SpaceProfileCard.vue";
+import ImagePostWaterfall from "@/components/ImagePostWaterfall.vue";
 import {homeDynamic} from "@/api/home/index";
 import { ElMessage } from "element-plus";
 

@@ -4,15 +4,7 @@
     @click="selectSearchContent"
     @mousedown="handleClickInside"
   >
-    <img
-      src="/img/搜索蓝.png"
-      style="
-        width: 17.5px;
-        position: absolute;
-        transform: translate(23px, 0px);
-        z-index: 100000000;
-      "
-    />
+    <svg class="search-leading-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/></svg>
     <!-- 搜索框 -->
     <input
       type="text"
@@ -23,20 +15,17 @@
       v-model="Content"
       @keyup.enter="jumpSearch"
     />
-    <img
-      @mouseover="deleteAllSearchFlag = false"
-      @mouseleave="deleteAllSearchFlag = true"
+    <button
+      type="button"
+      class="search-clear"
+      aria-label="清空搜索内容"
+      title="清空搜索内容"
+      @mousedown.prevent
       @click="Content = ''"
       v-show="Content.length > 0"
-      :src="deleteAllSearchFlag ? deleteAllSearch : deleteAllSearchBalack"
-      style="
-        width: 16px;
-        transform: translate(507px, 0px);
-        position: absolute;
-        z-index: 10000000;
-        cursor: pointer;
-      "
-    />
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+    </button>
 
     <div class="searchButton" @click="jumpSearch">搜索</div>
 
@@ -70,11 +59,13 @@
             v-for="(item, index) in reversedSearchDatas"
             :key="index"
           >
-            <img
-              src="/img/删除搜索记录.png"
+            <button
+              type="button"
               class="deleteSearchCss"
-              @click="deleteSearchContent(index)"
-            />
+              :aria-label="'删除搜索记录：' + item.value"
+              @mousedown.prevent
+              @click.stop="deleteSearchContent(index)"
+            ><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
             <div
               class="searchContentFontCss"
               @click="sendSearchAxios(item.value)"
@@ -97,11 +88,13 @@
             v-for="(item, index) in reversedSearchDatas"
             :key="index"
           >
-            <img
-              src="/img/删除搜索记录.png"
+            <button
+              type="button"
               class="deleteSearchCss"
-              @click="deleteSearchContent(index)"
-            />
+              :aria-label="'删除搜索记录：' + item.value"
+              @mousedown.prevent
+              @click.stop="deleteSearchContent(index)"
+            ><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
             <div class="searchContentFontCss">{{ item.value }}</div>
           </div>
         </div>
@@ -286,9 +279,7 @@ import {
 } from "vue";
 const showImg = "/img/展开更多.png"
 const fewerImg = "/img/展开更多蓝.png"
-const deleteAllSearch = "/img/删除搜索记录.png"
 import { useGlobalStore } from "../store/store";
-const deleteAllSearchBalack = "/img/删除全部搜索hover.png"
 export default {
   name: "Searcha",
   props: {
@@ -314,7 +305,6 @@ export default {
     const showFewerFlag = ref(false);
     const fireSearch = reactive([]);
     const keyWord = reactive([]);
-    const deleteAllSearchFlag = ref(true);
     const handleClickInside = (event) => {
       // 判断点击是否在搜索框及其子元素内
       const searchElement = document.querySelector(".search");
@@ -516,9 +506,6 @@ try {
       searchFewer,
       fireSearch,
       keyWord,
-      deleteAllSearch,
-      deleteAllSearchBalack,
-      deleteAllSearchFlag,
       sendSearchAxios,
     };
   },
@@ -572,6 +559,23 @@ try {
   z-index: 10000;
   border: 1px solid #0FA68E;
 }
+
+.search-leading-icon,
+.search-clear svg,
+.deleteSearchCss svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.search-leading-icon { position: absolute; left: 23px; z-index: 10001; color: var(--brand-hover); pointer-events: none; }
+.search-clear { position: absolute; top: 50%; right: 110px; z-index: 10001; display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 7px; background: transparent; color: var(--ink-2); transform: translateY(-50%); cursor: pointer; }
+.search-clear:hover, .deleteSearchCss:hover { background: var(--brand-light-9); color: var(--brand-hover); }
+.search-clear:focus-visible, .deleteSearchCss:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
 
 /* 当 .search 或其子元素获得焦点时应用样式 */
 .search:focus-within {
@@ -648,14 +652,28 @@ try {
 
 .deleteSearchCss {
   position: absolute;
-  width: 12px;
-  right: -10px;
-  top: -5px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  right: -8px;
+  top: -6px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--fill-soft);
+  color: var(--ink-2);
+  cursor: pointer;
   visibility: hidden;
 }
+.deleteSearchCss svg { width: 12px; height: 12px; }
 
-.searchContentCss:hover .deleteSearchCss {
+.searchContentCss:hover .deleteSearchCss,
+.searchContentCss:focus-within .deleteSearchCss {
   visibility: visible;
+}
+@media (hover: none) {
+  .deleteSearchCss { visibility: visible; }
 }
 
 .searchMore {

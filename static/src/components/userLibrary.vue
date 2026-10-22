@@ -7,17 +7,6 @@
       </span>{{ title }}
         <span v-if="!isHistory && store.token" class="total">{{ total }}</span>
       </h1>
-      <div v-if="store.token" class="head-actions">
-        <template v-if="isHistory">
-          <el-switch :model-value="recordHistory" aria-label="记录浏览历史" :loading="savingPreference" :disabled="preferenceLoading || !!preferenceError" @change="saveRecording"/>
-          <span>记录浏览历史</span>
-          <el-button v-if="preferenceError" text type="danger" @click="loadRecording">重试读取设置</el-button>
-        </template>
-        <el-select v-else v-model="order" aria-label="添加顺序" :disabled="busy" @change="reload">
-          <el-option label="最近添加" value="newest"/>
-          <el-option label="最早添加" value="oldest"/>
-        </el-select>
-      </div>
     </header>
     <template v-if="store.token">
       <div class="control-container">
@@ -30,17 +19,29 @@
               </el-input>
             </div>
             <el-button class="date-toggle" :class="{ 'is-active': showDates || timeFilter !== 'all' }" :aria-expanded="showDates" @click="showDates = !showDates">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4M17 3v4M3 11h18"/></svg>
-              时间筛选 <span aria-hidden="true">{{ showDates ? '⌃' : '⌄' }}</span>
+              <svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4M17 3v4M3 11h18"/></svg>
+              <span>时间筛选</span>
+              <svg class="tool-chevron" :class="{ 'is-open': showDates }" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
             </el-button>
-            <el-button class="clear-button" :disabled="busy" @click="clearAll">清空{{ isHistory ? '历史' : '稍后再看' }}</el-button>
           </template>
           <template v-else>
-            <el-checkbox :model-value="allSelected" :indeterminate="partlySelected" :disabled="busy || !rows.length" @change="selectAll">全选</el-checkbox>
-            <span class="selection-count">已选择 <b>{{ selected.length }}</b> 条{{ isHistory ? '历史记录' : '稍后再看' }}</span>
-            <el-button type="danger" :disabled="busy || !selected.length" @click="removeSelected">删除</el-button>
+            <div class="library-selection">
+              <el-checkbox :model-value="allSelected" :indeterminate="partlySelected" :disabled="busy || !rows.length" @change="selectAll">全选</el-checkbox>
+              <span class="selection-count">已选择 <b>{{ selected.length }}</b> 条{{ isHistory ? '历史记录' : '稍后再看' }}</span>
+              <el-button class="library-delete" type="danger" plain :disabled="busy || !selected.length" @click="removeSelected">删除</el-button>
+            </div>
           </template>
-          <el-button class="manage" :disabled="busy" @click="toggleManagement">{{ managing ? '退出管理' : '批量管理' }}</el-button>
+          <div v-if="isHistory" class="library-recording">
+            <el-switch :model-value="recordHistory" aria-label="记录浏览历史" :loading="savingPreference" :disabled="preferenceLoading || !!preferenceError" @change="saveRecording"/>
+            <span>记录浏览历史</span>
+            <el-button v-if="preferenceError" text type="danger" @click="loadRecording">重试读取设置</el-button>
+          </div>
+          <el-select v-else v-model="order" class="library-order" aria-label="添加顺序" :disabled="busy" @change="reload">
+            <el-option label="最近添加" value="newest"/>
+            <el-option label="最早添加" value="oldest"/>
+          </el-select>
+          <el-button v-if="!managing" class="clear-button" :disabled="busy" @click="clearAll">清空{{ isHistory ? '历史' : '稍后再看' }}</el-button>
+          <el-button class="manage-button" :class="{ 'is-active': managing }" :disabled="busy" @click="toggleManagement">{{ managing ? '退出管理' : '批量管理' }}</el-button>
         </div>
         <div v-if="showDates && !managing" class="date-tools">
           <div class="date-presets">
@@ -56,30 +57,36 @@
         <el-button text type="danger" :disabled="loading" @click="retry">重新加载</el-button>
       </el-alert>
       <loadingIndicator v-if="loading && !rows.length"/>
-      <div class="library-content" :class="{ timeline: isHistory }">
+      <div class="library-content timeline">
         <section v-for="group in groups" :key="group.label" class="video-group">
-          <h2 v-if="isHistory" class="group-title">{{ group.label }}<span>{{ group.videos.length }}</span></h2>
+          <h2 class="group-title">{{ group.label }}<span>{{ group.videos.length }}</span></h2>
           <div class="videos">
-            <article v-for="video in group.videos" :key="video.id" class="library-video content-action-surface" :class="{ selected: selected.includes(video.id) }">
+            <article v-for="video in group.videos" :key="video.id" class="library-video content-action-surface"
+              :class="{ selected: selected.includes(video.id), 'is-selecting': managing }"
+              :role="managing ? 'checkbox' : undefined" :tabindex="managing ? 0 : undefined"
+              :aria-checked="managing ? selected.includes(video.id) : undefined"
+              :aria-disabled="managing ? busy : undefined" :aria-label="managing ? video.title : undefined"
+              @click.capture="selectInstead($event, video.id)" @keydown="selectByKey($event, video.id)">
               <div class="cover">
                 <a v-if="!managing && video.available !== false" :href="videoUrl(video)" target="_blank" rel="noopener noreferrer" :aria-label="video.title">
                   <img :src="video.coverUrl || '/img/cover-fallback.png'" :alt="video.title" loading="lazy" @error="coverFallback"/>
                 </a>
                 <button v-else-if="managing" type="button" class="select-cover" :aria-label="`${selected.includes(video.id) ? '取消选择' : '选择'} ${video.title}`"
-                  :aria-pressed="selected.includes(video.id)" :disabled="busy" @click="toggleSelection(video.id)">
+                  :aria-pressed="selected.includes(video.id)" :disabled="busy" tabindex="-1">
                   <img :src="video.coverUrl || '/img/cover-fallback.png'" :alt="video.title" loading="lazy" @error="coverFallback"/>
                 </button>
                 <div v-else class="unavailable">视频已失效</div>
-                <el-checkbox v-if="managing" class="video-checkbox" :model-value="selected.includes(video.id)" :disabled="busy"
-                  :aria-label="`选择 ${video.title}`" @change="toggleSelection(video.id)"/>
+                <span v-if="managing" class="video-selection-indicator"
+                  :class="{ 'is-selected': selected.includes(video.id) }" aria-hidden="true">
+                  <svg v-if="selected.includes(video.id)" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg>
+                </span>
                 <div v-if="video.available !== false" class="video-overlay">
-                  <span v-if="!isHistory">播放 {{ formatCount(video.playCount) }} · 弹幕 {{ formatCount(video.danmakuCount) }}</span>
-                  <span>{{ isHistory ? progressText(video) : duration(video.durationSeconds) }}</span>
+                  <span>{{ progressText(video) }}</span>
                 </div>
                 <div v-if="video.progressSeconds && video.available !== false" class="progress" :style="{ width: `${progressPercent(video)}%` }"/>
               </div>
               <div class="video-heading content-card-actions">
-                <a v-if="video.available !== false" :href="videoUrl(video)" target="_blank" rel="noopener noreferrer" :title="video.title" class="video-title" @click="selectInstead($event, video.id)">
+                <a v-if="video.available !== false" :href="videoUrl(video)" target="_blank" rel="noopener noreferrer" :title="video.title" class="video-title" :tabindex="managing ? -1 : undefined">
                   <template v-for="(part, index) in highlight(video.title)" :key="index"><mark v-if="part.match">{{ part.text }}</mark><template v-else>{{ part.text }}</template></template>
                 </a>
                 <span v-else class="video-title unavailable-title">视频已失效</span>
@@ -89,7 +96,7 @@
                   </el-dropdown-item>
                 </ContentMoreMenu>
               </div>
-              <a v-if="video.ownerId && video.available !== false" :href="`/home?userId=${video.ownerId}`" class="author" target="_blank" rel="noopener noreferrer" @click="selectInstead($event, video.id)">
+              <a v-if="video.ownerId && video.available !== false" :href="`/home?userId=${video.ownerId}`" class="author" target="_blank" rel="noopener noreferrer" :tabindex="managing ? -1 : undefined">
                 <img src="/img/author-badge-default.png" alt="创作者"/>
                 <template v-for="(part, index) in highlight(video.ownerNickname)" :key="index"><mark v-if="part.match">{{ part.text }}</mark><template v-else>{{ part.text }}</template></template>
               </a>
@@ -184,7 +191,6 @@ function dateRange() {
 }
 
 const groups = computed(() => {
-  if (!isHistory.value) return [{ label: '稍后再看', videos: rows.value }];
   const labels = ['今天', '昨天', '近一周', '一周前', '一个月前', '一年前'];
   const buckets = labels.map(label => ({ label, videos: [] }));
   const today = new Date();
@@ -198,11 +204,12 @@ const groups = computed(() => {
   };
   const boundaries = [today.getTime(), before('day', 1), before('day', 7), before('month', 1), before('year', 1)];
   for (const video of rows.value) {
-    const time = new Date(video.lastWatchedAt).getTime();
+    const time = new Date(isHistory.value ? video.lastWatchedAt : video.addedAt).getTime();
     const index = boundaries.findIndex(boundary => time >= boundary);
     buckets[index < 0 ? 5 : index].videos.push(video);
   }
-  return buckets.filter(group => group.videos.length);
+  const populated = buckets.filter(group => group.videos.length);
+  return !isHistory.value && order.value === 'oldest' ? populated.reverse() : populated;
 });
 
 async function load() {
@@ -262,7 +269,12 @@ function toggleSelection(id) {
 function selectInstead(event, id) {
   if (!managing.value) return;
   event.preventDefault();
+  event.stopPropagation();
   if (!busy.value) toggleSelection(id);
+}
+function selectByKey(event, id) {
+  if (!managing.value || event.target !== event.currentTarget || event.repeat) return;
+  if (event.key === 'Enter' || event.key === ' ') selectInstead(event, id);
 }
 async function confirm(message, caption) {
   return ElMessageBox.confirm(message, caption, { type: 'warning', confirmButtonText: '确认', cancelButtonText: '取消' })
@@ -359,10 +371,6 @@ function progressText(video) {
     ? '已看完' : `${duration(video.progressSeconds)} / ${duration(video.durationSeconds)}`;
 }
 function displayTime(value) { return value ? value.replace('T', ' ').slice(0, 19) : '时间未知'; }
-function formatCount(value) {
-  const number = Number(value) || 0;
-  return number >= 10000 ? `${(number / 10000).toFixed(1).replace(/\.0$/, '')}万` : String(number);
-}
 function coverFallback(event) {
   event.target.onerror = null;
   event.target.src = '/img/cover-fallback.png';
@@ -415,35 +423,49 @@ onBeforeUnmount(() => { generation++; activeRequest?.abort(); observer?.disconne
 .library *, .library *::before, .library *::after { box-sizing: border-box; }
 .library--logged-out { min-height: calc(100dvh - var(--head-h)); background: var(--fill-soft); }
 .library--logged-out > .app-empty-state { max-width: 560px; margin: clamp(24px, 6vh, 64px) auto; }
-.library-head, .library-head h1, .head-actions, .date-presets { display: flex; align-items: center; gap: 12px; }
+.library-head, .library-head h1, .date-presets { display: flex; align-items: center; gap: 12px; }
 .library-head { justify-content: space-between; flex-wrap: wrap; gap: 18px; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
 .library-head h1 { flex-wrap: wrap; min-width: 0; margin: 0; font-size: clamp(24px, 2.4vw, 32px); font-weight: 600; letter-spacing: -.03em; }
 .library-icon { display: grid; flex: none; place-items: center; width: 48px; height: 48px; border: 1px solid var(--brand-light-8); border-radius: 14px; background: var(--brand-light-9); color: var(--brand-hover); }
 .library-icon svg { width: var(--icon-lg); height: var(--icon-lg); fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.head-actions { min-width: 0; padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; font-size: 13px; color: var(--ink-2); flex-wrap: wrap; }
-.head-actions .el-select { width: 140px; }
-.head-actions :deep(.el-select__wrapper) { box-shadow: none; }
 .total { padding: 4px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-size: 13px; color: var(--ink-2); font-weight: 400; letter-spacing: 0; font-variant-numeric: tabular-nums; }
-.control-container { position: sticky; top: calc(var(--head-h) + 12px); z-index: var(--z-sticky); padding: 18px; background: #fff; border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 4px 20px rgba(29, 64, 43, .035); }
-.tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.control-container { --el-color-primary: var(--brand); --el-color-primary-light-3: var(--brand-light-3); --el-color-primary-light-5: var(--brand-light-5); --el-color-primary-light-7: var(--brand-light-7); --el-color-primary-light-9: var(--brand-light-9); --el-color-primary-dark-2: var(--brand-hover); --el-text-color-primary: var(--ink-2); --el-text-color-regular: var(--ink-2); --el-font-size-base: 13px; --el-border-color: var(--line); position: sticky; top: calc(var(--head-h) + 12px); z-index: var(--z-sticky); padding: 18px; background: #fff; border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 4px 20px rgba(29, 64, 43, .035); color: var(--ink-2); font-size: 13px; font-weight: 400; line-height: 20px; }
+.tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-width: 0; }
+.library-selection { display: flex; flex: 0 1 auto; flex-wrap: wrap; align-items: center; gap: 12px; min-width: 0; max-width: 100%; min-height: 40px; }
+.library-selection :deep(.el-checkbox) { height: 40px; margin: 0; }
+.library-selection :deep(.el-checkbox__label) { padding-left: 8px; font-size: 13px; font-weight: 400; line-height: 20px; }
+.library-selection :deep(.el-checkbox:not(.is-disabled) .el-checkbox__label) { color: var(--ink-2); }
+.library-selection :deep(.el-checkbox__inner) { width: 16px; height: 16px; border-radius: 4px; }
+.library-selection :deep(.el-checkbox__input.is-checked .el-checkbox__inner::after) { top: 2px; left: 5px; }
+.library-selection :deep(.el-checkbox__input.is-indeterminate .el-checkbox__inner::before) { top: 6px; }
+.library-recording { display: flex; flex: none; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; max-width: 100%; min-height: 40px; padding: 4px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink-2); font-size: 13px; }
+.library-order { flex: 0 1 140px; width: 140px; min-width: 0; max-width: 100%; }
+.library-order :deep(.el-select__wrapper) { min-height: 40px; border-radius: 10px; font-size: 13px; font-weight: 400; }
 .library-search-row { flex: 0 0 100%; min-width: 0; }
 .tools .library-search { width: 340px; max-width: 100%; min-width: 0; }
-.tools > .el-button { flex: none; width: auto; max-width: 100%; min-width: 0; min-height: 40px; height: auto; margin: 0; padding: 8px 14px; border-radius: 10px; line-height: 1.5; white-space: normal; }
+.tools > .el-button, .library-selection > .el-button { flex: none; width: auto; max-width: 100%; min-width: 0; min-height: 40px; height: auto; margin: 0; padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 400; line-height: 20px; white-space: normal; }
+.tools > .el-button:not(.is-disabled) { color: var(--ink-2); }
+.tools :deep(.el-button > span) { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.tools > .el-button.is-active:not(.is-disabled) { border-color: var(--brand-light-5); background: var(--brand-light-9); color: var(--brand-hover); }
+.tools > .el-button:focus-visible, .library-selection > .el-button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 .library-search :deep(.el-input__wrapper) { min-height: 40px; padding-left: 14px; border-radius: 10px 0 0 10px; background: var(--fill-soft); box-shadow: 0 0 0 1px var(--line) inset; }
 .library-search :deep(.el-input__wrapper.is-focus) { box-shadow: 0 0 0 1px var(--brand) inset; }
-.library-search :deep(.el-input-group__append) { padding: 0 16px; border-radius: 0 10px 10px 0; background: var(--fill-soft); color: var(--brand-hover); }
-.date-toggle svg { flex: none; width: var(--icon-sm); height: var(--icon-sm); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-.date-toggle svg { margin-right: 6px; }
-.date-toggle.is-active, .tools > .manage { border-color: var(--brand-light-7); background: var(--brand-light-9); color: var(--brand-hover); }
-.tools > .clear-button { color: var(--ink-2); }
-.tools > .clear-button:hover { color: var(--el-color-danger); border-color: var(--el-color-danger-light-7); background: var(--el-color-danger-light-9); }
+.library-search :deep(.el-input__inner) { color: var(--ink-2); font-size: 13px; }
+.library-search :deep(.el-input__inner::placeholder) { color: var(--ink-3); }
+.library-search :deep(.el-input-group__append) { padding: 0 16px; border-radius: 0 10px 10px 0; background: var(--fill-soft); color: var(--ink-2); font-size: 13px; }
+.library-search :deep(.el-input-group__append .el-button) { font-size: 13px; font-weight: 400; }
+.tool-icon, .tool-chevron { display: block; flex: none; margin: 0; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.tool-icon { width: var(--icon-sm); height: var(--icon-sm); }
+.tool-chevron { width: var(--icon-xs); height: var(--icon-xs); }
+.tool-chevron.is-open { transform: rotate(180deg); }
+.tools > .clear-button:hover:not(.is-disabled) { color: var(--el-color-danger); border-color: var(--el-color-danger-light-7); background: var(--el-color-danger-light-9); }
 .tools :deep(.el-button + .el-button), .date-tools :deep(.el-button + .el-button) { margin-left: 0; }
-.selection-count { min-width: 0; color: var(--ink-2); font-size: 14px; overflow-wrap: anywhere; }
+.selection-count { min-width: 0; color: var(--ink-2); font-size: 13px; line-height: 20px; white-space: nowrap; }
 .selection-count b { color: var(--brand-hover); font-weight: 600; }
 .date-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
 .date-presets { min-width: 0; flex-wrap: wrap; gap: 8px; }
-.date-presets .el-button { min-height: 34px; padding: 7px 12px; border-radius: 8px; font-size: 12px; }
-.date-tools :deep(.el-date-editor) { flex: none; width: 320px; min-width: 0; max-width: 100%; box-sizing: border-box; }
+.date-presets .el-button { min-height: 34px; padding: 7px 12px; border-radius: 8px; font-size: 13px; font-weight: 400; }
+.date-tools :deep(.el-date-editor) { flex: 0 1 280px; width: 280px; min-width: 0; max-width: min(100%, 280px); box-sizing: border-box; }
 .date-tools :deep(.el-range-input) { min-width: 0; }
 .library > .el-alert { margin-top: 16px; border-radius: 12px; }
 .library-content { padding-top: 24px; }
@@ -454,20 +476,21 @@ onBeforeUnmount(() => { generation++; activeRequest?.abort(); observer?.disconne
 .group-title > span { padding: 2px 7px; border-radius: 6px; background: #fff; color: var(--ink-3); font-size: 11px; font-weight: 400; }
 .videos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 20px; }
 .library-video { min-width: 0; padding: 8px 8px 14px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
-.library-video.selected { border-color: var(--brand); background: var(--brand-light-9); box-shadow: 0 0 0 1px var(--brand); }
+.library-video.selected { border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand); }
+.library-video.is-selecting { cursor: pointer; transition: none; }
+.library-video.is-selecting[aria-disabled="true"] { cursor: wait; }
+.library-video.is-selecting:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 .cover { position: relative; overflow: hidden; border-radius: 10px; aspect-ratio: 16 / 9; background: var(--fill); }
 .cover a, .select-cover { display: block; width: 100%; height: 100%; padding: 0; border: 0; cursor: pointer; }
 .cover img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .cover a:focus-visible, .select-cover:focus-visible { outline: 3px solid var(--brand); outline-offset: -3px; }
 .video-title:focus-visible, .author:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
-.selected .cover { outline: 2px solid var(--brand); outline-offset: -2px; }
-.video-checkbox { position: absolute; top: 8px; left: 8px; height: 28px; padding: 4px 6px; border-radius: 7px; background: rgba(255, 255, 255, .95); z-index: 1; }
 .video-overlay { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; gap: 8px; padding: 20px 8px 8px; color: #fff; font-size: 12px; background: linear-gradient(transparent, #0009); pointer-events: none; }
 .progress { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--brand); pointer-events: none; }
 .video-heading { display: flex; align-items: flex-start; gap: 6px; margin: 12px 4px 0; }
 .video-title { flex: 1; min-width: 0; min-height: 44px; color: var(--ink); font-size: 14px; font-weight: 500; line-height: 22px; text-decoration: none; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .video-heading .content-more { margin-top: -2px; }
-.video-title:hover, .author:hover { color: var(--brand); }
+.library-video:not(.is-selecting) .video-title:hover, .library-video:not(.is-selecting) .author:hover { color: var(--brand); }
 .author { display: block; margin: 8px 4px 0; color: var(--ink-2); font-size: 12px; line-height: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none; }
 .author img { width: 16px; height: 16px; vertical-align: middle; margin-right: 4px; }
 .entry-time { margin: 8px 4px 0; color: var(--ink-3); font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
@@ -484,11 +507,10 @@ mark { color: var(--brand); background: none; }
   .library-head { gap: 14px; margin-bottom: 16px; padding-bottom: 18px; }
   .library-head h1 { gap: 10px; font-size: 24px; }
   .library-icon { width: 40px; height: 40px; border-radius: 12px; }
-  .head-actions { max-width: 100%; gap: 8px; padding: 6px 10px; font-size: 12px; }
   .control-container { padding: 12px; border-radius: 14px; box-shadow: none; }
   .tools { gap: 8px; }
-  .selection-count { font-size: 13px; }
-  .date-tools :deep(.el-date-editor) { max-width: 100%; }
+  .library-selection { flex-basis: 100%; gap: 8px; }
+  .date-tools :deep(.el-date-editor) { max-width: min(100%, 280px); }
   .library-content { padding-top: 20px; }
   .videos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 12px; }
   .library-video { padding: 6px 6px 12px; border-radius: 13px; }
@@ -500,9 +522,9 @@ mark { color: var(--brand); background: none; }
 @media (max-width: 480px) { .videos { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: no-preference) {
   .cover img { transition: transform .2s; }
-  .cover a:hover img { transform: scale(1.035); }
+  .library-video:not(.is-selecting) .cover a:hover img { transform: scale(1.035); }
   .library-video { transition: border-color .18s, box-shadow .18s; }
-  .library-video:hover { border-color: var(--brand-light-5); box-shadow: 0 4px 18px rgba(29, 64, 43, .05); }
+  .library-video:not(.is-selecting):hover { border-color: var(--brand-light-5); box-shadow: 0 4px 18px rgba(29, 64, 43, .05); }
 }
 </style>
 

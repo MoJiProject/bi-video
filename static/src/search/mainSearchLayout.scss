@@ -133,11 +133,12 @@
     overflow: visible;
   }
 
-  .filter-date.el-date-editor {
-    flex: 0 1 290px;
+  :deep(.filter-date.el-date-editor) {
+    box-sizing: border-box;
+    flex: 0 1 280px;
     min-width: 0;
-    width: 290px;
-    max-width: 100%;
+    width: 280px;
+    max-width: min(100%, 280px);
     height: 34px;
     border-radius: 9px;
   }
@@ -193,7 +194,7 @@
     .sort-options { flex-basis: calc(100% - 110px); }
     .filter-more { align-self: flex-start; }
     .chip { padding: 0 10px; }
-    .filter-date.el-date-editor { margin-top: 4px; }
+    :deep(.filter-date.el-date-editor) { margin-top: 4px; }
     .empty-state { min-height: 240px; }
     .bottomVideo { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 16px; }
     .searchUsers { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }

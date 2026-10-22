@@ -174,13 +174,17 @@ export default {
       type: Boolean,
       default: false,
     },
+    preserveOnScroll: {
+      type: Boolean,
+      default: false,
+    },
     handleUrlChange: {
       type: Function,
       default: null,
     },
   },
   setup(props) {
-    const head2Flag=ref(props.head2Flag);
+    const head2Flag = computed(() => props.head2Flag);
     const searchRoot = ref(null);
     const showBox = ref(false); // 控制盒子显示的状态
     const Content = ref("");
@@ -379,6 +383,7 @@ async function selectKeyWord(Value) {
 
     //监视不显示时关闭搜索框
     function handleScroll(){
+      if (props.preserveOnScroll) return;
 
       const scrollPosition = window.scrollY; // 当前滚动距离
       if (props.handleUrlChange) {

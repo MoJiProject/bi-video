@@ -387,6 +387,61 @@ body:has(.message-page) {
     .content-more-popper .el-dropdown-menu__item { min-height: 36px; }
 }
 
+.video-selection-indicator {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    width: 22px;
+    height: 22px;
+    border: 2px solid rgba(255, 255, 255, .95);
+    border-radius: 6px;
+    background: rgba(28, 35, 33, .38);
+    color: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .18);
+    pointer-events: none;
+}
+.video-selection-indicator.is-selected { border-color: var(--brand); background: var(--brand); }
+.video-selection-indicator svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+:is(.el-overlay-dialog, .el-dialog, .el-message-box, .el-dialog *, .el-message-box *):not(.el-scrollbar__wrap--hidden-default) {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(92, 102, 100, .32) transparent;
+}
+
+@supports selector(::-webkit-scrollbar) {
+    :is(.el-overlay-dialog, .el-dialog, .el-message-box, .el-dialog *, .el-message-box *):not(.el-scrollbar__wrap--hidden-default) {
+        scrollbar-width: auto;
+        scrollbar-color: auto;
+    }
+    :is(.el-overlay-dialog, .el-dialog, .el-message-box, .el-dialog *, .el-message-box *)::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    :is(.el-overlay-dialog, .el-dialog, .el-message-box, .el-dialog *, .el-message-box *)::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    :is(.el-overlay-dialog, .el-dialog, .el-message-box, .el-dialog *, .el-message-box *)::-webkit-scrollbar-thumb {
+        min-height: 32px;
+        border-radius: 999px;
+        background: rgba(92, 102, 100, .32);
+    }
+    :is(.el-overlay-dialog, .el-dialog, .el-message-box, .el-dialog *, .el-message-box *)::-webkit-scrollbar-thumb:hover {
+        background: rgba(92, 102, 100, .52);
+    }
+    :is(.el-overlay-dialog, .el-dialog, .el-message-box, .el-dialog *, .el-message-box *)::-webkit-scrollbar-button {
+        display: none;
+        width: 0;
+        height: 0;
+    }
+    :is(.el-overlay-dialog, .el-dialog, .el-message-box, .el-dialog *, .el-message-box *)::-webkit-scrollbar-corner {
+        background: transparent;
+    }
+}
+
 /* These dialogs are teleported outside the profile page's stacking contexts. */
 .el-dialog.space-dialog {
     box-sizing: border-box;

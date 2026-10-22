@@ -17,6 +17,9 @@
         <result column="video_title" property="videoTitle"/>
         <result column="video_cover" property="videoCover"/>
         <result column="video_duration" property="videoDuration"/>
+        <result column="video_description" property="videoDescription"/>
+        <result column="video_play_count" property="videoPlayCount"/>
+        <result column="video_danmaku_count" property="videoDanmakuCount"/>
         <result column="content" property="content"/>
         <result column="image_urls" property="imageUrls"/>
         <result column="like_count" property="likeCount"/>
@@ -40,6 +43,16 @@
         <result column="followed_at" property="followedAt"/>
     </resultMap>
 
+    <sql id="postVideoDetails">
+        v.description AS video_description,
+        COALESCE(vs.play_count, 0) AS video_play_count,
+        COALESCE(vs.danmaku_count, 0) AS video_danmaku_count
+    </sql>
+
+    <sql id="postHasImages">
+        p.image_urls IS NOT NULL AND JSON_LENGTH(p.image_urls) &gt; 0
+    </sql>
+
     <select id="selectPosts" resultMap="postMap">
         SELECT p.id, p.author_id, p.content, p.title, p.image_urls, p.video_id, p.is_pinned,
                p.like_count, p.comment_count, p.share_count, p.created_at,
@@ -47,12 +60,14 @@
                u.signature AS author_signature,
                v.title AS video_title, v.cover_url AS video_cover,
                v.duration_seconds AS video_duration,
+               <include refid="postVideoDetails"/>,
                EXISTS (SELECT 1 FROM post_like r WHERE r.user_id = #{viewerId}
                        AND r.post_id = p.id) AS liked,
                EXISTS(SELECT 1 FROM watch_later wl WHERE wl.video_id = p.video_id AND wl.user_id = #{viewerId}) AS watch_later
         FROM user_post p
         JOIN `user` u ON u.id = p.author_id AND u.deleted_at IS NULL
         LEFT JOIN video v ON v.id = p.video_id AND v.deleted_at IS NULL
+        LEFT JOIN video_stats vs ON vs.video_id = v.id
         WHERE p.status = 1 AND p.deleted_at IS NULL
           AND (p.visibility = 0 OR p.author_id = #{viewerId})
         <if test="targetUserId != null">
@@ -70,11 +85,13 @@
                p.like_count, p.comment_count, p.share_count, p.created_at,
                u.nickname AS author_nickname, u.avatar_url AS author_avatar, u.signature AS author_signature,
                v.title AS video_title, v.cover_url AS video_cover, v.duration_seconds AS video_duration,
+               <include refid="postVideoDetails"/>,
                EXISTS(SELECT 1 FROM post_like l WHERE l.post_id = p.id AND l.user_id = #{viewerId}) AS liked,
                EXISTS(SELECT 1 FROM watch_later wl WHERE wl.video_id = p.video_id AND wl.user_id = #{viewerId}) AS watch_later
         FROM user_post p
         JOIN `user` u ON u.id = p.author_id AND u.deleted_at IS NULL
         LEFT JOIN video v ON v.id = p.video_id AND v.deleted_at IS NULL AND v.status = 1
+        LEFT JOIN video_stats vs ON vs.video_id = v.id
         WHERE p.id = #{postId} AND p.deleted_at IS NULL AND p.status = 1
           AND (p.visibility = 0 OR p.author_id = #{viewerId})
     </select>
@@ -84,11 +101,13 @@
                p.like_count, p.comment_count, p.share_count, p.created_at,
                u.nickname AS author_nickname, u.avatar_url AS author_avatar, u.signature AS author_signature,
                v.title AS video_title, v.cover_url AS video_cover, v.duration_seconds AS video_duration,
+               <include refid="postVideoDetails"/>,
                EXISTS(SELECT 1 FROM post_like l WHERE l.post_id=p.id AND l.user_id=#{viewerId}) AS liked,
                EXISTS(SELECT 1 FROM watch_later w WHERE w.video_id=p.video_id AND w.user_id=#{viewerId}) AS watch_later
         FROM user_post p
         JOIN `user` u ON u.id=p.author_id AND u.deleted_at IS NULL
         LEFT JOIN video v ON v.id=p.video_id AND v.status=1 AND v.deleted_at IS NULL
+        LEFT JOIN video_stats vs ON vs.video_id = v.id
         WHERE p.status=1 AND p.deleted_at IS NULL AND (p.visibility=0 OR p.author_id=#{viewerId})
         <if test="targetUserId != null">AND p.author_id=#{targetUserId}</if>
         <if test="followingOnly">
@@ -97,6 +116,7 @@
         </if>
         <if test="type == 2">AND p.video_id IS NOT NULL</if>
         <if test="type == 3">AND p.video_id IS NULL</if>
+        <if test="type == 4">AND <include refid="postHasImages"/></if>
         <if test="cursorId != null">
           <choose>
             <when test="targetUserId != null">

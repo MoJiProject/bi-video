@@ -1,5 +1,12 @@
 <template>
-  <article class="vcard content-action-surface" @mouseenter="onEnter" @mouseleave="onLeave">
+  <article class="vcard content-action-surface"
+    :class="{ 'is-selecting': selectionMode, 'is-selected': selectionMode && selected }"
+    :role="selectionMode ? 'checkbox' : undefined" :tabindex="selectionMode ? 0 : undefined"
+    :aria-checked="selectionMode ? selected : undefined"
+    :aria-disabled="selectionMode ? selectionDisabled : undefined"
+    :aria-label="selectionMode ? video.title : undefined"
+    @click.capture="onSelectionClick" @keydown="onSelectionKeydown"
+    @mouseenter="onEnter" @mouseleave="onLeave">
     <div class="vcard-cover" @click="open">
       <img
         v-show="!previewing"
@@ -22,8 +29,13 @@
       ></video>
 
       <span class="vcard-duration">{{ durationText }}</span>
+      <span v-if="selectionMode" class="video-selection-indicator"
+        :class="{ 'is-selected': selected }" aria-hidden="true">
+        <svg v-if="selected" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg>
+      </span>
 
       <button
+        v-if="!selectionMode"
         class="vcard-mark"
         :class="{ 'is-done': inWatchLater }"
         :disabled="marking"
@@ -45,7 +57,7 @@
     <div class="vcard-body">
       <div class="vcard-heading content-card-actions">
         <h3 class="vcard-title" :title="video.title">{{ video.title }}</h3>
-        <div v-if="$slots.actions" class="vcard-actions" @click.stop><slot name="actions"/></div>
+        <div v-if="$slots.actions && !selectionMode" class="vcard-actions" @click.stop><slot name="actions"/></div>
       </div>
 
       <div class="vcard-meta">
@@ -79,14 +91,18 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from "vue";
+import { computed, onUnmounted, ref, watch } from "vue";
 import { useGlobalStore } from "../store/store";
 import { videoApi } from "../api/product";
 import { ElMessage } from "element-plus";
 
 const props = defineProps({
   video: { type: Object, required: true },
+  selectionMode: { type: Boolean, default: false },
+  selected: { type: Boolean, default: false },
+  selectionDisabled: { type: Boolean, default: false },
 });
+const emit = defineEmits(["select"]);
 
 const store = useGlobalStore();
 const previewing = ref(false);
@@ -131,11 +147,23 @@ function openUser() {
   window.open("/home?userId=" + props.video.ownerId, "_blank");
 }
 
+function onSelectionClick(event) {
+  if (!props.selectionMode) return;
+  event.preventDefault();
+  event.stopPropagation();
+  if (!props.selectionDisabled) emit("select", !props.selected);
+}
+
+function onSelectionKeydown(event) {
+  if (!props.selectionMode || event.target !== event.currentTarget || event.repeat) return;
+  if (event.key === "Enter" || event.key === " ") onSelectionClick(event);
+}
+
 function onEnter() {
-  if (!props.video.playUrl) return;
+  if (props.selectionMode || !props.video.playUrl) return;
   clearTimeout(timer);
   timer = setTimeout(() => {
-    previewing.value = true;
+    if (!props.selectionMode) previewing.value = true;
   }, 400);
 }
 
@@ -149,6 +177,9 @@ function onLeave() {
   }
   previewing.value = false;
 }
+
+watch(() => props.selectionMode, selecting => { if (selecting) onLeave(); });
+onUnmounted(onLeave);
 
 async function toggleMark() {
   if (marking.value) return;
@@ -185,12 +216,18 @@ async function toggleMark() {
   transition: transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
 }
 
-.vcard:hover {
+.vcard:not(.is-selecting):hover {
   transform: translateY(-4px);
   border-color: rgba(224, 229, 227, .9);
   background: #fff;
   box-shadow: 0 16px 36px rgba(28, 35, 33, .08);
 }
+
+.vcard.is-selecting { transition: none; }
+.vcard.is-selecting .vcard-cover-img, .vcard.is-selecting .vcard-title, .vcard.is-selecting .vcard-author-name { transition: none; }
+.vcard.is-selected { border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand); }
+.vcard.is-selecting[aria-disabled="true"] { cursor: wait; }
+.vcard.is-selecting:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 
 .vcard-cover {
   position: relative;
@@ -208,7 +245,7 @@ async function toggleMark() {
   transition: transform .28s ease;
 }
 
-.vcard:hover .vcard-cover-img {
+.vcard:not(.is-selecting):hover .vcard-cover-img {
   transform: scale(1.035);
 }
 
@@ -317,7 +354,7 @@ async function toggleMark() {
   transition: color .2s ease;
 }
 
-.vcard:hover .vcard-title {
+.vcard:not(.is-selecting):hover .vcard-title {
   color: var(--brand);
 }
 
@@ -353,7 +390,7 @@ async function toggleMark() {
   transition: color .2s ease;
 }
 
-.vcard-author:hover .vcard-author-name {
+.vcard:not(.is-selecting) .vcard-author:hover .vcard-author-name {
   color: var(--brand);
 }
 

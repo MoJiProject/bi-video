@@ -500,7 +500,7 @@ import { computed, reactive, nextTick, onMounted, ref, watch, onUnmounted } from
 import { authApi, searchApi, socialApi, userContentApi, videoApi } from "../api/product";
 import { ElMessage } from "element-plus";
 import { useGlobalStore } from "../store/store";
-import { HOME_CATEGORIES } from "../constants/contentCategories";
+import { formatContentCategories } from "../constants/contentCategories";
 
 /* 筛选选项表。
    原来 42 个选项散在模板里，每个写两份 span（未选中/选中）并各带一个
@@ -536,11 +536,6 @@ const TIME = [
   { label: "10-30分钟" },
   { label: "30-60分钟" },
   { label: "60分钟以上" },
-];
-
-const CLASSIFY = [
-  { label: "全部分类", value: "全部" },
-  ...HOME_CATEGORIES.filter(category => category.value !== "推荐"),
 ];
 
 export default {
@@ -580,6 +575,10 @@ export default {
     const windowWidth = ref(0);
     const Videos = reactive([]);
     const availableCategories = ref(null);
+    const CLASSIFY = computed(() => [
+      { label: "全部分类", value: "全部" },
+      ...formatContentCategories(availableCategories.value || []),
+    ]);
     const searcha = ref(null);
     const searcha2 = ref(null);
     function userContent(fansNumber, videoNumber, introduce) {
@@ -703,7 +702,7 @@ watch(
        整块 770 行。五组筛选其实是同一个「单选」结构，收成一个 applyFilter。 */
     function applyFilter(dim, index) {
       if (dim === "classify") {
-        acceptSearchData.classify = CLASSIFY[index].value || CLASSIFY[index].label;
+        acceptSearchData.classify = CLASSIFY.value[index].value || CLASSIFY.value[index].label;
         const params = new URLSearchParams(window.location.search);
         params.delete("categoryId");
         params.delete("classifyIndex");
@@ -779,10 +778,15 @@ watch(
       windowWidth.value = window.screen.width;
       onloadPage.value = true;
       await getUserIp();
-      searchByKeyWordVideoOnce();
+      try {
+        availableCategories.value = await videoApi.categories();
+      } catch (error) {
+        ElMessage.error(error.message || "搜索分区加载失败");
+      }
+      await searchByKeyWordVideoOnce();
       selectUsersAxios();
       const classifyTitle =
-        CLASSIFY.find((c) => (c.value || c.label) === acceptSearchData.classify)?.label ||
+        CLASSIFY.value.find((c) => (c.value || c.label) === acceptSearchData.classify)?.label ||
         acceptSearchData.classify;
       document.title = acceptSearchData.keyWord || classifyTitle + "-青芒视频";
       window.addEventListener("scroll", handleScroll); // 监听滚动事件
@@ -834,7 +838,7 @@ watch(
         if (classifyIndex) {
           acceptSearchData.classify = classifyIndex;
         } else if (params.get("categoryId")) {
-          availableCategories.value = await videoApi.categories();
+          if (!availableCategories.value) availableCategories.value = await videoApi.categories();
           const category = availableCategories.value.find(item => String(item.id) === params.get("categoryId"));
           if (!category) throw new Error("该分区不存在，请重新选择");
           acceptSearchData.classify = category.name;
@@ -1055,9 +1059,9 @@ watch(
          不清其余 —— 从 URL 带分类进来时会和默认的「全部分类」同时高亮。
          改成按名称查表取下标，表里没有就回到 0。 */
       watch(
-        () => acceptSearchData.classify,
-        (name) => {
-          const i = CLASSIFY.findIndex((c) => (c.value || c.label) === name || c.label === name);
+        [() => acceptSearchData.classify, CLASSIFY],
+        ([name]) => {
+          const i = CLASSIFY.value.findIndex((c) => (c.value || c.label) === name || c.label === name);
           classifyIndexRef.value = i < 0 ? 0 : i;
         },
         { immediate: true }

@@ -8,7 +8,7 @@
           :aria-label="`${placeholder}，输入 @ 提及用户`" :aria-disabled="disabled"
           :aria-controls="mentionOpen ? menuId : undefined"
           :aria-activedescendant="mentionOpen && candidates.length ? `${menuId}-${selectedIndex}` : undefined"
-          :data-placeholder="placeholder" @input="updateContent" @keydown="onKeydown"
+          :data-placeholder="placeholder" @input="updateContent" @beforeinput="onBeforeInput" @keydown="onKeydown"
           @keyup="onCaretMove" @mouseup="onCaretMove" @focus="focused = true"
           @blur="onBlur" @click="onEditorClick" @scroll="closeMentions" @paste.prevent="paste"
           @compositionstart="onCompositionStart" @compositionend="onCompositionEnd"/>
@@ -50,7 +50,10 @@
           </div>
         </el-popover>
         <slot name="tools"/>
-        <span class="editor-hint">输入 @ 提及用户</span>
+        <button type="button" class="editor-tool mention-tool" aria-label="提及用户" title="提及用户"
+          :disabled="disabled" @mousedown.prevent @click="insertMentionPrefix">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg>
+        </button>
       </div>
       <span class="editor-count" :class="{ 'is-over-limit': length > maxLength }">{{ length }} / {{ maxLength }}</span>
       <div v-if="$slots.actions" class="editor-actions"><slot name="actions"/></div>
@@ -185,7 +188,8 @@ function insertNode(node) {
   const range = savedRange.cloneRange();
   range.deleteContents();
   range.insertNode(node);
-  range.setStartAfter(node);
+  if (node.nodeType === Node.TEXT_NODE) range.setStart(node, node.textContent.length);
+  else range.setStartAfter(node);
   range.collapse(true);
   selectRange(range);
   updateContent();
@@ -196,6 +200,15 @@ function insertEmoji(number) {
   image.src = `/img/emoji/${number}.png`;
   image.alt = '[表情]';
   insertNode(image);
+}
+function insertMentionPrefix() {
+  if (!signedIn() || props.disabled || !editor.value) return;
+  focus();
+  const before = savedRange.cloneRange();
+  before.selectNodeContents(editor.value);
+  before.setEnd(savedRange.startContainer, savedRange.startOffset);
+  const separator = /[a-zA-Z0-9_.+-]$/.test(before.toString()) ? ' ' : '';
+  insertNode(document.createTextNode(`${separator}@`));
 }
 function insertMention(user) {
   if (!mentionRange || !editor.value?.contains(mentionRange.commonAncestorContainer)) return;
@@ -209,8 +222,58 @@ function insertMention(user) {
   insertNode(link);
   insertNode(document.createTextNode(' '));
 }
+function deleteAdjacentMention(backward) {
+  const selection = window.getSelection();
+  if (props.disabled || !selection?.rangeCount || !selection.isCollapsed ||
+    !editor.value?.contains(selection.anchorNode)) return false;
+  const range = selection.getRangeAt(0);
+  let node = range.startContainer;
+  if (node.nodeType === Node.TEXT_NODE) {
+    const remaining = backward ? node.textContent.slice(0, range.startOffset) : node.textContent.slice(range.startOffset);
+    if (remaining.length) return false;
+    node = nextNode(node);
+  } else {
+    const child = node.childNodes[backward ? range.startOffset - 1 : range.startOffset];
+    if (child) node = child;
+    else node = nextNode(node);
+  }
+  if (node?.nodeType === Node.TEXT_NODE && !node.textContent.length) node = nextNode(node);
+  while (node && node !== editor.value) {
+    if (node.nodeType === Node.ELEMENT_NODE && node.matches('a[data-eit-userid]')) {
+      range.selectNode(node);
+      range.deleteContents();
+      range.collapse(true);
+      selectRange(range);
+      updateContent();
+      return true;
+    }
+    if (node.nodeType === Node.TEXT_NODE && node.textContent.length) return false;
+    if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BR') return false;
+    node = (backward ? node.lastChild : node.firstChild) || nextNode(node);
+  }
+  return false;
+
+  function nextNode(current) {
+    while (current && current !== editor.value) {
+      const sibling = backward ? current.previousSibling : current.nextSibling;
+      if (sibling) return sibling;
+      current = current.parentNode;
+    }
+    return null;
+  }
+}
+function onBeforeInput(event) {
+  if (composing.value || event.isComposing) return;
+  if (event.inputType === 'deleteContentBackward' || event.inputType === 'deleteContentForward') {
+    if (deleteAdjacentMention(event.inputType === 'deleteContentBackward')) event.preventDefault();
+  }
+}
 function onKeydown(event) {
-  if (composing.value || event.isComposing || !mentionOpen.value) return;
+  if (composing.value || event.isComposing) return;
+  if ((event.key === 'Backspace' || event.key === 'Delete') && !event.ctrlKey && !event.metaKey && !event.altKey) {
+    if (deleteAdjacentMention(event.key === 'Backspace')) { event.preventDefault(); return; }
+  }
+  if (!mentionOpen.value) return;
   if (event.key === 'Escape') { event.preventDefault(); closeMentions(); return; }
   if (!candidates.value.length) return;
   if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -268,7 +331,7 @@ defineExpose({ focus });
 </script>
 
 <style scoped>
-.post-editor { min-width: 0; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); font-family: var(--el-font-family); }
+.post-editor { box-sizing: border-box; width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); font-family: var(--el-font-family); }
 .post-editor.is-focused { border-color: var(--brand-light-5); box-shadow: 0 0 0 3px var(--brand-light-9); }
 .post-editor.is-disabled { background: var(--fill-soft); }
 .editor-input { position: relative; min-height: 112px; max-height: 320px; padding: 12px 14px; overflow: auto; outline: none; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; line-height: 1.8; cursor: text; scroll-margin-top: calc(var(--head-h) + 24px); }
@@ -280,12 +343,13 @@ defineExpose({ focus });
 .editor-toolbar, .editor-tools, .editor-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .editor-toolbar { min-width: 0; padding: 7px 10px; border-top: 1px solid var(--fill); }
 .editor-tools { min-width: 0; gap: 4px; }
-.editor-tool { display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 7px; border: 0; border-radius: 6px; background: transparent; color: var(--ink-2); font: inherit; font-size: 12px; cursor: pointer; }
-.editor-tool:hover { background: var(--fill-soft); color: var(--brand-hover); }
-.editor-tool:disabled { cursor: not-allowed; opacity: .5; }
-.editor-tool svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-.editor-hint, .editor-count { color: var(--ink-3); font-size: 11px; line-height: 20px; }
-.editor-hint { margin-left: 4px; }
+.editor-tools :deep(.editor-tool) { box-sizing: border-box; display: inline-flex; flex: none; justify-content: center; align-items: center; gap: 5px; height: 30px; margin: 0; padding: 0 7px; border: 0; border-radius: 6px; background: transparent; color: var(--ink-2); font-family: inherit; font-size: 12px; font-weight: 400; line-height: 20px; cursor: pointer; }
+.editor-tools :deep(.editor-tool:hover) { background: var(--fill-soft); color: var(--brand-hover); }
+.editor-tools :deep(.editor-tool:disabled) { cursor: not-allowed; opacity: .5; }
+.editor-tools :deep(.editor-tool > svg) { display: block; flex: none; width: 18px; height: 18px; margin: 0; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.editor-tools :deep(.editor-tool > span) { display: inline-flex; align-items: center; height: 20px; line-height: 20px; }
+.editor-tools .mention-tool { width: 30px; padding: 0; }
+.editor-count { color: var(--ink-3); font-size: 11px; line-height: 20px; }
 .editor-count { margin-left: auto; font-variant-numeric: tabular-nums; }
 .editor-count.is-over-limit { color: var(--el-color-danger); }
 .editor-actions { flex: none; max-width: 100%; }
@@ -297,7 +361,7 @@ defineExpose({ focus });
 .emoji-grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 3px; max-height: 224px; margin-top: 8px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
 .emoji-grid button { display: grid; place-items: center; min-width: 0; height: 32px; padding: 3px; border: 0; border-radius: 6px; background: transparent; cursor: pointer; }
 .emoji-grid button:hover { background: var(--brand-light-9); }
-.emoji-grid img { width: 24px; height: 24px; }
+.emoji-grid img { display: block; width: 24px; height: 24px; }
 .mention-list { max-height: 248px; margin-top: 6px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
 .mention-list button { display: flex; align-items: center; gap: 9px; width: 100%; min-width: 0; min-height: 44px; padding: 7px 8px; border: 0; border-radius: 7px; background: transparent; color: var(--ink-2); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
 .mention-list button:hover, .mention-list button.selected { background: var(--brand-light-9); color: var(--brand-hover); }
@@ -312,8 +376,5 @@ defineExpose({ focus });
   .editor-input.is-empty::before { top: 10px; left: 12px; right: 12px; }
   .compact .editor-input { min-height: 72px; }
   .editor-toolbar { gap: 6px; padding: 7px 8px; }
-}
-@media (max-width: 480px) {
-  .editor-hint { display: none; }
 }
 </style>

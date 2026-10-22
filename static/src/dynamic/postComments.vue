@@ -8,7 +8,7 @@
       <PostEditor ref="input" v-model="content" compact :max-length="1000" :disabled="sending"
         placeholder="发一条友善的评论…" @length="contentLength = $event">
         <template #tools>
-          <label class="comment-upload" :class="{ disabled: sending || uploading || images.length >= 9 }">
+          <label class="editor-tool comment-upload" :class="{ disabled: sending || uploading || images.length >= 9 }">
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/></svg>
             <span>图片</span><span v-if="images.length">{{ images.length }}/9</span>
             <input type="file" accept="image/png,image/jpeg,image/gif" multiple aria-label="添加评论图片，最多九张" :disabled="sending || uploading || images.length >= 9" @change="upload">
@@ -181,12 +181,10 @@ onUnmounted(() => { generation++; });
 .heading :deep(.el-radio-button__original-radio:focus-visible + .el-radio-button__inner) { outline: 2px solid var(--brand); outline-offset: 1px; }
 h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; font-weight: 600; }
 .comment-total { padding: 3px 8px; border-radius: 7px; background: var(--fill-soft); color: var(--ink-2); font-size: 12px; font-weight: 400; }
-.comment-form { width: 100%; max-width: 800px; min-width: 0; margin: 0; }
+.comment-form { width: 100%; min-width: 0; margin: 0; }
 .comment-form > .el-tag { margin-bottom: 10px; }
-.comment-upload { position: relative; display: inline-flex; align-items: center; gap: 5px; min-height: 30px; padding: 0 7px; border-radius: 6px; color: var(--ink-2); font-size: 12px; cursor: pointer; }
-.comment-upload:hover { background: var(--fill-soft); color: var(--brand-hover); }
+.comment-upload { position: relative; }
 .comment-upload > span + span { color: var(--ink-3); font-size: 11px; }
-.comment-upload svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .comment-upload.disabled { opacity: .55; cursor: not-allowed; }
 .comment-upload:focus-within { outline: 2px solid #126b58; outline-offset: 3px; }
 .comment-upload input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

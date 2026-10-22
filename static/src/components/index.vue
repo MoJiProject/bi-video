@@ -1,13 +1,11 @@
 <template>
   <div class="home home-page">
-    <!-- 滚动后出现的吸顶栏 -->
-    <div class="home-sticky" :class="{ 'is-in': sticky }">
-      <head1 class="header-stack-search" :head2Flag="true" />
+    <div class="home-navigation" :class="{ 'is-scrolled': sticky }">
+      <head1 class="header-stack-search" :head2Flag="sticky" preserve-search-on-scroll />
     </div>
 
     <!-- 首屏 -->
     <div class="home-head" @mousemove="onMouseMove">
-      <head1 class="header-stack-search" />
       <section class="hero">
         <HomeBannerCarousel v-if="banners.length" :banners="banners" />
         <div class="hero-inner page" :class="{ 'is-banner-placeholder': banners.length }"
@@ -94,16 +92,15 @@ import homeVideoCard from "./homeVideoCard.vue";
 import HomeBannerCarousel from "./HomeBannerCarousel.vue";
 import { getHomeBanners } from "../api/banner";
 import { ElMessage } from "element-plus";
-import { videoApi } from "../api/product";
+import { videoApi, fetchPublishingCategories } from "../api/product";
 import { useGlobalStore } from "../store/store";
-import { HOME_CATEGORIES } from "../constants/contentCategories";
 
 const store = useGlobalStore();
 
-const categories = HOME_CATEGORIES;
+const categories = ref([{ label: "推荐", value: "推荐" }]);
 const activeCategory = ref("推荐");
 const activeCategoryLabel = computed(() => {
-  return categories.find((c) => c.value === activeCategory.value)?.label || activeCategory.value;
+  return categories.value.find((c) => c.value === activeCategory.value)?.label || activeCategory.value;
 });
 
 const videos = ref([]);
@@ -120,6 +117,14 @@ async function loadBanners() {
     banners.value = (await getHomeBanners()).slice(0, 6);
   } catch (error) {
     ElMessage.error(error.message || "Banner加载失败");
+  }
+}
+
+async function loadCategories() {
+  try {
+    categories.value = [{ label: "推荐", value: "推荐" }, ...await fetchPublishingCategories()];
+  } catch (error) {
+    ElMessage.error(error.message || "频道分区加载失败");
   }
 }
 
@@ -158,18 +163,7 @@ function goCategory(category) {
     refresh();
     return;
   }
-  // 分类名对应后端的 categoryId，先查一次再带 id 跳搜索页
-  searchByCategory(name);
-}
-
-async function searchByCategory(name) {
-  try {
-    const list = await videoApi.categories();
-    const hit = list.find((c) => c.name === name);
-    window.location.href = "/search?keyword=&categoryId=" + (hit ? hit.id : "");
-  } catch (e) {
-    window.location.href = "/search?keyword=" + encodeURIComponent(name);
-  }
+  window.location.href = "/search?keyword=&categoryId=" + encodeURIComponent(category.id);
 }
 
 async function load(reset) {
@@ -214,7 +208,7 @@ function onScroll() {
 onMounted(async () => {
   window.scrollTo(0, 0);
   window.addEventListener("scroll", onScroll, { passive: true });
-  await Promise.all([load(true), loadBanners()]);
+  await Promise.all([load(true), loadBanners(), loadCategories()]);
 });
 
 onUnmounted(() => {
@@ -235,23 +229,20 @@ onUnmounted(() => {
   padding-bottom: 80px;
 }
 
-.home-sticky {
-  position: fixed;
+.home-navigation {
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
-  z-index: 900;
+  z-index: var(--z-head);
   background: #fff;
-  transform: translateY(-100%);
-  visibility: hidden;
-  pointer-events: none;
-  transition: transform .28s cubic-bezier(.4, 0, .2, 1);
+  transition: box-shadow .28s cubic-bezier(.4, 0, .2, 1);
 }
 
-.home-sticky.is-in {
-  transform: translateY(0);
-  visibility: visible;
-  pointer-events: auto;
+.home-navigation.is-scrolled {
+  box-shadow: 0 6px 20px rgba(27, 54, 39, .08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-navigation { transition: none; }
 }
 
 /* ---------- 首屏 ---------- */

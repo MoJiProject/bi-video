@@ -1,6 +1,7 @@
 import { del, get, post, put } from '../../services/http';
 import { mapUser } from '../home/user';
 import { extractMentionIds } from '../../utils/richText';
+import { formatContentCategories } from '../../constants/contentCategories';
 
 export async function fetchMentionUsers() {
   const users = [];
@@ -34,10 +35,7 @@ export const videoApi = {
 };
 
 export async function fetchPublishingCategories() {
-  return (await videoApi.categories()).map(category => ({
-    label: category.name === '国创' ? '原创动画' : category.name === '番剧' ? '动画剧场' : category.name,
-    value: category.name,
-  }));
+  return formatContentCategories(await videoApi.categories());
 }
 
 /** 评论与弹幕。 */

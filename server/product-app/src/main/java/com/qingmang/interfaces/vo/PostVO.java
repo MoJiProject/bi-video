@@ -18,6 +18,9 @@ public class PostVO {
     private String videoTitle;
     private String videoCover;
     private Integer videoDuration;
+    private String videoDescription;
+    private Long videoPlayCount;
+    private Long videoDanmakuCount;
 
     private String content;
     private String title;

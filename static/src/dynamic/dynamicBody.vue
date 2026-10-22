@@ -2,10 +2,6 @@
   <main class="feed">
     <header class="feed-heading">
       <h1>动态</h1>
-      <button v-if="store.token" type="button" class="write-button" @click="editor?.focus()">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15v5Z"/></svg>
-        写条动态
-      </button>
     </header>
     <section class="feed-layout" :class="{ 'is-public': !store.userId }">
       <aside v-if="store.userId" class="authors" aria-label="动态作者筛选">
@@ -69,6 +65,7 @@
             </el-radio-group>
             <el-radio-group v-model="type" class="type-tabs" aria-label="动态类型">
               <el-radio-button :value="1">全部</el-radio-button><el-radio-button :value="2">视频</el-radio-button><el-radio-button :value="3">图文</el-radio-button>
+              <el-radio-button :value="4">图片</el-radio-button>
             </el-radio-group>
           </div>
         </section>
@@ -77,7 +74,8 @@
           {{ unreadCount }} 条新动态，点击刷新
         </el-button>
         <el-alert v-if="reminderError" :title="reminderError" type="error" :closable="false" show-icon/>
-        <div class="dynamic-posts">
+        <ImagePostWaterfall v-if="type === 4" :posts="rows"/>
+        <div v-else class="dynamic-posts">
           <homePost v-for="item in rows" :key="item.id" :dynamic="item" @changed="reload"/>
         </div>
         <loadingIndicator v-if="loading"/>
@@ -97,6 +95,7 @@ import { useGlobalStore } from '@/store/store';
 import homePost from '@/home/homePost.vue';
 import loadingIndicator from '@/components/loadingIndicator.vue';
 import PostEditor from '@/components/PostEditor.vue';
+import ImagePostWaterfall from '@/components/ImagePostWaterfall.vue';
 
 const store = useGlobalStore();
 const rows = ref([]);
@@ -230,17 +229,17 @@ onUnmounted(() => { active = false; generation++; clearInterval(reminderTimer); 
 .feed-layout { display: grid; grid-template-columns: clamp(190px, 16vw, 240px) minmax(0, 1fr); align-items: start; gap: 24px; }
 .feed-layout.is-public { grid-template-columns: minmax(0, 1fr); }
 .authors { position: sticky; top: calc(var(--head-h) + 24px); min-width: 0; padding: 18px 12px 14px; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
-.authors-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 8px 16px; }
-.authors-heading h2 { margin: 0; font-size: 14px; font-weight: 600; }
-.authors-heading > span { padding: 3px 8px; border-radius: 6px; background: var(--fill-soft); color: var(--ink-3); font-size: 11px; }
+.authors-heading { display: flex; align-items: center; justify-content: flex-start; gap: 8px; min-height: 24px; padding: 0 4px 12px; }
+.authors-heading h2 { min-width: 0; margin: 0; font-size: 14px; font-weight: 600; line-height: 22px; }
+.authors-heading > span { box-sizing: border-box; display: inline-flex; flex: none; align-items: center; justify-content: center; min-width: 24px; height: 24px; margin: 0; padding: 0 7px; border-radius: 7px; background: var(--fill-soft); color: var(--ink-3); font-size: 12px; font-weight: 400; line-height: 1; font-variant-numeric: tabular-nums; }
 .author-list { display: flex; flex-direction: column; gap: 5px; max-height: max(180px, calc(100dvh - var(--head-h) - 120px)); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
-.author-list button { display: flex; flex: none; align-items: center; gap: 10px; width: 100%; min-width: 0; min-height: 48px; padding: 8px; border: 1px solid transparent; border-radius: 12px; background: transparent; color: var(--ink-2); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.author-list button { box-sizing: border-box; display: flex; flex: none; align-items: center; gap: 10px; width: 100%; min-width: 0; min-height: 48px; margin: 0; padding: 7px 10px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--ink-2); font-family: var(--el-font-family, sans-serif); font-size: 13px; font-weight: 400; line-height: 20px; text-align: left; cursor: pointer; }
 .author-list button:hover { background: var(--fill-soft); }
 .author-list button.active { border-color: #cce3d8; background: #edf6f0; color: #126b58; font-weight: 600; }
 .author-list img, .author-symbol { flex: none; width: 32px; height: 32px; border-radius: 10px; object-fit: cover; }
 .author-symbol { display: grid; place-items: center; background: var(--fill-soft); color: #618575; }
-.author-symbol svg { width: var(--icon-sm); height: var(--icon-sm); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-.author-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.author-symbol svg { display: block; width: 18px; height: 18px; margin: 0; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.author-name { display: block; flex: 1; min-width: 0; margin: 0; padding: 0; overflow: hidden; line-height: 20px; text-overflow: ellipsis; white-space: nowrap; }
 .author-list .el-tag { flex: none; max-width: 64px; overflow: hidden; }
 .timeline { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .composer { min-width: 0; padding: 24px; border: 1px solid #dbe7df; border-radius: 20px; background: #fff; box-shadow: 0 4px 20px rgba(29, 64, 43, .025); font-family: var(--el-font-family); }
@@ -290,9 +289,10 @@ onUnmounted(() => { active = false; generation++; clearInterval(reminderTimer); 
 @media (max-width: 960px) {
   .feed-layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .authors { position: static; padding: 14px; }
-  .authors-heading { padding: 0 2px 10px; }
-  .author-list { flex-direction: row; gap: 8px; max-height: none; padding: 2px 2px 8px; overflow-x: auto; overflow-y: hidden; }
-  .author-list button { width: auto; max-width: 210px; min-height: 44px; }
+  .authors-heading { padding: 0 2px 12px; }
+  .author-list { flex-direction: row; align-items: center; gap: 8px; max-height: none; padding: 4px 2px; overflow-x: auto; overflow-y: hidden; }
+  .author-list button { justify-content: center; gap: 8px; width: auto; max-width: 210px; height: 40px; min-height: 40px; padding: 0 12px; }
+  .author-list img, .author-symbol { width: 24px; height: 24px; border-radius: 7px; }
   .author-name { flex: initial; max-width: 110px; }
 }
 @media (max-width: 640px) {

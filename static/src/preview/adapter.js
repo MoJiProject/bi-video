@@ -85,12 +85,18 @@ function read(path, params) {
   )
     return page(videos, params);
   if (path === "/home/love" || path === "/home/throwCoin") return videos;
-  if (
-    path === "/home/dynamic" ||
-    path === "/home/dynamicImg" ||
-    path === "/post/list"
-  )
-    return page(posts, params);
+  if (path === "/home/dynamic" || path === "/post/list") {
+    const ownerId = params.homeUserId || params.targetUserId;
+    const type = Number(params.type || 1);
+    return page(posts.filter((row) => {
+      if (ownerId && String(row.authorId) !== String(ownerId)) return false;
+      if (type === 2) return row.videoId != null;
+      if (type === 3) return path === "/home/dynamic" ? row.imageList.length > 0 : row.videoId == null;
+      if (type === 4) return row.imageList.length > 0;
+      return true;
+    }), params);
+  }
+  if (path === "/home/dynamicImg") return page(posts, params);
   if (
     path === "/home/relations" ||
     path === "/relation/list" ||

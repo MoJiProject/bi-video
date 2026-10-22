@@ -248,16 +248,20 @@
           <el-dialog
             class="creator-dialog creator-cover-dialog"
             title="选择封面"
-            :modal="false"
-            :lock-scroll="false"
+            append-to-body
+            destroy-on-close
+            modal-class="creator-cover-overlay"
+            :close-on-click-modal="false"
             v-model="centerDialogVisible"
-            width="min(760px, calc(100vw - 24px))"
-            center
+            width="min(900px, calc(100vw - 24px))"
+            align-center
           >
+            <div class="creator-cover-tabs" role="group" aria-label="封面来源">
             <button type="button"
               @click="coverImg = 1"
               class="cover-tab"
               :class="{ active: coverImg === 1 }"
+              :aria-pressed="coverImg === 1"
             >
               上传封面
             </button>
@@ -265,9 +269,11 @@
               @click="coverImg = 0"
               class="cover-tab"
               :class="{ active: coverImg === 0 }"
+              :aria-pressed="coverImg === 0"
             >
               截取封面
             </button>
+            </div>
             <el-upload
               v-if="coverImg === 1"
               ref="uploadRef"
@@ -303,28 +309,32 @@
               拖拽选框裁剪
             </div>
             <div v-if="coverImg === 0" class="creator-crop-viewport">
-            <CropperCompVue
-              v-if="coverImg === 0"
-              @cut="handleCut"
-              :imgURL="thumbnail || selectedThumbnail || video.coverAddress || defaultCoverSrc"
-              :title="fileNameWithoutExtension"
-            />
+              <CropperCompVue
+                @cut="handleCut"
+                :imgURL="thumbnail || selectedThumbnail || video.coverAddress || defaultCoverSrc"
+                :title="fileNameWithoutExtension"
+              >
+                <template #frames>
+                  <div v-if="thumbnails.length" class="thumbnail-slider" aria-label="选择视频画面">
+                    <div class="thumbnails" ref="thumbnailsRef">
+                      <button type="button"
+                        v-for="(thumb, index) in thumbnails"
+                        :key="index"
+                        @click="selectThumbnail(index)"
+                        class="thumbnail-choice"
+                        :class="{ 'is-selected': (selectedThumbnail || thumbnail) === thumb }"
+                        :aria-label="`选择第 ${index + 1} 帧`"
+                        :aria-pressed="(selectedThumbnail || thumbnail) === thumb"
+                      ><img :src="thumb" class="thumbnail" alt="" loading="lazy"></button>
+                    </div>
+                  </div>
+                </template>
+                <template #actions>
+                  <button type="button" @click="defaultCover" class="cover-template">使用封面模板</button>
+                </template>
+              </CropperCompVue>
             </div>
-            <button type="button" v-if="coverImg === 0" @click="defaultCover" class="crop">
-              使用封面模板
-            </button>
-            <div v-show="coverImg === 0" class="thumbnail-slider">
-              <div class="thumbnails" ref="thumbnailsRef">
-                <img
-                  v-for="(thumb, index) in thumbnails"
-                  :key="index"
-                  :src="thumb"
-                  @click="selectThumbnail(index)"
-                  class="thumbnail"
-                />
-              </div>
-            </div>
-            <template #footer>
+            <template v-if="coverImg === 1" #footer>
               <button type="button"
                 v-if="coverImg === 1 && fileListCover.length === 0"
                 class="uploadCoverImg"
@@ -1440,7 +1450,7 @@ export default {
         { label: "国风舞蹈", value: "国风舞蹈" },
         { label: "舞蹈教学", value: "舞蹈教学" },
       ],
-      "国产": [
+      "国创": [
         { label: "国产动画", value: "国产动画" },
         { label: "国产原创相关", value: "国产原创相关" },
         { label: "布袋戏", value: "布袋戏" },
@@ -1464,7 +1474,10 @@ export default {
         { label: "资讯", value: "资讯" },
         { label: "官方延伸", value: "官方延伸" },
       ],
-      "电视剧": [{ label: "国产剧", value: "" }],
+      "综艺": [{ label: "综艺", value: "综艺" }],
+      "资讯": [{ label: "资讯", value: "资讯" }],
+      "综合": [{ label: "综合", value: "综合" }],
+      "电视剧": [{ label: "国产剧", value: "国产剧" }],
       "电影": [{ label: "国产电影", value: "国产电影" }],
     };
 
@@ -1918,43 +1931,6 @@ h1 {
 
 .commit:hover {
   background-color: #5FB9B4;
-}
-.crop {
-  background-color: white;
-  width: 120px;
-  height: 30px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transform: translate(170px, 175px);
-  border-radius: 5px;
-  color: black;
-  border: 1px solid #aaaaaa;
-  cursor: pointer;
-}
-.crop:hover {
-  background-color: #cfcfcf;
-}
-.thumbnail-slider {
-  overflow-x: auto;
-  white-space: nowrap;
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 5px;
-  transform: translate(20px, -20px);
-  width: 620px;
-  height: 100px;
-}
-
-.thumbnails {
-  display: flex;
-}
-
-.thumbnail {
-  width: 100px;
-  height: auto;
-  margin-right: 10px;
-  cursor: pointer;
 }
 .el-dialog .el-dialog__headerbtn:hover {
   background-color: white;

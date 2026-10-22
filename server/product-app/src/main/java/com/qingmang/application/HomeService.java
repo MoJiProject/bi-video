@@ -94,7 +94,6 @@ public class HomeService {
 
     public PageResult<PostVO> posts(HomeQueryRequest q, Long viewerId) {
         auth.requireActiveUser(q.getHomeUserId());
-        if (q.getType() == 3) throw new BizException(ErrorCode.PARAM_INVALID);
         List<PostVO> rows = query.posts(q, viewerId, offset(q));
         rows.forEach(row -> preparePost(row, viewerId));
         return PageResult.of(rows, query.postCount(q, viewerId), q.getPageNum(), 20);

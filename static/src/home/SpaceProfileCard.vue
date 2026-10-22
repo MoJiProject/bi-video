@@ -31,10 +31,16 @@ dl > div { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 8px; 
 dt { color: var(--ink-3); }
 dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
 @media (max-width: 960px) {
-  .space-profile { position: static; }
-  dl { display: flex; flex-wrap: wrap; gap: 12px 28px; }
+  .space-profile { position: static; padding: 14px 16px; border-radius: 12px; }
+  header { padding-bottom: 0; border-bottom: 0; }
+  header a { padding: 2px 6px; background: transparent; }
+  dl { grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); gap: 8px; margin-top: 10px; }
+  dl > div { align-items: center; grid-template-columns: auto minmax(0, 1fr); gap: 10px; padding: 8px 10px; border-radius: 8px; background: var(--fill-soft); }
+  dd { color: var(--ink); font-variant-numeric: tabular-nums; }
 }
 @media (max-width: 640px) {
-  .space-profile { padding: 16px; border-radius: 14px; }
+  .space-profile { padding: 12px; }
+  h3 { font-size: 14px; }
+  dl { font-size: 12px; }
 }
 </style>

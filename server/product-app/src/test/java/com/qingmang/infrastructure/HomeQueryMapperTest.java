@@ -13,7 +13,7 @@ class HomeQueryMapperTest {
     @Test
     void allHomeSqlBranchesResolveSharedJoinsAndParameters() throws Exception {
         Configuration configuration = new Configuration();
-        for (String file : new String[]{"UserContentQueryMapper.xml", "HomeQueryMapper.xml"}) {
+        for (String file : new String[]{"UserContentQueryMapper.xml", "SocialQueryMapper.xml", "HomeQueryMapper.xml"}) {
             try (var input = Resources.getResourceAsStream("mapper/" + file)) {
                 new XMLMapperBuilder(input, configuration, file, configuration.getSqlFragments()).parse();
             }

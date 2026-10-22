@@ -2,795 +2,251 @@
   <div class="cropper">
     <div class="cropper-body">
       <div class="cropper-body-left">
-        <div class="img-wrp">
-          <img
-            :src="imgURL"
-            alt=""
-            ref="originImage"
-            style="width: 100%; height: 100%"
-          />
-          <div
-            class="showPosition"
-            ref="showPosition"
-            :style="`top: ${originHeightOffset}px;
-                                left: ${originWidthOffset}px;
-                                width: ${originShowWidth}px;
-                                height: ${originShowHeight}px;`"
-          >
-            <!-- 裁剪框 -->
-            <div
-              class="crop-box"
-              ref="cropBox"
-              :style="`width: ${boxWidth}px;
-                                    height: ${boxHeight}px;
-                                    top: ${boxTop}px;
-                                    left: ${boxLeft}px;`"
-            >
-              <!-- 中间移动块 -->
-              <div class="crop-box-move" ref="cropBoxMove"></div>
-              <!-- 内侧左蒙版 -->
-              <div class="crop-box-marking-left"></div>
-              <!-- 内侧右蒙版 -->
-              <div class="crop-box-marking-right"></div>
-              <!-- 内侧上蒙版 不可见 -->
-              <div class="crop-box-marking-top"></div>
-              <!-- 内侧下蒙版 不可见 -->
-              <div class="crop-box-marking-bottom"></div>
-              <!-- 左上控块 -->
-              <div
-                class="cropper-point point-lt"
-                @mousedown="(e) => startResize('lt', e)"
-                @touchstart="(e) => startResize('lt', e.touches[0])"
-              ></div>
-              <!-- 右上控块 -->
-              <div
-                class="cropper-point point-rt"
-                @mousedown="(e) => startResize('rt', e)"
-                @touchstart="(e) => startResize('rt', e.touches[0])"
-              ></div>
-              <!-- 左下控块 -->
-              <div
-                class="cropper-point point-lb"
-                @mousedown="(e) => startResize('lb', e)"
-                @touchstart="(e) => startResize('lb', e.touches[0])"
-              ></div>
-              <!-- 右下控块 -->
-              <div
-                class="cropper-point point-rb"
-                @mousedown="(e) => startResize('rb', e)"
-                @touchstart="(e) => startResize('rb', e.touches[0])"
-              ></div>
+        <div ref="stage" class="img-wrp" @pointermove="moveSelection"
+          @pointerup="endInteraction" @pointercancel="endInteraction" @lostpointercapture="endInteraction">
+          <img v-if="imgURL" v-show="imageReady" ref="originImage" :src="imgURL"
+            alt="待裁剪封面" crossorigin="anonymous" draggable="false"
+            @load="onImageLoad" @error="onImageError">
+          <div v-if="!imageReady" class="cropper-empty" :role="imageError ? 'alert' : 'status'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="8" cy="9" r="1.5"/>
+              <path d="m3 17 5-5 4 4 4-5 5 6"/>
+            </svg>
+            <strong>{{ imageError ? '画面加载失败' : imgURL ? '正在加载画面' : '暂无可裁剪画面' }}</strong>
+            <span>{{ imageError ? '请重新选择视频画面，或切换到上传封面' : '可选择视频画面，也可以上传图片或使用封面模板' }}</span>
+          </div>
+          <div v-if="imageReady" class="show-position"
+            :style="{ width: `${originShowWidth}px`, height: `${originShowHeight}px`,
+              left: `${originWidthOffset}px`, top: `${originHeightOffset}px` }">
+            <div class="crop-box" :style="{ width: `${boxWidth}px`, height: `${boxHeight}px`,
+              left: `${boxLeft}px`, top: `${boxTop}px` }">
+              <div class="crop-box-safe-area" aria-hidden="true"></div>
+              <div class="crop-box-move" @pointerdown.prevent="startInteraction($event, 'move')"></div>
+              <span v-for="corner in ['lt', 'rt', 'lb', 'rb']" :key="corner"
+                class="cropper-point" :class="`point-${corner}`"
+                @pointerdown.stop.prevent="startInteraction($event, corner)"></span>
             </div>
-            <!-- 上蒙版 -->
-            <div
-              class="marking marking-top"
-              :style="`width: ${boxWidth}px;
-                                    height: ${boxTop}px;
-                                    top: 0px;
-                                    left: ${boxLeft}px;`"
-            ></div>
-            <!-- 右蒙版 -->
-            <div
-              class="marking marking-right"
-              :style="`width: ${originShowWidth - (boxLeft + boxWidth)}px;
-                                    height: ${originShowHeight}px;
-                                    top: 0px;
-                                    left: ${boxLeft + boxWidth}px;`"
-            ></div>
-            <!-- 下蒙版 -->
-            <div
-              class="marking marking-bottom"
-              :style="`width: ${boxWidth}px;
-                                    height: ${
-                                      originShowHeight - (boxTop + boxHeight)
-                                    }px;
-                                    top: ${boxTop + boxHeight}px;
-                                    left: ${boxLeft}px;`"
-            ></div>
-            <!-- 左蒙版 -->
-            <div
-              class="marking marking-left"
-              :style="`width: ${boxLeft}px;
-                                    height: ${originShowHeight}px;
-                                    top: 0px;
-                                    left: 0px;`"
-            ></div>
           </div>
         </div>
         <div class="tips-wrp">
-          <div>当前分辨率 {{ cutWidth }}*{{ cutHeight }}</div>
-          <div>*部分情况下您的封面将以4:3比例展示</div>
-        </div>
-        <div class="cropper-controls">
-          <div @click="cut" class="crop">完成</div>
+          <span v-if="imageReady">裁剪分辨率 <strong>{{ cutWidth }} × {{ cutHeight }}</strong></span>
+          <span>拖动选框调整位置，拖动四角缩放；虚线内为 4:3 安全区域</span>
         </div>
       </div>
       <div class="cropper-body-right">
-        <div class="preview-item">
-          <div class="preview-title">16:9效果预览</div>
+        <div v-for="ratio in ['16:9', '4:3']" :key="ratio" class="preview-item">
+          <div class="preview-title">{{ ratio }} 效果预览</div>
           <div class="preview-card">
-            <div class="pic169">
-              <img
-                :src="imgURL"
-                alt=""
-                :style="`width: ${prev169Width}px;
-                                        height: ${prev169Height}px;
-                                        transform: translateX(-${prev169OffsetX}px) translateY(-${prev169OffsetY}px);`"
-              />
+            <div class="preview-image" :class="{ 'is-standard': ratio === '4:3' }">
+              <img v-if="imageReady" :src="imgURL" alt="封面裁剪预览" :style="previewStyle(ratio)">
+              <span v-else>暂无预览</span>
             </div>
-            <div class="title">
-              <span>{{ title }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="preview-item" style="transform: translate(0px, 50px)">
-          <div class="preview-title">4:3效果预览</div>
-          <div class="preview-card">
-            <div class="pic43">
-              <img
-                :src="imgURL"
-                alt=""
-                :style="`width: ${prev43Width}px;
-                                        height: ${prev43Height}px;
-                                        transform: translateX(-${prev43OffsetX}px) translateY(-${prev43OffsetY}px);`"
-              />
-            </div>
-            <div class="title" style="transform: translateY(42px)">
-              <span>{{ title }}</span>
-            </div>
+            <p v-if="title.trim()" class="preview-caption">{{ title }}</p>
           </div>
         </div>
       </div>
     </div>
-    <canvas ref="cropperCanvas" style="display: none"></canvas>
+    <slot name="frames"></slot>
+    <div class="cropper-controls">
+      <slot name="actions"></slot>
+      <button type="button" class="crop-confirm" :disabled="!imageReady" @click="cut">完成裁剪</button>
+    </div>
+    <canvas ref="cropperCanvas" hidden></canvas>
   </div>
 </template>
 
 <script>
+import { ElMessage } from "element-plus";
+
+const ASPECT_RATIO = 16 / 9;
+
 export default {
   name: "CropperComp",
+  emits: ["cut", "update:cutOrder"],
+  props: {
+    imgURL: { type: String, default: null },
+    cutOrder: { type: Boolean, default: false },
+    title: { type: String, default: "" },
+  },
   data() {
     return {
-      width: 0, // 原图的宽
-      height: 0, // 原图的高
-      boxWidth: 0, // 裁剪框宽
-      boxHeight: 0, // 裁剪框高
-      boxTop: 0, // 裁剪框的上偏移量 上蒙版的高度
-      boxLeft: 0, // 裁剪框的左偏移量 左蒙版的宽度
-      isResizing: false, // 是否正在缩放
-      resizeDirection: "", // 缩放方向
-      startX: 0, // 鼠标按下时的X坐标
-      startBoxWidth: 0, // 鼠标按下时的裁剪框宽度
-      startBoxHeight: 0, // 鼠标按下时的裁剪框高度
-      startBoxLeft: 0, // 鼠标按下时的裁剪框左偏移量
-      startBoxTop: 0, // 鼠标按下时的裁剪框上偏移量
+      width: 0,
+      height: 0,
+      stageWidth: 480,
+      boxWidth: 0,
+      boxHeight: 0,
+      boxLeft: 0,
+      boxTop: 0,
+      imageError: false,
+      interaction: null,
+      stageObserver: null,
     };
   },
-  props: {
-    // 被裁剪的图片原图，watch监听变化
-    imgURL: {
-      type: String,
-      default() {
-        return null;
-      },
-    },
-    // 开始裁剪命令 v-model进行双向绑定 在watch里监听变化，由false变为true时就触发裁剪
-    cutOrder: {
-      type: Boolean,
-      default() {
-        return false;
-      },
-    },
-    // 预览标题
-    title: {
-      type: String,
-      default() {
-        return "";
-      },
-    },
-  },
   computed: {
-    // 计算原图宽高比
-    originAspectRatio() {
-      return this.width / this.height;
-    },
-
-    // 计算原图呈现宽
-    originShowWidth() {
-      // 如果原图较高，重新计算呈现宽，否则就480
-      if (this.originAspectRatio < 16 / 9) {
-        return 270 * this.originAspectRatio;
-      } else {
-        return 480;
-      }
-    },
-
-    // 计算原图呈现高
-    originShowHeight() {
-      // 如果原图较宽，重新计算呈现高，否则就270
-      if (this.originAspectRatio > 16 / 9) {
-        return 480 / this.originAspectRatio;
-      } else {
-        return 270;
-      }
-    },
-
-    // 计算原图相对 img-wrp 的宽偏移量
-    originWidthOffset() {
-      // 如果原图较高，计算左右偏移量，否则就0
-      if (this.originAspectRatio < 16 / 9) {
-        // 先根据固定高计算呈现宽
-        const showWidth = 270 * this.originAspectRatio;
-        return (480 - showWidth) / 2;
-      } else {
-        return 0;
-      }
-    },
-
-    // 计算原图相对 img-wrp 的高偏移量
-    originHeightOffset() {
-      // 如果原图较宽，计算上下偏移量，否则就0
-      if (this.originAspectRatio > 16 / 9) {
-        // 先根据固定宽计算呈现高
-        const showHeight = 480 / this.originAspectRatio;
-        return (270 - showHeight) / 2;
-      } else {
-        return 0;
-      }
-    },
-
-    // 根据裁剪框的位置和大小按比例计算裁剪后的图片信息
-    // 左偏移 像素
-    cutOffsetX() {
-      return Math.floor((this.boxLeft / this.originShowWidth) * this.width);
-    },
-    // 上偏移 像素
-    cutOffsetY() {
-      return Math.floor((this.boxTop / this.originShowHeight) * this.height);
-    },
-    // 裁剪图宽 像素
-    cutWidth() {
-      return Math.floor((this.boxWidth / this.originShowWidth) * this.width);
-    },
-    // 裁剪图高 像素
-    cutHeight() {
-      return Math.floor((this.boxHeight / this.originShowHeight) * this.height);
-    },
-
-    // 计算16:9预览图相关
-    // 实际宽度
-    prev169Width() {
-      return 224 * (this.originShowWidth / this.boxWidth);
-    },
-    // 实际高度
-    prev169Height() {
-      return 126 * (this.originShowHeight / this.boxHeight);
-    },
-    // 实际偏移X
-    prev169OffsetX() {
-      return this.prev169Width * (this.boxLeft / this.originShowWidth);
-    },
-    // 实际偏移Y
-    prev169OffsetY() {
-      return this.prev169Height * (this.boxTop / this.originShowHeight);
-    },
-
-    // 计算4:3预览图相关
-    // 实际宽度
-    prev43Width() {
-      return 224 * (this.originShowWidth / (this.boxWidth * 0.75));
-    },
-    // 实际高度
-    prev43Height() {
-      return 168 * (this.originShowHeight / this.boxHeight);
-    },
-    // 实际偏移X
-    prev43OffsetX() {
-      return (
-        this.prev43Width *
-        ((this.boxWidth * 0.125 + this.boxLeft) / this.originShowWidth)
-      );
-    },
-    // 实际偏移Y
-    prev43OffsetY() {
-      return this.prev43Height * (this.boxTop / this.originShowHeight);
-    },
+    imageReady() { return Boolean(this.imgURL && !this.imageError && this.width > 0 && this.height > 0); },
+    stageHeight() { return this.stageWidth / ASPECT_RATIO; },
+    originShowWidth() { return this.imageReady ? Math.min(this.stageWidth, this.stageHeight * this.width / this.height) : 0; },
+    originShowHeight() { return this.imageReady ? Math.min(this.stageHeight, this.stageWidth * this.height / this.width) : 0; },
+    originWidthOffset() { return (this.stageWidth - this.originShowWidth) / 2; },
+    originHeightOffset() { return (this.stageHeight - this.originShowHeight) / 2; },
+    cutOffsetX() { return this.imageReady ? Math.max(0, Math.min(this.width - 1, Math.floor(this.boxLeft / this.originShowWidth * this.width))) : 0; },
+    cutOffsetY() { return this.imageReady ? Math.max(0, Math.min(this.height - 1, Math.floor(this.boxTop / this.originShowHeight * this.height))) : 0; },
+    cutWidth() { return this.imageReady ? Math.min(this.width - this.cutOffsetX, Math.max(1, Math.floor(this.boxWidth / this.originShowWidth * this.width))) : 0; },
+    cutHeight() { return this.imageReady ? Math.min(this.height - this.cutOffsetY, Math.max(1, Math.floor(this.boxHeight / this.originShowHeight * this.height))) : 0; },
   },
   methods: {
-    // 初始化裁剪框
+    onImageLoad(event) {
+      this.width = event.target.naturalWidth;
+      this.height = event.target.naturalHeight;
+      this.imageError = false;
+      this.initBox();
+    },
+    onImageError() {
+      this.endInteraction();
+      this.imageError = true;
+      this.width = this.height = 0;
+    },
     initBox() {
-      // 如果是较宽图片，以原图呈现高初始化
-      if (this.originAspectRatio > 16 / 9) {
-        this.boxHeight = 0.9 * this.originShowHeight;
-        this.boxWidth = (this.boxHeight * 16) / 9;
-        this.boxTop = (this.originShowHeight - this.boxHeight) / 2;
-        this.boxLeft = (480 - this.boxWidth) / 2;
-      }
-      // 否则以原图呈现宽初始化
-      else {
-        this.boxWidth = 0.9 * this.originShowWidth;
-        this.boxHeight = this.boxWidth / (16 / 9);
-        this.boxTop = (270 - this.boxHeight) / 2;
-        this.boxLeft = (this.originShowWidth - this.boxWidth) / 2;
-      }
+      this.boxWidth = Math.min(this.originShowWidth, this.originShowHeight * ASPECT_RATIO) * 0.9;
+      this.boxHeight = this.boxWidth / ASPECT_RATIO;
+      this.boxLeft = (this.originShowWidth - this.boxWidth) / 2;
+      this.boxTop = (this.originShowHeight - this.boxHeight) / 2;
     },
-
-    // 初始化拖动
-    initDrag() {
-      const cropBoxMove = this.$refs.cropBoxMove; // 获取crop-box-move元素
-      const cropBox = this.$refs.cropBox; // 获取crop-box元素
-      const showPosition = this.$refs.showPosition; // 获取showPosition元素
-
-      let isDragging = false; // 是否正在拖动
-      let offsetX, offsetY;
-
-      // 鼠标按下事件处理程序
-      cropBoxMove.addEventListener("mousedown", (e) => {
-        isDragging = true;
-        offsetX = e.clientX - cropBox.getBoundingClientRect().left; // 鼠标相对crop-box的X偏移
-        offsetY = e.clientY - cropBox.getBoundingClientRect().top; // 鼠标相对crop-box的Y偏移
-      });
-
-      // 在移动端 触摸事件处理程序
-      cropBoxMove.addEventListener("touchstart", (e) => {
-        isDragging = true;
-        offsetX = e.touches[0].clientX - cropBox.getBoundingClientRect().left;
-        offsetY = e.touches[0].clientY - cropBox.getBoundingClientRect().top;
-      });
-
-      // 鼠标移动事件处理程序
-      document.addEventListener("mousemove", (e) => {
-        if (!isDragging) return;
-
-        // 计算新的crop-box位置
-        let left =
-          e.clientX - offsetX - showPosition.getBoundingClientRect().left;
-        let top =
-          e.clientY - offsetY - showPosition.getBoundingClientRect().top;
-
-        // 限制crop-box在showPosition内部
-        left = Math.max(0, left);
-        left = Math.min(showPosition.offsetWidth - cropBox.offsetWidth, left);
-        top = Math.max(0, top);
-        top = Math.min(showPosition.offsetHeight - cropBox.offsetHeight, top);
-
-        // 设置新位置
-        this.boxLeft = left;
-        this.boxTop = top;
-      });
-
-      // 在移动端 移动事件处理程序
-      document.addEventListener("touchmove", (e) => {
-        if (!isDragging) return;
-
-        // 计算新的crop-box位置
-        let left =
-          e.touches[0].clientX -
-          offsetX -
-          showPosition.getBoundingClientRect().left;
-        let top =
-          e.touches[0].clientY -
-          offsetY -
-          showPosition.getBoundingClientRect().top;
-
-        // 限制crop-box在showPosition内部
-        left = Math.max(0, left);
-        left = Math.min(showPosition.offsetWidth - cropBox.offsetWidth, left);
-        top = Math.max(0, top);
-        top = Math.min(showPosition.offsetHeight - cropBox.offsetHeight, top);
-
-        // 设置新位置
-        this.boxLeft = left;
-        this.boxTop = top;
-      });
-
-      // 鼠标释放事件处理程序
-      document.addEventListener("mouseup", () => {
-        isDragging = false;
-      });
-
-      // 在移动端 释放事件处理程序
-      document.addEventListener("touchend", () => {
-        isDragging = false;
-      });
+    resizeStage(width) {
+      if (width <= 0 || width === this.stageWidth) return;
+      this.endInteraction();
+      const scale = width / this.stageWidth;
+      this.stageWidth = width;
+      this.boxWidth *= scale;
+      this.boxHeight *= scale;
+      this.boxLeft *= scale;
+      this.boxTop *= scale;
     },
-
-    // 图片更换时更新原图宽高值，并且更新裁剪框呈现
-    updateOrigin() {
-      const img = new Image();
-      img.src = this.imgURL;
-      img.onload = () => {
-        this.width = img.width;
-        this.height = img.height;
-        setTimeout(() => {
-          this.initBox(); // 初始化裁剪框
-        }, 1); // 异步延时等待初始值更新完
+    previewStyle(ratio) {
+      const width = this.boxWidth * (ratio === "4:3" ? 0.75 : 1);
+      const left = this.boxLeft + (ratio === "4:3" ? this.boxWidth * 0.125 : 0);
+      return {
+        width: `${this.originShowWidth / width * 100}%`,
+        transform: `translate(${-left / this.originShowWidth * 100}%, ${-this.boxTop / this.originShowHeight * 100}%)`,
       };
     },
-
-    // 开始缩放
-    startResize(resizeDirection, event) {
-      this.isResizing = true;
-      this.resizeDirection = resizeDirection;
-      // 记录按下时的状态
-      this.startX = event.clientX;
-      this.startBoxWidth = this.boxWidth;
-      this.startBoxHeight = this.boxHeight;
-      this.startBoxLeft = this.boxLeft;
-      this.startBoxTop = this.boxTop;
-      // 添加全局事件监听器
-      window.addEventListener("mousemove", this.resize);
-      window.addEventListener("touchmove", this.resize);
-      window.addEventListener("mouseup", this.stopResize);
-      window.addEventListener("touchend", this.stopResize);
+    startInteraction(event, direction) {
+      if (!this.imageReady || this.interaction || event.button !== 0) return;
+      event.currentTarget.setPointerCapture(event.pointerId);
+      this.interaction = {
+        direction, target: event.currentTarget, pointerId: event.pointerId,
+        x: event.clientX, y: event.clientY,
+        left: this.boxLeft, top: this.boxTop, width: this.boxWidth, height: this.boxHeight,
+      };
     },
-
-    // 缩放中
-    resize(event) {
-      if (!this.isResizing) return;
-      // 根据event值来判断是移动端还是电脑端
-      const clientX =
-        event.touches && event.touches.length > 0
-          ? event.touches[0].clientX
-          : event.clientX;
-      const deltaX = clientX - this.startX;
-      // 根据不同的缩放方向，计算新的尺寸和位置
-      if (this.resizeDirection == "lt") {
-        // 左上缩放
-        // 计算新的宽度和左偏移量
-        const newWidth = this.startBoxWidth - deltaX;
-        const newLeft = this.startBoxLeft + deltaX;
-        // 比例缩放
-        const newHeight = newWidth / (16 / 9);
-        const newTop = this.startBoxTop + (this.startBoxHeight - newHeight);
-        // 边界检查
-        if (
-          newWidth >= 64 &&
-          newWidth <= this.originShowWidth &&
-          newLeft >= 0 &&
-          newTop >= 0
-        ) {
-          this.boxWidth = newWidth;
-          this.boxHeight = newHeight;
-          this.boxLeft = newLeft;
-          this.boxTop = newTop;
-        }
-      } else if (this.resizeDirection == "rt") {
-        // 右上缩放
-        const newWidth = this.startBoxWidth + deltaX;
-        // 比例缩放
-        const newHeight = newWidth / (16 / 9);
-        const newTop = this.startBoxTop + (this.startBoxHeight - newHeight);
-        // 边界检查
-        if (
-          newWidth >= 64 &&
-          newWidth + this.startBoxLeft <= this.originShowWidth &&
-          newTop >= 0
-        ) {
-          this.boxWidth = newWidth;
-          this.boxHeight = newHeight;
-          this.boxTop = newTop;
-        }
-      } else if (this.resizeDirection == "lb") {
-        // 左下缩放
-        const newWidth = this.startBoxWidth - deltaX;
-        const newLeft = this.startBoxLeft + deltaX;
-        // 比例缩放
-        const newHeight = newWidth / (16 / 9);
-        // 边界检查
-        if (
-          newWidth >= 64 &&
-          newWidth <= this.originShowWidth &&
-          newLeft >= 0 &&
-          this.startBoxTop + newHeight <= this.originShowHeight
-        ) {
-          this.boxWidth = newWidth;
-          this.boxHeight = newHeight;
-          this.boxLeft = newLeft;
-        }
-      } else if (this.resizeDirection == "rb") {
-        // 右下缩放
-        const newWidth = this.startBoxWidth + deltaX;
-        // 比例缩放
-        const newHeight = newWidth / (16 / 9);
-        // 边界检查
-        if (
-          newWidth >= 64 &&
-          newWidth + this.startBoxLeft <= this.originShowWidth &&
-          this.startBoxTop + newHeight <= this.originShowHeight
-        ) {
-          this.boxWidth = newWidth;
-          this.boxHeight = newHeight;
-        }
+    moveSelection(event) {
+      const start = this.interaction;
+      if (!start || start.pointerId !== event.pointerId) return;
+      const dx = event.clientX - start.x;
+      const dy = event.clientY - start.y;
+      if (start.direction === "move") {
+        this.boxLeft = Math.max(0, Math.min(this.originShowWidth - this.boxWidth, start.left + dx));
+        this.boxTop = Math.max(0, Math.min(this.originShowHeight - this.boxHeight, start.top + dy));
+        return;
       }
-      // 阻止默认事件
-      if (!(event.touches && event.touches.length > 0)) {
-        event.preventDefault();
-      }
+      const fromLeft = start.direction.includes("l");
+      const fromTop = start.direction.includes("t");
+      const anchorX = start.left + (fromLeft ? start.width : 0);
+      const anchorY = start.top + (fromTop ? start.height : 0);
+      const maxWidth = Math.min(fromLeft ? anchorX : this.originShowWidth - anchorX,
+        (fromTop ? anchorY : this.originShowHeight - anchorY) * ASPECT_RATIO);
+      const delta = Math.abs(dx) >= Math.abs(dy * ASPECT_RATIO)
+        ? dx * (fromLeft ? -1 : 1) : dy * ASPECT_RATIO * (fromTop ? -1 : 1);
+      this.boxWidth = Math.max(Math.min(64, maxWidth), Math.min(maxWidth, start.width + delta));
+      this.boxHeight = this.boxWidth / ASPECT_RATIO;
+      this.boxLeft = fromLeft ? anchorX - this.boxWidth : start.left;
+      this.boxTop = fromTop ? anchorY - this.boxHeight : start.top;
     },
-
-    // 停止缩放
-    stopResize() {
-      // 清除事件监听器
-      window.removeEventListener("mousemove", this.resize);
-      window.removeEventListener("touchmove", this.resize);
-      window.removeEventListener("mouseup", this.stopResize);
-      window.removeEventListener("touchend", this.stopResize);
-      // 重置缩放状态
-      this.isResizing = false;
-      this.resizeDirection = "";
+    endInteraction() {
+      const start = this.interaction;
+      this.interaction = null;
+      if (start?.target.hasPointerCapture(start.pointerId)) start.target.releasePointerCapture(start.pointerId);
     },
-
     cut() {
-      const img = new Image();
-      img.src = this.imgURL;
-      const canvas = this.$refs.cropperCanvas;
-      canvas.width = this.cutWidth;
-      canvas.height = this.cutHeight;
-      const ctx = canvas.getContext("2d");
-
-      img.onload = () => {
-        ctx.drawImage(
-          img,
-          this.cutOffsetX,
-          this.cutOffsetY,
-          this.cutWidth,
-          this.cutHeight,
-          0,
-          0,
-          canvas.width,
-          canvas.height,
-        );
-        this.$emit("update:cutOrder", false); // 裁剪完改回false
-
-        // 获取裁剪后的图片的 Base64 URL
-        const base64Image = canvas.toDataURL("image/jpeg");
-
-        // 触发事件传递 Base64 URL
-        this.$emit("cut", base64Image);
-      };
+      if (!this.imageReady) {
+        ElMessage.warning("请先选择可裁剪的画面");
+        this.$emit("update:cutOrder", false);
+        return;
+      }
+      try {
+        const canvas = this.$refs.cropperCanvas;
+        canvas.width = this.cutWidth;
+        canvas.height = this.cutHeight;
+        const context = canvas.getContext("2d");
+        if (!context) throw new Error("当前浏览器无法裁剪图片，请直接上传封面");
+        context.drawImage(this.$refs.originImage, this.cutOffsetX, this.cutOffsetY,
+          this.cutWidth, this.cutHeight, 0, 0, canvas.width, canvas.height);
+        this.$emit("cut", canvas.toDataURL("image/jpeg"));
+      } catch (error) {
+        ElMessage.error(error.message || "裁剪失败，请重新选择图片或直接上传封面");
+      } finally {
+        this.$emit("update:cutOrder", false);
+      }
     },
   },
   mounted() {
-    this.updateOrigin(); // 初始化原图宽高
-    this.initDrag(); // 初始化拖动，开启监听事件
+    this.resizeStage(this.$refs.stage.clientWidth);
+    this.stageObserver = new ResizeObserver(entries => this.resizeStage(entries[0].contentRect.width));
+    this.stageObserver.observe(this.$refs.stage);
+  },
+  beforeUnmount() {
+    this.stageObserver?.disconnect();
+    this.endInteraction();
   },
   watch: {
-    imgURL(current) {
-      if (current) {
-        this.updateOrigin();
-      }
+    imgURL() {
+      this.endInteraction();
+      this.imageError = false;
+      this.width = this.height = this.boxWidth = this.boxHeight = 0;
     },
-    cutOrder(current) {
-      if (current) {
-        this.cut(); // true就开始裁剪函数
-      }
-    },
+    cutOrder(current) { if (current) this.cut(); },
   },
 };
 </script>
 
 <style scoped>
-.cropper {
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-}
-
-.cropper-body {
-  display: flex;
-  position: relative;
-}
-
-.cropper-body-left {
-  padding-top: 22px;
-  width: 480px;
-}
-
-.img-wrp {
-  height: 270px;
-  width: 100%;
-  border-radius: 4px;
-  background-color: #000;
-  overflow: hidden;
-  text-align: center;
-  position: relative;
-}
-
-.img-wrp > img {
-  width: 100%;
-  height: 100%;
-  object-fit: scale-down;
-}
-
-.showPosition {
-  position: absolute;
-}
-
-.crop-box {
-  position: relative;
-  border: 1px solid #fff;
-  box-sizing: border-box;
-}
-
-.crop-box-move {
-  z-index: 9;
-  position: absolute;
-  cursor: move;
-  width: 100%;
-  height: 100%;
-  left: 0;
-  top: 0;
-}
-
-.crop-box-marking-left {
-  z-index: 8;
-  position: absolute;
-  width: 12.5%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.2);
-  border-right: 1px dashed rgba(255, 111, 111, 0.6);
-  left: 0;
-  top: 0;
-}
-
-.crop-box-marking-right {
-  z-index: 8;
-  position: absolute;
-  width: 12.5%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.2);
-  border-left: 1px dashed rgba(255, 111, 111, 0.6);
-  right: 0;
-  top: 0;
-}
-
-.crop-box-marking-top {
-  z-index: 7;
-  position: absolute;
-  height: 12.5%;
-  width: 100%;
-  left: 0;
-  top: 0;
-}
-
-.crop-box-marking-bottom {
-  z-index: 7;
-  position: absolute;
-  height: 12.5%;
-  width: 100%;
-  left: 0;
-  bottom: 0;
-}
-
-.cropper-point {
-  position: absolute;
-  background-color: #fff;
-  height: 12.5px;
-  opacity: 1;
-  width: 12.5px;
-  border-radius: 50%;
-  z-index: 10;
-}
-
-.point-lt {
-  cursor: nwse-resize;
-  left: -6px;
-  top: -6px;
-}
-
-.point-rt {
-  cursor: nesw-resize;
-  right: -6px;
-  top: -6px;
-}
-
-.point-lb {
-  cursor: nesw-resize;
-  left: -6px;
-  bottom: -6px;
-}
-
-.point-rb {
-  cursor: nwse-resize;
-  right: -6px;
-  bottom: -6px;
-}
-
-.marking {
-  position: absolute;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.tips-wrp {
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 20px;
-  color: var(--text2);
-  margin-top: 12px;
-}
-
-.cropper-body-right {
-  position: absolute;
-  right: 0;
-  transform: scale(0.62);
-  transform-origin: right 0;
-  padding-right: 50px;
-}
-
-.preview-item {
-  margin-top: 18px;
-}
-
-.preview-title {
-  margin-bottom: 10px;
-  position: relative;
-  font-weight: 400;
-  text-align: left;
-  font-size: 20px;
-  color: #19181c;
-}
-
-.preview-card {
-  width: 224px;
-  background: #fff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-}
-.crop {
-  background-color: #0E9C85;
-  width: 120px;
-  height: 30px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transform: translate(330px, 187px);
-  border-radius: 5px;
-  color: white;
-  cursor: pointer;
-}
-.crop:hover {
-  background-color: #5FB9B4;
-}
-.pic169 {
-  position: relative;
-  overflow: hidden;
-  height: 126px;
-  width: 100%;
-  border-radius: 8px 8px 0 0;
-  background-color: var(--graph_bg_regular);
-}
-
-.pic43 {
-  position: relative;
-  overflow: hidden;
-  height: 168px;
-  width: 100%;
-  border-radius: 8px 8px 0 0;
-  background-color: var(--graph_bg_regular);
-}
-
-.title {
-  height: 65px;
-  width: 100%;
-}
-
-.title span {
-  transform: translate(-20px, 20px);
-  margin: 8px 12px;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  color: #212121;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  -webkit-line-clamp: 2;
-  word-break: break-all;
+.cropper { min-width: 0; user-select: none; }
+.cropper-body { display: grid; grid-template-columns: minmax(0, 1fr) 184px; align-items: start; gap: 24px; }
+.cropper-body-left { min-width: 0; }
+.img-wrp { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; background: #202727; overflow: hidden; touch-action: none; }
+.img-wrp > img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; }
+.cropper-empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 16px; color: #fff; text-align: center; }
+.cropper-empty svg { width: 36px; height: 36px; opacity: .7; }
+.cropper-empty strong { font-size: 14px; font-weight: 500; }
+.cropper-empty span { max-width: 300px; font-size: 12px; line-height: 1.7; color: #c6d2cf; }
+.show-position { position: absolute; }
+.crop-box { position: absolute; outline: 1px solid #fff; box-shadow: 0 0 0 100vmax #0008; }
+.crop-box-safe-area { position: absolute; inset: 0 12.5%; border-inline: 1px dashed #fff9; pointer-events: none; }
+.crop-box-move { position: absolute; inset: 0; cursor: move; }
+.cropper-point { position: absolute; box-sizing: border-box; width: 14px; height: 14px; border: 2px solid var(--brand); border-radius: 4px; background: #fff; touch-action: none; }
+.point-lt { top: -7px; left: -7px; cursor: nwse-resize; }
+.point-rt { top: -7px; right: -7px; cursor: nesw-resize; }
+.point-lb { bottom: -7px; left: -7px; cursor: nesw-resize; }
+.point-rb { bottom: -7px; right: -7px; cursor: nwse-resize; }
+.tips-wrp { display: flex; flex-direction: column; gap: 4px; margin-top: 12px; color: var(--ink-3); font-size: 12px; line-height: 1.7; }
+.tips-wrp strong { color: var(--ink-2); font-weight: 500; }
+.cropper-body-right { display: grid; gap: 16px; min-width: 0; }
+.preview-title { margin-bottom: 8px; color: var(--ink-2); font-size: 12px; }
+.preview-card { overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.preview-image { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--fill-soft); }
+.preview-image.is-standard { aspect-ratio: 4 / 3; }
+.preview-image img { position: absolute; top: 0; left: 0; height: auto; max-width: none; }
+.preview-image > span { position: absolute; inset: 0; display: grid; place-items: center; color: var(--ink-3); font-size: 12px; }
+.preview-caption { display: -webkit-box; margin: 0; padding: 8px 10px; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow-wrap: anywhere; color: var(--ink); font-size: 12px; line-height: 1.6; }
+.cropper-controls { display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.crop-confirm { min-height: 38px; padding: 0 24px; border: 0; border-radius: 9px; background: var(--brand); color: #fff; font: inherit; font-size: 14px; cursor: pointer; }
+.crop-confirm:hover:not(:disabled) { background: var(--brand-hover); }
+.crop-confirm:disabled { opacity: .45; cursor: not-allowed; }
+.crop-confirm:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+@media (max-width: 640px) {
+  .cropper-body { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .cropper-body-right { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cropper-empty { gap: 8px; }
+  .cropper-empty svg { width: 28px; height: 28px; }
 }
 </style>

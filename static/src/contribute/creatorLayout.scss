@@ -7,9 +7,6 @@
   color: var(--ink);
   user-select: auto;
 
-  .cu-header { height: 64px; border-bottom: 1px solid var(--line); box-shadow: none; z-index: var(--z-head); }
-  .cu-brand-title { color: var(--ink); font-size: 18px; letter-spacing: 0; }
-  .cu-logo { width: 38px; }
   .creator-workspace { flex-direction: column; min-width: 0; padding: 24px var(--page-pad) 48px; }
   .contribute-aside { overflow: visible; width: 100%; border: 1px solid var(--line); border-radius: 14px; background: #fff; z-index: var(--z-sticky); }
   .contribute-main { min-width: 0; padding: 20px 0 0; }
@@ -81,9 +78,6 @@
 }
 @media (max-width: 640px) {
   .creator-center {
-    .cu-header-inner { gap: 10px; }
-    .cu-logo { width: 30px; }
-    .cu-brand-title { font-size: 16px; }
     .creator-workspace { padding-top: 16px; padding-bottom: 32px; }
     .contribute-main { padding-top: 16px; }
     :deep(.creator-upload-panel) { gap: 18px; padding: 16px; border-radius: 14px; }
@@ -94,8 +88,9 @@
     :deep(.creator-form .category-selects) { grid-template-columns: minmax(0, 1fr); }
     :deep(.creator-form .commit) { width: 100%; }
   }
+}
 
-  :global(.el-dialog.creator-dialog) {
+:global(.el-dialog.creator-dialog) {
     --el-color-primary: var(--brand);
     --el-color-primary-light-3: var(--brand-light-3);
     --el-color-primary-light-5: var(--brand-light-5);
@@ -105,21 +100,31 @@
     border-radius: 16px;
   }
   :global(.el-dialog.creator-dialog .el-dialog__title) { color: var(--ink); font-weight: 600; }
-  :global(.el-dialog.creator-cover-dialog .cover-tab) { margin: 0 8px 18px 0; padding: 8px 14px; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--ink-2); font: inherit; font-size: 13px; cursor: pointer; }
+  :global(.creator-cover-overlay) { background: rgb(16 28 24 / 58%); }
+  :global(.el-dialog.creator-cover-dialog) { display: flex; flex-direction: column; max-height: calc(100dvh - 32px); padding: 24px; box-sizing: border-box; box-shadow: 0 20px 80px rgb(0 0 0 / 18%); }
+  :global(.el-dialog.creator-cover-dialog .el-dialog__header) { margin: 0; padding: 0 32px 18px 0; text-align: left; }
+  :global(.el-dialog.creator-cover-dialog .el-dialog__body) { min-height: 0; padding: 0; overflow-y: auto; color: var(--ink-2); }
+  :global(.el-dialog.creator-cover-dialog .el-dialog__footer) { padding: 16px 0 0; text-align: right; }
+  :global(.el-dialog.creator-cover-dialog .el-dialog__footer:empty) { display: none; }
+  :global(.el-dialog.creator-cover-dialog .creator-cover-tabs) { display: flex; flex-wrap: wrap; gap: 6px; width: fit-content; max-width: 100%; margin-bottom: 18px; padding: 4px; border-radius: 10px; background: var(--fill-soft); }
+  :global(.el-dialog.creator-cover-dialog .cover-tab) { margin: 0; padding: 8px 16px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--ink-2); font: inherit; font-size: 13px; cursor: pointer; }
   :global(.el-dialog.creator-cover-dialog .cover-tab.active) { border-color: var(--brand-light-5); background: var(--brand-light-9); color: var(--brand-hover); }
   :global(.el-dialog.creator-cover-dialog .creator-cover-upload) { width: 100%; }
   :global(.el-dialog.creator-cover-dialog .creator-cover-upload .el-upload) { display: block; width: 100%; }
   :global(.el-dialog.creator-cover-dialog .creator-cover-upload .el-upload-dragger) { width: 100%; padding: 24px 12px; border-radius: 12px; background: var(--fill-soft); }
   :global(.el-dialog.creator-cover-dialog .creator-cover-upload .el-icon--upload) { display: none; }
   :global(.el-dialog.creator-cover-dialog .creator-cover-upload .el-upload__text) { display: flex; flex-direction: column; align-items: center; gap: 12px; font-size: 12px; color: var(--ink-2); }
-  :global(.el-dialog.creator-cover-dialog .creator-crop-hint) { color: var(--ink-3); font-size: 12px; }
-  :global(.el-dialog.creator-cover-dialog .creator-crop-viewport) { width: 100%; overflow-x: auto; padding-bottom: 8px; }
-  :global(.el-dialog.creator-cover-dialog .creator-crop-viewport .cropper) { min-width: 680px; }
-  :global(.el-dialog.creator-cover-dialog .creator-crop-viewport .cropper-body-left) { flex-shrink: 0; }
-  :global(.el-dialog.creator-cover-dialog .crop), :global(.el-dialog.creator-cover-dialog .uploadCoverImg) { position: static; width: auto; height: auto; min-height: 34px; margin: 12px 0; padding: 6px 14px; transform: none; border: 1px solid var(--brand-light-5); border-radius: 8px; background: var(--brand-light-9); color: var(--brand-hover); font: inherit; font-size: 13px; cursor: pointer; }
+  :global(.el-dialog.creator-cover-dialog .creator-crop-hint) { margin-bottom: 12px; color: var(--ink-3); font-size: 12px; }
+  :global(.el-dialog.creator-cover-dialog .creator-crop-viewport) { width: 100%; min-width: 0; }
+  :global(.el-dialog.creator-cover-dialog .cover-template), :global(.el-dialog.creator-cover-dialog .uploadCoverImg) { box-sizing: border-box; position: static; width: auto; height: 38px; margin: 0; padding: 0 16px; transform: none; border: 1px solid var(--brand-light-5); border-radius: 9px; background: var(--brand-light-9); color: var(--brand-hover); font: inherit; font-size: 14px; cursor: pointer; }
   :global(.el-dialog.creator-cover-dialog .uploadCoverImg) { display: inline-flex; margin: 0; background: var(--brand); color: #fff; }
-  :global(.el-dialog.creator-cover-dialog .thumbnail-slider) { box-sizing: border-box; width: 100%; height: auto; padding: 10px; transform: none; border: 1px solid var(--line); border-radius: 10px; }
-  :global(.el-dialog.creator-cover-dialog .thumbnails) { display: flex; gap: 8px; }
-  :global(.el-dialog.creator-cover-dialog .thumbnail) { flex-shrink: 0; width: 100px; height: 64px; margin: 0; object-fit: cover; border-radius: 6px; }
+  :global(.el-dialog.creator-cover-dialog .thumbnail-slider) { box-sizing: border-box; width: 100%; height: auto; margin-top: 16px; padding: 10px; transform: none; border: 1px solid var(--line); border-radius: 10px; background: var(--fill-soft); }
+  :global(.el-dialog.creator-cover-dialog .thumbnails) { display: flex; gap: 8px; width: 100%; overflow-x: auto; padding: 3px; }
+  :global(.el-dialog.creator-cover-dialog .thumbnail-choice) { flex: 0 0 96px; padding: 2px; border: 2px solid transparent; border-radius: 8px; background: #fff; cursor: pointer; }
+  :global(.el-dialog.creator-cover-dialog .thumbnail-choice.is-selected) { border-color: var(--brand); }
+  :global(.el-dialog.creator-cover-dialog .thumbnail) { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; margin: 0; object-fit: cover; border-radius: 4px; }
+  :global(.el-dialog.creator-cover-dialog button:focus-visible) { outline: 2px solid var(--brand); outline-offset: 2px; }
+  @media (max-width: 640px) {
+    :global(.el-dialog.creator-cover-dialog) { padding: 18px 14px; }
+  }
   :global(.el-popper.el-popover.contribute-upload-popover) { max-width: calc(100vw - 24px); background: #fff !important; border-color: var(--line) !important; color: var(--ink-2) !important; }
-}

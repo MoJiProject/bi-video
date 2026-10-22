@@ -37,15 +37,15 @@
                </div>
                <div class="search-box">
                     <input class="left-part2" type="text" ref="searchInput" placeholder="搜索视频、动态" aria-label="搜索空间内的视频和动态" maxlength="50" v-model="searchContent" @keydown.enter="searchJumpPage" @blur="searchInputFoucsFlag=false">
-                    <img
-                    v-show="searchContent.length>0"
-                    @mouseover="deleteAllSearchFlag = false"
-                    @mouseleave="deleteAllSearchFlag = true"
-                    @click="searchContent = '',searchInputFoucsFlag=true"
-                    :src="deleteAllSearchFlag ? '/img/删除搜索记录.png' : '/img/删除全部搜索hover.png'"
-                    class="deleteAllSearchImg"/>
-                    <img class="searchImg" :class="{searchImgHoverFlag: !searchImgHoverFlag}"  src="/img/主页搜索.png">         
-                    <img class="searchImg2" @click="searchJumpPage" :class="{searchImgHoverFlag: searchImgHoverFlag}" @mouseover="searchImgHoverFlag=true" @mouseleave="searchImgHoverFlag=false" src="/img/主页搜索蓝.png">         
+                    <button v-show="searchContent.length > 0" type="button" class="space-search-action search-clear"
+                      aria-label="清空搜索内容" title="清空搜索内容" @mousedown.prevent
+                      @click="searchContent = '',searchInputFoucsFlag=true">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+                    </button>
+                    <button type="button" class="space-search-action search-submit" aria-label="搜索" title="搜索"
+                      @mousedown.prevent @click="searchJumpPage">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/></svg>
+                    </button>
                </div>
            </div>
            <div class="right">
@@ -81,10 +81,8 @@ import { ElMessage } from "element-plus";
 const store = useGlobalStore();
 const userId = parseInt(new URL(window.location).searchParams.get("userId")) || store.userId;
 const searchContent = ref('');
-const deleteAllSearchFlag = ref(true);
 const searchInput = ref(null);
 const searchInputFoucsFlag = ref(false);
-const searchImgHoverFlag = ref(false);
 const contributeTotal = ref(0);
 
 const tabEls = ref([]);
@@ -314,7 +312,7 @@ watch(()=>store.homeMenu,()=>{
     .left-part2{
     width: 150px;
     height: 30px;
-    padding: 0 45px 0 10px;
+    padding: 0 68px 0 10px;
     background-color: transparent;
     line-height: 16px;
     font-size: 11.5px;
@@ -328,41 +326,29 @@ watch(()=>store.homeMenu,()=>{
     border-color: #0FA68E;
     }
 
-    .deleteAllSearchImg{
-    position: absolute;
-    width: 13.5px;
-    top: 50%;
-    transform: translateY(-50%);
-    right: 30px;
-    cursor: pointer;
-    }
+    .space-search-action {
+      position: absolute;
+      top: 50%;
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--ink-2);
+      transform: translateY(-50%);
+      cursor: pointer;
+      transition: background-color .18s, color .18s;
 
-    .searchImg{
-    width: 13px;
-    height: 13.5px;
-    position: absolute;
-    cursor: pointer;
-    top: 50%;
-    transform: translateY(-50%);
-    right: 10px;
-    transition: opacity 0.3s ease;
+      svg { display: block; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+      &:hover { background: var(--brand-light-9); color: var(--brand-hover); }
+      &:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
     }
-
-    .searchImg2{
-    width: 13px;
-    height: 13.5px;
-    position: absolute;
-    cursor: pointer;
-    top: 50%;
-    transform: translateY(-50%);
-    opacity: 0;
-    right: 10px;
-    transition: opacity 0.3s ease;
-    }
-
-    .searchImgHoverFlag{
-    opacity: 1;
-    }
+    .search-clear { right: 34px; }
+    .search-submit { right: 4px; }
     }
     }
     .right{

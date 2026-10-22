@@ -3,53 +3,10 @@
   min-width: 0;
   gap: 16px;
 
-  :deep(.home-post) {
-    min-width: 0;
-    padding: 24px;
-    border: 1px solid var(--line);
-    border-radius: 20px;
-    background: #fff;
-    box-shadow: 0 4px 20px rgba(29, 64, 43, .025);
-    color: var(--ink);
-    overflow-wrap: anywhere;
-
-    > header { gap: 10px; }
-    > header .author { flex: 1 1 160px; min-width: 0; gap: 10px; }
-    > header .author img { width: 40px; height: 40px; object-fit: cover; }
-    > header .author span { overflow: hidden; font-size: 14px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-    > header time { color: var(--ink-3); font-size: 12px; }
-    > header .el-button { margin: 0; padding: 8px; font-size: 12px; }
-    > h3 { margin: 20px 0 12px; font-size: 18px; line-height: 1.6; font-weight: 600; }
-    > .rich-content { color: #3e4c45; font-size: 14px; line-height: 1.85; }
-    > .images { gap: 8px; max-width: 780px; }
-    > .images .el-image { border-radius: 12px; }
-    > .images .el-image:only-child { grid-column: 1 / -1; max-width: 440px; aspect-ratio: 4 / 3; }
-    > a { gap: 16px; max-width: 780px; padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--fill-soft); font-size: 14px; font-weight: 500; line-height: 1.7; }
-    > a img { width: 180px; aspect-ratio: 16 / 10; border-radius: 10px; object-fit: cover; }
-    > footer { gap: 8px; margin-top: 20px; padding-top: 12px; border-top: 1px solid var(--line); }
-    > footer .el-button, > footer a { display: inline-flex; flex: 1; justify-content: center; align-items: center; min-width: 0; min-height: 38px; margin: 0; padding: 8px 4px; border-radius: 10px; font-size: 13px; line-height: 1.5; white-space: normal; text-align: center; }
-    > footer a:hover { background: var(--fill-soft); color: #126b58; }
-    a:focus-visible { outline: 2px solid #126b58; outline-offset: 3px; }
-  }
 }
 
 @media (max-width: 640px) {
   .dynamic-posts {
     gap: 12px;
-
-    :deep(.home-post) {
-      padding: 16px;
-      border-radius: 16px;
-
-      > header .author { flex-basis: 140px; }
-      > header time { line-height: 1.6; }
-      > h3 { margin-top: 16px; font-size: 16px; }
-      > .images { gap: 6px; }
-      > .images .el-image { border-radius: 8px; }
-      > a { gap: 10px; padding: 8px; border-radius: 10px; font-size: 13px; }
-      > a img { width: 120px; border-radius: 7px; }
-      > footer { margin-top: 16px; }
-      > footer .el-button, > footer a { font-size: 12px; }
-    }
   }
 }
