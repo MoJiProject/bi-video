@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.stream.Collectors;
 
@@ -67,10 +69,17 @@ public class GlobalExceptionHandler {
         return ApiResponse.fail(ErrorCode.PARAM_INVALID.getCode(), "不支持的请求方法：" + e.getMethod());
     }
 
-    @ExceptionHandler(NoHandlerFoundException.class)
+    @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ApiResponse<Void> handleNotFound(NoHandlerFoundException e) {
+    public ApiResponse<Void> handleNotFound(Exception e, HttpServletRequest request) {
+        log.warn("[not-found] {} {}", request.getMethod(), request.getRequestURI());
         return ApiResponse.fail(ErrorCode.NOT_FOUND.getCode(), "接口不存在");
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ApiResponse<Void> handleTypeMismatch(MethodArgumentTypeMismatchException e, HttpServletRequest request) {
+        log.warn("[invalid-param] {} {} -> {}", request.getMethod(), request.getRequestURI(), e.getName());
+        return ApiResponse.fail(ErrorCode.PARAM_INVALID.getCode(), "参数格式不正确：" + e.getName());
     }
 
     @ExceptionHandler(DuplicateKeyException.class)

@@ -121,11 +121,13 @@ export async function deleteMessage(token, params) {
   return response;
 }
 
-//私信管理 - 管理员直接给用户发私信
-//复用站内已有的 /privateMessage/sendMessage，
-//管理员身份已在后端豁免「未回复只能发1条」的限制
+//私信管理 - 后端校验当前管理员身份，发送者不取自请求体
 export async function sendPrivateMessage(token, privateMessage) {
-  const response = await apiClient.post("/privateMessage/sendMessage", privateMessage, {
+  const response = await apiClient.post("/system/content/sendPrivateMessage", {
+    receiverId: privateMessage.receiverId,
+    messageType: privateMessage.messageType,
+    content: privateMessage.content,
+  }, {
     headers: authHeaders(token),
   });
   return response;
@@ -296,4 +298,3 @@ export async function takeDownVideo(token, params, videoId) {
   );
   return response;
 }
-

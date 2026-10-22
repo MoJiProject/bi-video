@@ -151,7 +151,7 @@
            </div>
         </div>
         <div v-show="replyList.length===0&&selectReplayCommentFFlag" class="no-reply-data">
-          <AppEmptyState title="暂无回复通知" compact/>
+          <AppEmptyState :title="loadError || '暂无回复通知'" :kind="loadError ? 'unavailable' : undefined" :action-text="loadError ? '重新加载' : undefined" compact @action="selectReplayCommentF"/>
         </div>
         <div v-show="replyList.length===0&&!selectReplayCommentFFlag" class="reply-loading">
           <img src="/img/loading.png">
@@ -191,6 +191,7 @@
    import { ElMessage } from "element-plus";   
    import {selectReplayComment,commentControles,deleteCommentNotification,replayComment}  from '../api/comment/index';
    import {putMessageNumber}  from '../api/privateMessage/index';
+   import { sanitizeRichText } from "../utils/richText";
 
    const store=useGlobalStore();
    const replyCommentHoverFlag = ref(false);
@@ -203,6 +204,9 @@
    const selectReplayCommentFFlag=ref(false);
    const commentContent=ref("");
    const Scrolled=ref(true);
+   const loadError=ref("");
+   const loading=ref(false);
+   const showError = error => ElMessage.error(error.message || "消息操作失败");
 
    onMounted(()=>{
 
@@ -222,7 +226,7 @@
         userInformation.allMessageNumber=userInformation.messageNumber+userInformation.replyCommentNumber+userInformation.atNumber+userInformation.likeAllNumber;
         store.setUserInformation(userInformation);
       }
-    })
+    }).catch(showError)
     }
 
    //查询回复评论
@@ -237,14 +241,22 @@
         });
         return;
       }
-    selectReplayComment(store.token,store.userId,pageNum.value++).then(res=>{
+    if (loading.value) return;
+    loading.value=true;
+    loadError.value="";
+    selectReplayComment(store.token,store.userId,pageNum.value).then(res=>{
       if(res.data.code===1){
         pushData(res.data.data);
         if(res.data.data===null||res.data.data.length===0)
         Scrolled.value=false;
         selectReplayCommentFFlag.value=true;
+        pageNum.value++;
       }
-    })
+    }).catch(error=>{
+      loadError.value=error.message || "回复通知加载失败";
+      selectReplayCommentFFlag.value=true;
+      showError(error);
+    }).finally(()=>{ loading.value=false; })
    }
 
    //判断是否添加图片
@@ -262,13 +274,13 @@ function addImgFlagF(comment,flag){
     let content=comment.content.replace("style='width: 24px;height: 24px;display: inline-block;","style='width: 24px;height: 24px;display: none;");
     if(flag)
     content = content.replace(/width:21px;height:21px;display:inline-block;/g, "width:16px;height:16px;display:inline-block;");
-    if(comment.replyCommentId!==comment.mainCommentId)
-      content=content.split('：')[1];
-    const imgArr=comment.imgAddress.split(',');
+    if(comment.replyCommentId!==comment.mainCommentId && content.includes('：'))
+      content=content.substring(content.indexOf('：')+1);
+    const imgArr=(comment.imgAddress || "").split(',');
     for(let i=0;i<imgArr.length-1;i++){
         content=content+"[图片]";
     }
-    return content;
+    return sanitizeRichText(content);
   }
 
     //点赞
@@ -298,10 +310,7 @@ function addImgFlagF(comment,flag){
                });
             }
         }
-      });
-
-
-
+      }).catch(showError);
     }
 
     //删除通知
@@ -327,7 +336,7 @@ function addImgFlagF(comment,flag){
             duration: 1700,
           });
         }
-      })
+      }).catch(showError)
 
     }
 
@@ -368,7 +377,7 @@ function addImgFlagF(comment,flag){
           commentContent.value="";
           reply.replyFlag=false;
         }
-      })
+      }).catch(showError)
     }
 
     //打开回复评论

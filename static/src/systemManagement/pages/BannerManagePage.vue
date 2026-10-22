@@ -48,7 +48,7 @@
       </el-table>
       <SystemPagination :total="total" :page-size="10" :current-page="query.pageNum" @current-change="handlePageChange" />
     </div>
-    <el-dialog v-model="dialogVisible" :title="editId ? '编辑Banner' : '新增Banner'"
+    <el-dialog class="sys-dialog" v-model="dialogVisible" :title="editId ? '编辑Banner' : '新增Banner'"
       width="min(620px, calc(100vw - 24px))" align-center :close-on-click-modal="false"
       :show-close="!submitting && !uploading" :close-on-press-escape="!submitting && !uploading">
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top">

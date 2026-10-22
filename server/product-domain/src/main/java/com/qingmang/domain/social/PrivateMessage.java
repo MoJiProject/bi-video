@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-/** 私信消息 */
+/** 私信消息
+ */
 @Data
 @Accessors(chain = true)
 @TableName("private_message")
@@ -42,4 +43,11 @@ public class PrivateMessage implements Serializable {
 
     @TableField("deleted_at")
     private LocalDateTime deletedAt;
+
+    @TableField("revoked_at")
+    private LocalDateTime revokedAt;
+    @TableField("sender_deleted_at")
+    private LocalDateTime senderDeletedAt;
+    @TableField("receiver_deleted_at")
+    private LocalDateTime receiverDeletedAt;
 }

@@ -19,7 +19,7 @@
         <span class="title">
           视频管理
           <span class="title-tip">
-            审核通过会按创作中心规则重置发布时间并向粉丝推送动态；下架会同步回滚这些影响
+            审核通过会更新发布时间并发布创作者动态；下架会隐藏关联动态，收藏关系保留
           </span>
         </span>
       </div>
@@ -221,7 +221,7 @@
         type="warning"
         :closable="false"
         show-icon
-        title="下架后该视频将从首页移除，创作者的投稿数与动态数会同步回滚，已推送给粉丝的动态副本会被删除。"
+        title="下架后该视频将从首页移除，关联的正常动态会隐藏，投稿数与动态数会同步更新；收藏关系保留。"
         style="margin-bottom: 14px"
       />
       <el-alert
@@ -255,7 +255,7 @@
         :closable="false"
         show-icon
         title="此操作不可恢复"
-        description="将永久删除视频记录、磁盘上的封面与视频文件，并级联清理该视频下的弹幕、评论、收藏、观看历史、点赞与投币记录。如果只是想隐藏，请使用「下架」。"
+        description="将永久删除视频和关联动态记录，并级联清理弹幕、评论、收藏、观看历史、点赞与投币记录。存储文件保留，避免误删其他引用。如果只是想隐藏，请使用「下架」。"
         style="margin-bottom: 14px"
       />
       <div class="warn-text">
@@ -357,7 +357,7 @@ export default {
           subZones.value = res.data.data || [];
         }
       } catch (error) {
-        toast("加载分区列表失败");
+        toast(error.message || "加载分区列表失败", "error");
       }
     }
 
@@ -383,7 +383,7 @@ export default {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("加载视频列表失败");
+        toast(error.message || "加载视频列表失败", "error");
       }
     }
 
@@ -421,7 +421,7 @@ export default {
     async function handleExamine(row) {
       try {
         await confirmDanger(
-          `确定让「${row.title}」审核通过吗？通过后会重置发布时间并向该创作者的所有粉丝推送一条动态。`,
+          `确定让「${row.title}」审核通过吗？通过后会更新发布时间，并在创作者动态中展示。`,
           "确定通过"
         );
       } catch (error) {
@@ -437,15 +437,13 @@ export default {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("审核失败");
+        toast(error.message || "审核失败", "error");
       } finally {
         submitting.value = false;
       }
     }
 
-    //上架：把已下架/已退回的视频恢复为已通过。
-    //必须与下架严格互逆——下架时回退了UP计数、删除了粉丝动态副本、软删了收藏，
-    //这里要一并还原，否则计数会和实际数据对不上。
+    //上架时恢复视频可见性，由视频下架联动隐藏的动态也会一并恢复。
     async function handleRestore(row) {
       try {
         await confirmDanger(
@@ -470,7 +468,7 @@ export default {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("上架失败");
+        toast(error.message || "上架失败", "error");
       } finally {
         submitting.value = false;
       }
@@ -520,7 +518,7 @@ export default {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("操作失败");
+        toast(error.message || "操作失败", "error");
       } finally {
         submitting.value = false;
       }
@@ -555,7 +553,7 @@ export default {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("删除失败");
+        toast(error.message || "删除失败", "error");
       } finally {
         submitting.value = false;
       }

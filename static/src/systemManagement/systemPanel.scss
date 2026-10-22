@@ -10,6 +10,9 @@ $sys-success: #67c23a;
 
 //白色卡片容器
 .sys-panel {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   background-color: white;
   border-radius: 8px;
   padding: 20px 24px;
@@ -24,8 +27,12 @@ $sys-success: #67c23a;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 12px;
 
   .title {
+    min-width: 0;
+    overflow-wrap: anywhere;
     font-size: 16px;
     font-weight: 600;
     color: $sys-text;
@@ -57,20 +64,32 @@ $sys-success: #67c23a;
   align-items: center;
   gap: 12px;
   margin-bottom: 16px;
+
+  > * {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  :deep(.el-button + .el-button) {
+    margin-left: 0;
+  }
 }
 
 //分页容器，复用收藏夹页(page-container)的样式与结构
 .page-container {
   position: relative;
-  margin-top: 40px;
+  margin-top: 24px;
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  min-width: 0;
 
   span {
     color: #1C2321;
     font-size: 13px;
-    margin-left: 44px;
+    margin-left: 0;
 
     input {
       width: 50px;
@@ -94,9 +113,58 @@ $sys-success: #67c23a;
 //表格内所有操作按钮统一尺寸，避免大小不一
 .sys-table {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
 
   :deep(.el-table__cell) {
     padding: 8px 0;
+  }
+
+  @media (max-width: 640px) {
+    .sys-panel { padding: 16px 12px; }
+    .sys-panel-title {
+      align-items: flex-start;
+      .title { line-height: 1.6; }
+      .title-tip { display: block; margin: 6px 0 0; line-height: 1.6; }
+    }
+    .sys-filter {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      > :deep(.el-input),
+      > :deep(.el-select),
+      > :deep(.el-button) {
+        width: 100% !important;
+        min-width: 0;
+        margin: 0;
+      }
+      > :deep(.el-input:first-child) { grid-column: 1 / -1; }
+      :deep(.el-button) { height: auto; min-height: 36px; padding: 8px; white-space: normal; }
+      .filter-summary { grid-column: 1 / -1; margin-left: 0; overflow-wrap: anywhere; }
+    }
+    .sys-table {
+      :deep(.el-table__cell.is-fixed-column--right),
+      :deep(.el-table__cell.is-fixed-column--left) {
+        position: static !important;
+      }
+      :deep(.el-table__cell.is-fixed-column--right::before),
+      :deep(.el-table__cell.is-fixed-column--left::before) {
+        display: none;
+      }
+      :deep(.el-button) { min-height: 32px; }
+      :deep(.el-scrollbar__bar.is-horizontal) { height: 8px; }
+    }
+    .page-container {
+      gap: 12px;
+      :deep(.el-pagination) {
+        --el-pagination-button-width: 28px;
+        --el-pagination-button-height: 32px;
+      }
+      :deep(.el-pagination.is-background .btn-prev),
+      :deep(.el-pagination.is-background .btn-next),
+      :deep(.el-pagination.is-background .el-pager li) { margin: 0 2px; }
+      .page-summary { text-align: center; line-height: 2.4; }
+    }
   }
 
   :deep(.el-button) {

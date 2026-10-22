@@ -33,10 +33,12 @@ public class MentionNotificationService {
         if (text.length() > 450) text = text.substring(0, 450);
         for (Long receiver : ids) {
             jdbc.update("INSERT INTO notification(receiver_id,actor_id,type,target_type,target_id,content) "
-                    + "SELECT ?,?,1,?,?,? WHERE COALESCE((SELECT notify_at FROM user_privacy WHERE user_id=?),1)=1 "
+                    + "SELECT ?,?,1,?,?,? WHERE COALESCE((SELECT notify_at FROM user_privacy WHERE user_id=?),1)<>0 "
+                    + "AND (COALESCE((SELECT notify_at FROM user_privacy WHERE user_id=?),1)<>2 "
+                    + "OR EXISTS(SELECT 1 FROM user_follow WHERE follower_id=? AND followee_id=?)) "
                     + "AND NOT EXISTS(SELECT 1 FROM notification WHERE receiver_id=? AND actor_id=? "
                     + "AND type=1 AND target_type=? AND target_id=?)",
-                    receiver, actor, targetType, targetId, text, receiver, receiver, actor, targetType, targetId);
+                    receiver, actor, targetType, targetId, text, receiver, receiver, receiver, actor, receiver, actor, targetType, targetId);
         }
         List<Object> args = new ArrayList<>(List.of(actor, targetType, targetId));
         String removed = ids.isEmpty() ? "" : " AND receiver_id NOT IN(" + placeholders(ids.size()) + ")";
@@ -85,13 +87,13 @@ public class MentionNotificationService {
         Map<String, Object> counts = new LinkedHashMap<>(jdbc.queryForMap("""
                 SELECT COALESCE(SUM(type=1),0) AS atNumber,
                   COALESCE(SUM(type IN(2,3)),0) AS replyCommentNumber,
-                  COALESCE(SUM(type IN(4,5)),0) AS likeAllNumber
+                  COALESCE(SUM(type IN(4,5,8)),0) AS likeAllNumber
                 FROM notification n WHERE receiver_id=? AND is_read=0
                   AND (target_type<>1 OR EXISTS(SELECT 1 FROM video v
                     WHERE v.id=n.target_id AND v.status=1 AND v.deleted_at IS NULL))
                 """, userId));
         Long messages = jdbc.queryForObject("SELECT COUNT(*) FROM private_message WHERE receiver_id=? "
-                + "AND is_read=0 AND deleted_at IS NULL", Long.class, userId);
+                + "AND is_read=0 AND deleted_at IS NULL AND receiver_deleted_at IS NULL AND revoked_at IS NULL", Long.class, userId);
         counts.put("messageNumber", messages);
         long total = counts.values().stream().mapToLong(value -> ((Number) value).longValue()).sum();
         counts.put("allMessageNumber", total);

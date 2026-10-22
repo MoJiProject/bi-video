@@ -1,7 +1,7 @@
 import apiClient from "../../services/apiClient";
 
 //获取私信对话列表
-export async function selectDialogue(token,userId,pageNum){
+export async function selectDialogue(token,userId,pageNum,dialogueId){
 
     const res = await apiClient.get(`/privateMessage/selectDialogue`,
     {
@@ -11,7 +11,8 @@ export async function selectDialogue(token,userId,pageNum){
         },
         params:{
             userId,
-            pageNum
+            pageNum,
+            dialogueId,
         }
     });
     return res;

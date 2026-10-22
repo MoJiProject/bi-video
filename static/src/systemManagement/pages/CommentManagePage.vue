@@ -168,7 +168,7 @@
     </div>
 
 <!-- 删除弹窗 -->
-    <el-dialog v-model="deleteDialogVisible" title="删除评论" width="450px" align-center>
+    <el-dialog class="sys-dialog" v-model="deleteDialogVisible" title="删除评论" width="450px" align-center>
       <el-alert
         type="warning"
         :closable="false"

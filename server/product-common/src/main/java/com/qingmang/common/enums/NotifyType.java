@@ -16,7 +16,8 @@ public final class NotifyType {
         VIDEO_LIKE(4, "点赞我的视频"),
         COMMENT_LIKE(5, "点赞我的评论"),
         FOLLOW(6, "关注我"),
-        SYSTEM(7, "系统通知");
+        SYSTEM(7, "系统通知"),
+        POST_LIKE(8, "点赞我的动态");
 
         private final int code;
         private final String label;

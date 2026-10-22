@@ -306,7 +306,9 @@ import {
   selectPrivateMessage
 } from "../api/privateMessage/index";
 import { authApi } from "../api/product/index";
-import { offlinePreviewEnabled } from "../preview/config";
+import { subscribeChat } from "../services/chatLive";
+import { post } from "../services/http";
+import { sanitizeRichText } from "../utils/richText";
 
 function throttle(fn, limit = 150) {
   let inThrottle = false;
@@ -351,6 +353,8 @@ const messageLoadingFlag = ref(true);
 const deleteMessageDialogFlag = ref(false);
 const loading = ref(false);
 let range = null;
+let initialDialogueLoad = Promise.resolve();
+let dialogueFetching = false;
 
 // 把消息里的 http/https 网址识别成可点击链接（新标签页打开）
 const URL_PATTERN = /https?:\/\/[^\s<>"'\u3000-\u303f\u4e00-\u9fa5\uff00-\uffef]+/gi;
@@ -367,22 +371,22 @@ function linkifyText(text) {
 
 function linkifyHtml(html) {
   if (!html) return html;
-  return String(html)
+  return sanitizeRichText(String(html)
     .split(/(<a\b[^>]*>[\s\S]*?<\/a>)/gi)
     .map(chunk => (chunk.toLowerCase().startsWith("<a") ? chunk : linkifyText(chunk)))
-    .join("");
+    .join(""));
 }
 
 onMounted(() => {
   window.addEventListener("click", outSideClick);
-  selectDialogueF();
+  initialDialogueLoad = selectDialogueF();
   refreshUnreadNumber();
 });
 
 onUnmounted(() => {
+  chatClosed = true;
   window.removeEventListener("click", outSideClick);
   if (socket) {
-    socket.onmessage = null;
     socket.close();
   }
 });
@@ -425,8 +429,9 @@ function addSendImg() {
 
 async function handleFileChange(event) {
   let file = event.target.files[0];
-  let base64 = null;
+  const receiverId = currentDialogue.value?.dialogue.dialogueId;
   if (!file) return;
+  if (!receiverId) { showChatError(new Error("请先选择会话")); event.target.value=""; return; }
   if (!file.type.startsWith("image/")) {
     ElMessage({ message: "只能上传图片", type: "info", plain: true, duration: 1700 });
     event.target.value = "";
@@ -438,125 +443,85 @@ async function handleFileChange(event) {
   }
   loading.value = true;
   try {
-    base64 = await readFileAsBase64(file);
-    if (base64 !== null) {
+    const form = new FormData();
+    form.append("file", file);
+    const uploaded = await post("/media/image", form);
+    if (uploaded.url) {
       let message = {
         senderId: store.userId,
-        receiverId: currentDialogue.value.dialogue.dialogueId,
-        content: base64,
+        receiverId,
+        content: uploaded.url,
         messageType: 2
       };
       sendMessage(store.token, message).then(res => {
         if (res.data.code === 1) {
-          const index = dialogueList.findIndex(iten => iten.dialogue.id === currentDialogue.value.dialogue.id);
-          if (index !== -1) dialogueList[index].dialogue.newContent = "[图片]";
-          socket.send("send:" + message.senderId + ":" + message.receiverId);
+          applyChatMessage(res.data.data);
+          syncChatDialogues().catch(showChatError);
         } else {
           ElMessage({ message: res.data.msg, type: "info", plain: true, duration: 1700 });
         }
         loading.value = false;
-      }).catch(() => {
+      }).catch(error => {
         loading.value = false;
+        showChatError(error);
       });
     }
   } catch (err) {
     loading.value = false;
+    showChatError(err);
   }
   event.target.value = "";
 }
 
-function readFileAsBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = e => resolve(e.target.result);
-    reader.onerror = error => reject(error);
-    reader.readAsDataURL(file);
-  });
-}
-
-function selectDialogueF() {
-  if (store.token === null || store.userId === null) return;
+async function selectDialogueF() {
+  if (!store.token || !store.userId || chatClosed) return;
   dialogueState.value = "loading";
-  selectDialogue(store.token, store.userId, dialoguePageNum.value).then(res => {
-    if (res.data.code === 1) {
-      dialogueList.push(...res.data.data);
-      dialoguePageNum.value++;
-      const urlParams = new URLSearchParams(window.location.search);
-      let dialogueId = Number(urlParams.get("dialogueId"));
-      if (dialogueId !== null && dialogueId !== 0) {
-        const index = dialogueList.findIndex(item => item.dialogue.dialogueId === dialogueId);
-        if (index !== -1) {
-          currentDialogue.value = dialogueList[index];
-        }
-      } else {
-        if (dialogueList.length > 0) currentDialogue.value = dialogueList[0];
-      }
-      dialogueState.value = "ready";
-    } else {
-      dialogueState.value = "error";
-      ElMessage.error(res.data.msg || "加载会话失败");
+  try {
+    const res = await selectDialogue(store.token, store.userId, 1);
+    if (chatClosed) return;
+    dialogueList.splice(0, dialogueList.length, ...res.data.data);
+    dialoguePageNum.value = 2;
+    dialogueLoadingFlag.value = res.data.data.length === 20;
+    const peer = Number(new URLSearchParams(window.location.search).get("dialogueId"));
+    if (peer > 0 && !dialogueList.some(item => item.dialogue.dialogueId === peer)) {
+      const requested = await selectDialogue(store.token, store.userId, 1, peer);
+      if (chatClosed) return;
+      dialogueList.push(...requested.data.data);
     }
-  }).catch(error => {
+    currentDialogue.value = dialogueList.find(item => item.dialogue.dialogueId === peer) || dialogueList[0] || null;
+    dialogueState.value = "ready";
+  } catch (error) {
     dialogueState.value = "error";
-    ElMessage.error(error.message || "加载会话失败");
-  });
+    showChatError(error);
+  }
 }
 
-function selectDialogueF2() {
-  if (store.token === null || store.userId === null) return;
-  setTimeout(() => {
-    selectDialogue(store.token, store.userId, dialoguePageNum.value).then(res => {
-      if (res.data.code === 1) {
-        dialogueList.push(...res.data.data);
-        if (res.data.data === null || res.data.data.length === 0) dialogueLoadingFlag.value = false;
-        dialogueLoading.value = false;
-        dialoguePageNum.value++;
-        const urlParams = new URLSearchParams(window.location.search);
-        let dialogueId = Number(urlParams.get("dialogueId"));
-        if (dialogueId !== null && dialogueId !== 0) {
-          const index = dialogueList.findIndex(item => item.dialogue.dialogueId === dialogueId);
-          if (index !== -1) currentDialogue.value = dialogueList[index];
-        } else {
-          if (dialogueList.length > 0) currentDialogue.value = dialogueList[0];
-        }
-      }
-    });
-  }, 1000);
+async function selectDialogueF2() {
+  if (!store.token || !store.userId || chatClosed || dialogueFetching) return;
+  dialogueFetching = true;
+  try {
+    const res = await selectDialogue(store.token, store.userId, dialoguePageNum.value);
+    if (chatClosed) return;
+    const ids = new Set(dialogueList.map(item => item.dialogue.id));
+    dialogueList.push(...res.data.data.filter(item => !ids.has(item.dialogue.id)));
+    dialogueLoadingFlag.value = res.data.data.length === 20;
+    dialoguePageNum.value++;
+  } catch (error) {
+    showChatError(error);
+  } finally {
+    dialogueFetching = false;
+    dialogueLoading.value = false;
+  }
 }
 
 function changeUpStatusF(sDialogue) {
   if (sDialogue.dialogue.id === null) return;
-  changeUpStatus(store, sDialogue.dialogue.id).then(res => {
-    if (res.data.code === 1) {
-      if (sDialogue.dialogue.upDateTime !== null) {
-        const index = dialogueList.findIndex(item => item.dialogue.id === sDialogue.dialogue.id);
-        if (index !== -1) {
-          dialogueList.splice(index, 1);
-          sDialogue.dialogue.upDateTime = null;
-          const index2 = dialogueList.findIndex(item => item.dialogue.upDateTime === null);
-          if (index2 !== -1) dialogueList.splice(index2, 0, sDialogue);
-          else dialogueList.push(sDialogue);
-        }
-      } else {
-        sDialogue.dialogue.upDateTime = Date.now();
-        const index = dialogueList.findIndex(item => item.dialogue.id === sDialogue.dialogue.id);
-        if (index !== -1) {
-          dialogueList.splice(index, 1);
-          dialogueList.unshift(sDialogue);
-        }
-      }
-    }
-  });
+  changeUpStatus(store, sDialogue.dialogue.id).then(() => queueChatSync(false)).catch(showChatError);
 }
 
 function changeDndStatusF(sDialogue) {
   if (sDialogue.dialogue.id === null) return;
-  changeDndStatus(store, sDialogue.dialogue.id).then(res => {
-    if (res.data.code === 1) {
-      const index = dialogueList.findIndex(item => item.dialogue.id === sDialogue.dialogue.id);
-      if (index !== -1) dialogueList[index].dialogue.dnd = dialogueList[index].dialogue.dnd === 0 ? 1 : 0;
-    }
-  });
+  changeDndStatus(store, sDialogue.dialogue.id).then(() => queueChatSync(false)).catch(showChatError);
 }
 
 function deleteDialogueF(sDialogue) {
@@ -573,8 +538,9 @@ function deleteDialogueF(sDialogue) {
         privateMessageList.length = 0;
         currentDialogue.value = null;
       }
+      queueChatSync(false);
     }
-  });
+  }).catch(showChatError);
 }
 
 function handleContextMenu(e, flag) {
@@ -596,18 +562,21 @@ function handleContextMenu2(e) {
 async function selectPrivateMessageF(sDialogue, a) {
   if (!sDialogue?.dialogue?.id) return;
   messageLoadingFlag.value = false;
-  const thisPage = messagePageNum.value;
+  const thisPage = Math.max(1, messagePageNum.value);
   messagePageNum.value = Math.max(0, messagePageNum.value - 1);
-  selectPrivateMessage(store, sDialogue.dialogue.dialogueId, thisPage).then(res => {
+  return selectPrivateMessage(store, sDialogue.dialogue.dialogueId, thisPage).then(res => {
+    if (sDialogue !== currentDialogue.value || chatClosed) return;
     if (res.data.code === 1) {
       const incoming = res.data.data.privateMessage || [];
       if (a === 1) {
         if (incoming.length) {
-          privateMessageList.push(...incoming);
+          const ids = new Set(privateMessageList.map(message => message.id));
+          privateMessageList.push(...incoming.filter(message => !ids.has(message.id)));
         }
       } else {
-        if (privateMessageList.length < 20 && incoming.length === 20) {
-          privateMessageList.splice(0, 0, ...incoming);
+        if (incoming.length) {
+          const ids = new Set(privateMessageList.map(message => message.id));
+          privateMessageList.unshift(...incoming.filter(message => !ids.has(message.id)));
         }
       }
       userInfo.value = res.data.data.userInfo;
@@ -623,6 +592,10 @@ async function selectPrivateMessageF(sDialogue, a) {
         });
       });
     }
+  }).catch(error => {
+    messagePageNum.value = thisPage;
+    messageLoading.value = false;
+    showChatError(error);
   });
 }
 
@@ -640,18 +613,23 @@ const selectPrivateMessageF2 =async (sDialogue) => {
   }
   const thisPage = messagePageNum.value;
   messagePageNum.value = Math.max(0, messagePageNum.value - 1);
-  selectPrivateMessage(store, sDialogue.dialogue.dialogueId, thisPage).then(res => {
+  return selectPrivateMessage(store, sDialogue.dialogue.dialogueId, thisPage).then(res => {
+    if (sDialogue !== currentDialogue.value || chatClosed) return;
     if (res.data.code === 1) {
       const incoming = res.data.data.privateMessage || [];
       if (incoming.length) {
-        privateMessageList.unshift(...incoming);
+        const ids = new Set(privateMessageList.map(message => message.id));
+        privateMessageList.unshift(...incoming.filter(message => !ids.has(message.id)));
       }
       messageLoadingFlag.value = messagePageNum.value > 0;
       messageLoading.value = false;
       dealyFlag = true;
     }
   }).catch((error) => {
-    ElMessage.error("消息加载失败");
+    messagePageNum.value = thisPage;
+    messageLoading.value = false;
+    dealyFlag = true;
+    showChatError(error);
   });
 };
 
@@ -667,9 +645,10 @@ watch(currentDialogue, async (newVal) => {
     dialogueUserInfo.value = null;
     privateMessageList.length = 0;
     messageLoadingFlag.value = true;
-    messagePageNum.value = Math.ceil(newVal?.allMessageNumber / 20);
+    messagePageNum.value = Math.max(1, Math.ceil(newVal?.allMessageNumber / 20));
     await selectPrivateMessageF(newVal, 1);
-    await selectPrivateMessageF(newVal, 2);
+    if (newVal !== currentDialogue.value) return;
+    if (messagePageNum.value > 0 && privateMessageList.length < 20) await selectPrivateMessageF(newVal, 2);
     dealyFlag = true;
     tryChangeMessageStatus(newVal);
   }
@@ -679,13 +658,6 @@ watch(currentDialogue, async (newVal) => {
 //打开会话即已读：本地未读数立即扣减，不依赖聊天 socket 是否连上
 function tryChangeMessageStatus(newVal) {
   if (!newVal?.dialogue?.id) return;
-  const unread = newVal.notReadNumber || 0;
-  if (unread > 0) {
-    updateMessageNumber(-unread);
-    newVal.notReadNumber = 0;
-    const index = dialogueList.findIndex(item => item.dialogue.id === newVal.dialogue.id);
-    if (index !== -1) dialogueList[index].notReadNumber = 0;
-  }
   changeMessageStatusF(newVal);
 }
 
@@ -703,11 +675,11 @@ function revocationMessageF(privateMessage) {
       const index = privateMessageList.findIndex(item => item.id === privateMessage.id);
       if (index !== -1) privateMessageList[index].status = 2;
       ElMessage({ message: "撤回成功", type: "info", plain: true, duration: 1700 });
-      socket.send("put:" + privateMessage.id);
+      queueChatSync(false);
     } else {
       ElMessage({ message: res.data.msg, type: "info", plain: true, duration: 1700 });
     }
-  });
+  }).catch(showChatError);
 }
 
 function deletePrivateMessageF(privateMessage) {
@@ -718,14 +690,13 @@ function deletePrivateMessageF(privateMessage) {
       if (index !== -1) privateMessageList.splice(index, 1);
       //同步左侧会话预览，跟后端保持一致：取当前可见的最后一条
       refreshDialoguePreview();
-      //通知对方同步删除状态
-      if (socket && socket.ws.readyState === 1) socket.send("put:" + privateMessage.id);
+      queueChatSync(false);
       ElMessage({ message: "删除成功", type: "info", plain: true, duration: 1700 });
       deleteMessageDialogFlag.value = false;
     } else {
       ElMessage({ message: res.data.msg, type: "info", plain: true, duration: 1700 });
     }
-  });
+  }).catch(showChatError);
 }
 
 //按后端规则重算当前会话的预览文案与消息总数
@@ -753,25 +724,22 @@ function refreshDialoguePreview() {
 }
 
 function changeMessageStatusF(sDialogue) {
-  if (sDialogue?.dialogue.dialogueId === null) return;
-  changeMessageStatus(store, sDialogue.dialogue.dialogueId).then(res => {
+  if (!sDialogue?.dialogue.dialogueId) return;
+  return changeMessageStatus(store, sDialogue.dialogue.dialogueId).then(res => {
     if (res.data.code === 1) {
       const index = dialogueList.findIndex(item => item.dialogue.id === sDialogue.dialogue.id);
       if (index !== -1) dialogueList[index].notReadNumber = 0;
-      if (privateMessageList.length && privateMessageList[privateMessageList.length - 1].senderId !== store.userId)
-        socket.send("put:" + privateMessageList[privateMessageList.length - 1].id);
       //顶部/侧边的未读数会被头部组件的登录校验整体覆盖，这里用服务端最新值校正一次
-      syncUserMessageNumber();
+      return syncUserMessageNumber();
     }
-  });
+  }).catch(showChatError);
 }
 
 //同步服务端最新的未读私信数
 function syncUserMessageNumber() {
   if (!store.userId) return;
-  authApi.me().then(me => {
-    const meData = me.data || me;
-    if (!meData || !meData.id) return;
+  return authApi.me().then(meData => {
+    if (!meData || !meData.userId) return;
     const userInformation = { ...store.userInformation };
     userInformation.messageNumber = Math.max(0, meData.messageNumber || 0);
     userInformation.allMessageNumber = userInformation.messageNumber
@@ -779,10 +747,11 @@ function syncUserMessageNumber() {
       + (userInformation.atNumber || 0)
       + (userInformation.likeAllNumber || 0);
     store.setUserInformation(userInformation);
-  }).catch(() => {});
+  });
 }
 
 function sendMessageF() {
+  if (!currentDialogue.value) { showChatError(new Error("请先选择会话")); return; }
   if (messageNumber.value === 0) return;
   if (messageNumber.value > 500) {
     ElMessage({ message: "消息字数不能超过500", type: "info", plain: true, duration: 1700 });
@@ -798,13 +767,12 @@ function sendMessageF() {
     if (res.data.code === 1) {
       messageInput.value.innerHTML = "";
       messageNumber.value = 0;
-      const index = dialogueList.findIndex(iten => iten.dialogue.id === currentDialogue.value.dialogue.id);
-      if (index !== -1) dialogueList[index].dialogue.newContent = message.content;
-      socket.send("send:" + message.senderId + ":" + message.receiverId);
+      applyChatMessage(res.data.data);
+      queueChatSync(false);
     } else {
       ElMessage({ message: res.data.msg, type: "info", plain: true, duration: 1700 });
     }
-  });
+  }).catch(showChatError);
 }
 
 function getAfterBlurIndex() {
@@ -839,169 +807,83 @@ function addEmoji(index) {
   messageNumber.value = messageInput.value.innerText.trim().length + (messageInput.value.getElementsByTagName("img")?.length || 0) * 5;
 }
 
-//连接websocket实时更新滚动弹幕（支持断线重连）
-class ReconnectingWebSocket {
-      constructor(url, protocols) {
-        this.url = url;
-        this.protocols = protocols;
-        this.reconnectAttempts = 0;
-        this.maxReconnectAttempts = 10;
-        this.messageQueue = [];
-        this.shouldReconnect = true;
-        this.ws = null;
-        this.onopen = null;
-        this.onmessage = null;
-        this.onclose = null;
-        this.onerror = null;
-        this.connect();
-      }
-
-      connect() {
-        if (offlinePreviewEnabled) return;
-        try {
-          const ws = new WebSocket(this.url, this.protocols);
-          this.ws = ws;
-
-          ws.onopen = async (e) => {
-            this.reconnectAttempts = 0;
-            if (typeof this.onopen === 'function') this.onopen(e);
-            while (this.messageQueue.length > 0 && ws.readyState === WebSocket.OPEN) {
-              try {
-                ws.send(this.messageQueue.shift());
-              } catch (err) {
-                break;
-              }
-            }
-          };
-
-          ws.onmessage = (e) => {
-            if (typeof this.onmessage === 'function') this.onmessage(e);
-          };
-
-          ws.onclose = (e) => {
-            if (typeof this.onclose === 'function') this.onclose(e);
-            if (!this.shouldReconnect) return;
-            this.reconnectAttempts++;
-            if (this.maxReconnectAttempts && this.reconnectAttempts > this.maxReconnectAttempts) return;
-            const delay = Math.min(30000, 1000 * Math.pow(2, this.reconnectAttempts - 1));
-            setTimeout(() => this.connect(), delay);
-          };
-
-          ws.onerror = (e) => {
-            if (typeof this.onerror === 'function') this.onerror(e);
-          };
-        } catch (err) {
-          this.reconnectAttempts++;
-          const delay = Math.min(30000, 1000 * Math.pow(2, this.reconnectAttempts - 1));
-          setTimeout(() => this.connect(), delay);
-        }
-      }
-
-      send(data) {
-        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-          this.ws.send(data);
-        } else {
-          this.messageQueue.push(data);
-        }
-      }
-
-      close(code, reason) {
-        this.shouldReconnect = false;
-        if (this.ws) this.ws.close(code, reason);
-      }
-
-      addEventListener(...args) {
-        return this.ws && this.ws.addEventListener(...args);
-      }
-
-      removeEventListener(...args) {
-        return this.ws && this.ws.removeEventListener(...args);
-      }
-    }
-
-const socket = new ReconnectingWebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/api/chat`);
-socket.onopen = async () => {
-  socket.send("open:" + store.userId);
-};
-socket.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  if (data.selectSign === currentDialogue.value?.dialogue.sign) {
-    const index = privateMessageList.findIndex(item => item.id === data.id);
-    if (index === -1) {
-      privateMessageList.push(data);
-      updateMessageNumber(-currentDialogue.value.notReadNumber);
-      changeMessageStatusF(currentDialogue.value);
-      const index1 = dialogueList.findIndex(item => item.dialogue.dialogueId === data.senderId && item.dialogue.userId === data.receiverId);
-      if (index1 !== -1) {
-        dialogueList[index1].notReadNumber++;
-        if (data.messageType === 1) dialogueList[index1].dialogue.newContent = data.content;
-        else dialogueList[index1].dialogue.newContent = "[图片]";
-      }
-      if (data.senderId === store.userId) {
-        if (data.messageType === 1) {
-          nextTick(() => requestAnimationFrame(() => { if (messageContent?.value) { messageContent.value.scrollTop = messageContent.value.scrollHeight; showScrollToBottom.value = false; } }));
-        } else if (data.messageType === 2) {
-          setTimeout(() => nextTick(() => requestAnimationFrame(() => { if (messageContent?.value) { messageContent.value.scrollTop = messageContent.value.scrollHeight; showScrollToBottom.value = false; } })), 700);
-        }
-      } else {
-        if(currentDialogue.value.dialogue.dialogueId !== data.senderId){
-          updateMessageNumber(1);
-        }
-        if (messageContent?.value && messageContent.value.scrollHeight - messageContent.value.scrollTop <= messageContent.value.clientHeight + 1) {
-          if (data.messageType === 1) {
-            nextTick(() => requestAnimationFrame(() => { if (messageContent?.value) { messageContent.value.scrollTop = messageContent.value.scrollHeight; showScrollToBottom.value = false; } }));
-          } else if (data.messageType === 2) {
-            setTimeout(() => nextTick(() => requestAnimationFrame(() => { if (messageContent?.value) { messageContent.value.scrollTop = messageContent.value.scrollHeight; showScrollToBottom.value = false; } })), 700);
-          }
-        }
-      }
-    } else {
-      if (store.userId !== data.senderId) {
-        const wasUnread = privateMessageList[index]?.status === 0;
-        privateMessageList.splice(index, 1, data);
-        //对方撤回未读消息时，本地未读数要一起扣掉
-        if (data.status === 2 && wasUnread) {
-          updateMessageNumber(-1);
-          const unreadIndex = dialogueList.findIndex(item => item.dialogue.sign === data.selectSign);
-          if (unreadIndex !== -1) {
-            dialogueList[unreadIndex].notReadNumber = Math.max(0, dialogueList[unreadIndex].notReadNumber - 1);
-          }
-        }
-        if (privateMessageList[privateMessageList.length - 1]?.id === data.id && data.content.length === 0) {
-          const index1 = dialogueList.findIndex(item => item.dialogue.dialogueId === data.senderId && item.dialogue.userId === data.receiverId);
-          if (index1 !== -1) dialogueList[index1].dialogue.newContent = "对方撤回一条消息";
-        }
-      } else {
-        privateMessageList.splice(index, 1, data);
-        if (privateMessageList[privateMessageList.length - 1]?.id === data.id && data.content.length === 0) {
-          const index1 = dialogueList.findIndex(item => item.dialogue.dialogueId === data.receiverId && item.dialogue.userId === data.senderId);
-          if (index1 !== -1) dialogueList[index1].dialogue.newContent = "您撤回一条消息";
-        }
-      }
-    }
-  } else {
-    const index = dialogueList.findIndex(item => item.dialogue.sign === data.selectSign);
-    if (index !== -1) {
-      if (data.status !== 2) {
-        if (data.messageType === 1) dialogueList[index].dialogue.newContent = data.content;
-        else if (data.messageType === 2) dialogueList[index].dialogue.newContent = "[图片]";
-        dialogueList[index].notReadNumber++;
-        updateMessageNumber(1);
-      } else if (data.status === 2) {
-        if (store.userId !== data.senderId) {
-          dialogueList[index].dialogue.newContent = "对方撤回一条消息";
-          updateMessageNumber(-1);
-        } else {
-          dialogueList[index].dialogue.newContent = "您撤回一条消息";
-        }
-      }
-    } else {
-      dialoguePageNum.value = 1;
-      dialogueList.length = 0;
-      selectDialogueF();
-    }
+let chatSync = Promise.resolve();
+let chatClosed = false;
+const socket = subscribeChat(event => {
+  if (event.kind === "deleted") {
+    const index = privateMessageList.findIndex(item => item.id === event.messageId);
+    if (index !== -1) privateMessageList.splice(index, 1);
+  } else if (event.kind === "read" && event.actorId !== store.userId
+      && event.conversationId === currentDialogue.value?.dialogue.id) {
+    privateMessageList.forEach(message => {
+      if (message.senderId === store.userId && message.status === 0) message.status = 1;
+    });
+  } else if (event.message) {
+    applyChatMessage(event.message);
   }
-};
+  queueChatSync(false);
+}, reconnect => { if (reconnect) queueChatSync(true); }, showChatError);
+
+function showChatError(error) {
+  ElMessage.error(error.message || "私信同步失败");
+}
+
+function queueChatSync(reconnect) {
+  chatSync = chatSync.then(async () => {
+    if (chatClosed) return;
+    await initialDialogueLoad;
+    await syncChatDialogues();
+    if (reconnect && currentDialogue.value) {
+      const selected = currentDialogue.value;
+      const page = Math.max(1, Math.ceil(selected.allMessageNumber / 20));
+      const res = await selectPrivateMessage(store, selected.dialogue.dialogueId, page);
+      if (chatClosed || selected !== currentDialogue.value) return;
+      privateMessageList.splice(0, privateMessageList.length, ...res.data.data.privateMessage);
+      userInfo.value = res.data.data.userInfo;
+      dialogueUserInfo.value = res.data.data.dialogueUserInfo;
+      messagePageNum.value = page - 1;
+      messageLoadingFlag.value = page > 1;
+      tryChangeMessageStatus(selected);
+    }
+  }).catch(showChatError);
+}
+
+async function syncChatDialogues() {
+  const count = Math.max(1, dialoguePageNum.value - 1);
+  const pages = await Promise.all(Array.from({ length: count }, (_, index) =>
+    selectDialogue(store.token, store.userId, index + 1)));
+  if (chatClosed) return;
+  const rows = pages.flatMap(res => res.data.data);
+  const selected = currentDialogue.value;
+  if (selected && !rows.some(row => row.dialogue.id === selected.dialogue.id)) {
+    const requested = await selectDialogue(store.token, store.userId, 1, selected.dialogue.dialogueId);
+    if (chatClosed) return;
+    rows.push(...requested.data.data);
+  }
+  const items = rows.map(row => {
+    const existing = dialogueList.find(item => item.dialogue.id === row.dialogue.id);
+    if (existing) { Object.assign(existing, row); return existing; }
+    return row;
+  });
+  dialogueList.splice(0, dialogueList.length, ...items);
+  if (selected && !items.some(item => item.dialogue.id === selected.dialogue.id)) currentDialogue.value = null;
+  dialogueLoadingFlag.value = pages[pages.length - 1].data.data.length === 20;
+  await syncUserMessageNumber();
+}
+
+function applyChatMessage(message) {
+  if (!message || String(message.selectSign) !== String(currentDialogue.value?.dialogue.sign)) return;
+  if (!userInfo.value || !dialogueUserInfo.value) { queueChatSync(true); return; }
+  const index = privateMessageList.findIndex(item => item.id === message.id);
+  if (index === -1) privateMessageList.push(message);
+  else privateMessageList.splice(index, 1, message);
+  privateMessageList.sort((a, b) => a.id - b.id);
+  if (message.receiverId === store.userId && message.status === 0) changeMessageStatusF(currentDialogue.value);
+  nextTick(() => {
+    if (messageContent.value && (message.senderId === store.userId || !showScrollToBottom.value))
+      messageContent.value.scrollTop = messageContent.value.scrollHeight;
+  });
+}
 
 function updateFontNumber() {
   messageNumber.value = (messageInput?.value?.innerText?.trim()?.length || 0) + ((messageInput?.value?.getElementsByTagName("img")?.length) || 0) * 5;
@@ -1131,8 +1013,8 @@ async function refreshUnreadNumber() {
     const res = await selectNotReadNumber(store.token, store.userId);
     if (res.data.code !== 1) return;
     setMessageNumber(res.data.data);
-  } catch {
-    // 查询失败保持原数字，避免误清空未读提醒。
+  } catch (error) {
+    showChatError(error);
   }
 }
 

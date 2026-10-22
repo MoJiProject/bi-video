@@ -3,14 +3,19 @@
     <el-pagination
       :current-page="currentPage"
       :page-size="pageSize"
+      :pager-count="5"
       layout="prev, pager, next"
       :total="total"
       :background="true"
       @current-change="handleCurrentChange"
     />
-    <span
+    <span class="page-summary"
       >共 {{ Math.ceil(total / pageSize) }} 页 / {{ total }} 个，跳至<input
         type="number"
+        aria-label="跳转页码"
+        inputmode="numeric"
+        :min="1"
+        :max="totalPages"
         v-model="jumpValue"
         @keydown.enter="handleJump"
       />页</span

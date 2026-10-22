@@ -186,7 +186,7 @@ export default {
       {
         label: "动态总数",
         value: overview.dynamicNumber || 0,
-        tip: "含粉丝收到的动态",
+        tip: "创作者发布的动态记录",
         icon: Promotion,
         color: "#ff7a45",
       },
@@ -234,7 +234,7 @@ export default {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("加载概览数据失败");
+        toast(error.message || "加载概览数据失败", "error");
       }
     }
 

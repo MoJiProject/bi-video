@@ -6,7 +6,7 @@
         <span class="brand-name">系统管理后台</span>
       </div>
 
-      <nav class="header-nav">
+      <nav class="header-nav" aria-label="站点导航">
         <a class="nav-link" href="/" target="_blank">
           <el-icon><HomeFilled /></el-icon>主站
         </a>
@@ -18,17 +18,17 @@
       <div class="header-right">
         <span class="refresh-time">{{ refreshTime }}</span>
         <el-button size="small" text @click="handleRefresh">刷新</el-button>
-        <div class="user-box" @click="goHome" title="进入我的主页">
+        <button type="button" class="user-box" @click="goHome" title="进入我的主页" aria-label="进入我的主页">
           <img :src="userAvatar" alt="头像" class="avatar" referrerpolicy="no-referrer" />
           <el-tooltip :content="userName" placement="bottom">
             <span class="user-name">{{ userName }}</span>
           </el-tooltip>
-        </div>
+        </button>
       </div>
     </header>
 
     <div class="system-body">
-      <aside class="system-aside">
+      <aside ref="menuRef" class="system-aside" aria-label="后台功能菜单">
         <div class="aside-title">功能菜单</div>
         <router-link
           v-for="item in menus"
@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import {
   HomeFilled,
@@ -107,6 +107,18 @@ export default {
     const isAdmin = ref(false);
     const refreshTime = ref("");
     const refreshKey = ref(0);
+    const menuRef = ref(null);
+
+    watch([() => route.path, pageLoad], () => {
+      const menu = menuRef.value;
+      const active = menu?.querySelector(".active");
+      if (!active) return;
+      if (window.matchMedia("(max-width: 900px)").matches) {
+        menu.scrollLeft = active.offsetLeft - (menu.clientWidth - active.offsetWidth) / 2;
+      } else {
+        menu.scrollTop = active.offsetTop - (menu.clientHeight - active.offsetHeight) / 2;
+      }
+    }, { flush: "post" });
 
     const menus = [
       { path: "/systemManagement/overview", label: "数据概览", icon: DataAnalysis, component: OverviewPage },
@@ -192,6 +204,8 @@ export default {
       pageLoad,
       isAdmin,
       refreshTime,
+      refreshKey,
+      menuRef,
       currentComponent,
       isActive,
       userName,
@@ -206,6 +220,7 @@ export default {
 
 <style scoped>
 .system-layout {
+  min-width: 0;
   min-height: 100vh;
   background-color: #f4f6f9;
   user-select: none;
@@ -306,6 +321,10 @@ export default {
   cursor: pointer;
   min-width: 0;
   flex-shrink: 1;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font: inherit;
 }
 
 .avatar {
@@ -342,6 +361,9 @@ export default {
   position: sticky;
   top: 56px;
   flex-shrink: 0;
+  box-sizing: border-box;
+  max-height: calc(100vh - 56px);
+  overflow-y: auto;
 }
 
 .aside-title {
@@ -386,6 +408,84 @@ export default {
   flex: 1;
   padding: 20px 16px 40px;
   min-width: 0;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.system-main > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.menu-item:focus-visible,
+.nav-link:focus-visible,
+.user-box:focus-visible {
+  outline: 2px solid #0E9C85;
+  outline-offset: -2px;
+}
+
+@media (max-width: 1200px) {
+  .system-aside { width: 168px; }
+  .header-nav { margin-left: 20px; }
+  .user-name { max-width: 120px; }
+}
+
+@media (max-width: 900px) {
+  .system-header { position: relative; }
+  .refresh-time { display: none; }
+  .header-nav { margin-left: 16px; }
+  .nav-link { margin-right: 12px; }
+  .system-body { flex-direction: column; }
+  .system-aside {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    min-height: 0;
+    max-height: none;
+    padding: 8px 12px;
+    top: 0;
+    z-index: 90;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .aside-title { display: none; }
+  .menu-item {
+    flex: 0 0 auto;
+    height: 40px;
+    padding: 0 12px;
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .menu-item.active { border-bottom-color: #0E9C85; }
+  .menu-icon { margin-right: 6px; }
+  .system-main { width: 100%; padding: 16px 12px 32px; }
+}
+
+@media (max-width: 640px) {
+  .system-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 12px;
+    height: auto;
+    padding: 10px 12px 8px;
+  }
+  .brand { min-width: 0; }
+  .logo { max-width: 56px; height: 28px; }
+  .brand-name { font-size: 15px; letter-spacing: 0; margin-left: 6px; }
+  .header-right { grid-column: 2; grid-row: 1; margin-left: 0; flex-shrink: 0; }
+  .header-right :deep(.el-button) { min-height: 36px; padding: 8px; }
+  .user-box { margin-left: 6px; }
+  .user-name { display: none; }
+  .header-nav { grid-column: 1 / -1; gap: 20px; margin-left: 0; }
+  .nav-link { min-height: 32px; margin-right: 0; gap: 4px; font-size: 13px; }
+  .system-main { padding: 12px 12px 24px; }
+  .system-forbidden { height: auto; min-height: 100vh; padding: 24px; box-sizing: border-box; text-align: center; }
+  .system-forbidden h1 { font-size: 24px; }
 }
 
 /* ============ 无权限 ============ */
@@ -411,15 +511,65 @@ export default {
   所以「操作列不换行」这类规则必须放在非 scoped 样式里才生效。
 -->
 <style>
-.el-table .sys-actions {
+.system-layout .el-table .sys-actions {
   white-space: nowrap;
 }
 
-.el-table .sys-actions .el-button {
+.system-layout .el-table .sys-actions .el-button {
   margin-left: 8px;
 }
 
-.el-table .sys-actions .el-button:first-child {
+.system-layout .el-table .sys-actions .el-button:first-child {
   margin-left: 0;
+}
+
+/* Dialogs are teleported outside the management layout. */
+.sys-dialog {
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.sys-dialog .el-dialog__header,
+.sys-dialog .el-dialog__footer {
+  flex-shrink: 0;
+}
+
+.sys-dialog .el-dialog__body {
+  min-height: 0;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  overscroll-behavior: contain;
+}
+
+.sys-dialog .el-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sys-dialog .el-dialog__footer .el-button + .el-button {
+  margin-left: 0;
+}
+
+.sys-confirm-dialog {
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .sys-dialog .el-form-item { flex-direction: column; align-items: stretch; }
+  .sys-dialog .el-form-item__label { width: auto !important; height: auto; justify-content: flex-start; margin-bottom: 6px; }
+  .sys-dialog .el-form-item__content { min-width: 0; margin-left: 0 !important; }
+  .sys-dialog .el-input-number { width: 100%; }
+  .sys-dialog .el-button { min-height: 36px; }
+  .sys-dialog .ban-target { flex-wrap: wrap; }
 }
 </style>

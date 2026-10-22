@@ -4,17 +4,19 @@
       <div class="sys-panel-title">
         <span class="title">
           操作日志审计
-          <span class="title-tip">记录管理员在本后台的每一次写操作，被拒绝的操作也会留痕</span>
+          <span class="title-tip">记录已处理的后台写操作及业务拒绝原因</span>
         </span>
       </div>
 
       <div class="sys-filter">
         <el-select v-model="query.module" placeholder="全部模块" clearable style="width: 150px" @change="handleSearch">
           <el-option label="用户管理" value="user" />
+          <el-option label="视频管理" value="video" />
           <el-option label="评论管理" value="comment" />
           <el-option label="动态管理" value="dynamic" />
           <el-option label="私信管理" value="message" />
           <el-option label="搜索热词" value="keyWord" />
+          <el-option label="Banner管理" value="banner" />
         </el-select>
         <el-select v-model="query.success" placeholder="全部结果" clearable style="width: 130px" @change="handleSearch">
           <el-option label="成功" :value="1" />
@@ -49,6 +51,10 @@
           <template #default="scope">
             <span class="sys-tag tag-primary">{{ MODULE_LABEL[scope.row.module] || scope.row.module }}</span>
           </template>
+        </el-table-column>
+
+        <el-table-column label="操作" width="130" align="center">
+          <template #default="scope">{{ ACTION_LABEL[scope.row.action] || scope.row.action }}</template>
         </el-table-column>
 
         <el-table-column label="操作对象" min-width="160" align="center">
@@ -96,6 +102,7 @@ import SystemPagination from "../components/SystemPagination.vue";
 import { searchLogs } from "../../api/systemManagement/index";
 import {
   MODULE_LABEL,
+  ACTION_LABEL,
   ellipsis,
   goUserHome,
   msgOf,
@@ -139,7 +146,7 @@ export default {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("加载操作日志失败");
+        toast(error.message || "加载操作日志失败", "error");
       }
     }
 
@@ -174,6 +181,7 @@ export default {
       shortTime,
       ellipsis,
       MODULE_LABEL,
+      ACTION_LABEL,
     };
   },
 };

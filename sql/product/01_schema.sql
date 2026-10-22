@@ -83,9 +83,10 @@ CREATE TABLE `user_privacy`
     `record_history`      TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '记录观看历史',
     `home_section_order`  VARCHAR(255)    NULL COMMENT '个人空间首页分区顺序',
     `notify_dynamic`      TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '接收动态通知',
-    `notify_comment`      TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '接收评论通知',
+    `notify_message`      TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '私信提醒',
+    `notify_comment`      TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '评论提醒 0关闭 1全部 2关注的人',
     `notify_like`         TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '接收点赞通知',
-    `notify_at`           TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '接收@通知',
+    `notify_at`           TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '@提醒 0关闭 1全部 2关注的人',
     `updated_at`          DATETIME(3)     NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
     PRIMARY KEY (`user_id`),
     CONSTRAINT `fk_privacy_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
@@ -449,7 +450,7 @@ CREATE TABLE `notification`
     `id`          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `receiver_id` BIGINT UNSIGNED NOT NULL COMMENT '接收者',
     `actor_id`    BIGINT UNSIGNED NULL COMMENT '触发者',
-    `type`        TINYINT         NOT NULL COMMENT '类型 1@我 2回复我 3评论我的视频 4点赞我的视频 5点赞我的评论 6关注我 7系统',
+    `type`        TINYINT         NOT NULL COMMENT '类型 1@我 2回复我 3评论我的内容 4点赞我的视频 5点赞我的评论 6关注我 7系统 8点赞我的动态',
     `target_type` TINYINT         NOT NULL COMMENT '对象类型 1视频 2评论 3动态 4用户',
     `target_id`   BIGINT UNSIGNED NULL COMMENT '对象ID',
     `content`     VARCHAR(500)    NULL COMMENT '展示文案（快照）',
@@ -471,6 +472,12 @@ CREATE TABLE `conversation`
     `user_b_id`      BIGINT UNSIGNED NOT NULL COMMENT '会话成员B',
     `last_message_id` BIGINT UNSIGNED NULL COMMENT '最后一条消息',
     `last_message_at` DATETIME(3)    NULL COMMENT '最后消息时间',
+    `a_pinned_at`    DATETIME(3)     NULL,
+    `b_pinned_at`    DATETIME(3)     NULL,
+    `a_muted`        TINYINT(1)      NOT NULL DEFAULT 0,
+    `b_muted`        TINYINT(1)      NOT NULL DEFAULT 0,
+    `a_deleted_at`   DATETIME(3)     NULL,
+    `b_deleted_at`   DATETIME(3)     NULL,
     `created_at`     DATETIME(3)     NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_conversation` (`user_a_id`, `user_b_id`),
@@ -490,6 +497,9 @@ CREATE TABLE `private_message`
     `message_type`    TINYINT         NOT NULL DEFAULT 1 COMMENT '类型 1文本 2图片 3系统 4视频分享',
     `content`         VARCHAR(2000)   NOT NULL COMMENT '内容',
     `is_read`         TINYINT(1)      NOT NULL DEFAULT 0 COMMENT '已读',
+    `revoked_at`      DATETIME(3)     NULL,
+    `sender_deleted_at` DATETIME(3)   NULL,
+    `receiver_deleted_at` DATETIME(3) NULL,
     `created_at`      DATETIME(3)     NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `deleted_at`      DATETIME(3)     NULL,
     PRIMARY KEY (`id`),
@@ -501,6 +511,16 @@ CREATE TABLE `private_message`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci COMMENT ='私信消息';
+
+DROP TABLE IF EXISTS `notification_target_mute`;
+CREATE TABLE `notification_target_mute`
+(
+    `user_id` BIGINT UNSIGNED NOT NULL,
+    `target_type` TINYINT NOT NULL,
+    `target_id` BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY (`user_id`, `target_type`, `target_id`),
+    CONSTRAINT `fk_notify_mute_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
 -- 6. 一起看

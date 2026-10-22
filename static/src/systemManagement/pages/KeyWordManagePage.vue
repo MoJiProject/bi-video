@@ -102,9 +102,9 @@
         <el-form-item label="搜索词" required>
           <el-input
             v-model="editWord"
-            maxlength="50"
+            maxlength="64"
             show-word-limit
-            placeholder="至少 2 个字，不能与已有搜索词重复"
+            placeholder="1 至 64 个字符，不能与已有搜索词重复"
           />
         </el-form-item>
       </el-form>
@@ -121,7 +121,7 @@
           <el-input :model-value="countTarget ? countTarget.word : ''" disabled />
         </el-form-item>
         <el-form-item label="搜索次数" required>
-          <el-input-number v-model="editCount" :min="0" :max="99999999" :step="1" controls-position="right" />
+          <el-input-number v-model="editCount" :min="0" :max="4294967295" :step="1" :precision="0" controls-position="right" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -203,7 +203,7 @@ export default {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("加载搜索词失败");
+        toast(error.message || "加载搜索词失败", "error");
       }
     }
 
@@ -250,8 +250,8 @@ export default {
 
     async function submitEdit() {
       const word = editWord.value.trim();
-      if (word.length <= 1) {
-        toast("搜索词至少 2 个字");
+      if (!word || word.length > 64) {
+        toast("搜索词须为 1 至 64 个字符");
         return;
       }
       submitting.value = true;
@@ -268,7 +268,7 @@ export default {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("保存失败");
+        toast(error.message || "保存失败", "error");
       } finally {
         submitting.value = false;
       }
@@ -297,7 +297,7 @@ export default {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("保存失败");
+        toast(error.message || "保存失败", "error");
       } finally {
         submitting.value = false;
       }
@@ -329,7 +329,7 @@ export default {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("删除失败");
+        toast(error.message || "删除失败", "error");
       } finally {
         submitting.value = false;
       }

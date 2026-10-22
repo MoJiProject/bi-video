@@ -50,16 +50,21 @@ public class AuthService {
     private final FavoriteFolderMapper folderMapper;
     private final UserQueryMapper queryMapper;
     private final CounterMapper counterMapper;
+    private final MentionNotificationService mentions;
+    private final NotificationCenterService notifications;
 
     public AuthService(UserMapper userMapper, UserPrivacyMapper privacyMapper,
                        UserStatsMapper statsMapper, FavoriteFolderMapper folderMapper,
-                       UserQueryMapper queryMapper, CounterMapper counterMapper) {
+                       UserQueryMapper queryMapper, CounterMapper counterMapper,
+                       MentionNotificationService mentions, NotificationCenterService notifications) {
         this.userMapper = userMapper;
         this.privacyMapper = privacyMapper;
         this.statsMapper = statsMapper;
         this.folderMapper = folderMapper;
         this.queryMapper = queryMapper;
         this.counterMapper = counterMapper;
+        this.mentions = mentions;
+        this.notifications = notifications;
     }
 
     @Transactional
@@ -148,6 +153,19 @@ public class AuthService {
         UserPrivacy privacy = privacyMapper.selectOne(Wrappers.<UserPrivacy>lambdaQuery()
                 .eq(UserPrivacy::getUserId, userId));
         vo.setHomeSectionOrder(readSectionOrder(privacy == null ? null : privacy.getHomeSectionOrder()));
+        if (userId.equals(viewer)) {
+            Map<String, Object> counts = mentions.unread(userId);
+            vo.setMessageNumber(((Number) counts.get("messageNumber")).longValue());
+            vo.setReplyCommentNumber(((Number) counts.get("replyCommentNumber")).longValue());
+            vo.setAtNumber(((Number) counts.get("atNumber")).longValue());
+            vo.setLikeAllNumber(((Number) counts.get("likeAllNumber")).longValue());
+            vo.setAllMessageNumber(((Number) counts.get("allMessageNumber")).longValue());
+            Map<String, Object> settings = notifications.settings(userId);
+            vo.setMessageWarn(((Number) settings.get("messageWarn")).intValue());
+            vo.setReplyMessageWarn(((Number) settings.get("replyMessageWarn")).intValue());
+            vo.setAtMessageWarn(((Number) settings.get("atMessageWarn")).intValue());
+            vo.setLikeMessageWarn(((Number) settings.get("likeMessageWarn")).intValue());
+        }
         if (!userId.equals(viewer)) {
             if (!Boolean.TRUE.equals(vo.getShowBirthday())) vo.setBirthday(null);
             vo.setCoinBalance(null);

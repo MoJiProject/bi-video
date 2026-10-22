@@ -153,7 +153,7 @@
       />
     </div>
 
-    <el-dialog v-model="deleteDialogVisible" title="删除动态" width="460px" align-center>
+    <el-dialog class="sys-dialog" v-model="deleteDialogVisible" title="删除动态" width="460px" align-center>
       <el-alert
         type="error"
         :closable="false"

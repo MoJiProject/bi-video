@@ -1,4 +1,18 @@
 import apiClient from "../../services/apiClient";
+import { sanitizeRichText, extractMentionIds } from "../../utils/richText";
+
+function notificationResponse(response) {
+    for (const item of response.data.data) {
+        for (const field of ["replyComments", "mainComments", "comments", "videos", "dynamic"]) {
+            const content = item[field];
+            if (!content) continue;
+            for (const key of ["content", "title"]) {
+                if (typeof content[key] === "string") content[key] = sanitizeRichText(content[key]);
+            }
+        }
+    }
+    return response;
+}
 
 //获取私信对话列表
 export async function selectReplayComment(token,userId,pageNum){
@@ -14,20 +28,21 @@ export async function selectReplayComment(token,userId,pageNum){
             pageNum
         }
     });
-    return res;
+    return notificationResponse(res);
 
 }
 
 //操作评论（点赞、踩）
 export async function commentControles(token,commentControls){
     const res = await apiClient.post(
-        "/comment/controlsComment",
-        commentControls,
+        `/comment/${commentControls.commentId}/like`,
+        null,
         {
           headers: {
             "Content-Type": "application/json",
             Authorization: token,
           },
+          params: { dislike: commentControls.controls === 2 },
         },
       );
     return res;
@@ -55,7 +70,16 @@ export async function deleteCommentNotification(token,commentId,userId,messageMe
 //回复评论
 export async function replayComment(token,comment){
 
-    const res = await apiClient.post("/comment/addComment", comment, {
+    const source = comment.comments;
+    const content = sanitizeRichText(source.content);
+    const res = await apiClient.post("/comment", {
+        content,
+        videoId: source.videoId || null,
+        postId: source.dynamicId || null,
+        rootId: source.replyCommentId || source.mainCommentId || null,
+        mentionUserIds: extractMentionIds(content),
+        imageUrls: source.imgAddress ? source.imgAddress.split(",").filter(Boolean) : [],
+    }, {
         headers: {
           "Content-Type": "application/json",
           Authorization: token,
@@ -78,7 +102,7 @@ export async function selectAtComment(token,userId,pageNum){
           pageNum
       }
   });
-  return res;
+  return notificationResponse(res);
 }
 
 //查询喜欢用户的视频或评论
@@ -95,7 +119,7 @@ export async function selectLike(token,userId,pageNum){
           pageNum
       }
   });
-  return res;
+  return notificationResponse(res);
 
 }
 

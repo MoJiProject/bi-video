@@ -47,12 +47,14 @@ public class CommentDanmakuService {
     private final UserPostMapper postMapper;
     private final ApplicationEventPublisher events;
     private final MentionNotificationService mentions;
+    private final NotificationCenterService notifications;
 
     public CommentDanmakuService(CommentMapper commentMapper, CommentLikeMapper commentLikeMapper,
                                  DanmakuMapper danmakuMapper, VideoMapper videoMapper,
                                  UserMapper userMapper, CounterMapper counterMapper,
                                  InteractionQueryMapper queryMapper, ObjectMapper json, UserPostMapper postMapper,
-                                 ApplicationEventPublisher events, MentionNotificationService mentions) {
+                                 ApplicationEventPublisher events, MentionNotificationService mentions,
+                                 NotificationCenterService notifications) {
         this.commentMapper = commentMapper;
         this.commentLikeMapper = commentLikeMapper;
         this.danmakuMapper = danmakuMapper;
@@ -64,6 +66,7 @@ public class CommentDanmakuService {
         this.postMapper = postMapper;
         this.events = events;
         this.mentions = mentions;
+        this.notifications = notifications;
     }
 
     /** 一级评论分页 + 一次性批量取回它们的回复。 */
@@ -154,6 +157,10 @@ public class CommentDanmakuService {
             }
         }
         commentMapper.insert(c);
+        Long owner = req.getVideoId() == null ? requirePost(req.getPostId(), userId).getAuthorId()
+                : videoMapper.selectById(req.getVideoId()).getOwnerId();
+        notifications.publish(userId, replyToUserId == null ? owner : replyToUserId,
+                replyToUserId == null ? 3 : 2, 2, c.getId(), c.getContent());
         if (req.getPostId() == null || requirePost(req.getPostId(), userId).getVisibility() == 0)
             mentions.publish(userId, 2, c.getId(), req.getMentionUserIds(), c.getContent());
 
@@ -207,6 +214,8 @@ public class CommentDanmakuService {
         // like_count 只统计赞，所以只有「赞位」的有无变化才动它
         if (after - before != 0) {
             bumpLikeCount(commentId, after - before);
+            if (after == 1) notifications.publish(userId, c.getAuthorId(), 5, 2, commentId, c.getContent());
+            else notifications.removeLike(userId, c.getAuthorId(), 5, 2, commentId);
         }
         Map<String, Object> data = new HashMap<>(4);
         data.put("commentId", commentId);

@@ -19,12 +19,9 @@ return response;
 //关注用户
 export async function addFollow(token,userId,upUserId){
 
-    const response = await apiClient.post(
-        "/video/addFollow",
-        {
-          followId: upUserId,
-          fansId: userId,
-        },
+    const response = await apiClient.put(
+        `/user/${upUserId}/follow`,
+        null,
         {
           headers: {
             "Content-Type": "application/json",
@@ -37,12 +34,8 @@ export async function addFollow(token,userId,upUserId){
 
 //取消关注
 export async function deleteFollow(token,userId,upUserId){
-    const response = await apiClient.post(
-        "/video/deleteFollow",
-        {
-          followId: upUserId,
-          fansId: userId,
-        },
+    const response = await apiClient.delete(
+        `/user/${upUserId}/follow`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -57,7 +50,12 @@ export async function deleteFollow(token,userId,upUserId){
 export async function putMessageSettings(store){
     const response = await apiClient.put(
         "/user/putMessageSettings",
-          store.userInformation,
+          {
+            messageWarn: store.userInformation.messageWarn,
+            replyMessageWarn: store.userInformation.replyMessageWarn,
+            atMessageWarn: store.userInformation.atMessageWarn,
+            likeMessageWarn: store.userInformation.likeMessageWarn,
+          },
         {
           headers: {
             "Content-Type": "application/json",
@@ -217,4 +215,3 @@ export async function uploadBackground(token,userId,background) {
   });
   return response;
 }
-

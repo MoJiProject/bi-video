@@ -12,13 +12,17 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.ApplicationEventPublisher;
 
 @Service
 public class VideoShareService {
     private final JdbcTemplate jdbc;
     private final AuthService auth;
+    private final ApplicationEventPublisher events;
 
-    public VideoShareService(JdbcTemplate jdbc, AuthService auth) { this.jdbc = jdbc; this.auth = auth; }
+    public VideoShareService(JdbcTemplate jdbc, AuthService auth, ApplicationEventPublisher events) {
+        this.jdbc = jdbc; this.auth = auth; this.events = events;
+    }
 
     public Map<String, Object> recipients(Long actor, Long cursorId) {
         auth.requireActiveUser(actor);
@@ -67,7 +71,11 @@ public class VideoShareService {
             Long conversation = jdbc.queryForObject("SELECT id FROM conversation WHERE user_a_id=? AND user_b_id=?",
                     Long.class, low, high);
             long last = insertMessage(conversation, actor, receiver, 4, videoId.toString());
-            if (content != null && !content.isBlank()) last = insertMessage(conversation, actor, receiver, 1, content);
+            events.publishEvent(new PrivateMessageChanged(actor, receiver, conversation, last, "created", null));
+            if (content != null && !content.isBlank()) {
+                last = insertMessage(conversation, actor, receiver, 1, content);
+                events.publishEvent(new PrivateMessageChanged(actor, receiver, conversation, last, "created", null));
+            }
             jdbc.update("UPDATE conversation SET last_message_id=?,last_message_at=NOW(3) WHERE id=?", last, conversation);
         }
         jdbc.update("INSERT INTO video_stats(video_id,share_count) VALUES(?,?) "

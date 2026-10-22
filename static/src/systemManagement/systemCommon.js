@@ -31,6 +31,7 @@ export function msgOf(res, fallback = "操作成功") {
 //危险操作二次确认
 export function confirmDanger(message, confirmText = "确定") {
   return ElMessageBox.confirm(message, "操作确认", {
+    customClass: "sys-confirm-dialog",
     confirmButtonText: confirmText,
     cancelButtonText: "取消",
     type: "warning",
@@ -97,10 +98,16 @@ export const ACTION_LABEL = {
   examineVideo: "审核通过",
   rejectVideo: "审核退回",
   takeDownVideo: "下架",
+  restoreVideo: "重新上架",
   deleteVideo: "删除视频",
   deleteComment: "删除评论",
   deleteDynamic: "删除动态",
   deleteMessage: "删除私信",
+  sendPrivateMessage: "发送私信",
+  switchCommentOffShelf: "评论上下架",
+  switchDynamicOffShelf: "动态上下架",
+  videoTakeDownPost: "视频下架联动隐藏",
+  videoRestorePost: "视频上架联动恢复",
   addKeyWord: "新增搜索词",
   putKeyWord: "修改搜索词",
   putKeyWordCount: "修改搜索次数",

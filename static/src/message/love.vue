@@ -312,7 +312,7 @@
            </div>
         </div>
         <div v-show="loveList.length===0&&selectLikeCommentFFlag" class="no-love-data">
-          <AppEmptyState title="暂无点赞通知" compact/>
+          <AppEmptyState :title="loadError || '暂无点赞通知'" :kind="loadError ? 'unavailable' : undefined" :action-text="loadError ? '重新加载' : undefined" compact @action="selectLikeF"/>
         </div>
         <div v-show="loveList.length===0&&!selectLikeCommentFFlag" class="love-loading">
           <img src="/img/loading.png">
@@ -396,6 +396,7 @@
   import {putMessageNumber}  from '../api/privateMessage/index';
   import {selectLike,deleteCommentNotification,dndLikeNotification,selectLikeUser}  from '../api/comment/index';
   import {addFollow,deleteFollow}  from '../api/user/index';
+  import { sanitizeRichText } from "../utils/richText";
 
 
   const store = useGlobalStore();
@@ -413,6 +414,11 @@
   const pageNum2=ref(1);
   const loves=ref(null);
   const deleteFollowHoverFlag=ref(null);
+  const loadError=ref("");
+  const loading=ref(false);
+  const detailsLoading=ref(false);
+  const detailsMore=ref(true);
+  const showError = error => ElMessage.error(error.message || "消息操作失败");
 
   onMounted(()=>{
 
@@ -432,7 +438,7 @@
           userInformation.allMessageNumber=userInformation.messageNumber+userInformation.replyCommentNumber+userInformation.atNumber+userInformation.likeAllNumber;
           store.setUserInformation(userInformation);
         }
-      })
+      }).catch(showError)
   }
 
   //查询收到的赞
@@ -447,14 +453,22 @@
         });
         return;
       }
-      selectLike(store.token,store.userId,pageNum.value++).then(res=>{
+      if (loading.value) return;
+      loading.value=true;
+      loadError.value="";
+      selectLike(store.token,store.userId,pageNum.value).then(res=>{
         if(res.data.code===1){
           pushData(res.data.data);
           selectLikeCommentFFlag.value = true;
+          pageNum.value++;
           if(res.data.data===null||res.data.data.length===0)
           Scrolled.value=false;
         }
-      })
+      }).catch(error=>{
+        loadError.value=error.message || "点赞通知加载失败";
+        selectLikeCommentFFlag.value=true;
+        showError(error);
+      }).finally(()=>{ loading.value=false; })
   }
 
   //去除重复数据
@@ -487,11 +501,11 @@ function addImgFlagF(comment){
   
       if(comment.replyCommentId!==comment.mainCommentId)
        content=content.replace("&nbsp;&nbsp;","");
-      const imgArr=comment.imgAddress.split(',');
+      const imgArr=(comment.imgAddress || "").split(',');
       for(let i=0;i<imgArr.length-1;i++){
           content=content+"[图片]";
       }
-      return content;
+      return sanitizeRichText(content);
   }
 
   //删除喜欢通知对话框
@@ -532,7 +546,7 @@ function addImgFlagF(comment){
             duration: 1700,
           });
         }
-      })
+      }).catch(showError)
 
   }
 
@@ -545,7 +559,7 @@ function addImgFlagF(comment){
 
   //滚动加载
   function handleScroll2(e){
-      if(Scrolled.value&&e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 1){
+      if(detailsMore.value&&e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 1){
         selectLikeUserF(loves.value);
       }
   }
@@ -572,11 +586,18 @@ function addImgFlagF(comment){
           else if(love.likes.likeType===3)
             love.dynamic.likeWarn=love.dynamic.likeWarn===1?0:1;
         }
-      })
+      }).catch(showError)
   }
 
   //查询喜欢评论或视频的用户
   function selectLikeUserF(love){
+    if (!love || detailsLoading.value) return;
+    if (loves.value && loves.value.id !== love.id) {
+      likeUserList.length=0;
+      pageNum2.value=1;
+      detailsMore.value=true;
+    }
+    if (!detailsMore.value) return;
     loves.value=love;
     let id=null;
     if(love.likes.likeType===1)
@@ -586,9 +607,12 @@ function addImgFlagF(comment){
     else if(love.likes.likeType===3)
       id=love.dynamic.id;
 
-    selectLikeUser(store.token,store.userId,id,pageNum2.value++,love.likes.likeType).then(res=>{
+    detailsLoading.value=true;
+    selectLikeUser(store.token,store.userId,id,pageNum2.value,love.likes.likeType).then(res=>{
       pushData2(res.data.data);
-    })
+      detailsMore.value=res.data.data.length===10;
+      pageNum2.value++;
+    }).catch(showError).finally(()=>{ detailsLoading.value=false; })
   }
 
   //重置页码
@@ -597,6 +621,7 @@ function addImgFlagF(comment){
     {
       pageNum2.value=1;
       loves.value=null;
+      detailsMore.value=true;
     }
   })
 
@@ -614,7 +639,7 @@ function addImgFlagF(comment){
         }
         addFollow(store.token,store.userId,love.userInfo2.id).then(res=>{
           love.isFansFlag=1;
-        })
+        }).catch(showError)
    
   }
 
@@ -623,7 +648,7 @@ function addImgFlagF(comment){
 
        deleteFollow(store.token,store.userId,love.userInfo2.id).then(res=>{
          love.isFansFlag=0;
-       })
+       }).catch(showError)
 
   }
 

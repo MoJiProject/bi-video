@@ -21,6 +21,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+import org.springframework.web.socket.config.annotation.ServletWebSocketHandlerRegistry;
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
 import org.springframework.web.socket.handler.SessionLimitExceededException;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -42,6 +43,7 @@ public class VideoLiveSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        if (registry instanceof ServletWebSocketHandlerRegistry servletRegistry) servletRegistry.setOrder(-1);
         registry.addHandler(new Handler(), "/api/video/live").setAllowedOriginPatterns("*");
     }
 

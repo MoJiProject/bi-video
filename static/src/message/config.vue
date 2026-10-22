@@ -82,38 +82,32 @@
   import { ref } from "vue";
   import {useGlobalStore} from "../store/store";
   import {putMessageSettings} from '../api/user/index'
+  import { ElMessage } from "element-plus";
   
   const store = useGlobalStore();
   const backgroundModel=ref(parseInt(localStorage.getItem('backgroundModel')) || 0);
 
-  function setSetting(index, value) {
-
-    let user=store.userInformation;
-
-    if(index===1){
-      user.messageWarn=value;
+  const saving=ref(false);
+  async function setSetting(index, value) {
+    if (saving.value) return;
+    const user={...store.userInformation};
+    saving.value=true;
+    try {
+      if(index===5){
+        localStorage.setItem("backgroundModel",value);
+        backgroundModel.value=value;
+        store.setUserInformation({...user,backgroundModel:value});
+        return;
+      }
+      const key={1:"messageWarn",2:"replyMessageWarn",3:"atMessageWarn",4:"likeMessageWarn"}[index];
+      user[key]=value;
+      await putMessageSettings({token:store.token,userInformation:user});
       store.setUserInformation(user);
+    } catch (error) {
+      ElMessage.error(error.message || "消息设置保存失败");
+    } finally {
+      saving.value=false;
     }
-    else if(index===2){
-      user.replyMessageWarn=value;
-      store.setUserInformation(user);
-    }
-    else if(index===3){
-      user.atMessageWarn=value;
-      store.setUserInformation(user);
-    }
-    else if(index===4){
-      user.likeMessageWarn=value;
-      store.setUserInformation(user);
-    }
-    else if(index===5){
-      localStorage.setItem("backgroundModel",value);
-      backgroundModel.value=value;
-      user.backgroundModel=value;
-      store.setUserInformation(user);
-    }
-    putMessageSettings(store);
-
   }
 
   

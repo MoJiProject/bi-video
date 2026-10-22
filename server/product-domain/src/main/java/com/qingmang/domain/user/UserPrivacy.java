@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-/** 用户隐私与通知设置 */
+/** 用户隐私与通知设置
+ */
 @Data
 @Accessors(chain = true)
 @TableName("user_privacy")
@@ -57,13 +58,16 @@ public class UserPrivacy implements Serializable {
     private Boolean notifyDynamic;
 
     @TableField("notify_comment")
-    private Boolean notifyComment;
+    private Integer notifyComment;
 
     @TableField("notify_like")
     private Boolean notifyLike;
 
     @TableField("notify_at")
-    private Boolean notifyAt;
+    private Integer notifyAt;
+
+    @TableField("notify_message")
+    private Boolean notifyMessage;
 
     @TableField("updated_at")
     private LocalDateTime updatedAt;

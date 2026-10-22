@@ -51,12 +51,14 @@ public class VideoInteractionService {
     private final CounterMapper counterMapper;
     private final AuthService authService;
     private final UserPrivacyMapper privacyMapper;
+    private final NotificationCenterService notifications;
 
     public VideoInteractionService(VideoReactionMapper reactionMapper, WatchLaterMapper watchLaterMapper,
                                    WatchHistoryMapper historyMapper, FavoriteFolderMapper folderMapper,
                                    FavoriteItemMapper favoriteItemMapper, VideoMapper videoMapper,
                                    VideoStatsMapper statsMapper, CounterMapper counterMapper,
-                                   AuthService authService, UserPrivacyMapper privacyMapper) {
+                                   AuthService authService, UserPrivacyMapper privacyMapper,
+                                   NotificationCenterService notifications) {
         this.reactionMapper = reactionMapper;
         this.watchLaterMapper = watchLaterMapper;
         this.historyMapper = historyMapper;
@@ -67,6 +69,7 @@ public class VideoInteractionService {
         this.counterMapper = counterMapper;
         this.authService = authService;
         this.privacyMapper = privacyMapper;
+        this.notifications = notifications;
     }
 
     /** 点赞/取消点赞。返回操作后的状态。 */
@@ -80,11 +83,13 @@ public class VideoInteractionService {
             counterMapper.increaseVideoStat(videoId, "like_count", 1);
             counterMapper.increaseUserStat(video.getOwnerId(), "like_received", 1);
             authService.addExp(video.getOwnerId(), 1);
+            notifications.publish(userId, video.getOwnerId(), 4, 1, videoId, video.getTitle());
             liked = true;
         } else {
             reactionMapper.deleteById(exist.getId());
             counterMapper.decreaseVideoStat(videoId, "like_count", 1);
             counterMapper.increaseUserStat(video.getOwnerId(), "like_received", -1);
+            notifications.removeLike(userId, video.getOwnerId(), 4, 1, videoId);
             liked = false;
         }
         return state(videoId, liked, null, null, null, null);

@@ -120,6 +120,18 @@
                 </el-tooltip>
                 <div class="at-line"></div>
               </div>
+              <div v-else-if="at.at.videoId" class="at-right-content">
+                <div class="at-right-content-top">
+                  <a :href="'./home?homeMenu=1&userId='+at.userId" target="_blank">{{ at.userName }}</a>
+                  <span>在视频中@了我</span>
+                </div>
+                <a :href="'./video?videoId=BV'+at.at.videoId" target="videoWindow">
+                  <div class="at-right-content-center">{{ at.videos.title }}</div>
+                </a>
+                <div class="at-right-content-bottom">
+                  <button type="button" class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id">删除</button>
+                </div>
+              </div>
               <div v-else class="at-right-content">
                  <div class="at-right-content-top">
                   <el-tooltip
@@ -165,7 +177,7 @@
            </div>
         </div>
         <div v-show="atList.length===0&&selectAtCommentFFlag" class="no-at-data">
-          <AppEmptyState title="暂无提及通知" compact/>
+          <AppEmptyState :title="loadError || '暂无提及通知'" :kind="loadError ? 'unavailable' : undefined" :action-text="loadError ? '重新加载' : undefined" compact @action="selectAtCommentF"/>
         </div>
         <div v-show="atList.length===0&&!selectAtCommentFFlag" class="at-loading">
           <img src="/img/loading.png">
@@ -205,6 +217,7 @@
   import { ElMessage } from "element-plus";   
   import {selectAtComment,commentControles,deleteCommentNotification,replayComment}  from '../api/comment/index';
   import {putMessageNumber}  from '../api/privateMessage/index';
+  import { sanitizeRichText } from "../utils/richText";
 
 
   const store = useGlobalStore();
@@ -218,6 +231,9 @@
   const deleteCommentNotificaitonId=ref(null);
   const commentContent=ref("");
   const Scrolled=ref(true);
+  const loading=ref(false);
+  const loadError=ref("");
+  const showError = error => ElMessage.error(error.message || "消息操作失败");
 
   onMounted(() => {
     putMessageNumberF();
@@ -236,7 +252,7 @@
         userInformation.allMessageNumber=userInformation.messageNumber+userInformation.replyCommentNumber+userInformation.atNumber+userInformation.likeAllNumber;
         store.setUserInformation(userInformation);
       }
-    })
+    }).catch(showError)
   }
 
   //获取@我的评论
@@ -252,15 +268,23 @@
         });
         return;
       }
-    selectAtComment(store.token,store.userId,pageNum.value++).then(res => {
+    if (loading.value) return;
+    loading.value=true;
+    loadError.value="";
+    selectAtComment(store.token,store.userId,pageNum.value).then(res => {
       if(res.data.code === 1)
        { 
         pushData(res.data.data);
         selectAtCommentFFlag.value = true;
+        pageNum.value++;
         if(res.data.data===null||res.data.data.length===0)
         Scrolled.value=false;
        }
-    })
+    }).catch(error=>{
+      loadError.value=error.message || "提及通知加载失败";
+      selectAtCommentFFlag.value=true;
+      showError(error);
+    }).finally(()=>{ loading.value=false; })
   }
 
   //去除重复数据
@@ -292,7 +316,7 @@ function addImgFlagF(comment){
       for(let i=0;i<imgArr.length-1;i++){
           content=content+"[图片]";
       }
-      return content;
+      return sanitizeRichText(content);
   }
 
   //点赞
@@ -322,10 +346,7 @@ function addImgFlagF(comment){
                });
             }
         }
-      });
-
-
-
+      }).catch(showError);
   }
 
   //删除通知
@@ -351,7 +372,7 @@ function addImgFlagF(comment){
             duration: 1700,
           });
         }
-      })
+      }).catch(showError)
 
   }
 
@@ -393,7 +414,7 @@ function addImgFlagF(comment){
           commentContent.value="";
           at.replyFlag=false;
         }
-      })
+      }).catch(showError)
   }
 
   //打开回复评论

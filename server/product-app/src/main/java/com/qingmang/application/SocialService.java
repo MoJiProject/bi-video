@@ -40,12 +40,13 @@ public class SocialService {
     private final AuthService auth;
     private final PostLikeMapper postLikes;
     private final MentionNotificationService mentions;
+    private final NotificationCenterService notifications;
 
     public SocialService(UserFollowMapper followMapper, UserPostMapper postMapper,
                          PrivateMessageMapper privateMessageMapper,
                          UserStatsMapper statsMapper, CounterMapper counterMapper,
                          SocialQueryMapper queryMapper, ObjectMapper json, AuthService auth, PostLikeMapper postLikes,
-                         MentionNotificationService mentions) {
+                         MentionNotificationService mentions, NotificationCenterService notifications) {
         this.followMapper = followMapper;
         this.postMapper = postMapper;
         this.privateMessageMapper = privateMessageMapper;
@@ -56,6 +57,7 @@ public class SocialService {
         this.auth = auth;
         this.postLikes = postLikes;
         this.mentions = mentions;
+        this.notifications = notifications;
     }
 
     @Transactional
@@ -159,7 +161,7 @@ public class SocialService {
 
     @Transactional
     public boolean togglePostLike(Long userId, Long postId) {
-        detail(postId, userId);
+        PostVO post = detail(postId, userId);
         PostLike existing = postLikes.selectOne(Wrappers.<PostLike>lambdaQuery()
                 .eq(PostLike::getPostId, postId).eq(PostLike::getUserId, userId));
         boolean liked = existing == null;
@@ -175,6 +177,8 @@ public class SocialService {
         }
         postMapper.update(null, Wrappers.<UserPost>lambdaUpdate().eq(UserPost::getId, postId)
                 .setSql(liked ? "like_count = like_count + 1" : "like_count = CASE WHEN like_count > 0 THEN like_count - 1 ELSE 0 END"));
+        if (liked) notifications.publish(userId, post.getAuthorId(), 8, 3, postId, post.getContent());
+        else notifications.removeLike(userId, post.getAuthorId(), 8, 3, postId);
         return liked;
     }
 
@@ -246,6 +250,8 @@ public class SocialService {
         Long count = privateMessageMapper.selectCount(Wrappers.<PrivateMessage>lambdaQuery()
                 .eq(PrivateMessage::getReceiverId, userId)
                 .eq(PrivateMessage::getIsRead, Boolean.FALSE)
+                .isNull(PrivateMessage::getReceiverDeletedAt)
+                .isNull(PrivateMessage::getRevokedAt)
                 .isNull(PrivateMessage::getDeletedAt));
         return count == null ? 0 : count.intValue();
     }

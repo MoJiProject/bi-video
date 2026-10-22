@@ -4,7 +4,7 @@
       <div class="sys-panel-title">
         <span class="title">
           私信管理
-          <span class="title-tip">用于处理违规私信，删除后会同步清理会话缓存；管理员发私信不受「未回复只能发1条」限制</span>
+          <span class="title-tip">用于处理违规私信，删除后会同步更新会话摘要；管理员发送文字私信不受陌生人限制</span>
         </span>
       </div>
 
@@ -79,8 +79,7 @@
 
         <el-table-column label="私信内容" min-width="200" align="center">
           <template #default="scope">
-            <!-- 私信正文本身就是富文本HTML，用v-html渲染，否则会把标签当原文显示 -->
-            <div class="sys-comment-html clamp-3" v-html="scope.row.content"></div>
+            <div class="sys-comment-html clamp-3">{{ scope.row.content }}</div>
           </template>
         </el-table-column>
 
@@ -88,6 +87,7 @@
           <template #default="scope">
             <span v-if="scope.row.messageType === 1" class="sys-tag tag-purple">文字</span>
             <span v-else-if="scope.row.messageType === 2" class="sys-tag tag-primary">图片</span>
+            <span v-else-if="scope.row.messageType === 3" class="sys-tag tag-grey">系统</span>
             <span v-else class="sys-tag tag-warning">视频</span>
           </template>
         </el-table-column>
@@ -245,7 +245,7 @@ export default {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("加载私信列表失败");
+        toast(error.message || "加载私信列表失败", "error");
       }
     }
 
@@ -293,10 +293,8 @@ export default {
       submitting.value = true;
       try {
         const res = await sendPrivateMessage(store.token, {
-          senderId: store.userId,
           receiverId: sendTarget.value.senderId,
           content,
-          //messageType 必须传，1是文字消息，后端会直接拆箱这个字段，不传会抛异常
           messageType: 1,
         });
         if (res.data.code === 1) {
@@ -306,7 +304,7 @@ export default {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("发送失败");
+        toast(error.message || "发送失败", "error");
       } finally {
         submitting.value = false;
       }
@@ -335,7 +333,7 @@ export default {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("删除失败");
+        toast(error.message || "删除失败", "error");
       } finally {
         submitting.value = false;
       }

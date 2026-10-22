@@ -42,4 +42,13 @@ public class UserProfileVO {
     private Long likeReceived;
     private Long playTotal;
     private Long coinReceived;
+    private Long messageNumber;
+    private Long replyCommentNumber;
+    private Long atNumber;
+    private Long likeAllNumber;
+    private Long allMessageNumber;
+    private Integer messageWarn;
+    private Integer replyMessageWarn;
+    private Integer atMessageWarn;
+    private Integer likeMessageWarn;
 }

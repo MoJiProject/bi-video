@@ -86,10 +86,12 @@
               @click="handleUnban(scope.row)"
               >解封</el-button
             >
-            <el-button v-else size="small" type="danger" @click="handleBan(scope.row)">封禁</el-button>
+            <el-button v-else size="small" type="danger"
+              :disabled="String(scope.row.id) === String(store.userId)"
+              @click="handleBan(scope.row)">封禁</el-button>
             <el-button
               size="small"
-              :disabled="scope.row.adminFlag && scope.row.id === store.userId"
+              :disabled="String(scope.row.id) === String(store.userId)"
               @click="handleAdmin(scope.row)"
               >{{ scope.row.adminFlag ? "取消管理员" : "设为管理员" }}</el-button
             >
@@ -228,7 +230,7 @@ export default {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("加载用户列表失败");
+        toast(error.message || "加载用户列表失败", "error");
       }
     }
 
@@ -279,7 +281,7 @@ export default {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("封禁失败");
+        toast(error.message || "封禁失败", "error");
       } finally {
         submitting.value = false;
       }
@@ -308,7 +310,7 @@ export default {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("解封失败");
+        toast(error.message || "解封失败", "error");
       }
     }
 
@@ -323,7 +325,7 @@ export default {
       try {
         const res = await putAdmin(
           store.token,
-          { operatorId: store.userId, reason: action },
+          { adminFlag: !row.adminFlag, reason: action },
           row.id
         );
         if (res.data.code === 1) {
@@ -333,7 +335,7 @@ export default {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("操作失败");
+        toast(error.message || "操作失败", "error");
       }
     }
 
@@ -363,7 +365,7 @@ export default {
           toast(msgOf(res));
         }
       } catch (error) {
-        toast("加载封禁记录失败");
+        toast(error.message || "加载封禁记录失败", "error");
       }
     }
 
