@@ -1,17 +1,6 @@
 <template>
     <div class="home" :class="{ 'without-profile': !showProfile }">
-        <div v-if="!loadMore && showProfile" class="home-user-info">
-            <div>个人资料
-                <span v-if="store.homeUserInformation.id === store.userId" @click="openAccount">
-                    编辑 
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-                        <path fill="currentColor" d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path>
-                    </svg>
-                </span>
-            </div>
-            <div><img src="/img/uid.png"> {{ store.homeUserInformation.id }}</div>
-            <div v-if="store.homeUserInformation.birthday"><img src="/img/birthday.png"> {{ store.homeUserInformation?.birthday?.split(' ')[0] }}</div>
-        </div>
+        <SpaceProfileCard v-if="!loadMore && showProfile"/>
         <div class="home-content">
         <!-- 单独渲染加载中部分 -->
         <loadingIndicator v-show="loadMore" min-height="180px"/>
@@ -21,7 +10,7 @@
                 class="magnum-video">
                 <div class="title">
                     <span>代表作</span>
-                    <el-button v-if="store.userId === userId" text @click="openFeatured">设置代表作</el-button>
+                    <el-button v-if="store.userId === userId" class="featured-edit" type="primary" plain @click="openFeatured">设置代表作</el-button>
                 </div>
                 <videoList v-if="featuredVideos.length" :data="featuredVideos"/>
                 <AppEmptyState v-else compact title="还没有设置代表作" description="选择最多 3 个已发布的视频，展示你的精彩创作"
@@ -30,8 +19,10 @@
             <!-- 视频部分 -->
             <div :class="item.class" v-if="item.class === 'tribute-video'&&!loadMore">
                 <div class="title">
-                    <div class="title-name" @click="store.setHomeMenu(3,userId,true)">视频</div> · &nbsp;
-                    <span class="contribute-total">{{ contributeTotal }}</span>
+                    <button type="button" class="section-heading" @click="store.setHomeMenu(3,userId,true)">
+                        <span class="title-name">视频</span>
+                        <span class="contribute-total">{{ contributeTotal }}</span>
+                    </button>
                     <div class="video-sort">
                         <span :class="{sortClass: sort === 1}" @click="sort = 1">最新发布</span>
                         <span :class="{sortClass: sort === 2}" @click="sort = 2">最多播放</span>
@@ -57,8 +48,10 @@
             <!-- 收藏夹部分 -->
             <div :class="item.class" v-if="item.class === 'collect'&&!loadMore && ((store.userId!== null && store.userId === userId) || store.homeUserInformation.publicCollect === 1)">
                 <div class="title">
-                    <div class="title-name" @click="store.setHomeMenu(5,userId,true)">收藏夹</div> · &nbsp;
-                    <span class="contribute-total">{{ collectTotal }}</span>
+                    <button type="button" class="section-heading" @click="store.setHomeMenu(5,userId,true)">
+                        <span class="title-name">收藏夹</span>
+                        <span class="contribute-total">{{ collectTotal }}</span>
+                    </button>
                     <span v-if="store.userId===store.homeUserInformation.id&&store.homeUserInformation.publicCollect===0" class="home-user-info-public"><img src="/img/隐藏.png">仅自己可见</span> 
                     <div class="more" @click="store.setHomeMenu(5,userId,true)">
                         查看更多
@@ -96,13 +89,14 @@
                 <videoList2 :data="loveVideos"/>
             </div>
         </div>
-            <el-dialog v-model="featuredVisible" title="设置代表作（最多 3 个）" width="min(90vw, 720px)">
+            <el-dialog v-model="featuredVisible" title="设置代表作（最多 3 个）" width="640px"
+                class="space-dialog" append-to-body align-center>
                 <div class="featured-tools">
                     <el-input v-model="featuredKeyword" placeholder="搜索自己的视频" maxlength="50" clearable
                         @keyup.enter="searchFeatured" @clear="searchFeatured"/>
                     <el-button @click="searchFeatured">搜索</el-button>
                 </div>
-                <p>已选择 {{ featuredSelection.length }} / 3，可取消全部代表作。</p>
+                <p class="space-dialog-hint">已选择 {{ featuredSelection.length }} / 3，可取消全部代表作。</p>
                 <loadingIndicator v-if="featuredLoading" min-height="120px"/>
                 <div v-else class="featured-options">
                     <el-checkbox v-for="video in featuredOptions" :key="video.id"
@@ -112,7 +106,7 @@
                     <AppEmptyState v-if="!featuredOptions.length" compact kind="search" title="暂无匹配视频" description="仅可选择已发布的视频作为代表作"/>
                 </div>
                 <el-pagination v-if="featuredTotal" v-model:current-page="featuredPage" :page-size="20"
-                    layout="prev, pager, next" :total="featuredTotal" :disabled="featuredSaving"/>
+                    layout="prev, pager, next" :pager-count="5" :total="featuredTotal" :disabled="featuredSaving"/>
                 <template #footer>
                     <el-button :disabled="featuredSaving" @click="featuredVisible = false">取消</el-button>
                     <el-button type="primary" :loading="featuredSaving" @click="saveFeatured">保存</el-button>
@@ -128,6 +122,7 @@ import {useGlobalStore} from "@/store/store";
 import videoList from './homeVideos.vue';
 import videoList2 from './homeVideos.vue';
 import loadingIndicator from '@/components/loadingIndicator.vue';
+import SpaceProfileCard from './SpaceProfileCard.vue';
 import {homeContributeVideos,homeThrowCoinVideos,getCollectsClassify,homeLoveVideos,homeMagnumVideos,updateFeaturedVideos} from '@/api/home/index';
 import { ElMessage } from 'element-plus';
 
@@ -262,13 +257,6 @@ function getSort(){
     }
 }
 
-//打开个人中心
-function openAccount(){
-   
-    window.open('./account','_blank');
-
-}
-
 </script>
 
 <style lang="scss" scoped>
@@ -281,77 +269,25 @@ function openAccount(){
 .home-content{
     min-width: 0;
 }
-.featured-tools { display: flex; gap: 12px; }
-.featured-options { display: flex; flex-direction: column; align-items: flex-start; max-height: 360px; overflow: auto; }
-.featured-options :deep(.el-checkbox__label) { white-space: normal; overflow-wrap: anywhere; }
-.featured-options .el-checkbox { height: auto; min-height: 36px; }
+.featured-tools { display: flex; gap: 10px; align-items: center; }
+.featured-tools .el-input { flex: 1; min-width: 0; }
+.featured-options { display: flex; flex-direction: column; gap: 8px; max-height: 360px; overflow: auto; }
+.featured-options :deep(.el-checkbox__label) { padding-left: 10px; white-space: normal; overflow-wrap: anywhere; line-height: 22px; }
+.featured-options .el-checkbox { box-sizing: border-box; width: 100%; height: auto; min-height: 44px; margin: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; }
+.featured-options .el-checkbox.is-checked { border-color: var(--brand-light-5); background: var(--brand-light-9); }
+.featured-options :deep(.el-checkbox__input) { align-self: flex-start; margin-top: 4px; }
 .home.without-profile { grid-template-columns: minmax(0, 1fr); }
 
 .home{
     position: relative;
     display: grid;
-    grid-template-columns: 240px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 240px;
     align-items: start;
     gap: 0 var(--gap-5);
     width: 100%;
     max-width: var(--page-max);
     margin: 0 auto;
     padding: var(--gap-5) var(--page-pad) 25px;
-
-    .home-user-info{
-    position: sticky;
-    top: 80px;
-    width: 240px;
-    height: 125px;
-    z-index: 10;
-    padding: 20px 16px 24px;
-    background-color: #F4F7F6;
-    border-radius: 6px;
-
-    div:nth-child(1){
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: #1C2321;
-    font-size: 16px;
-    font-weight: 500;
-        span{
-        color: #5C6664;
-        font-size: 12px;
-        transition: color 0.3s ease;
-        cursor: pointer;
-        svg{
-            position: relative;
-            top: 2px;
-            width: 12px;
-            height: 12px;
-            
-        }
-        }
-        span:hover{
-            color: #0FA68E;
-        }
-    }
-    div:nth-child(2){
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-        font-size: 13px;
-    }
-    div:nth-child(3){
-        display: flex;
-        align-items: center;
-        font-size: 13px;
-    }
-    div{
-        img{
-            width: 19px;
-            height: 16px;
-            margin-right: 8px;
-        }
-    }
-    }
 
     .home-div{
         .magnum-video{
@@ -971,15 +907,10 @@ function openAccount(){
     margin-bottom: 15px;
 }
 
-@media (max-width: 1150px) {
+@media (max-width: 960px) {
   .home{
     grid-template-columns: minmax(0, 1fr);
 
-    .home-user-info{
-      position: static;
-      width: 100%;
-      height: auto;
-    }
   }
 
 }

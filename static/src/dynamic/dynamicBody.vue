@@ -35,30 +35,8 @@
             <h2 id="composer-heading">发布动态</h2>
           </header>
           <el-input v-model="title" class="composer-title" maxlength="20" show-word-limit aria-label="动态标题（选填）" placeholder="动态标题（选填）"/>
-          <div ref="editor" class="editor" contenteditable="true" role="textbox" aria-label="动态内容"
-               aria-multiline="true"
-               data-placeholder="输入动态内容" @input="updateContent" @keyup="saveSelection"
-               @mouseup="saveSelection" @blur="saveSelection" @paste.prevent="paste"/>
-          <div class="tools">
-            <el-popover trigger="click" :width="300">
-              <template #reference><el-button text @mousedown.prevent>表情</el-button></template>
-              <div class="emoji-list">
-                <button v-for="number in 176" :key="number" type="button" @click="insertEmoji(number)">
-                  <img :src="`/img/emoji/${number}.png`" :alt="`表情 ${number}`" loading="lazy">
-                </button>
-              </div>
-            </el-popover>
-            <el-popover trigger="click" :width="280">
-              <template #reference><el-button text @mousedown.prevent>@ 用户</el-button></template>
-              <el-input v-model="mentionKeyword" placeholder="搜索用户昵称"/>
-              <div class="mention-list">
-                <button v-for="user in filteredMentions" :key="user.id" type="button" @click="insertMention(user)">
-                  <img :src="user.avatarAddress" alt="">{{ user.userName }}
-                </button>
-              </div>
-            </el-popover>
-            <span class="word-count" :class="{ 'is-over-limit': contentLength > 2000 }">{{ contentLength }} / 2000</span>
-          </div>
+          <PostEditor ref="editor" v-model="content" class="composer-editor" :disabled="publishing"
+            placeholder="输入动态内容…" :max-length="2000" @length="contentLength = $event"/>
           <div v-if="images.length" class="attachments">
             <div v-for="(image, index) in images" :key="image" class="attachment">
               <span class="attachment-order">{{ index + 1 }}</span>
@@ -113,11 +91,12 @@
 <script setup>
 import { computed, onUnmounted, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
-import { fetchMentionUsers, socialApi } from '@/api/product';
+import { socialApi } from '@/api/product';
 import { post } from '@/services/http';
 import { useGlobalStore } from '@/store/store';
 import homePost from '@/home/homePost.vue';
 import loadingIndicator from '@/components/loadingIndicator.vue';
+import PostEditor from '@/components/PostEditor.vue';
 
 const store = useGlobalStore();
 const rows = ref([]);
@@ -136,64 +115,13 @@ const images = ref([]);
 const visibility = ref(0);
 const publishing = ref(false);
 const uploading = ref(false);
-const mentions = ref([]);
-const mentionKeyword = ref('');
 const reminderError = ref('');
-const filteredMentions = computed(() => mentions.value.filter(user => user.userName.includes(mentionKeyword.value)));
 const unreadCount = computed(() => authors.value
   .filter(author => !targetUserId.value || author.userId === targetUserId.value)
   .reduce((total, author) => total + Number(author.unreadCount || 0), 0));
 let generation = 0;
 let active = true;
 let reminderTimer;
-let savedRange;
-
-function saveSelection() {
-  const selection = window.getSelection();
-  if (selection?.rangeCount && editor.value?.contains(selection.anchorNode)) savedRange = selection.getRangeAt(0).cloneRange();
-}
-function updateContent() {
-  content.value = editor.value?.innerHTML || '';
-  contentLength.value = (editor.value?.innerText.trim().length || 0) + (editor.value?.querySelectorAll('img').length || 0) * 5;
-}
-function insertNode(node) {
-  const element = editor.value;
-  if (!element) return;
-  element.focus();
-  const selection = window.getSelection();
-  const range = savedRange && element.contains(savedRange.commonAncestorContainer) ? savedRange : document.createRange();
-  if (range !== savedRange) { range.selectNodeContents(element); range.collapse(false); }
-  range.deleteContents();
-  range.insertNode(node);
-  range.setStartAfter(node);
-  range.collapse(true);
-  selection.removeAllRanges();
-  selection.addRange(range);
-  savedRange = range.cloneRange();
-  updateContent();
-}
-function insertEmoji(number) {
-  const image = document.createElement('img');
-  image.src = `/img/emoji/${number}.png`;
-  image.alt = '[表情]';
-  insertNode(image);
-}
-function insertMention(user) {
-  const link = document.createElement('a');
-  link.href = `/home?homeMenu=1&userId=${user.id}`;
-  link.textContent = `@${user.userName}`;
-  link.contentEditable = 'false';
-  insertNode(link);
-  insertNode(document.createTextNode(' '));
-}
-function paste(event) {
-  const text = event.clipboardData.getData('text/plain');
-  if (/^https?:\/\/\S+$/.test(text)) {
-    const link = document.createElement('a');
-    link.href = text; link.textContent = text;
-    insertNode(link);
-  } else insertNode(document.createTextNode(text));
-}
 async function load() {
   if (loading.value) return;
   const current = generation;
@@ -259,13 +187,13 @@ function moveImage(index, direction) {
   [images.value[index], images.value[target]] = [images.value[target], images.value[index]];
 }
 async function publish() {
-  updateContent();
+  if (publishing.value || uploading.value) return;
   if (!contentLength.value && !images.value.length) { ElMessage.warning('请输入内容或添加图片'); return; }
   if (contentLength.value > 2000) { ElMessage.warning('动态正文不能超过 2000 字'); return; }
   publishing.value = true;
   try {
     await socialApi.createPost({ title: title.value, content: content.value, imageUrls: images.value, visibility: visibility.value });
-    title.value = ''; content.value = ''; contentLength.value = 0; images.value = []; editor.value.innerHTML = ''; savedRange = null;
+    title.value = ''; content.value = ''; contentLength.value = 0; images.value = [];
     await reload();
     ElMessage.success('发布成功');
   } catch (error) { ElMessage.error(error.message); }
@@ -275,14 +203,13 @@ watch([scope, targetUserId, type], reload);
 watch(scope, value => { if (value === 'public') targetUserId.value = null; });
 watch(() => store.userId, async id => {
   clearInterval(reminderTimer);
-  authors.value = []; targetUserId.value = null; mentions.value = [];
+  authors.value = []; targetUserId.value = null;
   scope.value = id ? 'following' : 'public';
   await reload();
   if (!id || store.userId !== id) return;
   try {
-    const [users] = await Promise.all([fetchMentionUsers(), refreshAuthors()]);
+    await refreshAuthors();
     if (!active || store.userId !== id) return;
-    mentions.value = [...users.friendList, ...users.otherList];
     reminderTimer = setInterval(async () => {
       try { await refreshAuthors(); reminderError.value = ''; }
       catch (error) { reminderError.value = error.message; }
@@ -316,25 +243,17 @@ onUnmounted(() => { active = false; generation++; clearInterval(reminderTimer); 
 .author-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .author-list .el-tag { flex: none; max-width: 64px; overflow: hidden; }
 .timeline { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
-.composer { min-width: 0; padding: 24px; border: 1px solid #dbe7df; border-radius: 20px; background: #fff; box-shadow: 0 4px 20px rgba(29, 64, 43, .025); }
+.composer { min-width: 0; padding: 24px; border: 1px solid #dbe7df; border-radius: 20px; background: #fff; box-shadow: 0 4px 20px rgba(29, 64, 43, .025); font-family: var(--el-font-family); }
 .composer-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
 .composer-heading h2 { margin: 0; font-size: 17px; font-weight: 600; }
 .composer-title :deep(.el-input__wrapper) { min-height: 42px; padding: 0 12px; border-radius: 10px; background: var(--fill-soft); box-shadow: none; }
 .composer-title :deep(.el-input__wrapper.is-focus) { box-shadow: 0 0 0 1px #8bb7a1 inset; }
 .composer-title :deep(.el-input__count-inner) { background: transparent; }
-.editor { min-height: 128px; max-height: 350px; margin-top: 12px; overflow: auto; padding: 14px; border: 1px solid var(--line); border-radius: 12px; outline: none; background: #fff; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.8; font-size: 14px; scroll-margin-top: calc(var(--head-h) + 24px); }
-.editor:focus { border-color: #8bb7a1; box-shadow: 0 0 0 3px #edf6f0; }
-.editor:empty::before { content: attr(data-placeholder); color: var(--ink-3); pointer-events: none; }
-.editor :deep(img) { width: 28px; height: 28px; vertical-align: middle; }
-.editor :deep(a) { color: #126b58; }
-.tools, .publish, .publish-options { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.tools { margin-top: 6px; }
-.tools .el-button { margin: 0; padding: 8px 10px; color: var(--ink-2); }
-.word-count { margin-left: auto; color: var(--ink-3); font-size: 11px; font-variant-numeric: tabular-nums; }
-.word-count.is-over-limit { color: var(--el-color-danger); }
+.composer-editor { margin-top: 12px; }
+.publish, .publish-options { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .publish { justify-content: space-between; margin-top: 14px; padding-top: 16px; border-top: 1px solid var(--line); }
 .publish-options { margin-left: auto; }
-.publish-options > .el-button { min-height: 36px; margin: 0; padding: 0 20px; border-radius: 10px; }
+.publish-options > .el-button { flex: none; width: auto; max-width: 100%; min-height: 36px; margin: 0; padding: 0 20px; border-radius: 10px; }
 .visibility { width: 112px; }
 .visibility :deep(.el-select__wrapper) { border-radius: 10px; }
 .image-upload { position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 36px; max-width: 100%; padding: 6px 10px; border: 1px solid var(--line); border-radius: 10px; color: #126b58; font-size: 12px; cursor: pointer; }
@@ -350,13 +269,6 @@ onUnmounted(() => { active = false; generation++; clearInterval(reminderTimer); 
 .attachment .el-image { display: block; width: 100%; height: 112px; border-radius: 8px; }
 .image-actions { display: flex; justify-content: space-between; flex-wrap: wrap; padding-top: 5px; }
 .image-actions .el-button { margin: 0; padding: 4px; font-size: 12px; }
-.emoji-list { display: grid; grid-template-columns: repeat(7, 1fr); max-height: 240px; overflow: auto; }
-.emoji-list button, .mention-list button { border: 0; border-radius: 6px; background: transparent; cursor: pointer; }
-.emoji-list button:hover, .mention-list button:hover { background: var(--fill-soft); }
-.emoji-list img { width: 28px; height: 28px; }
-.mention-list { max-height: 240px; overflow: auto; }
-.mention-list button { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px; text-align: left; overflow-wrap: anywhere; }
-.mention-list img { width: 28px; height: 28px; border-radius: 50%; }
 .timeline-controls { padding: 20px 24px; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
 .timeline-heading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
 .timeline-heading h2 { margin: 0; font-size: 16px; font-weight: 600; }
@@ -390,15 +302,13 @@ onUnmounted(() => { active = false; generation++; clearInterval(reminderTimer); 
   .authors { padding: 12px 10px 6px; border-radius: 14px; }
   .composer, .timeline-controls { padding: 16px; border-radius: 16px; }
   .composer-heading { margin-bottom: 16px; }
-  .editor { min-height: 120px; padding: 12px; }
   .filters { gap: 10px; }
   .filters :deep(.el-radio-button__inner) { padding: 9px 12px; }
-  .publish-options { flex: 1; justify-content: flex-end; }
+  .publish-options { flex: 0 1 auto; max-width: 100%; justify-content: flex-end; }
 }
 @media (max-width: 380px) {
   .publish { gap: 12px; }
-  .publish-options { flex-basis: 100%; }
-  .publish-options > .el-button { flex: 1; }
+  .publish-options { flex-basis: 100%; justify-content: flex-start; margin-left: 0; }
   .attachments { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (prefers-reduced-motion: no-preference) {

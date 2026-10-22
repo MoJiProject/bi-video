@@ -1,22 +1,24 @@
 <template>
   <div class="contribute">
-    <div class="aside-container">
-      <div
+    <div class="aside-container" role="group" aria-label="投稿类型">
+      <button type="button" class="content-type-tab" :aria-pressed="contributeMenu === 1"
         :class="{ activeMenu: contributeMenu !== 1 }"
         @click="contributeMenu = 1"
       >
         <span>视频</span>
         <span>{{ contributeTotal }}</span>
-      </div>
-      <div
+      </button>
+      <button type="button" class="content-type-tab" :aria-pressed="contributeMenu === 2"
         :class="{ activeMenu: contributeMenu !== 2 }"
         @click="contributeMenu = 2"
       >
         <span>图文</span>
         <span>{{ imgDynamicTotal }}</span>
-      </div>
+      </button>
     </div>
-    <div class="content">
+    <div class="content" :class="{ 'has-profile': showProfile }">
+      <SpaceProfileCard v-if="showProfile" class="contribute-profile"/>
+      <div class="contribute-stream">
       <div v-show="contributeMenu === 1" class="contribute-menu">
         <div class="title">
           {{
@@ -25,11 +27,12 @@
               : "TA的视频"
           }}
         </div>
-        <div class="video-filter">
+        <div class="video-filter space-search">
           <el-input v-model="keyword" placeholder="搜索投稿视频" clearable maxlength="50"
             @keyup.enter="searchVideos" @clear="searchVideos"/>
-          <el-button @click="searchVideos">搜索</el-button>
+          <el-button type="primary" @click="searchVideos">搜索</el-button>
         </div>
+        <div class="video-toolbar">
         <div class="video-sort">
           <span :class="{ sortClass: sort === 1 }" @click="sort = 1"
             >最新发布</span
@@ -41,13 +44,15 @@
             >最多收藏</span
           >
         </div>
-        <div v-show="contributeVideos.length>0" class="video-grid"
+        <button v-show="contributeVideos.length>0" class="video-grid" type="button"
+          :aria-label="display === 1 ? '切换为列表视图' : '切换为网格视图'"
+          :title="display === 1 ? '切换为列表视图' : '切换为网格视图'"
           @click="display === 1 ? (display = 2) : (display = 1)"
         >
-          <img v-show="display === 2" src="/img/grid1.png" />
-          <img v-show="display === 2" src="/img/grid1蓝.png" />
-          <img v-show="display === 1" src="/img/grid5.png" />
-          <img v-show="display === 1" src="/img/grid5蓝.png" />
+          <svg v-if="display === 1" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="5" height="6" rx="1"/><rect x="3" y="14" width="5" height="6" rx="1"/><path d="M12 5h9M12 9h7M12 15h9M12 19h7"/></svg>
+          <svg v-else viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+          <span>{{ display === 1 ? '列表' : '网格' }}</span>
+        </button>
         </div>
         <div v-show="display == 1 && !loadMore && contributeVideos.length" class="video-list-container">
           <videoList3 :data="contributeVideos" />
@@ -62,6 +67,7 @@
           <el-pagination
             :current-page="pageNum"
             :page-size="20"
+            :pager-count="5"
             layout="prev, pager, next"
             :total="contributeTotal"
             :background="true"
@@ -109,6 +115,7 @@
           <el-pagination
             :current-page="pageNum"
             :page-size="20"
+            :pager-count="5"
             layout="prev, pager, next"
             :total="imgDynamicTotal"
             :background="true"
@@ -124,22 +131,25 @@
         </div>
       </div>
       <loadingIndicator v-show="loadMore" min-height="160px"/>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { useGlobalStore } from "@/store/store";
-import { reactive, ref, watch } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import videoList3 from "./homeVideos.vue";
 import videoList4 from "./homeVideos.vue";
 import loadingIndicator from "@/components/loadingIndicator.vue";
 import imgDynamic from "./homePost.vue";
+import SpaceProfileCard from "./SpaceProfileCard.vue";
 import { homeContributeVideos, dynamicImg } from "@/api/home/index";
 import { ElMessage } from "element-plus";
 
 const store = useGlobalStore();
 const userId = parseInt(new URL(window.location).searchParams.get("userId")) || store.userId;
+const showProfile = computed(() => (store.userId !== null && store.userId === userId) || store.homeUserInformation.publicBirthday === 1);
 const contributeMenu = ref(1);
 const contributeVideos = reactive([]);
 const imgDynamicList = reactive([]);
@@ -237,12 +247,14 @@ function handleCurrentChange2(event) {
     align-items: center;
     margin-right: 16px;
 
-    div {
+    .content-type-tab {
       width: 150px;
       height: 52px;
       font-size: 14px;
       cursor: pointer;
       border-radius: 6px;
+      border: 0;
+      font-family: inherit;
       padding: 14px 16px;
       color: white;
       display: flex;
@@ -262,9 +274,16 @@ function handleCurrentChange2(event) {
   }
   .content {
     position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 20px;
     min-width: 0;
     width: 100%;
     padding-bottom: 60px;
+    &.has-profile { grid-template-columns: minmax(0, 1fr) 240px; }
+    .contribute-profile { grid-column: 2; grid-row: 1; }
+    .contribute-stream { grid-column: 1; grid-row: 1; min-width: 0; }
     .video-filter { display: flex; gap: 12px; margin: 16px 0; max-width: 360px; }
 
     .contribute-menu {
@@ -339,24 +358,6 @@ function handleCurrentChange2(event) {
         cursor: pointer;
         user-select: none;
 
-        img {
-          position: absolute;
-          top: 3px;
-          width: 21px;
-          height: 21px;
-          transition: opacity 0.3s ease;
-        }
-        img:nth-child(2n) {
-          opacity: 0;
-        }
-      }
-      .video-grid:hover {
-        img:nth-child(n + 1) {
-          opacity: 0;
-        }
-        img:nth-child(2n) {
-          opacity: 1;
-        }
       }
       .video-list-container {
         position: relative;
@@ -397,6 +398,8 @@ function handleCurrentChange2(event) {
       .page-container {
         position: relative;
         display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
         justify-content: center;
         align-items: center;
 
@@ -436,10 +439,16 @@ function handleCurrentChange2(event) {
   }
 }
 
+@media (max-width: 960px) {
+  .contribute .content.has-profile { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .contribute .content .contribute-profile { grid-column: 1; grid-row: 1; }
+  .contribute .content.has-profile .contribute-stream { grid-row: 2; }
+}
+
 @media (max-width: 720px) {
   .contribute { flex-direction: column; padding: var(--gap-4) var(--page-pad); }
   .contribute .aside-container { position: static; flex-direction: row; gap: 8px; width: 100%; height: auto; margin-right: 0; }
-  .contribute .aside-container > div { flex: 1; min-width: 0; width: auto; }
+  .contribute .aside-container > .content-type-tab { flex: 0 0 auto; min-width: 0; width: auto; }
   .contribute .content .contribute-menu .video-sort { gap: 8px; padding-right: 32px; }
   .contribute .content .contribute-menu .video-sort span { padding: 0 10px; font-size: 12px; }
 }

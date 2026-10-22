@@ -6,8 +6,7 @@
     </header>
     <loadingIndicator v-if="loading"/>
     <template v-else-if="dynamic">
-      <div class="dynamic-posts"><homePost :dynamic="dynamic" @changed="load"/></div>
-      <postComments :post-id="id" @count="dynamic.commentCount = $event"/>
+      <div class="dynamic-posts"><homePost :dynamic="dynamic" detail @changed="load" @comment-count="dynamic.commentCount = $event"/></div>
     </template>
     <AppEmptyState v-else kind="unavailable" title="暂时无法查看这条动态" description="动态可能已被删除，或作者设置了访问权限"/>
   </main>
@@ -20,7 +19,6 @@ import { get } from '@/services/http';
 import { useGlobalStore } from '@/store/store';
 import homePost from '@/home/homePost.vue';
 import loadingIndicator from '@/components/loadingIndicator.vue';
-import postComments from './postComments.vue';
 const store = useGlobalStore();
 const dynamic = ref(null);
 const loading = ref(true);

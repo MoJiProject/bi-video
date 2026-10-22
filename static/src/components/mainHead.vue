@@ -4338,13 +4338,13 @@ a {
       height: 100%;
    }
    
-   .user-info {
+   .avatar-container .user-info {
       width: 260px;
       height: 380px;
       font-size: 12px;
    }
    
-   .user-info div {
+   .avatar-container .user-info div {
       margin-top: 10px;
    }
    
@@ -4413,17 +4413,17 @@ a {
       height: 26px;
    }
    
-   .user-info {
+   .avatar-container .user-info {
       width: 260px;
       height: 380px;
       font-size: 11px;
    }
    
-   .user-info .feature {
+   .avatar-container .user-info .feature {
       display: none;
    }
    
-   .user-info .grade {
+   .avatar-container .user-info .grade {
       display: none;
    }
    

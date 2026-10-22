@@ -135,7 +135,6 @@ if(store.accountMenu!==accountMenu)
     .menu-item{
       flex: 0 0 auto;
       min-width: 0;
-      flex: 1 0 auto;
       height: 40px;
       padding: 0 14px;
       border-radius: 4px;

@@ -7,19 +7,33 @@
     <dl class="creator-metrics">
       <div
         v-for="metric in [
-          { key: 'newFansNumber', label: '净增粉丝', icon: '/img/新增粉丝.png' },
-          { key: 'playNumber', label: '播放量', icon: '/img/播放量.png' },
-          { key: 'commentNumber', label: '评论', icon: '/img/评论.png' },
-          { key: 'scrollingNumber', label: '弹幕', icon: '/img/弹幕.png' },
-          { key: 'likeNumber', label: '点赞', icon: '/img/点赞.png' },
-          { key: 'shareNumber', label: '分享', icon: '/img/分享.png' },
-          { key: 'collectNumber', label: '收藏', icon: '/img/真收藏.png' },
-          { key: 'coinThrowNumber', label: '青芒币', icon: '/img/投币.png' }
+          { key: 'newFansNumber', label: '净增粉丝' },
+          { key: 'playNumber', label: '播放量' },
+          { key: 'commentNumber', label: '评论' },
+          { key: 'scrollingNumber', label: '弹幕' },
+          { key: 'likeNumber', label: '点赞' },
+          { key: 'shareNumber', label: '分享' },
+          { key: 'collectNumber', label: '收藏' },
+          { key: 'coinThrowNumber', label: '青芒币' }
         ]"
         :key="metric.key"
         class="metric-card"
       >
-        <dt><span class="metric-icon"><img :src="metric.icon" alt="" /></span>{{ metric.label }}</dt>
+        <dt>
+          <span class="metric-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <template v-if="metric.key === 'newFansNumber'"><circle cx="9" cy="8" r="3"/><path d="M3 21v-2a6 6 0 0 1 12 0v2M19 8v6M16 11h6"/></template>
+              <path v-else-if="metric.key === 'playNumber'" d="m8 4 12 8-12 8V4Z"/>
+              <template v-else-if="metric.key === 'commentNumber'"><path d="M7 18 3 21V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H7Z"/><path d="M7 8h10M7 12h7"/></template>
+              <template v-else-if="metric.key === 'scrollingNumber'"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M6 9h5M15 9h3M6 13h3M12 13h6"/></template>
+              <path v-else-if="metric.key === 'likeNumber'" d="M8 10H4v10h4m0-10 4-7h1a2 2 0 0 1 2 2l-1 5h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H8V10Z"/>
+              <template v-else-if="metric.key === 'shareNumber'"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="5" r="3"/><circle cx="18" cy="19" r="3"/><path d="m9 10 6-3M9 14l6 3"/></template>
+              <path v-else-if="metric.key === 'collectNumber'" d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"/>
+              <template v-else><circle cx="12" cy="12" r="9"/><path d="m8 7 4 5 4-5M12 12v6M8 12h8M8 15h8"/></template>
+            </svg>
+          </span>
+          {{ metric.label }}
+        </dt>
         <dd>{{ videoDto[metric.key] }}</dd>
       </div>
     </dl>
@@ -93,16 +107,16 @@ export default {
 };
 </script>
 <style scoped lang="scss">
-.creator-dashboard { min-width: 0; color: var(--ink); }
+.creator-dashboard { min-width: 0; color: var(--ink); font-family: var(--el-font-family); }
 .dashboard-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
 .dashboard-heading h1 { margin: 0; font-size: 24px; font-weight: 600; }
 .dashboard-heading a { color: var(--brand-hover); font-size: 13px; text-decoration: none; }
-.creator-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; margin: 0; }
-.metric-card { min-width: 0; padding: 24px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+.creator-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 0; }
+.metric-card { min-width: 0; padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
 .metric-card dt { display: flex; align-items: center; gap: 10px; color: var(--ink-2); font-size: 13px; }
-.metric-icon { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: var(--brand-light-9); flex-shrink: 0; }
-.metric-icon img { width: 18px; height: 18px; object-fit: contain; }
-.metric-card dd { margin: 22px 0 0; color: var(--ink); font-size: clamp(24px, 2.6vw, 36px); font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.metric-icon { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 9px; background: var(--brand-light-9); color: var(--brand-hover); flex-shrink: 0; }
+.metric-icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.metric-card dd { margin: 18px 0 0; color: var(--ink-2); font-size: clamp(22px, 2.2vw, 30px); font-weight: 500; line-height: 1.3; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 @media (max-width: 1100px) { .creator-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 640px) {
   .dashboard-heading { margin-bottom: 18px; }

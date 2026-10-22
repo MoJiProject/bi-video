@@ -8,12 +8,12 @@
             <a v-if="store.userId&&store.userId===store.homeUserInformation.id" href="./account?accountMenu=2" target="_blank">
                 <div class="user-avatar-link">
                     <img v-show="store.homeUserInformation?.avatarAddress" class="user-avatar" :src="store.homeUserInformation?.avatarAddress">
-                    <div v-if="store.userId===store.homeUserInformation?.id">更换头像</div>
+                    <div v-if="store.userId===store.homeUserInformation?.id" class="avatar-edit-overlay">更换头像</div>
                 </div>
             </a>
             <div v-else class="user-avatar-link">
                     <img v-show="store.homeUserInformation?.avatarAddress" class="user-avatar" :src="store.homeUserInformation?.avatarAddress">
-                    <div v-if="store.userId===store.homeUserInformation?.id">更换头像</div>
+                    <div v-if="store.userId===store.homeUserInformation?.id" class="avatar-edit-overlay">更换头像</div>
             </div>
             <div class="user-info-top">
                 <span class="user-name">{{ store.homeUserInformation?.userName }}</span>
@@ -375,39 +375,45 @@ z-index: 999;
         left: auto;
         width: 64px;
         height: 64px;
+        margin: 0;
+        border-radius: 50%;
 
         .user-avatar {
+        box-sizing: border-box;
         width: 64px;
         height: 64px;
         border-radius: 50%;
         background-color: rgba(0, 0, 0, .5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 2px solid #d3d3d3;
+        display: block;
+        border: 3px solid #d3d3d3;
         color: white;
         font-size: 14px;
         }
-        div{
+        .avatar-edit-overlay{
         position: absolute;
-        top: 2px;
-        left: 2px;
+        inset: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         text-align: center;
-        width: 62px;
-        height: 62px;
+        margin: 0;
+        padding: 0;
         cursor: pointer;
         background-color: rgba(0, 0, 0, .5);
         border-radius: 50%;
-        font-size: 12.5px;
+        font-family: var(--el-font-family);
+        font-size: 12px;
         color: white;
-        line-height: 60px;
+        line-height: 1;
+        white-space: nowrap;
         opacity: 0;
         transition: opacity .3s;
         }
 
     }
 
-    .user-avatar-link:hover div{
+    .user-avatar-link:hover .avatar-edit-overlay,
+    > a:focus-visible .avatar-edit-overlay{
         opacity: 1;
     }
 
@@ -633,7 +639,6 @@ z-index: 999;
         column-gap: 12px;
         .user-avatar-link,
         .user-avatar-link .user-avatar { width: 56px; height: 56px; }
-        .user-avatar-link > div { width: 52px; height: 52px; line-height: 50px; }
         .user-info-top .user-name { font-size: 20px; }
     }
 }

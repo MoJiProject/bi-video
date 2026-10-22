@@ -23,6 +23,7 @@
         <el-input @keypress.enter="searchVideo" v-model="videoTitle" maxlength="30" placeholder="搜索稿件" aria-label="搜索稿件" class="manuscript-search">
           <template #append><el-button @click="searchVideo" aria-label="搜索">搜索</el-button></template>
         </el-input>
+      <div class="manuscript-filter-row">
       <el-select v-model="subZoneKey" aria-label="筛选分类">
         <el-option
           @click="selectsubZoneKeyVideo"
@@ -43,8 +44,9 @@
         />
       </el-select>
       </div>
+      </div>
       <div class="manuscript-list">
-      <article v-for="(video, index) in videoList" :key="index" class="manuscript-card">
+      <article v-for="(video, index) in videoList" :key="index" class="manuscript-card content-action-surface">
         <div class="manuscript-cover">
           <img
             @click="openVideo(video)"
@@ -66,59 +68,17 @@
             <span class="manuscript-state" :class="`state-${video.status}`">{{ video.status === 0 ? '进行中' : video.status === 2 ? '未通过' : '已通过' }}</span>
             <time>{{ video.createTime }}</time>
           </div>
-          <div class="manuscript-actions">
-          <router-link
-            :to="{ path: '/contribute/edit', query: { videoId: video.id } }"
-            style="text-decoration: none;"
-          >
-            <div
-              class="edit"
-              @mouseenter="video.hover1 = true"
-              @mouseleave="video.hover1 = false"
-            >
-              <img
-                :src="video.hover1 ? editsBlue : edits"
-                style="
-                  transform: translate(1px, 0px);
-                  width: 14px;
-                  height: 14px;
-                "
-              />编辑
-            </div>
-          </router-link>
-          <button
-            type="button"
-            v-if="video.status !== 0 || video.status !== 2"
-            @click="viewVideoData"
-            class="datas"
-            @mouseenter="video.hover2 = true"
-            @mouseleave="video.hover2 = false"
-          >
-            <img
-              :src="video.hover2 ? datassBlue : datass"
-              style="transform: translate(1px, 0px); width: 14px; height: 14px"
-            />数据
-          </button>
+          <div class="manuscript-actions content-card-actions">
+          <ContentMoreMenu :label="`${video.title}的稿件操作`">
+            <el-dropdown-item @click="$router.push({ path: '/contribute/edit', query: { videoId: video.id } })">编辑</el-dropdown-item>
+            <el-dropdown-item v-if="video.status !== 0 || video.status !== 2" @click="viewVideoData">数据</el-dropdown-item>
+            <el-dropdown-item class="is-danger" @click="tempDelete(video)">删除</el-dropdown-item>
+          </ContentMoreMenu>
           <div
             v-if="video.status === 2"
             class="manuscript-rejection"
           >
             退回原因：{{ video.examineFiledMessage }}
-          </div>
-          <div
-            class="more"
-            @mouseenter="video.hover3 = true"
-            @mouseleave="video.hover3 = false"
-          >
-            <img
-              :src="video.hover3 ? moreBlue : more"
-              style="
-                width: 3px;
-                height: 12px;
-                position: absolute;
-              "
-            />
-            <button type="button" class="deleteUpload" @click="tempDelete(video)">删除</button>
           </div>
           </div>
           <div
@@ -269,15 +229,11 @@ import { ref, reactive, onMounted, watch } from "vue";
 import apiClient from "../services/apiClient";
 import { fetchPublishingCategories } from "../api/product";
 import { ElMessage } from "element-plus";
-const editsBlue = "/img/编辑蓝.png"
-const edits = "/img/编辑.png"
-const datassBlue = "/img/数据蓝.png"
-const datass = "/img/数据.png"
-const more = "/img/删除.png"
-const moreBlue = "/img/删除蓝.png"
+import ContentMoreMenu from "../components/ContentMoreMenu.vue";
 import {useGlobalStore} from "../store/store";
 export default {
   name: "SubPage2",
+  components: { ContentMoreMenu },
   setup() {
     const store = useGlobalStore();
     const dialogVisible = ref(false);
@@ -512,12 +468,6 @@ export default {
       classify,
       sort,
       sortWay,
-      editsBlue,
-      edits,
-      datass,
-      datassBlue,
-      more,
-      moreBlue,
       click1,
       click2,
       click3,
@@ -590,61 +540,6 @@ export default {
   transform: translate(166px, 7.5px);
 }
 
-.edit {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 3px;
-  border: 1px solid #dadada;
-  color: #6c6c6c;
-  width: 82px;
-  height: 28px;
-  font-size: 14px;
-  gap: 8px;
-  transform: translate(800px, -33px);
-  cursor: pointer;
-  position: absolute;
-}
-
-.edit:hover {
-  border: 1px solid #0E9C85;
-  color: #0E9C85;
-}
-
-.datas {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 3px;
-  border: 1px solid #dadada;
-  color: #6c6c6c;
-  width: 82px;
-  height: 28px;
-  gap: 8px;
-  font-size: 14px;
-  transform: translate(895px, -33px);
-  cursor: pointer;
-}
-
-.datas:hover {
-  border: 1px solid #0E9C85;
-  color: #0E9C85;
-}
-.more {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 3px;
-  border: 1px solid #dadada;
-  width: 28px;
-  height: 28px;
-  transform: translate(990px, -63px);
-}
-
-.more:hover {
-  border: 1px solid #0E9C85;
-}
-
 .ai img {
   width: 13px;
   height: 13px;
@@ -656,33 +551,6 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-}
-
-.deleteUpload {
-  position: absolute;
-  opacity: 0;
-  visibility: hidden;
-  width: 80px;
-  height: 30px;
-  font-size: 14px;
-  color: #6c6c6c;
-  border: 1px solid #dadada;
-  transform: translate(-10px, 40px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-  cursor: pointer;
-}
-
-.deleteUpload:hover {
-  border: 1px solid #0E9C85;
-  color: #0E9C85;
-}
-
-.more:hover .deleteUpload {
-  opacity: 1;
-  visibility: visible;
 }
 
 .yesDelete {
@@ -717,18 +585,20 @@ export default {
 }
 </style>
 <style scoped lang="scss">
-.creator-manager { min-width: 0; color: var(--ink); }
+.creator-manager { min-width: 0; color: var(--ink); font-family: var(--el-font-family); }
 .manager-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
 .manager-heading h1 { margin: 0; font-size: 24px; font-weight: 600; }
 .manager-heading a { display: inline-flex; align-items: center; min-height: 38px; padding: 0 16px; border-radius: 10px; background: var(--brand); color: #fff; text-decoration: none; font-size: 13px; }
-.manuscript-statuses { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
-.manuscript-statuses button { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: #fff; color: var(--ink-2); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
-.manuscript-statuses button.active { border-color: var(--brand-light-5); background: var(--brand-light-9); color: var(--brand-hover); }
-.manuscript-statuses strong { font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; min-width: 0; }
+.manuscript-statuses { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.manuscript-statuses button { box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 16px; min-width: 112px; max-width: 100%; min-height: 40px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink-2); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.manuscript-statuses button:hover { border-color: var(--brand-light-7); background: var(--fill-soft); }
+.manuscript-statuses button.active { border-color: var(--brand-light-7); background: var(--brand-light-9); color: var(--brand-hover); }
+.manuscript-statuses strong { font-size: 18px; font-weight: 500; line-height: 1.25; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; min-width: 0; }
 .manuscript-panel { padding: 24px; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
-.manuscript-filters { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
-.manuscript-filters .manuscript-search { flex: 1; min-width: min(240px, 100%); margin-right: auto; }
-.manuscript-filters .el-select { width: 164px; }
+.manuscript-filters { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+.manuscript-filters .manuscript-search { flex: none; width: 340px; max-width: 100%; min-width: 0; }
+.manuscript-filter-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; width: 100%; }
+.manuscript-filters .el-select { flex: 0 1 132px; width: 132px; max-width: 100%; min-width: 0; }
 .manuscript-filters :deep(.el-input__wrapper), .manuscript-filters :deep(.el-select__wrapper) { min-height: 40px; }
 .manuscript-list { display: flex; flex-direction: column; gap: 16px; padding-top: 20px; }
 .manuscript-card { display: grid; grid-template-columns: 176px minmax(0, 1fr); gap: 10px 20px; min-width: 0; padding: 18px; border: 1px solid var(--line); border-radius: 14px; }
@@ -741,14 +611,7 @@ export default {
 .manuscript-state { padding: 3px 8px; border-radius: 6px; background: var(--brand-light-9); color: var(--brand-hover); font-size: 11px; }
 .manuscript-state.state-0 { background: #fff7e7; color: #966400; }
 .manuscript-state.state-2 { background: #fff0f0; color: #b44242; }
-.manuscript-actions { grid-column: 2; grid-row: 4; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding-top: 2px; }
-.manuscript-actions > a { text-decoration: none; }
-.manuscript-actions .edit, .manuscript-actions .datas, .manuscript-actions .deleteUpload { position: static; display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: auto; min-height: 32px; height: auto; padding: 5px 12px; border: 1px solid var(--line); border-radius: 8px; transform: none; background: #fff; color: var(--ink-2); font: inherit; font-size: 12px; cursor: pointer; }
-.manuscript-actions .edit:hover, .manuscript-actions .datas:hover { color: var(--brand-hover); border-color: var(--brand-light-5); }
-.manuscript-actions .more { display: contents; }
-.manuscript-actions .more > img { display: none; }
-.manuscript-actions .deleteUpload { opacity: 1; visibility: visible; color: #b44242; }
-.manuscript-actions .deleteUpload:hover { border-color: #efb7b7; background: #fff5f5; }
+.manuscript-actions { grid-column: 2; grid-row: 4; display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 10px; padding-top: 2px; }
 .manuscript-rejection { order: 1; flex-basis: 100%; padding-top: 4px; color: #b44242; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
 .manuscript-metrics { grid-column: 2; grid-row: 3; display: flex; flex-wrap: wrap; gap: 8px 18px; }
 .manuscript-metrics .ai { gap: 5px; color: var(--ink-3); font-size: 11px; }
@@ -757,19 +620,16 @@ export default {
 .yesDelete { background: var(--brand); }
 .yesDelete:hover { background: var(--brand-hover); }
 @media (max-width: 900px) {
-  .manuscript-statuses button { flex-direction: column; align-items: flex-start; padding: 16px; }
   .manuscript-card { grid-template-columns: 144px minmax(0, 1fr); gap: 10px 16px; }
 }
 @media (max-width: 640px) {
   .manager-heading { margin-bottom: 18px; }
   .manager-heading h1 { font-size: 21px; }
-  .manuscript-statuses { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
-  .manuscript-statuses button { flex-direction: row; align-items: center; padding: 14px; }
-  .manuscript-statuses strong { font-size: 23px; }
+  .manuscript-statuses { margin-bottom: 16px; }
+  .manuscript-statuses button { min-width: 104px; padding: 8px 10px; }
   .manuscript-panel { padding: 14px; border-radius: 14px; }
   .manuscript-filters { gap: 10px; }
-  .manuscript-filters .manuscript-search { flex-basis: 100%; }
-  .manuscript-filters .el-select { flex: 1; min-width: 0; }
+  .manuscript-filter-row { gap: 10px; }
   .manuscript-card { grid-template-columns: 104px minmax(0, 1fr); gap: 10px 12px; padding: 12px; }
   .manuscript-cover { grid-row: 1 / 3; }
   .manuscript-card .videoTitle { font-size: 13px; }

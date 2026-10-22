@@ -1,5 +1,6 @@
 <template>
   <div class="settings">
+    <div class="settings-content">
     <h2>隐私设置</h2>
     <loadingIndicator v-if="loading" min-height="160px"/>
     <div v-else>
@@ -8,15 +9,21 @@
         <el-switch :model-value="store.homeUserInformation[setting.key] === 1"
           :disabled="saving" @change="savePrivacy(setting.key, $event)"/>
       </div>
-      <div class="setting"><span>公开我的追番追剧（暂未开放）</span><el-switch disabled :model-value="false"/></div>
-      <p>关闭公开开关后，对应内容仅自己可见。追剧功能尚未开放。</p>
     </div>
     <h2>排序设置</h2>
-    <p>拖动栏目调整首页顺序，自动保存到当前账号。</p>
     <div ref="sortElement" :aria-busy="sorting">
       <div v-for="item in divs" :key="item.class" :data-section="item.class" class="sort-item">
-        {{ item.label }} <span>拖动排序</span>
+        <span class="sort-label">{{ item.label }}</span>
+        <span class="sort-handle">
+          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <circle cx="5" cy="4" r="1"/><circle cx="11" cy="4" r="1"/>
+            <circle cx="5" cy="8" r="1"/><circle cx="11" cy="8" r="1"/>
+            <circle cx="5" cy="12" r="1"/><circle cx="11" cy="12" r="1"/>
+          </svg>
+          拖动排序
+        </span>
       </div>
+    </div>
     </div>
   </div>
 </template>

@@ -1,14 +1,24 @@
 <template>
-  <article class="home-post">
+  <article class="home-post content-action-surface" :class="{ 'is-navigable': canOpenDetail }" @click="openDetail">
     <header>
-      <a class="author" :href="`/home?homeMenu=1&userId=${dynamic.authorId}`">
-        <img :src="dynamic.authorAvatar" alt=""><span>{{ dynamic.authorNickname }}</span>
-      </a>
+      <UserHoverCard class="author" :user-id="dynamic.authorId"
+        :avatar="dynamic.authorAvatar" :nickname="dynamic.authorNickname"/>
       <el-tag v-if="dynamic.isPinned" size="small">置顶</el-tag>
       <span v-if="dynamic.sourceType === 2">图文评论</span>
-      <time>{{ dynamic.createdAt?.replace('T', ' ') }}</time>
-      <el-button v-if="dynamic.isSelf && dynamic.sourceType !== 2" text :loading="pinning" @click="togglePin">{{ dynamic.isPinned ? '取消置顶' : '置顶' }}</el-button>
-      <el-button v-if="dynamic.isSelf && dynamic.sourceType !== 2" text type="danger" :loading="deleting" @click="remove">删除</el-button>
+      <a v-if="canOpenDetail" class="post-permalink" :href="detailHref" aria-label="查看动态详情">
+        <time>{{ dynamic.createdAt?.replace('T', ' ') }}</time>
+      </a>
+      <time v-else>{{ dynamic.createdAt?.replace('T', ' ') }}</time>
+      <ContentMoreMenu v-if="dynamic.videoId || (dynamic.isSelf && dynamic.sourceType !== 2)"
+        label="更多动态操作" :disabled="saving || pinning || deleting">
+        <el-dropdown-item v-if="dynamic.videoId" :disabled="saving || pinning || deleting" @click="toggleWatchLater">
+          {{ watchLater ? '移出稍后再看' : '稍后再看' }}
+        </el-dropdown-item>
+        <template v-if="dynamic.isSelf && dynamic.sourceType !== 2">
+          <el-dropdown-item :divided="!!dynamic.videoId" :disabled="saving || pinning || deleting" @click="togglePin">{{ dynamic.isPinned ? '取消置顶' : '置顶' }}</el-dropdown-item>
+          <el-dropdown-item class="is-danger" :disabled="saving || pinning || deleting" @click="remove">删除</el-dropdown-item>
+        </template>
+      </ContentMoreMenu>
     </header>
     <h3 v-if="dynamic.title">{{ dynamic.title }}</h3>
     <richContent :content="dynamic.content"/>
@@ -19,27 +29,80 @@
     <a v-if="dynamic.videoId" :href="'./video?videoId=BV' + dynamic.videoId" target="_blank">
       <img :src="dynamic.videoCover" alt="">{{ dynamic.videoTitle }}
     </a>
-    <el-button v-if="dynamic.videoId" text :type="watchLater ? 'primary' : ''" :loading="saving" @click="toggleWatchLater">{{ watchLater ? '已加入稍后再看' : '稍后再看' }}</el-button>
     <footer v-if="dynamic.sourceType !== 2">
-      <el-button text :type="liked ? 'primary' : ''" :loading="liking" @click="toggleLike">{{ likeCount }} 赞</el-button>
-      <a :href="'./dynamicDetail?dynamicId=' + dynamic.id">{{ dynamic.commentCount || 0 }} 评论</a>
-      <el-button text @click="share">分享</el-button>
+      <el-button class="post-action" :class="{ 'is-liked': liked }" text :type="liked ? 'primary' : ''"
+        :aria-pressed="liked" :loading="liking" @click="toggleLike">
+        <svg class="post-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10H4v10h4m0-10 4-7h1a2 2 0 0 1 2 2l-1 5h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H8V10Z"/></svg>
+        <span>{{ likeCount }} 赞</span>
+      </el-button>
+      <el-button class="post-action" :class="{ 'is-active': commentsExpanded }" text
+        :aria-expanded="commentsExpanded" :aria-controls="commentsId" @click="toggleComments">
+        <svg class="post-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18 3 21V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H7Z"/><path d="M7 8h10M7 12h7"/></svg>
+        <span>{{ commentCount }} 评论</span>
+      </el-button>
+      <el-button class="post-action" text @click="share">
+        <svg class="post-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 3 7 7-7 7v-4C8 13 5 15 3 20c0-9 4-13 11-13V3Z"/></svg>
+        <span>分享</span>
+      </el-button>
     </footer>
-    <footer v-else>{{ dynamic.likeCount || 0 }} 赞</footer>
+    <footer v-else>
+      <span class="post-like-summary">
+        <svg class="post-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10H4v10h4m0-10 4-7h1a2 2 0 0 1 2 2l-1 5h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H8V10Z"/></svg>
+        {{ dynamic.likeCount || 0 }} 赞
+      </span>
+    </footer>
+    <postComments v-if="commentsMounted && dynamic.sourceType !== 2" v-show="commentsExpanded"
+      :id="commentsId" :key="dynamic.id" class="inline-discussion" :post-id="dynamic.id" @click.stop @count="updateCommentCount"/>
   </article>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { socialApi, videoApi } from '@/api/product';
 import richContent from '@/components/richContent.vue';
+import ContentMoreMenu from '@/components/ContentMoreMenu.vue';
+import UserHoverCard from '@/components/UserHoverCard.vue';
+import postComments from '@/dynamic/postComments.vue';
 import { useGlobalStore } from '@/store/store';
 import { post } from '@/services/http';
 
-const props = defineProps({ dynamic: { type: Object, required: true } });
-const emit = defineEmits(['changed']);
+const props = defineProps({
+  dynamic: { type: Object, required: true },
+  detail: { type: Boolean, default: false },
+});
+const emit = defineEmits(['changed', 'comment-count']);
 const store = useGlobalStore();
+const router = useRouter();
+const canOpenDetail = computed(() => !props.detail && props.dynamic.sourceType !== 2);
+const detailHref = computed(() => `/dynamicDetail?dynamicId=${props.dynamic.id}`);
+const commentsId = computed(() => `post-comments-${props.dynamic.id}`);
+const commentsExpanded = ref(props.detail);
+const commentsMounted = ref(props.detail);
+const commentCount = ref(props.dynamic.commentCount || 0);
+function toggleComments() {
+  commentsExpanded.value = !commentsExpanded.value;
+  if (commentsExpanded.value) commentsMounted.value = true;
+}
+function updateCommentCount(count) {
+  commentCount.value = count;
+  emit('comment-count', count);
+}
+watch(() => props.dynamic.commentCount, value => { commentCount.value = value || 0; });
+watch(() => props.dynamic.id, () => {
+  commentsExpanded.value = props.detail;
+  commentsMounted.value = props.detail;
+  commentCount.value = props.dynamic.commentCount || 0;
+});
+function openDetail(event) {
+  if (!canOpenDetail.value || event.defaultPrevented || event.button !== 0 ||
+    event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+  if (!(event.target instanceof Element) ||
+    event.target.closest('a, button, input, textarea, select, label, [role="button"], [role="menu"], [role="menuitem"], .el-image, .el-image-viewer__wrapper')) return;
+  if (window.getSelection()?.toString()) return;
+  router.push({ path: '/dynamicDetail', query: { dynamicId: props.dynamic.id } });
+}
 const deleting = ref(false);
 const liked = ref(!!props.dynamic.liked);
 const likeCount = ref(props.dynamic.likeCount || 0);
@@ -49,12 +112,14 @@ const saving = ref(false);
 const watchLater = ref(!!props.dynamic.watchLater);
 watch(() => [props.dynamic.id, props.dynamic.watchLater], () => { watchLater.value = !!props.dynamic.watchLater; });
 async function togglePin() {
+  if (pinning.value || deleting.value || saving.value) return;
   pinning.value = true;
   try { await socialApi.pin(props.dynamic.id); emit('changed'); }
   catch (error) { ElMessage.error(error.message); }
   finally { pinning.value = false; }
 }
 async function toggleWatchLater() {
+  if (saving.value || pinning.value || deleting.value) return;
   if (!store.token) { store.loginDialogVisible = true; return; }
   saving.value = true;
   try { watchLater.value = await videoApi.watchLater(props.dynamic.videoId); }
@@ -62,7 +127,7 @@ async function toggleWatchLater() {
   finally { saving.value = false; }
 }
 async function share() {
-  const url = `${location.origin}/dynamicDetail?dynamicId=${props.dynamic.id}`;
+  const url = `${location.origin}${detailHref.value}`;
   try {
     if (!navigator.clipboard) {
       await ElMessageBox.alert(url, '复制动态链接');
@@ -88,6 +153,7 @@ async function toggleLike() {
 }
 
 async function remove() {
+  if (pinning.value || deleting.value || saving.value) return;
   const confirmed = await ElMessageBox.confirm('确定删除这条动态？', '删除动态', {
     type: 'warning',
   }).then(() => true, () => false);
@@ -105,7 +171,8 @@ async function remove() {
 </script>
 
 <style scoped>
-.home-post { padding: 24px; border-bottom: 1px solid #EFF3F2; background: white; }
+.home-post { padding: 24px; border-bottom: 1px solid #EFF3F2; background: white; color: var(--ink); font-family: var(--el-font-family); font-size: 14px; line-height: 1.6; }
+.home-post.is-navigable { cursor: pointer; }
 header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 header img { flex: none; width: 40px; height: 40px; border-radius: 50%; }
 header span { min-width: 0; overflow-wrap: anywhere; }
@@ -117,14 +184,29 @@ a { display: flex; align-items: center; gap: 16px; color: inherit; text-decorati
 a img { flex: none; width: 180px; max-width: 40%; border-radius: 6px; }
 footer { margin-top: 16px; display: flex; align-items: center; gap: 16px; }
 footer a { margin: 0; }
+.home-post > header .content-more { margin-left: auto; }
+.home-post > footer { gap: 8px; padding-top: 12px; border-top: 1px solid var(--line); }
+.home-post .post-action { display: inline-flex; flex: 1; justify-content: center; align-items: center; gap: 0; min-width: 0; min-height: 38px; height: auto; margin: 0; padding: 8px 10px; border-radius: 9px; color: var(--ink-2); font-size: 13px; line-height: 1.5; text-decoration: none; }
+.home-post .post-action:hover { background: var(--fill-soft); color: var(--brand-hover); }
+.home-post .post-action.is-liked { color: var(--brand-hover); }
+.home-post .post-action.is-active { color: var(--brand-hover); background: var(--brand-light-9); }
+.home-post > .inline-discussion { margin-top: 16px; padding: 20px 0 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; cursor: auto; }
+.post-action:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.home-post .post-action-icon { display: inline-block; flex: none; width: 18px; height: 18px; margin-right: 7px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
+.post-like-summary { display: inline-flex; align-items: center; color: var(--ink-2); }
 .author { margin: 0; gap: 12px; }
+.post-permalink { display: inline-flex; margin: 0; color: var(--ink-3); font-size: 13px; }
+.post-permalink:hover { color: var(--brand-hover); }
+.post-permalink:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; border-radius: 3px; }
 .author img { width: 40px; height: 40px; max-width: none; }
 .rich-content { margin: 16px 0; max-width: var(--col-narrow); }
 h3 { overflow-wrap: anywhere; }
 @media (max-width: 640px) {
   .home-post { padding: 16px 12px; }
   header { gap: 8px; }
-  header time { flex-basis: 100%; }
+  header time { font-size: 12px; }
+  .home-post .post-action { padding: 8px 4px; font-size: 12px; }
+  .home-post > .inline-discussion { padding: 16px 0 0; border-radius: 0; }
   a { gap: 10px; font-size: 13px; }
 }
 </style>

@@ -407,10 +407,11 @@
           <el-tag
             v-for="tag in dynamicTags"
             :key="tag"
+            :title="tag"
             closable
             @close="handleClose(tag)"
           >
-            &nbsp;&nbsp; {{ tag }}
+            {{ tag }}
           </el-tag>
           <el-input
             v-if="dynamicTags.length !== 5"
@@ -418,8 +419,8 @@
             @blur="handleInputConfirm"
             @keyup.enter="handleInputConfirm"
             ref="InputRef"
-            placeholder="按回车键Enter创建标签"
-            size="small"
+            placeholder="输入标签，按回车添加"
+            aria-label="视频标签"
             @input="removeSpaces"
           >
           </el-input>

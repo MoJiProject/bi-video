@@ -53,8 +53,13 @@
   :deep(.creator-form .category-selects) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%; min-width: 0; transform: none; }
   :deep(.creator-form .category-selects .el-select) { width: 100%; min-width: 0; }
   :deep(.creator-form .tags-field), :deep(.creator-form .description-field), :deep(.creator-form .permission-field), :deep(.creator-form .submit-actions) { grid-column: 1 / -1; }
-  :deep(.creator-form .tags-field .el-tag) { max-width: 100%; margin: 0; transform: none; border-color: var(--brand-light-7); background: var(--brand-light-9); color: var(--brand-hover); }
-  :deep(.creator-form .tags-field > .el-input) { width: min(100%, 240px); }
+  :deep(.creator-form .tags-field) { align-items: center; gap: 10px; }
+  :deep(.creator-form .tags-field .el-tag) { box-sizing: border-box; flex-shrink: 0; min-width: 0; max-width: 100%; height: 40px; margin: 0; padding: 0 12px; transform: none; border-radius: 9px; border-color: var(--brand-light-7); background: var(--brand-light-9); color: var(--brand-hover); font-size: 14px; }
+  :deep(.creator-form .tags-field .el-tag__content) { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  :deep(.creator-form .tags-field .el-tag__close) { flex-shrink: 0; width: 20px; height: 20px; margin-left: 8px; font-size: 14px; }
+  :deep(.creator-form .tags-field > .el-input) { flex: 0 1 280px; width: min(100%, 280px); min-width: 0; height: 40px; }
+  :deep(.creator-form .tags-field .el-input__wrapper) { box-sizing: border-box; height: 40px; padding: 0 12px; }
+  :deep(.creator-form .tags-field .el-input__inner) { height: 38px; font-size: 14px; line-height: 38px; }
   :deep(.creator-form .description-field .content-input) { width: 100%; min-height: 160px; height: auto; max-height: 360px; margin: 0; padding: 12px 14px 32px; transform: none; border: 1px solid var(--line); border-radius: 12px; overflow-y: auto; overflow-wrap: anywhere; font-size: 14px; line-height: 1.8; }
   :deep(.creator-form .description-field .content-input:focus) { border-color: var(--brand); box-shadow: 0 0 0 2px var(--brand-light-9); }
   :deep(.creator-form .description-field .placeholder) { top: 42px; left: 14px; transform: none; color: var(--ink-3); font-size: 13px; }

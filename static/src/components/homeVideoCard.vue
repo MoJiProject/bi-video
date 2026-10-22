@@ -1,5 +1,5 @@
 <template>
-  <article class="vcard" @mouseenter="onEnter" @mouseleave="onLeave">
+  <article class="vcard content-action-surface" @mouseenter="onEnter" @mouseleave="onLeave">
     <div class="vcard-cover" @click="open">
       <img
         v-show="!previewing"
@@ -43,7 +43,10 @@
     </div>
 
     <div class="vcard-body">
-      <h3 class="vcard-title" :title="video.title">{{ video.title }}</h3>
+      <div class="vcard-heading content-card-actions">
+        <h3 class="vcard-title" :title="video.title">{{ video.title }}</h3>
+        <div v-if="$slots.actions" class="vcard-actions" @click.stop><slot name="actions"/></div>
+      </div>
 
       <div class="vcard-meta">
         <span class="vcard-author" @click.stop="openUser">
@@ -295,7 +298,12 @@ async function toggleMark() {
   padding: 2px 2px 4px;
 }
 
+.vcard-heading { display: flex; align-items: flex-start; gap: 6px; min-width: 0; }
+.vcard-actions { display: flex; flex: none; margin-top: -2px; }
+
 .vcard-title {
+  flex: 1;
+  min-width: 0;
   margin: 0;
   font-size: 15px;
   font-weight: 500;

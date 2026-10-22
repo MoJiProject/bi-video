@@ -6,22 +6,29 @@
     </aside>
     <section>
       <h2>{{ store.userId === homeUserId ? '我的' : 'TA的' }}{{ type === 8 ? '关注' : '粉丝' }}</h2>
-      <el-input v-model="keyword" placeholder="输入关键词" clearable maxlength="20"
-        @keyup.enter="search" @clear="search"/>
-      <el-button @click="search">搜索</el-button>
+      <div class="space-search">
+        <el-input v-model="keyword" placeholder="输入关键词" clearable maxlength="20"
+          @keyup.enter="search" @clear="search"/>
+        <el-button type="primary" @click="search">搜索</el-button>
+      </div>
       <loadingIndicator v-if="loading" min-height="200px"/>
       <AppEmptyState v-else-if="loadError" kind="unavailable" title="暂时无法加载列表"
         :description="loadError" action-text="重新加载" @action="loadRelations"/>
       <template v-else>
-        <div v-for="user in users" :key="user.id" class="relation">
-          <a :href="'./home?userId=' + user.id" target="_blank"><img :src="user.avatarAddress" alt=""></a>
-          <div class="profile">
-            <a :href="'./home?userId=' + user.id" target="_blank">{{ user.userName }}</a>
-            <p>{{ user.introduce }}</p>
+        <div v-if="users.length" class="relations-grid" role="list">
+          <div v-for="user in users" :key="user.id" class="relation" role="listitem">
+            <a :href="'./home?userId=' + user.id" target="_blank" rel="noopener noreferrer" :aria-label="`${user.userName}的个人空间`"><img :src="user.avatarAddress" alt=""></a>
+            <div class="profile">
+              <a :href="'./home?userId=' + user.id" target="_blank" rel="noopener noreferrer" :title="user.userName">{{ user.userName }}</a>
+              <p :title="user.introduce">{{ user.introduce || '还没有填写个人简介' }}</p>
+            </div>
+            <div v-if="user.id !== store.userId" class="relation-actions">
+              <el-button :loading="busyId === user.id" :disabled="busyId !== null || messagingId !== null" @click="setFollow(user)">
+                {{ user.isFollowFlag ? '取消关注' : (type === 9 && store.userId === homeUserId ? '回关' : '关注') }}
+              </el-button>
+              <el-button :loading="messagingId === user.id" :disabled="busyId !== null || messagingId !== null" @click="sendMessage(user)">发消息</el-button>
+            </div>
           </div>
-          <el-button v-if="user.id !== store.userId" :loading="busyId === user.id" :disabled="busyId !== null" @click="setFollow(user)">
-            {{ user.isFollowFlag ? '取消关注' : (type === 9 && store.userId === homeUserId ? '回关' : '关注') }}
-          </el-button>
         </div>
         <AppEmptyState v-if="!users.length" :kind="appliedKeyword ? 'search' : 'empty'"
           :title="appliedKeyword ? '没有找到相关用户' : type === 8 ? '暂无关注' : '暂无粉丝'"
@@ -35,19 +42,23 @@
 
 <script setup>
 import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { useGlobalStore } from '@/store/store';
 import { fansOrFollow, addFollow, deleteFollow, selectUserInfo } from '@/api/home/user';
+import { addDialogue } from '@/api/privateMessage';
 import loadingIndicator from '@/components/loadingIndicator.vue';
 
 const props = defineProps({ type: { type: Number, required: true } });
 const store = useGlobalStore();
+const router = useRouter();
 const homeUserId = parseInt(new URL(window.location).searchParams.get('userId')) || store.userId;
 const users = ref([]);
 const total = ref(0);
 const loading = ref(true);
 const loadError = ref('');
 const busyId = ref(null);
+const messagingId = ref(null);
 const pageNum = ref(1);
 const keyword = ref('');
 const appliedKeyword = ref('');
@@ -99,6 +110,7 @@ watch(() => props.type, () => {
 watch([() => store.homeUserInformation.id, () => props.type, pageNum, appliedKeyword], loadRelations, { immediate: true });
 
 async function setFollow(user) {
+  if (busyId.value !== null || messagingId.value !== null) return;
   if (!store.userId) {
     store.loginDialogVisible = true;
     return;
@@ -125,19 +137,44 @@ async function setFollow(user) {
     busyId.value = null;
   }
 }
+
+async function sendMessage(user) {
+  if (busyId.value !== null || messagingId.value !== null) return;
+  if (!store.userId) {
+    store.loginDialogVisible = true;
+    return;
+  }
+  messagingId.value = user.id;
+  try {
+    await addDialogue(store.token, { dialogueId: user.id });
+    await router.push({ path: '/message', query: { dialogueId: user.id } });
+  } catch (error) {
+    ElMessage.error(error.message);
+  } finally {
+    messagingId.value = null;
+  }
+}
 </script>
 
 <style scoped>
-.relations { box-sizing: border-box; display: flex; gap: var(--gap-6); padding: var(--gap-5) var(--page-pad); }
+.relations { box-sizing: border-box; display: flex; gap: var(--gap-6); padding: var(--gap-5) var(--page-pad); font-family: var(--el-font-family); }
 aside { display: flex; flex: none; flex-direction: column; width: 170px; gap: 12px; }
 aside button { padding: 14px; border: 0; border-radius: 6px; cursor: pointer; background: #EFF3F2; }
 aside .active { color: white; background: #0FA68E; }
 section { flex: 1; min-width: 0; }
 h2 { margin: 0 0 20px; font-size: 24px; }
 .el-input { max-width: 260px; margin-bottom: 16px; }
-.relation { display: flex; align-items: center; gap: 20px; padding: 20px 0; border-bottom: 1px solid #EFF3F2; }
-.relation img { width: 60px; height: 60px; border-radius: 50%; }
-.profile { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.relations-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 14px; }
+.relation { box-sizing: border-box; display: grid; grid-template-columns: 48px minmax(0, 1fr); align-content: start; align-items: start; gap: 10px 12px; min-width: 0; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.relation > a { grid-column: 1; grid-row: 1 / span 2; border-radius: 50%; }
+.relation img { display: block; width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+.profile { grid-column: 2; min-width: 0; }
+.profile > a { display: block; overflow: hidden; color: var(--ink); font-size: 14px; font-weight: 500; line-height: 22px; text-overflow: ellipsis; white-space: nowrap; }
+.profile > a:hover { color: var(--brand-hover); }
+.profile > p { margin: 6px 0 0; overflow: hidden; color: var(--ink-3); font-size: 12px; line-height: 20px; text-overflow: ellipsis; white-space: nowrap; }
+.relation-actions { grid-column: 2; display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
+.relation-actions > .el-button { flex: none; width: auto; max-width: 100%; height: 30px; margin: 0; padding: 0 12px; border-radius: 7px; font-size: 12px; }
+.relation a:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 a { color: inherit; text-decoration: none; }
 p, .no-data { color: #8D9794; }
 .no-data { padding: 60px; text-align: center; }
@@ -145,10 +182,10 @@ p, .no-data { color: #8D9794; }
 @media (max-width: 720px) {
   .relations { flex-direction: column; padding: var(--gap-4) var(--page-pad); }
   aside { flex-direction: row; width: 100%; }
-  aside button { flex: 1; }
-  .relation { gap: 12px; }
-  .relation img { width: 44px; height: 44px; }
-  .relation > .el-button { flex: none; padding: 8px 12px; }
+  aside { flex-wrap: wrap; }
+  aside button { flex: none; }
+  .relations-grid { gap: 12px; }
+  .relation { padding: 12px; }
   .no-data { padding: 40px 12px; }
 }
 </style>

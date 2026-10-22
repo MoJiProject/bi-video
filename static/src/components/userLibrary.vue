@@ -23,10 +23,12 @@
       <div class="control-container">
         <div class="tools" :class="{ 'tools--managing': managing }">
           <template v-if="!managing">
-            <el-input v-model="keyword" class="library-search" placeholder="搜索标题或创作者昵称" maxlength="100" clearable aria-label="搜索标题或创作者昵称"
-              @keyup.enter="search" @clear="search">
-              <template #append><el-button @click="search">搜索</el-button></template>
-            </el-input>
+            <div class="library-search-row">
+              <el-input v-model="keyword" class="library-search" placeholder="搜索标题或创作者昵称" maxlength="100" clearable aria-label="搜索标题或创作者昵称"
+                @keyup.enter="search" @clear="search">
+                <template #append><el-button @click="search">搜索</el-button></template>
+              </el-input>
+            </div>
             <el-button class="date-toggle" :class="{ 'is-active': showDates || timeFilter !== 'all' }" :aria-expanded="showDates" @click="showDates = !showDates">
               <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4M17 3v4M3 11h18"/></svg>
               时间筛选 <span aria-hidden="true">{{ showDates ? '⌃' : '⌄' }}</span>
@@ -58,7 +60,7 @@
         <section v-for="group in groups" :key="group.label" class="video-group">
           <h2 v-if="isHistory" class="group-title">{{ group.label }}<span>{{ group.videos.length }}</span></h2>
           <div class="videos">
-            <article v-for="video in group.videos" :key="video.id" class="library-video" :class="{ selected: selected.includes(video.id) }">
+            <article v-for="video in group.videos" :key="video.id" class="library-video content-action-surface" :class="{ selected: selected.includes(video.id) }">
               <div class="cover">
                 <a v-if="!managing && video.available !== false" :href="videoUrl(video)" target="_blank" rel="noopener noreferrer" :aria-label="video.title">
                   <img :src="video.coverUrl || '/img/cover-fallback.png'" :alt="video.title" loading="lazy" @error="coverFallback"/>
@@ -76,14 +78,16 @@
                 </div>
                 <div v-if="video.progressSeconds && video.available !== false" class="progress" :style="{ width: `${progressPercent(video)}%` }"/>
               </div>
-              <div class="video-heading">
+              <div class="video-heading content-card-actions">
                 <a v-if="video.available !== false" :href="videoUrl(video)" target="_blank" rel="noopener noreferrer" :title="video.title" class="video-title" @click="selectInstead($event, video.id)">
                   <template v-for="(part, index) in highlight(video.title)" :key="index"><mark v-if="part.match">{{ part.text }}</mark><template v-else>{{ part.text }}</template></template>
                 </a>
                 <span v-else class="video-title unavailable-title">视频已失效</span>
-                <el-button class="remove-video" text type="danger" :disabled="busy" :aria-label="`删除 ${video.title}`" @click="remove([video.id])">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 3h6l1 4H8l1-4ZM6 7l1 14h10l1-14M10 11v6M14 11v6"/></svg>
-                </el-button>
+                <ContentMoreMenu v-if="!managing" :disabled="busy" :label="`${video.title}的记录操作`">
+                  <el-dropdown-item class="is-danger" :disabled="busy" @click="remove([video.id])">
+                    {{ isHistory ? '删除记录' : '移出稍后再看' }}
+                  </el-dropdown-item>
+                </ContentMoreMenu>
               </div>
               <a v-if="video.ownerId && video.available !== false" :href="`/home?userId=${video.ownerId}`" class="author" target="_blank" rel="noopener noreferrer" @click="selectInstead($event, video.id)">
                 <img src="/img/author-badge-default.png" alt="创作者"/>
@@ -117,6 +121,7 @@ import { authApi } from '@/api/product';
 import { put } from '@/services/http';
 import { useGlobalStore } from '@/store/store';
 import loadingIndicator from './loadingIndicator.vue';
+import ContentMoreMenu from './ContentMoreMenu.vue';
 
 const props = defineProps({ kind: { type: String, required: true } });
 const store = useGlobalStore();
@@ -420,14 +425,14 @@ onBeforeUnmount(() => { generation++; activeRequest?.abort(); observer?.disconne
 .head-actions :deep(.el-select__wrapper) { box-shadow: none; }
 .total { padding: 4px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-size: 13px; color: var(--ink-2); font-weight: 400; letter-spacing: 0; font-variant-numeric: tabular-nums; }
 .control-container { position: sticky; top: calc(var(--head-h) + 12px); z-index: var(--z-sticky); padding: 18px; background: #fff; border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 4px 20px rgba(29, 64, 43, .035); }
-.tools { display: grid; grid-template-columns: minmax(180px, 1fr) auto auto auto; align-items: center; gap: 12px; }
-.tools--managing { grid-template-columns: auto minmax(0, 1fr) auto auto; }
-.tools .library-search { width: 100%; min-width: 0; }
-.tools > .el-button { min-width: 0; min-height: 40px; height: auto; margin: 0; padding: 8px 14px; border-radius: 10px; line-height: 1.5; white-space: normal; }
+.tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.library-search-row { flex: 0 0 100%; min-width: 0; }
+.tools .library-search { width: 340px; max-width: 100%; min-width: 0; }
+.tools > .el-button { flex: none; width: auto; max-width: 100%; min-width: 0; min-height: 40px; height: auto; margin: 0; padding: 8px 14px; border-radius: 10px; line-height: 1.5; white-space: normal; }
 .library-search :deep(.el-input__wrapper) { min-height: 40px; padding-left: 14px; border-radius: 10px 0 0 10px; background: var(--fill-soft); box-shadow: 0 0 0 1px var(--line) inset; }
 .library-search :deep(.el-input__wrapper.is-focus) { box-shadow: 0 0 0 1px var(--brand) inset; }
 .library-search :deep(.el-input-group__append) { padding: 0 16px; border-radius: 0 10px 10px 0; background: var(--fill-soft); color: var(--brand-hover); }
-.date-toggle svg, .remove-video svg { flex: none; width: var(--icon-sm); height: var(--icon-sm); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.date-toggle svg { flex: none; width: var(--icon-sm); height: var(--icon-sm); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .date-toggle svg { margin-right: 6px; }
 .date-toggle.is-active, .tools > .manage { border-color: var(--brand-light-7); background: var(--brand-light-9); color: var(--brand-hover); }
 .tools > .clear-button { color: var(--ink-2); }
@@ -435,10 +440,10 @@ onBeforeUnmount(() => { generation++; activeRequest?.abort(); observer?.disconne
 .tools :deep(.el-button + .el-button), .date-tools :deep(.el-button + .el-button) { margin-left: 0; }
 .selection-count { min-width: 0; color: var(--ink-2); font-size: 14px; overflow-wrap: anywhere; }
 .selection-count b { color: var(--brand-hover); font-weight: 600; }
-.date-tools { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 320px); align-items: center; gap: 12px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+.date-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
 .date-presets { min-width: 0; flex-wrap: wrap; gap: 8px; }
 .date-presets .el-button { min-height: 34px; padding: 7px 12px; border-radius: 8px; font-size: 12px; }
-.date-tools :deep(.el-date-editor) { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; }
+.date-tools :deep(.el-date-editor) { flex: none; width: 320px; min-width: 0; max-width: 100%; box-sizing: border-box; }
 .date-tools :deep(.el-range-input) { min-width: 0; }
 .library > .el-alert { margin-top: 16px; border-radius: 12px; }
 .library-content { padding-top: 24px; }
@@ -461,8 +466,7 @@ onBeforeUnmount(() => { generation++; activeRequest?.abort(); observer?.disconne
 .progress { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--brand); pointer-events: none; }
 .video-heading { display: flex; align-items: flex-start; gap: 6px; margin: 12px 4px 0; }
 .video-title { flex: 1; min-width: 0; min-height: 44px; color: var(--ink); font-size: 14px; font-weight: 500; line-height: 22px; text-decoration: none; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.video-heading .el-button { flex: none; width: 32px; height: 32px; margin: -4px -4px 0 0; padding: 6px; border-radius: 8px; color: var(--ink-3); }
-.video-heading .el-button:hover { background: var(--el-color-danger-light-9); color: var(--el-color-danger); }
+.video-heading .content-more { margin-top: -2px; }
 .video-title:hover, .author:hover { color: var(--brand); }
 .author { display: block; margin: 8px 4px 0; color: var(--ink-2); font-size: 12px; line-height: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none; }
 .author img { width: 16px; height: 16px; vertical-align: middle; margin-right: 4px; }
@@ -472,10 +476,6 @@ mark { color: var(--brand); background: none; }
 .unavailable-title { color: var(--ink-3); }
 .load-more { display: flex; align-items: center; justify-content: center; min-height: 48px; margin-top: 20px; color: var(--ink-3); font-size: 12px; }
 .load-more .el-button { min-width: 160px; min-height: 40px; border-radius: 10px; }
-@media (max-width: 900px) {
-  .date-tools { grid-template-columns: minmax(0, 1fr); }
-  .date-tools :deep(.el-date-editor) { max-width: 400px; }
-}
 @media (max-width: 768px) {
   .control-container { position: static; }
 }
@@ -486,10 +486,7 @@ mark { color: var(--brand); background: none; }
   .library-icon { width: 40px; height: 40px; border-radius: 12px; }
   .head-actions { max-width: 100%; gap: 8px; padding: 6px 10px; font-size: 12px; }
   .control-container { padding: 12px; border-radius: 14px; box-shadow: none; }
-  .tools { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; align-items: stretch; }
-  .tools .library-search, .tools .manage { grid-column: 1 / -1; }
-  .tools--managing { align-items: center; }
-  .tools--managing .manage { grid-column: auto; }
+  .tools { gap: 8px; }
   .selection-count { font-size: 13px; }
   .date-tools :deep(.el-date-editor) { max-width: 100%; }
   .library-content { padding-top: 20px; }

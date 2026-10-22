@@ -17,7 +17,7 @@
             <p class="hero-desc">看视频、发互动字幕、追创作者 —— 分享每一次观看</p>
             <div class="hero-actions">
               <button class="hero-btn is-primary" @click="scrollToFeed">开始浏览</button>
-              <button class="hero-btn" @click="store.loginDialogVisible = true">登录 / 注册</button>
+              <button v-if="!store.userId" class="hero-btn" @click="store.loginDialogVisible = true">登录 / 注册</button>
             </div>
           </div>
           <div class="hero-panel">

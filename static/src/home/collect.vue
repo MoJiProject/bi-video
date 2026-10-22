@@ -1,44 +1,63 @@
 <template>
   <div class="collections">
-    <aside>
-      <h3>{{ isOwner ? '我的收藏夹' : 'TA的收藏夹' }}</h3>
-      <el-button v-if="isOwner" @click="openEditor()">新建收藏夹</el-button>
-      <button v-for="folder in folders" :key="folder.id" :class="{ active: folder.id === selectedId }"
-        @click="selectedId = folder.id">{{ folder.name }} · {{ folder.itemCount }}</button>
+    <aside :aria-label="isOwner ? '我的收藏夹' : 'TA的收藏夹'">
+      <el-button v-if="isOwner" class="folder-create" type="primary" text @click="openEditor()">
+        <svg class="folder-create-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        新建收藏夹
+      </el-button>
+      <button v-for="folder in folders" :key="folder.id" type="button" class="folder-entry"
+        :class="{ active: folder.id === selectedId }" :aria-pressed="folder.id === selectedId"
+        :title="folder.name" @click="selectedId = folder.id">
+        <svg class="folder-entry-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h5l3 3h6a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7h18"/></svg>
+        <span class="folder-entry-name">{{ folder.name }}</span>
+        <span class="folder-entry-count">{{ folder.itemCount }}</span>
+      </button>
     </aside>
     <main>
       <loadingIndicator v-if="loadingFolders"/>
       <template v-else-if="selected">
-        <header>
+        <header class="content-action-surface">
           <img :src="selected.coverUrl || '/img/collect-cover.png'" alt="">
           <div><h2>{{ selected.name }}</h2><p>{{ selected.description }}</p>
             <span>{{ selected.visibility === 1 ? '公开' : '私密' }}</span>
           </div>
-          <el-button v-if="isOwner" @click="openEditor(selected)">编辑信息</el-button>
-          <el-button v-if="isOwner && !selected.isDefault" type="danger" @click="removeFolder">删除收藏夹</el-button>
+          <div v-if="isOwner" class="folder-actions content-card-actions">
+            <ContentMoreMenu label="收藏夹操作" :disabled="busy || saving || coverUploading">
+              <el-dropdown-item @click="openEditor(selected)">编辑信息</el-dropdown-item>
+              <el-dropdown-item v-if="!selected.isDefault" class="is-danger" @click="removeFolder">删除收藏夹</el-dropdown-item>
+            </ContentMoreMenu>
+          </div>
         </header>
         <div class="tools">
-          <el-select v-model="sort" style="width: 150px">
-            <el-option label="最近收藏" :value="1"/><el-option label="最多播放" :value="2"/>
-            <el-option label="最近投稿" :value="3"/>
-          </el-select>
-          <el-select v-model="scope" style="width: 150px">
-            <el-option label="当前收藏夹" :value="1"/><el-option label="全部收藏夹" :value="2"/>
-          </el-select>
-          <el-input v-model="keyword" placeholder="搜索视频" maxlength="50" clearable @keyup.enter="search" @clear="search"/>
-          <el-button @click="search">搜索</el-button>
-          <template v-if="isOwner && scope === 1">
-            <el-button :disabled="busy" @click="batchMode = !batchMode">{{ batchMode ? '退出批量' : '批量操作' }}</el-button>
-            <el-button :loading="busy" @click="clearInvalid">清除失效内容</el-button>
-          </template>
+          <div class="folder-search">
+            <el-input v-model="keyword" placeholder="搜索视频" maxlength="50" clearable @keyup.enter="search" @clear="search"/>
+            <el-button type="primary" @click="search">搜索</el-button>
+          </div>
+          <div class="folder-filter-row">
+            <el-select v-model="sort">
+              <el-option label="最近收藏" :value="1"/><el-option label="最多播放" :value="2"/>
+              <el-option label="最近投稿" :value="3"/>
+            </el-select>
+            <el-select v-model="scope">
+              <el-option label="当前收藏夹" :value="1"/><el-option label="全部收藏夹" :value="2"/>
+            </el-select>
+            <div v-if="isOwner && scope === 1" class="folder-controls">
+              <el-button :class="{ 'is-active': batchMode }" :disabled="busy" @click="batchMode = !batchMode">{{ batchMode ? '退出批量' : '批量操作' }}</el-button>
+              <el-button :loading="busy" @click="clearInvalid">清除失效内容</el-button>
+            </div>
+          </div>
         </div>
         <div v-if="batchMode && isOwner && scope === 1" class="batch-tools">
-          <el-checkbox :model-value="allSelected" :indeterminate="selectedVideoIds.length > 0 && !allSelected"
-            :disabled="busy || loadingVideos" @change="selectAll">本页全选</el-checkbox>
-          <span>已选择 {{ selectedVideoIds.length }} 个视频</span>
-          <el-button :disabled="!selectedVideoIds.length || busy" @click="openTransfer('copy')">复制至</el-button>
-          <el-button :disabled="!selectedVideoIds.length || busy" @click="openTransfer('move')">移动至</el-button>
-          <el-button type="danger" :disabled="!selectedVideoIds.length || busy" @click="deleteSelected">删除所选</el-button>
+          <div class="batch-selection">
+            <el-checkbox :model-value="allSelected" :indeterminate="selectedVideoIds.length > 0 && !allSelected"
+              :disabled="busy || loadingVideos" @change="selectAll">本页全选</el-checkbox>
+            <span>已选择 <strong>{{ selectedVideoIds.length }}</strong> 个视频</span>
+          </div>
+          <div class="batch-actions">
+            <el-button :disabled="!selectedVideoIds.length || busy" @click="openTransfer('copy')">复制至</el-button>
+            <el-button :disabled="!selectedVideoIds.length || busy" @click="openTransfer('move')">移动至</el-button>
+            <el-button type="danger" plain :disabled="!selectedVideoIds.length || busy" @click="deleteSelected">删除所选</el-button>
+          </div>
         </div>
         <loadingIndicator v-if="loadingVideos"/>
         <template v-else>
@@ -46,12 +65,15 @@
             <div v-for="video in videos" :key="video.id">
               <el-checkbox v-if="batchMode && isOwner && scope === 1" :model-value="selectedVideoIds.includes(video.id)"
                 :disabled="busy" @change="toggleVideo(video.id, $event)">选择视频</el-checkbox>
-              <homeVideoCard :video="video"/>
-              <div v-if="isOwner && scope === 1 && !batchMode" class="video-actions">
-                <el-button text :disabled="busy" @click="openTransfer('copy', video.id)">复制</el-button>
-                <el-button text :disabled="busy" @click="openTransfer('move', video.id)">移动</el-button>
-                <el-button text type="danger" :disabled="busy" @click="removeVideo(video.id)">移出收藏夹</el-button>
-              </div>
+              <homeVideoCard :video="video">
+                <template v-if="isOwner && scope === 1 && !batchMode" #actions>
+                  <ContentMoreMenu :label="`${video.title}的收藏操作`" :disabled="busy">
+                    <el-dropdown-item :disabled="busy" @click="openTransfer('copy', video.id)">复制至</el-dropdown-item>
+                    <el-dropdown-item :disabled="busy" @click="openTransfer('move', video.id)">移动至</el-dropdown-item>
+                    <el-dropdown-item class="is-danger" :disabled="busy" @click="removeVideo(video.id)">移出收藏夹</el-dropdown-item>
+                  </ContentMoreMenu>
+                </template>
+              </homeVideoCard>
             </div>
           </div>
           <AppEmptyState v-if="!videos.length" :kind="appliedKeyword ? 'search' : 'empty'"
@@ -63,19 +85,47 @@
       </template>
       <AppEmptyState v-else-if="!loadingFolders" title="暂无收藏夹" description="这里还没有可以查看的收藏夹"/>
     </main>
-    <el-dialog v-model="editorVisible" :title="editingId ? '编辑收藏夹' : '新建收藏夹'" width="min(90vw, 500px)">
-      <el-form label-width="80px">
-        <el-form-item label="名称"><el-input v-model="form.name" maxlength="64"/></el-form-item>
-        <el-form-item label="简介"><el-input v-model="form.description" maxlength="255" type="textarea"/></el-form-item>
-        <el-form-item label="封面地址"><el-input v-model="form.coverUrl" maxlength="512"/></el-form-item>
-        <el-form-item label="公开"><el-switch v-model="form.visibility" :active-value="1" :inactive-value="0"/></el-form-item>
+    <el-dialog v-model="editorVisible" :title="editingId ? '编辑收藏夹' : '新建收藏夹'" width="480px"
+      class="space-dialog" append-to-body align-center :close-on-click-modal="!saving && !coverUploading"
+      :close-on-press-escape="!saving && !coverUploading" :show-close="!saving && !coverUploading">
+      <el-form label-position="top">
+        <el-form-item label="名称"><el-input v-model="form.name" maxlength="64" placeholder="给收藏夹起个名字" show-word-limit/></el-form-item>
+        <el-form-item label="简介"><el-input v-model="form.description" maxlength="255" type="textarea"
+          :autosize="{ minRows: 3, maxRows: 5 }" placeholder="简单介绍收藏的内容" show-word-limit/></el-form-item>
+        <el-form-item label="封面图片">
+          <div class="folder-cover-editor">
+            <div class="folder-cover-preview">
+              <img v-if="form.coverUrl" :src="form.coverUrl" alt="收藏夹封面预览">
+              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="16" rx="3"/>
+                <circle cx="8.5" cy="9" r="1.5"/>
+                <path d="m3 17 5-5 4 4 4-5 5 6"/>
+              </svg>
+            </div>
+            <div class="folder-cover-actions">
+              <input ref="coverInput" type="file" accept="image/jpeg,image/png,image/gif" hidden
+                :disabled="coverUploading || saving" aria-label="选择收藏夹封面图片" @change="uploadCover">
+              <div class="folder-cover-buttons">
+                <el-button :loading="coverUploading" :disabled="saving" @click="coverInput?.click()">
+                  {{ form.coverUrl ? '更换封面' : '上传图片' }}
+                </el-button>
+                <el-button v-if="form.coverUrl" :disabled="coverUploading || saving" @click="form.coverUrl = ''">移除</el-button>
+              </div>
+              <p class="folder-cover-hint">支持 JPG、PNG、GIF，不超过 10MB。建议使用横版图片。</p>
+            </div>
+          </div>
+        </el-form-item>
+        <el-form-item label="公开收藏夹"><el-switch v-model="form.visibility" :active-value="1" :inactive-value="0"/>
+          <span class="space-dialog-visibility">{{ form.visibility === 1 ? '其他人可以查看' : '仅自己可见' }}</span>
+        </el-form-item>
       </el-form>
-      <template #footer><el-button @click="editorVisible = false">取消</el-button>
-        <el-button type="primary" :loading="saving" @click="saveFolder">保存</el-button></template>
+      <template #footer><el-button :disabled="saving || coverUploading" @click="editorVisible = false">取消</el-button>
+        <el-button type="primary" :loading="saving" :disabled="coverUploading" @click="saveFolder">保存</el-button></template>
     </el-dialog>
     <el-dialog v-model="transferVisible" :title="transferOperation === 'copy' ? '复制视频至' : '移动视频至'"
-      width="min(90vw, 500px)" :close-on-click-modal="!busy" :show-close="!busy">
-      <p>已选择 {{ transferVideoIds.length }} 个视频，目标中已有的视频不会重复添加。</p>
+      width="480px" class="space-dialog" append-to-body align-center :close-on-click-modal="!busy" :show-close="!busy">
+      <p class="space-dialog-hint">已选择 {{ transferVideoIds.length }} 个视频，目标中已有的视频不会重复添加。</p>
       <el-select v-model="targetFolderId" placeholder="选择目标收藏夹" style="width: 100%" :disabled="busy">
         <el-option v-for="folder in folders.filter(item => item.id !== selectedId)" :key="folder.id"
           :label="folder.name" :value="folder.id"/>
@@ -94,7 +144,9 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { useGlobalStore } from '@/store/store';
 import { getCollectsClassify, getCollectByName, batchFolderVideos, clearInvalidFolderVideos } from '@/api/home';
 import { userContentApi } from '@/api/product';
+import { post } from '@/services/http';
 import homeVideoCard from '@/components/homeVideoCard.vue';
+import ContentMoreMenu from '@/components/ContentMoreMenu.vue';
 import loadingIndicator from '@/components/loadingIndicator.vue';
 
 const store = useGlobalStore();
@@ -115,6 +167,8 @@ const loadingVideos = ref(false);
 const editorVisible = ref(false);
 const editingId = ref(null);
 const saving = ref(false);
+const coverInput = ref(null);
+const coverUploading = ref(false);
 const busy = ref(false);
 const batchMode = ref(false);
 const selectedVideoIds = ref([]);
@@ -234,12 +288,39 @@ async function clearInvalid() {
   finally { busy.value = false; }
 }
 function openEditor(folder) {
+  if (saving.value || coverUploading.value) return;
   editingId.value = folder?.id || null;
   Object.assign(form, { name: folder?.name || '', description: folder?.description || '',
     coverUrl: folder?.coverUrl || '', visibility: folder?.visibility ?? 1 });
   editorVisible.value = true;
 }
+async function uploadCover(event) {
+  const input = event.target;
+  const file = input.files?.[0];
+  if (!file) return;
+  if (coverUploading.value || saving.value) { input.value = ''; return; }
+  if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type) || !file.size || file.size > 10 * 1024 * 1024) {
+    ElMessage.warning('请选择不超过 10MB 的 JPG、PNG 或 GIF 图片');
+    input.value = '';
+    return;
+  }
+  coverUploading.value = true;
+  try {
+    const body = new FormData();
+    body.append('file', file);
+    const result = await post('/media/image', body);
+    if (!result?.url || typeof result.url !== 'string') throw new Error('上传未返回图片地址，请重试');
+    form.coverUrl = result.url;
+    ElMessage.success('封面已上传，保存后生效');
+  } catch (error) {
+    ElMessage.error(error.message || '封面上传失败，请重试');
+  } finally {
+    coverUploading.value = false;
+    input.value = '';
+  }
+}
 async function saveFolder() {
+  if (saving.value || coverUploading.value) return;
   if (!form.name.trim()) { ElMessage.warning('请输入收藏夹名称'); return; }
   saving.value = true;
   try {
@@ -278,14 +359,20 @@ async function removeVideo(videoId) {
 </script>
 
 <style scoped>
+.folder-cover-editor { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; width: 100%; }
+.folder-cover-preview { display: grid; place-items: center; flex: none; width: 160px; aspect-ratio: 16 / 9; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: var(--fill-soft); color: var(--ink-3); }
+.folder-cover-preview img { width: 100%; height: 100%; object-fit: cover; }
+.folder-cover-preview svg { width: 30px; height: 30px; }
+.folder-cover-actions { display: flex; flex: 1; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 160px; }
+.folder-cover-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.folder-cover-hint { margin: 0; color: var(--ink-3); font-size: 12px; line-height: 1.7; }
 .collections { box-sizing: border-box; display: flex; gap: var(--gap-6); padding: var(--gap-5) var(--page-pad); }
 aside { width: 200px; display: flex; flex-direction: column; gap: 12px; flex-shrink: 0; }
 aside button { text-align: left; border: 0; border-radius: 6px; padding: 12px; cursor: pointer; }
 aside .active { background: #0FA68E; color: white; }
 main { flex: 1; min-width: 0; }
-.batch-tools, .video-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.batch-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .batch-tools { padding: 12px; background: #EFF3F2; border-radius: 8px; }
-.video-actions .el-button { margin-left: 0; }
 header { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
 header > img { width: 160px; border-radius: 8px; }
 header > div { flex: 1; min-width: 0; overflow-wrap: anywhere; }
