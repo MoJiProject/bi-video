@@ -166,6 +166,7 @@
 
 <script>
 import { onMounted, reactive, ref } from "vue";
+import { ElMessage } from "element-plus";
 import { useGlobalStore } from "../../store/store";
 import SystemPagination from "../components/SystemPagination.vue";
 import {
@@ -175,14 +176,7 @@ import {
   searchUsers,
   unbanUser,
 } from "../../api/systemManagement/index";
-import {
-  compactNumber,
-  confirmDanger,
-  goUserHome,
-  msgOf,
-  shortTime,
-  toast,
-} from "../systemCommon";
+import { compactNumber, confirmDanger, goUserHome, msgOf, shortTime } from "../systemCommon";
 
 export default {
   name: "UserManagePage",
@@ -227,10 +221,10 @@ export default {
           users.value = res.data.data.records;
           total.value = res.data.data.total;
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast(error.message || "加载用户列表失败", "error");
+        ElMessage.error(error.message || "加载用户列表失败");
       }
     }
 
@@ -263,7 +257,7 @@ export default {
     //提交封禁
     async function submitBan() {
       if (!banReason.value.trim()) {
-        toast("请填写封禁原因");
+        ElMessage("请填写封禁原因");
         return;
       }
       submitting.value = true;
@@ -274,14 +268,14 @@ export default {
           currentTarget.value.id
         );
         if (res.data.code === 1) {
-          toast(msgOf(res), "success");
+          ElMessage.success(msgOf(res));
           banDialogVisible.value = false;
           loadUsers();
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast(error.message || "封禁失败", "error");
+        ElMessage.error(error.message || "封禁失败");
       } finally {
         submitting.value = false;
       }
@@ -304,13 +298,13 @@ export default {
           row.id
         );
         if (res.data.code === 1) {
-          toast(msgOf(res), "success");
+          ElMessage.success(msgOf(res));
           loadUsers();
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast(error.message || "解封失败", "error");
+        ElMessage.error(error.message || "解封失败");
       }
     }
 
@@ -329,13 +323,13 @@ export default {
           row.id
         );
         if (res.data.code === 1) {
-          toast(`已将「${row.userName}」${action}`, "success");
+          ElMessage.success(`已将「${row.userName}」${action}`);
           loadUsers();
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast(error.message || "操作失败", "error");
+        ElMessage.error(error.message || "操作失败");
       }
     }
 
@@ -362,10 +356,10 @@ export default {
           banList.value = res.data.data.records;
           banTotal.value = res.data.data.total;
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast(error.message || "加载封禁记录失败", "error");
+        ElMessage.error(error.message || "加载封禁记录失败");
       }
     }
 

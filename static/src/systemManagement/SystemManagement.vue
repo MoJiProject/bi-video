@@ -57,6 +57,7 @@
 
 <script>
 import { computed, onMounted, ref, watch } from "vue";
+import { ElMessage } from "element-plus";
 import { useRoute } from "vue-router";
 import {
   HomeFilled,
@@ -74,7 +75,7 @@ import {
 import { useGlobalStore } from "../store/store";
 import { authApi } from "../api/product";
 import { mapUser } from "../api/home/user";
-import { toast } from "./systemCommon";
+
 import OverviewPage from "./pages/OverviewPage.vue";
 import UserManagePage from "./pages/UserManagePage.vue";
 import VideoManagePage from "./pages/VideoManagePage.vue";
@@ -179,7 +180,7 @@ export default {
         isAdmin.value = me.role === 1;
       } catch (error) {
         isAdmin.value = false;
-        toast(error.message || "管理员身份验证失败", "error");
+        ElMessage.error(error.message || "管理员身份验证失败");
       }
     }
 
@@ -439,15 +440,16 @@ export default {
   .system-aside {
     display: flex;
     align-items: center;
-    gap: 4px;
+    flex-wrap: wrap;
+    gap: 6px;
     width: 100%;
     min-height: 0;
     max-height: none;
     padding: 8px 12px;
     top: 0;
     z-index: 90;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow-x: visible;
+    overflow-y: visible;
     overscroll-behavior-x: contain;
     border-bottom: 1px solid #e5e7eb;
   }
@@ -557,7 +559,7 @@ export default {
 }
 
 .sys-confirm-dialog {
-  max-width: calc(100vw - 24px);
+  max-width: min(420px, calc(100vw - 24px));
   max-height: calc(100vh - 24px);
   max-height: calc(100dvh - 24px);
   overflow-y: auto;

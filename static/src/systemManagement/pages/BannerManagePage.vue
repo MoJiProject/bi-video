@@ -86,9 +86,10 @@
 
 <script setup>
 import { nextTick, onMounted, reactive, ref } from "vue";
+import { ElMessage } from "element-plus";
 import { deleteBanner, saveBanner, searchBanners, uploadBannerImage } from "../../api/banner";
 import SystemPagination from "../components/SystemPagination.vue";
-import { confirmDanger, shortTime, toast } from "../systemCommon";
+import { confirmDanger, shortTime } from "../systemCommon";
 
 const banners = ref([]);
 const total = ref(0);
@@ -142,7 +143,7 @@ async function loadBanners() {
       total.value = data.total;
     }
   } catch (error) {
-    if (current === generation) toast(error.message || "加载Banner失败", "error");
+    if (current === generation) ElMessage.error(error.message || "加载Banner失败");
   } finally {
     if (current === generation) loading.value = false;
   }
@@ -167,7 +168,7 @@ async function uploadImage(options) {
   const file = options.file;
   if (!["image/jpeg", "image/png", "image/gif"].includes(file.type) || file.size > 10 * 1024 * 1024 || !file.size) {
     const error = new Error("请选择不超过10MB的JPG、PNG或GIF图片");
-    toast(error.message, "error");
+    ElMessage.error(error.message);
     options.onError(error);
     return;
   }
@@ -178,7 +179,7 @@ async function uploadImage(options) {
     formRef.value.clearValidate("imageUrl");
     options.onSuccess(result);
   } catch (error) {
-    toast(error.message || "图片上传失败", "error");
+    ElMessage.error(error.message || "图片上传失败");
     options.onError(error);
   } finally {
     uploading.value = false;
@@ -192,11 +193,11 @@ async function submit() {
   submitting.value = true;
   try {
     await saveBanner(editId.value, { ...form, content: form.content.trim(), linkUrl: form.linkUrl.trim() });
-    toast("保存成功", "success");
+    ElMessage.success("保存成功");
     dialogVisible.value = false;
     await loadBanners();
   } catch (error) {
-    toast(error.message || "保存Banner失败", "error");
+    ElMessage.error(error.message || "保存Banner失败");
   } finally {
     submitting.value = false;
   }
@@ -209,11 +210,11 @@ async function handleDelete(row) {
   deletingId.value = row.id;
   try {
     await deleteBanner(row.id);
-    toast("删除成功", "success");
+    ElMessage.success("删除成功");
     if (banners.value.length === 1 && query.pageNum > 1) query.pageNum--;
     await loadBanners();
   } catch (error) {
-    toast(error.message || "删除Banner失败", "error");
+    ElMessage.error(error.message || "删除Banner失败");
   } finally {
     deletingId.value = null;
   }

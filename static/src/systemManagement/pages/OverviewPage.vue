@@ -132,6 +132,7 @@
 
 <script>
 import { computed, onMounted, reactive, ref } from "vue";
+import { ElMessage } from "element-plus";
 import {
   UserFilled,
   VideoCamera,
@@ -144,7 +145,7 @@ import {
 } from "@element-plus/icons-vue";
 import { useGlobalStore } from "../../store/store";
 import { getOverview } from "../../api/systemManagement/index";
-import { compactNumber, msgOf, toast } from "../systemCommon";
+import { compactNumber, msgOf } from "../systemCommon";
 
 export default {
   name: "OverviewPage",
@@ -231,10 +232,10 @@ export default {
         if (res.data.code === 1) {
           Object.assign(overview, res.data.data);
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast(error.message || "加载概览数据失败", "error");
+        ElMessage.error(error.message || "加载概览数据失败");
       }
     }
 

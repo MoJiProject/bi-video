@@ -200,17 +200,12 @@
 
 <script>
 import { onMounted, reactive, ref } from "vue";
+import { ElMessage } from "element-plus";
 import { VideoCamera, Promotion, TopRight } from "@element-plus/icons-vue";
 import { useGlobalStore } from "../../store/store";
 import SystemPagination from "../components/SystemPagination.vue";
 import { deleteComment, searchComments, switchCommentOffShelf } from "../../api/systemManagement/index";
-import {
-  confirmDanger,
-  goUserHome,
-  msgOf,
-  shortTime,
-  toast,
-} from "../systemCommon";
+import { confirmDanger, goUserHome, msgOf, shortTime } from "../systemCommon";
 
 export default {
   name: "CommentManagePage",
@@ -255,10 +250,10 @@ export default {
           total.value = res.data.data.total;
           selected.value = [];
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast("加载评论列表失败");
+        ElMessage.error("加载评论列表失败");
       }
     }
 
@@ -305,7 +300,7 @@ export default {
         goDynamicDetail(row);
         return;
       }
-      toast("该评论没有关联的视频或动态，无法跳转");
+      ElMessage("该评论没有关联的视频或动态，无法跳转");
     }
 
     function handleReset() {
@@ -345,14 +340,14 @@ export default {
           ids: pendingIds.value,
         });
         if (res.data.code === 1) {
-          toast(`已删除 ${res.data.data.deleteNumber} 条评论`, "success");
+          ElMessage.success(`已删除 ${res.data.data.deleteNumber} 条评论`);
           deleteDialogVisible.value = false;
           loadComments();
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast("删除失败");
+        ElMessage.error("删除失败");
       } finally {
         submitting.value = false;
       }
@@ -377,13 +372,13 @@ export default {
           offShelf
         );
         if (res.data.code === 1) {
-          toast(msgOf(res), "success");
+          ElMessage.success(msgOf(res));
           loadComments();
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast("操作失败");
+        ElMessage.error("操作失败");
       }
     }
 

@@ -184,6 +184,7 @@
 
 <script>
 import { computed, onMounted, reactive, ref } from "vue";
+import { ElMessage } from "element-plus";
 import { useGlobalStore } from "../../store/store";
 import SystemPagination from "../components/SystemPagination.vue";
 import {
@@ -191,7 +192,7 @@ import {
   searchMessages,
   sendPrivateMessage,
 } from "../../api/systemManagement/index";
-import { goUserHome, msgOf, shortTime, toast } from "../systemCommon";
+import { goUserHome, msgOf, shortTime } from "../systemCommon";
 
 export default {
   name: "MessageManagePage",
@@ -242,10 +243,10 @@ export default {
           total.value = res.data.data.total;
           selected.value = [];
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast(error.message || "加载私信列表失败", "error");
+        ElMessage.error(error.message || "加载私信列表失败");
       }
     }
 
@@ -287,7 +288,7 @@ export default {
     async function submitSend() {
       const content = sendContent.value.trim();
       if (!content) {
-        toast("请输入私信内容");
+        ElMessage("请输入私信内容");
         return;
       }
       submitting.value = true;
@@ -298,13 +299,13 @@ export default {
           messageType: 1,
         });
         if (res.data.code === 1) {
-          toast(msgOf(res), "success");
+          ElMessage.success(msgOf(res));
           sendDialogVisible.value = false;
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast(error.message || "发送失败", "error");
+        ElMessage.error(error.message || "发送失败");
       } finally {
         submitting.value = false;
       }
@@ -326,14 +327,14 @@ export default {
           ids: pendingIds.value,
         });
         if (res.data.code === 1) {
-          toast(`成功删除 ${res.data.data.deleteNumber} 条私信`, "success");
+          ElMessage.success(`成功删除 ${res.data.data.deleteNumber} 条私信`);
           deleteDialogVisible.value = false;
           loadMessages();
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast(error.message || "删除失败", "error");
+        ElMessage.error(error.message || "删除失败");
       } finally {
         submitting.value = false;
       }

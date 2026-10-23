@@ -97,18 +97,11 @@
 
 <script>
 import { onMounted, reactive, ref } from "vue";
+import { ElMessage } from "element-plus";
 import { useGlobalStore } from "../../store/store";
 import SystemPagination from "../components/SystemPagination.vue";
 import { searchLogs } from "../../api/systemManagement/index";
-import {
-  MODULE_LABEL,
-  ACTION_LABEL,
-  ellipsis,
-  goUserHome,
-  msgOf,
-  shortTime,
-  toast,
-} from "../systemCommon";
+import { MODULE_LABEL, ACTION_LABEL, ellipsis, goUserHome, msgOf, shortTime } from "../systemCommon";
 
 export default {
   name: "SystemLogPage",
@@ -143,10 +136,10 @@ export default {
           total.value = res.data.data.total;
           logTotal.value = res.data.data.total;
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast(error.message || "加载操作日志失败", "error");
+        ElMessage.error(error.message || "加载操作日志失败");
       }
     }
 

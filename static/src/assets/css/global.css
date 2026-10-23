@@ -709,3 +709,57 @@ a{
   transition: color 0.3s ease !important;
   color: var(--brand) !important;
 }
+
+
+/* 自定义消息提示样式，覆盖 Element Plus 原生外观 */
+.el-message {
+  min-width: 240px;
+  max-width: min(420px, calc(100vw - 24px));
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  border-left-width: 4px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  background: #ffffff;
+  color: var(--ink);
+}
+.el-message__content {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.el-message--success { border-left-color: #22c55e; }
+.el-message--success .el-message__icon { color: #22c55e; }
+.el-message--warning { border-left-color: #f59e0b; }
+.el-message--warning .el-message__icon { color: #f59e0b; }
+.el-message--error { border-left-color: #ef4444; }
+.el-message--error .el-message__icon { color: #ef4444; }
+.el-message--info { border-left-color: var(--brand); }
+.el-message--info .el-message__icon { color: var(--brand); }
+
+
+/* 消息提示样式升级 */
+.el-message {
+  min-width: 260px !important;
+  max-width: min(400px, calc(100vw - 24px)) !important;
+  padding: 14px 18px 14px 14px !important;
+  border: none !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.16), 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+}
+.el-message__content {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 1.5 !important;
+  padding-left: 6px !important;
+}
+.el-message__icon { font-size: 20px !important; margin-right: 8px !important; }
+.el-message--success { background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%) !important; }
+.el-message--success .el-message__icon { color: #16a34a !important; }
+.el-message--warning { background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%) !important; }
+.el-message--warning .el-message__icon { color: #d97706 !important; }
+.el-message--error { background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%) !important; }
+.el-message--error .el-message__icon { color: #dc2626 !important; }
+.el-message--info { background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 100%) !important; }
+.el-message--info .el-message__icon { color: var(--brand) !important; }

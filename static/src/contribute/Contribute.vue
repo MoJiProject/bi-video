@@ -29,7 +29,7 @@ import { useRoute } from "vue-router";
 import { authApi } from "../api/product";
 import { mapUser } from "../api/home/user";
 import { useGlobalStore } from "../store/store";
-import "element-plus/theme-chalk/el-message.css";
+
 import { ElMessage } from "element-plus";
 import AsideComponent from './AsideComponent.vue';
 import MainComponent from "./MainComponent.vue";

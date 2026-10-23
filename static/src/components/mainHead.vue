@@ -1525,7 +1525,6 @@
 
 <script>
 import { ref, reactive, onMounted, onUnmounted, watch, computed } from "vue";
-import "element-plus/theme-chalk/el-message.css";
 import {
   fetchDynamicPanels,
   fetchFolders,

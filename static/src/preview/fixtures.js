@@ -29,7 +29,7 @@ export const profiles = ["预览用户", "林间记录", "镜头日记", "慢慢
         ? "这是本地预览资料，不对应真实账号。"
         : "摄影、旅行与生活记录",
     level: 5 - index,
-    role: 0,
+    role: 1,
     coinBalance: 128,
     favoriteCount: 24,
     videoCount: 6,

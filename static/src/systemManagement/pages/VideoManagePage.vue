@@ -281,6 +281,7 @@
 
 <script>
 import { computed, onMounted, reactive, ref } from "vue";
+import { ElMessage } from "element-plus";
 import { useGlobalStore } from "../../store/store";
 import SystemPagination from "../components/SystemPagination.vue";
 import {
@@ -292,17 +293,7 @@ import {
   searchVideos,
   takeDownVideo,
 } from "../../api/systemManagement/index";
-import {
-  compactNumber,
-  confirmDanger,
-  goUserHome,
-  goVideoDetail,
-  msgOf,
-  shortTime,
-  toast,
-  videoStatusLabel,
-  videoStatusType,
-} from "../systemCommon";
+import { compactNumber, confirmDanger, goUserHome, goVideoDetail, msgOf, shortTime, videoStatusLabel, videoStatusType } from "../systemCommon";
 
 export default {
   name: "VideoManagePage",
@@ -357,7 +348,7 @@ export default {
           subZones.value = res.data.data || [];
         }
       } catch (error) {
-        toast(error.message || "加载分区列表失败", "error");
+        ElMessage.error(error.message || "加载分区列表失败");
       }
     }
 
@@ -380,10 +371,10 @@ export default {
           counts.reject = res.data.data.rejectNumber;
           selected.value = [];
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast(error.message || "加载视频列表失败", "error");
+        ElMessage.error(error.message || "加载视频列表失败");
       }
     }
 
@@ -431,13 +422,13 @@ export default {
       try {
         const res = await examineVideo(store.token, { operatorId: store.userId }, row.id);
         if (res.data.code === 1) {
-          toast(msgOf(res), "success");
+          ElMessage.success(msgOf(res));
           loadVideos();
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast(error.message || "审核失败", "error");
+        ElMessage.error(error.message || "审核失败");
       } finally {
         submitting.value = false;
       }
@@ -462,13 +453,13 @@ export default {
           row.id
         );
         if (res.data.code === 1) {
-          toast(msgOf(res), "success");
+          ElMessage.success(msgOf(res));
           loadVideos();
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast(error.message || "上架失败", "error");
+        ElMessage.error(error.message || "上架失败");
       } finally {
         submitting.value = false;
       }
@@ -493,7 +484,7 @@ export default {
     async function submitReasonAction() {
       const reason = reasonText.value.trim();
       if (!reason) {
-        toast("请填写原因");
+        ElMessage("请填写原因");
         return;
       }
       submitting.value = true;
@@ -511,14 +502,14 @@ export default {
               currentTarget.value.id
             );
         if (res.data.code === 1) {
-          toast(msgOf(res), "success");
+          ElMessage.success(msgOf(res));
           reasonDialogVisible.value = false;
           loadVideos();
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast(error.message || "操作失败", "error");
+        ElMessage.error(error.message || "操作失败");
       } finally {
         submitting.value = false;
       }
@@ -546,14 +537,14 @@ export default {
           ids: pendingIds.value,
         });
         if (res.data.code === 1) {
-          toast(`已删除 ${res.data.data.deleteNumber} 个视频，此操作不可恢复`);
+          ElMessage(`已删除 ${res.data.data.deleteNumber} 个视频，此操作不可恢复`);
           deleteDialogVisible.value = false;
           loadVideos();
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast(error.message || "删除失败", "error");
+        ElMessage.error(error.message || "删除失败");
       } finally {
         submitting.value = false;
       }

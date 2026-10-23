@@ -41,7 +41,7 @@ export function confirmDanger(message, confirmText = "确定") {
 //抛错占位，保持与原实现一致
 export function throwIfFailed(res) {
   if (!res || res.code !== 1) {
-    toast((res && res.msg) || "未知错误");
+    ElMessage((res && res.msg) || "未知错误");
     return new Error((res && res.msg) || "未知错误");
   }
   return null;

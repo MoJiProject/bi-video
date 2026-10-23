@@ -145,6 +145,7 @@
 
 <script>
 import { computed, onMounted, reactive, ref } from "vue";
+import { ElMessage } from "element-plus";
 import { useGlobalStore } from "../../store/store";
 import SystemPagination from "../components/SystemPagination.vue";
 import {
@@ -154,7 +155,7 @@ import {
   putKeyWordCount,
   searchKeyWords,
 } from "../../api/systemManagement/index";
-import { msgOf, toast } from "../systemCommon";
+import { msgOf } from "../systemCommon";
 
 export default {
   name: "KeyWordManagePage",
@@ -200,10 +201,10 @@ export default {
           total.value = res.data.data.total;
           selected.value = [];
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast(error.message || "加载搜索词失败", "error");
+        ElMessage.error(error.message || "加载搜索词失败");
       }
     }
 
@@ -251,7 +252,7 @@ export default {
     async function submitEdit() {
       const word = editWord.value.trim();
       if (!word || word.length > 64) {
-        toast("搜索词须为 1 至 64 个字符");
+        ElMessage("搜索词须为 1 至 64 个字符");
         return;
       }
       submitting.value = true;
@@ -261,14 +262,14 @@ export default {
           ? await putKeyWord(store.token, params, editTarget.value.id, word)
           : await addKeyWord(store.token, params, word);
         if (res.data.code === 1) {
-          toast(msgOf(res), "success");
+          ElMessage.success(msgOf(res));
           editDialogVisible.value = false;
           loadKeyWords();
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast(error.message || "保存失败", "error");
+        ElMessage.error(error.message || "保存失败");
       } finally {
         submitting.value = false;
       }
@@ -290,14 +291,14 @@ export default {
           editCount.value
         );
         if (res.data.code === 1) {
-          toast(msgOf(res), "success");
+          ElMessage.success(msgOf(res));
           countDialogVisible.value = false;
           loadKeyWords();
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast(error.message || "保存失败", "error");
+        ElMessage.error(error.message || "保存失败");
       } finally {
         submitting.value = false;
       }
@@ -322,14 +323,14 @@ export default {
           ids: pendingIds.value,
         });
         if (res.data.code === 1) {
-          toast(`成功删除 ${res.data.data.deleteNumber} 个搜索词`, "success");
+          ElMessage.success(`成功删除 ${res.data.data.deleteNumber} 个搜索词`);
           deleteDialogVisible.value = false;
           loadKeyWords();
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast(error.message || "删除失败", "error");
+        ElMessage.error(error.message || "删除失败");
       } finally {
         submitting.value = false;
       }

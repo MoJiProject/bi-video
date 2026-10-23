@@ -500,7 +500,6 @@ import { offlinePreviewEnabled } from "../preview/config";
 import { fetchMentionUsers, fetchPublishingCategories } from "../api/product";
 import { sanitizeRichText, extractMentionIds } from "../utils/richText";
 import { uploadVideoByChunks } from "../utils/chunkUpload";
-import "element-plus/theme-chalk/el-message.css";
 import { reactive, onMounted, ref, computed, nextTick,watch,onUnmounted } from "vue";
 import { ElMessage } from "element-plus";
 import CropperCompVue from "../contribute/CropperComp.vue";

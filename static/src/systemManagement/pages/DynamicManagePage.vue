@@ -185,6 +185,7 @@
 
 <script>
 import { onMounted, reactive, ref } from "vue";
+import { ElMessage } from "element-plus";
 import { useGlobalStore } from "../../store/store";
 import SystemPagination from "../components/SystemPagination.vue";
 import {
@@ -192,13 +193,7 @@ import {
   searchDynamics,
   switchDynamicOffShelf,
 } from "../../api/systemManagement/index";
-import {
-  confirmDanger,
-  goUserHome,
-  msgOf,
-  shortTime,
-  toast,
-} from "../systemCommon";
+import { confirmDanger, goUserHome, msgOf, shortTime } from "../systemCommon";
 
 export default {
   name: "DynamicManagePage",
@@ -244,10 +239,10 @@ export default {
           total.value = res.data.data.total;
           selected.value = [];
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast("加载动态列表失败");
+        ElMessage.error(error.message || "加载动态列表失败");
       }
     }
 
@@ -288,7 +283,7 @@ export default {
     //跳转到动态详情
     function goDynamicDetail(dynamicId) {
       if (!dynamicId) {
-        toast("该动态缺少id，无法跳转");
+        ElMessage("该动态缺少id，无法跳转");
         return;
       }
       window.open(`/dynamicDetail?dynamicId=${dynamicId}`, "_blank");
@@ -316,14 +311,14 @@ export default {
           ids: pendingIds.value,
         });
         if (res.data.code === 1) {
-          toast(`已删除 ${res.data.data.deleteNumber} 条动态，此操作不可恢复`, "success");
+          ElMessage.success(`已删除 ${res.data.data.deleteNumber} 条动态，此操作不可恢复`);
           deleteDialogVisible.value = false;
           loadDynamics();
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast("删除失败");
+        ElMessage.error("删除失败");
       } finally {
         submitting.value = false;
       }
@@ -348,13 +343,13 @@ export default {
           offShelf
         );
         if (res.data.code === 1) {
-          toast(msgOf(res), "success");
+          ElMessage.success(msgOf(res));
           loadDynamics();
         } else {
-          toast(msgOf(res));
+          ElMessage(msgOf(res));
         }
       } catch (error) {
-        toast("操作失败");
+        ElMessage.error("操作失败");
       }
     }
 
