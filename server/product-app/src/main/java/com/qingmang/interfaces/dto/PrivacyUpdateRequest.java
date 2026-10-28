@@ -9,10 +9,9 @@ public class PrivacyUpdateRequest {
     private Boolean showFavoriteList;
     private Boolean showFollowList;
     private Boolean showFansList;
-    private Boolean showCoinList;
     private Boolean showLikeList;
     private Boolean showBirthday;
     private Boolean recordHistory;
-    @Size(min = 6, max = 6)
+    @Size(min = 5, max = 5)
     private List<String> homeSectionOrder;
 }

@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-/** 视频主表，只放业务字段 */
+/** 视频主表，只放业务字段
+ */
 @Data
 @Accessors(chain = true)
 @TableName("video")
@@ -62,9 +63,6 @@ public class Video implements Serializable {
 
     @TableField("allow_danmaku")
     private Boolean allowDanmaku;
-
-    @TableField("coin_enabled")
-    private Boolean coinEnabled;
 
     @TableField("published_at")
     private LocalDateTime publishedAt;

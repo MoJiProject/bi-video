@@ -50,8 +50,7 @@ public class HomeService {
         if (!Objects.equals(ownerId, viewerId)) {
             UserPrivacy privacy = privacyMapper.selectOne(Wrappers.<UserPrivacy>lambdaQuery()
                     .eq(UserPrivacy::getUserId, ownerId));
-            boolean visible = privacy != null && Boolean.TRUE.equals(type == 1
-                    ? privacy.getShowLikeList() : privacy.getShowCoinList());
+            boolean visible = privacy != null && Boolean.TRUE.equals(privacy.getShowLikeList());
             if (!visible) throw new BizException(ErrorCode.NO_PERMISSION);
         }
         return query.reactions(ownerId, viewerId, type);

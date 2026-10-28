@@ -30,9 +30,6 @@ public class UserPrivacy implements Serializable {
     @TableField("show_fans_list")
     private Boolean showFansList;
 
-    @TableField("show_coin_list")
-    private Boolean showCoinList;
-
     @TableField("show_like_list")
     private Boolean showLikeList;
 
@@ -44,9 +41,6 @@ public class UserPrivacy implements Serializable {
 
     @TableField("home_section_order")
     private String homeSectionOrder;
-
-    @TableField("show_coin_income")
-    private Boolean showCoinIncome;
 
     @TableField("show_like_received")
     private Boolean showLikeReceived;

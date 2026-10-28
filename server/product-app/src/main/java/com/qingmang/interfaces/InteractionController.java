@@ -2,7 +2,6 @@ package com.qingmang.interfaces;
 
 import com.qingmang.application.VideoInteractionService;
 import com.qingmang.common.api.ApiResponse;
-import com.qingmang.interfaces.dto.CoinRequest;
 import com.qingmang.support.AuthContext;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,13 +26,6 @@ public class InteractionController {
     @PostMapping("/{videoId}/like")
     public ApiResponse<Map<String, Object>> like(@PathVariable Long videoId) {
         return ApiResponse.ok(interaction.toggleLike(AuthContext.requireUserId(), videoId));
-    }
-
-    @PostMapping("/{videoId}/coin")
-    public ApiResponse<Map<String, Object>> coin(@PathVariable Long videoId,
-                                                 @RequestBody(required = false) CoinRequest body) {
-        int n = body == null ? 1 : body.getCoinCount();
-        return ApiResponse.ok(interaction.throwCoin(AuthContext.requireUserId(), videoId, n));
     }
 
     @PostMapping("/{videoId}/favorite")

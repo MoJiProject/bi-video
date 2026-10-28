@@ -124,9 +124,6 @@ export default {
         likeVideoClickFlag:{
             type:Boolean,
         },
-        videoThrowCoinClickFlag:{
-            type:Boolean,
-        },
         videoShareClickFlag:{
             type:Boolean,
         },

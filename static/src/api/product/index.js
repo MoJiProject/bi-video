@@ -28,7 +28,6 @@ export const videoApi = {
   /** 一次拿全互动状态，代替每个按钮各发一次请求。 */
   state: (videoId) => get(`/video/${videoId}/state`),
   like: (videoId) => post(`/video/${videoId}/like`),
-  coin: (videoId, coinCount = 1) => post(`/video/${videoId}/coin`, { coinCount }),
   favorite: (videoId, folderId) => post(`/video/${videoId}/favorite`, null, { params: { folderId } }),
   watchLater: (videoId) => post(`/video/${videoId}/watch-later`),
   reportWatch: (videoId, progressSeconds) => post(`/video/${videoId}/watch`, null, { params: { progressSeconds } }),

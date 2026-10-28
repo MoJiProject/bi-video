@@ -44,7 +44,6 @@ const sortElement = ref(null);
 let sortable;
 const privacySettings = [
   { key: 'publicCollect', label: '公开我的收藏' },
-  { key: 'publicCoin', label: '公开最近投币的视频' },
   { key: 'publicLove', label: '公开最近点赞的视频' },
   { key: 'publicFollowList', label: '公开我的关注列表' },
   { key: 'publicFansList', label: '公开我的粉丝列表' },
@@ -53,7 +52,6 @@ const privacySettings = [
 const sections = [
   { class: 'magnum-video', label: '代表作' },
   { class: 'tribute-video', label: '视频' },
-  { class: 'throw-coin-video', label: '最近投币的视频' },
   { class: 'collect', label: '收藏夹' },
   { class: 'follow-anime', label: '订阅剧集' },
   { class: 'love-video', label: '最近点赞的视频' },

@@ -8,5 +8,4 @@ public class UserReactionVO {
 
     private Long videoId;
     private Integer reactionType;
-    private Integer coinCount;
 }

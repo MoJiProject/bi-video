@@ -126,10 +126,11 @@
                     src="/img/woman.png"
                     class="up-user-info-gender"
                   />
-                  <img
-                    v-if="SelectVideoByIdVo.upUser.grade >= 6"
-                    src="/img/VIP6.gif"
+                  <LevelBadge
+                    v-if="SelectVideoByIdVo.upUser.grade"
+                    :level="SelectVideoByIdVo.upUser.grade"
                     class="up-user-info-level"
+                    size="sm"
                   />
                 </div>
                 <div class="up-user-info-container-content">
@@ -2498,6 +2499,7 @@ const addWaitWatchBlue = "/img/弹幕列表蓝.png"
 const audioBlack = "/img/音量黑.png"
 const closeAudioBlack = "/img/静音黑.png"
 import head1 from "../components/mainHead.vue";
+import LevelBadge from "../components/LevelBadge.vue";
 import { useGlobalStore } from "../store/store";
 import autoPlayVideo from "./autoPlayVideo.vue";
 import autoPlayVideo2 from "./autoPlayVideo2.vue";
@@ -2510,6 +2512,7 @@ export default {
   name: "videoPage",
   components: {
     head1,
+    LevelBadge,
     autoPlayVideo,
     autoPlayVideo2,
     comment,
@@ -5249,8 +5252,7 @@ textarea,
 }
 
 .up-user-info-level {
-  width: 22px;
-  height: 11px;
+  flex: none;
   margin-top: 3.5px;
 }
 

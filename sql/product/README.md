@@ -50,7 +50,7 @@ mysql -u<user> -p product < sql/product/02_seed.sql
 ### 互动域
 | 表 | 说明 |
 |---|---|
-| `video_reaction` | 点赞 / 投币合表，`(user_id, video_id, reaction_type)` 唯一 |
+| `video_reaction` | 点赞 / 收藏合表，`(user_id, video_id, reaction_type)` 唯一 |
 | `comment` | 评论，视频与动态共用（`video_id` / `post_id` 二选一） |
 | `comment_like` | 评论赞踩 |
 | `danmaku` | 弹幕，**故意不加外键**（写入极频繁，外键校验是瓶颈） |

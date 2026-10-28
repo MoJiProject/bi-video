@@ -92,10 +92,10 @@
             <div class="member-info">
               <span class="member-name">
                 <span class="member-name-text clickable" @click="openHome(member)">{{ member.userName }}</span>
-                <img
+                <LevelBadge
                   class="member-level"
-                  :src="`/img/${member.grade ?? 0}级.png`"
-                  :alt="`${member.grade ?? 0}级`"
+                  :level="member.grade ?? 0"
+                  size="xs"
                 />
                 <img
                   v-if="member.gender === 1"
@@ -275,6 +275,7 @@ import {
   unregisterWatchTogetherBridge,
 } from '../services/watchTogetherBridge';
 import { useGlobalStore } from '../store/store';
+import LevelBadge from '../components/LevelBadge.vue';
 
 const props = defineProps({
   videoElement: {
@@ -1699,9 +1700,8 @@ onBeforeUnmount(() => {
 }
 
 .member-level {
-  width: 18px;
-  height: 9px;
-  flex: 0 0 18px;
+  flex: 0 0 auto;
+  margin-left: 2px;
 }
 
 .clickable {

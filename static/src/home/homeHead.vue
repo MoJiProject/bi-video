@@ -17,7 +17,7 @@
             </div>
             <div class="user-info-top">
                 <span class="user-name">{{ store.homeUserInformation?.userName }}</span>
-                <img v-if="store.homeUserInformation.grade" class="level-icon" :src="'/img/'+store.homeUserInformation.grade+'级.png'">
+                <LevelBadge v-if="store.homeUserInformation.grade" class="level-icon" :level="store.homeUserInformation.grade" size="md" />
                 <img v-if="store.homeUserInformation?.gender===1" class="gender-icon" src="/img/man2.png">
                 <img v-else-if="store.homeUserInformation?.gender===2" class="gender-icon" src="/img/woman2.png">
             </div>
@@ -52,6 +52,7 @@
 <script setup>
 import { nextTick, onMounted,onUnmounted,ref, watch } from 'vue';
 import mainhead from '@/components/mainHead.vue';
+import LevelBadge from '@/components/LevelBadge.vue';
 import {useGlobalStore} from "@/store/store";
 import { ElMessage } from "element-plus";
 import {getCollectsClassify} from "@/api/home/index";
@@ -445,8 +446,6 @@ z-index: 999;
             flex: none;
             position: relative;
             top: -1px;
-            width: 28px;
-            height: 13px;
             margin-right: 8px;
         }
         .gender-icon{

@@ -32,15 +32,12 @@ public class VideoDetailVO {
     private Long playCount;
     private Long danmakuCount;
     private Long likeCount;
-    private Long coinCount;
     private Long favoriteCount;
     private Long commentCount;
     private Long shareCount;
 
     private Boolean liked = false;
-    private Boolean coinGiven = false;
     private Boolean collected = false;
-    private Integer myCoinCount = 0;
     /** 上次观看到的秒数，-1 表示没看过 */
     private Integer watchProgress = -1;
 }

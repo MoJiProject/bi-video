@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-/** 视频维度计数（派生数据，与 video 1:1） */
+/** 视频维度计数（派生数据，与 video 1:1）
+ */
 @Data
 @Accessors(chain = true)
 @TableName("video_stats")
@@ -28,9 +29,6 @@ public class VideoStats implements Serializable {
 
     @TableField("like_count")
     private Integer likeCount;
-
-    @TableField("coin_count")
-    private Integer coinCount;
 
     @TableField("favorite_count")
     private Integer favoriteCount;

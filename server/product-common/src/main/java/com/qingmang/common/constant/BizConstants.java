@@ -19,22 +19,22 @@ public final class BizConstants {
     public static final String DEFAULT_COVER = "/img/cover-fallback.png";
 
     /** 用户最大等级，与前端等级徽章一一对应。 */
-    public static final int MAX_USER_LEVEL = 6;
-
-    /** 单个视频单个用户最多可投的硬币数。 */
-    public static final int MAX_COIN_PER_VIDEO_PER_USER = 2;
-
-    /** 投币一次的数量。 */
-    public static final int COIN_PER_THROW = 1;
-
-    /** 注册赠送硬币。 */
-    public static final int REGISTER_REWARD_COIN = 5;
-
-    /** 每日登录赠送硬币。 */
-    public static final int LOGIN_REWARD_COIN = 1;
+    public static final int MAX_USER_LEVEL = 10;
 
     /** 等级经验阈值：升到 N 级所需累计经验。 */
     public static final int LEVEL_EXP_BASE = 100;
+
+    /** 每日互动奖励次数上限（点赞/收藏/分享各自计数）。 */
+    public static final int DAILY_INTERACTION_LIMIT = 3;
+
+    /** 每日点赞奖励经验（每天前 3 次）。 */
+    public static final int DAILY_LIKE_EXP = 5;
+
+    /** 每日收藏奖励经验（每天前 3 次）。 */
+    public static final int DAILY_FAVORITE_EXP = 5;
+
+    /** 每日分享奖励经验（每天前 3 次）。 */
+    public static final int DAILY_SHARE_EXP = 5;
 
     /** 列表接口默认页大小。 */
     public static final int DEFAULT_PAGE_SIZE = 20;

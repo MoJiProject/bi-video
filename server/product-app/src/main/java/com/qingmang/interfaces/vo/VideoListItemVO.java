@@ -20,18 +20,14 @@ public class VideoListItemVO {
     private Long playCount;
     private Long danmakuCount;
     private Long likeCount;
-    private Long coinCount;
     private Long favoriteCount;
     private Long commentCount;
 
     /** 当前登录用户对这条视频的互动状态，未登录全为 false */
     private Boolean liked = false;
-    private Boolean coinGiven = false;
     private Boolean collected = false;
     private Boolean watchLater = false;
     private Long listEntryId;
     private LocalDateTime lastWatchedAt;
     private Integer progressSeconds;
-    /** 当前用户已投的硬币数 */
-    private Integer myCoinCount = 0;
 }

@@ -203,10 +203,11 @@
             @mouseleave="delayUserInfo(0)"
             >{{ comment.userInfo.userName }}</span
           >
-          <img
+          <LevelBadge
             v-if="comment"
             class="comment-user-level"
-            :src="'/img/' + comment.userInfo.grade + '级.png'"
+            :level="comment.userInfo.grade"
+            size="xs"
           />
           <img v-if="comment.comments.userId===props.dynamic.dynamic.followId" class="comment-up-icon" src="/img/author-badge.svg">
         </span>
@@ -252,10 +253,11 @@
                 src="/img/man.png"
                 class="up-user-info-gender"
               />
-              <img
+              <LevelBadge
                 v-if="comment.userInfo.grade"
-                :src="'/img/' + comment.userInfo.grade + '级.png'"
+                :level="comment.userInfo.grade"
                 class="up-user-info-level"
+                size="sm"
               />
             </div>
             <div class="up-user-info-container-content">
@@ -623,10 +625,11 @@
                 @mouseleave="delayUserInfo(0)"
                 >{{ remark.userInfo.userName }}</span
               >
-              <img
+              <LevelBadge
                 v-if="remark"
                 class="comment-user-level"
-                :src="'/img/' + remark.userInfo.grade + '级.png'"
+                :level="remark.userInfo.grade"
+                size="xs"
               />
               <img v-if="remark.comments.userId===props.dynamic.dynamic.followId&&remark.comments.imgAddress.split(',').length>1" class="comment-up-icon" src="/img/author-badge.svg">
             </span>
@@ -672,10 +675,11 @@
                 src="/img/man.png"
                 class="up-user-info-gender"
               />
-              <img
+              <LevelBadge
                 v-if="remark.userInfo.grade"
-                :src="'/img/' + remark.userInfo.grade + '级.png'"
+                :level="remark.userInfo.grade"
                 class="up-user-info-level"
+                size="sm"
               />
             </div>
             <div class="up-user-info-container-content">
@@ -1168,6 +1172,7 @@ import { ElMessage } from "element-plus";
 import apiClient from "../services/apiClient";
 import { useGlobalStore } from "../store/store";
 import userInfo from "../utils/userInfo";
+import LevelBadge from "../components/LevelBadge.vue";
 import {addDialogue} from '../api/privateMessage/index';
 import {putUpStatus,selectOneComment} from "@/api/comment/index"
 export default {
@@ -1175,6 +1180,7 @@ export default {
   components: {
     eit,
     userInfo,
+    LevelBadge,
   },
   props:{
     dynamic:{
@@ -3509,8 +3515,8 @@ export default {
 
       .comment-user-level {
         position: static;
-        width: 20px;
-        height: 10px;
+        flex: none;
+        margin-left: 2px;
       }
 
       .comment-content {
@@ -4258,8 +4264,7 @@ export default {
 }
 
 .up-user-info-level {
-  width: 22px;
-  height: 11px;
+  flex: none;
   margin-top: 3.5px;
 }
 

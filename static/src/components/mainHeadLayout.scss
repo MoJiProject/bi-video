@@ -254,6 +254,34 @@
     .profile-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; color: var(--ink-2); font-size: 12px; }
     .profile-meta b { color: var(--ink); font-weight: 500; }
     .profile-level { padding: 3px 8px; border-radius: 6px; background: var(--brand-light-9); color: var(--brand-hover); font-weight: 600; }
+    // 等级徽章分级配色：0-10 级各不相同
+    .profile-level-0 { background: #eef1f4; color: #6b7683; }
+    .profile-level-1 { background: #e8f4ff; color: #2f7fd6; }
+    .profile-level-2 { background: #e6f7ef; color: #23a06c; }
+    .profile-level-3 { background: #eaf7e6; color: #6faf2f; }
+    .profile-level-4 { background: #fdf3e0; color: #d98a1f; }
+    .profile-level-5 { background: #fdeee0; color: #e2703d; }
+    .profile-level-6 { background: #fde9ec; color: #dd4a68; }
+    .profile-level-7 { background: #f3e9fd; color: #8a4fd3; }
+    .profile-level-8 { background: #e9e9fd; color: #5557d9; }
+    .profile-level-9 { background: #33343d; color: #d8b15a; }
+    .profile-level-10 { background: linear-gradient(135deg, #2b2c35, #4a3a1d); color: #ffd873; }
+    .profile-exp { display: flex; flex: 1; min-width: 120px; align-items: center; gap: 8px; }
+    .profile-exp-track { flex: 1; height: 6px; overflow: hidden; border-radius: 3px; background: var(--fill-soft); }
+    .profile-exp-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--brand), var(--brand-hover)); transition: width .3s ease; }
+    // 进度条填充分级配色：与徽章同色系渐变
+    .profile-exp-fill-0 { background: linear-gradient(90deg, #b9c2cc, #6b7683); }
+    .profile-exp-fill-1 { background: linear-gradient(90deg, #9cc8f5, #2f7fd6); }
+    .profile-exp-fill-2 { background: linear-gradient(90deg, #93e0bd, #23a06c); }
+    .profile-exp-fill-3 { background: linear-gradient(90deg, #b6dd8f, #6faf2f); }
+    .profile-exp-fill-4 { background: linear-gradient(90deg, #f5cd8a, #d98a1f); }
+    .profile-exp-fill-5 { background: linear-gradient(90deg, #f6b48d, #e2703d); }
+    .profile-exp-fill-6 { background: linear-gradient(90deg, #f5a3b2, #dd4a68); }
+    .profile-exp-fill-7 { background: linear-gradient(90deg, #cbaaf5, #8a4fd3); }
+    .profile-exp-fill-8 { background: linear-gradient(90deg, #adadf3, #5557d9); }
+    .profile-exp-fill-9 { background: linear-gradient(90deg, #7a7c8c, #33343d); }
+    .profile-exp-fill-10 { background: linear-gradient(90deg, #b8892f, #ffd873); }
+    .profile-exp-text { flex: none; color: var(--ink-3); font-size: 11px; font-variant-numeric: tabular-nums; }
     .profile-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 18px 0; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
     .profile-stats a { display: flex; min-width: 0; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; border-radius: 8px; }
     .profile-stats strong { max-width: 100%; overflow: hidden; font-size: 17px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }

@@ -100,10 +100,6 @@ public class VideoQueryService {
             int type = r.getReactionType() == null ? 0 : r.getReactionType();
             row.setLiked(type == ReactionType.LIKE.getCode());
             row.setCollected(type == ReactionType.FAVORITE.getCode());
-            if (type == ReactionType.COIN.getCode()) {
-                row.setCoinGiven(true);
-                row.setMyCoinCount(r.getCoinCount() == null ? 0 : r.getCoinCount());
-            }
         }
     }
 
@@ -118,10 +114,6 @@ public class VideoQueryService {
                 int type = r.getReactionType() == null ? 0 : r.getReactionType();
                 vo.setLiked(type == ReactionType.LIKE.getCode());
                 vo.setCollected(type == ReactionType.FAVORITE.getCode());
-                if (type == ReactionType.COIN.getCode()) {
-                    vo.setCoinGiven(true);
-                    vo.setMyCoinCount(r.getCoinCount() == null ? 0 : r.getCoinCount());
-                }
             }
         }
         return vo;

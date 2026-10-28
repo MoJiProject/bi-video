@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-/** 用户维度计数（派生数据，由业务层维护） */
+/** 用户维度计数（派生数据，由业务层维护）
+ */
 @Data
 @Accessors(chain = true)
 @TableName("user_stats")
@@ -40,9 +41,6 @@ public class UserStats implements Serializable {
 
     @TableField("play_total")
     private Long playTotal;
-
-    @TableField("coin_received")
-    private Integer coinReceived;
 
     @TableField("updated_at")
     private LocalDateTime updatedAt;
