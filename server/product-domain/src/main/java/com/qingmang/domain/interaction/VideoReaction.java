@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-/** 视频互动（点赞/投币），合表后一次查询拿到全部状态 */
+/** 视频互动（点赞/收藏标记），合表后一次查询拿到全部状态
+ */
 @Data
 @Accessors(chain = true)
 @TableName("video_reaction")
@@ -28,9 +29,6 @@ public class VideoReaction implements Serializable {
 
     @TableField("reaction_type")
     private Integer reactionType;
-
-    @TableField("coin_count")
-    private Integer coinCount;
 
     @TableField("created_at")
     private LocalDateTime createdAt;

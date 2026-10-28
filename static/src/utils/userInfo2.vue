@@ -29,10 +29,11 @@
         src="/img/man.png"
         class="up-user-info-gender"
         />
-        <img
+        <LevelBadge
         v-if="userInfo.grade"
-        :src="'/img/' + userInfo.grade + '级.png'"
+        :level="userInfo.grade"
         class="up-user-info-level"
+        size="sm"
         />
     </div>
     <div class="up-user-info-container-content">
@@ -98,6 +99,7 @@
 import { ElMessage } from "element-plus";
 import { useGlobalStore } from "../store/store";
 import { ref } from "vue";
+import LevelBadge from "../components/LevelBadge.vue";
 import {addDialogue} from '../api/privateMessage/index';
 import {addFollow,deleteFollow} from "@/api/user";
 
@@ -261,8 +263,7 @@ function openHome(menu,id){
 }
 
 .up-user-info-level {
-  width: 22px;
-  height: 11px;
+  flex: none;
   margin-top: 3.5px;
 }
 

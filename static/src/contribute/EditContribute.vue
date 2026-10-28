@@ -566,7 +566,6 @@ export default {
       shareNumber: 0,
       createTime: "",
       coverAddress: "",
-      coinThrowNumber: 0,
       allowTwo: false,
       type: 0,
       subZoneKey: "",

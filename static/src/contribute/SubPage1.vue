@@ -13,8 +13,7 @@
           { key: 'scrollingNumber', label: '弹幕' },
           { key: 'likeNumber', label: '点赞' },
           { key: 'shareNumber', label: '分享' },
-          { key: 'collectNumber', label: '收藏' },
-          { key: 'coinThrowNumber', label: '青芒币' }
+          { key: 'collectNumber', label: '收藏' }
         ]"
         :key="metric.key"
         class="metric-card"
@@ -29,7 +28,6 @@
               <path v-else-if="metric.key === 'likeNumber'" d="M8 10H4v10h4m0-10 4-7h1a2 2 0 0 1 2 2l-1 5h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H8V10Z"/>
               <template v-else-if="metric.key === 'shareNumber'"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="5" r="3"/><circle cx="18" cy="19" r="3"/><path d="m9 10 6-3M9 14l6 3"/></template>
               <path v-else-if="metric.key === 'collectNumber'" d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"/>
-              <template v-else><circle cx="12" cy="12" r="9"/><path d="m8 7 4 5 4-5M12 12v6M8 12h8M8 15h8"/></template>
             </svg>
           </span>
           {{ metric.label }}
@@ -56,7 +54,6 @@ export default {
       commentNumber: 0,
       collectNumber: 0,
       shareNumber: 0,
-      coinThrowNumber: 0,
       playNumber: 0,
       newFansNumber: 0,
       scrollingNumber: 0,

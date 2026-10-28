@@ -62,9 +62,14 @@
               {{ profileUser.introduce || '还没有填写个人简介' }}
             </p>
             <div class="profile-meta">
-              <span v-if="profileUser.grade != null && profileUser.grade !== ''" class="profile-level">Lv.{{ profileUser.grade }}</span>
-              <span>青芒币 <b>{{ profileUser.coinNumber ?? '--' }}</b></span>
-              <span v-if="profileUser.exp != null">当前经验 <b>{{ profileUser.exp }}</b></span>
+              <span v-if="profileUser.grade != null && profileUser.grade !== ''" class="profile-level" :class="'profile-level-' + profileUser.grade">Lv.{{ profileUser.grade }}</span>
+              <div v-if="expProgress" class="profile-exp" :title="expProgress.title">
+                <div class="profile-exp-track">
+                  <div class="profile-exp-fill" :class="'profile-exp-fill-' + profileUser.grade" :style="{ width: expProgress.percent + '%' }"></div>
+                </div>
+                <span class="profile-exp-text">{{ expProgress.label }}</span>
+              </div>
+              <span v-else-if="profileUser.exp != null">当前经验 <b>{{ profileUser.exp }}</b></span>
             </div>
             <nav class="profile-stats" aria-label="个人数据">
               <a :href="'/home?homeMenu=8&userId='+store.userId" target="_blank" rel="noopener noreferrer" @click="closeHeaderMenus">
@@ -1578,6 +1583,21 @@ export default {
     const profileButton = ref(null);
     const profileOpen = ref(false);
     const profileUser = computed(() => store.userInformation);
+
+    // 等级经验进度条：等级 N 升 N+1 需要 (N+1)*100 经验，满级（Lv.10）不再累计。
+    const MAX_LEVEL = 10;
+    const LEVEL_EXP_BASE = 100;
+    const expProgress = computed(() => {
+      const level = Number(profileUser.value?.grade);
+      const exp = Number(profileUser.value?.exp);
+      if (!Number.isFinite(exp)) return null;
+      if (!Number.isFinite(level) || level >= MAX_LEVEL) {
+        return { percent: 100, label: '已满级', title: '等级已达上限' };
+      }
+      const threshold = (level + 1) * LEVEL_EXP_BASE;
+      const percent = Math.min(100, Math.max(0, Math.round((exp / threshold) * 100)));
+      return { percent, label: `${exp}/${threshold}`, title: `距下一级还需 ${Math.max(0, threshold - exp)} 经验` };
+    });
     let profileCloseTimer;
 
     function closeProfile() {
@@ -1689,7 +1709,6 @@ export default {
 
     const user = reactive({
       avatarAddress: "",
-      coinNumber: 0,
       collectNumber: 0,
       createTime: "",
       dynamicNumber: 0,
@@ -2502,6 +2521,7 @@ flag.value = 1;
       profileButton,
       profileOpen,
       profileUser,
+      expProgress,
       openProfile,
       enterProfile,
       focusProfile,

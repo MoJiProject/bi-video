@@ -29,8 +29,8 @@ export const profiles = ["预览用户", "林间记录", "镜头日记", "慢慢
         ? "这是本地预览资料，不对应真实账号。"
         : "摄影、旅行与生活记录",
     level: 5 - index,
+    exp: index === 0 ? 340 : index === 1 ? 510 : 180,
     role: 1,
-    coinBalance: 128,
     favoriteCount: 24,
     videoCount: 6,
     postCount: 3,
@@ -45,7 +45,6 @@ export const profiles = ["预览用户", "林间记录", "镜头日记", "慢慢
     showFavoriteList: true,
     showFollowList: true,
     showFansList: true,
-    showCoinList: true,
     showLikeList: true,
     showBirthday: true,
     recordHistory: true,
@@ -91,7 +90,6 @@ export const videos = [
     favoriteCount: 68 + index * 13,
     commentCount: 2,
     shareCount: 16 + index * 4,
-    coinCount: 24,
     originalType: 0,
     allowRemix: false,
     tags: "生活,摄影,记录",
@@ -140,7 +138,6 @@ export function legacyVideo(video) {
     scrollingNumber: video.danmakuCount,
     commentNumber: video.commentCount,
     collectNumber: video.favoriteCount,
-    coinThrowNumber: video.coinCount,
     shareNumber: video.shareCount,
     createTime: video.publishedAt.replace("T", " "),
     examineFiledMessage:

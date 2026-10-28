@@ -36,7 +36,7 @@ export const useGlobalStore = defineStore('global', {
       eitList: [],//eit列表
       reVideoPlayerFlag: false,//回放视频播放器标识
       addFollowFlag: 0,//关注 0没有 1关注 2取消关注
-      LTCAFlag: 0,//点赞投币收藏分享 0没有 1点赞 2投币 3收藏
+      LTCAFlag: 0,//点赞收藏分享 0没有 1点赞 2收藏
       autoVideoList: [],//自动播放列表 或 收藏夹视频选择列表
       AutoPlayVideoList: false,//是否自动播放列表
       commentNumber: 0,//评论数

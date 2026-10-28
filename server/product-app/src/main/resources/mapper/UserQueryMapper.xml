@@ -5,11 +5,10 @@
 
     <select id="selectProfile" resultType="com.qingmang.interfaces.vo.UserProfileVO">
         SELECT u.id AS user_id, u.username, u.nickname, u.avatar_url, u.background_url, u.signature,
-               u.gender, u.birthday, u.level, u.exp, u.coin_balance, u.role, u.created_at,
+               u.gender, u.birthday, u.level, u.exp, u.role, u.created_at,
                COALESCE(p.show_favorite_list, FALSE) AS show_favorite_list,
                COALESCE(p.show_follow_list, FALSE) AS show_follow_list,
                COALESCE(p.show_fans_list, FALSE) AS show_fans_list,
-               COALESCE(p.show_coin_list, FALSE) AS show_coin_list,
                COALESCE(p.show_like_list, FALSE) AS show_like_list,
                COALESCE(p.show_birthday, FALSE) AS show_birthday,
                COALESCE(p.record_history, TRUE) AS record_history,
@@ -20,8 +19,7 @@
                COALESCE(s.follower_count, 0)  AS follower_count,
                COALESCE(s.following_count, 0) AS following_count,
                COALESCE(s.like_received, 0)   AS like_received,
-               COALESCE(s.play_total, 0)      AS play_total,
-               COALESCE(s.coin_received, 0)   AS coin_received
+               COALESCE(s.play_total, 0)      AS play_total
         FROM `user` u
         LEFT JOIN user_stats s ON s.user_id = u.id
         LEFT JOIN user_privacy p ON p.user_id = u.id

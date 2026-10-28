@@ -32,7 +32,7 @@
             <button class="hero-card" @click="goWatchLater">
               <span class="hero-card-kicker">稍后观看</span>
               <strong>收藏待看的灵感</strong>
-              <em>登录后多端同步</em>
+              <em>多端同步</em>
             </button>
           </div>
         </div>

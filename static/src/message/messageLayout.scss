@@ -59,7 +59,7 @@
       align-items: center;
       gap: 10px;
       padding: 8px 12px 22px;
-      img { width: 18px; height: 18px; margin: 0; transform: none; object-fit: contain; }
+      img { width: 22px; height: 22px; margin: 0; transform: none; object-fit: contain; }
       span { position: static; font-size: 17px; font-weight: 600; color: var(--ink); }
     }
     ul {
@@ -232,6 +232,14 @@
                 img { position: static; width: 14px; height: 14px; margin: 0; object-fit: contain; }
                 &:hover { color: var(--brand-hover); }
               }
+              // 各图标素材的透明边距差异很大（可见内容仅占素材 58%~81%），统一盒子会导致可见大小参差。
+              // 下面按各素材实际内容框校准盒子，使可见内容高度一致（≈11.5px，以点赞 43×45 为基准）；
+              // 负 margin 抵消素材自带的多余透明边，保证图标与文字、图标与相邻按钮的视觉间距统一。
+              :is(.love-comment, .love-comment2) img { width: 14px; height: 13.5px; }               /* 内容 43×45，基准 */
+              :is(.reply-comment, .at-comment) img { width: 27px; height: 23px; margin: 0 -4px; }    /* 内容 34×25，横向箭头 */
+              .delete-comment-notification img { width: 15.5px; height: 16.5px; margin: 0 -1.5px; }  /* 内容 33×39 */
+              .comment-notification img { width: 13.5px; height: 17px; }                             /* 内容 36×41 */
+              .comment-disable-notification img { width: 16px; height: 19.5px; margin: 0 -1px; }     /* 内容 32×35 */
               .love-comment2 { color: var(--brand-hover); }
             }
             :is(.reply-comment-container, .at-comment-container) {
@@ -357,7 +365,7 @@
           text-align: left;
           .conversation-back { display: none; }
           .dialogue-title { min-width: 0; padding-right: 28px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-          .message-setting-dialog-img-container { top: 9px; right: 12px; display: grid; place-items: center; width: 32px; height: 32px; padding: 6px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+          .message-setting-dialog-img-container { top: 9px; right: 12px; display: grid; place-items: center; width: 32px; height: 32px; padding: 6px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink-2); &:hover, &[aria-expanded="true"] { border-color: var(--brand-light-5); color: var(--brand-hover); } }
           .message-setting-dialog { top: calc(100% - 4px); right: 12px; width: 172px; max-width: calc(100% - 24px); height: auto; padding: 6px; border-radius: 12px; box-shadow: 0 8px 30px #00000014; z-index: var(--z-panel); &::before { display: none; } button { display: block; width: 100%; min-height: 36px; padding: 8px 10px; border: 0; border-radius: 7px; background: #fff; color: var(--ink-2); font: inherit; font-size: 12px; text-align: left; cursor: pointer; } button:hover:not(:disabled) { background: var(--brand-light-9); color: var(--brand-hover); } button:disabled { color: var(--ink-3); cursor: not-allowed; opacity: .6; } }
         }
         .message-content-container {
@@ -380,7 +388,6 @@
               .message-content-img { max-width: 100%; height: auto; max-height: 320px; border-radius: 12px; }
               .share-video-container { max-width: 100%; border-color: var(--line); border-radius: 12px; }
             }
-            .message-more-actions { flex-shrink: 0; width: 26px; height: 28px; padding: 0; border: 1px solid var(--line); border-radius: 7px; background: #fff; color: var(--ink-3); font-size: 16px; cursor: pointer; }
             &.message-content-container-item2 { flex-direction: row-reverse; .message-user-avatar, .message { float: none; } .message .message-content { border-color: var(--brand-light-7); background: var(--brand-light-9); color: var(--ink); } }
           }
           .context-menu { width: 160px; max-width: calc(100vw - 16px); padding: 6px; border: 1px solid var(--line); border-radius: 10px; background: #fff; box-shadow: 0 8px 30px #00000014; transition: none; z-index: var(--z-panel); button { display: block; width: 100%; min-height: 34px; padding: 7px 10px; border: 0; border-radius: 6px; background: #fff; color: var(--ink-2); font: inherit; font-size: 12px; text-align: left; cursor: pointer; } button:hover { background: var(--brand-light-9); color: var(--brand-hover); } }
@@ -398,7 +405,10 @@
             flex-shrink: 0;
             gap: 8px;
             .message-feature-button { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 28px; padding: 5px; border: 0; border-radius: 6px; background: var(--fill-soft); cursor: pointer; img { width: 20px; height: 20px; margin: 0; } }
-            .message-emoji-list { position: absolute; bottom: calc(100% + 8px); top: auto; left: 0; width: min(380px, 100%); max-height: min(280px, 40dvh); height: 280px; padding: 10px; border-color: var(--line); border-radius: 12px; .comment-emoji-content { width: 34px; height: 34px; margin-right: 6px; margin-bottom: 8px; padding: 2px; img { width: 28px; height: 28px; margin: 0; } } .close-emoji:hover { color: var(--brand); } }
+            .message-feature-button.message-feature-at { padding: 6px; img { width: 16px; height: 16px; } }
+            .eit { position: absolute !important; top: auto; bottom: calc(100% + 8px); left: 40px; margin: 0; }
+            .eit .eit-title, .eit .group-name { padding-left: 12px; }
+            .message-emoji-list { position: absolute; bottom: calc(100% + 8px); top: auto; left: 0; width: min(363px, 100%); max-height: min(271px, 40dvh); height: 271px; padding: 0 15px 45px 11px; border-color: var(--line); border-radius: 8px; box-shadow: none; .emoji-title { left: 15px; top: 13px; font-size: 12px; color: var(--ink-2); } .comment-emoji-content { width: 32px; height: 32px; margin: 0; padding: 0; top: 37px; justify-content: center; img { width: 24px; height: 24px; margin: 0; } } .close-emoji:hover { color: var(--brand); } }
           }
           .message-input-focus { height: 52px; .message-input-container { height: 100%; max-height: 100%; min-height: 28px; font-size: 13px; line-height: 1.7; letter-spacing: 0; &:empty::before { content: attr(data-placeholder); color: var(--ink-3); pointer-events: none; } } }
           .message-footer-container { position: static; display: flex; justify-content: flex-end; align-items: center; gap: 12px; span { position: static; color: var(--ink-3); font-size: 11px; } button { min-height: 34px; height: auto; border: 0; border-radius: 8px; background: var(--brand); } button:hover { background: var(--brand-hover); border: 0; } .sendMessageBtnClass, .sendMessageBtnClass:hover { background: var(--fill); color: var(--ink-3); border: 0; } }
@@ -429,8 +439,8 @@
       overflow-x: auto;
       border-radius: 12px;
       .title { display: none; }
-      ul { flex-direction: row; width: auto; min-width: max-content; gap: 4px; li { width: auto; } .active { min-height: 38px; padding: 8px 12px; white-space: nowrap; } }
-      .msg-setting { flex-shrink: 0; width: auto; margin: 0 0 0 auto; padding: 8px 12px; border: 0; white-space: nowrap; img { display: none; } }
+      ul { flex-direction: row; flex: 1 1 auto; width: auto; min-width: 0; gap: 4px; li { flex: 1 1 0; min-width: max-content; width: auto; } .active { justify-content: center; gap: 4px; min-height: 38px; padding: 8px 10px; white-space: nowrap; } }
+      .msg-setting { flex: 1 1 0; min-width: max-content; justify-content: center; width: auto; margin: 0; padding: 8px 10px; border: 0; white-space: nowrap; img { display: none; } }
     }
   }
 }
@@ -438,6 +448,14 @@
 @media (max-width: 640px) {
   .message-page {
     .message-workspace { gap: 12px; padding: 12px var(--page-pad); }
+    // 极窄屏：未读角标改为右上角小圆点，不再挤占按钮行内宽度，保证 5 个入口一行放下
+    :deep(.aside-container) {
+      ul .active { padding: 7px 4px; font-size: 12px; }
+      .msg-setting { padding: 7px 4px; }
+      .msg-setting .active { font-size: 12px; }
+      .active { position: relative; }
+      .message-num { position: absolute; top: 3px; right: 5px; width: 6px; min-width: 6px; height: 6px; padding: 0; font-size: 0; line-height: 0; border-radius: 50%; background: #e95d68; }
+    }
     :deep(:is(.whisper-container, .reply-container, .at-container, .love-container, .config-container)) {
       border-radius: 12px;
       .head2 { min-height: 52px; padding: 14px 16px; font-size: 17px; }

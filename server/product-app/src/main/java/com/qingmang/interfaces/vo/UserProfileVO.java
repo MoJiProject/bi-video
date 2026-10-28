@@ -20,14 +20,12 @@ public class UserProfileVO {
     private LocalDate birthday;
     private Integer level;
     private Integer exp;
-    private Integer coinBalance;
     private Integer role;
     private Boolean followed;
     private Boolean isSelf;
     private Boolean showFavoriteList;
     private Boolean showFollowList;
     private Boolean showFansList;
-    private Boolean showCoinList;
     private Boolean showLikeList;
     private Boolean showBirthday;
     private Boolean recordHistory;
@@ -41,7 +39,6 @@ public class UserProfileVO {
     private Long followingCount;
     private Long likeReceived;
     private Long playTotal;
-    private Long coinReceived;
     private Long messageNumber;
     private Long replyCommentNumber;
     private Long atNumber;

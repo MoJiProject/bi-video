@@ -62,10 +62,10 @@
                 </a>
                 <div class="at-right-content-bottom">
                     <span class="at-time">{{ at.comments.commentTime }}</span>
-                    <button type="button" class="at-comment" @click="openReplyComment(at)" @mouseover="replyCommentHoverFlag=true" @mouseleave="replyCommentHoverFlag=false"><img :src="replyCommentHoverFlag?'/img/回复蓝.png':'/img/回复.png'"> <span>回复</span></button>
-                    <button type="button" v-show="at.commentControls?.controls!==1" class="love-comment" v-debounce @click="commentControlesF(at)" @mouseover="loveCommentHoverFlag=true" @mouseleave="loveCommentHoverFlag=false"><img :src="loveCommentHoverFlag?'/img/评论点赞hover.png':'/img/评论点赞灰.png'"> <span>点赞</span></button>
+                    <button type="button" class="at-comment" @click="openReplyComment(at)" @mouseover="replyCommentHoverFlag=at.at.id" @mouseleave="replyCommentHoverFlag=null"><img :src="replyCommentHoverFlag===at.at.id?'/img/回复蓝.png':'/img/回复.png'"> <span>回复</span></button>
+                    <button type="button" v-show="at.commentControls?.controls!==1" class="love-comment" v-debounce @click="commentControlesF(at)" @mouseover="loveCommentHoverFlag=at.at.id" @mouseleave="loveCommentHoverFlag=null"><img :src="loveCommentHoverFlag===at.at.id?'/img/评论点赞hover.png':'/img/评论点赞灰.png'"> <span>点赞</span></button>
                     <button type="button" v-show="at.commentControls?.controls===1" class="love-comment2" v-debounce @click="commentControlesF(at)"><img src="/img/评论点赞蓝.png"> <span>已赞</span></button>
-                    <button type="button" class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id" @mouseover="deleteCommentNotificaitonHoverFlag=true" @mouseleave="deleteCommentNotificaitonHoverFlag=false"><img :src="deleteCommentNotificaitonHoverFlag?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除</span></button>
+                    <button type="button" class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id" @mouseover="deleteCommentNotificaitonHoverFlag=at.at.id" @mouseleave="deleteCommentNotificaitonHoverFlag=null"><img :src="deleteCommentNotificaitonHoverFlag===at.at.id?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除</span></button>
                 </div>
                 <div v-show="at?.replyFlag" class="at-comment-container">
                   <img src="/img/avatar-default.png">
@@ -157,7 +157,7 @@
                 </a>
                 <div class="at-right-content-bottom">
                     <span class="at-time">{{ at.dynamic?.publishTime }}</span>
-                    <button type="button" class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id" @mouseover="deleteCommentNotificaitonHoverFlag=true" @mouseleave="deleteCommentNotificaitonHoverFlag=false"><img :src="deleteCommentNotificaitonHoverFlag?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除</span></button>
+                    <button type="button" class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id" @mouseover="deleteCommentNotificaitonHoverFlag=at.at.id" @mouseleave="deleteCommentNotificaitonHoverFlag=null"><img :src="deleteCommentNotificaitonHoverFlag===at.at.id?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除</span></button>
                 </div>
                 <el-tooltip
                     v-if="at.dynamic?.imgAddress"
@@ -223,9 +223,9 @@
   const store = useGlobalStore();
   const atList = reactive([]);
   const pageNum = ref(1);
-  const replyCommentHoverFlag = ref(false);
-  const loveCommentHoverFlag = ref(false);
-  const deleteCommentNotificaitonHoverFlag = ref(false);
+  const replyCommentHoverFlag = ref(null);
+  const loveCommentHoverFlag = ref(null);
+  const deleteCommentNotificaitonHoverFlag = ref(null);
   const selectAtCommentFFlag = ref(false);
   const deleteCommentDialogFlag=ref(false);
   const deleteCommentNotificaitonId=ref(null);
@@ -596,9 +596,9 @@ function addImgFlagF(comment){
               font-size: 13.5px;
                img{
                  position: relative;
-                 top: 5.5px;
-                 width: 14px;
-                 height: 13px;
+                 top: 5px;
+                 width: 16px;
+                 height: 14px;
                  margin-right: 4.5px;
                }
             }

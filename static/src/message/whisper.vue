@@ -49,7 +49,7 @@
                     :show-arrow="false"
                     :hide-after="0"
                     >
-<template #content>
+                     <template #content>
                          <div v-html="linkifyHtml(sDialogue.dialogue.newContent)"></div>
                      </template>
                      <span v-html="linkifyHtml(sDialogue.dialogue.newContent)"></span>
@@ -79,10 +79,8 @@
          <div class="message-username-title">
             <button type="button" class="conversation-back" @click="mobileConversationOpen=false, messageDialogFlag=false, emojiFlag=false">‹ 会话列表</button>
             <span class="dialogue-title">{{ dialogueUserInfo?.userName }}</span>
-            <button type="button" class="message-setting-dialog-img-container" aria-label="会话设置" :aria-expanded="messageDialogFlag" @mouseover="messageSettingHoverFlag = true"
-                @mouseleave="messageSettingHoverFlag = false">
-                <img class="message-setting-dialog-img" 
-                :src="messageSettingHoverFlag? '/img/弹幕列表蓝.png' : '/img/弹幕列表.png'">
+            <button type="button" class="message-setting-dialog-img-container" aria-label="会话设置" :aria-expanded="messageDialogFlag">
+                <svg class="message-setting-dialog-img" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="19" r="2"></circle></svg>
             </button>
             <div v-show="messageDialogFlag" class="message-setting-dialog" :class="{
                 'message-setting-dialog-class': messageDialogFlag,
@@ -98,7 +96,7 @@
             </div>
          </div>
          <div ref="messageContent" class="message-content-container" @scroll="messageListScroll">
-            <div v-show="!messageDialogFlag&&!messageLoading&&!messageLoadingFlag" class="no-message">没有更多消息了</div>
+            <div v-show="!messageLoading&&!messageLoadingFlag" class="no-message">没有更多消息了</div>
              <div v-show="messageLoading" class="loading-icon-container">
                 <div class="loading-icon">
                 <div></div>
@@ -183,7 +181,6 @@
                         </div>
                     </div> 
                 </div>
-                <button type="button" class="message-more-actions" @click.stop="handleContextMenu($event,message.messageType===2),messageObj=message" aria-label="消息操作">···</button>
              </div>
              <div v-if="message.senderId===store.userId&&index===privateMessageList.length-1&&message.status===0" class="read-message">未读</div>
              <div v-if="message.senderId===store.userId&&index===privateMessageList.length-1&&message.status===1" class="read-message2">已读</div>
@@ -235,6 +232,23 @@
                 >
                 <button type="button" class="message-feature-emoji message-feature-button" aria-label="表情" :aria-expanded="emojiFlag" @mouseover="emojiHoverFlag = true" @mouseleave="emojiHoverFlag = false"><img class="message-feature-emoji" :src="emojiHoverFlag ? '/img/表情按钮蓝.png' : '/img/表情按钮.png'"></button>
                 </el-tooltip>
+                <el-tooltip
+                  popper-class="custom-tooltip"
+                  effect="light"
+                  :show-after="300"
+                  content="@"
+                  placement="right"
+                  :offset="12"
+                  :show-arrow="false"
+                  :hide-after="0"
+                >
+                <button type="button" class="message-feature-at message-feature-button" aria-label="提醒某人（@）" @click="addAt"><img class="message-feature-at" :src="'/img/@.png'"></button>
+                </el-tooltip>
+                <eit
+                    v-show="eitFlag"
+                    :eitList="store.eitList"
+                    :eitKeyWord="eitKeyWord"
+                ></eit>
                 <div v-show="emojiFlag" class="message-emoji-list">
                    <span class="emoji-title">表情</span>
                    <svg @click="emojiFlag=false" class="close-emoji" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" d="M764.288 214.592 512 466.88 259.712 214.592a31.936 31.936 0 0 0-45.12 45.12L466.752 512 214.528 764.224a31.936 31.936 0 1 0 45.12 45.184L512 557.184l252.288 252.288a31.936 31.936 0 0 0 45.12-45.12L557.12 512.064l252.288-252.352a31.936 31.936 0 1 0-45.12-45.184z"></path></svg>
@@ -250,7 +264,7 @@
                 <input type="file" class="message-file-input" style="display: none;" accept="image/*" @change="handleFileChange">
             </div>
             <div class="message-input-focus" @click="messageInput.focus()">
-                <div class="message-input-container" ref="messageInput" @blur="getAfterBlurIndex" @input="updateFontNumber" contenteditable="true" role="textbox" aria-label="输入消息" aria-multiline="true" data-placeholder="输入消息"></div>
+                <div class="message-input-container" ref="messageInput" @blur="getAfterBlurIndex" @input="onInputChange" @keydown="handleInputKeydown" contenteditable="true" role="textbox" aria-label="输入消息" aria-multiline="true" data-placeholder="输入消息"></div>
             </div>
             <div class="message-footer-container">
                 <span>{{messageNumber}}/500</span>
@@ -292,6 +306,8 @@
 <script setup>
 import { nextTick, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useGlobalStore } from "../store/store";
+import eit from "../components/eit";
+import { fetchMentionUsers } from "../api/product";
 import { ElMessage } from "element-plus";
 import {
   selectDialogue,
@@ -323,7 +339,6 @@ function throttle(fn, limit = 150) {
 
 
 const store = useGlobalStore();
-const messageSettingHoverFlag = ref(false);
 const messageDialogFlag = ref(false);
 const imgFeatureHoverFlag = ref(false);
 const emojiHoverFlag = ref(false);
@@ -355,6 +370,20 @@ const loading = ref(false);
 let range = null;
 let initialDialogueLoad = Promise.resolve();
 let dialogueFetching = false;
+const eitFlag = ref(false);
+const eitKeyWord = ref("");
+let eitListLoaded = false;
+
+// 懒加载 @ 用户列表（videoPage 也会拉，这里消息页独立拉一次）
+async function loadEitList() {
+  if (eitListLoaded || !store.userId) return;
+  eitListLoaded = true;
+  try {
+    store.setEitList(await fetchMentionUsers());
+  } catch (error) {
+    eitListLoaded = false; // 失败允许重试
+  }
+}
 
 // 把消息里的 http/https 网址识别成可点击链接（新标签页打开）
 const URL_PATTERN = /https?:\/\/[^\s<>"'\u3000-\u303f\u4e00-\u9fa5\uff00-\uffef]+/gi;
@@ -381,6 +410,7 @@ onMounted(() => {
   window.addEventListener("click", outSideClick);
   initialDialogueLoad = selectDialogueF();
   refreshUnreadNumber();
+  loadEitList();
 });
 
 onUnmounted(() => {
@@ -393,18 +423,30 @@ onUnmounted(() => {
 
 function outSideClick(e) {
   handleContextMenuFlag.value = false;
-  if (!e.target.className || typeof e.target.className.indexOf !== "function") return;
+  // 会话设置按钮内是 svg 图标，className 不是字符串，统一用 closest 命中判断
+  const settingBtn = e.target instanceof Element && e.target.closest(".message-setting-dialog-img-container");
   if (!messageDialogFlag.value) {
-    if (e.target.className.indexOf("message-setting-dialog-img-container") !== -1 || e.target.className.indexOf("message-setting-dialog-img") !== -1)
-      messageDialogFlag.value = true;
+    if (settingBtn) messageDialogFlag.value = true;
   } else {
     messageDialogFlag.value = false;
   }
+  // @ 用户选择列表开合（eit 内部是普通元素，closest 可靠命中）
+  const eitPanel = e.target instanceof Element && e.target.closest(".eit");
+  const atBtn = e.target instanceof Element && e.target.closest(".message-feature-at");
+  if (eitFlag.value) {
+    if (!eitPanel && !atBtn) eitFlag.value = false; // 点列表外（除按钮）收起
+  }
+  if (!e.target.className || typeof e.target.className.indexOf !== "function") return;
   if (!emojiFlag.value) {
     if (e.target.className.indexOf("message-feature-emoji") !== -1) emojiFlag.value = true;
   } else {
-    if (e.target.className.indexOf("message-emoji-list") === -1 && e.target.className.indexOf("emoji-title") === -1 && e.target.className.indexOf("comment-emoji-content") === -1 && e.target.className.indexOf("comment-emoji-img") === -1)
+    if (e.target.className.indexOf("message-emoji-list") === -1 && e.target.className.indexOf("emoji-title") === -1 && e.target.className.indexOf("comment-emoji-content") === -1 && e.target.className.indexOf("comment-emoji-img") === -1) {
       emojiFlag.value = false;
+    }
+  }
+  // 点击 @ 按钮时收起表情面板，避免两个浮层叠在一起
+  if (emojiFlag.value && e.target.className.indexOf("message-feature-at") !== -1) {
+    emojiFlag.value = false;
   }
   if (e.target.classList && e.target.classList.contains("message-emoji-img")) {
     const selection = window.getSelection();
@@ -778,7 +820,11 @@ function sendMessageF() {
 function getAfterBlurIndex() {
   const selection = window.getSelection();
   if (selection.rangeCount > 0) {
-    range = selection.getRangeAt(0);
+    const currentRange = selection.getRangeAt(0);
+    // 只有光标确实在输入框内才记录，避免点击 @ 列表等浮层时把 range 带走
+    if (messageInput.value?.contains(currentRange.commonAncestorContainer)) {
+      range = currentRange;
+    }
   }
 }
 
@@ -804,6 +850,241 @@ function addEmoji(index) {
   range.setEndAfter(button);
   selection.removeAllRanges();
   selection.addRange(range);
+  messageNumber.value = messageInput.value.innerText.trim().length + (messageInput.value.getElementsByTagName("img")?.length || 0) * 5;
+}
+
+// 在光标处插入 @ 并弹出用户选择列表（光标始终锚定在文本节点内，便于后续定位 @ 关键字）
+function addAt() {
+  const selection = window.getSelection();
+  const inputDom = messageInput.value;
+  if (!inputDom) return;
+  let anchorNode = null;
+  let anchorOffset = 0;
+  if (!range || !inputDom.contains(range.startContainer)) {
+    // 光标不在输入框内时，追加到末尾（与末尾文本节点合并）
+    const last = inputDom.lastChild;
+    if (last && last.nodeType === Node.TEXT_NODE) {
+      last.appendData("@");
+      anchorNode = last;
+      anchorOffset = last.length;
+    } else {
+      const atSymbol = document.createTextNode("@");
+      inputDom.appendChild(atSymbol);
+      anchorNode = atSymbol;
+      anchorOffset = 1;
+    }
+  } else if (range.startContainer.nodeType === Node.TEXT_NODE) {
+    range.startContainer.insertData(range.startOffset, "@");
+    anchorNode = range.startContainer;
+    anchorOffset = range.startOffset + 1;
+  } else {
+    // 光标锚在元素上：优先并入前一个文本节点，否则插入独立文本节点
+    const parent = range.startContainer;
+    const ref = parent.childNodes[range.startOffset] || null;
+    const prev = ref ? ref.previousSibling : parent.lastChild;
+    if (prev && prev.nodeType === Node.TEXT_NODE) {
+      prev.appendData("@");
+      anchorNode = prev;
+      anchorOffset = prev.length;
+    } else {
+      const atSymbol = document.createTextNode("@");
+      parent.insertBefore(atSymbol, ref);
+      anchorNode = atSymbol;
+      anchorOffset = 1;
+    }
+  }
+  const r = document.createRange();
+  r.setStart(anchorNode, anchorOffset);
+  r.collapse(true);
+  selection.removeAllRanges();
+  selection.addRange(r);
+  range = r;
+  inputDom.focus();
+  updateFontNumber();
+  eitKeyWord.value = "";
+  eitFlag.value = true;
+}
+
+// 获取光标之前的文本（与 comment.vue 同款遍历）
+function getTextBeforeCursor(range) {
+  let textBeforeCursor = "";
+  let currentNode = range.startContainer;
+  while (currentNode) {
+    if (currentNode.nodeType === Node.TEXT_NODE) {
+      textBeforeCursor = currentNode.textContent.slice(0, range.startOffset) + textBeforeCursor;
+      break;
+    }
+    currentNode = currentNode.previousSibling || currentNode.parentNode;
+  }
+  return textBeforeCursor;
+}
+
+// 输入时检测光标前的 @ 关键字，实时过滤列表；离开 @ 词段则收起
+function handleEitInput() {
+  if (!eitFlag.value) return;
+  const inputDom = messageInput.value;
+  if (!inputDom) return;
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return;
+  const currentRange = selection.getRangeAt(0);
+  if (!inputDom.contains(currentRange.commonAncestorContainer)) {
+    eitFlag.value = false;
+    return;
+  }
+  const textBeforeCursor = getTextBeforeCursor(currentRange);
+  const atIndex = textBeforeCursor.lastIndexOf("@");
+  if (atIndex === -1) {
+    eitFlag.value = false;
+    return;
+  }
+  const text = textBeforeCursor.substring(atIndex);
+  if (text.length > 20 || text.includes(" ")) {
+    eitFlag.value = false;
+    return;
+  }
+  eitKeyWord.value = text.substring(1).trim();
+}
+
+// 输入事件：刷新字数 + @ 关键字检测
+function onInputChange() {
+  updateFontNumber();
+  handleEitInput();
+}
+
+// Backspace 删除 @ 锚点（contenteditable=false 元素浏览器默认删不掉，需手动处理）
+function handleInputKeydown(event) {
+  if (event.key !== "Backspace" && event.key !== "Delete") return;
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return;
+  const currentRange = selection.getRangeAt(0);
+  if (!currentRange.collapsed) return; // 有选区时交给浏览器默认删除
+  const inputDom = messageInput.value;
+  if (!inputDom) return;
+
+  if (event.key === "Backspace") {
+    const start = currentRange.startContainer;
+    // 光标在文本节点内且前面有文字：交给浏览器默认删除
+    if (start.nodeType === Node.TEXT_NODE && currentRange.startOffset > 0) return;
+    // 找光标前第一个节点（文本节点看 previousSibling，元素上看 offset-1 处子节点）
+    let before = start.nodeType === Node.TEXT_NODE
+      ? start.previousSibling
+      : start.childNodes[currentRange.startOffset - 1] || null;
+    // 跳过空文本节点（顺手收集待清理），找到真正的前节点
+    const emptyNodes = [];
+    if (start.nodeType === Node.TEXT_NODE && start.textContent === "") emptyNodes.push(start);
+    while (before && before.nodeType === Node.TEXT_NODE && before.textContent === "") {
+      emptyNodes.push(before);
+      before = before.previousSibling;
+    }
+    if (!before || before.nodeType !== Node.ELEMENT_NODE || !before.classList.contains("at-msg")) {
+      return; // 前面不是锚点，交给浏览器
+    }
+    event.preventDefault();
+    // 锚点前面若还有空文本节点也一并清理，并找到可承载光标的文本节点
+    let prevText = before.previousSibling;
+    while (prevText && prevText.nodeType === Node.TEXT_NODE && prevText.textContent === "") {
+      emptyNodes.push(prevText);
+      prevText = prevText.previousSibling;
+    }
+    emptyNodes.forEach(n => n.remove());
+    before.remove();
+    // 光标宿主优先级：当前仍连接的非空文本节点 > 锚点前文本节点末尾 > 元素上锚点原位置之后
+    if (start.isConnected && start.nodeType === Node.TEXT_NODE && start.textContent !== "") {
+      normalizeCursorToNodeStart(selection, start, 0);
+    } else if (prevText && prevText.nodeType === Node.TEXT_NODE) {
+      normalizeCursorToNodeStart(selection, prevText, prevText.length);
+    } else {
+      const idx = prevText ? Array.prototype.indexOf.call(inputDom.childNodes, prevText) + 1 : 0;
+      normalizeCursorToNodeStart(selection, inputDom, Math.max(0, idx));
+    }
+    updateFontNumber();
+    return;
+  }
+
+  // Delete 键：删光标后的锚点
+  const start = currentRange.startContainer;
+  let after;
+  if (start.nodeType === Node.TEXT_NODE) {
+    if (currentRange.startOffset < start.textContent.length) return; // 后面还有文字
+    after = start.nextSibling;
+  } else {
+    after = start.childNodes[currentRange.startOffset] || null;
+  }
+  const emptyNodes = [];
+  while (after && after.nodeType === Node.TEXT_NODE && after.textContent === "") {
+    emptyNodes.push(after);
+    after = after.nextSibling;
+  }
+  if (!after || after.nodeType !== Node.ELEMENT_NODE || !after.classList.contains("at-msg")) {
+    return; // 后面不是锚点，交给浏览器
+  }
+  event.preventDefault();
+  emptyNodes.forEach(n => n.remove());
+  after.remove();
+  updateFontNumber();
+}
+
+// 删除节点后把光标放回指定文本节点开头，避免光标丢失
+function normalizeCursorToNodeStart(selection, textNode, offset) {
+  const r = document.createRange();
+  r.setStart(textNode, offset);
+  r.collapse(true);
+  selection.removeAllRanges();
+  selection.addRange(r);
+  range = r;
+}
+
+// 选中用户后回填：删掉 @关键字 换成可点击的 @昵称
+watch(() => store.eitUserName, newValue => {
+  if (!newValue || !newValue.trim()) return;
+  insertEitUser();
+});
+
+function insertEitUser() {
+  if (!eitFlag.value && !store.eitUserName) return;
+  const selection = window.getSelection();
+  const currentRange = selection?.rangeCount ? selection.getRangeAt(0) : null;
+  if (currentRange && messageInput.value?.contains(currentRange.startContainer)) {
+    range = currentRange.cloneRange();
+  } else if (!range || !messageInput.value?.contains(range.startContainer)) {
+    return;
+  }
+
+  // 找到最近的 @ 并删除 @+关键字（光标锚在文本节点上时才可定位）
+  if (range.startContainer.nodeType === Node.TEXT_NODE) {
+    const containerText = range.startContainer.textContent;
+    const startOffset = range.startOffset;
+    const atIndex = containerText.lastIndexOf("@", startOffset - 1);
+    if (atIndex !== -1) {
+      const beforeAt = containerText.slice(0, atIndex);
+      const afterAt = containerText.slice(startOffset);
+      range.startContainer.textContent = beforeAt + afterAt;
+      range.setStart(range.startContainer, atIndex);
+      range.setEnd(range.startContainer, atIndex);
+    }
+  }
+
+  const buttonHtml = `<a href="./home?homeMenu=1&userId=${store.eitUserId}" target="_blank" data-eitt-userId="${store.eitUserId}" contentEditable="false" class="at-msg" style="color:#0A8271;margin-right:3px;">@${store.eitUserName}</a>`;
+  const fragment = range.createContextualFragment(buttonHtml);
+  const lastNode = fragment.lastChild;
+  range.insertNode(fragment);
+  // 光标放进锚点后的空文本节点，保证后续输入仍锚定在文本节点内
+  const emptyNode = document.createTextNode("");
+  if (lastNode && lastNode.parentNode) {
+    lastNode.parentNode.insertBefore(emptyNode, lastNode.nextSibling);
+  } else {
+    messageInput.value.appendChild(emptyNode);
+  }
+  range.setStart(emptyNode, 0);
+  range.setEnd(emptyNode, 0);
+  selection.removeAllRanges();
+  selection.addRange(range);
+
+  eitKeyWord.value = "";
+  eitFlag.value = false;
+  store.setEitUserName("");
+  store.setEitUserId(null);
+  messageInput.value?.focus();
   messageNumber.value = messageInput.value.innerText.trim().length + (messageInput.value.getElementsByTagName("img")?.length || 0) * 5;
 }
 
@@ -886,7 +1167,18 @@ function applyChatMessage(message) {
 }
 
 function updateFontNumber() {
-  messageNumber.value = (messageInput?.value?.innerText?.trim()?.length || 0) + ((messageInput?.value?.getElementsByTagName("img")?.length) || 0) * 5;
+  const inputDom = messageInput?.value;
+  // 只剩 <br> 或空文本节点（删锚点后可能残留）时视为空，清掉残留使 :empty 占位符恢复
+  if (inputDom && inputDom.innerText.trim() === "" && !inputDom.querySelector("img")) {
+    inputDom.innerHTML = "";
+    const selection = window.getSelection();
+    const r = document.createRange();
+    r.selectNodeContents(inputDom);
+    r.collapse(false);
+    selection.removeAllRanges();
+    selection.addRange(r);
+  }
+  messageNumber.value = (inputDom?.innerText?.trim()?.length || 0) + ((inputDom?.getElementsByTagName("img")?.length) || 0) * 5;
 }
 
 function getDisplaySendTime(index) {
@@ -1247,11 +1539,21 @@ function restoreBodyOverflow() {
         cursor: pointer;
         top: 5px;
         right: 8px;
-        padding: 5px; 
-        img{
-        user-select: none;
-        width: 3.5px;
-        height: 14px;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6b757b;
+
+        &:hover,
+        &[aria-expanded="true"]{
+            color: #2BB2A0;
+        }
+
+        svg{
+            user-select: none;
+            width: 16px;
+            height: 16px;
         }
     }
 
@@ -1734,23 +2036,24 @@ function restoreBodyOverflow() {
 
             .message-emoji-list{
                 position: relative;
-                width: 380px;
-                height: 280px;
+                width: 363px;
+                height: 271px;
                 left: -50px;
                 top: -162px;
-                border: 1px solid #e5e9ef;
+                border: 1px solid #E0E5E3;
                 border-radius: 8px;
-                padding: 11px 15px 30px 15px;
+                padding: 0 15px 45px 11px;
                 background-color: #fff;
-                box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.17);
                 overflow: hidden;
                 overflow-y: scroll;
                 z-index: 20;
 
                 .emoji-title{
                     position: absolute;
-                    font-size: 14px;
-                    color: #333;
+                    left: 15px;
+                    top: 13px;
+                    font-size: 12px;
+                    color: #5C6664;
                 }
 
                 .close-emoji{
@@ -1769,22 +2072,23 @@ function restoreBodyOverflow() {
 
                 .comment-emoji-content {
                     position: relative;
-                    top: 30px;
+                    top: 37px;
                     left: 0px;
-                    width: 38px;
-                    height: 38px;
-                    padding: 4px 4px 4px 3px;
-                    margin-right: 10.5px;
-                    margin-bottom: 12px;
+                    width: 32px;
+                    height: 32px;
+                    padding: 0;
+                    margin-right: 0;
+                    margin-bottom: 0;
                     display: inline-flex;
+                    justify-content: center;
                     align-items: center;
                     cursor: pointer;
                     background-color: white;
                     border-radius: 4px;
                     transition: background-color 0.1s ease;
                     img {
-                        width: 32px;
-                        height: 32px;
+                        width: 24px;
+                        height: 24px;
                     }
                 }
 
@@ -1794,12 +2098,12 @@ function restoreBodyOverflow() {
             }
 
             .message-emoji-list::-webkit-scrollbar{
-            width: 6px; /* 滚动条的宽度 */
+            width: 5px; /* 滚动条的宽度 */
             border-radius: 30px; /* 滚动条滑块的圆角 */
             }
 
             .message-emoji-list::-webkit-scrollbar-thumb {
-            background: #aaa; /* 滚动条的滑块 */
+            background: #E0E5E3; /* 滚动条的滑块 */
             height: 10px;
             border-radius: 10px;
             }

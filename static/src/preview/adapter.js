@@ -70,7 +70,6 @@ function read(path, params) {
     return {
       liked: false,
       collected: false,
-      myCoinCount: 0,
       watchLater: false,
     };
   if (/^\/video\/\d+\/folders$/.test(path))
@@ -84,7 +83,7 @@ function read(path, params) {
     path === "/home/collectByName"
   )
     return page(videos, params);
-  if (path === "/home/love" || path === "/home/throwCoin") return videos;
+  if (path === "/home/love") return videos;
   if (path === "/home/dynamic" || path === "/post/list") {
     const ownerId = params.homeUserId || params.targetUserId;
     const type = Number(params.type || 1);
@@ -235,7 +234,6 @@ export async function previewAdapter(config) {
         likeNumber: 8264,
         shareNumber: 175,
         collectNumber: 624,
-        coinThrowNumber: 128,
       };
     else if (
       method === "put" &&

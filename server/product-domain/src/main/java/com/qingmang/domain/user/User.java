@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-/** 用户账号 */
+/** 用户账号
+ */
 @Data
 @Accessors(chain = true)
 @TableName("user")
@@ -51,9 +52,6 @@ public class User implements Serializable {
     private Integer level;
 
     private Integer exp;
-
-    @TableField("coin_balance")
-    private Integer coinBalance;
 
     @TableField("created_at")
     private LocalDateTime createdAt;

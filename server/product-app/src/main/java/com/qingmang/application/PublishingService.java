@@ -152,7 +152,7 @@ public class PublishingService {
         return jdbc.queryForMap("SELECT COALESCE(SUM(s.play_count),0) AS playNumber,"
                 + "COALESCE(SUM(s.like_count),0) AS likeNumber,COALESCE(SUM(s.comment_count),0) AS commentNumber,"
                 + "COALESCE(SUM(s.favorite_count),0) AS collectNumber,COALESCE(SUM(s.share_count),0) AS shareNumber,"
-                + "COALESCE(SUM(s.coin_count),0) AS coinThrowNumber,COALESCE(SUM(s.danmaku_count),0) AS scrollingNumber,"
+                + "COALESCE(SUM(s.danmaku_count),0) AS scrollingNumber,"
                 + "COALESCE(SUM(s.new_fans_count),0) AS newFansNumber FROM video v LEFT JOIN video_stats s ON s.video_id=v.id"
                 + " WHERE v.owner_id=? AND v.deleted_at IS NULL", actor);
     }
@@ -187,7 +187,7 @@ public class PublishingService {
         return "SELECT v.*,c.name AS category_name,COALESCE(s.play_count,0) AS play_count,"
                 + "COALESCE(s.like_count,0) AS like_count,COALESCE(s.favorite_count,0) AS favorite_count,"
                 + "COALESCE(s.comment_count,0) AS comment_count,COALESCE(s.share_count,0) AS share_count,"
-                + "COALESCE(s.danmaku_count,0) AS danmaku_count,COALESCE(s.coin_count,0) AS coin_count";
+                + "COALESCE(s.danmaku_count,0) AS danmaku_count";
     }
 
     private Map<String, Object> legacy(Map<String, Object> row) {
@@ -214,8 +214,7 @@ public class PublishingService {
         v.put("createTime", created == null ? null : created.toString().replace("T", " "));
         for (String[] pair : List.of(new String[]{"playNumber","play_count"}, new String[]{"likeNumber","like_count"},
                 new String[]{"commentNumber","comment_count"}, new String[]{"collectNumber","favorite_count"},
-                new String[]{"shareNumber","share_count"}, new String[]{"scrollingNumber","danmaku_count"},
-                new String[]{"coinThrowNumber","coin_count"})) v.put(pair[0], row.get(pair[1]));
+                new String[]{"shareNumber","share_count"}, new String[]{"scrollingNumber","danmaku_count"})) v.put(pair[0], row.get(pair[1]));
         return v;
     }
 

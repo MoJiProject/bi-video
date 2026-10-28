@@ -1,7 +1,6 @@
 package com.qingmang.application;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.qingmang.common.constant.BizConstants;
 import com.qingmang.common.enums.ReactionType;
 import com.qingmang.common.exception.BizException;
 import com.qingmang.common.exception.ErrorCode;
@@ -32,11 +31,10 @@ import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 
 /**
- * 视频互动：点赞 / 投币 / 收藏 / 待看清单 / 观看记录。
+ * 视频互动：点赞 / 收藏 / 待看清单 / 观看记录。
  *
- * <p>点赞和收藏是「有/无」状态，用 video_reaction 的一行表示，切换时插删；
- * 投币是「0/1/2」的数量，累加在 coin_count 上。所有计数都交给数据库自增，
- * 这里只负责判断能不能做这次操作。</p>
+ * <p>点赞和收藏是「有/无」状态，用 video_reaction 的一行表示，切换时插删。
+ * 所有计数都交给数据库自增，这里只负责判断能不能做这次操作。</p>
  */
 @Service
 public class VideoInteractionService {
@@ -52,13 +50,15 @@ public class VideoInteractionService {
     private final AuthService authService;
     private final UserPrivacyMapper privacyMapper;
     private final NotificationCenterService notifications;
+    private final DailyInteractionExpService dailyInteractionExp;
 
     public VideoInteractionService(VideoReactionMapper reactionMapper, WatchLaterMapper watchLaterMapper,
                                    WatchHistoryMapper historyMapper, FavoriteFolderMapper folderMapper,
                                    FavoriteItemMapper favoriteItemMapper, VideoMapper videoMapper,
                                    VideoStatsMapper statsMapper, CounterMapper counterMapper,
                                    AuthService authService, UserPrivacyMapper privacyMapper,
-                                   NotificationCenterService notifications) {
+                                   NotificationCenterService notifications,
+                                   DailyInteractionExpService dailyInteractionExp) {
         this.reactionMapper = reactionMapper;
         this.watchLaterMapper = watchLaterMapper;
         this.historyMapper = historyMapper;
@@ -70,6 +70,7 @@ public class VideoInteractionService {
         this.authService = authService;
         this.privacyMapper = privacyMapper;
         this.notifications = notifications;
+        this.dailyInteractionExp = dailyInteractionExp;
     }
 
     /** 点赞/取消点赞。返回操作后的状态。 */
@@ -83,6 +84,7 @@ public class VideoInteractionService {
             counterMapper.increaseVideoStat(videoId, "like_count", 1);
             counterMapper.increaseUserStat(video.getOwnerId(), "like_received", 1);
             authService.addExp(video.getOwnerId(), 1);
+            dailyInteractionExp.awardLike(userId);
             notifications.publish(userId, video.getOwnerId(), 4, 1, videoId, video.getTitle());
             liked = true;
         } else {
@@ -92,47 +94,7 @@ public class VideoInteractionService {
             notifications.removeLike(userId, video.getOwnerId(), 4, 1, videoId);
             liked = false;
         }
-        return state(videoId, liked, null, null, null, null);
-    }
-
-    /**
-     * 投币。coinCount 为本次投的枚数（1 或 2）。
-     *
-     * <p>余额判断与扣减放在一条 SQL 里，避免并发超扣；
-     * 同一个视频上限两枚，超出直接拒绝而不是静默截断。</p>
-     */
-    @Transactional
-    public Map<String, Object> throwCoin(Long userId, Long videoId, int coinCount) {
-        if (coinCount < 1 || coinCount > BizConstants.MAX_COIN_PER_VIDEO_PER_USER) {
-            throw new BizException(ErrorCode.PARAM_INVALID, "单次投币数量非法");
-        }
-        Video video = requirePublished(videoId);
-        VideoReaction exist = findReaction(userId, videoId, ReactionType.COIN);
-        int already = exist == null || exist.getCoinCount() == null ? 0 : exist.getCoinCount();
-        if (already + coinCount > BizConstants.MAX_COIN_PER_VIDEO_PER_USER) {
-            throw new BizException(ErrorCode.OPERATION_FAILED,
-                    "同一个视频最多投 " + BizConstants.MAX_COIN_PER_VIDEO_PER_USER + " 枚硬币");
-        }
-        int cost = coinCount * BizConstants.COIN_PER_THROW;
-        if (counterMapper.deductCoinBalance(userId, cost) == 0) {
-            throw new BizException(ErrorCode.OPERATION_FAILED, "硬币余额不足");
-        }
-        if (exist == null) {
-            VideoReaction r = new VideoReaction();
-            r.setUserId(userId);
-            r.setVideoId(videoId);
-            r.setReactionType(ReactionType.COIN.getCode());
-            r.setCoinCount(coinCount);
-            reactionMapper.insert(r);
-        } else {
-            exist.setCoinCount(already + coinCount);
-            reactionMapper.updateById(exist);
-        }
-        counterMapper.increaseVideoStat(videoId, "coin_count", cost);
-        counterMapper.increaseUserStat(video.getOwnerId(), "coin_received", cost);
-        authService.addExp(video.getOwnerId(), cost);
-        authService.addExp(userId, cost);
-        return state(videoId, null, true, null, null, null);
+        return state(videoId, liked, null, null);
     }
 
     /** 收藏/取消收藏到指定收藏夹，不传则用默认收藏夹。 */
@@ -155,6 +117,7 @@ public class VideoInteractionService {
             favoriteItemMapper.insert(item);
             counterMapper.increaseVideoStat(videoId, "favorite_count", 1);
             counterMapper.increaseUserStat(userId, "favorite_count", 1);
+            dailyInteractionExp.awardFavorite(userId);
             collected = true;
         } else {
             favoriteItemMapper.deleteById(exist.getId());
@@ -166,7 +129,7 @@ public class VideoInteractionService {
         boolean anyCollected = favoriteItemMapper.selectCount(Wrappers.<FavoriteItem>lambdaQuery()
                 .eq(FavoriteItem::getUserId, userId).eq(FavoriteItem::getVideoId, videoId)) > 0;
         syncReactionFlag(userId, videoId, ReactionType.FAVORITE, anyCollected);
-        return state(videoId, null, null, anyCollected, null, null);
+        return state(videoId, null, anyCollected, null);
     }
 
     public List<Map<String, Object>> videoFolders(Long userId, Long videoId) {
@@ -204,7 +167,7 @@ public class VideoInteractionService {
             watchLaterMapper.deleteById(exist.getId());
             added = false;
         }
-        return state(videoId, null, null, null, added, null);
+        return state(videoId, null, null, added);
     }
 
     /** 观看记录上报。同一个人同一个视频只保留一条，重复上报就更新进度。 */
@@ -251,27 +214,23 @@ public class VideoInteractionService {
     /** 一次返回全部互动状态，前端不用为每个按钮单独发一次请求。 */
     public Map<String, Object> stateOf(Long userId, Long videoId) {
         if (userId == null) {
-            return state(videoId, false, false, false, false, null);
+            return state(videoId, false, false, false);
         }
         VideoReaction like = findReaction(userId, videoId, ReactionType.LIKE);
-        VideoReaction coin = findReaction(userId, videoId, ReactionType.COIN);
         WatchLater later = watchLaterMapper.selectOne(Wrappers.<WatchLater>lambdaQuery()
                 .eq(WatchLater::getUserId, userId).eq(WatchLater::getVideoId, videoId));
         boolean collected = favoriteItemMapper.selectCount(Wrappers.<FavoriteItem>lambdaQuery()
                 .eq(FavoriteItem::getUserId, userId).eq(FavoriteItem::getVideoId, videoId)) > 0;
-        return state(videoId, like != null, coin != null, collected, later != null,
-                coin == null || coin.getCoinCount() == null ? 0 : coin.getCoinCount());
+        return state(videoId, like != null, collected, later != null);
     }
 
-    private Map<String, Object> state(Long videoId, Boolean liked, Boolean coinGiven,
-                                       Boolean collected, Boolean watchLater, Integer myCoin) {
+    private Map<String, Object> state(Long videoId, Boolean liked,
+                                       Boolean collected, Boolean watchLater) {
         Map<String, Object> m = new HashMap<>(8);
         m.put("videoId", videoId);
         m.put("liked", liked);
-        m.put("coinGiven", coinGiven);
         m.put("collected", collected);
         m.put("watchLater", watchLater);
-        m.put("myCoinCount", myCoin);
         return m;
     }
 
@@ -298,7 +257,6 @@ public class VideoInteractionService {
         r.setUserId(userId);
         r.setVideoId(videoId);
         r.setReactionType(type.getCode());
-        r.setCoinCount(0);
         try {
             reactionMapper.insert(r);
         } catch (DuplicateKeyException e) {

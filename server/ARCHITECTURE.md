@@ -85,7 +85,7 @@ server/
 | 布尔 | `is_xxx`，`TINYINT(1)` 0/1 | `is_default` |
 | 软删除 | `deleted_at DATETIME NULL`，NULL 表示未删除 | |
 | 状态枚举 | 数字编码 + Java 枚举 | `VideoStatus.PUBLISHED` |
-| DTO | `XxxRequest` / `XxxDTO` | `CoinRequest` |
+| DTO | `XxxRequest` / `XxxDTO` | `LoginRequest` |
 | VO | `XxxVO` | `VideoListItemVO` |
 
 **禁止中文魔法值**。以前散落着 `"全部"`、`"发布时间排序"`、`"稍后再看"` 这类字符串，
@@ -99,8 +99,7 @@ server/
    一页数据里的批量关联（比如某条评论下的所有回复）用 `IN` 一次取回，不要逐条查。
 2. **计数列一律用数据库自增**。`UPDATE ... SET like_count = like_count + 1`，
    不要「先 select 出计数 → Java 加一 → update 回去」，并发会互相覆盖。
-3. **余额扣减把判断和扣减放在同一条 SQL**：
-   `UPDATE user SET coin_balance = coin_balance - ? WHERE id = ? AND coin_balance >= ?`，
+3. **余额扣减把判断和扣减放在同一条 SQL**，
    再看影响行数。不要先查余额再扣。
 4. **深分页用游标**，参数是 `cursorId`（上一页最后一条的 id），不要用大 offset。
 5. **单表 CRUD 走 `BaseMapper`**；连表或批量查询写在 XML 里，
@@ -141,8 +140,8 @@ MyBatis-Plus 会拼出 `AND deleted_at=` 这种语法错误的 SQL。
 /** 业务异常。Service 层遇到可预期的失败抛这个，由 GlobalExceptionHandler 统一转换。 */
 
 // 不要：把方法名和方法体翻译一遍
-/** 增加投币数的方法 */
-public void addCoin() {}
+/** 增加计数的方法 */
+public void addCount() {}
 ```
 
 实体字段的注释不用写，数据库里已经有，直接对着 schema 看。

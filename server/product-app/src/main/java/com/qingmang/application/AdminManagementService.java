@@ -510,10 +510,8 @@ public class AdminManagementService {
                         + "like_received=(SELECT COALESCE(SUM(s.like_count),0) FROM video v JOIN video_stats s ON s.video_id=v.id"
                         + " WHERE v.owner_id=? AND v.deleted_at IS NULL),"
                         + "play_total=(SELECT COALESCE(SUM(s.play_count),0) FROM video v JOIN video_stats s ON s.video_id=v.id"
-                        + " WHERE v.owner_id=? AND v.deleted_at IS NULL),"
-                        + "coin_received=(SELECT COALESCE(SUM(s.coin_count),0) FROM video v JOIN video_stats s ON s.video_id=v.id"
                         + " WHERE v.owner_id=? AND v.deleted_at IS NULL) WHERE user_id=?",
-                author, author, author, author, author, author);
+                author, author, author, author, author);
     }
 
     private void refreshCommentCounts(List<Map<String, Object>> comments) {

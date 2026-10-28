@@ -19,9 +19,12 @@ public class VideoShareService {
     private final JdbcTemplate jdbc;
     private final AuthService auth;
     private final ApplicationEventPublisher events;
+    private final DailyInteractionExpService dailyInteractionExp;
 
-    public VideoShareService(JdbcTemplate jdbc, AuthService auth, ApplicationEventPublisher events) {
+    public VideoShareService(JdbcTemplate jdbc, AuthService auth, ApplicationEventPublisher events,
+                             DailyInteractionExpService dailyInteractionExp) {
         this.jdbc = jdbc; this.auth = auth; this.events = events;
+        this.dailyInteractionExp = dailyInteractionExp;
     }
 
     public Map<String, Object> recipients(Long actor, Long cursorId) {
@@ -80,6 +83,7 @@ public class VideoShareService {
         }
         jdbc.update("INSERT INTO video_stats(video_id,share_count) VALUES(?,?) "
                 + "ON DUPLICATE KEY UPDATE share_count=share_count+VALUES(share_count)", videoId, ids.size());
+        dailyInteractionExp.awardShare(actor);
         Long count = jdbc.queryForObject("SELECT share_count FROM video_stats WHERE video_id=?", Long.class, videoId);
         return Map.of("shareCount", count, "sentCount", ids.size());
     }

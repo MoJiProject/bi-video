@@ -37,14 +37,6 @@
                 </div>
                 <videoList :data="contributeVideos"/>
             </div>
-            <!-- 最近投币的视频部分 -->
-            <div :class="item.class" v-if="item.class === 'throw-coin-video'&&!loadMore && ((store.userId!== null && store.userId === userId) || store.homeUserInformation.publicCoin === 1)">
-                <div class="title">
-                    <span>最近投币的视频</span>
-                    <span v-if="store.userId===store.homeUserInformation.id&&store.homeUserInformation.publicCoin===0" class="home-user-info-public"><img src="/img/隐藏.png">仅自己可见</span> 
-                </div>
-                <videoList2 :data="throwCoinVideos"/>
-            </div>
             <!-- 收藏夹部分 -->
             <div :class="item.class" v-if="item.class === 'collect'&&!loadMore && ((store.userId!== null && store.userId === userId) || store.homeUserInformation.publicCollect === 1)">
                 <div class="title">
@@ -123,7 +115,7 @@ import videoList from './homeVideos.vue';
 import videoList2 from './homeVideos.vue';
 import loadingIndicator from '@/components/loadingIndicator.vue';
 import SpaceProfileCard from './SpaceProfileCard.vue';
-import {homeContributeVideos,homeThrowCoinVideos,getCollectsClassify,homeLoveVideos,homeMagnumVideos,updateFeaturedVideos} from '@/api/home/index';
+import {homeContributeVideos,getCollectsClassify,homeLoveVideos,homeMagnumVideos,updateFeaturedVideos} from '@/api/home/index';
 import { ElMessage } from 'element-plus';
 
 const store = useGlobalStore();
@@ -132,7 +124,6 @@ const showProfile = computed(() => store.userId === userId || store.homeUserInfo
 const contributeVideos=reactive([]);
 const sort=ref(1);
 const contributeTotal=ref(0);
-const throwCoinVideos=reactive([]);
 const collects=reactive([]);
 const collectTotal=ref(0);
 const loveVideos=reactive([]);
@@ -192,7 +183,6 @@ async function saveFeatured() {
 const divs = reactive([
     { class: 'magnum-video'},
     { class: 'tribute-video'},
-    { class: 'throw-coin-video'},
     { class: 'collect'},
     { class: 'follow-anime'},
     { class: 'love-video'}
@@ -215,8 +205,7 @@ watch(() => store.homeUserInformation.id, async (id) => {
     const requests = [loadVideos(), homeMagnumVideos(userId).then(res => {
         featuredVideos.value = res.data.data.records;
     })];
-    if (owner || profile.publicCoin === 1)
-        requests.push(homeThrowCoinVideos(store.userId, userId).then(res => throwCoinVideos.splice(0, throwCoinVideos.length, ...res.data.data)));
+
     if (owner || profile.publicLove === 1)
         requests.push(homeLoveVideos(store.userId, userId).then(res => loveVideos.splice(0, loveVideos.length, ...res.data.data)));
     if (owner || profile.publicCollect === 1)
@@ -250,7 +239,7 @@ watch(()=>store.homeMenu,()=>{
 //获取排序
 function getSort(){
     const homeSort = store.homeUserInformation.homeSectionOrder;
-    const allowed = ['magnum-video', 'tribute-video', 'throw-coin-video', 'collect', 'follow-anime', 'love-video'];
+    const allowed = ['magnum-video', 'tribute-video', 'collect', 'follow-anime', 'love-video'];
     if(Array.isArray(homeSort) && homeSort.length === allowed.length && new Set(homeSort).size === allowed.length &&
         homeSort.every(key => allowed.includes(key))){
         divs.splice(0, divs.length, ...homeSort.map(key => ({ class: key })));
@@ -375,86 +364,6 @@ function getSort(){
                     align-items: center;
                     padding: 0 12px;
                     left: 563px;
-                    top: 0;
-                    font-size: 14px;
-                    color: #1C2321;
-                    background: white;
-                    border-radius: 8px;
-                    transition: all .3s;
-                    user-select: none;
-                    border: 1px solid #E0E5E3;
-                    svg{
-                        width: 14px;
-                        height: 14px;
-                    }
-            }
-            .more:hover{
-                background-color: #E0E5E3;
-                border: #E0E5E3;
-            }
-        }
-
-        .throw-coin-video{
-        position: relative;
-        top: 24px;
-        width: 100%;
-        margin-bottom: 24px;
-        padding-bottom: 24px;
-        border-bottom: 1px solid #E0E5E3;
-            .title{
-            span{
-                cursor: pointer;
-                color: #1C2321;
-                font-size: 24px;
-                font-weight: 600;
-                transition: color 0.3s ease;
-                margin-right: 5px;
-            }
-            span:hover{
-                color: #0FA68E;
-            }
-            }
-            .video-sort{
-            position: relative;
-            left: 40px;
-            top: 0px;   
-            display: flex;
-            font-size: 14px;
-            column-gap: 12px;
-            row-gap: 12px;
-            flex-wrap: wrap;
-            user-select: none;
-                span{
-                display: flex;
-                align-items: center;
-                height: 34px;
-                padding: 0 15px;
-                flex-shrink: 0;
-                color: #5C6664;
-                cursor: pointer;
-                transition: all .3s;
-                border-radius: 6px;
-                background-color: #F4F7F6;
-                }
-                span:hover{
-                    color: #0FA68E;
-                }
-                .sortClass{
-                    color: white !important;
-                    background-color: #0FA68E !important;
-                }
-            }
-            .more{
-                    font-weight: normal;
-                    position: absolute;
-                    width: 100px;
-                    height: 34px;
-                    cursor: pointer;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    padding: 0 12px;
-                    right: 0px;
                     top: 0;
                     font-size: 14px;
                     color: #1C2321;
@@ -916,7 +825,7 @@ function getSort(){
 }
 
 @media (max-width: 720px) {
-  .home .home-div :is(.tribute-video, .collect, .throw-coin-video, .love-video) {
+  .home .home-div :is(.tribute-video, .collect, .love-video) {
     .title { flex-wrap: wrap; gap: 8px; }
     .title .title-name { font-size: 20px; }
     .title .more { position: static; margin-left: auto; flex: none; }

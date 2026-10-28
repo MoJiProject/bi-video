@@ -42,7 +42,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Service
 public class AuthService {
     private static final List<String> HOME_SECTIONS = List.of("magnum-video", "tribute-video",
-            "throw-coin-video", "collect", "follow-anime", "love-video");
+            "collect", "follow-anime", "love-video");
 
     private final UserMapper userMapper;
     private final UserPrivacyMapper privacyMapper;
@@ -75,7 +75,6 @@ public class AuthService {
         user.setNickname(req.getNickname());
         user.setAvatarUrl(isBlank(req.getAvatarUrl()) ? BizConstants.DEFAULT_AVATAR : req.getAvatarUrl());
         user.setPhone(isBlank(req.getPhone()) ? null : req.getPhone());
-        user.setCoinBalance(BizConstants.REGISTER_REWARD_COIN);
         user.setLevel(0);
         user.setExp(0);
         user.setRole(0);
@@ -127,13 +126,12 @@ public class AuthService {
         }
         StpUtil.login(row.getUserId());
 
-        // 每日登录奖励：用日期比较，同一天只给一次
+        // 每日登录时间记录：用日期比较，同一天只更新一次
         User u = userMapper.selectById(row.getUserId());
         LocalDateTime today = LocalDateTime.now();
         if (u != null && (u.getLastLoginAt() == null || !u.getLastLoginAt().toLocalDate().isEqual(today.toLocalDate()))) {
             u.setLastLoginAt(today);
             userMapper.updateById(u);
-            counterMapper.addCoinBalance(u.getId(), BizConstants.LOGIN_REWARD_COIN);
         }
         return ApiResponse.ok(tokenPayload(row.getUserId()));
     }
@@ -168,7 +166,6 @@ public class AuthService {
         }
         if (!userId.equals(viewer)) {
             if (!Boolean.TRUE.equals(vo.getShowBirthday())) vo.setBirthday(null);
-            vo.setCoinBalance(null);
             vo.setRecordHistory(null);
         }
         if (viewer == null) {
@@ -210,14 +207,14 @@ public class AuthService {
     public void updatePrivacy(Long userId, PrivacyUpdateRequest request) {
         requireActiveUser(userId);
         if (request.getShowFavoriteList() == null && request.getShowFollowList() == null &&
-                request.getShowFansList() == null && request.getShowCoinList() == null &&
+                request.getShowFansList() == null &&
                 request.getShowLikeList() == null && request.getShowBirthday() == null &&
                 request.getRecordHistory() == null && request.getHomeSectionOrder() == null)
             throw new BizException(ErrorCode.PARAM_INVALID);
         if (request.getHomeSectionOrder() != null &&
                 (request.getHomeSectionOrder().size() != HOME_SECTIONS.size() ||
                  !new HashSet<>(request.getHomeSectionOrder()).equals(Set.copyOf(HOME_SECTIONS))))
-            throw new BizException(ErrorCode.PARAM_INVALID, "首页排序必须包含全部六个栏目");
+            throw new BizException(ErrorCode.PARAM_INVALID, "首页排序必须包含全部五个栏目");
         UserPrivacy privacy = privacyMapper.selectOne(Wrappers.<UserPrivacy>lambdaQuery()
                 .eq(UserPrivacy::getUserId, userId));
         if (privacy == null) {
@@ -226,7 +223,6 @@ public class AuthService {
             privacy.setShowFavoriteList(Boolean.TRUE.equals(request.getShowFavoriteList()));
             privacy.setShowFollowList(Boolean.TRUE.equals(request.getShowFollowList()));
             privacy.setShowFansList(Boolean.TRUE.equals(request.getShowFansList()));
-            privacy.setShowCoinList(Boolean.TRUE.equals(request.getShowCoinList()));
             privacy.setShowLikeList(Boolean.TRUE.equals(request.getShowLikeList()));
             privacy.setShowBirthday(Boolean.TRUE.equals(request.getShowBirthday()));
             privacy.setRecordHistory(!Boolean.FALSE.equals(request.getRecordHistory()));
@@ -238,7 +234,6 @@ public class AuthService {
                     .set(request.getShowFavoriteList() != null, UserPrivacy::getShowFavoriteList, request.getShowFavoriteList())
                     .set(request.getShowFollowList() != null, UserPrivacy::getShowFollowList, request.getShowFollowList())
                     .set(request.getShowFansList() != null, UserPrivacy::getShowFansList, request.getShowFansList())
-                    .set(request.getShowCoinList() != null, UserPrivacy::getShowCoinList, request.getShowCoinList())
                     .set(request.getShowLikeList() != null, UserPrivacy::getShowLikeList, request.getShowLikeList())
                     .set(request.getShowBirthday() != null, UserPrivacy::getShowBirthday, request.getShowBirthday())
                     .set(request.getRecordHistory() != null, UserPrivacy::getRecordHistory, request.getRecordHistory())

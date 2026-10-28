@@ -48,11 +48,6 @@ public class HomeController {
         return ApiResponse.ok(service.reactions(q.getHomeUserId(), AuthContext.currentUserIdOrNull(), 1));
     }
 
-    @GetMapping("/throwCoin")
-    public ApiResponse<List<VideoListItemVO>> coins(@Valid @ModelAttribute HomeQueryRequest q) {
-        return ApiResponse.ok(service.reactions(q.getHomeUserId(), AuthContext.currentUserIdOrNull(), 2));
-    }
-
     @GetMapping("/collectsClassify")
     public ApiResponse<List<FolderVO>> folders(@Valid @ModelAttribute HomeQueryRequest q) {
         return ApiResponse.ok(service.folders(q.getHomeUserId(), AuthContext.currentUserIdOrNull()));

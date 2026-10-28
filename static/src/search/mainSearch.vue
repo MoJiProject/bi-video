@@ -212,10 +212,11 @@
                     class="user-Name"
                     @click="openHome(user.userId)"
                   >{{ user.userName }}
-                    <img
-                      v-if="user.grade > 0 && user.grade <= 6"
-                      :src="'/img/' + user.grade + '级.png'"
+                    <LevelBadge
+                      v-if="user.grade > 0 && user.grade <= 10"
+                      :level="user.grade"
                       class="user-grade"
+                      size="xs"
                     />
                   </span>
                 </el-tooltip>
@@ -289,6 +290,7 @@
 
 <script>
 import head1 from "../components/mainHead.vue";
+import LevelBadge from "../components/LevelBadge.vue";
 import Searcha from "../components/search.vue";
 import homeVideoCard from "../components/homeVideoCard.vue";
 import { computed, reactive, nextTick, onMounted, ref, watch, onUnmounted } from "vue";
@@ -337,6 +339,7 @@ export default {
   name: "MainSearch",
   components: {
     head1,
+    LevelBadge,
     Searcha,
     homeVideoCard,
   },
@@ -1338,10 +1341,7 @@ watch(
 
 .user-grade {
   flex: none;
-  width: 24px;
-  height: 12px;
-  margin: 0;
-  object-fit: contain;
+  margin: 0 0 0 4px;
 }
 
 .userInfo-Content {

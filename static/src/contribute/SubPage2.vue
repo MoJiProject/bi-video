@@ -136,19 +136,6 @@
               </span>
             </el-tooltip>
             <el-tooltip
-              content="青芒币"
-              placement="bottom"
-              effect="light"
-              :hide-after="0"
-              :show-arrow="false"
-            >
-              <span class="ai">
-                <img src="/img/投币.png" /><span>{{
-                  video.coinThrowNumber
-                }}</span>
-              </span>
-            </el-tooltip>
-            <el-tooltip
               content="收藏"
               placement="bottom"
               effect="light"
@@ -307,7 +294,6 @@ export default {
       videos: [],
       users: {
         avatarAddress: "",
-        coinNumber: 0,
         collectNumber: 0,
         createTime: "",
         dynamicNumber: 0,

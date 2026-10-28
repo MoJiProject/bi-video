@@ -44,11 +44,11 @@
                 <div class="love-right-content-bottom">
                     <span class="love-time">{{ love.likeTime }}</span>
                     <span class="delete-comment-notification" @click="deleteLoveNotificationDialogF(love)" 
-                    @mouseover="deleteCommentNotificaitonHoverFlag=true" 
-                    @mouseleave="deleteCommentNotificaitonHoverFlag=false">
-                    <img :src="deleteCommentNotificaitonHoverFlag?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除该通知</span></span>
-                    <span v-show="love.comments?.likeWarn===1||love.videos?.likeWarn===1||love.dynamic?.likeWarn===1" class="comment-notification" @click="dndLikeNotificationF(love)"><img :src="commentNotificationHoverFlag?'/img/屏蔽通知蓝.png':'/img/屏蔽通知灰.png'"> <span>不再通知</span></span>
-                    <span v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="comment-disable-notification" @click="dndLikeNotificationF(love)" @mouseover="commentDisableificationHoverFlag=true" @mouseleave="commentDisableificationHoverFlag=false"><img :src="commentDisableificationHoverFlag?'/img/开启通知蓝.png':'/img/开启通知灰.png'"> <span>接收通知</span></span>
+                    @mouseover="deleteCommentNotificaitonHoverFlag=love.id" 
+                    @mouseleave="deleteCommentNotificaitonHoverFlag=null">
+                    <img :src="deleteCommentNotificaitonHoverFlag===love.id?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除该通知</span></span>
+                    <span v-show="love.comments?.likeWarn===1||love.videos?.likeWarn===1||love.dynamic?.likeWarn===1" class="comment-notification" @click="dndLikeNotificationF(love)" @mouseover="commentNotificationHoverFlag=love.id" @mouseleave="commentNotificationHoverFlag=null"><img :src="commentNotificationHoverFlag===love.id?'/img/屏蔽通知蓝.png':'/img/屏蔽通知灰.png'"> <span>不再通知</span></span>
+                    <span v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="comment-disable-notification" @click="dndLikeNotificationF(love)" @mouseover="commentDisableificationHoverFlag=love.id" @mouseleave="commentDisableificationHoverFlag=null"><img :src="commentDisableificationHoverFlag===love.id?'/img/开启通知蓝.png':'/img/开启通知灰.png'"> <span>接收通知</span></span>
                 </div>
                 <img v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="love-dnd" src="/img/dnd.svg">
                 <el-tooltip
@@ -154,9 +154,9 @@
                 </div>
                 <div class="love-right-content-bottom">
                     <span class="love-time">{{ love.likeTime }}</span>
-                    <span class="delete-comment-notification" @click="deleteLoveNotificationDialogF(love)" @mouseover="deleteCommentNotificaitonHoverFlag=true" @mouseleave="deleteCommentNotificaitonHoverFlag=false"><img :src="deleteCommentNotificaitonHoverFlag?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除该通知</span></span>
-                    <span v-show="love.comments?.likeWarn===1||love.videos?.likeWarn===1||love.dynamic?.likeWarn===1" class="comment-notification" @click="dndLikeNotificationF(love)" @mouseover="commentNotificationHoverFlag=true" @mouseleave="commentNotificationHoverFlag=false"><img :src="commentNotificationHoverFlag?'/img/屏蔽通知蓝.png':'/img/屏蔽通知灰.png'"> <span>不再通知</span></span>
-                    <span v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="comment-disable-notification" @click="dndLikeNotificationF(love)" @mouseover="commentDisableificationHoverFlag=true" @mouseleave="commentDisableificationHoverFlag=false"><img :src="commentDisableificationHoverFlag?'/img/开启通知蓝.png':'/img/开启通知灰.png'"> <span>接收通知</span></span>
+                    <span class="delete-comment-notification" @click="deleteLoveNotificationDialogF(love)" @mouseover="deleteCommentNotificaitonHoverFlag=love.id" @mouseleave="deleteCommentNotificaitonHoverFlag=null"><img :src="deleteCommentNotificaitonHoverFlag===love.id?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除该通知</span></span>
+                    <span v-show="love.comments?.likeWarn===1||love.videos?.likeWarn===1||love.dynamic?.likeWarn===1" class="comment-notification" @click="dndLikeNotificationF(love)" @mouseover="commentNotificationHoverFlag=love.id" @mouseleave="commentNotificationHoverFlag=null"><img :src="commentNotificationHoverFlag===love.id?'/img/屏蔽通知蓝.png':'/img/屏蔽通知灰.png'"> <span>不再通知</span></span>
+                    <span v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="comment-disable-notification" @click="dndLikeNotificationF(love)" @mouseover="commentDisableificationHoverFlag=love.id" @mouseleave="commentDisableificationHoverFlag=null"><img :src="commentDisableificationHoverFlag===love.id?'/img/开启通知蓝.png':'/img/开启通知灰.png'"> <span>接收通知</span></span>
                 </div>
                 <img v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="love-dnd" src="/img/dnd.svg">
                 <el-tooltip
@@ -261,9 +261,9 @@
                 </div>
                 <div class="love-right-content-bottom">
                     <span class="love-time">{{ love.likeTime }}</span>
-                    <span class="delete-comment-notification" @click="deleteLoveNotificationDialogF(love)"><img :src="deleteCommentNotificaitonHoverFlag?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除该通知</span></span>
-                    <span v-show="love.comments?.likeWarn===1||love.videos?.likeWarn===1||love.dynamic?.likeWarn===1" class="comment-notification" @click="dndLikeNotificationF(love)" @mouseover="commentNotificationHoverFlag=true" @mouseleave="commentNotificationHoverFlag=false"><img :src="commentNotificationHoverFlag?'/img/屏蔽通知蓝.png':'/img/屏蔽通知灰.png'"> <span>不再通知</span></span>
-                    <span v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="comment-disable-notification" @click="dndLikeNotificationF(love)" @mouseover="commentDisableificationHoverFlag=true" @mouseleave="commentDisableificationHoverFlag=false"><img :src="commentDisableificationHoverFlag?'/img/开启通知蓝.png':'/img/开启通知灰.png'"> <span>接收通知</span></span>
+                    <span class="delete-comment-notification" @click="deleteLoveNotificationDialogF(love)" @mouseover="deleteCommentNotificaitonHoverFlag=love.id" @mouseleave="deleteCommentNotificaitonHoverFlag=null"><img :src="deleteCommentNotificaitonHoverFlag===love.id?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除该通知</span></span>
+                    <span v-show="love.comments?.likeWarn===1||love.videos?.likeWarn===1||love.dynamic?.likeWarn===1" class="comment-notification" @click="dndLikeNotificationF(love)" @mouseover="commentNotificationHoverFlag=love.id" @mouseleave="commentNotificationHoverFlag=null"><img :src="commentNotificationHoverFlag===love.id?'/img/屏蔽通知蓝.png':'/img/屏蔽通知灰.png'"> <span>不再通知</span></span>
+                    <span v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="comment-disable-notification" @click="dndLikeNotificationF(love)" @mouseover="commentDisableificationHoverFlag=love.id" @mouseleave="commentDisableificationHoverFlag=null"><img :src="commentDisableificationHoverFlag===love.id?'/img/开启通知蓝.png':'/img/开启通知灰.png'"> <span>接收通知</span></span>
                 </div>
                 <img v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="love-dnd" src="/img/dnd.svg">
                 <el-tooltip
@@ -406,9 +406,9 @@
   const deleteLoveDialogFlag=ref(false);
   const deleteLoveNotificaitonId=ref(null);
   const deleteLoveNotificaitonType=ref(null);
-  const deleteCommentNotificaitonHoverFlag = ref(false);
-  const commentNotificationHoverFlag = ref(false);
-  const commentDisableificationHoverFlag = ref(false);
+  const deleteCommentNotificaitonHoverFlag = ref(null);
+  const commentNotificationHoverFlag = ref(null);
+  const commentDisableificationHoverFlag = ref(null);
   const Scrolled=ref(true);
   const likeUserList=reactive([]);
   const pageNum2=ref(1);

@@ -58,8 +58,8 @@ function jumpPage(messageMenu){
     img{
         display: inline-block;
         transform: translateY(18px);
-        width: 14px;
-        height: 10.5px;
+        width: 18px;
+        height: 13.5px;
         margin-right: 9.5px;
     }
     span{

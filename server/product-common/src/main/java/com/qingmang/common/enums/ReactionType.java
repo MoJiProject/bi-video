@@ -7,7 +7,6 @@ import lombok.Getter;
 public enum ReactionType {
 
     LIKE(1, "点赞"),
-    COIN(2, "投币"),
     FAVORITE(3, "收藏");
 
     private final int code;

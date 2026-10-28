@@ -6,7 +6,7 @@
 --    1. 全库 utf8mb4（旧的混用 utf8 三字节，存不了 emoji/生僻字）
 --    2. 补齐外键约束（旧的完全靠应用层保证，加了索引与级联）
 --    3. 拆表：dynamic 一张表塞了三件事 -> user_post / watch_later / user_follow
---    4. 拆表：likes + throw_coin + collects 混存 -> video_reaction / favorite_item
+--    4. 拆表：likes + collects 混存 -> video_reaction / favorite_item
 --    5. 删除 fans 表：它和 follow 是同一份数据的两种写法，由 user_follow 反向查询
 --    6. 删除 at 表：并入 notification（type = MENTION）
 --    7. 计数类字段从主表拆到 *_stats，主表只放业务字段
@@ -52,9 +52,8 @@ CREATE TABLE `user`
     `email`         VARCHAR(128)    NULL COMMENT '邮箱',
     `role`          TINYINT         NOT NULL DEFAULT 0 COMMENT '角色 0普通用户 1管理员',
     `status`        TINYINT         NOT NULL DEFAULT 1 COMMENT '状态 0禁用 1正常',
-    `level`         TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '等级 0-6',
+    `level`         TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '等级 0-10',
     `exp`           INT UNSIGNED    NOT NULL DEFAULT 0 COMMENT '当前等级经验',
-    `coin_balance`  INT             NOT NULL DEFAULT 0 COMMENT '硬币余额（可负，投币会扣）',
     `created_at`    DATETIME(3)     NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '注册时间',
     `updated_at`    DATETIME(3)     NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
     `last_login_at` DATETIME(3)     NULL COMMENT '最后登录时间',
@@ -74,10 +73,8 @@ CREATE TABLE `user_privacy`
     `show_favorite_list`  TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '公开收藏夹',
     `show_follow_list`    TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '公开关注列表',
     `show_fans_list`      TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '公开粉丝列表',
-    `show_coin_income`    TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '公开投币收入',
     `show_like_received`  TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '公开获赞数',
     `show_history`        TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '公开观看记录',
-    `show_coin_list`      TINYINT(1)      NOT NULL DEFAULT 0 COMMENT '公开投币列表',
     `show_like_list`      TINYINT(1)      NOT NULL DEFAULT 0 COMMENT '公开点赞列表',
     `show_birthday`       TINYINT(1)      NOT NULL DEFAULT 0 COMMENT '公开生日',
     `record_history`      TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '记录观看历史',
@@ -105,7 +102,6 @@ CREATE TABLE `user_stats`
     `following_count` INT UNSIGNED    NOT NULL DEFAULT 0 COMMENT '关注数',
     `like_received`   INT UNSIGNED    NOT NULL DEFAULT 0 COMMENT '累计获赞',
     `play_total`      BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '累计播放',
-    `coin_received`   INT UNSIGNED    NOT NULL DEFAULT 0 COMMENT '累计收到投币',
     `updated_at`      DATETIME(3)     NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
     PRIMARY KEY (`user_id`),
     CONSTRAINT `fk_stats_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
@@ -158,7 +154,6 @@ CREATE TABLE `video`
     `reject_reason`    VARCHAR(255)    NULL COMMENT '下架/驳回原因',
     `allow_comment`    TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '允许评论',
     `allow_danmaku`    TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '允许弹幕',
-    `coin_enabled`     TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '允许投币',
     `published_at`     DATETIME(3)     NULL COMMENT '发布时间',
     `created_at`       DATETIME(3)     NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
     `updated_at`       DATETIME(3)     NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
@@ -181,7 +176,6 @@ CREATE TABLE `video_stats`
     `play_count`      BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '播放量',
     `danmaku_count`   INT UNSIGNED    NOT NULL DEFAULT 0 COMMENT '弹幕数',
     `like_count`      INT UNSIGNED    NOT NULL DEFAULT 0 COMMENT '点赞数',
-    `coin_count`      INT UNSIGNED    NOT NULL DEFAULT 0 COMMENT '投币数',
     `favorite_count`  INT UNSIGNED    NOT NULL DEFAULT 0 COMMENT '收藏数',
     `share_count`     INT UNSIGNED    NOT NULL DEFAULT 0 COMMENT '分享数',
     `new_fans_count` INT UNSIGNED    NOT NULL DEFAULT 0 COMMENT '视频新增粉丝数',
@@ -211,7 +205,7 @@ CREATE TABLE `video_status_log`
   COLLATE = utf8mb4_unicode_ci COMMENT ='视频状态流转记录';
 
 -- -----------------------------------------------------------------------------
--- 3. 互动：点赞/投币、评论、弹幕、观看记录
+-- 3. 互动：点赞、评论、弹幕、观看记录
 -- -----------------------------------------------------------------------------
 
 DROP TABLE IF EXISTS `video_reaction`;
@@ -220,8 +214,7 @@ CREATE TABLE `video_reaction`
     `id`            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `user_id`       BIGINT UNSIGNED NOT NULL COMMENT '操作人',
     `video_id`      BIGINT UNSIGNED NOT NULL COMMENT '视频ID',
-    `reaction_type` TINYINT         NOT NULL COMMENT '类型 1点赞 2投币 3收藏到默认夹',
-    `coin_count`    TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '投币数量，仅 type=2 有效',
+    `reaction_type` TINYINT         NOT NULL COMMENT '类型 1点赞 3收藏到默认夹',
     `created_at`    DATETIME(3)     NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_reaction` (`user_id`, `video_id`, `reaction_type`),
@@ -231,7 +224,7 @@ CREATE TABLE `video_reaction`
     CONSTRAINT `fk_reaction_video` FOREIGN KEY (`video_id`) REFERENCES `video` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci COMMENT ='视频互动（点赞/投币），合表后一次查询拿到全部状态';
+  COLLATE = utf8mb4_unicode_ci COMMENT ='视频互动（点赞），合表后一次查询拿到全部状态';
 
 DROP TABLE IF EXISTS `comment`;
 CREATE TABLE `comment`

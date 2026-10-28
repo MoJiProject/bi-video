@@ -30,10 +30,6 @@ export function updateFeaturedVideos(videoIds) {
   return put('/home/featured', videoIds);
 }
 
-export function homeThrowCoinVideos(userId, homeUserId) {
-  return request('throwCoin', { homeUserId });
-}
-
 export function homeLoveVideos(userId, homeUserId) {
   return request('love', { homeUserId });
 }
