@@ -522,4 +522,27 @@ export default {
   font-size: 13px;
   color: #5C6664;
 }
+
+/* ============ 屏幕自适应（断点与 SystemManagement.vue 一致） ============ */
+/* 900px 以下侧边栏已折叠为横条，指标卡收成两列；
+   底部两栏改为上下排布，热门视频表格独占一行，不再和搜索词榜挤在一起 */
+@media (max-width: 900px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .bottom-grid { grid-template-columns: 1fr; }
+  .alert-list { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* 手机宽度下收紧卡片内边距与字号，表格跟随 sys-table 的滚动规则 */
+@media (max-width: 640px) {
+  .stat-grid { gap: 10px; }
+  .stat-card { padding: 12px 14px; }
+  .stat-icon { width: 38px; height: 38px; border-radius: 8px; }
+  .stat-body { margin-left: 10px; }
+  .stat-value { font-size: 20px; }
+  .stat-tip { font-size: 11px; }
+  .chart-bars { height: 170px; }
+  .alert-item { padding: 10px 12px; gap: 8px; }
+  .alert-num { font-size: 18px; }
+  .keyword-word { width: 84px; }
+}
 </style>

@@ -440,10 +440,28 @@ onUnmounted(() => {
   scroll-margin-top: calc(var(--head-h) + 70px);
 }
 
+/* 视频网格：列数阶梯与搜索页（mainSearchLayout.scss）完全一致：
+   ≤1400 四列、≤1100 三列、≤768 两列、≤520 单列。 */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: var(--gap-5) var(--gap-4);
+}
+
+@media (max-width: 1400px) {
+  .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (max-width: 1100px) {
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 768px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 520px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 1120px) {
@@ -453,7 +471,6 @@ onUnmounted(() => {
 }
 
 @media (max-width: 820px) {
-  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .hero-inner { padding-top: 28px; padding-bottom: 28px; }
   .hero-title { font-size: 32px; }
   .hero-desc { font-size: 14px; }
@@ -475,6 +492,7 @@ onUnmounted(() => {
   .hero-btn { height: 36px; padding: 0 18px; font-size: 13px; }
   .rail { gap: 6px; padding-top: 10px; padding-bottom: 10px; }
   .rail-chip { height: 32px; padding: 0 12px; font-size: 12px; }
+  /* 小屏收紧网格间距（列数阶梯见上方 1100/768/520 断点） */
   .grid { gap: 20px 12px; }
   .section-head { gap: 12px; margin-top: 24px; }
   .section-head h2 { font-size: 18px; }
@@ -482,7 +500,6 @@ onUnmounted(() => {
 }
 
 @media (max-width: 480px) {
-  .grid { grid-template-columns: minmax(0, 1fr); }
   .hero-title { font-size: 28px; }
   .hero-card { padding: 10px 8px; }
 }

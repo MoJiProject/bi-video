@@ -513,6 +513,16 @@ export default {
   所以「操作列不换行」这类规则必须放在非 scoped 样式里才生效。
 -->
 <style>
+/* index.html 给全站 body 设了 min-width: 1280px，会把媒体查询的断口
+   和实际布局宽度脱钩（视口已到 640px 以下，body 仍是 1280px 宽，
+   响应式规则全部命中但不产生任何视觉效果）。
+   后台管理已按 900px / 640px 断点做了完整适配，
+   这里仿照站内消息页(body:has(.message-page))的写法解除最小宽度限制。 */
+body:has(.system-layout),
+body:has(.system-forbidden) {
+  min-width: 0;
+}
+
 .system-layout .el-table .sys-actions {
   white-space: nowrap;
 }

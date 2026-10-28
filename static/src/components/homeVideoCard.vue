@@ -56,10 +56,11 @@
 
     <div class="vcard-body">
       <div class="vcard-heading content-card-actions">
-        <h3 class="vcard-title" :title="video.title">{{ video.title }}</h3>
+        <h3 v-if="highlightText" class="vcard-title" :title="video.title"
+          v-html="highlightText(video.title)"></h3>
+        <h3 v-else class="vcard-title" :title="video.title">{{ video.title }}</h3>
         <div v-if="$slots.actions && !selectionMode" class="vcard-actions" @click.stop><slot name="actions"/></div>
       </div>
-
       <div class="vcard-meta">
         <span class="vcard-author" @click.stop="openUser">
           <img
@@ -101,6 +102,8 @@ const props = defineProps({
   selectionMode: { type: Boolean, default: false },
   selected: { type: Boolean, default: false },
   selectionDisabled: { type: Boolean, default: false },
+  /** 可选的标题关键词高亮函数（搜索页传入），不传则原样渲染标题 */
+  highlightText: { type: Function, default: null },
 });
 const emit = defineEmits(["select"]);
 
@@ -356,6 +359,11 @@ async function toggleMark() {
 
 .vcard:not(.is-selecting):hover .vcard-title {
   color: var(--brand);
+}
+
+/* 搜索页传入的 highlightText 会产出 <span class="highlight">，命中词上色 */
+.vcard-title :deep(.highlight) {
+  color: #E06B33;
 }
 
 .vcard-meta {

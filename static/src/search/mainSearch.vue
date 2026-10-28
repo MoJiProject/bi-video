@@ -142,219 +142,15 @@
             description="试试其他关键词，或切换一个感兴趣的分区"/>
 
           <div class="bottomVideo">
-            <div
-              class="video-video"
-              v-for="(video, index) in Videos"
-              :key="video.videoId"
-            >
-              <div
-                class="videoBox1"
-                @mouseover="videoMouseover(video.videoId)"
-                @mouseleave="videoMouseleave(video.videoId)"
-              >
-                <img
-                  class="coverAddress"
-                  @click="locationHerfVideo(video.videoId)"
-                  :src="video.coverAddress"
-                />
-                <video
-                  :id="video.videoId"
-                  preload="none"
-                  disablePictureInPicture
-                  muted
-                  loop
-                  @click="locationHerfVideo(video.videoId)"
-                  :src="video.videoAddress"
-                ></video>
-                <div
-                  v-show="
-                    store.userId !== null &&
-                    (video.waitWatch === 0 || video.waitWatch === 1)
-                  "
-                  class="waitWatch"
-                  @click="waitWatch(video.videoId)"
-                  @mouseover="waitFont = 1"
-                  @mouseleave="waitFont = 0"
-                >
-                  <img
-                    v-show="video.waitWatch === 0"
-                    src="/img/待看清单.png"
-                    style="
-                      width: 21px;
-                      height: 18px;
-                      opacity: 1 !important;
-                      margin-left: 4px;
-                    "
-                  />
-                  <img
-                    v-show="video.waitWatch === 1"
-                    src="/img/添加成功.png"
-                    style="
-                      width: 18px;
-                      height: 15px;
-                      opacity: 1 !important;
-                      margin-left: 5px;
-                    "
-                  />
-                  <span
-                    v-show="waitFont === 1 && video.waitWatch === 0"
-                    style="
-                      width: 110px;
-                      color: white;
-                      z-index: 10;
-                      font-size: 12px;
-                      transform: translate(28.5px, -0.5px);
-                      position: absolute;
-                    "
-                    >添加至稍后观看</span
-                  >
-                  <span
-                    v-show="waitFont === 1 && video.waitWatch === 1"
-                    style="
-                      width: 110px;
-                      color: white;
-                      z-index: 10;
-                      font-size: 12px;
-                      transform: translate(28.5px, -0.5px);
-                      position: absolute;
-                    "
-                    >已添加稍后观看</span
-                  >
-                </div>
-                <div class="videoContent1">
-                  <img
-                    src="/img/播放量白.png"
-                    style="
-                      width: 15px;
-                      height: 12px;
-                      transform: translate(9.5px, 7.5px);
-                      border-radius: 1px;
-                    "
-                  />
-                  <span
-                    style="
-                      font-size: 12.6px;
-                      transform: translate(13px, 9.5px);
-                      position: absolute;
-                    "
-                    >{{ video.videoPlayNumber }}</span
-                  >
-                  <img
-                    src="/img/弹幕白.png"
-                    style="
-                      width: 15px;
-                      height: 12px;
-                      transform: translate(57.5px, 7px);
-                      border-radius: 1px;
-                    "
-                  />
-                  <span
-                    style="
-                      font-size: 12.6px;
-                      transform: translate(61px, 9.5px);
-                      position: absolute;
-                    "
-                    >{{ video.videoScrollingNumber }}</span
-                  >
-                  <span
-                    v-if="video.hour !== null"
-                    style="
-                      font-size: 12.6px;
-                      transform: translate(159.5px, 9.5px);
-                      position: absolute;
-                    "
-                  >
-                    <span>{{ video.hour }}<span class="colon">:</span></span
-                    >{{ video.minutes }}<span class="colon">:</span
-                    >{{ video.second }}</span
-                  >
-
-                  <span
-                    v-if="video.hour === null"
-                    style="
-                      font-size: 12.6px;
-                      transform: translate(175.5px, 9.5px);
-                      position: absolute;
-                    "
-                  >
-                    {{ video.minutes }}<span class="colon">:</span
-                    >{{ video.second }}</span
-                  >
-                </div>
-                <div
-                  style="
-                    width: 245px;
-                    height: 15px;
-                    transform: translate(0px, -35px);
-                    position: absolute;
-                    opacity: 0;
-                    z-index: -10;
-                  "
-                ></div>
-                <div class="videoContent"></div>
-              </div>
-              <el-tooltip
-                popper-class="custom-tooltip1"
-                class="box-item"
-                :show-after="300"
-                effect="light"
-                :content="video.videoTitle"
-                placement="left"
-                :show-arrow="false"
-              >
-                <span
-                  id="result"
-                  class="title"
-                  @click="locationHerfVideo(video.videoId)"
-                  v-html="highlightText(video.videoTitle)"
-                ></span>
-              </el-tooltip>
-              <div
-                style="
-                  height: 32px;
-                  position: absolute;
-                  width: 245px;
-                  transform: translate(0px, -8px);
-                  opacity: 0;
-                  z-index: -10;
-                "
-              ></div>
-              <el-tooltip
-                popper-class="custom-tooltip1"
-                class="box-item"
-                effect="light"
-                :show-after="300"
-                :content="video.userName"
-                placement="left"
-                :show-arrow="false"
-              >
-                <a
-                  :href="'./home?homeMenu=1&userId=' + video.userId"
-                  target="_blank"
-                >
-                  <span
-                    class="videoBottomInfo"
-                    @mouseover="upImgFlag = index - 10"
-                    @mouseleave="upImgFlag = -index - 50000"
-                    ><img
-                      :src="upImgFlag === index - 10 ? upBlue : up"
-                      style="
-                        width: 15px;
-                        height: 12px;
-                        position: absolute;
-                        transform: translate(1px, 26px);
-                        border-radius: 0px;
-                      "
-                    />
-                    <span class="upInfo"
-                      >{{ video.userName }} &nbsp;·&nbsp;&nbsp;{{
-                        video.createTime
-                      }}</span
-                    >
-                  </span>
-                </a>
-              </el-tooltip>
-            </div>
+            <!-- 与首页视频列表同款卡片组件：封面 16:9、时长角标、
+                 悬停预览、稍后观看、UP 主头像行、播放/弹幕数；
+                 highlightText 传入后标题命中关键词会高亮 -->
+            <homeVideoCard
+              v-for="video in Videos"
+              :key="video.id"
+              :video="video"
+              :highlight-text="highlightText"
+            />
             <div class="pager-row">
               <div v-show="acceptSearchData.videoTotal" class="page-container">
                 <el-pagination
@@ -494,10 +290,9 @@
 <script>
 import head1 from "../components/mainHead.vue";
 import Searcha from "../components/search.vue";
-const up = "/img/author-badge-default.png"
-const upBlue = "/img/author-badge-blue.png"
+import homeVideoCard from "../components/homeVideoCard.vue";
 import { computed, reactive, nextTick, onMounted, ref, watch, onUnmounted } from "vue";
-import { authApi, searchApi, socialApi, userContentApi, videoApi } from "../api/product";
+import { searchApi, socialApi, videoApi } from "../api/product";
 import { ElMessage } from "element-plus";
 import { useGlobalStore } from "../store/store";
 import { formatContentCategories } from "../constants/contentCategories";
@@ -543,6 +338,7 @@ export default {
   components: {
     head1,
     Searcha,
+    homeVideoCard,
   },
 
   setup() {
@@ -570,8 +366,6 @@ export default {
     });
     const searchUserList = reactive([]);
     const expanded = ref(false);
-    const waitFont = ref(0);
-    const upImgFlag = ref(false);
     const windowWidth = ref(0);
     const Videos = reactive([]);
     const availableCategories = ref(null);
@@ -645,7 +439,6 @@ watch(
     const dateIndex = ref(0);
     const timeIndex = ref(0);
     const classifyIndexRef = ref(0);
-    const videoAutoPlayTIme = {};
     watch(datea, (newValue) => {
       if (newValue !== null) {
         if (newValue.length !== 0) {
@@ -764,8 +557,15 @@ watch(
     const ClickClassifyFlag21 = () => applyFilter("classify", 20);
     const ClickClassifyFlag22 = () => applyFilter("classify", 21);
     function highlightText(title) {
-      const regex = new RegExp(`(${acceptSearchData.keyWord})`, "g");
-      return title.replace(regex, '<span class="highlight">$1</span>');
+      /* 关键词先转义成正则安全形式，命中处包 <span class="highlight">，
+         交给 homeVideoCard 的 vcard-title 深插行上色 */
+      const word = (acceptSearchData.keyWord || "").trim();
+      if (!word || !title) return title;
+      const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return title.replace(
+        new RegExp(`(${escaped})`, "g"),
+        '<span class="highlight">$1</span>'
+      );
     }
 
     //获取用户ip和token
@@ -795,28 +595,12 @@ watch(
       document.removeEventListener("scroll", handleScroll); // 移除监听滚动事件
     });
 
-    /* 新接口的记录转成模板在用的字段名。
-       模板里散着用 videoId / videoTitle / coverAddress / userId / userName /
-       createTime，集中在这里转一次，模板就不用逐处改。 */
+    /* 新接口的记录直接就是 homeVideoCard 消费的形状
+       （id/title/coverUrl/playUrl/durationSeconds/ownerId/ownerNickname/
+       ownerAvatar/playCount/danmakuCount/watchLater），
+       与首页视频列表共用同一组件，字段无需再转换。 */
     function toVideoCard(r) {
-      return {
-        videoId: r.id,
-        videoTitle: r.title,
-        coverAddress: r.coverUrl,
-        durationSeconds: r.durationSeconds,
-        userId: r.ownerId,
-        userName: r.ownerNickname,
-        userAvatar: r.ownerAvatar,
-        createTime: (r.publishedAt || "").slice(0, 10),
-        playCount: r.playCount,
-        danmakuCount: r.danmakuCount,
-        likeCount: r.likeCount,
-        coinCount: r.coinCount,
-        favoriteCount: r.favoriteCount,
-        commentCount: r.commentCount,
-        liked: r.liked,
-        collected: r.collected,
-      };
+      return { ...r };
     }
 
     /* 新接口的 total 在「还有下一页」时返回 -1（不查总数），
@@ -1008,51 +792,10 @@ watch(
     const addFollowAxios = toggleFollowAxios;
     const deleteFollowAxios = toggleFollowAxios;
 
-    //检查登录
-    /* 原先打的是 /user/checkLoginFlag/{ip}，这个端点在新后端里没有，
-       一进页面就抛 90000，catch 里把 userId 置 0 —— 未登录和接口挂了
-       表现完全一样。改用 /auth/me，未登录时返回 401 也算正常的未登录态。 */
-    async function ChecklLogin() {
-      try {
-        const me = await authApi.me();
-        const meData = me.data || me;
-        const id = meData && meData.id;
-        acceptSearchData.userId = id || 0;
-        store.setUserId(id || null);
-      } catch (error) {
-        acceptSearchData.userId = 0;
-        store.setUserId(null);
-      }
-    }
 
-
-    //添加到稍后观看
-    /* 原来打 /dynamic/updateWaitWatch（该端点在新后端已不存在），
-       改成 videoApi.watchLater —— 同一个「切换稍后再看」语义。 */
-    async function waitWatch(videoId) {
-      if (store.userId === null) {
-        loginDialogVisibleFlag.value =
-          loginDialogVisibleFlag.value === 0 ? 1 : 0;
-        return;
-      }
-      try {
-        await videoApi.watchLater(videoId);
-        const updatedVideos = Videos.map((item) =>
-          item.videoId === videoId
-            ? { ...item, waitWatch: item.waitWatch === 0 ? 1 : 0 }
-            : item
-        );
-        Videos.length = 0;
-        Object.assign(Videos, updatedVideos);
-      } catch (error) {
-        ElMessage({
-          message: "操作失败",
-          type: "info",
-          plain: true,
-          duration: 1700,
-        });
-      }
-    }
+    /* 稍后观看 / 悬停预览 / 跳转详情等交互已收进 homeVideoCard 组件：
+       waitWatch、locationHerfVideo、videoMouseover、videoMouseleave
+       以及 videoAutoPlayTIme 定时器表一并移除，卡片行为与首页完全一致。 */
 
       /* 分类选中态跟着 acceptSearchData.classify 走。
          原来这里是 21 个 else if 把分类名映射到对应 flag，且只置 true
@@ -1066,40 +809,6 @@ watch(
         },
         { immediate: true }
       );
-
-    //跳转到视频详情页
-    function locationHerfVideo(videoId) {
-      window.open(`./video?videoId=BV${videoId}`, "videoWindow");
-    }
-
-    function videoMouseover(id) {
-      // 清除之前的定时器，防止重复触发
-      if (videoAutoPlayTIme[id]) {
-        clearTimeout(videoAutoPlayTIme[id]);
-      }
-
-      // 延迟播放视频
-      videoAutoPlayTIme[id] = setTimeout(() => {
-        const video = document.getElementById(id);
-        if (video)
-          if (video.paused) {
-            // 只有在视频处于暂停状态时才播放
-            video.play().catch(function (error) {});
-          }
-      }, 700); // 1秒后播放视频
-    }
-
-    function videoMouseleave(id) {
-      // 清除之前的视频播放定时器
-      clearTimeout(videoAutoPlayTIme[id]);
-
-      const video = document.getElementById(id);
-      if (video)
-        if (!video.paused) {
-          // 只有在视频播放时才暂停
-          video.pause();
-        }
-    }
 
     function openHome(userId) {
       window.open(`./home?userId=${userId}&homeMenu=1`, "_blank");
@@ -1176,10 +885,6 @@ watch(
       ClickClassifyFlag21,
       ClickClassifyFlag22,
       expanded,
-      waitFont,
-      upImgFlag,
-      up,
-      upBlue,
       Videos,
       acceptSearchData,
       highlightText,
@@ -1188,10 +893,6 @@ watch(
       userContent,
       addFollowAxios,
       deleteFollowAxios,
-      waitWatch,
-      locationHerfVideo,
-      videoMouseover,
-      videoMouseleave,
       store,
       loginDialogVisibleFlag,
       openHome,
@@ -1535,145 +1236,16 @@ watch(
 }
 
 
-/* 结果网格。
-   原来这一块是三层坐标叠出来的：.bottomVideo position:absolute + top:306px，
-   里面的 .video-video 再 margin-top:295px + margin-bottom:-180px
-   + translate(64px,-507px)，标题和 UP 名各自 absolute + translate 上移。
-   折算成实际渲染位置，标题和 UP 名是拿负 margin 顶回封面下方的。
-   现在整块走 grid：卡片自身是一个纵向 flex，封面 / 标题 / UP 行依次排列。 */
+/* 结果网格：卡片复用 homeVideoCard 组件，间距 / 悬停效果与首页列表一致；
+   列数固定 5 列封顶（宽屏不再随 auto-fill 挤出第 6 列），
+   窄屏由 mainSearchLayout.scss 的 1100 / 768 / 520 断点降为 3 / 2 / 1 列。 */
 .bottomVideo {
   position: static;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(228px, 1fr));
-  gap: var(--gap-5) var(--gap-4);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 20px 16px;
   width: 100%;
   margin-top: var(--gap-4);
-}
-
-.video-video {
-  position: static;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-
-/* 封面：固定 16:9，跟随卡片宽度 */
-.videoBox1 {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  transform: none;
-  background: var(--fill);
-}
-
-.video-video .coverAddress {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 0;
-}
-
-.video-video video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 0;
-  z-index: 2;
-  cursor: pointer;
-  visibility: hidden;
-  user-select: none;
-}
-
-/* 封面上的时长条 / 底部渐变：跟着封面盒走，不再 absolute + top:78% */
-.video-video .videoContent {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: auto;
-  height: 30px;
-  border-radius: 0 0 var(--radius-md) var(--radius-md);
-  background: linear-gradient(to top, rgba(0, 0, 0, .9), rgba(0, 0, 0, 0));
-  z-index: 3;
-}
-
-.video-video .videoContent1 {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: auto;
-  height: 30px;
-  color: #fff;
-  z-index: 3;
-  transform: none;
-}
-
-.video-video:hover .waitWatch {
-  visibility: visible;
-}
-
-.videoBox1:hover {
-  video {
-    opacity: 1;
-    transition: all 0.3s ease;
-    visibility: visible;
-    transition-delay: 0.6s;
-  }
-
-  .videoContent1 {
-    opacity: 0;
-    transition: all 0.3s ease;
-    visibility: hidden;
-  }
-  .videoContent {
-    opacity: 0;
-    transition: all 0.3s ease;
-    visibility: hidden;
-  }
-
-  .waitWatch {
-    transition-delay: 0.3s;
-    opacity: 1;
-    transition: all 0.3s ease;
-    visibility: visible;
-  }
-}
-
-.colon {
-  display: inline-block;
-  position: relative;
-  transform: translateY(-1px);
-}
-
-.video-video .waitWatch {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 4;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-sm);
-  background-color: rgba(33, 33, 33, .8);
-  color: #fff;
-  overflow: hidden;
-  opacity: 0;
-  visibility: hidden;
-  cursor: pointer;
-  transition: width .3s ease, opacity .3s ease, visibility .3s ease;
-}
-
-.video-video .waitWatch:hover {
-  width: 108px;
-  visibility: visible;
 }
 
 .videoBottomInfo {
@@ -1702,57 +1274,15 @@ watch(
   color: var(--brand);
 }
 
-.changer {
-  width: 40px;
-  height: 83.5px;
-  border-radius: 10px;
-  position: absolute;
-  transform: translate(1390px, -305px);
-  border: 1px solid #E0E5E3;
-  cursor: pointer;
-}
-.changer img {
-  width: 13px;
-  height: 13px;
-  transform: translate(12px, 10px);
-  transition: all 0.3s ease;
-  position: absolute;
-}
-.changer:hover {
-  background-color: #E0E5E3;
-}
-
-.changer span {
-  font-size: 11px;
-  writing-mode: vertical-rl; /* 垂直从右到左 */
-  /* 或者使用: writing-mode: vertical-lr; 从左到右 */
-  transform: translate(12px, 32px);
-}
-
-.video-video .title {
-  width: auto;
-  min-width: 0;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.5;
-  padding-bottom: 0;
-  color: var(--ink);
-  font-size: 15px;
-  font-weight: 500;
-  position: static;
-  transform: none;
-  cursor: pointer;
-  transition: color .2s ease;
-}
-
 .title:hover {
   color: #0FA68E;
 }
 .highlight {
   color: #E06B33 !important;
+}
+/* 标题高亮留给 homeVideoCard 的深插行 —— vcard-title 的关键词命中色 */
+:deep(.vcard-title .highlight) {
+  color: #E06B33;
 }
 
 /* 搜索结果的用户卡片：原 .searchUsers 宽 91.15% + absolute + translate(-10px,-10px)，
@@ -1904,11 +1434,6 @@ watch(
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-}
-
-.coverAddress {
-  user-select: none;
-  cursor: pointer;
 }
 
 .page-container span {
