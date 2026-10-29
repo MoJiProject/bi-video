@@ -186,24 +186,38 @@
         @mouseleave="deleteCommentHoverFlag2 = -1"
       >
         <div class="comment-item">
-          <img
-          @click="openHome(1,comment.userInfo.id)"
-          @mouseover="delayUserInfo(comment.comments.id), selectFollow(comment)"
-          @mouseleave="delayUserInfo(0)"
-          class="comment-user-avatar"
-          :src="comment.userInfo.avatarAddress"
-        />
-        <span class="comment-author-line">
-          <span
-            @click="openHome(1,comment.userInfo.id)"
-            class="comment-user-name"
-            :style="{ color: comment.userInfo.grade > 4 ? '#F0A03C' : '#000' }"
-            @mouseover="
-              delayUserInfo(-comment.comments.id), selectFollow(comment)
-            "
-            @mouseleave="delayUserInfo(0)"
-            >{{ comment.userInfo.userName }}</span
+          <UserHoverCard
+            :user-id="comment.userInfo.id"
+            :nickname="comment.userInfo.userName"
+            :avatar="comment.userInfo.avatarAddress"
+            :avatar-size="40"
+            class="comment-user-hover"
           >
+            <template #reference>
+              <img
+                @click="openHome(1,comment.userInfo.id)"
+                class="comment-user-avatar"
+                :src="comment.userInfo.avatarAddress"
+              />
+            </template>
+          </UserHoverCard>
+        <span class="comment-author-line">
+          <UserHoverCard
+            :user-id="comment.userInfo.id"
+            :nickname="comment.userInfo.userName"
+            :avatar="comment.userInfo.avatarAddress"
+            :avatar-size="40"
+            class="comment-name-hover"
+          >
+            <template #reference>
+              <span
+                @click="openHome(1,comment.userInfo.id)"
+                class="comment-user-name"
+                :style="{ color: comment.userInfo.grade > 4 ? '#F0A03C' : '#000' }"
+                >{{ comment.userInfo.userName }}</span
+              >
+            </template>
+          </UserHoverCard>
           <LevelBadge
             v-if="comment"
             class="comment-user-level"
@@ -212,110 +226,6 @@
           />
           <img v-if="comment.comments.userId===props.dynamic.dynamic.followId" class="comment-up-icon" src="/img/author-badge.svg">
         </span>
-        <div
-          v-show="
-            nameOrAvatarHoverFlag === -comment.comments.id ||
-            nameOrAvatarHoverFlag === comment.comments.id
-          "
-          class="up-user-info"
-          :style="{
-            transform:
-              nameOrAvatarHoverFlag === comment.comments.id
-                ? 'translate(0px, 0px)'
-                : 'translate(55px, -15px)',
-          }"
-          @mouseover="nameOrAvatarHoverFlag2 = true"
-          @mouseleave="(nameOrAvatarHoverFlag2 = false), delayUserInfo(0)"
-        >
-        <div v-if="!comment.userInfo.backgroundAddress" :style="{backgroundImage:'url(/img/page-bg.png)'}" class="up-user-info-bg"></div>
-        <div v-else :style="{backgroundImage:`url(${comment.userInfo.backgroundAddress})`}" class="up-user-info-bg"></div>
-          <div class="up-user-info-container">
-            <img
-              @click="openHome(1,comment.userInfo.id)"
-              :src="comment.userInfo.avatarAddress"
-              class="up-user-info-avatar"
-            />
-            <div class="up-user-info-container-header">
-              <span
-                @click="openHome(1,comment.userInfo.id)"
-                class="up-user-info-name"
-                :style="{
-                  color: comment.userInfo.grade > 4 ? '#F0A03C' : '#000',
-                }"
-                >{{ comment.userInfo.userName }}</span
-              >
-              <img
-                v-if="comment.userInfo.gender === 1"
-                src="/img/man.png"
-                class="up-user-info-gender"
-              />
-              <img
-                v-if="comment.userInfo.gender === 2"
-                src="/img/man.png"
-                class="up-user-info-gender"
-              />
-              <LevelBadge
-                v-if="comment.userInfo.grade"
-                :level="comment.userInfo.grade"
-                class="up-user-info-level"
-                size="sm"
-              />
-            </div>
-            <div class="up-user-info-container-content">
-              <span @click="openHome(8,comment.userInfo.id)" style="color: #8F9794; cursor: pointer"
-                ><span style="color: black">{{
-                  comment.userInfo.followNumber
-                }}</span>
-                &nbsp;关注</span
-              >
-              <span @click="openHome(9,comment.userInfo.id)" style="margin-left: 25px; color: #8F9794; cursor: pointer"
-                ><span style="color: black">{{
-                  comment.userInfo.fansNumber
-                }}</span>
-                &nbsp;粉丝</span
-              >
-              <span style="margin-left: 25px; color: #8F9794;"
-                ><span style="color: black">{{
-                  comment.userInfo.likeNumber
-                }}</span>
-                &nbsp;获赞</span
-              >
-            </div>
-            <div class="up-user-info-container-introduce">
-              <span class="up-user-info-introduce-content">
-                {{ comment.userInfo.introduce }}
-              </span>
-            </div>
-            <div class="up-user-info-container-footer">
-              <span
-                v-show="comment.userInfo.isFansFlag===0"
-                class="up-user-info-container-footer-add-follow"
-                @click="addFollowAxios(comment)"
-                v-debounce
-                ><img
-                  src="/img/加关注.png"
-                  style="width: 14px; margin-right: 4px"
-                />关注</span
-              >
-              <span
-                v-show="comment.userInfo.isFansFlag===1"
-                class="up-user-info-container-footer-delete-follow"
-                @click="deleteFollowAxios(comment)"
-                v-debounce
-                @mouseover="isDeleteFollowFlag = -comment.comments.id"
-                @mouseleave="isDeleteFollowFlag = comment.comments.id"
-              >
-                <span v-show="isDeleteFollowFlag !== -comment.comments.id"
-                  >已关注</span
-                >
-                <span v-show="isDeleteFollowFlag === -comment.comments.id"
-                  >取消关注</span
-                ></span
-              >
-              <span class="up-user-info-container-footer-message" @click="addDialogueF(comment.userInfo.id)">发消息</span>
-            </div>
-          </div>
-        </div>
         <span
           class="comment-content"
           :class="{
@@ -603,29 +513,41 @@
             @mouseleave="deleteCommentHoverFlag2 = -1"
           >
            <div class="comment-item">
-            <img
-              @click="openHome(1,remark.userInfo.id)"
-              @mouseover="
-                delayUserInfo(remark.comments.id), selectFollow(remark)
-              "
-              @mouseleave="delayUserInfo(0)"
-              class="comment-user-avatar"
-              :src="remark.userInfo.avatarAddress"
-            />
+            <UserHoverCard
+              :user-id="remark.userInfo.id"
+              :nickname="remark.userInfo.userName"
+              :avatar="remark.userInfo.avatarAddress"
+              :avatar-size="24"
+              class="comment-user-hover"
+            >
+              <template #reference>
+                <img
+                  @click="openHome(1,remark.userInfo.id)"
+                  class="comment-user-avatar"
+                  :src="remark.userInfo.avatarAddress"
+                />
+              </template>
+            </UserHoverCard>
            <div class="reply-content" >
             <div class="reply-line">
             <span class="comment-author-line">
-              <span
-                 @click="openHome(1,remark.userInfo.id)"
-                :id="'replyName'+remark.comments.id"
-                class="comment-user-name"
-                :style="{ color: remark.userInfo.grade > 4 ? '#F0A03C' : '#000' }"
-                @mouseover="
-                  delayUserInfo(-remark.comments.id), selectFollow(remark)
-                "
-                @mouseleave="delayUserInfo(0)"
-                >{{ remark.userInfo.userName }}</span
+              <UserHoverCard
+                :user-id="remark.userInfo.id"
+                :nickname="remark.userInfo.userName"
+                :avatar="remark.userInfo.avatarAddress"
+                :avatar-size="24"
+                class="comment-name-hover"
               >
+                <template #reference>
+                  <span
+                    :id="'replyName'+remark.comments.id"
+                    class="comment-user-name"
+                    :style="{ color: remark.userInfo.grade > 4 ? '#F0A03C' : '#000' }"
+                    @click="openHome(1,remark.userInfo.id)"
+                    >{{ remark.userInfo.userName }}</span
+                  >
+                </template>
+              </UserHoverCard>
               <LevelBadge
                 v-if="remark"
                 class="comment-user-level"
@@ -634,110 +556,6 @@
               />
               <img v-if="remark.comments.userId===props.dynamic.dynamic.followId&&remark.comments.imgAddress.split(',').length>1" class="comment-up-icon" src="/img/author-badge.svg">
             </span>
-            <div
-          v-show="
-            (nameOrAvatarHoverFlag === -remark.comments.id ||
-            nameOrAvatarHoverFlag === remark.comments.id)&&(remark.userInfo.isFansFlag===0||remark.userInfo.isFansFlag===1)
-          "
-          class="up-user-info2"
-          :style="{
-            transform:
-              nameOrAvatarHoverFlag === remark.comments.id
-                ? 'translate(0px, 0px)'
-                : 'translate(40px, -5px)',
-          }"
-          @mouseover="nameOrAvatarHoverFlag2 = true"
-          @mouseleave="(nameOrAvatarHoverFlag2 = false), delayUserInfo(0)"
-        >
-        <div v-if="!remark.userInfo.backgroundAddress" :style="{backgroundImage:'url(/img/page-bg.png)'}" class="up-user-info-bg"></div>
-        <div v-else :style="{backgroundImage:`url(${remark.userInfo.backgroundAddress})`}" class="up-user-info-bg"></div>
-          <div class="up-user-info-container">
-            <img
-              @click="openHome(1,remark.userInfo.id)"
-              :src="remark.userInfo.avatarAddress"
-              class="up-user-info-avatar"
-            />
-            <div class="up-user-info-container-header">
-              <span
-                @click="openHome(1,remark.userInfo.id)"
-                class="up-user-info-name"
-                :style="{
-                  color: remark.userInfo.grade > 4 ? '#F0A03C' : '#000',
-                }"
-                >{{ remark.userInfo.userName }}</span
-              >
-              <img
-                v-if="remark.userInfo.gender === 1"
-                src="/img/man.png"
-                class="up-user-info-gender"
-              />
-              <img
-                v-if="remark.userInfo.gender === 2"
-                src="/img/man.png"
-                class="up-user-info-gender"
-              />
-              <LevelBadge
-                v-if="remark.userInfo.grade"
-                :level="remark.userInfo.grade"
-                class="up-user-info-level"
-                size="sm"
-              />
-            </div>
-            <div class="up-user-info-container-content">
-              <span @click="openHome(8,remark.userInfo.id)" style="color: #8F9794; cursor: pointer"
-                ><span style="color: black">{{
-                  remark.userInfo.followNumber
-                }}</span>
-                &nbsp;关注</span
-              >
-              <span @click="openHome(9,remark.userInfo.id)" style="margin-left: 25px; color: #8F9794; cursor: pointer"
-                ><span style="color: black">{{
-                  remark.userInfo.fansNumber
-                }}</span>
-                &nbsp;粉丝</span
-              >
-              <span style="margin-left: 25px; color: #8F9794;"
-                ><span style="color: black">{{
-                  remark.userInfo.likeNumber
-                }}</span>
-                &nbsp;获赞</span
-              >
-            </div>
-            <div class="up-user-info-container-introduce">
-              <span class="up-user-info-introduce-content">
-                {{ remark.userInfo.introduce }}
-              </span>
-            </div>
-            <div class="up-user-info-container-footer">
-              <span
-                v-show="remark.userInfo.isFansFlag===0"
-                class="up-user-info-container-footer-add-follow"
-                v-debounce
-                @click="addFollowAxios(remark)"
-                ><img
-                  src="/img/加关注.png"
-                  style="width: 14px; margin-right: 4px"
-                />关注</span
-              >
-              <span
-                v-show="remark.userInfo.isFansFlag===1"
-                class="up-user-info-container-footer-delete-follow"
-                @click="deleteFollowAxios(remark)"
-                v-debounce
-                @mouseover="isDeleteFollowFlag = -remark.comments.id"
-                @mouseleave="isDeleteFollowFlag = remark.comments.id"
-              >
-                <span v-show="isDeleteFollowFlag !== -remark.comments.id"
-                  >已关注</span
-                >
-                <span v-show="isDeleteFollowFlag === -remark.comments.id"
-                  >取消关注</span
-                ></span
-              >
-              <span class="up-user-info-container-footer-message" @click="addDialogueF(remark.userInfo.id)">发消息</span>
-            </div>
-          </div>
-           </div>
             <span
               class="comment-content"
               :class="{
@@ -1002,7 +820,10 @@
     </div>
     <div v-if="commentTotal<=10" class="comment-footer-info">没有更多评论</div>
     <a v-else :href="'./video?videoId=BV'+props.dynamic.dynamic.id" target="videoWindow" class="comment-footer-info2">查看更多评论</a>
-    <user-info  :style="{left:eitUserInfoLeft+'px',top:eitUserInfoTop+'px'}"/>
+    <UserHoverCard v-if="store.eitUserInfo" controlled :user-id="store.eitUserInfo.id"
+      :initial-profile="store.eitUserInfo" :style="{ left: eitUserInfoLeft + 'px', top: eitUserInfoTop + 'px' }"
+      @card-mouseenter="store.setEitUserInfoHover(true)"
+      @card-mouseleave="store.setEitUserInfo(null), store.setEitUserInfoHover(false)" />
     <el-dialog
       v-model="deleteDialogVisible"
       append-to-body
@@ -1034,16 +855,16 @@ import eit from "../components/eit";
 import { ElMessage } from "element-plus";
 import apiClient from "../services/apiClient";
 import { useGlobalStore } from "../store/store";
-import userInfo from "../utils/userInfo";
 import LevelBadge from "../components/LevelBadge.vue";
+import UserHoverCard from "../components/UserHoverCard.vue";
 import {addDialogue} from '../api/privateMessage/index';
 import {putUpStatus} from "@/api/comment/index"
 export default {
   name: "Comment",
   components: {
     eit,
-    userInfo,
     LevelBadge,
+    UserHoverCard,
   },
   props:{
     dynamic:{
@@ -1099,14 +920,12 @@ export default {
     ]);
     const commentLikeHoverFlag = ref(-1);
     const commentDislikeHoverFlag = ref(-1);
-    const nameOrAvatarHoverFlag = ref(0);
     const deleteCommentHoverFlag = ref(-1);
     const deleteCommentHoverFlag2 = ref(-1);
     const commentList = reactive([]);
     const commentId = ref(null);
     const mainCommentId = ref(null);
     const deleteDialogVisible = ref(false);
-    const isDeleteFollowFlag = ref(0);
     const pageNum = ref(1);
     const replyComment = ref(null);
     const mainComment = ref(null);
@@ -2146,108 +1965,6 @@ export default {
       }
     }
 
-    //延迟显示用户信息
-    let delayUserInfoTime = null;
-    let delayUserInfoTime2 = null;
-    const nameOrAvatarHoverFlag2 = ref(false);
-    function delayUserInfo(value) {
-      if (value !== 0) {
-        clearTimeout(delayUserInfoTime);
-        delayUserInfoTime2 = setTimeout(() => {
-          nameOrAvatarHoverFlag.value = value;
-        }, 300);
-      } else {
-        clearTimeout(delayUserInfoTime2);
-        delayUserInfoTime = setTimeout(() => {
-          if (!nameOrAvatarHoverFlag2.value) {
-            nameOrAvatarHoverFlag.value = 0;
-            selectFollowFlag = false;
-          }
-        }, 400);
-      }
-    }
-
-    //关注用户
-    async function addFollowAxios(comment) {
-      try {
-        if (store.userId === null) {
-          store.setLoginDialogVisibleFlag(true);
-          return;
-        }
-
-        if (store.userId === comment.userInfo.id) {
-          ElMessage({
-            message: "不能关注自己哦",
-            type: "info",
-            plain: true,
-            duration: 1700,
-          });
-          return;
-        }
-
-        const res = await apiClient.post(
-          "/video/addFollow",
-          {
-            followId: comment.userInfo.id,
-            fansId: store.userId,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: store.token,
-            },
-          },
-        );
-        if (res.data.code === 1) comment.userInfo.isFansFlag = 1;
-      } catch (error) {}
-    }
-
-    //取消关注用户
-    async function deleteFollowAxios(comment) {
-      try {
-        if (store.userId === null) {
-          store.setLoginDialogVisibleFlag(true);
-          return;
-        }
-
-        const res = await apiClient.post(
-          "/video/deleteFollow",
-          {
-            followId: comment.userInfo.id,
-            fansId: store.userId,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: store.token,
-            },
-          },
-        );
-        if (res.data.code === 1) comment.userInfo.isFansFlag = 0;
-      } catch (error) {}
-    }
-
-    //查询是否关注该用户
-    let selectFollowFlag = false;
-    async function selectFollow(comment) {
-      if (selectFollowFlag) return;
-      selectFollowFlag = true;
-      const response = await apiClient.get("/user/selectFollow", {
-        params: {
-          userId: store.userId,
-          viewUserId: comment.userInfo.id,
-        },
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: store.token,
-        },
-      });
-      if (response.data.code === 1) {
-        isDeleteFollowFlag.value = comment.comments.id;
-        comment.userInfo.isFansFlag = response.data.data;
-      }
-    }
-
     //回复评论
     let replyInputDom = null;
     function replyCommentF(comment,mainCommentt) {
@@ -2635,13 +2352,6 @@ export default {
       commentId,
       mainCommentId,
       controlsCommentAxios,
-      nameOrAvatarHoverFlag,
-      nameOrAvatarHoverFlag2,
-      delayUserInfo,
-      addFollowAxios,
-      deleteFollowAxios,
-      isDeleteFollowFlag,
-      selectFollow,
       replyComment,
       replyCommentF,
       selectReplyComment,
@@ -3802,174 +3512,7 @@ export default {
   margin-left: 12px;
 }
 
-.up-user-info {
-  position: absolute;
-  top: 40px;
-  left: 38px;
-  background-color: white;
-  color: #a6acaf;
-  border-radius: 10px;
-  z-index: 1000;
-  width: 350px;
-  height: 235px;
-  line-height: 1.2 !important;
-  border: 1px solid #d3d3d3; /* 浅灰色边框 */
-  box-shadow: 1px 0px 5px #e5e5e5;
-  overflow: hidden;
-  padding-bottom: 15px;
-  margin-bottom: 50px;
-}
-
-.up-user-info2 {
-  position: absolute;
-  top: 35px;
-  left: 55px;
-  background-color: white;
-  color: #a6acaf;
-  border-radius: 10px;
-  line-height: 1.2 !important;
-  z-index: 1000;
-  width: 350px;
-  height: 235px;
-  border: 1px solid #d3d3d3; /* 浅灰色边框 */
-  box-shadow: 1px 0px 5px #e5e5e5;
-  overflow: hidden;
-  padding-bottom: 15px;
-  margin-bottom: 50px;
-}
-
-.up-user-info-bg {
-  width: 100%;
-  height: 40%;
-  background-size: cover;
-  background-position: 50% 50%;
-  background-repeat: no-repeat;
-}
-
-.up-user-info-container {
-  height: 120px;
-  padding-top: 5px;
-  padding-left: 10px;
-  padding-right: 20px;
-  padding-bottom: 15px;
-}
-
-.up-user-info-avatar {
-  display: flex;
-  width: 47px;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.up-user-info-container-header {
-  display: flex;
-  transform: translate(60px, -42px);
-}
-
-.up-user-info-name {
-  font-size: 14.5px;
-  cursor: pointer;
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  margin-right: 4px;
-}
-
-.up-user-info-gender {
-  width: 16px;
-  height: 15px;
-  margin-top: 2.5px;
-  margin-right: 5px;
-}
-
-.up-user-info-level {
-  flex: none;
-  margin-top: 3.5px;
-}
-
-.up-user-info-container-content {
-  display: flex;
-  transform: translate(60px, -30px);
-  font-size: 12px;
-}
-
-.up-user-info-container-introduce {
-  display: flex;
-  transform: translate(60px, -20px);
-  font-size: 12px;
-  padding-right: 60px;
-}
-
-.up-user-info-introduce-content {
-  display: -webkit-box; /* 必须使用这个 */
-  -webkit-box-orient: vertical; /* 垂直方向排列 */
-  -webkit-line-clamp: 2;
-  overflow: hidden; /* 隐藏超出部分 */
-  word-wrap: break-word; /* 超出部分换行 */
-  text-overflow: ellipsis; /* 显示省略号 */
-}
-
-.up-user-info-container-footer {
-  display: flex;
-  transform: translate(60px, -5px);
-  user-select: none;
-  width: 100%;
-}
-
-.up-user-info-container-footer-add-follow {
-  width: 102px;
-  font-size: 14px;
-  height: 30px;
-  background-color: #0FA68E;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 5px;
-  margin-right: 5px;
-  color: white;
-  cursor: pointer;
-}
-
-.up-user-info-container-footer-delete-follow {
-  width: 102px;
-  font-size: 14px;
-  height: 30px;
-  background-color: #E0E5E3;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 5px;
-  margin-right: 5px;
-  color: #8F9794;
-  cursor: pointer;
-}
-
-.up-user-info-container-footer-delete-follow:hover {
-  background-color: #EFF3F2;
-}
-
-.up-user-info-container-footer-message {
-  width: 100px;
-  font-size: 14px;
-  height: 30px;
-  border: 1px solid #5D6764;
-  border-radius: 5px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #5D6764;
-  cursor: pointer;
-}
-
-.up-user-info-container-footer-add-follow:hover {
-  opacity: 0.9;
-}
-
-.up-user-info-container-footer-message:hover {
-  color: #0FA68E;
-  border: 1px solid #0FA68E;
-}
+/* 评论区用户卡签：统一改用 components/UserHoverCard.vue（el-popover 悬停卡片） */
 
 .comment-footer-info{
   position: relative;

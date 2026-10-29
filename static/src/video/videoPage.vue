@@ -70,21 +70,26 @@
             <span class="prohibition-sign"></span>
             <span>未经作者授权，禁止转载</span>
           </div>
-          <div
-            class="up-user-avatar-wrapper"
-            @focusin="delayUserInfo(1)"
-            @focusout="!$event.currentTarget.contains($event.relatedTarget) && delayUserInfo(0)"
-          >
-            <img
-              @click="openHome(1,SelectVideoByIdVo.upUser.id)"
-              :src="SelectVideoByIdVo.upUser?.avatarAddress"
-              class="up-user-avatar"
-              @mouseover="delayUserInfo(1)"
-              @mouseleave="delayUserInfo(0)"
-            />
-            <button type="button" class="video-creator-name" @click="openHome(1,SelectVideoByIdVo.upUser.id)">
-              {{ SelectVideoByIdVo.upUser.userName }}
-            </button>
+          <div class="up-user-avatar-wrapper">
+            <UserHoverCard
+              :user-id="Number(SelectVideoByIdVo.upUser.id) || 0"
+              :avatar="SelectVideoByIdVo.upUser?.avatarAddress"
+              :nickname="SelectVideoByIdVo.upUser.userName || ''"
+              :avatar-size="47"
+            >
+              <template #reference>
+                <span class="up-user-hover-trigger">
+                  <img
+                    @click="openHome(1,SelectVideoByIdVo.upUser.id)"
+                    :src="SelectVideoByIdVo.upUser?.avatarAddress"
+                    class="up-user-avatar"
+                  />
+                  <button type="button" class="video-creator-name" @click="openHome(1,SelectVideoByIdVo.upUser.id)">
+                    {{ SelectVideoByIdVo.upUser.userName }}
+                  </button>
+                </span>
+              </template>
+            </UserHoverCard>
             <span class="video-creator-followers">{{ SelectVideoByIdVo.upUser.fansNumber }} 位关注者</span>
             <button
               v-if="String(SelectVideoByIdVo.upUser.id) !== String(store.userId)"
@@ -93,59 +98,6 @@
               :aria-pressed="SelectVideoByIdVo.isFansFlag === 1"
               @click="SelectVideoByIdVo.isFansFlag === 1 ? deleteFollowAxios(SelectVideoByIdVo.upUser.id) : addFollowAxios(SelectVideoByIdVo.upUser.id)"
             >{{ SelectVideoByIdVo.isFansFlag === 1 ? '已关注' : '关注' }}</button>
-            <div
-              v-show="nameOrAvatarHoverFlag !== 0"
-              class="up-user-info"
-              @mouseover="nameOrAvatarHoverFlag2=true"
-              @mouseleave="nameOrAvatarHoverFlag2=false,delayUserInfo(0)"
-            >
-              <div v-if="!SelectVideoByIdVo.upUser.backgroundAddress" :style="{backgroundImage:'url(/img/page-bg.png)'}" class="up-user-info-bg"></div>
-              <div v-else :style="{backgroundImage:`url(${SelectVideoByIdVo.upUser.backgroundAddress})`}" class="up-user-info-bg"></div>
-              <div class="up-user-info-container">
-                <img
-                  @click="openHome(1,SelectVideoByIdVo.upUser.id)"
-                  :src="SelectVideoByIdVo.upUser?.avatarAddress"
-                  class="up-user-info-avatar"
-                />
-                <div class="up-user-info-container-header">
-                  <span
-                  @click="openHome(1,SelectVideoByIdVo.upUser.id)"
-                    class="up-user-info-name"
-                    :style="{
-                      color:
-                        SelectVideoByIdVo.upUser.grade > 4 ? '#F0A03C' : '#000',
-                    }"
-                    >{{ SelectVideoByIdVo.upUser.userName }}</span>
-                  <img
-                    v-if="SelectVideoByIdVo.upUser.gender === 1"
-                    src="/img/man.png"
-                    class="up-user-info-gender"
-                  />
-                  <img
-                    v-if="SelectVideoByIdVo.upUser.gender === 2"
-                    src="/img/woman.png"
-                    class="up-user-info-gender"
-                  />
-                  <LevelBadge
-                    v-if="SelectVideoByIdVo.upUser.grade"
-                    :level="SelectVideoByIdVo.upUser.grade"
-                    class="up-user-info-level"
-                    size="sm"
-                  />
-                </div>
-                <div class="up-user-info-container-content">
-                  <div class="up-user-info-container-introduce">
-                    <span class="up-user-info-introduce-content">获赞数：{{ SelectVideoByIdVo.upUser.likeNumber }}</span>
-                  </div>
-                  <div class="up-user-info-container-introduce">
-                    <span class="up-user-info-introduce-content">粉丝数：{{ SelectVideoByIdVo.upUser.fansNumber }}</span>
-                  </div>
-                  <div class="up-user-info-container-introduce">
-                    <span class="up-user-info-introduce-content">关注数：{{ SelectVideoByIdVo.upUser.followNumber }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
         <div v-if="titleShowFlag" class="expand-icon-container">
@@ -1071,17 +1023,6 @@
             <span class="send-scrolling-btn-open1" @click="sendScrollingAxios"
               >发送</span>
           </div>
-          <!-- 画质没做 -->
-          <span
-            :class="{
-              imageQualityintoVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,
-            }"
-            v-show="videoFeatureShowFlag"
-            @mousemove="(videoLeave = true), handlerCleanTime()"
-            @mouseleave="videoLeave = false"
-            class="up-video-play-bottom-video-image-quality"
-            title="当前视频源的原始画质"
-            >原画</span>
           <!-- 倍速 -->
           <div
             :class="{ sppedVideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag, 'is-panel-open': openPlayerPanel === 'speed' }"
@@ -2390,7 +2331,7 @@
             :key="index"
             >{{ index }}</span>
         </div>
-        <comment />
+        <videoComments :video-id="SelectVideoByIdVo.upVideo.id" />
         <Teleport
           :to="watchTogetherHost"
           :disabled="intoVideoAllDisplayIngFlag && !upVideoContainer"
@@ -2503,8 +2444,8 @@ import LevelBadge from "../components/LevelBadge.vue";
 import { useGlobalStore } from "../store/store";
 import autoPlayVideo from "./autoPlayVideo.vue";
 import autoPlayVideo2 from "./autoPlayVideo2.vue";
-import comment from "../comment/comment.vue";
-import {addDialogue} from '../api/privateMessage/index';
+import videoComments from "./videoComments.vue";
+import UserHoverCard from "../components/UserHoverCard.vue";
 import videoShareC from '../utils/videoShare.vue';
 import scrollingList from '../utils/scrollingList.vue';
 import WatchTogetherPanel from './WatchTogetherPanel.vue';
@@ -2513,9 +2454,10 @@ export default {
   components: {
     head1,
     LevelBadge,
+    UserHoverCard,
     autoPlayVideo,
     autoPlayVideo2,
-    comment,
+    videoComments,
     videoShareC,
     scrollingList,
     WatchTogetherPanel,
@@ -2738,7 +2680,6 @@ export default {
     const closePostionHoverFlag = ref(false);
     const closePostionFlag = ref(true);
     const history = reactive({});
-    const nameOrAvatarHoverFlag = ref(0);
     const shareHover=ref(false);
     const predefineColors = ref([
       "#000000",
@@ -2875,10 +2816,6 @@ export default {
       //清理剩余的定时器与连击计时器
       clearTimeout(timer);
       clearTimeout(keyInfoTime);
-      clearTimeout(audioInfoTime);
-      clearTimeout(playNumberTime);
-      clearTimeout(delayUserInfoTime);
-      clearTimeout(delayUserInfoTime2);
       clearTimeout(delayShareTime);
       clearTimeout(AutoPlayVideoListTime);
       clearInterval(intervalId);
@@ -4677,53 +4614,6 @@ export default {
       }
     }
 
-    let delayUserInfoTime = null;
-    let delayUserInfoTime2 = null;
-    const nameOrAvatarHoverFlag2=ref(false);
-    function delayUserInfo(value){
-          
-      if(value===1||value===2)
-      {
-        clearTimeout(delayUserInfoTime);
-        delayUserInfoTime2=setTimeout(() => {
-          nameOrAvatarHoverFlag.value=value;
-        }, 300);
-      }
-      else{
-        clearTimeout(delayUserInfoTime2);
-        delayUserInfoTime=setTimeout(()=>{
-          if(!nameOrAvatarHoverFlag2.value)
-          nameOrAvatarHoverFlag.value=0;
-        },400)
-      }
-    }
-
-    //添加私信对话并跳转
-    async function addDialogueF(dialogueId) {
-
-      if (store.userId === null) {
-          loginDialogVisibleFlag.value =
-            loginDialogVisibleFlag.value === 0 ? 1 : 0;
-          return;
-        }
-
-      let dialogue = {
-        userId: store.userId,
-        dialogueId,
-      }
-      addDialogue(store.token,dialogue).then(res=>{
-
-        if(res.data.code===1)
-        {
-          window.open(
-          `./message?dialogueId=${dialogueId}`,
-          "_blank",
-          );
-        }
-
-      })
-    }
-
     //延时分享窗
     let delayShareTime = null;
     function shareHoverF(flag){
@@ -5012,10 +4902,6 @@ export default {
       closePostionHoverFlag,
       closePostionFlag,
       history,
-      nameOrAvatarHoverFlag,
-      nameOrAvatarHoverFlag2,
-      delayUserInfo,
-      addDialogueF,
       shareHover,
       shareHoverF,
       shareHoverF2,
@@ -5161,6 +5047,17 @@ textarea,
   margin-left: auto;
 }
 
+/* UserHoverCard #reference 触发器：头像+创作者名作为整体悬停区，保持原布局 */
+.up-user-hover-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.up-user-hover-trigger .up-user-avatar {
+  margin: 0;
+}
+
 .prohibition-tag {
   display: inline-flex;
   align-items: center;
@@ -5183,162 +5080,7 @@ textarea,
   color: #0FA68E;
 }
 
-.up-user-info {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translate(-50%, 8px);
-  background-color: white;
-  color: #a6acaf;
-  border-radius: 10px;
-  z-index: 1000;
-  width: 350px;
-  height: 220px;
-  border: 1px solid #d3d3d3;
-  box-shadow: 1px 0px 5px #e5e5e5;
-  overflow: hidden;
-  padding-bottom: 15px;
-}
-
-.up-user-avatar-container {
-  display: flex;
-  background-color: yellow;
-  width: 0px;
-}
-
-.up-user-info-bg {
-  width: 100%;
-  height: 40%;
-  background-size: cover;
-  background-position: 50% 50%;
-  background-repeat: no-repeat;
-}
-
-.up-user-info-container {
-  height: 120px;
-  padding-top: 5px;
-  padding-left: 10px;
-  padding-right: 20px;
-  padding-bottom: 15px;
-}
-
-.up-user-info-avatar {
-  display: flex;
-  width: 47px;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.up-user-info-container-header {
-  display: flex;
-  transform: translate(60px, -42px);
-}
-
-.up-user-info-name {
-  font-size: 14.5px;
-  cursor: pointer;
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  margin-right: 4px;
-}
-
-.up-user-info-gender {
-  width: 16px;
-  height: 15px;
-  margin-top: 2.5px;
-  margin-right: 5px;
-}
-
-.up-user-info-level {
-  flex: none;
-  margin-top: 3.5px;
-}
-
-.up-user-info-container-content {
-  display: flex;
-  transform: translate(60px, -30px);
-  font-size: 12px;
-}
-
-.up-user-info-container-introduce {
-  display: flex;
-  transform: translate(60px, -20px);
-  font-size: 12px;
-  padding-right: 60px;
-}
-
-.up-user-info-introduce-content {
-  display: -webkit-box; /* 必须使用这个 */
-  -webkit-box-orient: vertical; /* 垂直方向排列 */
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  overflow: hidden; /* 隐藏超出部分 */
-  word-wrap: break-word; /* 超出部分换行 */
-  text-overflow: ellipsis; /* 显示省略号 */
-}
-
-.up-user-info-container-footer {
-  display: flex;
-  transform: translate(60px, -5px);
-  user-select: none;
-  width: 100%;
-}
-
-.up-user-info-container-footer-add-follow {
-  width: 102px;
-  font-size: 14px;
-  height: 32px;
-  background-color: #0FA68E;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 5px;
-  margin-right: 5px;
-  color: white;
-  cursor: pointer;
-}
-
-.up-user-info-container-footer-delete-follow {
-  width: 102px;
-  font-size: 14px;
-  height: 32px;
-  background-color: #E0E5E3;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 5px;
-  margin-right: 5px;
-  color: #8F9794;
-  cursor: pointer;
-}
-
-.up-user-info-container-footer-delete-follow:hover {
-  background-color: #EFF3F2;
-}
-
-.up-user-info-container-footer-message {
-  width: 100px;
-  font-size: 14px;
-  height: 30px;
-  border: 1px solid #5D6764;
-  border-radius: 5px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #5D6764;
-  cursor: pointer;
-}
-
-.up-user-info-container-footer-add-follow:hover {
-  opacity: 0.9;
-}
-
-.up-user-info-container-footer-message:hover {
-  color: #0FA68E;
-  border: 1px solid #0FA68E;
-}
+/* UP 主资料卡已改用 UserHoverCard 组件（el-popover teleport 渲染），旧的 .up-user-info 手写卡样式已删除 */
 
 .sendUpMessageImg {
   width: 13px;
@@ -5509,7 +5251,7 @@ textarea,
 .up-video-container:hover .up-VideoProgress,
 .up-video-container:hover .up-video-play-bottom-play,
 .up-video-container:hover .up-video-play-bottom-video-time-container,
-.up-video-container:hover .up-video-play-bottom-video-image-quality,
+.up-video-container:hover,
 .up-video-container:hover .up-video-play-bottom-video-spped,
 .up-video-container:hover .up-video-play-bottom-video-audio-container,
 .up-video-container:hover .up-video-play-bottom-video-setting-container,
@@ -5623,20 +5365,6 @@ textarea,
 }
 
 .up-video-play-bottom-video-time-container:hover {
-  color: white;
-}
-
-.up-video-play-bottom-video-image-quality {
-  position: absolute;
-  transform: translate(340px, 362.5px);
-  color: rgba(187, 190, 191, 0.9);
-  font-size: 14px;
-  opacity: 0;
-  cursor: pointer;
-  transition: opacity 0.3s ease;
-}
-
-.up-video-play-bottom-video-image-quality:hover {
   color: white;
 }
 
@@ -8325,37 +8053,18 @@ a:hover {
 
 </style>
 
-/*
-  视频页布局 pass2。
-
-  pass1 把 .video-body 改成了两列 grid，但页面的 14 个直接子元素
-  并没有按「主栏 / 侧栏」分组 —— 它们是按源码顺序平铺的，
-  grid 会依次把它们填进第 1 列、第 2 列、第 1 列……
-  结果播放器、评论区这些本该在主栏的块被塞进了侧栏，
-  UP 主卡片被塞进主栏。实测 1600 视口下：
-    播放器 left=1173（应在左栏 x=61）、评论区 left=1173、文档宽 1873（溢出 300px）。
-
-  同时这些块各自还带一层 transform 偏移
-  （播放器 translate(9.5px,77.5px)、进度条 translate(9.5px,50px)、
-   信息行 translate(11px,20px)），在 grid 里这些偏移会把元素推出自己的格子。
-
-  这里做两件事：
-  1) 用 grid-column 显式指定每块属于主栏还是侧栏，不再靠源码顺序
-  2) 去掉主栏各块的 translate 偏移，改由 grid 的 gap 和行距排布
-*/
 <style>
-/* 页头图标统一成正方形占位，任何比例的图都不会被拉变形 */
-.video-page .v-header-ul li a img:not(.h-logo) {
+/* 页头图标统一成正方形占位，任何比例的图都不会被拉变形。
+   :not(.avatar1) 排除用户头像（.avatar1 img 用 100% 撑满 32.5px 圆形容器，
+   被 18px !important 命中会把 head 头像压成 18×18）；
+   :not(.profile-identity) 排除个人资料卡里的头像链接（48px，见 mainHeadLayout.scss）。 */
+.video-page .v-header-ul li a:not(.avatar1):not(.profile-identity) img:not(.h-logo) {
   width: 18px !important;
   height: 18px !important;
   object-fit: contain;
 }
 
-/* 白底页头上的搜索框要自己有底，否则白底白框看不见 */
-.video-page .search {
-  background: var(--fill);
-  border: 1px solid var(--line);
-}
+/* 搜索框背景统一用 search.vue 自带的淡绿渐变底，与首页一致，不再单独覆盖 */
 
 .video-page .video-body-container {
   padding: var(--gap-4) var(--page-pad) var(--gap-6);
@@ -8798,13 +8507,6 @@ a:hover {
     margin-top: 4px;
   }
 
-  .video-page .up-user-info {
-    left: 0;
-    right: 0;
-    width: min(350px, calc(100vw - 24px));
-    transform: none !important;
-  }
-
   .video-page .up-video-controls-container .up-video-controls-span {
     min-width: 52px;
     gap: 5px;
@@ -8921,7 +8623,6 @@ a:hover {
 .video-page .up-videoTitle { white-space: normal; overflow-wrap: anywhere; }
 .video-page .video-content-container.videoContentFlag { height: auto; max-height: 120px; overflow: hidden; }
 .video-page .show-up-videoTitle-container { max-width: calc(100vw - 40px); }
-.video-page .up-user-info { z-index: 30; }
 .video-page .comment-container {
   left: 0;
   top: 0;

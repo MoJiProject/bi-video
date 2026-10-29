@@ -4,9 +4,12 @@
           <div v-if="dynamic.dynamic.title" class="title">{{ dynamic.dynamic.title }}</div>
           <div class="head">
               <div class="avatar">
-                <div class="avatar-container" @mouseover="selectFollowFlag(dynamic.dynamicUserInfo2)" @mouseleave="selectFollowDelayF">
-                  <img @click="openHome(1,dynamic.dynamicUserInfo2.id)" :src="dynamic.dynamicUserInfo2.avatarAddress">
-                  <userInfo2 class="user-info" :user-info="dynamic.dynamicUserInfo2"/>
+                <div class="avatar-container">
+                  <UserHoverCard :user-id="dynamic.dynamicUserInfo2.id" :nickname="dynamic.dynamicUserInfo2.userName" :avatar="dynamic.dynamicUserInfo2.avatarAddress" :avatar-size="48">
+                    <template #reference>
+                      <img @click="openHome(1,dynamic.dynamicUserInfo2.id)" :src="dynamic.dynamicUserInfo2.avatarAddress">
+                    </template>
+                  </UserHoverCard>
                 </div>
               </div>
               <div class="user">
@@ -44,12 +47,14 @@
                    <div class="up-info">
                        <div class="left">
                            <div @click="openHome(1,dynamic.upUserInfo2.id)" class="up-avatar">
-                               <img :src="dynamic.upUserInfo2.avatarAddress">
-                               <userInfo2 @click.stop class="up-user-info" :user-info="dynamic.upUserInfo2"/>
+                               <UserHoverCard :user-id="dynamic.upUserInfo2.id" :nickname="dynamic.upUserInfo2.userName" :avatar="dynamic.upUserInfo2.avatarAddress" :avatar-size="20">
+                                 <template #reference>
+                                   <img :src="dynamic.upUserInfo2.avatarAddress">
+                                 </template>
+                               </UserHoverCard>
                            </div>
                            <span @click="openHome(1,dynamic.upUserInfo2.id)" class="up-user-name">
                             {{ dynamic.upUserInfo2.userName }}
-                            <userInfo2 @click.stop class="up-user-info" :user-info="dynamic.upUserInfo2"/>
                            </span>
                            <span class="end">投稿了视频</span>
                        </div>
@@ -94,7 +99,7 @@
                 />
               </template>
           </div>
-          <div class="up-btn" :style="{ top: dynamic.dynamic.title? '72px' : '32px' }" @mouseover="selectFollowFlag(dynamic.dynamicUserInfo2)" @mouseleave="selectFollowDelayF">
+          <div class="up-btn" :style="{ top: dynamic.dynamic.title? '72px' : '32px' }">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.7485 5.49841C13.7485 6.46404 12.9657 7.24683 12.0001 7.24683C11.0344 7.24683 10.2516 6.46404 10.2516 5.49841C10.2516 4.53279 11.0344 3.75 12.0001 3.75C12.9657 3.75 13.7485 4.53279 13.7485 5.49841ZM13.7484 18.4982C13.7484 19.4639 12.9656 20.2467 11.9999 20.2467C11.0343 20.2467 10.2515 19.4639 10.2515 18.4982C10.2515 17.5326 11.0343 16.7498 11.9999 16.7498C12.9656 16.7498 13.7484 17.5326 13.7484 18.4982ZM11.9999 13.7487C12.9656 13.7487 13.7484 12.9658 13.7484 12.0002C13.7484 11.0345 12.9656 10.2517 11.9999 10.2517C11.0343 10.2517 10.2515 11.0345 10.2515 12.0002C10.2515 12.9658 11.0343 13.7487 11.9999 13.7487Z" fill="currentColor"></path></svg>
             <div v-if="dynamic.dynamicUserInfo2.id!==store.userId" class="up-info">
                <div @click="dynamic.dynamicUserInfo2?.isFollowFlag?unFollowF(dynamic.dynamicUserInfo2):followF(dynamic.dynamicUserInfo2)">{{ dynamic.dynamicUserInfo2?.isFollowFlag?'取消关注':'关注' }}</div>
@@ -161,9 +166,9 @@
 import { useGlobalStore } from '../store/store';
 import { ElMessage } from "element-plus";
 import videoInfo from './videoInfo.vue';
-import userInfo2 from './userInfo2.vue';
+import UserHoverCard from '../components/UserHoverCard.vue';
 import {putUpStatus,deleteDynamic} from '@/api/dynamic/index'
-import {addFollow,deleteFollow,checkFollow} from '../api/user/index';
+import {addFollow,deleteFollow} from '../api/user/index';
 import { onMounted, ref } from 'vue';
 
 
@@ -265,26 +270,7 @@ await deleteFollow(store.token,store.userId,user.id).then(res=>{
 })
 }
 
-//查询是否关注
-let selectFollowDelay=true;
-function selectFollowFlag(user){
-    if(!store.userId||!selectFollowDelay)
-     return;
-     selectFollowDelay=false;
-     checkFollow(store.userId,user.id,store.token).then(res=>{
-        if(res.data.code===1){
-            user.isFollowFlag=res.data.data;
-        }
-     })
-}
-
-let selectFollowDelayTimer=null;
-function selectFollowDelayF(){
-    clearTimeout(selectFollowDelayTimer);
-    selectFollowDelayTimer=setTimeout(()=>{
-        selectFollowDelay=true;
-    },500)
-}
+// 用户卡签：改用 components/UserHoverCard.vue，卡片自加载关注状态，无需预查询
 
 //打开视频页
 function openVideo(videoId){
@@ -398,20 +384,7 @@ function deleteDynamicF(dynamic){
                     object-fit: cover;
                     cursor: pointer;
                   }
-                    .user-info{
-                    left: 50%;  
-                    transition: all .3s ease;
-                    transition-delay: 0.3s;  
-                    opacity: 0;
-                    visibility: hidden;
-                  }
-                }
-                .avatar-container:hover{
-                  .user-info{
-                    transition-delay: 0.3s;
-                    opacity: 1;
-                    visibility: visible;
-                  }
+                  /* 用户卡签：改用 components/UserHoverCard.vue（el-popover 悬停卡片） */
                 }
               }
               .user{
@@ -509,21 +482,7 @@ function deleteDynamicF(dynamic){
                                 border-radius: 50%;
                                 object-fit: cover;
                                 }
-                                .up-user-info{
-                                  opacity: 0;
-                                  visibility: hidden;
-                                  transition: all .3s ease;
-                                  transition-delay: 0.3s;
-                                  position: absolute;
-                                  left: 50%;
-                                }
-                            }
-                            .up-avatar:hover{
-                               .up-user-info{
-                                   transition-delay: 0.3s;
-                                   opacity: 1;
-                                   visibility: visible;
-                               }
+                                /* 用户卡签：改用 components/UserHoverCard.vue（el-popover 悬停卡片） */
                             }
                             .up-user-name{
                               position: relative;
@@ -533,24 +492,10 @@ function deleteDynamicF(dynamic){
                               transition: color .3s ease;
                               color: #5C6664;
                               margin-right: 4px;
-
-                                .up-user-info{
-                                    opacity: 0;
-                                    visibility: hidden;
-                                    transition: all .3s ease;
-                                    transition-delay: 0.3s;
-                                    position: absolute;
-                                    left: 50%;
-                                  }
+                              /* 用户卡签：改用 components/UserHoverCard.vue（el-popover 悬停卡片） */
                             }
                             .up-user-name:hover{
                               color: #797F87;
-
-                                .up-user-info{
-                                   transition-delay: 0.3s;
-                                   opacity: 1;
-                                   visibility: visible;
-                                }
                             }
                             .end{
                               font-size: 14.5px;

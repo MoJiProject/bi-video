@@ -2,8 +2,11 @@
   <div class="like-dynamic-container-list">
       <div class="item" @click="openHome(1,user.id)" v-for="user in userList" :key="user.id">
           <div class="avatar">
-              <img :src="user.avatarAddress">
-              <userInfo2 @click.stop class="up-user-info" :user-info="user"/>
+              <UserHoverCard :user-id="user.id" :nickname="user.userName" :avatar="user.avatarAddress" :avatar-size="40">
+                <template #reference>
+                  <img :src="user.avatarAddress">
+                </template>
+              </UserHoverCard>
           </div>
           <div class="user-name">
               <div>{{ user.userName }} <div>赞了</div></div> 
@@ -25,7 +28,7 @@ import { ElMessage } from "element-plus";
 import { onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { addFollow,deleteFollow } from '@/api/user/index';
 import { likeDynamicUser } from '@/api/dynamic/index';
-import userInfo2 from "./userInfo2.vue";
+import UserHoverCard from '../components/UserHoverCard.vue';
 
 const props=defineProps({
 content3Menu:{
@@ -194,19 +197,9 @@ min-height: 50vh;
             height: 100%;
             object-fit: cover;   
             }
-            .up-user-info{
-             opacity: 0;
-             transition: all .3s ease;
-             visibility: hidden;   
-            }
+            /* 用户卡签：改用 components/UserHoverCard.vue（el-popover 悬停卡片） */
         }
-        .avatar:hover{
-            .up-user-info{
-            transition-delay: 0.3s;
-            opacity: 1;
-            visibility: visible;
-            }
-        }
+        /* 用户卡签：改用 components/UserHoverCard.vue（el-popover 悬停卡片） */
         .user-name{
          flex: 1;
          overflow: hidden;

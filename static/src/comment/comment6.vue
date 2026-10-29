@@ -1139,7 +1139,10 @@
         </span>
       </div>
     </div>
-    <user-info  :style="{left:eitUserInfoLeft+'px',top:eitUserInfoTop+'px'}"/>
+    <UserHoverCard v-if="store.eitUserInfo" controlled :user-id="store.eitUserInfo.id"
+      :initial-profile="store.eitUserInfo" :style="{ left: eitUserInfoLeft + 'px', top: eitUserInfoTop + 'px' }"
+      @card-mouseenter="store.setEitUserInfoHover(true)"
+      @card-mouseleave="store.setEitUserInfo(null), store.setEitUserInfoHover(false)" />
     <el-dialog
       v-model="deleteDialogVisible"
       append-to-body
@@ -1171,16 +1174,16 @@ import eit from "../components/eit";
 import { ElMessage } from "element-plus";
 import apiClient from "../services/apiClient";
 import { useGlobalStore } from "../store/store";
-import userInfo from "../utils/userInfo";
 import LevelBadge from "../components/LevelBadge.vue";
+import UserHoverCard from "../components/UserHoverCard.vue";
 import {addDialogue} from '../api/privateMessage/index';
 import {putUpStatus,selectOneComment} from "@/api/comment/index"
 export default {
   name: "Comment",
   components: {
     eit,
-    userInfo,
     LevelBadge,
+    UserHoverCard,
   },
   props:{
     dynamic:{

@@ -1,15 +1,56 @@
 <template>
-  <span class="user-hover" @click.stop>
+  <!-- 受控模式：父级通过 v-if 控制显隐，通过 :style 提供固定定位（left/top），
+       用于 @提及等由外部状态驱动的场景（取代旧 utils/userInfo.vue） -->
+  <div
+    v-if="controlled"
+    class="user-hover-fixed"
+    @mouseenter="emit('card-mouseenter')"
+    @mouseleave="emit('card-mouseleave')"
+  >
+    <section v-if="profile" class="user-profile-card" aria-label="个人资料" @click.stop>
+      <div class="profile-cover" :style="profile.backgroundUrl ? { backgroundImage: `url(${profile.backgroundUrl})` } : {}"></div>
+      <div class="profile-identity">
+        <a class="profile-avatar-link" :href="homeHref" :aria-label="`${profile.nickname}的个人空间`">
+          <img :src="profile.avatarUrl" alt="">
+        </a>
+        <div>
+          <a class="profile-name" :href="homeHref" :title="profile.nickname">{{ profile.nickname }}</a>
+          <span v-if="profile.level != null" class="profile-level">Lv.{{ profile.level }}</span>
+        </div>
+      </div>
+      <div class="profile-body">
+        <div class="profile-stats">
+          <div><strong>{{ profile.followingCount ?? '--' }}</strong><span>关注</span></div>
+          <div><strong>{{ profile.followerCount ?? '--' }}</strong><span>粉丝</span></div>
+          <div><strong>{{ profile.likeReceived ?? '--' }}</strong><span>获赞</span></div>
+        </div>
+        <p class="profile-signature">{{ profile.signature || '还没有填写个人简介' }}</p>
+        <div class="profile-actions">
+          <el-button size="small" :type="profile.followed ? '' : 'primary'" :loading="following"
+            :disabled="isSelf || messaging" :title="isSelf ? '不能关注自己' : ''"
+            :aria-pressed="!!profile.followed" @click="toggleFollow">
+            {{ profile.followed ? '已关注' : '+ 关注' }}
+          </el-button>
+          <el-button size="small" :loading="messaging" :disabled="isSelf || following"
+            :title="isSelf ? '不能给自己发消息' : ''" @click="sendMessage">发消息</el-button>
+        </div>
+      </div>
+    </section>
+  </div>
+  <span v-else class="user-hover" @click.stop>
     <el-popover trigger="hover" :trigger-keys="['Space']" placement="bottom-start"
       :width="300" :show-after="200" :hide-after="250" :show-arrow="false"
       :popper-style="{ maxWidth: 'calc(100vw - 32px)', padding: '0', borderRadius: '16px', overflow: 'hidden' }"
       @show="loadProfile">
       <template #reference>
-        <a class="user-hover-trigger" :href="homeHref"
-          :style="{ '--user-avatar-size': `${avatarSize}px` }"
-          :aria-label="`${nickname}，查看主页，按空格查看个人资料`">
-          <img :src="avatar" alt=""><span>{{ nickname }}</span>
-        </a>
+        <!-- 提供默认触发器（头像+昵称），也可通过 #reference 插槽传入任意图标/用户名元素作为悬停触发器 -->
+        <slot name="reference">
+          <a class="user-hover-trigger" :href="homeHref"
+            :style="{ '--user-avatar-size': `${avatarSize}px` }"
+            :aria-label="`${nickname}，查看主页，按空格查看个人资料`">
+            <img :src="avatar" alt=""><span>{{ nickname }}</span>
+          </a>
+        </slot>
       </template>
       <section class="user-profile-card" aria-label="个人资料" @click.stop>
         <p v-if="loading" class="profile-status" role="status">正在加载个人资料…</p>
@@ -64,7 +105,12 @@ const props = defineProps({
   nickname: { type: String, default: '' },
   avatar: { type: String, default: '' },
   avatarSize: { type: Number, default: 40 },
+  // 受控模式：不使用 el-popover，由父级控制显隐（v-if）与定位（:style 传 left/top）
+  controlled: { type: Boolean, default: false },
+  // 受控模式的预填资料（兼容旧 userInfo.vue 的字段结构，如 store.eitUserInfo）
+  initialProfile: { type: Object, default: null },
 });
+const emit = defineEmits(['card-mouseenter', 'card-mouseleave']);
 const store = useGlobalStore();
 const router = useRouter();
 const profile = ref(null);
@@ -76,8 +122,27 @@ const homeHref = computed(() => `/home?userId=${props.userId}`);
 const isSelf = computed(() => props.userId === store.userId);
 let generation = 0;
 
+// 受控模式：把旧 userInfo.vue 的字段结构（store.eitUserInfo）映射为卡片资料
+function applyLegacyProfile(raw) {
+  profile.value = {
+    nickname: raw.userName ?? raw.nickname,
+    avatarUrl: raw.avatarAddress ?? raw.avatarUrl,
+    backgroundUrl: raw.backgroundAddress ?? raw.backgroundUrl,
+    level: raw.grade ?? raw.level,
+    followingCount: raw.followNumber ?? raw.followingCount,
+    followerCount: raw.fansNumber ?? raw.followerCount,
+    likeReceived: raw.likeNumber ?? raw.likeReceived,
+    signature: raw.introduce ?? raw.signature,
+    followed: raw.isFansFlag === 1 || raw.followed === true,
+  };
+}
+watch(() => props.initialProfile, (raw) => {
+  if (props.controlled && raw) applyLegacyProfile(raw);
+}, { immediate: true });
+
 async function loadProfile() {
-  if (loading.value || profile.value) return;
+  // 视频数据未就绪时 userId 可能为 0（NaN 兜底），静默跳过不报错
+  if (!props.userId || loading.value || profile.value) return;
   const current = generation;
   loading.value = true;
   errorMessage.value = '';
@@ -130,6 +195,10 @@ async function sendMessage() {
 }
 watch([() => props.userId, () => store.userId], () => {
   generation++;
+  if (props.controlled && props.initialProfile) {
+    applyLegacyProfile(props.initialProfile);
+    return;
+  }
   profile.value = null;
   loading.value = false;
   errorMessage.value = '';
@@ -141,6 +210,8 @@ onUnmounted(() => { generation++; });
 
 <style scoped>
 .user-hover { display: inline-flex; align-items: center; min-width: 0; max-width: 100%; font-family: var(--el-font-family); }
+/* 受控模式：固定定位卡片容器（left/top 由父级 :style 透传） */
+.user-hover-fixed { position: fixed; z-index: 1000; width: 300px; max-width: calc(100vw - 32px); border-radius: 16px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); background: #fff; font-family: var(--el-font-family); }
 .user-hover-trigger { display: inline-flex; align-items: center; gap: 10px; min-width: 0; max-width: 100%; color: inherit; text-decoration: none; font-size: 14px; font-weight: 500; line-height: 1.5; }
 .user-hover-trigger > img { flex: none; width: var(--user-avatar-size); height: var(--user-avatar-size); border-radius: 50%; object-fit: cover; background: var(--fill-soft); }
 .user-hover-trigger > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

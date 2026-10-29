@@ -48,7 +48,8 @@ export function sanitizeRichText(value) {
     } else if (tags.has(node.tagName)) {
       element = document.createElement(node.tagName.toLowerCase());
       const time = node.getAttribute('data-time');
-      if (time && /^\d{1,6}:\d{2}$/.test(time)) {
+      // 允许 mm:ss 与 hh:mm:ss（含全角冒号），与视频页点击跳转的解析规则一致
+      if (time && /^\d{1,6}[：:]\d{2}([：:]\d{2})?$/.test(time)) {
         element.setAttribute('data-time', time);
         element.className = 'time-span';
       }

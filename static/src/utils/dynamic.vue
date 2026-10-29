@@ -7,8 +7,11 @@
       <div class="dynamic-content">
           <div class="avatar">
               <div class="avatar-container">
-                <img @click="openHome(1,store.homeUserInformation.id)" :src="store.homeUserInformation.avatarAddress">
-                <userInfo2 class="user-info" :user-info="store.homeUserInformation"/>
+                <UserHoverCard :user-id="store.homeUserInformation.id" :nickname="store.homeUserInformation.userName" :avatar="store.homeUserInformation.avatarAddress" :avatar-size="48">
+                  <template #reference>
+                    <img @click="openHome(1,store.homeUserInformation.id)" :src="store.homeUserInformation.avatarAddress">
+                  </template>
+                </UserHoverCard>
               </div>
           </div>
           <div class="head">
@@ -38,12 +41,14 @@
                    <div class="up-info">
                        <div class="left">
                            <div @click="openHome(1,dynamic.upUserInfo2.id)" class="up-avatar">
-                               <img :src="dynamic.upUserInfo2.avatarAddress">
-                               <userInfo2 @click.stop class="up-user-info" :user-info="dynamic.upUserInfo2"/>
+                               <UserHoverCard :user-id="dynamic.upUserInfo2.id" :nickname="dynamic.upUserInfo2.userName" :avatar="dynamic.upUserInfo2.avatarAddress" :avatar-size="20">
+                                 <template #reference>
+                                   <img :src="dynamic.upUserInfo2.avatarAddress">
+                                 </template>
+                               </UserHoverCard>
                            </div>
                            <span @click="openHome(1,dynamic.upUserInfo2.id)" class="up-user-name">
                             {{ dynamic.upUserInfo2.userName }}
-                            <userInfo2 @click.stop class="up-user-info" :user-info="dynamic.upUserInfo2"/>
                            </span>
                            <span class="end">投稿了视频</span>
                        </div>
@@ -89,13 +94,19 @@
                   <img v-if="dynamic.userInfo2s?.length>0" class="comment-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADYAAAA2CAYAAACMRWrdAAAACXBIWXMAACE4AAAhOAFFljFgAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAR6SURBVHgB7Vpdcts2EN6FqMRvZU8Q+wR1T5DkBu4JZM60tdXYjXWCSL2AnDYeT9IHSieoc4HauYF7Ais9gfPmVhK2C5qSABDQj0nRUkffTBSBAgl8XOxi94MBNthgJYDwCPjtPH7B/71IGgKujw+iCygYpRJrn8fb1QrGQCmpFATQ489GkQRLI6ZIBQIvecBtXx9Rwf2fvq91oQAIKAkBQFMnxVa6Vf/0PnJIp+oFQAEohZiaLAqsjdpM6GLwhHaOD/a/JkktrWvIS/UNFIBSiClr6e2BpEYjihJrHdejJpObLD+CvXYch5AT5SxFgc/H34k+NupRz+rR0b6H1X/Ec8g7JCwZv57H+2bAELHdh612Bbq/odyBnFg6Mfatsc+osH50WPvo6qcHEpKw2kvx7EP3tW4tBGz6+nK/MRkUZrR8CJZGTEVCSdQctRNrHbj3qDRYTKxE4gZyYinEtM14YoUp1gr+NTMRFPIz5EThxFwZBhG99VkrgYQ9rXX76sfoGnKiUGIquc2kTchJ7mF0MvVGfTtAKCRfDObppHygcgd73jwPIeTo942d3CpS/Sq9nPZs9TKs527ztSbMAApx05fyk2NPTIeeAkXoyUC8lpJOdH+ZCwRX/af03SjD8IFJdPR0a1Hwvc1XP9Ra9nWvxRSpah8v2T92FykB1H6EQK2jw+h0rhsEfgU5wOlY8937+MvRgTmelxiT+oNnuWs8RG2ipGcIvAQ1S6qEdrAFp7OspEPljVXEkKaUMy4g6v3xDRuio4/rNIZKg4TAceqTFIKSojT1GSPxDw4Wo3ZF0k7ds+aLhj1Hdpfo53rUGbWdUZELPr3E6PFbfWmTemwoEveV9z3swOYO91p0Y3952yjJCovCSNesNCxDzK5gOSHNvVkuA5mazUrDMsQC26SV/AnpMhDcWYGN5Be9PTPzEMPVJMYzNyzG0fja/NmCHXbrK+pfnF/qFru1t5jSVKqigRVdbsjGgQwxSyLrwYqCSJ8n/WX/vpYWS+Q8ozIXl3aftSQWCDMi9kn+PyymF6bKXVwJxHoS0wpTToavnF1gzdD+EO8aeaFEZ8Xt2sd6o++4YClRBoIhGDJD/6n85Oq3fkvR1Ec6vtovu49ZWXIRBwRFISOXe5ahQtZi0iS2dQcrQ8ySy298crlChtjAyjYGK+JntprFAmxrWv+sxbZMi9GqBBBLqlDS29Tu9oXUGSeiCJq7/GMg61vUnVXVu6MiTrJlRKwVdS78ELTP4m/Zt9qjtvKtgXlQ6ISTGA3Nc2ElW797332wqPkQnPPLPPu92wwC/NM63GjNo8F4tVCXQpsezt3y8uyll0Jde+SHXfDHeBnLIX3WRgqFRxzV/DjkciQ5UnIpzyzenvI5QAPmgFcw5VL7pNqHZ6ZidT8okDug8AT31Me4v0BrYjATnjdN6sRmXlJTnjNBckDAlnuE9IrSzysm9cuiuubcsrz+908C8Zn2k5KnQ8/MtscDoSWPTyagR2FWyenv9N7ecAsuFpHLN9hggw028OE/ENKxBsvdpsEAAAAASUVORK5CYII="> 
                   <img v-else-if="dynamic.replyComment" class="comment-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADYAAAA2CAYAAACMRWrdAAAACXBIWXMAACE4AAAhOAFFljFgAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAASmSURBVHgB7VlRctpIEO0eBMknuQF7giUnWHyCeE8A+tg4LkhsThB8Ary7drni/RCcIPgEZk8QbpDkBnymjJhOj4xgJI1AQkKQKt4PSDUzmjfd093zBuCII4444ogVEHLG3Z1TcwFqafpYAN/Oz+1vkCMyE/v3zmnwKKco8A8gqEMWIExI0v88zuj9uT2GDNia2D93TkuUsMmTaMAOQGxFBOx1zppD2AKpiSkLYQn7ma2TEIqgK+mkm9JVUxG7/W/4kV2lB9GPTwXBWAKOAeV3S8IEEkJKqEoBVUDxuwBqSIQGT6oabseu3mv/1bxKOm5iYjf3A4cZtPR3ajWB8Np9IYdd255CDug7TrX0w9uzHzEchBAGnbctO8k4iYgZSUm6cl/CdV6ETGC37ymCgZcJyW0kFnY/z0qS7KxRKylub526tPBzyHrXnbNWd12/tcS8yCfQ8Z+33chZ0efcaAl81MnxYp+sW9xYYsrXrSf8og82k/Rb0aR8KMuRhY+wCCzeIlfoddxWEHEDVVxxETQ/dfdFSqHdticSaBkV1dysH3AZ1z6WmJTU8v+r1emc2dewZ3xQc0AY+88cWC6UZ5naGompvRWwFgcLOBDQnPRcVi0/BaO1DyMxr1TyB2JrFRUBk2Axl1UBgPjG1M7sinr9J2mrWm2X4Ij4sHqAuskdI8S8aj2IMRwextr/amUWPSZFLSaCdRpXF4nrvqIQntN8Hi3Io8RkoNF0lyXTtljMaTkvIWCzK+ogrfOhQZ8byZTEfmVEiHlF7gKYUrsoEvrcUEQ9K0Is3EiJM3Bg6N87gWBBhoNthJgbajSD3WgaWVAKRUFX8zIfEWKq0NXdsSTMmX2fQG2x1VxNxXlM5bHK7NyxEVdo7gPqbMbF77LkQzQXEHEl1Uh7qq47HhSNiiWa+vMsWBQvEXvQZJ3jUasZp3zIfL3P85iCslZZ4NflC1bGOu9aJ6a2sXkscjworSSCfYHn8Fl/RkGxukcsMXU8IKK/ly/YejefBn3YE5SoFBBpWa1qv7Vj69i1lYf7AnoUDKWX3gcKhkkpi9tbPjbLbyERZdFp9CR3r4GoaFyesftRILxP3QT7fWOtqEQUdElt0FXRCXCq5LCbT8Mm7Ai398MLVsm+Rki5yeS/xBJ3jHDpuQVrjwOuax7W+Xyib6hSCcUbFpIuw/q9J7e59Ge3newbqS4lPOESoKcnyNDHp5wwJ0gwZals+P7MHsWOxQtVKePFol+dCGqmy4jFwOMZkZ3G9be6H/NULNOlQQizCr0yHVRNyq4Jz4GLuusWKA6ZbjQ9CRzZehhTKBOedt41H/RXJoU52g9UqrnKoo5ZkAEfzu0B/wyeJ8vkWFbQb0ckyVfhPl6U0zV4tUfV3RrRdw5lE7cC4zzkiEwWM4GTOPn/OQjYC/J+6H7Uk+wm/T0LMlksKbw99eTlwpr/bnlzsyOxKFeLeffTwiPwDN5jWIJ6OHwXcR2Vr8UQTvVHQhrwvqtisM3EnXM+2nHVkq9KFdLRI0mWi+pZuZiLw1wtti7BZg3faZErMXUxJwBXR5s9EPKRe7hXAYSDQ23+EkaHKI8fcUTB+Akpbi5uawt9pAAAAABJRU5ErkJggg==">
                   <div v-if="dynamic.replyComment" class="comment-text">
-                      <span class="user-name" @click="openHome(1,dynamic.replyComment.userId)" @mouseover="selectFollowFlag(dynamic.replyUserInfo2)" @mouseleave="selectFollowDelayF">{{ dynamic.replyComment.userName }}：<userInfo2 class="user-info" :user-info="dynamic.replyUserInfo2"/></span>
+                      <span class="user-name" @click="openHome(1,dynamic.replyComment.userId)">
+                        <UserHoverCard :user-id="dynamic.replyUserInfo2.id" :nickname="dynamic.replyUserInfo2.userName" :avatar="dynamic.replyUserInfo2.avatarAddress" :avatar-size="18">
+                          <template #reference>{{ dynamic.replyComment.userName }}</template>
+                        </UserHoverCard>：</span>
                       <span class="user-content2-container">
                         <span class="user-content2" @click="openVideoOrDynamic(dynamic.replyComment,dynamic.replyComment.id)" v-html="cleanColor(dynamic.replyComment.content)"></span>
                       </span>
                     </div>
                   <div v-else-if="dynamic.userInfo2s?.length>0" class="comment-text">
-                    <span class="user-name" @click="openHome(1,user.id)" @mouseover="selectFollowFlag(user)" @mouseleave="selectFollowDelayF" v-for="(user,index) in dynamic.userInfo2s" :key="user.id">{{ user.userName }} <userInfo2 class="user-info" :user-info="user"/><span v-if="index!=dynamic.userInfo2s.length-1">、</span></span>
+                    <span class="user-name" @click="openHome(1,user.id)" v-for="(user,index) in dynamic.userInfo2s" :key="user.id">
+                      <UserHoverCard :user-id="user.id" :nickname="user.userName" :avatar="user.avatarAddress" :avatar-size="18">
+                        <template #reference>{{ user.userName }}</template>
+                      </UserHoverCard> <span v-if="index!=dynamic.userInfo2s.length-1">、</span></span>
                     <span class="user-content">&nbsp;{{ getLikeNumber(dynamic) }}</span>
                   </div>
               </div>
@@ -181,9 +192,9 @@
 import { useGlobalStore } from '../store/store';
 import { ElMessage } from "element-plus";
 import videoInfo from './videoInfo.vue';
-import userInfo2 from './userInfo2.vue';
+import UserHoverCard from '../components/UserHoverCard.vue';
 import {putUpStatus,likeDynamic,deleteDynamic} from '@/api/dynamic/index'
-import {addFollow,deleteFollow,checkFollow} from '../api/user/index';
+import {addFollow,deleteFollow} from '../api/user/index';
 import { computed, onMounted, ref } from 'vue';
 import videoShare from './videoShare.vue';
 import comment2 from '@/comment/comment2.vue';
@@ -324,26 +335,7 @@ await deleteFollow(store.token,store.userId,dynamic.upUserInfo2.id).then(res=>{
 })
 }
 
-//查询是否关注
-let selectFollowDelay=true;
-function selectFollowFlag(user){
-    if(!store.userId||!selectFollowDelay)
-     return;
-     selectFollowDelay=false;
-     checkFollow(store.userId,user.id,store.token).then(res=>{
-        if(res.data.code===1){
-            user.isFollowFlag=res.data.data;
-        }
-     })
-}
-
-let selectFollowDelayTimer=null;
-function selectFollowDelayF(){
-    clearTimeout(selectFollowDelayTimer);
-    selectFollowDelayTimer=setTimeout(()=>{
-        selectFollowDelay=true;
-    },500)
-}
+// 用户卡签：改用 components/UserHoverCard.vue，卡片自加载关注状态，无需预查询
 
 //修改动态置顶状态
 function putUpStatusF(dynamic){
@@ -558,20 +550,7 @@ function openDynamic(dynamicId){
                   object-fit: cover;
                   cursor: pointer;
                 }
-                  .user-info{
-                  left: 50%;  
-                  transition: all .3s ease;
-                  transition-delay: 0.3s;  
-                  opacity: 0;
-                  visibility: hidden;
-                }
-              }
-              .avatar-container:hover{
-                .user-info{
-                   transition-delay: 0.3s;
-                   opacity: 1;
-                   visibility: visible;
-                }
+                /* 用户卡签：改用 components/UserHoverCard.vue（el-popover 悬停卡片） */
               }
             }
             .head{
@@ -675,22 +654,8 @@ function openDynamic(dynamicId){
                                 border-radius: 50%;
                                 object-fit: cover;
                                 }
-                                .up-user-info{
-                                  opacity: 0;
-                                  visibility: hidden;
-                                  transition: all .3s ease;
-                                  transition-delay: 0.3s;
-                                  position: absolute;
-                                  left: 50%;
-                                }
                             }
-                            .up-avatar:hover{
-                               .up-user-info{
-                                   transition-delay: 0.3s;
-                                   opacity: 1;
-                                   visibility: visible;
-                               }
-                            }
+                            /* 用户卡签：改用 components/UserHoverCard.vue（el-popover 悬停卡片） */
                             .up-user-name{
                               position: relative;
                               font-size: 14.5px;
@@ -699,24 +664,10 @@ function openDynamic(dynamicId){
                               transition: color .3s ease;
                               color: #5C6664;
                               margin-right: 4px;
-
-                                .up-user-info{
-                                    opacity: 0;
-                                    visibility: hidden;
-                                    transition: all .3s ease;
-                                    transition-delay: 0.3s;
-                                    position: absolute;
-                                    left: 50%;
-                                  }
+                              /* 用户卡签：改用 components/UserHoverCard.vue（el-popover 悬停卡片） */
                             }
                             .up-user-name:hover{
                               color: #797F87;
-
-                                .up-user-info{
-                                   transition-delay: 0.3s;
-                                   opacity: 1;
-                                   visibility: visible;
-                                }
                             }
                             .end{
                               font-size: 14.5px;
@@ -824,24 +775,10 @@ function openDynamic(dynamicId){
                             color: #5C6664;
                             transition: color .3s ease;
                             cursor: pointer;
-
-                              .user-info{
-                                  opacity: 0;
-                                  visibility: hidden;
-                                  transition: all .3s ease;
-                                  transition-delay: 0.3s;
-                                  position: absolute;
-                                  left: 50%;
-                              }
+                            /* 用户卡签：改用 components/UserHoverCard.vue（el-popover 悬停卡片） */
                         }
                         .user-name:hover{
                             color: #0FA68E;
-                            
-                              .user-info{
-                                   transition-delay: 0.3s;
-                                   opacity: 1;
-                                   visibility: visible;
-                              }
                         }
                         .user-content{
                             word-break: break-word;
