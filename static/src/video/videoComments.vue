@@ -525,8 +525,7 @@ async function togglePin(comment) {
     const result = await post(`/comment/${comment.id}/pin`);
     ElMessage({
       message: result.pinned ? '置顶成功' : '取消置顶成功',
-      type: 'info',
-      plain: true,
+      type: 'success',
       duration: 1700,
     });
     await reload();

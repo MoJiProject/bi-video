@@ -184,8 +184,7 @@ export default {
                 else{
                 ElMessage({
                     message: response.data.msg,
-                    type: "info",
-                    plain: true,
+                    type: "warning",
                     duration: 1700,
                 });
                 }

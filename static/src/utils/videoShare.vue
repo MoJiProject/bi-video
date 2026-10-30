@@ -179,8 +179,7 @@ function clickUser(user){
     {
       ElMessage({
             message: "最多只能选择10个用户",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
       return;
@@ -206,8 +205,7 @@ async function shareVideoF(){
       const result = await post(`/video/${videoId}/share`, { content: videoShareContent.value, userIdList: userIds });
        ElMessage({
             message: "分享成功",
-            type: "info",
-            plain: true,
+            type: "success",
             duration: 1700,
        });
       videoShareContent.value='';

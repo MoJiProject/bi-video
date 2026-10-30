@@ -346,8 +346,7 @@ export default {
       } catch (error) {
         ElMessage({
           message: error.message || "加载投稿列表失败",
-          type: "info",
-          plain: true,
+          type: "error",
           duration: 1700,
         });
       }
@@ -390,8 +389,7 @@ export default {
         if (response.data.code === 1) {
           ElMessage({
             message: response.data.data,
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
           selectAllUploadVideo();
@@ -399,16 +397,14 @@ export default {
         } else if (response.data.code === 0) {
           ElMessage({
             message: response.data.msg,
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
         }
       } catch (error) {
         ElMessage({
           message: "未知错误",
-          type: "info",
-          plain: true,
+          type: "error",
           duration: 1700,
         });
       }
@@ -424,8 +420,7 @@ export default {
     function viewVideoData() {
       ElMessage({
         message: "该功能尚未开发(累)",
-        type: "info",
-        plain: true,
+        type: "warning",
         duration: 1700,
       });
     }

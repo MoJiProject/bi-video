@@ -63,8 +63,7 @@ if(store.userId===null){
 if(store.userId===user.id){
     ElMessage({
     message: "不能关注自己",
-    type: "info",
-    plain: true,
+    type: "warning",
     duration: 1700,
     });
     return;
@@ -75,8 +74,7 @@ addFollow(store.token,store.userId,user.id).then(res=>{
         user.isFollowFlag=1;
         ElMessage({
         message: "关注成功",
-        type: "info",
-        plain: true,
+        type: "success",
         duration: 1700,
         });
     }
@@ -96,8 +94,7 @@ deleteFollow(store.token,store.userId,user.id).then(res=>{
         user.isFollowFlag=0;
         ElMessage({
         message: `取消了对 ${user.userName} 的关注`,
-        type: "info",
-        plain: true,
+        type: "warning",
         duration: 1700,
         });
     }

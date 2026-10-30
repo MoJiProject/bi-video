@@ -776,8 +776,7 @@ export default {
       if (file.size > maxSize) {
         ElMessage({
           message: "不能超过50MB哦",
-          type: "info",
-          plain: true,
+          type: "warning",
           duration: 1700,
         });
         return false; // 阻止上传
@@ -787,8 +786,7 @@ export default {
       if (!validTypes.includes(file.type)) {
         ElMessage({
           message: "只能上传视频哦",
-          type: "info",
-          plain: true,
+          type: "warning",
           duration: 1700,
         });
         return false; // 阻止上传
@@ -810,8 +808,7 @@ export default {
       if (fileListCover.value.length > 1) {
         ElMessage({
           message: "不能超过1个哦",
-          type: "info",
-          plain: true,
+          type: "warning",
           duration: 1700,
         });
         return false; // 阻止上传
@@ -820,8 +817,7 @@ export default {
       if (file.size > maxSize) {
         ElMessage({
           message: "文件不能超过10MB哦",
-          type: "info",
-          plain: true,
+          type: "warning",
           duration: 1700,
         });
         return false; // 阻止上传
@@ -831,8 +827,7 @@ export default {
       if (!validTypes.includes(file.type)) {
         ElMessage({
           message: "只能是图片哦",
-          type: "info",
-          plain: true,
+          type: "warning",
           duration: 1700,
         });
         return false; // 阻止上传
@@ -918,8 +913,7 @@ export default {
       } catch (error) {
         ElMessage({
           message: "未知错误",
-          type: "info",
-          plain: true,
+          type: "error",
           duration: 1700,
         });
       }
@@ -1005,7 +999,7 @@ export default {
         }
         ElMessage({
           message: error.message || "视频上传失败",
-          type: "info",
+          type: "error",
           offset: 300,
         });
         return "";
@@ -1178,7 +1172,7 @@ export default {
         if (!remoteVideoUrl.value) {
           ElMessage({
             message: "请填写可用的视频直链",
-            type: "info",
+            type: "warning",
             offset: 376,
           });
           return;
@@ -1195,7 +1189,7 @@ export default {
       ) {
         ElMessage({
           message: "请上传封面",
-          type: "info",
+          type: "warning",
           offset: 376,
         });
         return;
@@ -1204,7 +1198,7 @@ export default {
       if (video.content.length < 5) {
         ElMessage({
           message: "简介太短了",
-          type: "info",
+          type: "warning",
           offset: 376,
         });
         return;
@@ -1217,7 +1211,7 @@ export default {
           if (!videoUploadPromise.value) {
             ElMessage({
               message: "请先上传视频",
-              type: "info",
+              type: "warning",
               offset: 376,
             });
             return;
@@ -1226,7 +1220,7 @@ export default {
           if (!videoName) {
             ElMessage({
               message: "视频上传失败，请重新选择视频",
-              type: "info",
+              type: "error",
               offset: 376,
             });
             return;
@@ -1287,7 +1281,7 @@ export default {
         if (response.data.data === "修改成功") {
           ElMessage({
             message: "视频修改成功",
-            type: "info",
+            type: "success",
             offset: 300,
           });
           window.removeEventListener("beforeunload",handleOnload);
@@ -1300,7 +1294,7 @@ export default {
           cancelAndCleanVideoUpload();
           ElMessage({
             message: response.data.msg,
-            type: "info",
+            type: "warning",
             offset: 300,
           });
         }
@@ -1309,7 +1303,7 @@ export default {
         cancelAndCleanVideoUpload();
         ElMessage({
           message: error.message || "未知错误",
-          type: "info",
+          type: "error",
           offset: 300,
         });
       }
@@ -1510,7 +1504,7 @@ export default {
         if (exists) {
           ElMessage({
             message: "标签已存在",
-            type: "info",
+            type: "warning",
             offset: 376,
           });
           return; // 直接返回，不添加标签
@@ -1522,7 +1516,7 @@ export default {
         } else {
           ElMessage({
             message: "标签不能超过5个",
-            type: "info",
+            type: "warning",
             offset: 376,
           });
         }

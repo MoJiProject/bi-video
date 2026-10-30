@@ -442,8 +442,7 @@
       {
         ElMessage({
           message: "记录最多显示10000条",
-          type: "info",
-          plain: true,
+          type: "warning",
           duration: 1700,
         });
         return;
@@ -521,8 +520,7 @@ function addImgFlagF(comment){
         if(res.data.code===1){
           ElMessage({
             message: "删除成功",
-            type: "info",
-            plain: true,
+            type: "success",
             duration: 1700,
           });
           loveList.splice(loveList.findIndex(item=>
@@ -536,8 +534,7 @@ function addImgFlagF(comment){
         }else{
           ElMessage({
             message: res.data.msg,
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
         }
@@ -626,8 +623,7 @@ function addImgFlagF(comment){
         if (store.userId === love.userInfo2.id) {
           ElMessage({
             message: "不能关注自己哦",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
           return;

@@ -78,7 +78,7 @@ function submitChange() {
     if(!submitFlag){
         ElMessage({
         message: "提交频繁，请稍后再试",
-        type: "info",
+        type: "warning",
         duration: 1700,
         });
         return;
@@ -87,8 +87,7 @@ function submitChange() {
     if (store.userInformation.userName.trim() === "") {
         ElMessage({
         message: "昵称不能为空",
-        type: "info",
-        plain: true,
+        type: "warning",
         duration: 1700,
         });
         return;
@@ -96,8 +95,7 @@ function submitChange() {
     if (password.value.trim() !== "" && newPassword.value.trim() === "") {
         ElMessage({
         message: "请输入新密码",
-        type: "info",
-        plain: true,
+        type: "warning",
         duration: 1700,
         });
         return;
@@ -106,8 +104,7 @@ function submitChange() {
         if (password.value.trim() === newPassword.value.trim()) {
             ElMessage({
             message: "新密码不能与旧密码相同",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
             });
             return;
@@ -115,8 +112,7 @@ function submitChange() {
         if (password.value.trim().length < 4 || newPassword.value.trim().length < 4) {
             ElMessage({
             message: "密码长度不能小于4位",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
             });
             return;
@@ -125,8 +121,7 @@ function submitChange() {
     if (store.userInformation.phone.trim() === "") {
         ElMessage({
         message: "手机号不能为空",
-        type: "info",
-        plain: true,
+        type: "warning",
         duration: 1700,
         });
         return;
@@ -134,8 +129,7 @@ function submitChange() {
     if(store.userInformation.phone.trim().length!==11){
         ElMessage({
         message: "手机号不足11位",
-        type: "info",
-        plain: true,
+        type: "warning",
         duration: 1700,
         });
         return;
@@ -154,13 +148,13 @@ function submitChange() {
         if (res.data.code === 1) {
             ElMessage({
             message: "修改成功",
-            type: "info",
+            type: "success",
             duration: 1700,
             });
         }else{
             ElMessage({
             message: res.data.msg,
-            type: "info",
+            type: "warning",
             duration: 1700,
             });
         }

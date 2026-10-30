@@ -247,21 +247,13 @@
               :src="SelectVideoByIdVo.upUser?.avatarAddress"
               class="up-video-avatar-and-addFollow-avatar"
             />
-            <img
-              src="/img/加关注.png"
-              style="
-                width: 10px;
-                height: 10px;
-                transform: translate(13.2px, 11.5px);
-              "
-            />
             <span
               style="
                 color: white;
                 font-size: 11px;
                 transform: translate(20px, 9px);
               "
-              >关注</span>
+              >{{ SelectVideoByIdVo.upUser.userName }}</span>
           </div>
           <!-- 开始播放 -->
           <button
@@ -3197,8 +3189,7 @@ export default {
         if (String(store.userId) === String(upUserId)) {
           ElMessage({
             message: "不能关注自己哦",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
           return;
@@ -3209,8 +3200,7 @@ export default {
       } catch (error) {
         ElMessage({
           message: "操作失败",
-          type: "info",
-          plain: true,
+          type: "error",
           duration: 1700,
         });
       }
@@ -3959,8 +3949,7 @@ export default {
           applyDanmakuEvent({ type: 'danmaku.deleted', id, count: result.count });
           ElMessage({
             message: "撤回成功",
-            type: "info",
-            plain: true,
+            type: "success",
             duration: 1700,
           });
       } catch (error) { ElMessage.error(error.message || "撤回失败"); }
@@ -4082,8 +4071,7 @@ export default {
           SelectVideoByIdVo.videoShareClickFlag = false;
           ElMessage({
             message: "不能给自己点赞",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
           return false;
@@ -4114,8 +4102,7 @@ export default {
       } catch (error) {
         ElMessage({
           message: "未知错误",
-          type: "info",
-          plain: true,
+          type: "error",
           duration: 1700,
         });
         return false;
@@ -4154,8 +4141,7 @@ export default {
       } catch (error) {
         ElMessage({
           message: "未知错误",
-          type: "info",
-          plain: true,
+          type: "error",
           duration: 1700,
         });
       }
@@ -4176,8 +4162,7 @@ export default {
           SelectVideoByIdVo.videoShareClickFlag = false;
           ElMessage({
             message: "不能给自己点赞",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
           return;
@@ -4197,8 +4182,7 @@ export default {
       } catch (error) {
         ElMessage({
           message: "未知错误",
-          type: "info",
-          plain: true,
+          type: "error",
           duration: 1700,
         });
       }
@@ -4286,8 +4270,7 @@ export default {
       } catch (error) {
         ElMessage({
           message: "未知错误",
-          type: "info",
-          plain: true,
+          type: "error",
           duration: 1700,
         });
       }
@@ -4348,8 +4331,7 @@ export default {
       } catch (error) {
         ElMessage({
           message: "未知错误",
-          type: "info",
-          plain: true,
+          type: "error",
           duration: 1700,
         });
       }
@@ -4427,8 +4409,7 @@ export default {
       } catch (error) {
         ElMessage({
           message: "未知错误",
-          type: "info",
-          plain: true,
+          type: "error",
           duration: 1700,
         });
       }
@@ -4469,8 +4450,7 @@ export default {
       } catch (error) {
         ElMessage({
           message: "未知错误",
-          type: "info",
-          plain: true,
+          type: "error",
           duration: 1700,
         });
       }

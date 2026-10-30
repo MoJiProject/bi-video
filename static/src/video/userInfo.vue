@@ -121,8 +121,7 @@ async function addFollowAxios(upUserId) {
         if (store.userId === upUserId) {
           ElMessage({
             message: "不能关注自己哦",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
           return;

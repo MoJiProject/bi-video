@@ -82,16 +82,14 @@ export default {
         } else {
           ElMessage({
             message: response.data.msg,
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
         }
       } catch (error) {
         ElMessage({
           message: error.message || "加载投稿统计失败",
-          type: "info",
-          plain: true,
+          type: "error",
           duration: 1700,
         });
       }

@@ -113,8 +113,7 @@ function refreshCrop() {
     if (!canvas) {
         ElMessage({
             message: '图片解析失败',
-            type: "info",
-            plain: true,
+            type: "error",
             duration: 1700,
         });
         return;
@@ -141,8 +140,7 @@ function changeBackground(event) {
     {
         ElMessage({
             message: '请上传图片',
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
             });
         event.target.value='';    
@@ -152,8 +150,7 @@ function changeBackground(event) {
     {
         ElMessage({
             message: '图片大小不能超过10M',
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
         });
         event.target.value='';    
@@ -170,8 +167,7 @@ function changeBackground(event) {
         img.onerror = () => {
             ElMessage({
                 message: '图片解析失败',
-                type: "info",
-                plain: true,
+                type: "error",
                 duration: 1700,
             });
         };
@@ -197,8 +193,7 @@ function updateBackground() {
     {
         ElMessage({
             message: '请选择图片',
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
         });
         return;
@@ -208,8 +203,7 @@ function updateBackground() {
     {
         ElMessage({
             message: '裁剪后图片过大，请更换原图',
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
         });
         return;
@@ -222,8 +216,7 @@ function updateBackground() {
             backgroundAddress.value = null;
             ElMessage({
                 message: res.data.data,
-                type: "info",
-                plain: true,
+                type: "warning",
                 duration: 1700,
             });
         }
@@ -231,8 +224,7 @@ function updateBackground() {
         {
             ElMessage({
                 message: res.data.msg,
-                type: "info",
-                plain: true,
+                type: "warning",
                 duration: 1700,
             });
         }

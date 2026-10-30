@@ -1755,8 +1755,7 @@ export default {
         if (forgetPasswordForm.userName === "") {
           ElMessage({
             message: "请输入账号",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
 
@@ -1765,8 +1764,7 @@ export default {
         if (forgetPasswordForm.phone === "") {
           ElMessage({
             message: "请输入手机号",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
 
@@ -1778,8 +1776,7 @@ export default {
         ) {
           ElMessage({
             message: "手机号格式错误",
-            type: "info",
-            plain: true,
+            type: "error",
             duration: 1700,
           });
           return (loginDialogVisible.value = true);
@@ -1787,8 +1784,7 @@ export default {
         if (forgetPasswordForm.question === "") {
           ElMessage({
             message: "请输入密保",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
 
@@ -1797,8 +1793,7 @@ export default {
         if (forgetPasswordForm.password === "") {
           ElMessage({
             message: "请输入密码",
-            type: "info",
-            plain: true,
+            type: "warning",
           });
 
           return (loginDialogVisible.value = true);
@@ -1806,8 +1801,7 @@ export default {
         if (forgetPasswordForm.password.length < 4) {
           ElMessage({
             message: "密码过短",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
 
@@ -1816,8 +1810,7 @@ export default {
         if (forgetPasswordForm.againpassword === "") {
           ElMessage({
             message: "请输入密码",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
 
@@ -1827,8 +1820,7 @@ export default {
         if (forgetPasswordForm.password !== forgetPasswordForm.againpassword) {
           ElMessage({
             message: "两次密码不一致",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
 
@@ -1840,8 +1832,7 @@ export default {
           const res = await forgetPassword(forgetPasswordForm);
           ElMessage({
             message: res || "密码已重置，请重新登录",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
           flag.value = 1;
@@ -1849,16 +1840,14 @@ export default {
         } catch (error) {
           ElMessage({
             message: error.message || "重置失败",
-            type: "info",
-            plain: true,
+            type: "error",
             duration: 1700,
           });
         }
       } catch (error) {
         ElMessage({
           message: "重置失败",
-          type: "info",
-          plain: true,
+          type: "error",
           duration: 1700,
         });
       }
@@ -1943,8 +1932,7 @@ export default {
         if (loginForm.userName === "") {
           ElMessage({
             message: "请输入账号",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
 
@@ -1953,8 +1941,7 @@ export default {
         if (loginForm.password === "") {
           ElMessage({
             message: "请输入密码",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
 
@@ -1968,7 +1955,7 @@ export default {
             password: loginForm.password,
           });
         } catch (err) {
-          ElMessage({ message: err.message || "登录失败", type: "info", plain: true, duration: 1700 });
+          ElMessage({ message: err.message || "登录失败", type: "error", duration: 1700 });
           return;
         }
         const loginData = res.data || res;
@@ -1984,8 +1971,7 @@ await getUserIp();
       } catch (error) {
         ElMessage({
           message: "未知错误",
-          type: "info",
-          plain: true,
+          type: "error",
           duration: 1700,
         });
 
@@ -2023,8 +2009,7 @@ await getUserIp();
       setTimeout(() => {
         ElMessage({
           message: "登录成功",
-          type: "info",
-          plain: true,
+          type: "success",
           duration: 1700,
         });
         store.setLoginLoadFlag(false);
@@ -2048,8 +2033,7 @@ await getUserIp();
         if (signinForm.userName === "") {
           ElMessage({
             message: "请输入账号",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
 
@@ -2058,8 +2042,7 @@ await getUserIp();
         if (signinForm.password === "") {
           ElMessage({
             message: "请输入密码",
-            type: "info",
-            plain: true,
+            type: "warning",
           });
 
           return (loginDialogVisible.value = true);
@@ -2067,8 +2050,7 @@ await getUserIp();
         if (signinForm.password.length < 4) {
           ElMessage({
             message: "密码过短",
-            type: "info",
-            plain: true,
+            type: "warning",
           });
 
           return (loginDialogVisible.value = true);
@@ -2076,8 +2058,7 @@ await getUserIp();
         if (signinForm.againPassword === "") {
           ElMessage({
             message: "请输入密码",
-            type: "info",
-            plain: true,
+            type: "warning",
           });
 
           return (loginDialogVisible.value = true);
@@ -2085,8 +2066,7 @@ await getUserIp();
         if (signinForm.phone === "") {
           ElMessage({
             message: "请输入手机号",
-            type: "info",
-            plain: true,
+            type: "warning",
           });
 
           return (loginDialogVisible.value = true);
@@ -2097,16 +2077,14 @@ await getUserIp();
         ) {
           ElMessage({
             message: "手机号格式错误",
-            type: "info",
-            plain: true,
+            type: "error",
           });
           return (loginDialogVisible.value = true);
         }
         if (signinForm.question === "") {
           ElMessage({
             message: "请输入密保",
-            type: "info",
-            plain: true,
+            type: "warning",
           });
 
           return (loginDialogVisible.value = true);
@@ -2114,8 +2092,7 @@ await getUserIp();
         if (signinForm.password !== signinForm.againPassword) {
           ElMessage({
             message: "两次密码不一致",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
 
@@ -2132,7 +2109,7 @@ await getUserIp();
             phone: signinForm.phone || "",
           });
         } catch (err) {
-          ElMessage({ message: err.message || "注册失败", type: "info", plain: true, duration: 1700 });
+          ElMessage({ message: err.message || "注册失败", type: "error", duration: 1700 });
           return;
         }
         const loginData = res.data || res;
@@ -2146,8 +2123,7 @@ flag.value = 1;
       } catch (error) {
         ElMessage({
           message: "未知错误",
-          type: "info",
-          plain: true,
+          type: "error",
           duration: 1700,
         });
       }
@@ -2209,8 +2185,7 @@ flag.value = 1;
         store.setToken(null);
         ElMessage({
           message: "登录状态已失效，请重新登录",
-          type: "info",
-          plain: true,
+          type: "warning",
           duration: 1700,
         });
     }
@@ -2338,7 +2313,7 @@ flag.value = 1;
         const state = await toggleWatchLater(dynamic.videoId);
         dynamic.waitWatch = state.watchLater ? 1 : 0;
 } catch (error) {
-        ElMessage({ message: error.message || "操作失败", type: "info", plain: true, duration: 1700 });
+        ElMessage({ message: error.message || "操作失败", type: "error", duration: 1700 });
       }
     }
 

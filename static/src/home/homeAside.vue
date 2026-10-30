@@ -132,8 +132,7 @@ function changeHomeMenu(homeMenu){
         {
             ElMessage({
             message: "由于该用户隐私设置，关注列表不可见",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
             });
             return;
@@ -142,8 +141,7 @@ function changeHomeMenu(homeMenu){
         {
             ElMessage({
             message: "由于该用户隐私设置，粉丝列表不可见",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
             });
             return;

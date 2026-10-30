@@ -30,7 +30,7 @@ export function navigateToVideo(video) {
     }
     const message = '一起看中只有房主或管理员可以切换房间视频，已单独打开该视频';
     // 全屏时面板在原生全屏节点内，提示要挂到面板里才能看见。
-    api.notify ? api.notify('info', message) : ElMessage({ type: 'info', message });
+    api.notify ? api.notify('warning', message) : ElMessage({ type: 'warning', message });
     return;
   }
   window.location.href = `./video?videoId=BV${videoId}`;

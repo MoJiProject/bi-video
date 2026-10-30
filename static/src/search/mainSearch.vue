@@ -637,8 +637,7 @@ watch(
       } catch (error) {
         ElMessage({
           message: error.message || "搜索失败，请稍后重试",
-          type: "info",
-          plain: true,
+          type: "error",
           duration: 1700,
         });
       }
@@ -655,8 +654,7 @@ watch(
       } catch (error) {
         ElMessage({
           message: error.message || "搜索失败，请稍后重试",
-          type: "info",
-          plain: true,
+          type: "error",
           duration: 1700,
         });
       }
@@ -712,8 +710,7 @@ watch(
       } catch (error) {
         ElMessage({
           message: "未知错误",
-          type: "info",
-          plain: true,
+          type: "error",
           duration: 1700,
         });
       }
@@ -773,8 +770,7 @@ watch(
       if (String(store.userId) === String(userId)) {
         ElMessage({
           message: "不能关注自己哦",
-          type: "info",
-          plain: true,
+          type: "warning",
           duration: 1700,
         });
         return;
@@ -785,8 +781,7 @@ watch(
       } catch (error) {
         ElMessage({
           message: "操作失败",
-          type: "info",
-          plain: true,
+          type: "error",
           duration: 1700,
         });
       }

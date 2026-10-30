@@ -92,8 +92,7 @@ function changeBackground(event) {
     {
         ElMessage({
             message: '请上传图片',
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
             });
         event.target.value='';    
@@ -103,8 +102,7 @@ function changeBackground(event) {
     {
         ElMessage({
             message: '图片大小不能超过5M',
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
         });
         event.target.value='';    
@@ -133,8 +131,7 @@ function send(img) {
         if(res.data.code === 1) {
             ElMessage({
                 message: '头像更新成功',
-                type: "info",
-                plain: true,
+                type: "success",
                 duration: 1700,
             });
             store.userInformation.avatarAddress = img;
@@ -144,8 +141,7 @@ function send(img) {
         } else {
             ElMessage({
                 message: '头像更新失败',
-                type: "info",
-                plain: true,
+                type: "error",
                 duration: 1700,
             });
         }

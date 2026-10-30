@@ -83,8 +83,7 @@ async function waitWatch(video) {
     else{
       ElMessage({
         message: res.data.msg,
-        type: "info",
-        plain: true,
+        type: "warning",
         duration: 1700,
       });
     }

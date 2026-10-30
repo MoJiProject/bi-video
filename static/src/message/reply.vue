@@ -235,8 +235,7 @@
       {
         ElMessage({
           message: "记录最多显示10000条",
-          type: "info",
-          plain: true,
+          type: "warning",
           duration: 1700,
         });
         return;
@@ -304,8 +303,7 @@ function addImgFlagF(comment,flag){
               reply.replyCommentControls=replyCommentControls;
               ElMessage({
               message: "点赞成功",
-              type: "info",
-              plain: true,
+              type: "success",
               duration: 1700,
                });
             }
@@ -320,8 +318,7 @@ function addImgFlagF(comment,flag){
         if(res.data.code===1){
           ElMessage({
             message: "删除成功",
-            type: "info",
-            plain: true,
+            type: "success",
             duration: 1700,
           });
           replyList.splice(replyList.findIndex(item=>item.replyComments.id===deleteCommentNotificaitonId.value),1);
@@ -331,8 +328,7 @@ function addImgFlagF(comment,flag){
         }else{
           ElMessage({
             message: res.data.msg,
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
           });
         }
@@ -370,8 +366,7 @@ function addImgFlagF(comment,flag){
         if(res.data.code===1){
           ElMessage({
             message: "评论成功",
-            type: "info",
-            plain: true,
+            type: "success",
             duration: 1700,
           });
           commentContent.value="";

@@ -131,15 +131,13 @@ async function putUserInfoF(){
             store.homeUserInformation.introduce=introduce.value;
             ElMessage({
             message: "修改成功",
-            type: "info",
-            plain: true,
+            type: "success",
             duration: 1700,
           });
         }else{
             ElMessage({
             message: "修改失败",
-            type: "info",
-            plain: true,
+            type: "error",
             duration: 1700,
             });
         }
@@ -171,8 +169,7 @@ async function followF(){
     if(store.userId===store.homeUserInformation.id){
         ElMessage({
             message: "不能关注自己(ง •̀_•́)ง",
-            type: "info",
-            plain: true,
+            type: "warning",
             duration: 1700,
         });
         return;
@@ -182,15 +179,13 @@ async function followF(){
             store.homeUserInformation.isFollowFlag=1;
             ElMessage({
             message: "关注成功(ง •̀_•́)ง",
-            type: "info",
-            plain: true,
+            type: "success",
             duration: 1700,
           });
         }else{
             ElMessage({
             message: "关注失败(ง •̀_•́)ง",
-            type: "info",
-            plain: true,
+            type: "error",
             duration: 1700,
             });
         }
@@ -211,15 +206,13 @@ async function unFollowF(){
             store.homeUserInformation.isFollowFlag=0;
             ElMessage({
             message: "取消关注成功(ง •̀_•́)ง",
-            type: "info",
-            plain: true,
+            type: "success",
             duration: 1700,
           });
         }else{
             ElMessage({
             message: "取消关注失败(ง •̀_•́)ง",
-            type: "info",
-            plain: true,
+            type: "error",
             duration: 1700,
             });
         }

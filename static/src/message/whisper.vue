@@ -483,11 +483,11 @@ async function handleFileChange(event) {
   if (!file) return;
   if (!receiverId) { showChatError(new Error("请先选择会话")); event.target.value=""; return; }
   if (!file.type.startsWith("image/")) {
-    ElMessage({ message: "只能上传图片", type: "info", plain: true, duration: 1700 });
+    ElMessage({ message: "只能上传图片", type: "warning", duration: 1700 });
     event.target.value = "";
     return;
   } else if (file.size >= 10 * 1024 * 1024) {
-    ElMessage({ message: "图片大小不能超过10M", type: "info", plain: true, duration: 1700 });
+    ElMessage({ message: "图片大小不能超过10M", type: "warning", duration: 1700 });
     event.target.value = "";
     return;
   }
@@ -508,7 +508,7 @@ async function handleFileChange(event) {
           applyChatMessage(res.data.data);
           syncChatDialogues().catch(showChatError);
         } else {
-          ElMessage({ message: res.data.msg, type: "info", plain: true, duration: 1700 });
+          ElMessage({ message: res.data.msg, type: "warning", duration: 1700 });
         }
         loading.value = false;
       }).catch(error => {
@@ -717,17 +717,17 @@ function revocationMessageF(privateMessage) {
   const endTime = new Date();
   const seconds = Math.abs(startTime.getTime() - endTime.getTime()) / 1000;
   if (seconds > 180) {
-    ElMessage({ message: "消息已超过3分钟，无法撤回", type: "info", plain: true, duration: 1700 });
+    ElMessage({ message: "消息已超过3分钟，无法撤回", type: "warning", duration: 1700 });
     return;
   }
   revocationMessage(store, privateMessage.id).then(res => {
     if (res.data.code === 1) {
       const index = privateMessageList.findIndex(item => item.id === privateMessage.id);
       if (index !== -1) privateMessageList[index].status = 2;
-      ElMessage({ message: "撤回成功", type: "info", plain: true, duration: 1700 });
+      ElMessage({ message: "撤回成功", type: "success", duration: 1700 });
       queueChatSync(false);
     } else {
-      ElMessage({ message: res.data.msg, type: "info", plain: true, duration: 1700 });
+      ElMessage({ message: res.data.msg, type: "warning", duration: 1700 });
     }
   }).catch(showChatError);
 }
@@ -741,10 +741,10 @@ function deletePrivateMessageF(privateMessage) {
       //同步左侧会话预览，跟后端保持一致：取当前可见的最后一条
       refreshDialoguePreview();
       queueChatSync(false);
-      ElMessage({ message: "删除成功", type: "info", plain: true, duration: 1700 });
+      ElMessage({ message: "删除成功", type: "success", duration: 1700 });
       deleteMessageDialogFlag.value = false;
     } else {
-      ElMessage({ message: res.data.msg, type: "info", plain: true, duration: 1700 });
+      ElMessage({ message: res.data.msg, type: "warning", duration: 1700 });
     }
   }).catch(showChatError);
 }
@@ -804,7 +804,7 @@ function sendMessageF() {
   if (!currentDialogue.value) { showChatError(new Error("请先选择会话")); return; }
   if (messageNumber.value === 0) return;
   if (messageNumber.value > 500) {
-    ElMessage({ message: "消息字数不能超过500", type: "info", plain: true, duration: 1700 });
+    ElMessage({ message: "消息字数不能超过500", type: "warning", duration: 1700 });
     return;
   }
   let message = {
@@ -820,7 +820,7 @@ function sendMessageF() {
       applyChatMessage(res.data.data);
       queueChatSync(false);
     } else {
-      ElMessage({ message: res.data.msg, type: "info", plain: true, duration: 1700 });
+      ElMessage({ message: res.data.msg, type: "warning", duration: 1700 });
     }
   }).catch(showChatError);
 }
@@ -1228,11 +1228,11 @@ function getDisplySendTime2(time) {
 
 function handleCopyMessage() {
   if (copyMessage.value && copyMessage.value.length > 0) {
-    ElMessage({ message: "复制成功", type: "info", plain: true, duration: 1700 });
+    ElMessage({ message: "复制成功", type: "success", duration: 1700 });
     navigator.clipboard.writeText(copyMessage.value);
     copyMessage.value = null;
   } else {
-    ElMessage({ message: "不能复制表情", type: "info", plain: true, duration: 1700 });
+    ElMessage({ message: "不能复制表情", type: "warning", duration: 1700 });
   }
 }
 

@@ -212,8 +212,7 @@ if(store.userId===null)
 if(store.userId===user.id){
     ElMessage({
         message: "不能关注自己(ง •̀_•́)ง",
-        type: "info",
-        plain: true,
+        type: "warning",
         duration: 1700,
     });
     return;
@@ -224,15 +223,13 @@ await addFollow(store.token,store.userId,user.id).then(res=>{
         user.fansNumber++;
         ElMessage({
         message: "关注成功(ง •̀_•́)ง",
-        type: "info",
-        plain: true,
+        type: "success",
         duration: 1700,
       });
     }else{
         ElMessage({
         message: "关注失败(ง •̀_•́)ง",
-        type: "info",
-        plain: true,
+        type: "error",
         duration: 1700,
         });
     }
@@ -253,8 +250,7 @@ await deleteFollow(store.token,store.userId,user.id).then(res=>{
         user.isFollowFlag=0;
         ElMessage({
         message: "取消了对 "+user.userName+" 的关注",
-        type: "info",
-        plain: true,
+        type: "warning",
         duration: 1700,
       });
       user.fansNumber--; 
@@ -262,8 +258,7 @@ await deleteFollow(store.token,store.userId,user.id).then(res=>{
     }else{
         ElMessage({
         message: "取消关注失败(ง •̀_•́)ง",
-        type: "info",
-        plain: true,
+        type: "error",
         duration: 1700,
         });
     }
@@ -295,8 +290,7 @@ function putUpStatusF(dynamic){
     }else{
       ElMessage({
         message: res.data.msg,
-        type: "info",
-        plain: true,
+        type: "warning",
         duration: 1700,
         });
     }
@@ -315,16 +309,14 @@ function deleteDynamicF(dynamic){
     if(res.data.code===1){
       ElMessage({
         message: "删除成功",
-        type: "info",
-        plain: true,
+        type: "success",
         duration: 1700,
       });
       window.location.href="./dynamic";
     }else{
       ElMessage({
         message: "删除失败(ง •̀_•́)ง",
-        type: "info",
-        plain: true,
+        type: "error",
         duration: 1700,
       });
     }
