@@ -20,8 +20,8 @@
       </div>
       <div class="profile-body">
         <div class="profile-stats">
-          <div><strong>{{ profile.followingCount ?? '--' }}</strong><span>关注</span></div>
-          <div><strong>{{ profile.followerCount ?? '--' }}</strong><span>粉丝</span></div>
+          <a :href="`/home?userId=${userId}&homeMenu=8`" :aria-label="`${profile.nickname}的关注列表`"><strong>{{ profile.followingCount ?? '--' }}</strong><span>关注</span></a>
+          <a :href="`/home?userId=${userId}&homeMenu=9`" :aria-label="`${profile.nickname}的粉丝列表`"><strong>{{ profile.followerCount ?? '--' }}</strong><span>粉丝</span></a>
           <div><strong>{{ profile.likeReceived ?? '--' }}</strong><span>获赞</span></div>
         </div>
         <p class="profile-signature">{{ profile.signature || '还没有填写个人简介' }}</p>
@@ -71,8 +71,8 @@
           </div>
           <div class="profile-body">
             <div class="profile-stats">
-              <div><strong>{{ profile.followingCount ?? '--' }}</strong><span>关注</span></div>
-              <div><strong>{{ profile.followerCount ?? '--' }}</strong><span>粉丝</span></div>
+              <a :href="`/home?userId=${userId}&homeMenu=8`" :aria-label="`${profile.nickname}的关注列表`"><strong>{{ profile.followingCount ?? '--' }}</strong><span>关注</span></a>
+              <a :href="`/home?userId=${userId}&homeMenu=9`" :aria-label="`${profile.nickname}的粉丝列表`"><strong>{{ profile.followerCount ?? '--' }}</strong><span>粉丝</span></a>
               <div><strong>{{ profile.likeReceived ?? '--' }}</strong><span>获赞</span></div>
             </div>
             <p class="profile-signature">{{ profile.signature || '还没有填写个人简介' }}</p>
@@ -219,7 +219,7 @@ onUnmounted(() => { generation++; });
 .user-hover-trigger:focus-visible, .user-profile-card a:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; border-radius: 6px; }
 .user-profile-card { color: var(--ink); background: #fff; font-family: var(--el-font-family); font-size: 13px; line-height: 1.5; cursor: auto; }
 .user-profile-card * { box-sizing: border-box; }
-.profile-cover { height: 60px; background: var(--brand-light-9); background-position: center; background-size: cover; }
+.profile-cover { height: 76px; background: var(--brand-light-9); background-position: center; background-size: cover; }
 .profile-identity { position: relative; display: flex; align-items: flex-end; gap: 10px; min-width: 0; margin: -22px 16px 0; }
 .profile-identity a { color: inherit; text-decoration: none; }
 .profile-avatar-link { flex: none; border-radius: 50%; }
@@ -228,12 +228,14 @@ onUnmounted(() => { generation++; });
 .profile-name { min-width: 0; overflow: hidden; font-size: 15px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .profile-name:hover { color: var(--brand-hover); }
 .profile-level { flex: none; padding: 1px 5px; border-radius: 4px; background: var(--brand-light-9); color: var(--brand-hover); font-size: 10px; }
-.profile-body { padding: 14px 16px 16px; }
+.profile-body { padding: 8px 16px 10px; }
 .profile-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.profile-stats > div { display: flex; align-items: center; gap: 5px; min-width: 0; color: var(--ink-3); font-size: 12px; }
+.profile-stats > div, .profile-stats > a { display: flex; align-items: center; gap: 5px; min-width: 0; color: var(--ink-3); font-size: 12px; }
+.profile-stats a { color: inherit; text-decoration: none; }
+.profile-stats a:hover strong { color: var(--brand-hover); }
 .profile-stats strong { color: var(--ink-2); font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
-.profile-signature { display: -webkit-box; margin: 12px 0 14px; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color: var(--ink-2); font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
-.profile-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.profile-signature { display: -webkit-box; margin: 10px 0 12px; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color: var(--ink-2); font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.profile-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .profile-actions .el-button { flex: none; min-width: 94px; max-width: 100%; height: 32px; margin: 0; padding: 0 14px; border-radius: 8px; font-size: 12px; }
 .profile-status { margin: 0; padding: 20px 16px; color: var(--ink-2); font-size: 13px; }
 .profile-status p { margin: 0 0 8px; }

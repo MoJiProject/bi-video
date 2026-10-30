@@ -218,7 +218,9 @@
                   :show-arrow="false"
                   :hide-after="0"
                 >
-                <button type="button" class="message-feature-button" aria-label="发送图片" @click="addSendImg" @mouseover="imgFeatureHoverFlag = true" @mouseleave="imgFeatureHoverFlag = false"><img class="message-feature-img" :src="imgFeatureHoverFlag ? '/img/媒体按钮蓝.png' : '/img/媒体按钮.png'"></button>
+                <button type="button" class="message-feature-button" aria-label="发送图片" @click="addSendImg">
+                  <svg class="message-feature-img" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/></svg>
+                </button>
                 </el-tooltip>
                 <el-tooltip
                   popper-class="custom-tooltip"
@@ -230,7 +232,9 @@
                   :show-arrow="false"
                   :hide-after="0"
                 >
-                <button type="button" class="message-feature-emoji message-feature-button" aria-label="表情" :aria-expanded="emojiFlag" @mouseover="emojiHoverFlag = true" @mouseleave="emojiHoverFlag = false"><img class="message-feature-emoji" :src="emojiHoverFlag ? '/img/表情按钮蓝.png' : '/img/表情按钮.png'"></button>
+                <button type="button" class="message-feature-emoji message-feature-button" aria-label="表情" :aria-expanded="emojiFlag">
+                  <svg class="message-feature-emoji" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 14a4 4 0 0 0 8 0M8 9h.01M16 9h.01"/></svg>
+                </button>
                 </el-tooltip>
                 <el-tooltip
                   popper-class="custom-tooltip"
@@ -242,7 +246,9 @@
                   :show-arrow="false"
                   :hide-after="0"
                 >
-                <button type="button" class="message-feature-at message-feature-button" aria-label="提醒某人（@）" @click="addAt"><img class="message-feature-at" :src="'/img/@.png'"></button>
+                <button type="button" class="message-feature-at message-feature-button" aria-label="提醒某人（@）" @click="addAt">
+                  <svg class="message-feature-at" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg>
+                </button>
                 </el-tooltip>
                 <eit
                     v-show="eitFlag"
@@ -250,16 +256,20 @@
                     :eitKeyWord="eitKeyWord"
                 ></eit>
                 <div v-show="emojiFlag" class="message-emoji-list">
-                   <span class="emoji-title">表情</span>
-                   <svg @click="emojiFlag=false" class="close-emoji" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" d="M764.288 214.592 512 466.88 259.712 214.592a31.936 31.936 0 0 0-45.12 45.12L466.752 512 214.528 764.224a31.936 31.936 0 1 0 45.12 45.184L512 557.184l252.288 252.288a31.936 31.936 0 0 0 45.12-45.12L557.12 512.064l252.288-252.352a31.936 31.936 0 1 0-45.12-45.184z"></path></svg>
-                   <span
-                        class="comment-emoji-content"
-                        @click="addEmoji(index)"
-                        v-for="index in 176"
-                        :key="index"
-                        >
-                        <img class="comment-emoji-img" :src="'/img/emoji/' + index + '.png'" />
-                    </span>
+                   <div class="emoji-title">表情</div>
+                   <div class="emoji-grid">
+                        <button
+                            type="button"
+                            class="comment-emoji-content"
+                            :title="`表情 ${index}`"
+                            :aria-label="`表情 ${index}`"
+                            @click="addEmoji(index)"
+                            v-for="index in 176"
+                            :key="index"
+                            >
+                            <img class="comment-emoji-img" :src="'/img/emoji/' + index + '.png'" alt="">
+                        </button>
+                    </div>
                 </div>
                 <input type="file" class="message-file-input" style="display: none;" accept="image/*" @change="handleFileChange">
             </div>
@@ -340,8 +350,6 @@ function throttle(fn, limit = 150) {
 
 const store = useGlobalStore();
 const messageDialogFlag = ref(false);
-const imgFeatureHoverFlag = ref(false);
-const emojiHoverFlag = ref(false);
 const emojiFlag = ref(false);
 const dialogueList = reactive([]);
 const dialoguePageNum = ref(1);
@@ -436,16 +444,16 @@ function outSideClick(e) {
   if (eitFlag.value) {
     if (!eitPanel && !atBtn) eitFlag.value = false; // 点列表外（除按钮）收起
   }
-  if (!e.target.className || typeof e.target.className.indexOf !== "function") return;
+  const classText = e.target instanceof Element ? (e.target.getAttribute("class") || "") : "";
   if (!emojiFlag.value) {
-    if (e.target.className.indexOf("message-feature-emoji") !== -1) emojiFlag.value = true;
+    if (classText.indexOf("message-feature-emoji") !== -1) emojiFlag.value = true;
   } else {
-    if (e.target.className.indexOf("message-emoji-list") === -1 && e.target.className.indexOf("emoji-title") === -1 && e.target.className.indexOf("comment-emoji-content") === -1 && e.target.className.indexOf("comment-emoji-img") === -1) {
+    if (classText.indexOf("message-emoji-list") === -1 && classText.indexOf("emoji-title") === -1 && classText.indexOf("comment-emoji-content") === -1 && classText.indexOf("comment-emoji-img") === -1) {
       emojiFlag.value = false;
     }
   }
   // 点击 @ 按钮时收起表情面板，避免两个浮层叠在一起
-  if (emojiFlag.value && e.target.className.indexOf("message-feature-at") !== -1) {
+  if (emojiFlag.value && classText.indexOf("message-feature-at") !== -1) {
     emojiFlag.value = false;
   }
   if (e.target.classList && e.target.classList.contains("message-emoji-img")) {
@@ -2034,58 +2042,62 @@ function restoreBodyOverflow() {
                 user-select: none;
             }
 
+            .message-feature-button svg{
+                display: block;
+                width: 16px;
+                height: 16px;
+                margin: 0;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 1.7;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                pointer-events: none;
+            }
+
             .message-emoji-list{
                 position: relative;
-                width: 363px;
-                height: 271px;
+                display: flex;
+                flex-direction: column;
+                width: 320px;
                 left: -50px;
                 top: -162px;
                 border: 1px solid #E0E5E3;
                 border-radius: 8px;
-                padding: 0 15px 45px 11px;
+                padding: 12px;
                 background-color: #fff;
-                overflow: hidden;
-                overflow-y: scroll;
                 z-index: 20;
 
                 .emoji-title{
-                    position: absolute;
-                    left: 15px;
-                    top: 13px;
-                    font-size: 12px;
-                    color: #5C6664;
+                    flex-shrink: 0;
+                    padding: 0 2px 10px;
+                    border-bottom: 1px solid #EFF3F2;
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: #1C2321;
                 }
 
-                .close-emoji{
-                    position: absolute;
-                    width: 22px;
-                    height: 22px;
-                    top: 10px;
-                    right: 11px;
-                    color: #999;
-                    cursor: pointer;
-                }
-
-                .close-emoji:hover{
-                    color: #2BB2A0;
+                .emoji-grid{
+                    display: grid;
+                    grid-template-columns: repeat(8, minmax(0, 1fr));
+                    gap: 3px;
+                    max-height: 224px;
+                    margin-top: 8px;
+                    overflow-y: auto;
+                    overscroll-behavior: contain;
+                    scrollbar-width: thin;
                 }
 
                 .comment-emoji-content {
-                    position: relative;
-                    top: 37px;
-                    left: 0px;
-                    width: 32px;
+                    display: grid;
+                    place-items: center;
+                    min-width: 0;
                     height: 32px;
-                    padding: 0;
-                    margin-right: 0;
-                    margin-bottom: 0;
-                    display: inline-flex;
-                    justify-content: center;
-                    align-items: center;
+                    padding: 3px;
+                    border: 0;
+                    border-radius: 6px;
+                    background: transparent;
                     cursor: pointer;
-                    background-color: white;
-                    border-radius: 4px;
-                    transition: background-color 0.1s ease;
                     img {
                         width: 24px;
                         height: 24px;
@@ -2093,19 +2105,8 @@ function restoreBodyOverflow() {
                 }
 
                 .comment-emoji-content:hover {
-                    background-color: #E0E5E3;
+                    background-color: #E7F6F3;
                 }
-            }
-
-            .message-emoji-list::-webkit-scrollbar{
-            width: 5px; /* 滚动条的宽度 */
-            border-radius: 30px; /* 滚动条滑块的圆角 */
-            }
-
-            .message-emoji-list::-webkit-scrollbar-thumb {
-            background: #E0E5E3; /* 滚动条的滑块 */
-            height: 10px;
-            border-radius: 10px;
             }
         }
 
@@ -2330,6 +2331,9 @@ function restoreBodyOverflow() {
       .body-right .message-send-container .message-feature-container .message-emoji-list{
         width: min(320px, calc(100vw - 150px));
         left: -38px;
+      }
+      .body-right .message-send-container .message-feature-container .eit{
+        left: 12px;
       }
     }
   }

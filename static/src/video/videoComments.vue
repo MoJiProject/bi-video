@@ -47,7 +47,7 @@
             <UserHoverCard :user-id="root.authorId" :avatar="root.authorAvatar"
               :nickname="root.authorNickname" :avatar-size="32"/>
             <LevelBadge v-if="root.authorLevel" class="author-level" :level="root.authorLevel" size="xs"/>
-            <img v-if="isVideoAuthor(root)" class="author-badge" src="/img/author-badge.svg" alt="作者">
+            <span v-if="isVideoAuthor(root)" class="author-badge">作者</span>
             <span v-if="root.pinned" class="pin-badge">置顶</span>
             <time>{{ formatTime(root.createdAt) }}</time>
             <ContentMoreMenu v-if="canManage(root)" label="更多评论操作" :disabled="busy.has(root.id)">
@@ -83,8 +83,14 @@
           <div v-if="activeReplyId === root.id" class="reply-form">
             <PostEditor :ref="setReplyInput" v-model="replyContent" compact :max-length="1000" :disabled="replySending"
               :placeholder="`回复 @${root.authorNickname}`" @length="replyContentLength = $event">
+              <template #tools>
+                <button type="button" class="editor-tool share-tool" :class="{ checked: replyShareToDynamic }"
+                  :aria-pressed="replyShareToDynamic" :disabled="replySending" @click="replyShareToDynamic = !replyShareToDynamic">
+                  <img class="coin" :src="replyShareToDynamic ? '/img/投币复选框选中.svg' : '/img/投币复选框.svg'" alt="">
+                  <span>同时转发到我的动态</span>
+                </button>
+              </template>
               <template #actions>
-                <el-button text :disabled="replySending" @click="activeReplyId = null">取消</el-button>
                 <el-button type="primary" :loading="replySending" @click="sendReply(root)">回复</el-button>
               </template>
             </PostEditor>
@@ -96,7 +102,7 @@
               <UserHoverCard :user-id="child.authorId" :avatar="child.authorAvatar"
                 :nickname="child.authorNickname" :avatar-size="28"/>
               <LevelBadge v-if="child.authorLevel" class="author-level" :level="child.authorLevel" size="xs"/>
-              <img v-if="isVideoAuthor(child)" class="author-badge" src="/img/author-badge.svg" alt="作者">
+              <span v-if="isVideoAuthor(child)" class="author-badge">作者</span>
               <time>{{ formatTime(child.createdAt) }}</time>
               <ContentMoreMenu v-if="child.authorId === store.userId" label="更多回复操作" :disabled="busy.has(child.id)">
                 <el-dropdown-item class="is-danger" :disabled="busy.has(child.id)" @click="remove(child)">删除</el-dropdown-item>
@@ -128,9 +134,15 @@
             <div v-if="activeReplyId === child.id" class="reply-form">
               <PostEditor :ref="setReplyInput" v-model="replyContent" compact :max-length="1000" :disabled="replySending"
                 :placeholder="`回复 @${child.authorNickname}`" @length="replyContentLength = $event">
+                <template #tools>
+                  <button type="button" class="editor-tool share-tool" :class="{ checked: replyShareToDynamic }"
+                    :aria-pressed="replyShareToDynamic" :disabled="replySending" @click="replyShareToDynamic = !replyShareToDynamic">
+                    <img class="coin" :src="replyShareToDynamic ? '/img/投币复选框选中.svg' : '/img/投币复选框.svg'" alt="">
+                    <span>同时转发到我的动态</span>
+                  </button>
+                </template>
                 <template #actions>
-                  <el-button text :disabled="replySending" @click="activeReplyId = null">取消</el-button>
-                  <el-button type="primary" :loading="replySending" @click="sendReply(child)">回复</el-button>
+                  <el-button type="primary" :loading="replySending" @click="sendReply(child)">发布评论</el-button>
                 </template>
               </PostEditor>
             </div>
@@ -160,7 +172,6 @@ import { computed, nextTick, onUnmounted, ref, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { commentApi, socialApi } from '@/api/product';
 import { get, post } from '@/services/http';
-import { pinVideoComment } from '@/api/comment/videoDetail';
 import { sanitizeRichText } from '@/utils/richText';
 import { useGlobalStore } from '@/store/store';
 import richContent from '@/components/richContent.vue';
@@ -195,6 +206,7 @@ function setReplyInput(el) {
 const replyContent = ref('');
 const replyContentLength = ref(0);
 const replySending = ref(false);
+const replyShareToDynamic = ref(false);
 const sending = ref(false);
 const uploading = ref(false);
 const shareToDynamic = ref(false);
@@ -308,6 +320,7 @@ function toggleReplyBox(comment) {
   activeReplyId.value = comment.id;
   replyContent.value = '';
   replyContentLength.value = 0;
+  replyShareToDynamic.value = false;
   nextTick(() => replyInput.value?.focus());
 }
 
@@ -345,8 +358,18 @@ async function sendReply(target) {
     const { commentId } = await commentApi.create({
       videoId: props.videoId, content: finalContent, imageUrls: [], rootId: target.id,
     });
+    if (replyShareToDynamic.value) {
+      try {
+        await socialApi.createPost({
+          content: finalContent, imageUrls: [], videoId: props.videoId, visibility: 0,
+        });
+      } catch (error) {
+        ElMessage.warning(`回复已发送，转发失败：${error.message}`);
+      }
+    }
     replyContent.value = '';
     replyContentLength.value = 0;
+    replyShareToDynamic.value = false;
     activeReplyId.value = null;
     store.updateVideoInfoFlag = true;
     await reload();
@@ -499,7 +522,7 @@ async function remove(comment) {
 async function togglePin(comment) {
   busy.value.add(comment.id);
   try {
-    const result = await pinVideoComment(comment.id);
+    const result = await post(`/comment/${comment.id}/pin`);
     ElMessage({
       message: result.pinned ? '置顶成功' : '取消置顶成功',
       type: 'info',
@@ -535,11 +558,9 @@ h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; f
 .comment-upload { position: relative; }
 .comment-upload > span + span { color: var(--ink-3); font-size: 11px; }
 .comment-upload.disabled { opacity: .55; cursor: not-allowed; }
-.comment-upload:focus-within { outline: 2px solid #126b58; outline-offset: 3px; }
 .comment-upload input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .share-tool { cursor: pointer; }
-.share-tool .coin { display: block; flex: none; width: 16px; height: 16px; }
-.share-tool.checked > span { color: var(--brand-hover); font-weight: 600; }
+.share-tool .coin { display: block; flex: none; width: 16px; height: 16px; align-self: center; }
 .login-hint { margin: 0 0 16px; color: var(--ink-2); font-size: 13px; }
 .login-hint-btn { margin: 0 4px; padding: 0; border: 0; background: none; color: var(--brand-hover); font: inherit; cursor: pointer; }
 .login-hint-btn:hover { text-decoration: underline; }
@@ -558,8 +579,7 @@ header img { flex: none; width: 32px; height: 32px; border-radius: 10px; object-
 time, small { color: #8d9794; font-size: 12px; }
 time { margin-left: auto; }
 .author-level { flex: none; margin-left: -6px; }
-.author-badge { flex: none; width: 24px; height: 24px; margin-left: -6px; transform: translateY(1px); }
-.reply .author-badge { width: 20px; height: 20px; }
+.author-badge { display: inline-flex; align-items: center; flex: none; margin-left: -6px; padding: 0 5px; border-radius: 4px; background: linear-gradient(135deg, #f7c069, #ea8a2c); color: #fff; font-family: inherit; font-size: 9px; font-weight: 600; line-height: 14px; transform: translateY(0.5px); user-select: none; }
 .pin-badge { flex: none; padding: 1px 6px; border: 1px solid #ff8a4c; border-radius: 3px; color: #ff8a4c; font-size: 12px; line-height: 16px; }
 .note-mark { display: block; width: 48px; height: 22px; margin: 10px 0 -4px; object-fit: contain; }
 .reply-form { margin: 14px 0 4px; }

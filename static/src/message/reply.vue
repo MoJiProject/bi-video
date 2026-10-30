@@ -94,10 +94,10 @@
                 </div>
                 <div class="reply-right-content-bottom">
                     <span class="reply-time">{{ reply.replyComments.commentTime }}</span>
-                    <button type="button" class="reply-comment" @click="openReplyComment(reply)" @mouseover="replyCommentHoverFlag=reply.replyComments.id" @mouseleave="replyCommentHoverFlag=null"><img :src="replyCommentHoverFlag===reply.replyComments.id?'/img/回复蓝.png':'/img/回复.png'"> <span>回复</span></button>
-                    <button type="button" v-show="reply.replyCommentControls?.controls!==1" class="love-comment" v-debounce @click="commentControlesF(reply)" @mouseover="loveCommentHoverFlag=reply.replyComments.id" @mouseleave="loveCommentHoverFlag=null"><img :src="loveCommentHoverFlag===reply.replyComments.id?'/img/评论点赞hover.png':'/img/评论点赞灰.png'"> <span>点赞</span></button>
-                    <button type="button" v-show="reply.replyCommentControls?.controls===1" class="love-comment2" v-debounce @click="commentControlesF(reply)"><img src="/img/评论点赞蓝.png"> <span>已赞</span></button>
-                    <button type="button" class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=reply.replyComments.id" @mouseover="deleteCommentNotificaitonHoverFlag=reply.replyComments.id" @mouseleave="deleteCommentNotificaitonHoverFlag=null"><img :src="deleteCommentNotificaitonHoverFlag===reply.replyComments.id?'/img/删除通知蓝.png':'/img/删除通知.png'"> <span>删除</span></button>
+                    <button type="button" class="reply-comment" @click="openReplyComment(reply)"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18 3 21V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H7Z"/><path d="M7 8h10M7 12h7"/></svg> <span>回复</span></button>
+                    <button type="button" v-show="reply.replyCommentControls?.controls!==1" class="love-comment" v-debounce @click="commentControlesF(reply)"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10H4v10h4m0-10 4-7h1a2 2 0 0 1 2 2l-1 5h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H8V10Z"/></svg> <span>点赞</span></button>
+                    <button type="button" v-show="reply.replyCommentControls?.controls===1" class="love-comment2" v-debounce @click="commentControlesF(reply)"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10H4v10h4m0-10 4-7h1a2 2 0 0 1 2 2l-1 5h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H8V10Z"/></svg> <span>已赞</span></button>
+                    <button type="button" class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=reply.replyComments.id"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg> <span>删除</span></button>
                 </div>
                 <div v-show="reply?.replyFlag" class="reply-comment-container">
                   <img src="/img/avatar-default.png">
@@ -194,9 +194,9 @@
    import { sanitizeRichText } from "../utils/richText";
 
    const store=useGlobalStore();
-   const replyCommentHoverFlag = ref(null);
-   const loveCommentHoverFlag = ref(null);
-   const deleteCommentNotificaitonHoverFlag = ref(null);
+  const replyCommentHoverFlag = ref(null); // eslint-disable-line no-unused-vars -- 图标改用 CSS hover 后不再需要
+  const loveCommentHoverFlag = ref(null); // eslint-disable-line no-unused-vars -- 同上
+  const deleteCommentNotificaitonHoverFlag = ref(null); // eslint-disable-line no-unused-vars -- 同上
    const pageNum=ref(1);
    const replyList=reactive([]);
    const deleteCommentDialogFlag=ref(false);

@@ -40,7 +40,7 @@
             </button>
           </template>
           <div class="emoji-panel">
-            <div class="panel-heading"><strong>表情</strong><span>选择一个表情</span></div>
+            <div class="panel-heading"><strong>表情</strong></div>
             <div class="emoji-grid">
               <button v-for="number in 176" :key="number" type="button" :title="`表情 ${number}`"
                 :aria-label="`表情 ${number}`" @mousedown.prevent @click="insertEmoji(number)">
@@ -336,7 +336,7 @@ defineExpose({ focus });
 .post-editor.is-disabled { background: var(--fill-soft); }
 .editor-input { position: relative; min-height: 112px; max-height: 320px; padding: 12px 14px; overflow: auto; outline: none; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; line-height: 1.8; cursor: text; scroll-margin-top: calc(var(--head-h) + 24px); }
 .compact .editor-input { min-height: 76px; font-size: 13px; }
-.editor-input.is-empty::before { position: absolute; top: 12px; left: 14px; right: 14px; content: attr(data-placeholder); color: var(--ink-3); pointer-events: none; }
+.editor-input.is-empty::before { position: absolute; top: 13px; left: 14px; right: 14px; content: attr(data-placeholder); color: var(--ink-3); pointer-events: none; }
 .editor-input :deep(img) { width: 24px; height: 24px; vertical-align: middle; }
 .editor-input :deep(a) { color: var(--brand-hover); text-decoration: none; }
 .editor-input :deep(a[data-eit-userid]) { padding: 1px 3px; border-radius: 4px; background: var(--brand-light-9); }
@@ -373,7 +373,7 @@ defineExpose({ focus });
 .editor-tool:focus-visible, .emoji-grid button:focus-visible, .mention-list button:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
 @media (max-width: 640px) {
   .editor-input { min-height: 100px; padding: 10px 12px; }
-  .editor-input.is-empty::before { top: 10px; left: 12px; right: 12px; }
+  .editor-input.is-empty::before { top: 16px; left: 12px; right: 12px; }
   .compact .editor-input { min-height: 72px; }
   .editor-toolbar { gap: 6px; padding: 7px 8px; }
 }

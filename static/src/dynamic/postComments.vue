@@ -186,7 +186,6 @@ h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; f
 .comment-upload { position: relative; }
 .comment-upload > span + span { color: var(--ink-3); font-size: 11px; }
 .comment-upload.disabled { opacity: .55; cursor: not-allowed; }
-.comment-upload:focus-within { outline: 2px solid #126b58; outline-offset: 3px; }
 .comment-upload input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .attachments, .comment-images { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
 .attachments > div { width: 90px; }

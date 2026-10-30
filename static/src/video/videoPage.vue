@@ -8096,8 +8096,7 @@ a:hover {
 .video-page .video-stage,
 .video-page .video-content-container,
 .video-page .video-content-container-switch,
-.video-page .video-tage-container,
-.video-page .comment-container {
+.video-page .video-tage-container {
   grid-column: 1;
   transform: none;
 }
@@ -8210,10 +8209,6 @@ a:hover {
   width: 100%;
 }
 
-.video-page .comment-container {
-  width: 100%;
-}
-
 /* 本页没有侧栏：原先 pass1 写的 .up-user-info-container /
    .up-video-recommend-container 这两块在模板里根本不存在
    （UP 主卡片是播放器的 hover 浮层，相关推荐组件 import 了但没用），
@@ -8262,8 +8257,7 @@ a:hover {
 .video-page .up-videoTitle,
 .video-page .up-video-infos-container,
 .video-page .video-content-container,
-.video-page .video-tage-container,
-.video-page .comment-container {
+.video-page .video-tage-container {
   box-sizing: border-box;
   background: rgba(255, 255, 255, .94);
   border: 1px solid rgba(224, 229, 227, .86);
@@ -8358,11 +8352,6 @@ a:hover {
   color: var(--brand-hover);
 }
 
-.video-page .comment-container {
-  padding: 6px 24px 24px;
-  border-radius: 18px;
-}
-
 .video-page .video-page-backtop {
   --el-backtop-bg-color: #fff;
   --el-backtop-hover-bg-color: var(--brand-soft);
@@ -8454,8 +8443,7 @@ a:hover {
 
   .video-page .up-video-infos-container,
   .video-page .video-content-container,
-  .video-page .video-tage-container,
-  .video-page .comment-container {
+  .video-page .video-tage-container {
     padding-left: 16px;
     padding-right: 16px;
   }
@@ -8623,30 +8611,6 @@ a:hover {
 .video-page .up-videoTitle { white-space: normal; overflow-wrap: anywhere; }
 .video-page .video-content-container.videoContentFlag { height: auto; max-height: 120px; overflow: hidden; }
 .video-page .show-up-videoTitle-container { max-width: calc(100vw - 40px); }
-.video-page .comment-container {
-  left: 0;
-  top: 0;
-}
-.video-page .comment-container .comment-body,
-.video-page .comment-container .comment-input-container2 {
-  width: 100%;
-}
-.video-page .comment-container .comment-header > div[style*="width: 0px"] {
-  width: 100% !important;
-}
-.video-page .comment-container .not-login-commit-comment-container,
-.video-page .comment-container .comment-content-container,
-.video-page .comment-container .comment-list > .comment-content {
-  width: calc(100% - 80px);
-}
-.video-page .comment-container .login-commit-comment-container { width: 100%; }
-.video-page .comment-container .reply-line,
-.video-page .comment-container .replyCommentClass,
-.video-page .comment-container .replyCommentClass2 {
-  width: calc(100% - 80px);
-}
-.video-page .comment-container .reply-content { max-width: 100%; }
-.video-page .comment-container .comment-content { overflow-wrap: anywhere; }
 .video-page .inline-emoji {
   width: 24px;
   height: 24px;

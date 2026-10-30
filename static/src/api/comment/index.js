@@ -161,38 +161,3 @@ export async function selectLikeUser(token,userId,id,pageNum,type){
   return res;
 
 }
-
-//修改评论置顶状态
-export async function putUpStatus(token,userId,id){
-
-  const res = await apiClient.put("/comment/putUpStatus",{},
-  {
-      headers: {
-            "Content-Type": "application/json",
-            "Authorization": token,
-      },
-      params:{
-          userId,
-          id
-      }
-  });
-  return res;
-
-}
-
-//查询单个评论
-export async function selectOneComment(token,userId,mainCommentId,replyCommentId){
-  const res = await apiClient.get("/comment/selectOneComment",
-  {
-      headers: {
-            "Content-Type": "application/json",
-            "Authorization": token,
-      },
-      params:{
-          userId,
-          mainCommentId,
-          replyCommentId
-      }
-  });
-  return res;
-}
