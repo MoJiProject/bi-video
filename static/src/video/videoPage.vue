@@ -202,6 +202,34 @@
             @click="pausedOrPlayUpVideo"
             class="intoVideoAllDisplayIngFlagVideoTitle"
             >{{ SelectVideoByIdVo.upVideo.title }}</span>
+          <!-- 全屏（网页/浏览器）时：作者头像挂在标题下方，点击跳转作者主页 -->
+          <div
+            v-show="intoVideoAllDisplayIngFlag && videoFeatureShowFlag"
+            class="intoVideoAllDisplayIngFlagCreator"
+          >
+            <img
+              :src="SelectVideoByIdVo.upUser?.avatarAddress"
+              class="intoVideoAllDisplayIngFlagCreator-avatar"
+              alt=""
+              @click="openHome(1, SelectVideoByIdVo.upUser.id)"
+            />
+            <span
+              class="intoVideoAllDisplayIngFlagCreator-name"
+              @click="openHome(1, SelectVideoByIdVo.upUser.id)"
+              >{{ SelectVideoByIdVo.upUser.userName }}</span
+            >
+            <button
+              v-if="String(SelectVideoByIdVo.upUser.id) !== String(store.userId)"
+              type="button"
+              class="intoVideoAllDisplayIngFlagCreator-follow"
+              :aria-pressed="SelectVideoByIdVo.isFansFlag === 1"
+              @click="
+                SelectVideoByIdVo.isFansFlag === 1
+                  ? deleteFollowAxios(SelectVideoByIdVo.upUser.id)
+                  : addFollowAxios(SelectVideoByIdVo.upUser.id)
+              "
+            >{{ SelectVideoByIdVo.isFansFlag === 1 ? "已关注" : "关注" }}</button>
+          </div>
           <div
             v-show="videoFeatureShowFlag"
             :class="{
@@ -406,7 +434,6 @@
           <button type="button" class="player-tool-button" v-show="intoVideoAllDisplayIngFlag && videoFeatureShowFlag" :aria-pressed="openOrCloseScrollingFlag" aria-label="弹幕开关" title="弹幕开关 (D)" @click="openOrCloseScrollingFlag = !openOrCloseScrollingFlag">
           <img
             class="up-video-play-bottom-video-close-open-scrolling"
-            style="width: 22px"
             :class="{
               openOrCloseScrollingintovideoAllDisplayIngFlag:
                 intoVideoAllDisplayIngFlag,
@@ -449,20 +476,23 @@
             >关闭弹幕(d)</span>
           </button>
           <!-- 弹幕设置 -->
-          <img
+          <button
+            type="button"
+            class="player-tool-button"
+            aria-label="弹幕设置"
+            :aria-expanded="openPlayerPanel === 'danmaku'"
             v-show="
               !openOrCloseScrollingFlag &&
               intoVideoAllDisplayIngFlag &&
               videoFeatureShowFlag
             "
-            style="width: 23px; height: 21.5px"
-            :class="{
-              closeSettingScrollintovideoAllDisplayIngFlag:
-                intoVideoAllDisplayIngFlag,
-            }"
-            class="up-video-play-bottom-video-close-setting-scrolling"
-            :src="scrollingSettingWhite"
-          />
+            @click="togglePlayerPanel('danmaku')"
+          >
+            <img
+              class="up-video-play-bottom-video-close-setting-scrolling"
+              :src="scrollingSettingWhite"
+            />
+          </button>
           <div
             v-show="
               openOrCloseScrollingFlag &&
@@ -479,7 +509,6 @@
           >
             <button type="button" class="player-tool-button" aria-label="弹幕设置" :aria-expanded="openPlayerPanel === 'danmaku'" @click="togglePlayerPanel('danmaku')">
             <img
-              style="width: 23px; height: 20.5px"
               class="up-video-play-bottom-video-setting-scrolling"
               :class="{settingScrollintovideoAllDisplayIngFlag: intoVideoAllDisplayIngFlag,}"
               :src="scrollingSettingWhite"
@@ -509,8 +538,8 @@
                   v-show="!scrollingRollOpenFlag"
                   :src="
                     scrollingRollHoverFlag
-                      ? scrollingRollWhite
-                      : scrollingRollGray
+                      ? hiddenRollScrollingWhite
+                      : hiddenRollScrollingGray
                   "
                 />
                 <img
@@ -565,12 +594,12 @@
                 <img
                   class="setting-scrolling-checkbox"
                   v-show="!checkBoxOpenFlag"
-                  :src="checkBoxHoverFlag ? checkBoxBlue : checkBoxWhite"
+                  :src="checkBoxHoverFlag ? checkBoxWhite : checkBoxs"
                 />
                 <img
                   class="setting-scrolling-checkbox"
                   v-show="checkBoxOpenFlag"
-                  :src="checkBoxs"
+                  :src="checkBoxBlue"
                 />
                 <span
                   class="setting-scrolling-text"
@@ -782,7 +811,7 @@
             <span
               style="color: #b9b7b8"
               :style="{ display: store.userId ? 'initial' : 'none' }"
-              >已关闭弹幕</span>
+              >&nbsp;&nbsp;已关闭弹幕</span>
             <span
               v-show="store.userId === null"
               style="color: #b9b7b8; position: absolute"
@@ -913,8 +942,8 @@
                       v-show="scrollingPattern !== 2"
                       :src="
                         scrollingTopHoverFlag
-                          ? hiddenScrollingFiexdWhite
-                          : hiddenScrollingFiexdGray
+                          ? topScrollingWhite
+                          : topScrollingGray
                       "
                       @mouseover="scrollingTopHoverFlag = true"
                       @mouseleave="scrollingTopHoverFlag = false"
@@ -961,7 +990,9 @@
                     </div>
                     <div class="cc2" v-show="scrollingPattern === 3">底部</div>
                   </div>
-                  <div style="transform: translate(0px, 60px)">颜色</div>
+                </div>
+                <div class="up-video-play-bottom-video-open-scrolling-color-info-container-color">
+                  <span>颜色</span>
                   <el-color-picker
                     class="scrolling-color-picker"
                     popper-class="video-danmaku-color-palette"
@@ -1105,10 +1136,6 @@
               :class="{intoAllDisplayFlagUpVideoPlayBottomVideoAudio2: intoVideoAllDisplayIngFlag}"
             />
             </button>
-            <div class="up-video-play-bottom-video-audio-value">
-              {{ videoAudio }}
-            </div>
-            <button type="button" class="player-tool-button player-volume-trigger" :aria-expanded="openPlayerPanel === 'volume'" @click="togglePlayerPanel('volume')">音量</button>
             <div
               :class="{
                 videoCloseAudioOrOpenAudioFlag: !videoCloseAudioOrOpenAudioFlag,
@@ -1116,6 +1143,9 @@
               }"
               class="up-video-play-bottom-video-set-audio"
             >
+              <span class="up-video-play-bottom-video-audio-value">
+                {{ videoAudio }}
+              </span>
               <div>
                 <input
                   :style="{
@@ -1421,11 +1451,25 @@
             >关闭弹幕(d)</span>
           </button>
           <!-- 弹幕设置 -->
-          <img
+          <button
+            type="button"
+            class="player-tool-button"
+            aria-label="弹幕设置"
+            :aria-expanded="openPlayerPanel === 'danmaku'"
             v-show="!openOrCloseScrollingFlag"
-            class="up-video-play-bottom-video-close-setting-scrolling"
-            :src="scrollingSettingGray"
-          />
+            @click="togglePlayerPanel('danmaku')"
+          >
+            <img
+              class="up-video-play-bottom-video-close-setting-scrolling"
+              :src="
+                showScrollingSettingFlag
+                  ? scrollingSettingBlue
+                  : scrollingSettingGray
+              "
+              @mouseover="showScrollingSettingFlag = true"
+              @mouseleave="showScrollingSettingFlag = false"
+            />
+          </button>
           <div
             v-show="openOrCloseScrollingFlag"
             class="up-video-play-bottom-video-setting-scrolling-container player-popover"
@@ -1468,8 +1512,8 @@
                   v-show="!scrollingRollOpenFlag"
                   :src="
                     scrollingRollHoverFlag
-                      ? scrollingRollWhite
-                      : scrollingRollGray
+                      ? hiddenRollScrollingWhite
+                      : hiddenRollScrollingGray
                   "
                 />
                 <img
@@ -1524,12 +1568,12 @@
                 <img
                   class="setting-scrolling-checkbox"
                   v-show="!checkBoxOpenFlag"
-                  :src="checkBoxHoverFlag ? checkBoxBlue : checkBoxWhite"
+                  :src="checkBoxHoverFlag ? checkBoxWhite : checkBoxs"
                 />
                 <img
                   class="setting-scrolling-checkbox"
                   v-show="checkBoxOpenFlag"
-                  :src="checkBoxs"
+                  :src="checkBoxBlue"
                 />
                 <span
                   class="setting-scrolling-text"
@@ -1732,7 +1776,7 @@
             <span
               :style="{ display: store.userId ? 'initial' : 'none' }"
               style="color: #999999"
-              >已关闭弹幕</span>
+              >&nbsp;&nbsp;已关闭弹幕</span>
             <span
               v-show="store.userId === null"
               style="color: #999999; position: absolute"
@@ -1853,8 +1897,8 @@
                       v-show="scrollingPattern !== 2"
                       :src="
                         scrollingTopHoverFlag
-                          ? hiddenScrollingFiexdWhite
-                          : hiddenScrollingFiexdGray
+                          ? topScrollingWhite
+                          : topScrollingGray
                       "
                       @mouseover="scrollingTopHoverFlag = true"
                       @mouseleave="scrollingTopHoverFlag = false"
@@ -1901,7 +1945,9 @@
                     </div>
                     <div class="cc2" v-show="scrollingPattern === 3">底部</div>
                   </div>
-                  <div style="transform: translate(0px, 60px)">颜色</div>
+                </div>
+                <div class="up-video-play-bottom-video-open-scrolling-color-info-container-color">
+                  <span>颜色</span>
                   <el-color-picker
                     class="scrolling-color-picker"
                     popper-class="video-danmaku-color-palette"
@@ -2414,12 +2460,16 @@ const scrollingColorGray = "/img/弹幕颜色灰.png"
 const scrollingColorWhite = "/img/弹幕颜色白.png"
 const scrollingColorBlue = "/img/弹幕颜色蓝.png"
 const scrollingRollGray = "/img/滚动模式灰.png"
-const scrollingRollWhite = "/img/屏蔽滚动白.png"
+const scrollingRollWhite = "/img/滚动模式白.png"
 const scrollingRollBlue = "/img/滚动模式蓝.png"
+const hiddenRollScrollingGray = "/img/屏蔽滚动灰.png"
+const hiddenRollScrollingWhite = "/img/屏蔽滚动白.png"
 const hiddenRollScrollingBlue = "/img/屏蔽滚动蓝.png"
 const hiddenScrollingFiexdGray = "/img/屏蔽固定灰.png"
 const hiddenScrollingFiexdWhite = "/img/屏蔽固定白.png"
 const hiddenScrollingFiexdBlue = "/img/屏蔽固定蓝.png"
+const topScrollingGray = "/img/顶部灰.png"
+const topScrollingWhite = "/img/顶部白.png"
 const topScrollingBlue = "/img/顶部蓝.png"
 const bottomScrollingBlue = "/img/底部蓝.png"
 const bottomScrollingWhite = "/img/底部白.png"
@@ -4453,13 +4503,16 @@ export default {
 
     //方法后鼠标滚轮控制音量
     function wheelControlAudio(e) {
-      if (e.deltaY > 0 && upVideoPlayer.value.volume > 0) {
+      // HMR 热更新或视频未挂载时 upVideoPlayer ref 可能为 null，先判空避免抛错
+      const player = upVideoPlayer.value;
+      if (!player || !Number.isFinite(player.volume)) return;
+      if (e.deltaY > 0 && player.volume > 0) {
         videoAudio.value = videoAudio.value - 1;
-        upVideoPlayer.value.volume = videoAudio.value / 100;
+        player.volume = videoAudio.value / 100;
         audioInfoFlag.value = true;
-      } else if (e.deltaY < 0 && upVideoPlayer.value.volume < 1) {
+      } else if (e.deltaY < 0 && player.volume < 1) {
         videoAudio.value = videoAudio.value + 1;
-        upVideoPlayer.value.volume = videoAudio.value / 100;
+        player.volume = videoAudio.value / 100;
         audioInfoFlag.value = true;
       }
       clearTimeout(audioInfoTime);
@@ -4809,11 +4862,15 @@ export default {
       openOrCloseScrollingInfoFlag,
       scrollingRollGray,
       scrollingRollWhite,
+      hiddenRollScrollingGray,
+      hiddenRollScrollingWhite,
       scrollingRollBlue,
       hiddenRollScrollingBlue,
       hiddenScrollingFiexdGray,
       hiddenScrollingFiexdWhite,
       hiddenScrollingFiexdBlue,
+      topScrollingGray,
+      topScrollingWhite,
       topScrollingBlue,
       bottomScrollingBlue,
       bottomScrollingWhite,
@@ -5577,14 +5634,10 @@ textarea,
 }
 
 .up-video-play-bottom-video-audio-value {
-  width: 32.5px;
   text-align: center;
   color: white;
   font-size: 12px;
-  position: absolute;
-  transform: translate(-9px, -127px);
-  visibility: hidden;
-  transition: visibility 0.3s ease;
+  line-height: 16px;
   z-index: 10;
 }
 
@@ -5594,10 +5647,9 @@ textarea,
   transition-delay: 0.3s;
 }
 
-.up-video-play-bottom-video-audio-container:hover
-  .up-video-play-bottom-video-audio-value {
-  visibility: visible;
-  transition-delay: 0.3s;
+.up-video-play-bottom-video-set-audio {
+  align-items: center;
+  gap: 12px;
 }
 
 .up-video-play-bottom-video-setting {
@@ -6389,11 +6441,7 @@ textarea,
   color: #0FA68E;
 }
 
-.scrolling-color-picker {
-  position: absolute;
-  transform: translate(0px, 68px);
-}
-
+/* 颜色选择器定位已交由 videoDetailLayout.scss 的颜色行规则统一排布 */
 /* 颜色选择器：外框 32x32 白色边框，内部色块 22x22 */
 .scrolling-color-picker .el-color-picker__trigger {
   box-sizing: border-box;
@@ -6413,10 +6461,9 @@ textarea,
 }
 
 /* 颜色选择器旁的彩色弹幕按钮，与选择器间隔 8px
-   结构和颜色选择器一致：32x32 白色外框 + 4px 空隙 + 22x22 内盒 */
+   结构和颜色选择器一致：32x32 白色外框 + 4px 空隙 + 22x22 内盒（定位由颜色行规则接管） */
 .scrolling-colorful-picker {
-  position: absolute;
-  transform: translate(40px, 68px);
+  position: relative;
   box-sizing: border-box;
   width: 32px;
   height: 32px;
@@ -8663,5 +8710,35 @@ a:hover {
     transform: none;
   }
   .video-page .video-stage > .up-video-controls-container { gap: 8px; }
+}
+
+/* 小屏白底底栏：#C0C0C0 灰图标对比度不足，统一加深。
+   只作用于白底工具行（直接子级 img 与 .player-tool-button 按钮内 img），
+   弹幕设置/颜色等深色浮层面板内的灰图标不受影响；
+   灰色态 src 均以“灰.png”结尾，hover/选中切换成蓝/白图标后选择器自动失效 */
+.video-page
+  .video-stage
+  > .up-video-play-bottom-video-scrolling-container
+  > img[src$='灰.png'],
+.video-page
+  .video-stage
+  > .up-video-play-bottom-video-scrolling-container
+  .player-tool-button
+  img[src$='灰.png'],
+.video-page .video-stage > .up-video-controls-container img[src$='灰.png'],
+.video-page .video-stage > .addWaitWatch img[src$='灰.png'] {
+  filter: brightness(0.5);
+}
+.video-page
+  .video-stage
+  > .up-video-play-bottom-video-scrolling-container
+  .player-tool-button:hover
+  img[src$='灰.png'],
+.video-page
+  .video-stage
+  > .up-video-controls-container
+  .player-tool-button:hover
+  img[src$='灰.png'] {
+  filter: brightness(0.35);
 }
 </style>

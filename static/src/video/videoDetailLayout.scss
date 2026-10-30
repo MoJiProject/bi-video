@@ -412,12 +412,14 @@
   .player-progress-time {
     position: absolute;
     bottom: calc(100% + 4px);
-    left: clamp(32px, var(--hover-position), calc(100% - 32px));
+    left: clamp(36px, var(--hover-position), calc(100% - 36px));
+    width: max-content;
     padding: 5px 8px;
     border-radius: 6px;
     background: rgb(0 0 0 / 85%);
     color: #fff;
     font: 12px/1.5 monospace;
+    white-space: nowrap;
     transform: translateX(-50%);
     pointer-events: none;
   }
@@ -508,6 +510,14 @@
     object-fit: contain;
     opacity: 1;
     transform: none !important;
+  }
+
+  /* 旧版手写 hover 提示：span 不在按钮内、以绝对像素定位，早已对不齐按钮。
+     按钮均已带原生 title（浏览器渲染的悬停提示位置永远准确），停用旧提示 */
+  .up-video-play-bottom-video-fullScreenExit-text,
+  .up-video-play-bottom-video-intoAllDisplay-text,
+  .up-video-play-bottom-video-close-open-scrolling-info {
+    display: none !important;
   }
 
   button:focus-visible,
@@ -609,14 +619,28 @@
 
     > span {
       display: flex;
+      align-items: center;
       justify-content: space-between;
+      min-height: 32px;
+      padding: 2px 4px;
+      border-radius: 6px;
       gap: 16px;
+    }
+    > span:hover {
+      background: rgb(255 255 255 / 8%);
     }
   }
 
   .player-popover > .up-video-play-bottom-video-set-audio {
-    min-width: 140px;
+    min-width: 0;
     min-height: 44px;
+    gap: 12px;
+    padding: 10px 14px;
+
+    > div {
+      display: flex;
+      align-items: center;
+    }
   }
 
   .volume-slider {
@@ -627,14 +651,20 @@
     transform: none;
   }
 
-  .up-video-play-bottom-video-audio-value {
-    position: absolute;
-    right: 0;
-    bottom: calc(100% + 64px);
+  /* 音量数值与滑块同在一个面板盒内（滑块左侧） */
+  .up-video-play-bottom-video-set-audio .up-video-play-bottom-video-audio-value {
+    position: static;
+    visibility: visible;
     width: auto;
-    padding: 3px 8px;
-    background: #20272c;
-    border-radius: 6px;
+    min-width: 22px;
+    padding: 0;
+    color: #eef1f2;
+    font-size: 12px;
+    line-height: 16px;
+    text-align: right;
+    white-space: nowrap;
+    background: none;
+    border-radius: 0;
     transform: none;
   }
 
@@ -686,6 +716,72 @@
     pointer-events: none;
   }
 
+  /* 全屏时作者信息行：头像 + 昵称，紧跟标题下方 */
+  .intoVideoAllDisplayIngFlagCreator {
+    position: absolute;
+    top: 44px;
+    left: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: calc(100% - 32px);
+    padding: 4px 10px 4px 4px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    background: rgb(0 0 0 / 45%);
+    backdrop-filter: blur(6px);
+    transform: none;
+    z-index: 5;
+    pointer-events: auto;
+
+    > .intoVideoAllDisplayIngFlagCreator-avatar {
+      display: block;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+    }
+
+    > .intoVideoAllDisplayIngFlagCreator-name {
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #f3f6f7;
+      font-size: 13px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    > .intoVideoAllDisplayIngFlagCreator-follow {
+      flex: none;
+      height: 22px;
+      padding: 0 10px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--brand, #23aed5);
+      color: #fff;
+      font-size: 12px;
+      line-height: 1;
+      cursor: pointer;
+
+      &[aria-pressed="true"] {
+        background: rgb(255 255 255 / 18%);
+        color: #cfd6da;
+      }
+      &:hover {
+        opacity: 0.88;
+      }
+    }
+  }
+
+  /* 全屏时作者行已包含头像+关注，隐藏旧的关注胶囊避免重叠 */
+  .up-video-container.is-expanded .up-video-avatar-and-addFollow-container,
+  .up-video-container.is-web-fullscreen .up-video-avatar-and-addFollow-container {
+    display: none;
+  }
+
   .up-video-avatar-and-addFollow-container {
     position: absolute;
     left: 16px;
@@ -714,9 +810,7 @@
     }
   }
 
-  .up-video-container.is-expanded .up-video-avatar-and-addFollow-container {
-    top: 50px;
-  }
+  /* 旧关注胶囊仅非全屏时显示（全屏时由作者行接管，上方已隐藏） */
 
   .video-waiting,
   .key-info,
@@ -954,6 +1048,41 @@
     background: rgb(255 255 255 / 12%);
   }
 
+  /* 大屏（网页全屏 / 浏览器全屏）且视口够宽时：弹幕输入行与工具按钮同排一行，
+     窄视口保持两行换行 */
+  @media (min-width: 760px) {
+    .up-video-container.is-expanded .player-transport,
+    .up-video-container.is-web-fullscreen .player-transport {
+      flex-wrap: nowrap;
+    }
+
+    .up-video-container.is-expanded
+      .player-transport
+      .up-video-play-bottom-video-open-scrolling-container1,
+    .up-video-container.is-expanded
+      .player-transport
+      .up-video-play-bottom-video-open-scrolling-container2,
+    .up-video-container.is-web-fullscreen
+      .player-transport
+      .up-video-play-bottom-video-open-scrolling-container1,
+    .up-video-container.is-web-fullscreen
+      .player-transport
+      .up-video-play-bottom-video-open-scrolling-container2 {
+      order: 0;
+      flex: 1 1 auto;
+      min-width: 200px;
+    }
+
+    .up-video-container.is-expanded
+      .player-transport
+      > .up-video-play-bottom-video-time-container,
+    .up-video-container.is-web-fullscreen
+      .player-transport
+      > .up-video-play-bottom-video-time-container {
+      margin-right: 0;
+    }
+  }
+
   .video-stage .up-video-play-bottom-video-close-scrolling-input,
   .player-transport .up-video-play-bottom-video-close-scrolling-input1 {
     position: static;
@@ -993,37 +1122,45 @@
     }
   }
 
+  /* 弹幕设置面板挂在 36px 按钮上：宽度必须按视口算，
+     用 100% 会相对按钮塌陷成十几像素；左对齐按钮防止右锚定溢出视口左侧。
+     底栏版与大屏 transport 版共用同一套内部布局（此前仅底栏版有 grid，大屏是乱的） */
+  .player-transport
+    > .up-video-play-bottom-video-setting-scrolling-container
+    > .up-video-play-bottom-video-setting-scrolling-info-container,
   .video-stage
     > .up-video-play-bottom-video-scrolling-container
-    > .player-popover,
-  .player-transport > .up-video-play-bottom-video-setting-scrolling-container {
-    position: static;
-  }
-
-  .video-stage .up-video-play-bottom-video-open-scrolling-color-container {
-    position: static;
-  }
-
-  .player-popover
+    .player-popover
     > .up-video-play-bottom-video-setting-scrolling-info-container {
-    left: 12px;
+    left: 0;
     right: auto;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
-    width: min(320px, calc(100% - 24px));
+    width: min(320px, calc(100vw - 32px));
+  }
 
+  .player-transport
+    .up-video-play-bottom-video-setting-scrolling-info-container
+    > span[style],
+  .video-stage
+    .up-video-play-bottom-video-setting-scrolling-info-container
     > span[style] {
-      grid-column: 1 / -1;
-      position: static !important;
-      transform: none !important;
-    }
+    grid-column: 1 / -1;
+    position: static !important;
+    transform: none !important;
+  }
+
+  .player-transport
+    .up-video-play-bottom-video-setting-scrolling-info-container
+    > div:has(.setting-scrolling-checkbox),
+  .video-stage
+    .up-video-play-bottom-video-setting-scrolling-info-container
     > div:has(.setting-scrolling-checkbox) {
-      grid-column: 1 / -1;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .roll-scrolling-container,
@@ -1091,7 +1228,7 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 10px;
-    width: min(220px, calc(100% - 16px));
+    width: min(220px, calc(100vw - 32px));
   }
 
   .video-stage
@@ -1111,6 +1248,7 @@
   }
 
   .up-video-play-bottom-video-open-scrolling-color-info-container-pattern {
+    grid-column: 1 / -1;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
@@ -1124,15 +1262,32 @@
     }
   }
 
-  .up-video-play-bottom-video-open-scrolling-color-info-container
-    > .scrolling-color-picker,
-  .up-video-play-bottom-video-open-scrolling-color-info-container
-    > .scrolling-colorful-picker {
-    position: relative;
-    grid-column: auto;
-    width: 32px;
-    height: 32px;
+  /* 颜色行：标签与两个 32px 色块同一行排布（旧版用绝对像素 translate 定位，早已错位） */
+  .up-video-play-bottom-video-open-scrolling-color-info-container-color {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
     transform: none;
+
+    > span:first-child {
+      position: static;
+      margin: 0;
+      transform: none;
+    }
+
+    > .scrolling-color-picker,
+    > .scrolling-colorful-picker {
+      /* colorful 渐变块的 ::before 是 absolute 定位，
+         父级必须保持 relative 才不会逃出 32×32 白框 */
+      position: relative;
+      margin: 0;
+      width: 32px;
+      height: 32px;
+      flex: 0 0 32px;
+      transform: none;
+    }
   }
 
   .up-video-play-bottom-video-open-scrolling-color-info-container-font > span {
