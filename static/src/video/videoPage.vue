@@ -2272,78 +2272,6 @@
           </div>
         </div>
         </div>
-        <div class="video-detail-sidebar">
-          <!-- 弹幕列表 -->
-          <div class="scrolling-list-container">
-            <span class="scrolling-list-title">弹幕列表</span>
-            <img src="/img/弹幕列表.png" class="scrolling-list-img" />
-            <el-collapse class="scrolling-list">
-              <el-collapse-item name="1" title="弹幕列表">
-                <div class="scrolling-list-item">
-                  <div class="scrolling-list-item-top">
-                    <span style="margin-left: 17px; cursor: pointer">时间</span>
-                    <span style="margin-left: 27px; cursor: pointer"
-                      >弹幕内容</span>
-                    <span style="margin-left: 122px; cursor: pointer"
-                      >发送时间</span>
-                  </div>
-                  <div class="scrolling-list-item-bottom-container">
-                    <div
-                      class="scrolling-list-item-bottom"
-                      v-for="(scrollingData, index) in ScrollingDataList"
-                      :key="index"
-                      @mouseover="ScrollingReocationHoverFlag = scrollingData.id"
-                      @mouseleave="
-                        ScrollingReocationHoverFlag = -scrollingData.id
-                      "
-                    >
-                      <span
-                        style="
-                          display: inline-block;
-                          transform: translate(0px, -9px);
-                          margin-left: 17px;
-                          color: #5D6764;
-                        "
-                        >{{ videoTimeFormat(scrollingData.videoTime) }}</span>
-                      <el-tooltip
-                        popper-class="custom-tooltip"
-                        class="dynamicContent-item-tooltip"
-                        effect="light"
-                        :content="scrollingData.content"
-                        placement="bottom"
-                        :show-after="300"
-                        :offset="12"
-                        :show-arrow="false"
-                        :hide-after="0"
-                      >
-                        <span
-                          class="scrolling-list-item-content"
-                          @click="
-                            upVideoPlayer.currentTime =
-                              scrollingData.videoTime - 0.1
-                          "
-                          >{{ scrollingData.content }}
-                        </span>
-                      </el-tooltip>
-                      <button
-                        type="button"
-                        v-show="store.userId === scrollingData.userId"
-                        class="scrolling-reocation"
-                        @click="revocationScrollingAxios(scrollingData.id)"
-                        >撤回
-                      </button>
-                      <span
-                        class="scrolling-list-item-sendTime"
-                        >{{ scrollingData.sendTime.slice(0, 16) }}</span>
-                    </div>
-                  </div>
-                </div>
-              </el-collapse-item>
-            </el-collapse>
-          </div>
-          <!-- 自动播放视频第二部分 -->
-          <auto-play-video-2 />
-        </div>
         <!-- 视频介绍 -->
         <div
           class="video-content-container"
@@ -2368,6 +2296,78 @@
             v-for="index in SelectVideoByIdVo.upVideo.tag?.split(',').filter(Boolean)"
             :key="index"
             >{{ index }}</span>
+        </div>
+        <div class="video-detail-sidebar">
+          <!-- 弹幕列表 -->
+          <div class="scrolling-list-container">
+            <span class="scrolling-list-title">弹幕列表</span>
+            <img src="/img/弹幕列表.png" class="scrolling-list-img" />
+            <el-collapse class="scrolling-list">
+              <el-collapse-item name="1" title="弹幕列表">
+                <div class="scrolling-list-item">
+                  <div class="scrolling-list-item-top">
+                    <span class="scrolling-list-head scrolling-list-head-time">时间</span>
+                    <span class="scrolling-list-head scrolling-list-head-content">弹幕内容</span>
+                    <span class="scrolling-list-head scrolling-list-head-send">发送时间</span>
+                  </div>
+                  <div class="scrolling-list-item-bottom-container">
+                    <div
+                      class="scrolling-list-item-bottom"
+                      v-for="(scrollingData, index) in ScrollingDataList"
+                      :key="index"
+                      @mouseover="ScrollingReocationHoverFlag = scrollingData.id"
+                      @mouseleave="
+                        ScrollingReocationHoverFlag = -scrollingData.id
+                      "
+                    >
+                      <span
+                        class="scrolling-list-item-time"
+                        @click="
+                          upVideoPlayer.currentTime =
+                            scrollingData.videoTime - 0.1
+                        "
+                        >{{ videoTimeFormat(scrollingData.videoTime) }}</span
+                      >
+                      <el-tooltip
+                        popper-class="custom-tooltip"
+                        class="dynamicContent-item-tooltip"
+                        effect="light"
+                        :content="scrollingData.content"
+                        placement="bottom"
+                        :show-after="300"
+                        :offset="12"
+                        :show-arrow="false"
+                        :hide-after="0"
+                      >
+                        <span
+                          class="scrolling-list-item-content"
+                          @click="
+                            upVideoPlayer.currentTime =
+                              scrollingData.videoTime - 0.1
+                          "
+                          >{{ scrollingData.content }}
+                        </span>
+                      </el-tooltip>
+                      <div class="scrolling-list-item-opcell">
+                        <button
+                          type="button"
+                          v-show="store.userId === scrollingData.userId"
+                          class="scrolling-reocation"
+                          @click="revocationScrollingAxios(scrollingData.id)"
+                          >撤回</button
+                        >
+                        <span class="scrolling-list-item-sendTime">{{
+                          scrollingData.sendTime.slice(0, 16)
+                        }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </el-collapse-item>
+            </el-collapse>
+          </div>
+          <!-- 自动播放视频第二部分 -->
+          <auto-play-video-2 />
         </div>
         <videoComments :video-id="SelectVideoByIdVo.upVideo.id" />
         <Teleport
@@ -2881,7 +2881,7 @@ export default {
     //播放视频
     function playUpVideo() {
       if (offlinePreviewEnabled) {
-        ElMessage.info("离线预览仅展示封面和控件，真实视频播放需要后端或视频源");
+        ElMessage.warning({ message: "离线预览仅展示封面和控件，真实视频播放需要后端或视频源", appendTo: intoVideoAllDisplayIngFlag.value ? upVideoContainer.value : document.body });
         return;
       }
       if (upVideoPlayer.value.paused) {
@@ -8651,8 +8651,8 @@ a:hover {
   cursor: pointer;
 }
 @media (min-width: 1200px) {
-  .video-page .video-body { grid-template-columns: minmax(0, 1fr) 350px; }
-  .video-page .video-detail-sidebar { grid-column: 2; grid-row: 1 / span 8; }
+  .video-page .video-body { grid-template-columns: minmax(0, 1fr) 400px; }
+  .video-page .video-detail-sidebar { grid-column: 2; grid-row: 2 / span 4; }
 }
 @media (max-width: 1199px) {
   .video-page .video-detail-sidebar { grid-column: 1; grid-row: auto; }

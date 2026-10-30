@@ -72,7 +72,7 @@ function search() {
 function changeMenu(menu) {
   const profile = store.homeUserInformation;
   if (store.userId !== homeUserId && !(menu === 8 ? profile.publicFollowList : profile.publicFansList)) {
-    ElMessage.info('由于该用户隐私设置，列表不可见');
+    ElMessage.warning('由于该用户隐私设置，列表不可见');
     return;
   }
   store.setHomeMenu(menu, homeUserId, true);

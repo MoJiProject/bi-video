@@ -45,7 +45,8 @@
 
   .video-body {
     z-index: auto;
-    grid-template-columns: minmax(0, 1fr) 320px;
+    /* 视频主列收窄几十像素，补偿给侧栏弹幕列表列（360→400） */
+    grid-template-columns: minmax(0, 1fr) 400px;
     gap: 20px 24px;
     max-width: 1560px;
   }
@@ -1395,21 +1396,72 @@
   .scrolling-list {
     width: 100%;
   }
+
+  /* ===== 弹幕列表重设计：两行行布局 + 斑马纹 + 品牌胶囊 ===== */
   .scrolling-list :deep(.el-collapse-item__header) {
-    font-weight: 600;
+    font-weight: 650;
     color: var(--ink);
+    font-size: 14px;
+    padding-right: 14px;
+  }
+  .scrolling-list :deep(.el-collapse-item__header .el-collapse-item__arrow) {
+    color: var(--brand);
+    font-weight: 700;
   }
 
-  .scrolling-list-item-top,
+  /* 表头与数据行同款三列固定轨道 grid → 每列严格对齐 */
+  .scrolling-list-item-top {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr) 96px;
+    align-items: center;
+    column-gap: 10px;
+    width: 100%;
+    height: 30px;
+    margin: 0 0 6px;
+    padding: 0 10px;
+    border-radius: 8px;
+    background: var(--fill-soft, #F4F7F6);
+    color: var(--ink-3);
+    font-size: 11px;
+    line-height: 1.4;
+    letter-spacing: .05em;
+    cursor: default;
+    box-sizing: border-box;
+
+    > span {
+      position: static !important;
+      margin: 0 !important;
+      transform: none !important;
+    }
+    .scrolling-list-head-time { justify-self: start; }
+    .scrolling-list-head-content { justify-self: start; }
+    .scrolling-list-head-send { justify-self: start; text-align: left; }
+  }
+
+  /* 数据行：与表头同款三列 grid（时间 | 内容 | 发送时间/撤回），单行不换行 */
   .scrolling-list-item-bottom {
     display: grid;
-    grid-template-columns: 36px minmax(0, 1fr) 76px 28px;
+    grid-template-columns: 52px minmax(0, 1fr) 96px;
     align-items: center;
-    gap: 8px;
+    column-gap: 10px;
     width: 100%;
-    min-height: 36px;
+    min-height: 34px;
     height: auto;
-    font-size: 11px;
+    margin: 0;
+    padding: 5px 10px;
+    overflow: visible; /* 重置旧样式 overflow:hidden，避免裁剪内容 */
+    border-radius: 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color .18s ease, box-shadow .18s ease, transform .18s ease;
+    box-sizing: border-box;
+
+    /* hover 浮起 + 品牌色轻染 */
+    &:hover {
+      background: rgba(15, 166, 142, 0.08);
+      box-shadow: 0 2px 10px rgba(15, 166, 142, 0.12);
+      transform: translateY(-1px);
+    }
 
     > span {
       position: static !important;
@@ -1420,28 +1472,127 @@
     }
   }
 
+  /* 时间戳：品牌色胶囊，点击跳转到对应进度 */
+  .scrolling-list-item-bottom .scrolling-list-item-time {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(15, 166, 142, 0.12);
+    color: var(--brand);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: background-color .18s ease;
+  }
+  .scrolling-list-item-bottom:hover .scrolling-list-item-time {
+    background: rgba(15, 166, 142, 0.2);
+  }
+
+  /* 弹幕内容：中列单行省略，完整内容 hover 有 tooltip */
   .scrolling-list-item-content {
-    grid-column: 2;
-    grid-row: 1;
+    min-width: 0;
+    margin: 0;
+    color: var(--ink);
+    line-height: 1.5;
     white-space: nowrap;
+    word-break: normal;
     overflow: hidden;
     text-overflow: ellipsis;
+    transform: none;
+    transition: color .15s ease;
   }
-  .scrolling-list-item-sendTime {
-    grid-column: 3;
-    grid-row: 1;
-    overflow: hidden;
+  .scrolling-list-item-bottom:hover .scrolling-list-item-content {
+    color: var(--brand-hover, #0C8572);
+  }
+
+  /* 第三列：发送时间与撤回按钮同一位置叠放，均左对齐。
+     按钮绝对定位不占布局空间；行 hover 时发送时间淡出、撤回原地淡入。
+     非本人弹幕（按钮 v-show 隐藏）hover 时发送时间保持可见 */
+  .scrolling-list-item-opcell {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-width: 0;
+  }
+  .scrolling-list-item-bottom .scrolling-list-item-sendTime {
+    color: var(--ink-3);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.4;
     white-space: nowrap;
+    transform: none;
+    transition: opacity .18s ease;
   }
   .scrolling-reocation {
-    grid-column: 4;
-    grid-row: 1;
-    padding: 3px 0;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 26px;
+    padding: 0;
     border: 0;
-    background: transparent;
-    color: var(--brand);
-    font: inherit;
+    border-radius: 4px;
+    background: var(--brand, #0FA68E);
+    color: #fff;
+    font-size: 11px;
+    line-height: 1;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    user-select: none;
+    z-index: 1;
     cursor: pointer;
+    transition:
+      opacity .18s ease,
+      visibility .18s ease,
+      background-color .18s ease;
+  }
+  .scrolling-list-item-bottom:hover .scrolling-reocation,
+  .scrolling-reocation:focus-visible {
+    opacity: 1;
+    visibility: visible;
+  }
+  .scrolling-reocation:hover {
+    background: var(--brand-hover, #0C8572);
+  }
+  /* 仅当撤回按钮实际显示（本人弹幕）时，hover 才把发送时间让位给撤回 */
+  .scrolling-list-item-bottom:hover
+    .scrolling-reocation:not([style*="display: none"])
+    + .scrolling-list-item-sendTime {
+    opacity: 0;
+  }
+
+  /* 滚动区域：品牌色渐变滚动条（单行行高后约可见 5-6 条，不再过高） */
+  :deep(.scrolling-list-item-bottom-container) {
+    height: auto;
+    max-height: 220px;
+    margin: 0 -4px;
+    padding: 0 4px;
+    overflow-y: auto;
+    transform: none;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(15, 166, 142, 0.45) transparent;
+  }
+  :deep(.scrolling-list-item-bottom-container::-webkit-scrollbar) {
+    width: 6px;
+    border-radius: 999px;
+  }
+  :deep(.scrolling-list-item-bottom-container::-webkit-scrollbar-thumb) {
+    width: 6px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(15, 166, 142, 0.65), rgba(15, 166, 142, 0.3));
+  }
+  :deep(.scrolling-list-item-bottom-container::-webkit-scrollbar-track) {
+    background: transparent;
   }
 
   :deep(.autoPlayVideo2-container) {
@@ -1458,9 +1609,16 @@
     height: auto;
     margin: 0;
     transform: none;
+    /* 清掉组件旧样式里 absolute 定位的 top/left 偏移，
+       防止标题行改回 relative 后被旧的 -33px 顶出卡片 */
+    top: auto;
+    left: auto;
   }
 
   :deep(.autoPlayVideo2-title) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     color: var(--ink);
     font-size: 15px;
     font-weight: 650;
@@ -1468,9 +1626,38 @@
   :deep(.autoPlayVideo2-videoList) {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     color: var(--ink-3);
     font-size: 12px;
+    user-select: none;
+    cursor: pointer;
+  }
+  :deep(.autoPlayVideo2-videoList > span) {
+    transition: color .2s ease;
+  }
+  :deep(.autoPlayVideo2-videoList:hover > span) {
+    color: var(--brand);
+  }
+  :deep(.autoPlayVideo2-videoList.is-on > span) {
+    color: var(--brand);
+  }
+  :deep(.autoPlayVideo2-videoList .custom-switch1) {
+    --el-switch-on-color: var(--brand);
+    --el-switch-off-color: #C6CFCC;
+    --el-switch-width: 40px !important;
+    --el-switch-height: 22px;
+    --el-switch-border-radius: 11px;
+  }
+  :deep(.autoPlayVideo2-videoList .custom-switch1 .el-switch__core) {
+    border: 0;
+    transition: background-color .25s ease, box-shadow .25s ease;
+  }
+  :deep(.autoPlayVideo2-videoList .custom-switch1 .el-switch__action) {
+    box-shadow: 0 1px 3px rgba(28, 35, 33, .35);
+    transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
+  }
+  :deep(.autoPlayVideo2-videoList .custom-switch1.is-checked .el-switch__core) {
+    box-shadow: 0 0 0 3px rgba(15, 166, 142, .18);
   }
 
   :deep(.autoPlayVideo2-item) {
@@ -1526,10 +1713,11 @@
     position: static;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    justify-content: center;
+    gap: 9px;
     min-width: 0;
   }
-  :deep(.autoPlayVideo2-item-right .autoPlayVideo2-item-title) {
+  :deep(.autoPlayVideo2-item .autoPlayVideo2-item-title) {
     position: static;
     width: 100%;
     height: auto;
@@ -1537,26 +1725,29 @@
     font-size: 13px;
     line-height: 1.5;
     transform: none;
+    transition: color .2s ease;
+  }
+  :deep(.autoPlayVideo2-item .autoPlayVideo2-item-title:hover) {
+    color: var(--brand);
   }
 
   :deep(.autoPlayVideo2-item-right-username-container) {
     position: relative;
     display: flex;
-    gap: 5px;
+    gap: 6px;
     align-items: center;
     min-width: 0;
   }
 
+  /* 作者头像：圆形小图，替代原来的徽章图标 */
   :deep(.autoPlayVideo2-item-right-username-container > img) {
     position: static;
-    width: 13px;
-    height: 12px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
     transform: none;
-  }
-  :deep(.autoPlayVideo2-item-right-username-container > .img2) {
-    position: absolute;
-    left: 0;
-    top: 2px;
+    flex: 0 0 auto;
   }
   :deep(
       .autoPlayVideo2-item-right-username-container
@@ -1566,18 +1757,31 @@
     width: auto;
     min-width: 0;
     color: var(--ink-3);
+    font-size: 13px;
     transform: none;
+    transition: color .2s ease;
+  }
+
+  /* hover：名字变品牌色，头像保持显示（覆盖旧徽章 img1 淡出逻辑） */
+  :deep(.autoPlayVideo2-item-right-username-container:hover > img) {
+    opacity: 1;
+  }
+  :deep(
+      .autoPlayVideo2-item-right-username-container:hover
+        .autoPlayVideo2-item-right-username
+    ) {
+    color: var(--brand);
   }
 
   :deep(.autoPlayVideo2-item-right-videoinfo-container) {
     position: static;
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 6px;
     align-items: center;
     width: auto;
     color: var(--ink-3);
-    font-size: 11px;
+    font-size: 12.5px;
     transform: none;
   }
 
@@ -1593,20 +1797,85 @@
   :deep(.autoPlayVideo2-item > .line) {
     display: none;
   }
+  :deep(.autoPlayVideo2-item.lineFlag) {
+    padding-left: 6px;
+    border-left: 2px solid var(--brand);
+  }
+
   :deep(.autoPlayVideo2-container > .show-video-btn) {
     grid-column: 1 / -1;
     width: 100%;
+    height: 32px;
     margin: 0;
     box-sizing: border-box;
+    border-radius: 8px;
+    line-height: 32px;
+    background: var(--fill-soft, #F4F7F6);
+    color: var(--ink-2);
+    font-size: 12px;
+    transition: background-color .2s ease, color .2s ease;
+  }
+  :deep(.autoPlayVideo2-container > .show-video-btn:hover) {
+    background: #E8EEEC;
+    color: var(--brand);
   }
 
   :deep(.auto-play-video-item-wait-watch) {
     position: absolute;
-    inset: 4px 4px auto auto;
+    left: 8px;
+    bottom: 8px;
+    top: auto;
+    right: auto;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, .4);
+    border-radius: 50%;
+    background: rgba(16, 30, 27, .68);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+    backdrop-filter: blur(8px);
     visibility: visible;
-    opacity: 1;
+    opacity: 0;
+    pointer-events: none;
     z-index: 5;
     transform: none;
+    cursor: pointer;
+    transition: opacity .2s ease, background-color .2s ease, transform .2s ease;
+  }
+  :deep(.auto-play-video-item-wait-watch svg) {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  /* 片尾连播面板：标题铺在封面底部，按钮移到右上角避开标题与左上角“取消连播” */
+  :deep(.auto-play-video-item .auto-play-video-item-wait-watch) {
+    left: auto;
+    bottom: auto;
+    right: 8px;
+    top: 8px;
+  }
+  :deep(.autoPlayVideo2-item-left:hover .auto-play-video-item-wait-watch),
+  :deep(.auto-play-video-item > span:hover .auto-play-video-item-wait-watch),
+  :deep(.auto-play-video-item-wait-watch.is-done) {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  :deep(.auto-play-video-item-wait-watch:hover) {
+    background: rgba(16, 30, 27, .9);
+    transform: translateY(-1px);
+  }
+  :deep(.auto-play-video-item-wait-watch.is-done) {
+    border-color: rgba(255, 255, 255, .4);
+    background: rgba(240, 252, 248, .4);
+    color: var(--brand-hover);
+  }
+  :deep(.auto-play-video-item-wait-watch.is-done:hover) {
+    background: rgba(240, 252, 248, .9);
   }
 
   .autoPlayVideoContainer {
@@ -1888,7 +2157,8 @@
   &.is-theater .video-detail-sidebar {
     grid-column: 1;
     grid-row: auto;
-    grid-template-columns: minmax(260px, 1fr) minmax(0, 2fr);
+    order: 0; /* 回到文档流位置：排在评论上方 */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); /* 两卡平分宽度 */
   }
 }
 
@@ -1901,7 +2171,8 @@
     .video-detail-sidebar {
       grid-column: 1;
       grid-row: auto;
-      grid-template-columns: minmax(260px, 1fr) minmax(0, 2fr);
+      order: 0; /* 回到文档流位置：排在评论上方 */
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); /* 两卡平分宽度 */
     }
   }
 }

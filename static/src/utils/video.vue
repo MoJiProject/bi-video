@@ -133,27 +133,12 @@ video{
         object-fit: cover;
         }
         .wait-watch-c{ 
-            display: flex;
-            justify-content: left;
-            align-items: center;
             position: absolute;
-            top: 8px;
-            right: 8px;
-            border-radius: 5px;
-            width: 28px;
-            height: 28px;
+            left: 8px;
+            bottom: 8px;
+            z-index: 10;
             opacity: 0;
             visibility: hidden;
-            background-color: rgba(33, 33, 33, .8);
-            transition: all 0.3s ease; /* 添加宽度变化的动画效果 */
-            cursor: pointer;
-            z-index: 10;
-            overflow: hidden;
-        }
-        .wait-watch-c:hover {
-            transition-delay: 0.3s;
-            width: 120px; /* 扩大宽度 */
-            visibility: visible; /* 悬停时可见 */
         }
         .new-video{
         position: absolute;

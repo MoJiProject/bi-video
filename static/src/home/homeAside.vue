@@ -179,7 +179,7 @@ await homeContributeVideos(userId,store.userId,1,1).then(res=>{
 function searchJumpPage(){
     const keyword = searchContent.value.trim();
     if(keyword.length > 50) {
-        ElMessage.info('搜索关键词不能超过 50 个字符');
+        ElMessage.warning('搜索关键词不能超过 50 个字符');
         return;
     }
     if(keyword.length > 0)

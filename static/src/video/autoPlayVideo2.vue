@@ -1,7 +1,7 @@
 <template>
   <div class="autoPlayVideo2-container">
        <div class="autoPlayVideo2-title">接下来播放</div>
-       <div class="autoPlayVideo2-videoList"><span @click="setAutoPlayVideoList=!setAutoPlayVideoList">自动连播</span> <el-switch class="custom-switch1" v-model="setAutoPlayVideoList"/></div>
+       <div class="autoPlayVideo2-videoList" :class="{ 'is-on': setAutoPlayVideoList }"><span @click="setAutoPlayVideoList=!setAutoPlayVideoList">自动连播</span> <el-switch class="custom-switch1" v-model="setAutoPlayVideoList"/></div>
        <div class="autoPlayVideo2-item" v-for="video in store.autoVideoList.slice(0,10)" :key="video.videoId" :class="{lineFlag: video.videoId===store.autoVideoList[0].videoId}">
          <span class="autoPlayVideo2-item-left" @click="intoVideo(video)" @mousemove="videoMouseover(video.videoId)" @mouseleave="videoMouseleave(video.videoId)">
           <img class="autoPlayVideo2-cover" :src="video.coverAddress">
@@ -14,16 +14,12 @@
           loop
           ></video>
           <span class="autoPlayVideo2-videoTime">{{ video.videoTime }}</span>
-          <span class="auto-play-video-item-wait-watch" @click.stop="waitWatch(video.videoId)">
-            <div v-show="store.userId===null" class="auto-play-video-item-wait-watch-title">稍后观看</div>
-            <div v-show="video.waitWatch===0" class="auto-play-video-item-wait-watch-title">稍后观看</div>
-            <div v-show="video.waitWatch===1" class="auto-play-video-item-wait-watch-title">移除</div>
-            <div v-show="waitWatchInfoFlag&&video.waitWatch===1"  class="auto-play-video-item-wait-watch-info1">已加入稍后观看</div>
-            <div v-show="waitWatchInfoFlag&&video.waitWatch===0"  class="auto-play-video-item-wait-watch-info2">已从稍后观看中移除</div>
-            <img v-show="store.userId===null" src="/img/waitWatch.png"/>
-            <img v-show="video.waitWatch===0" src="/img/waitWatch.png"/>
-            <img v-show="video.waitWatch===1" src="/img/addWaitWatch.png"/>
-          </span>
+          <button type="button" class="auto-play-video-item-wait-watch" :class="{ 'is-done': video.waitWatch===1 }" :title="video.waitWatch===1?'已加入稍后观看':'加入稍后观看'" :aria-label="video.waitWatch===1?'移出稍后观看':'加入稍后观看'" :aria-pressed="video.waitWatch===1" @click.stop="waitWatch(video.videoId)">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path v-if="video.waitWatch===1" d="m6 12 4 4 8-8"/>
+              <template v-else><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></template>
+            </svg>
+          </button>
          </span>
          <span class="autoPlayVideo2-item-right">
         <el-tooltip
@@ -40,8 +36,7 @@
         <span @click="intoVideo(video)" class="autoPlayVideo2-item-title">{{ video.videoTitle }}</span>
         </el-tooltip>
         <span @click="openHome(1,video.userId)" class="autoPlayVideo2-item-right-username-container">
-            <img class="img1" src="/img/author-badge-default.png">
-            <img class="img2" src="/img/author-badge-blue.png">
+            <img class="img1 avatar" :src="video.ownerAvatar || video.avatarAddress || '/img/avatar-default.png'" alt="">
             <span class="autoPlayVideo2-item-right-username">{{ video.userName }}</span> 
         </span>
         <span class="autoPlayVideo2-item-right-videoinfo-container">
@@ -66,16 +61,12 @@
           loop
           ></video>
           <span class="autoPlayVideo2-videoTime">{{ video.videoTime }}</span>
-          <span class="auto-play-video-item-wait-watch" @click.stop="waitWatch(video.videoId)">
-            <div v-show="store.userId===null" class="auto-play-video-item-wait-watch-title">稍后观看</div>
-            <div v-show="video.waitWatch===0" class="auto-play-video-item-wait-watch-title">稍后观看</div>
-            <div v-show="video.waitWatch===1" class="auto-play-video-item-wait-watch-title">移除</div>
-            <div v-show="waitWatchInfoFlag&&video.waitWatch===1"  class="auto-play-video-item-wait-watch-info1">已加入稍后观看</div>
-            <div v-show="waitWatchInfoFlag&&video.waitWatch===0"  class="auto-play-video-item-wait-watch-info2">已从稍后观看中移除</div>
-            <img v-show="store.userId===null" src="/img/waitWatch.png"/>
-            <img v-show="video.waitWatch===0" src="/img/waitWatch.png"/>
-            <img v-show="video.waitWatch===1" src="/img/addWaitWatch.png"/>
-          </span>
+          <button type="button" class="auto-play-video-item-wait-watch" :class="{ 'is-done': video.waitWatch===1 }" :title="video.waitWatch===1?'已加入稍后观看':'加入稍后观看'" :aria-label="video.waitWatch===1?'移出稍后观看':'加入稍后观看'" :aria-pressed="video.waitWatch===1" @click.stop="waitWatch(video.videoId)">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path v-if="video.waitWatch===1" d="m6 12 4 4 8-8"/>
+              <template v-else><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></template>
+            </svg>
+          </button>
          </span>
          <span class="autoPlayVideo2-item-right">
         <el-tooltip
@@ -92,8 +83,7 @@
         <span @click="intoVideo(video)" class="autoPlayVideo2-item-title">{{ video.videoTitle }}</span>
         </el-tooltip>
         <span @click="openHome(1,video.userId)" class="autoPlayVideo2-item-right-username-container">
-            <img class="img1" src="/img/author-badge-default.png">
-            <img class="img2" src="/img/author-badge-blue.png">
+            <img class="img1 avatar" :src="video.ownerAvatar || video.avatarAddress || '/img/avatar-default.png'" alt="">
             <span class="autoPlayVideo2-item-right-username">{{ video.userName }}</span> 
         </span>
         <span class="autoPlayVideo2-item-right-videoinfo-container">
@@ -119,7 +109,6 @@ export default {
     name: "autoPlayVideo2",
     setup(){
         const store = useGlobalStore();
-        const waitWatchInfoFlag=ref(false);
         const setAutoPlayVideoList=ref(false);
         const showMoreVideoFlag=ref(false);
         let videoAutoPlayTIme={};
@@ -166,8 +155,10 @@ export default {
                 }
                 );
                 if (response.data.code === 1) {
+                let added = false;
                 const updatedVideos = store.autoVideoList.map((item) => {
                     if (item.videoId === videoId && item.waitWatch === 0) {
+                    added = true;
                     return { ...item, waitWatch: 1 }; // 创建一个新的对象并修改 waitWatch
                     } else if (item.videoId === videoId && item.waitWatch === 1) {
                     return { ...item, waitWatch: 0 };
@@ -176,10 +167,11 @@ export default {
                 });
                 store.autoVideoList.length = 0; // 清空原数组
                 store.setAutoVideoList(updatedVideos); // 重新赋值
-                waitWatchInfoFlag.value=true;
-                setTimeout(() => {
-                waitWatchInfoFlag.value=false;
-                }, 2000);
+                ElMessage({
+                    message: added ? "已加入稍后观看" : "已从稍后观看中移除",
+                    type: "success",
+                    duration: 1700,
+                });
                 }
                 else{
                 ElMessage({
@@ -246,7 +238,6 @@ export default {
 
         return {
          store,
-         waitWatchInfoFlag,
          setAutoPlayVideoList,
          waitWatch,
          videoMouseover,
@@ -333,6 +324,7 @@ export default {
         transition-delay: 0.3s;
         visibility: visible;
         opacity: 1;
+        pointer-events: auto;
        }
 
        video{
@@ -349,79 +341,57 @@ export default {
 }
 
 .auto-play-video-item-wait-watch{
-    position: relative;
-    left: 107px;
-    top: -76px;
-    width: 26px;
-    height: 26px;
-    border-radius: 6px;
-    background-color: #000000;
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: all 0.3s ease;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, .4);
+    border-radius: 50%;
+    background-color: rgba(16, 30, 27, .68);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+    backdrop-filter: blur(8px);
+    transition: opacity .2s ease, background-color .2s ease, transform .2s ease;
     visibility: hidden;
     opacity: 0;
+    pointer-events: none;
     cursor: pointer;
 
-    img{
-        width: 24px;
-        height: 24px;
-        border-radius: 6px;
+    svg{
+        width: 18px;
+        height: 18px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
     }
 
 }
 
-.auto-play-video-item-wait-watch-title{
- position: absolute;
- display: flex;
- justify-content: center;
- align-items: center;
- color: white;
- width: 52px;
- height: 28px;
- font-size: 11px;
- border-radius: 4px;
- background-color: #000000;
- top: -15px;
- transition: all 0.3s ease;
- opacity: 0;
- visibility: hidden;
+.auto-play-video-item-wait-watch:hover{
+    background-color: rgba(16, 30, 27, .9);
+    transform: translateY(-1px);
 }
 
-.auto-play-video-item-wait-watch:hover .auto-play-video-item-wait-watch-title{
-    transition-delay: 0.3s;
-    top: -33px;
-    opacity: 1;
-    visibility: visible;
+.auto-play-video-item-wait-watch.is-done{
+    border-color: rgba(255, 255, 255, .4);
+    background-color: rgba(240, 252, 248, .4);
+    color: var(--brand-hover);
 }
 
-.auto-play-video-item-wait-watch-info1{
-position: absolute;
- display: flex;
- justify-content: center;
- align-items: center;
- color: white;
- width: 75px;
- height: 27px;
- font-size: 11px;
- border-radius: 4px;
- background-color: #000000;
- top: -33px;
+.auto-play-video-item-wait-watch.is-done:hover{
+    background-color: rgba(240, 252, 248, .9);
 }
 
-.auto-play-video-item-wait-watch-info2{
-position: absolute;
- display: flex;
- justify-content: center;
- align-items: center;
- color: white;
- width: 130px;
- height: 27px;
- font-size: 11px;
- border-radius: 4px;
- background-color: #000000;
- top: -33px;
+.auto-play-video-item-wait-watch:focus-visible{
+    outline: 2px solid #fff;
+    outline-offset: 3px;
 }
 
 .autoPlayVideo2-videoList{
@@ -433,11 +403,16 @@ position: absolute;
     cursor: pointer;
     color: #8D9794;
 
+    &.is-on{
+        color: #0FA68E;
+    }
+
     .custom-switch1 {
-    width: 20px !important;
-    --el-switch-height: 20px; /* 修改高度 */
-    --el-switch-width: 30px !important; /* 修改宽度 */
-    --el-switch-on-color: #0FA68E !important;
+        --el-switch-on-color: var(--brand);
+        --el-switch-off-color: #C6CFCC;
+        --el-switch-width: 40px !important; /* 修改宽度 */
+        --el-switch-height: 22px; /* 修改高度 */
+        --el-switch-border-radius: 11px;
     }
     
 }

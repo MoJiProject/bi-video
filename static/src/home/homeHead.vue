@@ -227,7 +227,7 @@ async function addDialogueF() {
         return;
     }
 
-    ElMessage.info("私信功能暂未开放");
+    ElMessage.warning("私信功能暂未开放");
 }
 
 //弹出修改背景菜单

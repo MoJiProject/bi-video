@@ -41,16 +41,12 @@
                    </div>
                    <div class="black-border"></div>
                 </div>
-                <span class="auto-play-video-item-wait-watch" @click.stop="waitWatch(video.videoId)">
-                    <div v-show="store.userId===null" class="auto-play-video-item-wait-watch-title">稍后观看</div>
-                    <div v-show="video.waitWatch===0" class="auto-play-video-item-wait-watch-title">稍后观看</div>
-                    <div v-show="video.waitWatch===1" class="auto-play-video-item-wait-watch-title">移除</div>
-                    <div v-show="waitWatchInfoFlag&&video.waitWatch===1"  class="auto-play-video-item-wait-watch-info1">已加入稍后观看</div>
-                    <div v-show="waitWatchInfoFlag&&video.waitWatch===0"  class="auto-play-video-item-wait-watch-info2">已从稍后观看中移除</div>
-                    <img v-show="store.userId===null" src="/img/waitWatch.png"/>
-                    <img v-show="video.waitWatch===0" src="/img/waitWatch.png"/>
-                    <img v-show="video.waitWatch===1" src="/img/addWaitWatch.png"/>
-                </span>
+                <button type="button" class="auto-play-video-item-wait-watch" :class="{ 'is-done': video.waitWatch===1 }" :title="video.waitWatch===1?'已加入稍后观看':'加入稍后观看'" :aria-label="video.waitWatch===1?'移出稍后观看':'加入稍后观看'" :aria-pressed="video.waitWatch===1" @click.stop="waitWatch(video.videoId)">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path v-if="video.waitWatch===1" d="m6 12 4 4 8-8"/>
+                        <template v-else><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></template>
+                    </svg>
+                </button>
                 <img class="auto-play-video-item-cover" :src="video.coverAddress">
                 <video :src="video.videoAddress"
                 :poster="video.coverAddress"
@@ -79,16 +75,12 @@
                    </div>
                    <div class="black-border"></div>
                 </div>
-                <span class="auto-play-video-item-wait-watch" @click.stop="waitWatch(video.videoId)">
-                    <div v-show="store.userId===null" class="auto-play-video-item-wait-watch-title">稍后观看</div>
-                    <div v-show="video.waitWatch===0" class="auto-play-video-item-wait-watch-title">稍后观看</div>
-                    <div v-show="video.waitWatch===1" class="auto-play-video-item-wait-watch-title">移除</div>
-                    <div v-show="waitWatchInfoFlag&&video.waitWatch===1"  class="auto-play-video-item-wait-watch-info1">已加入稍后观看</div>
-                    <div v-show="waitWatchInfoFlag&&video.waitWatch===0"  class="auto-play-video-item-wait-watch-info2">已从稍后观看中移除</div>
-                    <img v-show="store.userId===null" src="/img/waitWatch.png"/>
-                    <img v-show="video.waitWatch===0" src="/img/waitWatch.png"/>
-                    <img v-show="video.waitWatch===1" src="/img/addWaitWatch.png"/>
-                </span>
+                <button type="button" class="auto-play-video-item-wait-watch" :class="{ 'is-done': video.waitWatch===1 }" :title="video.waitWatch===1?'已加入稍后观看':'加入稍后观看'" :aria-label="video.waitWatch===1?'移出稍后观看':'加入稍后观看'" :aria-pressed="video.waitWatch===1" @click.stop="waitWatch(video.videoId)">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path v-if="video.waitWatch===1" d="m6 12 4 4 8-8"/>
+                        <template v-else><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></template>
+                    </svg>
+                </button>
                 <img class="auto-play-video-item-cover" :src="video.coverAddress">
                 <video :src="video.videoAddress"
                 :poster="video.coverAddress"
@@ -139,7 +131,7 @@ export default {
         const propss=reactive(props);
         const store=useGlobalStore();
         const videoList=reactive([]);
-        const waitWatchInfoFlag=ref(false);
+        const setAutoPlayVideoListLocal=ref(false);
         let videoAutoPlayTIme={};
         const shareHover=ref(false);
 
@@ -218,8 +210,10 @@ export default {
                 }
                 );
                 if (response.data.code === 1) {
+                let added = false;
                 const updatedVideos = store.autoVideoList.map((item) => {
                     if (item.videoId === videoId && item.waitWatch === 0) {
+                    added = true;
                     return { ...item, waitWatch: 1 }; // 创建一个新的对象并修改 waitWatch
                     } else if (item.videoId === videoId && item.waitWatch === 1) {
                     return { ...item, waitWatch: 0 };
@@ -228,10 +222,11 @@ export default {
                 });
                 store.autoVideoList.length = 0; // 清空原数组
                 store.setAutoVideoList(updatedVideos); // 重新赋值
-                waitWatchInfoFlag.value=true;
-                setTimeout(() => {
-                waitWatchInfoFlag.value=false;
-                }, 2000);
+                ElMessage({
+                    message: added ? "已加入稍后观看" : "已从稍后观看中移除",
+                    type: "success",
+                    duration: 1700,
+                });
                 }
                 else{
                 ElMessage({
@@ -349,7 +344,7 @@ export default {
 
         return{
             videoList,
-            waitWatchInfoFlag,
+            setAutoPlayVideoListLocal,
             store,
             ctrlAwaitTimeFlag,
             waitLike,
@@ -686,24 +681,36 @@ export default {
 }
 
 .auto-play-video-item-wait-watch{
-    position: relative;
-    left: 155px;
-    top: 33px;
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-    background-color: #000000;
+    position: absolute;
+    right: 8px;
+    top: 8px;
     display: flex;
-    z-index: 1000;
     justify-content: center;
     align-items: center;
-    transition: all 0.3s ease;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, .4);
+    border-radius: 50%;
+    background-color: rgba(16, 30, 27, .68);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    transition: opacity .2s ease, background-color .2s ease, transform .2s ease;
     visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    cursor: pointer;
 
-    img{
-        width: 24px;
-        height: 24px;
-        border-radius: 6px;
+    svg{
+        width: 18px;
+        height: 18px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
     }
 
 }
@@ -711,55 +718,28 @@ export default {
 .auto-play-video-item span:hover .auto-play-video-item-wait-watch{
     transition-delay: 0.3s;
     visibility: visible;
-}
-
-.auto-play-video-item-wait-watch-title{
- position: absolute;
- display: flex;
- justify-content: center;
- align-items: center;
- width: 50px;
- height: 27px;
- font-size: 11px;
- border-radius: 2px;
- background-color: #000000;
- top: -15px;
- transition: all 0.3s ease;
- opacity: 0;
- visibility: hidden;
-}
-
-.auto-play-video-item-wait-watch:hover .auto-play-video-item-wait-watch-title{
-    transition-delay: 0.3s;
-    top: -33px;
     opacity: 1;
-    visibility: visible;
+    pointer-events: auto;
 }
 
-.auto-play-video-item-wait-watch-info1{
-position: absolute;
- display: flex;
- justify-content: center;
- align-items: center;
- width: 75px;
- height: 27px;
- font-size: 11px;
- border-radius: 2px;
- background-color: #000000;
- top: -33px;
+.auto-play-video-item-wait-watch:hover{
+    background-color: rgba(16, 30, 27, .9);
+    transform: translateY(-1px);
 }
 
-.auto-play-video-item-wait-watch-info2{
-position: absolute;
- display: flex;
- justify-content: center;
- align-items: center;
- width: 130px;
- height: 27px;
- font-size: 11px;
- border-radius: 2px;
- background-color: #000000;
- top: -33px;
+.auto-play-video-item-wait-watch.is-done{
+    border-color: rgba(255, 255, 255, .4);
+    background-color: rgba(240, 252, 248, .4);
+    color: var(--brand-hover);
+}
+
+.auto-play-video-item-wait-watch.is-done:hover{
+    background-color: rgba(240, 252, 248, .9);
+}
+
+.auto-play-video-item-wait-watch:focus-visible{
+    outline: 2px solid #fff;
+    outline-offset: 3px;
 }
 
 .into-video-all-display-ing{
@@ -896,7 +876,6 @@ position: absolute;
 
         .auto-play-video-item-wait-watch{
             transform: scale(1.15);
-            left: 195px;
             z-index: 1000;
         }
 

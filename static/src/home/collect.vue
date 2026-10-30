@@ -241,7 +241,7 @@ function toggleVideo(id, value) {
   selectedVideoIds.value = value ? [...new Set([...selectedVideoIds.value, id])] : selectedVideoIds.value.filter(item => item !== id);
 }
 function openTransfer(operation, videoId) {
-  if (folders.value.length < 2) { ElMessage.info('请先新建另一个收藏夹'); return; }
+  if (folders.value.length < 2) { ElMessage.warning('请先新建另一个收藏夹'); return; }
   transferOperation.value = operation;
   transferVideoIds.value = videoId ? [videoId] : [...selectedVideoIds.value];
   targetFolderId.value = null;
