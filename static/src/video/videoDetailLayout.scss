@@ -360,6 +360,11 @@
     pointer-events: auto;
   }
 
+  /* 全屏（网页/浏览器）时控制条底部再多留一些边距 */
+  .up-video-container.is-expanded .player-chrome {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+
   .player-timeline {
     position: relative;
     display: flex;
@@ -487,7 +492,7 @@
     font: inherit;
     font-size: 12px;
     line-height: 1;
-    color: inherit;
+    color: rgb(183 189 187);
     background: transparent;
     cursor: pointer;
     touch-action: manipulation;
@@ -495,11 +500,9 @@
     &:hover,
     &[aria-pressed="true"] {
       background: rgb(255 255 255 / 14%);
+      color: #e5e9eb;
     }
-    &:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-    }
+    /* 禁用态不做视觉弱化（如浏览器全屏时的网页全屏按钮），保持图标正常显示 */
   }
 
   .player-tool-button > img {
@@ -1080,7 +1083,8 @@
     .up-video-container.is-web-fullscreen
       .player-transport
       > .up-video-play-bottom-video-time-container {
-      margin-right: 0;
+      /* 大屏下与右侧弹幕开关/设置图标拉开间距（gap 6px 之外再补 ~24px） */
+      margin-right: 12px;
     }
   }
 
@@ -1298,11 +1302,12 @@
 
   .video-stage > .up-video-controls-container {
     gap: 8px;
-    padding: 14px 112px 14px 0;
+    padding: 12px 12px 12px 14px;
     border: 0;
     border-bottom: 1px solid var(--line);
     border-radius: 0;
     background: transparent;
+    flex-wrap: nowrap;
   }
 
   .video-stage > .up-video-controls-container .up-video-controls-span {
@@ -1310,13 +1315,17 @@
     padding: 0 10px;
   }
 
-  .video-stage > .addWaitWatch {
-    position: absolute;
-    right: 0;
-    bottom: 18px;
+  /* 稍后观看并入控制条 flex 行内，右贴齐，小屏与点赞/收藏/分享保持一行 */
+  .video-stage .up-video-controls-container > .addWaitWatch {
+    position: static;
+    left: auto;
+    right: auto;
+    bottom: auto;
     width: auto;
     height: auto;
+    margin-left: auto;
     transform: none;
+    z-index: auto;
   }
 
   .addWaitWatch > .wait-img {
@@ -1326,22 +1335,30 @@
     position: static;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     width: auto;
-    height: 36px;
-    padding: 0 10px;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    background: var(--bg, #fff);
+    height: 40px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
     color: var(--ink-2);
-    font-size: 12px;
+    font-size: 13px;
+    line-height: 1;
     visibility: visible;
     opacity: 1;
     transform: none;
     cursor: pointer;
+    transition: color .2s ease, background-color .2s ease, transform .2s ease;
+  }
+  .addWaitWatch .wait-watch-info:hover {
+    background: var(--brand-soft);
+    color: var(--brand);
+    transform: translateY(-1px);
   }
 
-  .addWaitWatch .wait-watch-info > img,
+  .addWaitWatch .wait-watch-info > svg,
   .addWaitWatch .wait-watch-info > span {
     position: static;
     height: auto;
@@ -1349,6 +1366,16 @@
     font: inherit;
     color: inherit;
     transform: none;
+  }
+  .addWaitWatch .wait-watch-info > svg {
+    width: 17px;
+    height: 17px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 
   .waitWatchMsg {
@@ -1362,8 +1389,9 @@
     transform: none;
   }
 
+  /* 分享弹窗：右对齐悬浮在互动栏正上方（互动栏高约 64px），与分享按钮位置对应 */
   .video-stage > .video-share-container {
-    inset: auto 0 68px auto;
+    inset: auto 12px 76px auto;
     width: min(500px, 100%);
     transform: none;
   }
@@ -1826,8 +1854,10 @@
     bottom: 8px;
     top: auto;
     right: auto;
-    width: 24px;
-    height: 24px;
+    /* 尺寸随所在视频卡片宽度等比缩放：卡大钮大、卡小钮小 */
+    width: max(22px, 10%);
+    height: auto;
+    aspect-ratio: 1;
     padding: 0;
     border: 1px solid rgba(255, 255, 255, .4);
     border-radius: 50%;
@@ -1844,8 +1874,8 @@
     transition: opacity .2s ease, background-color .2s ease, transform .2s ease;
   }
   :deep(.auto-play-video-item-wait-watch svg) {
-    width: 14px;
-    height: 14px;
+    width: 58%;
+    height: 58%;
     fill: none;
     stroke: currentColor;
     stroke-width: 2;
@@ -1860,8 +1890,7 @@
     top: 8px;
   }
   :deep(.autoPlayVideo2-item-left:hover .auto-play-video-item-wait-watch),
-  :deep(.auto-play-video-item > span:hover .auto-play-video-item-wait-watch),
-  :deep(.auto-play-video-item-wait-watch.is-done) {
+  :deep(.auto-play-video-item > span:hover .auto-play-video-item-wait-watch) {
     opacity: 1;
     pointer-events: auto;
   }
@@ -1883,36 +1912,197 @@
     inset: 0;
     width: 100%;
     height: 100%;
-    padding: 16px 16px calc(var(--chrome-height) + 16px);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 24px calc(var(--chrome-height) + 20px);
     box-sizing: border-box;
     background: rgb(8 11 12 / 96%);
     overflow: auto;
     overscroll-behavior: contain;
     transform: none;
     z-index: 6;
+    /* 以播放器宽/高为基准做容器查询：非全屏列数、行数随可用空间收缩 */
+    container-type: size;
   }
 
+  /* 全屏外壳：更深的沉浸底色 + 更大的呼吸空间 */
+  .autoPlayVideoContainer.autoPlayVideoContainer1 {
+    padding: 36px 48px calc(var(--chrome-height) + 32px);
+    background: #000;
+  }
+
+  /* 全屏（网页/浏览器全屏）片尾面板：压制组件内 into-video-all-display-ing
+     的旧式绝对定位/固定像素样式；内容垂直水平居中、整体放大利用大屏空间 */
+  .autoPlayVideoContainer1 {
+    :deep(.into-video-all-display-ing) {
+      height: auto;
+      transform: none;
+
+      .auto-play-video-header {
+        flex-wrap: nowrap;
+        .auto-play-video-avatar {
+          flex: 0 0 auto;
+          width: 48px;
+          height: 48px;
+        }
+        .auto-play-video-username {
+          font-size: 16px;
+        }
+        .auto-play-video-replay,
+        .auto-play-video-follow,
+        .auto-play-video-delete-follow {
+          font-size: 14px;
+          min-height: 38px;
+          padding: 8px 14px;
+        }
+        .auto-play-video-replay {
+          flex: 0 0 auto;
+        }
+        .auto-play-video-replay > img {
+          width: 18px;
+          height: 18px;
+        }
+        .auto-play-video-operation {
+          flex: 1 1 auto;
+          min-width: 0;
+          justify-content: flex-end;
+          gap: 26px;
+        }
+        .auto-play-video-operation > span {
+          font-size: 15px;
+        }
+        .auto-play-video-operation > span > img {
+          width: 22px;
+          height: 22px;
+        }
+      }
+
+      .auto-play-video-body {
+        transform: none;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+      }
+      /* 全屏 8 条全部显示（撤销非全屏的条数隐藏） */
+      .auto-play-video-body > .auto-play-video-item:nth-child(n + 5) {
+        display: block;
+      }
+      /* 全屏窄容器（如小窗口网页全屏）回落 3 列，避免卡片过挤 */
+      @container (max-width: 999px) {
+        .auto-play-video-body {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+      .auto-play-video-body-video-recommend {
+        font-size: 16px;
+        margin-bottom: 2px;
+      }
+      .auto-play-video-body .auto-play-video-item {
+        width: 100%;
+        height: auto;
+        margin: 0;
+        aspect-ratio: 16 / 9;
+      }
+      .auto-play-video-body .auto-play-video-item span .auto-play-video-item-cover,
+      .auto-play-video-body .auto-play-video-item span .auto-play-video-item-video,
+      .auto-play-video-body .auto-play-video-item span .black-auto-play-video {
+        width: 100%;
+        height: 100%;
+        transform: none;
+      }
+      .auto-play-video-body .auto-play-video-item span .auto-play-video-item-title {
+        max-height: 78px;
+        padding: 24px 10px 12px;
+        font-size: 14px;
+        line-height: 21px;
+        transform: none;
+      }
+      .auto-play-video-body .auto-play-video-item:hover span .auto-play-video-item-title {
+        -webkit-line-clamp: 3;
+        max-height: 99px;
+        transform: none;
+      }
+      .auto-play-video-body .auto-play-video-item span .cancel-auto-play-video {
+        left: 6px;
+        top: 6px;
+        transform: none;
+      }
+      .auto-play-video-body .auto-play-video-item span .loader {
+        left: 50%;
+        top: 50%;
+        width: 56px;
+        height: 56px;
+        transform: translate(-50%, -50%) rotate(-93deg);
+      }
+      .auto-play-video-body .auto-play-video-item .auto-play-video-item-wait-watch {
+        transform: none;
+      }
+      /* 全屏分享弹窗：头部更高（48px 头像），下移避开按钮行；
+         压制 .video-share-container2 的旧式 left/top/scale 定位；
+         position 同样显式声明，防止非 scoped static 规则压回文档流 */
+      > .video-share-container {
+        position: absolute;
+        z-index: 10000;
+        top: 108px;
+        right: 48px;
+        max-height: calc(100% - 124px);
+      }
+    }
+  }
+
+  /* 片尾连播面板（非全屏）：内容限宽；面板为弹性纵向布局，
+     播放器内放不下时整体收缩（行高被压缩），绝不撑出滚动条 */
   :deep(.auto-play-video-container) {
-    position: relative;
+    /* static：分享弹窗的定位基准上移到播放器外壳（.autoPlayVideoContainer，
+       高度确定），auto 高度的面板不能做弹窗的裁切/定位基准 */
+    position: static;
     inset: auto;
+    display: flex;
+    flex-direction: column;
     width: 100%;
-    max-width: 1200px;
+    max-width: 1080px;
     height: auto;
-    margin: 0 auto;
+    min-height: 0;
+    max-height: 100%;
+    margin: auto;
     transform: none;
+  }
+
+  /* 全屏：内容宽度放大到 1600px，突破非全屏 1200px 上限 */
+  .autoPlayVideoContainer1 > :deep(.auto-play-video-container.into-video-all-display-ing) {
+    max-width: 1600px;
   }
 
   :deep(.auto-play-video-header) {
     position: relative;
     display: flex;
-    flex-wrap: wrap;
+    /* 头部永远单行：头像/作者/关注/重播/点赞等全部一行排布 */
+    flex-wrap: nowrap;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     width: 100%;
     height: auto;
-    margin: 0 0 16px;
+    margin: 0 0 14px;
     padding: 0;
     transform: none;
+  }
+
+  /* 头部：作者组收紧，操作组（点赞/收藏/分享）靠右 */
+  :deep(.auto-play-video-header > .auto-play-video-avatar),
+  :deep(.auto-play-video-header > .auto-play-video-username) {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+  :deep(.auto-play-video-header > .auto-play-video-replay) {
+    flex: 0 0 auto;
+  }
+  :deep(.auto-play-video-header > .auto-play-video-operation) {
+    display: flex;
+    flex: 1 1 auto;
+    /* 允许收缩，配合头部 nowrap 保证操作组永不换行 */
+    min-width: 0;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 18px;
   }
 
   :deep(.auto-play-video-header > img),
@@ -1926,8 +2116,9 @@
     margin: 0;
     transform: none;
   }
-
+  /* 头部尺寸（非全屏）：头像 36px；全屏在 .autoPlayVideoContainer1 内放大 */
   :deep(.auto-play-video-header > .auto-play-video-avatar) {
+    flex: 0 0 auto;
     width: 36px;
     height: 36px;
     border-radius: 50%;
@@ -1947,14 +2138,29 @@
     align-items: center;
     gap: 6px;
     min-height: 32px;
-    padding: 6px 10px;
+    padding: 6px 12px;
     border: 1px solid rgb(255 255 255 / 20%);
     border-radius: 8px;
     color: #fff;
     background: rgb(255 255 255 / 8%);
     font: inherit;
     font-size: 12px;
+    white-space: nowrap;
     cursor: pointer;
+    transition: background-color .2s ease, border-color .2s ease;
+  }
+  /* 关注按钮含粉丝数，空间不足时优先收缩它而非换行 */
+  :deep(.auto-play-video-follow),
+  :deep(.auto-play-video-delete-follow) {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+  }
+  :deep(.auto-play-video-follow:hover),
+  :deep(.auto-play-video-delete-follow:hover),
+  :deep(.auto-play-video-replay:hover) {
+    background: rgb(255 255 255 / 16%);
+    border-color: rgb(255 255 255 / 32%);
   }
 
   :deep(.auto-play-video-follow > img),
@@ -1967,18 +2173,14 @@
     width: 16px;
     height: 16px;
   }
-  :deep(.auto-play-video-header > .auto-play-video-operation) {
-    display: flex;
-    flex: 1 0 100%;
-    align-items: center;
-    gap: 18px;
-  }
   :deep(.auto-play-video-operation > span) {
     position: static;
     display: inline-flex;
     align-items: center;
     gap: 6px;
     width: auto;
+    flex: 0 0 auto;
+    white-space: nowrap;
     transform: none;
   }
   :deep(.auto-play-video-operation > span > img) {
@@ -1992,14 +2194,85 @@
     transform: none;
   }
 
+  /* 非全屏推荐列表：默认 3 列 × 2 行 = 6 条；
+     中屏（播放器宽 420~639px）2 列 × 2 行 = 4 条；
+     小屏（播放器宽 <420px）1 列 × 1 行 = 1 条，卡片限宽居中、避免过大；
+     高度放不下两行时按各列宽降为单行（3 / 2 条）。
+     卡片宽度全部随列宽自适应，不撑高播放器。
+     ≤639px 视口走文末小屏纵向方案；全屏 8 条 4 列由全屏覆盖块放开 */
   :deep(.auto-play-video-body) {
     position: static;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
+    grid-auto-rows: min-content;
+    gap: 14px;
     width: 100%;
     transform: none;
   }
+  @media (min-width: 640px) {
+    /* 默认 3 列 × 2 行：最多 6 条（推荐标题是第 1 个子元素，n+8 = 第 7 条视频起隐藏） */
+    .autoPlayVideoContainer:not(.autoPlayVideoContainer1) :deep(.auto-play-video-body > .auto-play-video-item:nth-child(n + 8)) {
+      display: none;
+    }
+    /* 中屏 2 列 × 2 行 = 4 条 */
+    @container (min-width: 420px) and (max-width: 639px) {
+      :deep(.auto-play-video-body) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .autoPlayVideoContainer:not(.autoPlayVideoContainer1) :deep(.auto-play-video-body > .auto-play-video-item:nth-child(n + 6)) {
+        display: none;
+      }
+    }
+    /* 小屏 1 列 × 1 行 = 1 条，卡片限宽居中且更小，避免单列时撑得过宽过大 */
+    @container (max-width: 419px) {
+      :deep(.auto-play-video-body) {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .autoPlayVideoContainer:not(.autoPlayVideoContainer1) :deep(.auto-play-video-body > .auto-play-video-item:nth-child(n + 3)) {
+        display: none;
+      }
+      :deep(.auto-play-video-item) {
+        max-width: 240px;
+        justify-self: center;
+      }
+      /* 小屏头部两行且整体居中：头像/用户名/关注/重播一行，点赞/收藏/分享铺满第二行 */
+      :deep(.auto-play-video-header) {
+        flex-wrap: wrap;
+        row-gap: 8px;
+        justify-content: center;
+      }
+      :deep(.auto-play-video-header > .auto-play-video-operation) {
+        flex-basis: 100%;
+        justify-content: center;
+      }
+      /* 两行头部更高，分享弹窗下移到第二行（点赞/收藏/分享）下方 */
+      :deep(.auto-play-video-container > .video-share-container) {
+        top: 110px;
+        right: 8px;
+        width: min(500px, calc(100% - 16px));
+        max-height: calc(100% - 122px);
+      }
+    }
+    /* 高度挤不下两行 → 整组降为单行，放在宽度规则之后逐档收紧，
+       保证任何列宽下都不会溢出到隐式第二行 */
+    @container (min-width: 640px) and (max-height: 459px) {
+      :deep(.auto-play-video-body) {
+        grid-template-rows: 1fr;
+      }
+      .autoPlayVideoContainer:not(.autoPlayVideoContainer1) :deep(.auto-play-video-body > .auto-play-video-item:nth-child(n + 5)) {
+        display: none;
+      }
+    }
+    @container (min-width: 420px) and (max-width: 639px) and (max-height: 459px) {
+      :deep(.auto-play-video-body) {
+        grid-template-rows: 1fr;
+      }
+      .autoPlayVideoContainer:not(.autoPlayVideoContainer1) :deep(.auto-play-video-body > .auto-play-video-item:nth-child(n + 4)) {
+        display: none;
+      }
+    }
+}
 
   :deep(.auto-play-video-body-video-recommend) {
     grid-column: 1 / -1;
@@ -2015,8 +2288,7 @@
     height: auto;
     margin: 0;
     aspect-ratio: 16 / 9;
-  }
-  :deep(.auto-play-video-item > span) {
+  }  :deep(.auto-play-video-item > span) {
     position: relative;
     display: block;
     width: 100%;
@@ -2037,17 +2309,29 @@
 
   :deep(.auto-play-video-item > span > .auto-play-video-item-title) {
     position: absolute;
-    inset: auto 6px 6px;
+    inset: auto 0 0;
     width: auto;
     height: auto;
-    max-height: 36px;
-    font-size: 11px;
+    max-height: 64px;
+    padding: 22px 8px 6px;
+    box-sizing: border-box;
+    border-radius: 0 0 8px 8px;
+    background: linear-gradient(to top, rgb(0 0 0 / 55%), transparent);
+    color: #fff;
+    font-size: 12px;
     line-height: 18px;
+    text-shadow: 0 1px 2px rgb(0 0 0 / 60%);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
     transform: none;
+    transition: max-height .25s ease;
   }
 
   :deep(.auto-play-video-item > span:hover > .auto-play-video-item-title) {
-    height: auto;
+    -webkit-line-clamp: 3;
+    max-height: 82px;
     transform: none;
   }
   :deep(.auto-play-video-item .cancel-auto-play-video) {
@@ -2070,9 +2354,22 @@
     width: 100%;
     height: 100%;
   }
+  /* 分享弹窗：悬浮在头部（分享按钮所在行）下方、右对齐；
+     限高 + 弹窗内部滚动，任何尺寸都不溢出播放器、不撑出滚动条。
+     position 必须在此显式声明：videoPage.vue 非 scoped 的
+     .video-page .video-share-container{position:static} 与组件 scoped 规则
+     特异性同为 (0,2,0)，凭源顺序会把弹窗压回文档流——撑开面板内容、
+     布局位移触发分享按钮 mouseleave 导致弹窗 300ms 后自动关闭 */
   :deep(.auto-play-video-container > .video-share-container) {
-    inset: 0 0 auto auto;
-    width: min(500px, 100%);
+    position: absolute;
+    z-index: 10000;
+    top: 76px;
+    right: 12px;
+    bottom: auto;
+    left: auto;
+    width: min(500px, calc(100% - 24px));
+    max-height: calc(100% - 88px);
+    overflow-y: auto;
     transform: none;
   }
 
@@ -2219,17 +2516,41 @@
     .video-stage .up-video-play-bottom-video-open-scrolling-container {
       flex-basis: calc(100% - 84px);
     }
+    /* 小屏控制条单行：压缩内边距与胶囊尺寸，禁止换行 */
     .video-stage > .up-video-controls-container {
-      padding-right: 0;
-      padding-bottom: 58px;
+      gap: 4px;
+      padding: 8px;
+      flex-wrap: nowrap;
     }
-    .video-stage > .addWaitWatch {
-      left: 0;
-      right: auto;
-      bottom: 12px;
+    .video-stage .up-video-controls-container .up-video-controls-span {
+      min-width: 0;
+      gap: 4px;
+      padding: 0 6px;
+      font-size: 12px;
+    }
+    .video-stage .up-video-controls-container .up-video-controls-span1,
+    .video-stage .up-video-controls-container .up-video-controls-span3,
+    .video-stage .up-video-controls-container .up-video-controls-span4 {
+      font-size: 11.5px;
+    }
+    .video-stage .up-video-controls-container > .addWaitWatch {
+      flex: 0 0 auto;
+    }
+    .video-stage .addWaitWatch .wait-watch-info {
+      gap: 4px;
+      height: 36px;
+      padding: 0 8px;
+      font-size: 12px;
+    }
+    .video-stage .addWaitWatch .wait-watch-info > svg {
+      width: 15px;
+      height: 15px;
     }
     .video-stage > .video-share-container {
-      bottom: 112px;
+      /* 小屏同样悬浮在互动栏上方，右贴边，宽度受限 */
+      right: 8px;
+      bottom: 78px;
+      width: min(500px, 100%);
     }
     .video-content-container,
     .video-tage-container {
@@ -2242,8 +2563,37 @@
     .up-videoTitle {
       padding-right: 24px;
     }
+    /* 小屏片尾推荐：一行一列 = 1 条，卡片限宽居中、随容器宽度自适应 */
     :deep(.auto-play-video-body) {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+    }
+    :deep(.auto-play-video-body-video-recommend) {
+      grid-column: 1 / -1;
+    }
+    .autoPlayVideoContainer:not(.autoPlayVideoContainer1) :deep(.auto-play-video-body > .auto-play-video-item:nth-child(n + 3)) {
+      display: none;
+    }
+    :deep(.auto-play-video-item) {
+      max-width: 240px;
+      justify-self: center;
+    }
+    /* 小屏头部两行且整体居中：头像/用户名/关注/重播一行，点赞/收藏/分享铺满第二行 */
+    :deep(.auto-play-video-header) {
+      flex-wrap: wrap;
+      row-gap: 8px;
+      justify-content: center;
+    }
+    :deep(.auto-play-video-header > .auto-play-video-operation) {
+      flex-basis: 100%;
+      justify-content: center;
+    }
+    /* 两行头部更高，分享弹窗下移到第二行（点赞/收藏/分享）下方 */
+    :deep(.auto-play-video-container > .video-share-container) {
+      top: 110px;
+      right: 8px;
+      width: min(500px, calc(100% - 16px));
+      max-height: calc(100% - 122px);
     }
     .autoPlayVideoContainer {
       padding: 12px 12px calc(var(--chrome-height) + 12px);
