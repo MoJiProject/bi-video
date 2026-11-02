@@ -976,12 +976,47 @@
     height: 34px;
     transform: none;
   }
+  /* 新建按钮：独立圆角小按钮——旧版是"输入框内嵌右段"样式，
+     残留的单侧圆角/左边框/行高偏移必须全部覆盖 */
   :global(.el-dialog.video-collect-dialog .dialog-footer-input-btn) {
-    flex: 0 0 48px;
-    width: 48px;
-    height: 36px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 56px;
+    height: 28px;
     margin: 0;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1;
+    color: var(--brand);
     background: var(--brand-soft);
+    cursor: pointer;
+  }
+  :global(.el-dialog.video-collect-dialog .dialog-footer-input-btn:hover) {
+    background: #d3eee7;
+  }
+  /* 重名错误提示：锚定按钮自身、居中悬浮在正上方，
+     不再相对整个弹窗偏移导致溢出被裁 */
+  :global(.el-dialog.video-collect-dialog .new-create-collect-info) {
+    top: auto;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: 220px;
+    height: auto;
+    padding: 6px 10px;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: nowrap;
+    border-radius: 6px;
+    z-index: 2;
   }
 
   :global(.el-dialog.video-collect-dialog .dialog-footer-item),
@@ -1389,10 +1424,11 @@
     transform: none;
   }
 
-  /* 分享弹窗：右对齐悬浮在互动栏正上方（互动栏高约 64px），与分享按钮位置对应 */
+  /* 分享弹窗：左对齐悬浮在互动栏正上方（互动栏高约 64px，留 6px 间隙），
+     水平正对点赞/收藏/分享按钮组——贴着分享按钮上方，不遮按钮也不远离 */
   .video-stage > .video-share-container {
-    inset: auto 12px 76px auto;
-    width: min(500px, 100%);
+    inset: auto auto 70px 14px;
+    width: min(500px, calc(100% - 28px));
     transform: none;
   }
 
@@ -1916,7 +1952,7 @@
     flex-direction: column;
     padding: 20px 24px calc(var(--chrome-height) + 20px);
     box-sizing: border-box;
-    background: rgb(8 11 12 / 96%);
+    background: #000;
     overflow: auto;
     overscroll-behavior: contain;
     transform: none;
@@ -2010,15 +2046,19 @@
         transform: none;
       }
       .auto-play-video-body .auto-play-video-item span .auto-play-video-item-title {
-        max-height: 78px;
+        height: auto;
+        /* 全屏默认单行（24+21+12），hover 展开为两行，向上生长 */
+        max-height: 57px;
         padding: 24px 10px 12px;
         font-size: 14px;
         line-height: 21px;
+        -webkit-line-clamp: 1;
         transform: none;
       }
       .auto-play-video-body .auto-play-video-item:hover span .auto-play-video-item-title {
-        -webkit-line-clamp: 3;
-        max-height: 99px;
+        -webkit-line-clamp: 2;
+        height: auto;
+        max-height: 78px;
         transform: none;
       }
       .auto-play-video-body .auto-play-video-item span .cancel-auto-play-video {
@@ -2036,15 +2076,15 @@
       .auto-play-video-body .auto-play-video-item .auto-play-video-item-wait-watch {
         transform: none;
       }
-      /* 全屏分享弹窗：头部更高（48px 头像），下移避开按钮行；
-         压制 .video-share-container2 的旧式 left/top/scale 定位；
+      /* 全屏分享弹窗：同样锚定操作组内部，随按钮行跟随；
+         全屏空间大，间距略放大到 12px；
          position 同样显式声明，防止非 scoped static 规则压回文档流 */
-      > .video-share-container {
+      .auto-play-video-operation > .video-share-container {
         position: absolute;
         z-index: 10000;
-        top: 108px;
-        right: 48px;
-        max-height: calc(100% - 124px);
+        top: calc(100% + 12px);
+        right: 0;
+        max-height: min(360px, 60cqh);
       }
     }
   }
@@ -2052,8 +2092,8 @@
   /* 片尾连播面板（非全屏）：内容限宽；面板为弹性纵向布局，
      播放器内放不下时整体收缩（行高被压缩），绝不撑出滚动条 */
   :deep(.auto-play-video-container) {
-    /* static：分享弹窗的定位基准上移到播放器外壳（.autoPlayVideoContainer，
-       高度确定），auto 高度的面板不能做弹窗的裁切/定位基准 */
+    /* static + margin:auto 垂直居中面板内容；分享弹窗已改锚定在
+       operation（position:relative）内，不依赖本元素做定位基准 */
     position: static;
     inset: auto;
     display: flex;
@@ -2096,6 +2136,7 @@
     flex: 0 0 auto;
   }
   :deep(.auto-play-video-header > .auto-play-video-operation) {
+    position: relative;
     display: flex;
     flex: 1 1 auto;
     /* 允许收缩，配合头部 nowrap 保证操作组永不换行 */
@@ -2194,6 +2235,30 @@
     transform: none;
   }
 
+  /* 分享弹窗：锚定在操作组（点赞/收藏/分享按钮行）内部，随按钮行
+     自动跟随——头部垂直居中、小屏两行、全屏放大时都贴着分享按钮；
+     出现在按钮正下方 8px、右对齐，绝不盖住按钮也不远离。
+     position 必须显式声明为 absolute：videoPage.vue 非 scoped 的
+     .video-page .video-share-container{position:static} 特异性同为 (0,2,0)，
+     凭源顺序会把弹窗压回文档流——撑开面板内容、触发按钮 mouseleave 秒关。
+     left/top/transform 同样显式覆盖组件 scoped 旧定位。
+     本规则需置于 @container 小屏覆盖与文末 ≤639px 媒体查询之前，
+     同特异性下源顺序后者胜，小屏居中/收小限高才能生效。
+     max-height 用 min(固定px, cqh)：operation 高度 auto 百分比失效，
+     cqh 相对播放器外壳（container-type:size）限高，矮播放器也不撑出滚动条 */
+  :deep(.auto-play-video-container .auto-play-video-operation > .video-share-container) {
+    position: absolute;
+    z-index: 10000;
+    top: calc(100% + 8px);
+    right: 0;
+    bottom: auto;
+    left: auto;
+    width: min(500px, calc(100vw - 32px));
+    max-height: min(320px, 60cqh);
+    overflow-y: auto;
+    transform: none;
+  }
+
   /* 非全屏推荐列表：默认 3 列 × 2 行 = 6 条；
      中屏（播放器宽 420~639px）2 列 × 2 行 = 4 条；
      小屏（播放器宽 <420px）1 列 × 1 行 = 1 条，卡片限宽居中、避免过大；
@@ -2246,12 +2311,14 @@
         flex-basis: 100%;
         justify-content: center;
       }
-      /* 两行头部更高，分享弹窗下移到第二行（点赞/收藏/分享）下方 */
-      :deep(.auto-play-video-container > .video-share-container) {
-        top: 110px;
-        right: 8px;
-        width: min(500px, calc(100% - 16px));
-        max-height: calc(100% - 122px);
+      /* 两行头部：弹窗仍锚定第二行操作组下方，小屏整体居中、收小限高 */
+      :deep(.auto-play-video-container .auto-play-video-operation > .video-share-container) {
+        top: calc(100% + 8px);
+        right: 0;
+        left: 0;
+        margin: 0 auto;
+        width: min(500px, calc(100vw - 16px));
+        max-height: min(240px, 55cqh);
       }
     }
     /* 高度挤不下两行 → 整组降为单行，放在宽度规则之后逐档收紧，
@@ -2312,7 +2379,8 @@
     inset: auto 0 0;
     width: auto;
     height: auto;
-    max-height: 64px;
+    /* 默认单行（22+18+6），hover 展开为两行，底部锚定向上生长 */
+    max-height: 46px;
     padding: 22px 8px 6px;
     box-sizing: border-box;
     border-radius: 0 0 8px 8px;
@@ -2323,15 +2391,16 @@
     text-shadow: 0 1px 2px rgb(0 0 0 / 60%);
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
     overflow: hidden;
     transform: none;
     transition: max-height .25s ease;
   }
 
   :deep(.auto-play-video-item > span:hover > .auto-play-video-item-title) {
-    -webkit-line-clamp: 3;
-    max-height: 82px;
+    -webkit-line-clamp: 2;
+    height: auto;
+    max-height: 64px;
     transform: none;
   }
   :deep(.auto-play-video-item .cancel-auto-play-video) {
@@ -2354,25 +2423,6 @@
     width: 100%;
     height: 100%;
   }
-  /* 分享弹窗：悬浮在头部（分享按钮所在行）下方、右对齐；
-     限高 + 弹窗内部滚动，任何尺寸都不溢出播放器、不撑出滚动条。
-     position 必须在此显式声明：videoPage.vue 非 scoped 的
-     .video-page .video-share-container{position:static} 与组件 scoped 规则
-     特异性同为 (0,2,0)，凭源顺序会把弹窗压回文档流——撑开面板内容、
-     布局位移触发分享按钮 mouseleave 导致弹窗 300ms 后自动关闭 */
-  :deep(.auto-play-video-container > .video-share-container) {
-    position: absolute;
-    z-index: 10000;
-    top: 76px;
-    right: 12px;
-    bottom: auto;
-    left: auto;
-    width: min(500px, calc(100% - 24px));
-    max-height: calc(100% - 88px);
-    overflow-y: auto;
-    transform: none;
-  }
-
   :deep(.video-share-info) {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 80px;
@@ -2547,10 +2597,17 @@
       height: 15px;
     }
     .video-stage > .video-share-container {
-      /* 小屏同样悬浮在互动栏上方，右贴边，宽度受限 */
-      right: 8px;
-      bottom: 78px;
-      width: min(500px, 100%);
+      /* 小屏同样悬浮在互动栏上方，左对齐正对按钮组，宽度受限 */
+      left: 8px;
+      right: auto;
+      bottom: 74px;
+      width: min(500px, calc(100% - 16px));
+    }
+    @media (max-width: 345px) {
+      /* 极窄屏互动栏折成两行：抬高弹窗避免压住按钮行 */
+      .video-stage > .video-share-container {
+        bottom: 118px;
+      }
     }
     .video-content-container,
     .video-tage-container {
@@ -2588,12 +2645,14 @@
       flex-basis: 100%;
       justify-content: center;
     }
-    /* 两行头部更高，分享弹窗下移到第二行（点赞/收藏/分享）下方 */
-    :deep(.auto-play-video-container > .video-share-container) {
-      top: 110px;
-      right: 8px;
-      width: min(500px, calc(100% - 16px));
-      max-height: calc(100% - 122px);
+    /* 两行头部：弹窗仍锚定第二行操作组下方，小屏整体居中、收小限高 */
+    :deep(.auto-play-video-container .auto-play-video-operation > .video-share-container) {
+      top: calc(100% + 8px);
+      right: 0;
+      left: 0;
+      margin: 0 auto;
+      width: min(500px, calc(100vw - 16px));
+      max-height: min(240px, 55cqh);
     }
     .autoPlayVideoContainer {
       padding: 12px 12px calc(var(--chrome-height) + 12px);

@@ -22,6 +22,7 @@
                 <img v-show="!propss.videoShareClickFlag" src="/img/分享灰.png">
                 <img v-show="propss.videoShareClickFlag" src="/img/视频分享蓝.png">
                 <span style="margin-left: 1px;" :style="{color: propss.videoShareClickFlag? 'var(--brand)':'white'}">分享</span></span>
+            <div v-show="shareHover&&store.shareHover" class="video-share-container" @mouseover="shareHoverF(true)" @mouseleave="shareHoverF(false)"><videoShareC :share-hover="shareHover" :height-flag="true"/></div>
             </div>
        </div>
        <div class="auto-play-video-body">
@@ -95,7 +96,6 @@
                </span>
            </div>
        </div>
-       <div v-show="shareHover&&store.shareHover" :class="{'video-share-container2': propss.intoVideoAllDisplayIngFlag}" class="video-share-container" @mouseover="shareHoverF(true)" @mouseleave="shareHoverF(false)"><videoShareC :share-hover="shareHover" :height-flag="true"/></div> 
    </div>
 </template>
 
@@ -387,7 +387,7 @@ export default {
         position: relative;
         top: 0;
         left: 0;
-        z-index: 100;
+        z-index: 1001;
         .auto-play-video-avatar{
             width: 48.78px;
             height: 48.78px;
@@ -520,7 +520,6 @@ export default {
             border-left: 1px solid #121212;
             display: flex;
             justify-content: right;
-            padding-left: 34px;
             font-size: 10px;
             z-index: 1000;
             line-height: 15px;
@@ -564,14 +563,8 @@ export default {
                     margin-left: 1px;
                     margin-bottom: 3px;
                 }
-            }
-
-
-
-            
+            } 
         }
-
-
     }
 
     .auto-play-video-body {
@@ -991,14 +984,6 @@ export default {
 
 .video-share-container{
 position: absolute;
-left: 100px;
-top: 55px;
 z-index: 10000;
-}
-
-.video-share-container2{
-    left: 500px;
-    top: 90px;
-    transform: scale(1.2);
 }
 </style>

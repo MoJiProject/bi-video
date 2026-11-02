@@ -8513,10 +8513,10 @@ a:hover {
 .video-page .up-video-container .up-VideoProgress {
   bottom: 57px;
 }
-/* 分享弹窗：绝对定位锚在 video-stage，具体位置（右对齐/上浮距离）由布局层控制 */
+/* 分享弹窗：绝对定位锚在 video-stage，层级压过弹幕栏(6)/互动栏(5)，位置由布局层控制 */
 .video-page .video-stage > .video-share-container {
   position: absolute;
-  z-index: 20;
+  z-index: 100;
 }
 .video-page .video-detail-sidebar {
   display: grid;
