@@ -441,8 +441,8 @@
       overflow-x: auto;
       border-radius: 12px;
       .title { display: none; }
-      ul { flex-direction: row; flex: 1 1 auto; width: auto; min-width: 0; gap: 4px; li { flex: 1 1 0; min-width: max-content; width: auto; } .active { justify-content: center; gap: 4px; min-height: 38px; padding: 8px 10px; white-space: nowrap; } }
-      .msg-setting { flex: 1 1 0; min-width: max-content; justify-content: center; width: auto; margin: 0; padding: 8px 10px; border: 0; white-space: nowrap; img { display: none; } }
+      ul { flex-direction: row; flex: 4 1 0; width: auto; min-width: 0; gap: 4px; li { flex: 1 1 0; min-width: max-content; width: auto; } .active { justify-content: center; gap: 4px; min-height: 38px; padding: 8px 10px; white-space: nowrap; } }
+      .msg-setting { flex: 1 1 0; min-width: max-content; justify-content: center; align-items: center; width: auto; margin: 0; min-height: 38px; padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; white-space: nowrap; img { display: none; } .active { padding: 0; line-height: 1.6; border-radius: 0; background: transparent; } &:hover { background: var(--fill-soft); } &.liColor { background: var(--brand-light-9); } }
     }
   }
 }
@@ -489,7 +489,7 @@
       .body-left { display: none; }
       .body-right {
         display: flex;
-        .message-username-title { gap: 10px; padding-left: 12px; .conversation-back { display: inline-flex; flex-shrink: 0; align-items: center; min-height: 32px; padding: 0 8px; border: 0; border-radius: 7px; background: var(--brand-light-9); color: var(--brand-hover); font-size: 12px; cursor: pointer; } }
+        .message-username-title { gap: 10px; padding-left: 12px; .conversation-back { display: inline-flex; flex-shrink: 0; align-items: center; gap: 4px; min-height: 32px; padding: 0 9px; border: 0; border-radius: 7px; background: var(--brand-light-9); color: var(--brand-hover); font-size: 12px; cursor: pointer; .conversation-back-icon { font-size: 18px; line-height: 1; font-weight: 700; } } }
         .message-content-container .message-content-container-item { gap: 8px; padding-right: 10px; padding-left: 10px; }
       }
     }

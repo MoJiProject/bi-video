@@ -77,7 +77,7 @@
         </div>
         <div v-show="currentDialogue" class="body-right">
          <div class="message-username-title">
-            <button type="button" class="conversation-back" @click="mobileConversationOpen=false, messageDialogFlag=false, emojiFlag=false">‹ 会话列表</button>
+            <button type="button" class="conversation-back" @click="mobileConversationOpen=false, messageDialogFlag=false, emojiFlag=false"><span class="conversation-back-icon" aria-hidden="true">‹</span>会话列表</button>
             <span class="dialogue-title">{{ dialogueUserInfo?.userName }}</span>
             <button type="button" class="message-setting-dialog-img-container" aria-label="会话设置" :aria-expanded="messageDialogFlag">
                 <svg class="message-setting-dialog-img" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="19" r="2"></circle></svg>
