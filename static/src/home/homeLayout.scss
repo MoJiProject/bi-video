@@ -1,4 +1,4 @@
-.home-page {
+﻿.home-page {
   min-width: 0;
   min-height: 100dvh;
   background: var(--fill-soft);
@@ -78,7 +78,7 @@
     .home .home-div > div .video-sort { position: static; flex-wrap: wrap; gap: 6px; margin-left: 12px; }
     .home .home-div > div .video-sort span { height: 30px; padding: 0 10px; border-radius: 8px; font-size: 12px; }
     .home-user-info-public { gap: 4px; flex-wrap: wrap; font-size: 11px !important; }
-    .home .home-div .collect .collect-list { grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 16px; }
+    .home .home-div .collect .collect-list { grid-template-columns: repeat(auto-fill, minmax(max(200px, calc(20% - 20px)), 1fr)); gap: 16px; }
     .home .home-div .collect .collect-list .video-item { top: auto; height: auto; padding: 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--fill-soft); }
     .collect-list .collect-back, .collect-list .collect-back2 { display: none; }
     .home .home-div .collect .collect-list .video-item .content { display: grid; grid-template-columns: minmax(0, 1fr); }
@@ -87,7 +87,7 @@
     .home .home-div .collect .collect-list .video-item .content > svg { position: static; grid-area: 1 / 1; align-self: end; margin: 0 0 8px 6px; z-index: 1; }
     .home .home-div .collect .collect-list .video-item .content .collect-info { margin: 10px 2px 2px; }
     .home .home-div .collect .collect-list .video-item .content .collect-info .name { font-size: 14px; }
-    .home-videos, .collections .videos { grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 16px; }
+    .home-videos, .collections .videos { grid-template-columns: repeat(auto-fill, minmax(max(220px, calc(20% - 20px)), 1fr)); gap: 16px; }
     .home-videos.list-layout { grid-template-columns: minmax(0, 1fr); }
     .vcard { min-width: 0; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
     .vcard:not(.is-selecting):hover { transform: none; border-color: var(--brand-light-5); box-shadow: 0 4px 16px rgba(28, 35, 33, .05); transition: all 0.3s ease; }
@@ -252,11 +252,11 @@
       .home .home-div > div > .title > .title-name, .home .home-div > div > .title > span:first-child { font-size: 17px; }
       .home .home-div > div > .title > .section-heading > .title-name { font-size: 17px; }
       .contribute > .content, .dynamic-container > .content-container, .space-activity > .activity-content, .relations > section, .collections > main, .settings, .home-lists { padding: 16px; border-radius: 14px; }
-      .home-videos, .collections .videos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+      .home-videos, .collections .videos { grid-template-columns: minmax(0, 1fr); gap: 12px; }
       .home-videos.list-layout { grid-template-columns: minmax(0, 1fr); }
       .home-videos.list-layout .vcard-cover { width: 42%; }
       .vcard { padding: 6px; border-radius: 12px; }
-      .home .home-div .collect .collect-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+      .home .home-div .collect .collect-list { grid-template-columns: minmax(0, 1fr); gap: 12px; }
       .collections header { gap: 12px; }
       .collections header > img { width: 100px; }
       .collections .folder-filter-row { gap: 10px; }
@@ -273,6 +273,12 @@
     }
     :deep(.home-head .user-info) { column-gap: 12px; }
     :deep(.home-head .user-info .user-info-top .user-name) { font-size: 20px; }
+  }
+}
+
+@media (max-width: 600px) {
+  .home-page :deep(.home-body) {
+    .home-videos, .collections .videos, .home .home-div .collect .collect-list { grid-template-columns: minmax(0, 1fr); }
   }
 }
 

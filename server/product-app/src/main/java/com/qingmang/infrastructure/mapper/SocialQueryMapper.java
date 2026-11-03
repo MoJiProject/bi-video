@@ -18,7 +18,8 @@ public interface SocialQueryMapper {
     boolean videoAvailable(@Param("videoId") Long videoId);
     List<PostVO> selectFeed(@Param("viewerId") Long viewerId, @Param("targetUserId") Long targetUserId,
                            @Param("cursorId") Long cursorId, @Param("limit") int limit,
-                           @Param("followingOnly") boolean followingOnly, @Param("type") int type);
+                           @Param("followingOnly") boolean followingOnly, @Param("type") int type,
+                           @Param("sort") int sort);
 
     /**
      * 动态流。
@@ -35,4 +36,12 @@ public interface SocialQueryMapper {
                                     @Param("otherId") Long otherId,
                                     @Param("cursorId") Long cursorId,
                                     @Param("limit") int limit);
+    List<PostVO> searchPosts(@Param("viewerId") Long viewerId,
+                            @Param("keyword") String keyword,
+                            @Param("sort") String sort,
+                            @Param("followingOnly") boolean followingOnly,
+                            @Param("type") int type,
+                            @Param("offset") int offset,
+                            @Param("limit") int limit);
+
 }

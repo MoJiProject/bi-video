@@ -87,6 +87,7 @@ export const socialApi = {
 export const searchApi = {
   videos: (params) => get('/search/video', params),
   users: (params) => get('/search/user', params),
+  posts: (params) => get('/search/post', params),
   hot: (limit = 10) => get('/search/hot', { limit }),
 };
 

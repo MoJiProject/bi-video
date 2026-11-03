@@ -4,32 +4,18 @@
       <div class="reply-content" @scroll="handleScroll">
         <div v-show="replyList.length>0" class="reply-item" v-for="reply in replyList" :key="reply.replyComments.id">
            <div class="reply-item-content">
-              <el-tooltip
-                    popper-class="custom-tooltip"
-                    effect="light"
-                    :show-after="300"
-                    :content="reply.userName"
-                    placement="bottom-end"
-                    :offset="12"
-                    :show-arrow="false"
-                    :hide-after="0"
-                  >
+              <UserHoverCard :user-id="Number(reply.userId) || 0" :avatar="reply.avatarAddress || ''" :nickname="reply.userName || ''" :avatar-size="32">
+                <template #reference>
                   <a :href="'./home?homeMenu=1&userId='+reply.userId" target="_blank"><img class="reply-user-avatar" :src="reply.avatarAddress"></a>
-              </el-tooltip>
+                </template>
+              </UserHoverCard>
               <div class="reply-right-content">
                  <div class="reply-right-content-top">
-                  <el-tooltip
-                    popper-class="custom-tooltip"
-                    effect="light"
-                    :show-after="300"
-                    :content="reply.userName"
-                    placement="bottom-end"
-                    :offset="12"
-                    :show-arrow="false"
-                    :hide-after="0"
-                  >
-                  <a :href="'./home?homeMenu=1&userId='+reply.userId" target="_blank">{{ reply.userName }}</a>
-                  </el-tooltip>
+                  <UserHoverCard :user-id="Number(reply.userId) || 0" :avatar="reply.avatarAddress || ''" :nickname="reply.userName || ''" :avatar-size="14">
+                    <template #reference>
+                      <a :href="'./home?homeMenu=1&userId='+reply.userId" target="_blank">{{ reply.userName }}</a>
+                    </template>
+                  </UserHoverCard>
                   <span v-if="reply.mainComments&&!reply.dynamic">回复了我的评论</span>
                   <span v-else-if="!reply.mainComments&&reply.dynamic">对我的动态发表了评论</span>
                   <span v-else>对我的视频发表了评论</span>
@@ -186,6 +172,7 @@
   </template>
   
   <script setup>
+import UserHoverCard from '@/components/UserHoverCard.vue';
    import { nextTick, onMounted, reactive, ref } from 'vue'
    import {useGlobalStore} from "../store/store";
    import { ElMessage } from "element-plus";   
@@ -872,4 +859,5 @@ function addImgFlagF(comment,flag){
     }
   }
 }
-  </style>
+    .user-hover { display: inline; vertical-align: middle; }
+</style>

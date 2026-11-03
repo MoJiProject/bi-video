@@ -19,16 +19,7 @@
         }"
         >{{ store.eitUserInfo.userName }}</span
         >
-        <img
-        v-if="store.eitUserInfo.gender === 1"
-        src="/img/man.png"
-        class="up-user-info-gender"
-        />
-        <img
-        v-if="store.eitUserInfo.gender === 2"
-        src="/img/man.png"
-        class="up-user-info-gender"
-        />
+        <GenderIcon :gender="store.eitUserInfo.gender" :size="16" />
         <LevelBadge
         v-if="store.eitUserInfo.grade"
         :level="store.eitUserInfo.grade"
@@ -67,10 +58,7 @@
         class="up-user-info-container-footer-add-follow"
         v-debounce
         @click="addFollowAxios(store.eitUserInfo.id)"
-        ><img
-            src="/img/加关注.png"
-            style="width: 14px; margin-right: 4px"
-        />关注</span
+        ><FollowIcon :size="14" />关注</span
         >
         <span
         v-show="store.eitUserInfo.isFansFlag===1"
@@ -101,6 +89,8 @@ import { reactive, ref } from "vue";
 import apiClient from "../services/apiClient";
 import { useGlobalStore } from "../store/store";
 import LevelBadge from "../components/LevelBadge.vue";
+import GenderIcon from "../components/GenderIcon.vue";
+import FollowIcon from "../components/FollowIcon.vue";
 import {addDialogue} from '../api/privateMessage/index';
 
 

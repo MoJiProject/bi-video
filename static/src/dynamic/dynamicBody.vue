@@ -63,9 +63,13 @@
               <el-radio-button value="following" :disabled="!store.userId">关注动态</el-radio-button>
               <el-radio-button value="public">公开动态</el-radio-button>
             </el-radio-group>
-            <el-radio-group v-model="type" class="type-tabs" aria-label="动态类型">
+            <el-radio-group v-model="type" class="scope-tabs" aria-label="动态类型">
               <el-radio-button :value="1">全部</el-radio-button><el-radio-button :value="2">视频</el-radio-button><el-radio-button :value="3">图文</el-radio-button>
               <el-radio-button :value="4">图片</el-radio-button>
+            </el-radio-group>
+            <el-radio-group v-model="sortOrder" class="scope-tabs" aria-label="排序">
+              <el-radio-button :value="0">最新</el-radio-button>
+              <el-radio-button :value="1">最早</el-radio-button>
             </el-radio-group>
           </div>
         </section>
@@ -74,14 +78,14 @@
           {{ unreadCount }} 条新动态，点击刷新
         </el-button>
         <el-alert v-if="reminderError" :title="reminderError" type="error" :closable="false" show-icon/>
-        <ImagePostWaterfall v-if="type === 4" :posts="rows"/>
+        <ImagePostWaterfall v-if="type === 4" :posts="visibleRows"/>
         <div v-else class="dynamic-posts">
-          <homePost v-for="item in rows" :key="item.id" :dynamic="item" @changed="reload"/>
+          <homePost v-for="item in visibleRows" :key="item.id" :dynamic="item" @changed="reload"/>
         </div>
         <loadingIndicator v-if="loading"/>
-        <AppEmptyState v-if="!loading && !rows.length" title="暂无动态" description="可切换筛选条件查看其他动态"/>
+        <AppEmptyState v-if="!loading && !visibleRows.length" title="暂无动态" description="可切换筛选条件查看其他动态"/>
         <el-button v-if="hasMore" class="load-more" :loading="loading" @click="load">加载更多动态</el-button>
-        <p v-if="!loading && rows.length && !hasMore" class="feed-end">没有更多动态了</p>
+        <p v-if="!loading && visibleRows.length && !hasMore" class="feed-end">没有更多动态了</p>
       </section>
     </section>
   </main>
@@ -103,8 +107,10 @@ const authors = ref([]);
 const scope = ref(store.userId ? 'following' : 'public');
 const targetUserId = ref(null);
 const type = ref(1);
+const sortOrder = ref(0);
 const cursorId = ref(null);
 const hasMore = ref(false);
+const visibleRows = computed(() => rows.value);
 const loading = ref(false);
 const title = ref('');
 const content = ref('');
@@ -127,7 +133,7 @@ async function load() {
   loading.value = true;
   try {
     const page = await socialApi.posts({ targetUserId: targetUserId.value || undefined,
-      followingOnly: scope.value === 'following', type: type.value, cursorId: cursorId.value, size: 20 });
+      followingOnly: scope.value === 'following', type: type.value, sort: sortOrder.value, cursorId: cursorId.value, size: 20 });
     if (current !== generation) return;
     const ids = new Set(rows.value.map(item => item.id));
     rows.value.push(...page.records.filter(item => !ids.has(item.id)));
@@ -198,7 +204,7 @@ async function publish() {
   } catch (error) { ElMessage.error(error.message); }
   finally { publishing.value = false; }
 }
-watch([scope, targetUserId, type], reload);
+watch([scope, targetUserId, type, sortOrder], reload);
 watch(scope, value => { if (value === 'public') targetUserId.value = null; });
 watch(() => store.userId, async id => {
   clearInterval(reminderTimer);
@@ -271,7 +277,8 @@ onUnmounted(() => { active = false; generation++; clearInterval(reminderTimer); 
 .timeline-controls { padding: 20px 24px; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
 .timeline-heading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
 .timeline-heading h2 { margin: 0; font-size: 16px; font-weight: 600; }
-.filters { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.filters { display: flex; align-items: center; justify-content: flex-start; flex-wrap: wrap; gap: 12px; }
+
 .scope-tabs, .type-tabs { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 12px; background: var(--fill-soft); }
 .filters :deep(.el-radio-button__inner) { padding: 9px 14px; border: 0; border-radius: 9px; background: transparent; box-shadow: none; font-size: 12px; }
 .filters :deep(.el-radio-button:first-child .el-radio-button__inner), .filters :deep(.el-radio-button:last-child .el-radio-button__inner) { border: 0; border-radius: 9px; }

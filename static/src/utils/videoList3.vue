@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="video-list3">
     <div class="video-item" v-for="video in data" :key="video.videoId">
       <videoC3 :video="video" :size="size" />
@@ -40,7 +40,7 @@ const userId =
   column-gap: 16px;
   row-gap: 23px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(max(215px, calc(20% - 20px)), 1fr));
   .video-item {
     height: 185px;
   }
@@ -71,4 +71,8 @@ const userId =
 
 
 
+
+@media (max-width: 768px) {
+  .video-list { grid-template-columns: minmax(0, 1fr); }
+}
 </style>

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="video-list2">
     <div class="video-item" v-for="video in data" :key="video.videoId">
       <videoC2 :video="video" :sign="sign" />
@@ -35,7 +35,7 @@ defineProps({
   display: grid;
   column-gap: 16px;
   row-gap: 23px;
-  grid-template-columns: repeat(auto-fill, minmax(193px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(max(193px, calc(20% - 20px)), 1fr));
   .video-item {
     height: 173.5px;
   }
@@ -64,4 +64,8 @@ defineProps({
 
 
 
+
+@media (max-width: 768px) {
+  .video-list { grid-template-columns: minmax(0, 1fr); }
+}
 </style>

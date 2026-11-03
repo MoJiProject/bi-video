@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div v-if="data.length" class="home-videos" :class="{ 'list-layout': layout === 'list' }">
     <homeVideoCard v-for="video in data" :key="video.id" :video="video"/>
   </div>
@@ -17,7 +17,7 @@ defineProps({
 <style scoped>
 .home-videos {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 193px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(max(193px, calc(20% - 20px)), 1fr));
   gap: 20px 16px;
 }
 .list-layout { grid-template-columns: minmax(0, 1fr); }
@@ -26,5 +26,9 @@ defineProps({
 .list-layout :deep(.vcard-body) { flex: 1; min-width: 0; }
 @media (max-width: 600px) {
   .list-layout :deep(.vcard-cover) { width: 45%; }
+}
+
+@media (max-width: 768px) {
+  .home-videos { grid-template-columns: minmax(0, 1fr); }
 }
 </style>

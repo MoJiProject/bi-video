@@ -17,9 +17,17 @@
       <template v-else>
         <div v-if="users.length" class="relations-grid" role="list">
           <div v-for="user in users" :key="user.id" class="relation" role="listitem">
-            <a :href="'./home?userId=' + user.id" target="_blank" rel="noopener noreferrer" :aria-label="`${user.userName}的个人空间`"><img :src="user.avatarAddress" alt=""></a>
+            <UserHoverCard :user-id="Number(user.id) || 0" :avatar="user.avatarAddress || ''" :nickname="user.userName || ''" :avatar-size="60">
+              <template #reference>
+                <a :href="'./home?userId=' + user.id" target="_blank" rel="noopener noreferrer" :aria-label="`${user.userName}的个人空间`"><img :src="user.avatarAddress" alt=""></a>
+              </template>
+            </UserHoverCard>
             <div class="profile">
-              <a :href="'./home?userId=' + user.id" target="_blank" rel="noopener noreferrer" :title="user.userName">{{ user.userName }}</a>
+              <UserHoverCard :user-id="Number(user.id) || 0" :avatar="user.avatarAddress || ''" :nickname="user.userName || ''" :avatar-size="24">
+                <template #reference>
+                  <a :href="'./home?userId=' + user.id" target="_blank" rel="noopener noreferrer" :title="user.userName">{{ user.userName }}</a>
+                </template>
+              </UserHoverCard>
               <p :title="user.introduce">{{ user.introduce || '还没有填写个人简介' }}</p>
             </div>
             <div v-if="user.id !== store.userId" class="relation-actions">
@@ -48,6 +56,7 @@ import { useGlobalStore } from '@/store/store';
 import { fansOrFollow, addFollow, deleteFollow, selectUserInfo } from '@/api/home/user';
 import { addDialogue } from '@/api/privateMessage';
 import loadingIndicator from '@/components/loadingIndicator.vue';
+import UserHoverCard from '@/components/UserHoverCard.vue';
 
 const props = defineProps({ type: { type: Number, required: true } });
 const store = useGlobalStore();
@@ -166,11 +175,13 @@ h2 { margin: 0 0 20px; font-size: 24px; }
 .el-input { max-width: 260px; margin-bottom: 16px; }
 .relations-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 14px; }
 .relation { box-sizing: border-box; display: grid; grid-template-columns: 48px minmax(0, 1fr); align-content: start; align-items: start; gap: 10px 12px; min-width: 0; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
-.relation > a { grid-column: 1; grid-row: 1 / span 2; border-radius: 50%; }
+.relation > .user-hover { grid-column: 1; grid-row: 1 / span 2; border-radius: 50%; }
+.relation > .user-hover > a { display: block; border-radius: 50%; }
 .relation img { display: block; width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
 .profile { grid-column: 2; min-width: 0; }
-.profile > a { display: block; overflow: hidden; color: var(--ink); font-size: 14px; font-weight: 500; line-height: 22px; text-overflow: ellipsis; white-space: nowrap; }
-.profile > a:hover { color: var(--brand-hover); transition: all 0.3s ease; }
+.profile > .user-hover { display: block; }
+.profile > .user-hover > a { display: block; overflow: hidden; color: var(--ink); font-size: 14px; font-weight: 500; line-height: 22px; text-overflow: ellipsis; white-space: nowrap; }
+.profile > .user-hover > a:hover { color: var(--brand-hover); transition: all 0.3s ease; }
 .profile > p { margin: 6px 0 0; overflow: hidden; color: var(--ink-3); font-size: 12px; line-height: 20px; text-overflow: ellipsis; white-space: nowrap; }
 .relation-actions { grid-column: 2; display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
 .relation-actions > .el-button { flex: none; width: auto; max-width: 100%; height: 30px; margin: 0; padding: 0 12px; border-radius: 7px; font-size: 12px; }

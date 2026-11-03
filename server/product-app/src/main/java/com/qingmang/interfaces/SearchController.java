@@ -7,6 +7,7 @@ import com.qingmang.interfaces.dto.SearchQuery;
 import com.qingmang.interfaces.dto.UserSearchQuery;
 import com.qingmang.interfaces.vo.KeywordVO;
 import com.qingmang.interfaces.vo.UserSearchItemVO;
+import com.qingmang.interfaces.vo.PostVO;
 import com.qingmang.interfaces.vo.VideoListItemVO;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +36,12 @@ public class SearchController {
     @GetMapping("/user")
     public ApiResponse<PageResult<UserSearchItemVO>> searchUsers(@Valid UserSearchQuery query) {
         return search.searchUsers(query);
+    }
+
+    /** 搜索页的「动态」结果页签。 */
+    @GetMapping("/post")
+    public ApiResponse<PageResult<PostVO>> searchPosts(@Valid SearchQuery query) {
+        return search.searchPosts(query);
     }
 
     /** 搜索热榜，走 Redis 缓存。 */

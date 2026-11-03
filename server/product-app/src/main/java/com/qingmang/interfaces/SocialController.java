@@ -57,13 +57,14 @@ public class SocialController {
 
     /** targetUserId 为空看公开动态流。 */
     @GetMapping("/post/list")
-    public ApiResponse<Map<String, Object>> posts(@RequestParam(required = false) Long targetUserId,
-                                                 @RequestParam(required = false) Long cursorId,
-                                                 @RequestParam(defaultValue = "20") int size,
-                                                 @RequestParam(defaultValue = "false") boolean followingOnly,
-                                                 @RequestParam(defaultValue = "1") int type) {
+  public ApiResponse<Map<String, Object>> posts(@RequestParam(required = false) Long targetUserId,
+                                               @RequestParam(required = false) Long cursorId,
+                                               @RequestParam(defaultValue = "20") int size,
+                                               @RequestParam(defaultValue = "false") boolean followingOnly,
+                                               @RequestParam(defaultValue = "1") int type,
+                                               @RequestParam(defaultValue = "0") int sort) {
         Long me = AuthContext.currentUserIdOrNull();
-        List<PostVO> rows = social.feed(me, targetUserId, cursorId, size, followingOnly, type);
+        List<PostVO> rows = social.feed(me, targetUserId, cursorId, size, followingOnly, type, sort);
         return ApiResponse.ok(cursorPage(rows, size));
     }
 

@@ -134,10 +134,10 @@ public class SocialService {
         return row;
     }
 
-    public List<PostVO> feed(Long viewerId, Long targetUserId, Long cursorId, int size, boolean followingOnly, int type) {
+    public List<PostVO> feed(Long viewerId, Long targetUserId, Long cursorId, int size, boolean followingOnly, int type, int sort) {
         if (size < 1 || size > 100 || type < 1 || type > 4) throw new BizException(ErrorCode.PARAM_INVALID);
         if (followingOnly && viewerId == null) throw new BizException(ErrorCode.NOT_LOGIN);
-        List<PostVO> rows = queryMapper.selectFeed(viewerId, targetUserId, cursorId, size + 1, followingOnly, type);
+        List<PostVO> rows = queryMapper.selectFeed(viewerId, targetUserId, cursorId, size + 1, followingOnly, type, sort);
         rows.forEach(row -> {
             row.setIsSelf(row.getAuthorId().equals(viewerId));
             row.setImageList(parseImages(row.getImageUrls()));

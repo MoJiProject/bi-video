@@ -7,12 +7,12 @@
   min-width: 0;
   min-height: 100vh;
   background: #f6f8f3;
-  color: #2e4535;
+  color: var(--ink);
 
   .searchShell {
     padding: 24px var(--page-pad) 0;
     border-bottom: 1px solid #e3e9dd;
-    background: linear-gradient(110deg, #f3f7ed, #fffef9);
+    background: #fff;
   }
 
   .search-intro {
@@ -45,9 +45,9 @@
       padding: 12px 18px 15px;
       color: #788471;
     }
-    .aw.is-on { color: #365f3c; }
+    .aw.is-on { color: var(--brand); }
     .ac { height: 18px; margin: 0; border-radius: 6px; background: #eaf0e3; color: #839176; font-size: 10px; line-height: 18px; }
-    .sort-underline { height: 3px; background: #557b49; }
+    .sort-underline { height: 3px; background: var(--brand); }
   }
 
   .content { max-width: var(--page-max); padding-top: 24px; padding-bottom: 40px; }
@@ -91,15 +91,15 @@
     font-size: 12px;
     line-height: 32px;
 
-    &:hover { background: #f0f5e9; color: #3b603e; transition: all 0.3s ease; }
-    &.is-on { border-color: #e1ead5; background: #edf4e4; color: #3c633b; font-weight: 600; }
-    &:focus-visible { outline: 2px solid #6d905b; outline-offset: 2px; }
+    &:hover { background: #f0f5e9; color: var(--brand); transition: all 0.3s ease; }
+    &.is-on { border-color: #e1ead5; background: #edf4e4; color: var(--brand); font-weight: 600; }
+    &:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
   }
 
   .category-section {
     padding-bottom: 18px;
 
-    .chip.is-on { border-color: #486c47; background: #486c47; color: #fff; }
+    .chip.is-on { border-color: var(--brand); background: var(--brand); color: #fff; }
   }
 
   .filter-bar {

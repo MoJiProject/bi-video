@@ -97,18 +97,7 @@
                   :level="member.grade ?? 0"
                   size="xs"
                 />
-                <img
-                  v-if="member.gender === 1"
-                  class="member-gender"
-                  src="/img/man2.png"
-                  alt="男"
-                />
-                <img
-                  v-else-if="member.gender === 2"
-                  class="member-gender"
-                  src="/img/woman2.png"
-                  alt="女"
-                />
+                                <GenderIcon :gender="member.gender" :size="12" />
                 <small v-if="member.userId === currentUserId">我</small>
               </span>
               <span v-if="member.blacklisted" class="role-label blocked">已拉黑</span>
@@ -276,6 +265,7 @@ import {
 } from '../services/watchTogetherBridge';
 import { useGlobalStore } from '../store/store';
 import LevelBadge from '../components/LevelBadge.vue';
+import GenderIcon from '../components/GenderIcon.vue';
 
 const props = defineProps({
   videoElement: {

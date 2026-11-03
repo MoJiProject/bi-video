@@ -35,10 +35,14 @@
         >
         <span @click="intoVideo(video)" class="autoPlayVideo2-item-title">{{ video.videoTitle }}</span>
         </el-tooltip>
-        <span @click="openHome(1,video.userId)" class="autoPlayVideo2-item-right-username-container">
-            <img class="img1 avatar" :src="video.ownerAvatar || video.avatarAddress || '/img/avatar-default.png'" alt="">
-            <span class="autoPlayVideo2-item-right-username">{{ video.userName }}</span> 
-        </span>
+        <UserHoverCard :user-id="Number(video.userId) || 0" :avatar="video.ownerAvatar || video.avatarAddress || ''" :nickname="video.userName || ''" :avatar-size="24">
+          <template #reference>
+            <span @click="openHome(1,video.userId)" class="autoPlayVideo2-item-right-username-container">
+                <img class="img1 avatar" :src="video.ownerAvatar || video.avatarAddress || '/img/avatar-default.png'" alt="">
+                <span class="autoPlayVideo2-item-right-username">{{ video.userName }}</span>
+            </span>
+          </template>
+        </UserHoverCard>
         <span class="autoPlayVideo2-item-right-videoinfo-container">
             <img class="img1" src="/img/播放量灰.png">
             <span class="autoPlayVideo2-item-right-playNumber">{{ video.videoPlayNumber }}</span>
@@ -82,10 +86,14 @@
         >
         <span @click="intoVideo(video)" class="autoPlayVideo2-item-title">{{ video.videoTitle }}</span>
         </el-tooltip>
-        <span @click="openHome(1,video.userId)" class="autoPlayVideo2-item-right-username-container">
-            <img class="img1 avatar" :src="video.ownerAvatar || video.avatarAddress || '/img/avatar-default.png'" alt="">
-            <span class="autoPlayVideo2-item-right-username">{{ video.userName }}</span> 
-        </span>
+        <UserHoverCard :user-id="Number(video.userId) || 0" :avatar="video.ownerAvatar || video.avatarAddress || ''" :nickname="video.userName || ''" :avatar-size="24">
+          <template #reference>
+            <span @click="openHome(1,video.userId)" class="autoPlayVideo2-item-right-username-container">
+                <img class="img1 avatar" :src="video.ownerAvatar || video.avatarAddress || '/img/avatar-default.png'" alt="">
+                <span class="autoPlayVideo2-item-right-username">{{ video.userName }}</span>
+            </span>
+          </template>
+        </UserHoverCard>
         <span class="autoPlayVideo2-item-right-videoinfo-container">
             <img class="img1" src="/img/播放量灰.png">
             <span class="autoPlayVideo2-item-right-playNumber">{{ video.videoPlayNumber }}</span>
@@ -100,6 +108,7 @@
 </template>
 
 <script>
+import UserHoverCard from '../components/UserHoverCard.vue';
 import { onMounted, ref, watch } from 'vue';
 import apiClient from "../api/video/detail";
 import {useGlobalStore} from "../store/store";
@@ -107,6 +116,7 @@ import { navigateToVideo } from "../services/watchTogetherBridge";
 import { ElMessage } from "element-plus";
 export default {
     name: "autoPlayVideo2",
+    components: { UserHoverCard },
     setup(){
         const store = useGlobalStore();
         const setAutoPlayVideoList=ref(false);

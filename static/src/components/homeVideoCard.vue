@@ -62,15 +62,19 @@
         <div v-if="$slots.actions && !selectionMode" class="vcard-actions" @click.stop><slot name="actions"/></div>
       </div>
       <div class="vcard-meta">
-        <span class="vcard-author" @click.stop="openUser">
-          <img
-            class="vcard-avatar"
-            :src="video.ownerAvatar || DEFAULT_AVATAR"
-            alt=""
-            @error="(e) => (e.target.src = DEFAULT_AVATAR)"
-          />
-          <span class="vcard-author-name">{{ video.ownerNickname }}</span>
-        </span>
+        <UserHoverCard :user-id="Number(video.ownerId) || 0" :avatar="video.ownerAvatar || ''" :nickname="video.ownerNickname || ''" :avatar-size="20">
+          <template #reference>
+            <span class="vcard-author" @click.stop="openUser">
+              <img
+                class="vcard-avatar"
+                :src="video.ownerAvatar || DEFAULT_AVATAR"
+                alt=""
+                @error="(e) => (e.target.src = DEFAULT_AVATAR)"
+              />
+              <span class="vcard-author-name">{{ video.ownerNickname }}</span>
+            </span>
+          </template>
+        </UserHoverCard>
       </div>
 
       <div class="vcard-stats">
@@ -94,6 +98,7 @@
 <script setup>
 import { computed, onUnmounted, ref, watch } from "vue";
 import { useGlobalStore } from "../store/store";
+import UserHoverCard from "./UserHoverCard.vue";
 import { videoApi } from "../api/product";
 import { ElMessage } from "element-plus";
 
@@ -432,4 +437,5 @@ async function toggleMark() {
   fill: currentColor;
   opacity: .8;
 }
+  .user-hover { display: contents; }
 </style>

@@ -671,6 +671,36 @@
   .header.header-shell.header-stack-search .v-header-ul { column-gap: 4px; }
 }
 
+// 页头内没有搜索框的页（如搜索页 searchFlag=true）：小屏收成单行，
+// 行高 / 间距 / 控件尺寸与首页 header-stack-search 的首行一致，
+// 避免空的 .hd-search 占一整行、两个 1fr 列把功能项撑散、内容顶对齐不居中。
+@media (max-width: 559.98px) {
+  .header.header-shell:not(.header-stack-search):not(:has(.header-search-wrap)) {
+    .v-header-ul {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+      grid-template-rows: 40px;
+      align-content: center;
+      gap: 8px 12px;
+      padding: 8px 0;
+    }
+
+    .v-header-ul > li { min-width: 0; height: 100%; justify-content: flex-start; }
+    .v-header-ul > li.hd-search { display: none; }
+    .header-menu-button,
+    .header-login { min-height: 36px; height: 36px; }
+    .v-header-ul > li.hd-publish .upload { height: 36px; }
+  }
+}
+
+@media (max-width: 480px) {
+  .header.header-shell:not(.header-stack-search):not(:has(.header-search-wrap)) .v-header-ul { column-gap: 6px; }
+}
+
+@media (max-width: 380px) {
+  .header.header-shell:not(.header-stack-search):not(:has(.header-search-wrap)) .v-header-ul { column-gap: 4px; }
+}
+
 @media (max-width: 980px) {
   .header.header-shell {
     .header-menu-label,

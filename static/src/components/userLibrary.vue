@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <section class="library" :class="{ 'library--logged-out': !store.token }" :aria-label="title">
     <header class="library-head">
       <h1><span class="library-icon" aria-hidden="true">
@@ -96,10 +96,14 @@
                   </el-dropdown-item>
                 </ContentMoreMenu>
               </div>
-              <a v-if="video.ownerId && video.available !== false" :href="`/home?userId=${video.ownerId}`" class="author" target="_blank" rel="noopener noreferrer" :tabindex="managing ? -1 : undefined">
-                <img src="/img/author-badge-default.png" alt="创作者"/>
-                <template v-for="(part, index) in highlight(video.ownerNickname)" :key="index"><mark v-if="part.match">{{ part.text }}</mark><template v-else>{{ part.text }}</template></template>
-              </a>
+              <UserHoverCard v-if="video.ownerId && video.available !== false" :user-id="Number(video.ownerId) || 0" :avatar="video.ownerAvatar || ''" :nickname="video.ownerNickname || ''" :avatar-size="16">
+                <template #reference>
+                  <a :href="`/home?userId=${video.ownerId}`" class="author" target="_blank" rel="noopener noreferrer" :tabindex="managing ? -1 : undefined">
+                    <img :src="video.ownerAvatar || '/img/avatar-default.png'" alt="创作者"/>
+                    <template v-for="(part, index) in highlight(video.ownerNickname)" :key="index"><mark v-if="part.match">{{ part.text }}</mark><template v-else>{{ part.text }}</template></template>
+                  </a>
+                </template>
+              </UserHoverCard>
               <p class="entry-time">{{ isHistory ? '观看于' : '添加于' }} {{ displayTime(isHistory ? video.lastWatchedAt : video.addedAt) }}</p>
             </article>
           </div>
@@ -128,6 +132,7 @@ import { authApi } from '@/api/product';
 import { put } from '@/services/http';
 import { useGlobalStore } from '@/store/store';
 import loadingIndicator from './loadingIndicator.vue';
+import UserHoverCard from './UserHoverCard.vue';
 import ContentMoreMenu from './ContentMoreMenu.vue';
 
 const props = defineProps({ kind: { type: String, required: true } });
@@ -474,7 +479,7 @@ onBeforeUnmount(() => { generation++; activeRequest?.abort(); observer?.disconne
 .group-title::before { content: ''; flex: none; height: 16px; width: 4px; border-radius: 4px; background: var(--brand); }
 .group-title::after { content: ''; flex: 1; height: 1px; margin-left: 6px; background: var(--line); }
 .group-title > span { padding: 2px 7px; border-radius: 6px; background: #fff; color: var(--ink-3); font-size: 11px; font-weight: 400; }
-.videos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 20px; }
+.videos { display: grid; grid-template-columns: repeat(auto-fill, minmax(max(240px, calc(20% - 20px)), 1fr)); gap: 20px; }
 .library-video { min-width: 0; padding: 8px 8px 14px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
 .library-video.selected { border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand); }
 .library-video.is-selecting { cursor: pointer; transition: none; }
@@ -491,8 +496,8 @@ onBeforeUnmount(() => { generation++; activeRequest?.abort(); observer?.disconne
 .video-title { flex: 1; min-width: 0; min-height: 44px; color: var(--ink); font-size: 14px; font-weight: 500; line-height: 22px; text-decoration: none; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .video-heading .content-more { margin-top: -2px; }
 .library-video:not(.is-selecting) .video-title:hover, .library-video:not(.is-selecting) .author:hover { color: var(--brand); transition: all 0.3s ease; }
-.author { display: block; margin: 8px 4px 0; color: var(--ink-2); font-size: 12px; line-height: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none; }
-.author img { width: 16px; height: 16px; vertical-align: middle; margin-right: 4px; }
+.author { display: inline-flex; align-items: center; margin: 8px 4px 0; color: var(--ink-2); font-size: 13px; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none; }
+.author img { width: 20px; height: 20px; vertical-align: middle; margin-right: 6px; border-radius: 50%; }
 .entry-time { margin: 8px 4px 0; color: var(--ink-3); font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 mark { color: var(--brand); background: none; }
 .unavailable { display: grid; place-items: center; height: 100%; color: var(--ink-3); font-size: 13px; }
@@ -512,7 +517,7 @@ mark { color: var(--brand); background: none; }
   .library-selection { flex-basis: 100%; gap: 8px; }
   .date-tools :deep(.el-date-editor) { max-width: min(100%, 280px); }
   .library-content { padding-top: 20px; }
-  .videos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 12px; }
+  .videos { grid-template-columns: minmax(0, 1fr); gap: 14px 12px; }
   .library-video { padding: 6px 6px 12px; border-radius: 13px; }
   .cover { border-radius: 8px; }
   .video-heading { margin-top: 10px; }
@@ -526,6 +531,7 @@ mark { color: var(--brand); background: none; }
   .library-video { transition: border-color .18s, box-shadow .18s; }
   .library-video:not(.is-selecting):hover { border-color: var(--brand-light-5); box-shadow: 0 4px 18px rgba(29, 64, 43, .05); transition: all 0.3s ease; }
 }
+  .user-hover { display: contents; }
 </style>
 
 <style>

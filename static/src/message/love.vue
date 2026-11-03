@@ -21,7 +21,11 @@
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a :href="'./home?homeMenu=1&userId='+love.userInfoList[0].id" target="_blank"><img class="love-user-avatar" :src="love.userInfoList[0].avatarAddress"></a>
+                  <UserHoverCard :user-id="Number(love.userInfoList[0].id) || 0" :avatar="love.userInfoList[0].avatarAddress || ''" :nickname="love.userInfoList[0].userName || ''" :avatar-size="32">
+                     <template #reference>
+                       <a :href="'./home?homeMenu=1&userId='+love.userInfoList[0].id" target="_blank"><img class="love-user-avatar" :src="love.userInfoList[0].avatarAddress"></a>
+                     </template>
+                   </UserHoverCard>
               </el-tooltip>
               <div class="love-right-content">
                  <div class="love-right-content-top">
@@ -35,7 +39,11 @@
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a :href="'./home?homeMenu=1&userId='+love.userInfoList[0].id" target="_blank">{{ love.userInfoList[0].userName }}</a>
+                  <UserHoverCard :user-id="Number(love.userInfoList[0].id) || 0" :avatar="love.userInfoList[0].avatarAddress || ''" :nickname="love.userInfoList[0].userName || ''" :avatar-size="14">
+                     <template #reference>
+                       <a :href="'./home?homeMenu=1&userId='+love.userInfoList[0].id" target="_blank">{{ love.userInfoList[0].userName }}</a>
+                     </template>
+                   </UserHoverCard>
                   </el-tooltip>
                   <span v-if="love.likes.likeType===1" class="love-list" @click="selectLikeUserF(love)">赞了我的视频</span>
                   <span v-else-if="love.likes.likeType===2" class="love-list" @click="selectLikeUserF(love)">赞了我的评论</span>
@@ -143,7 +151,11 @@
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a :href="'./home?homeMenu=1&userId='+love.userInfoList[1].id" target="_blank">{{ love.userInfoList[1].userName }}</a>
+                  <UserHoverCard :user-id="Number(love.userInfoList[1].id) || 0" :avatar="love.userInfoList[1].avatarAddress || ''" :nickname="love.userInfoList[1].userName || ''" :avatar-size="14">
+                     <template #reference>
+                       <a :href="'./home?homeMenu=1&userId='+love.userInfoList[1].id" target="_blank">{{ love.userInfoList[1].userName }}</a>
+                     </template>
+                   </UserHoverCard>
                   </el-tooltip>
                   <span v-if="love.comments!==null" class="love-list" @click="selectLikeUserF(love)">赞了我的评论</span>
                   <span v-else class="love-list" @click="selectLikeUserF(love)">赞了我的视频</span>
@@ -250,7 +262,11 @@
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a :href="'./home?homeMenu=1&userId='+love.userInfoList[1].id" target="_blank">{{ love.userInfoList[1].userName }}</a>
+                  <UserHoverCard :user-id="Number(love.userInfoList[1].id) || 0" :avatar="love.userInfoList[1].avatarAddress || ''" :nickname="love.userInfoList[1].userName || ''" :avatar-size="14">
+                     <template #reference>
+                       <a :href="'./home?homeMenu=1&userId='+love.userInfoList[1].id" target="_blank">{{ love.userInfoList[1].userName }}</a>
+                     </template>
+                   </UserHoverCard>
                   </el-tooltip>
                   <span v-if="love.comments!==null" class="love-list" @click="selectLikeUserF(love)">等总计{{ love.comments.likeCommentNumber }}人赞了我的评论</span>
                   <span v-else class="love-list" @click="selectLikeUserF(love)">等总计{{ love.videos.likeNumber }}人赞了我的视频</span>
@@ -388,6 +404,7 @@
   </template>
   
   <script setup>
+import UserHoverCard from '@/components/UserHoverCard.vue';
   import { onMounted, reactive, ref, watch } from 'vue'
   import {useGlobalStore} from "../store/store";
   import { ElMessage } from "element-plus";   
@@ -1225,4 +1242,5 @@ function addImgFlagF(comment){
   }
 }
   
+  .user-hover { display: inline; vertical-align: middle; }
 </style>

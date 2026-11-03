@@ -96,11 +96,23 @@ function read(path, params) {
     }), params);
   }
   if (path === "/home/dynamicImg") return page(posts, params);
+  if (path === "/search/user") {
+    const rows = profiles.slice(1).map((row) => ({
+      userId: row.userId,
+      userName: row.nickname,
+      avatarAddress: row.avatarUrl,
+      grade: row.level || 0,
+      fansNumber: row.followerCount || 0,
+      videoNumber: row.videoCount || 0,
+      introduce: row.signature || "",
+      gender: row.gender || 1,
+    }));
+    return page(rows, params);
+  }
   if (
     path === "/home/relations" ||
     path === "/relation/list" ||
-    path === "/user/mentions" ||
-    path === "/search/user"
+    path === "/user/mentions"
   )
     return page(profiles.slice(1), params);
   if (path === "/post/authors")

@@ -14,7 +14,11 @@
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a :href="'./home?homeMenu=1&userId='+at.userId" target="_blank"><img class="at-user-avatar" :src="at.avatarAddress"></a>
+                  <UserHoverCard :user-id="Number(at.userId) || 0" :avatar="at.avatarAddress || ''" :nickname="at.userName || ''" :avatar-size="32">
+                     <template #reference>
+                       <a :href="'./home?homeMenu=1&userId='+at.userId" target="_blank"><img class="at-user-avatar" :src="at.avatarAddress"></a>
+                     </template>
+                   </UserHoverCard>
               </el-tooltip>
               <div v-if="at.comments" class="at-right-content">
                  <div class="at-right-content-top">
@@ -28,7 +32,11 @@
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a :href="'./home?homeMenu=1&userId='+at.userId" target="_blank">{{ at.userName }}</a>
+                  <UserHoverCard :user-id="Number(at.userId) || 0" :avatar="at.avatarAddress || ''" :nickname="at.userName || ''" :avatar-size="14">
+                     <template #reference>
+                       <a :href="'./home?homeMenu=1&userId='+at.userId" target="_blank">{{ at.userName }}</a>
+                     </template>
+                   </UserHoverCard>
                   </el-tooltip>
                   <span>在评论中@了我</span>
                 </div>
@@ -122,7 +130,11 @@
               </div>
               <div v-else-if="at.at.videoId" class="at-right-content">
                 <div class="at-right-content-top">
-                  <a :href="'./home?homeMenu=1&userId='+at.userId" target="_blank">{{ at.userName }}</a>
+                  <UserHoverCard :user-id="Number(at.userId) || 0" :avatar="at.avatarAddress || ''" :nickname="at.userName || ''" :avatar-size="14">
+                     <template #reference>
+                       <a :href="'./home?homeMenu=1&userId='+at.userId" target="_blank">{{ at.userName }}</a>
+                     </template>
+                   </UserHoverCard>
                   <span>在视频中@了我</span>
                 </div>
                 <a :href="'./video?videoId=BV'+at.at.videoId" target="videoWindow">
@@ -144,7 +156,11 @@
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a :href="'./home?homeMenu=1&userId='+at.userId" target="_blank">{{ at.userName }}</a>
+                  <UserHoverCard :user-id="Number(at.userId) || 0" :avatar="at.avatarAddress || ''" :nickname="at.userName || ''" :avatar-size="14">
+                     <template #reference>
+                       <a :href="'./home?homeMenu=1&userId='+at.userId" target="_blank">{{ at.userName }}</a>
+                     </template>
+                   </UserHoverCard>
                   </el-tooltip>
                   <span>在动态中@了我</span>
                 </div>
@@ -212,6 +228,7 @@
   </template>
   
   <script setup>
+import UserHoverCard from '@/components/UserHoverCard.vue';
   import { nextTick, onMounted, reactive, ref } from 'vue'
   import {useGlobalStore} from "../store/store";
   import { ElMessage } from "element-plus";   
@@ -887,4 +904,5 @@ function addImgFlagF(comment){
     }
   }
   
-  </style>
+    .user-hover { display: inline; vertical-align: middle; }
+</style>

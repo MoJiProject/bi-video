@@ -9,6 +9,9 @@ import com.qingmang.interfaces.dto.UserSearchQuery;
 import com.qingmang.interfaces.vo.KeywordVO;
 import com.qingmang.interfaces.vo.UserSearchItemVO;
 import com.qingmang.interfaces.vo.VideoListItemVO;
+import com.qingmang.interfaces.vo.PostVO;
+import com.qingmang.infrastructure.mapper.SocialQueryMapper;
+import com.qingmang.support.AuthContext;
 import com.qingmang.support.AuthContext;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -25,10 +28,12 @@ import java.util.List;
 public class SearchService {
 
     private final SearchQueryMapper queryMapper;
+    private final SocialQueryMapper socialQueryMapper;
     private final SearchRecorder recorder;
 
-    public SearchService(SearchQueryMapper queryMapper, SearchRecorder recorder) {
+    public SearchService(SearchQueryMapper queryMapper, SocialQueryMapper socialQueryMapper, SearchRecorder recorder) {
         this.queryMapper = queryMapper;
+        this.socialQueryMapper = socialQueryMapper;
         this.recorder = recorder;
     }
 
@@ -79,6 +84,26 @@ public class SearchService {
             rows = rows.subList(0, size);
         }
         // 有下一页时同样不查总数，-1 表示「总数未知」
+        return ApiResponse.ok(PageResult.of(rows, hasMore ? -1 : offset + rows.size(), pageNum, size));
+    }
+
+    public ApiResponse<PageResult<PostVO>> searchPosts(SearchQuery q) {
+        String keyword = q.getKeyword() == null ? "" : q.getKeyword().trim();
+        if (keyword.isEmpty()) {
+            return ApiResponse.ok(PageResult.empty(q.getPageNum(), q.getPageSize()));
+        }
+        int size = Math.min(Math.max(q.getPageSize() == null ? BizConstants.DEFAULT_PAGE_SIZE : q.getPageSize(), 1),
+                BizConstants.MAX_PAGE_SIZE);
+        long pageNum = Math.max(q.getPageNum() == null ? 1L : q.getPageNum(), 1L);
+        long offset = (pageNum - 1) * size;
+        List<PostVO> rows = socialQueryMapper.searchPosts(
+                AuthContext.currentUserIdOrNull(), keyword, q.getSort(),
+                Boolean.TRUE.equals(q.getFollowingOnly()), q.getType() == null ? 1 : q.getType(),
+                (int) offset, size + 1);
+        boolean hasMore = rows.size() > size;
+        if (hasMore) {
+            rows = rows.subList(0, size);
+        }
         return ApiResponse.ok(PageResult.of(rows, hasMore ? -1 : offset + rows.size(), pageNum, size));
     }
 }

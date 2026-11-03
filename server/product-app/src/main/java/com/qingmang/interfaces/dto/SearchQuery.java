@@ -19,6 +19,11 @@ public class SearchQuery {
 
     private Long cursorId;
 
+    private Boolean followingOnly = false;
+
+    /** 1 全部 2 视频 3 图文 4 图片 */
+    private Integer type = 1;
+
     private Long pageNum = 1L;
 
     @Min(1)

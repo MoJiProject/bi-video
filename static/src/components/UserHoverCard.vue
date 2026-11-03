@@ -16,6 +16,7 @@
         <div>
           <a class="profile-name" :href="homeHref" :title="profile.nickname">{{ profile.nickname }}</a>
           <span v-if="profile.level != null" class="profile-level">Lv.{{ profile.level }}</span>
+          <GenderIcon :gender="profile.gender" :size="14" />
         </div>
       </div>
       <div class="profile-body">
@@ -29,7 +30,8 @@
           <el-button size="small" :type="profile.followed ? '' : 'primary'" :loading="following"
             :disabled="isSelf || messaging" :title="isSelf ? '不能关注自己' : ''"
             :aria-pressed="!!profile.followed" @click="toggleFollow">
-            {{ profile.followed ? '已关注' : '+ 关注' }}
+            <FollowIcon :followed="profile.followed" :size="12" />
+            {{ profile.followed ? '已关注' : '关注' }}
           </el-button>
           <el-button size="small" :loading="messaging" :disabled="isSelf || following"
             :title="isSelf ? '不能给自己发消息' : ''" @click="sendMessage">发消息</el-button>
@@ -38,7 +40,7 @@
     </section>
   </div>
   <span v-else class="user-hover" @click.stop>
-    <el-popover trigger="hover" :trigger-keys="['Space']" placement="bottom-start"
+    <el-popover trigger="hover" :trigger-keys="['Space']" :placement="popoverPlacement"
       :width="300" :show-after="200" :hide-after="250" :show-arrow="false" :teleported="teleported"
       :popper-style="{ maxWidth: 'calc(100vw - 32px)', padding: '0', borderRadius: '16px', overflow: 'hidden' }"
       @show="loadProfile">
@@ -65,12 +67,13 @@
               <img :src="profile.avatarUrl" alt="">
             </a>
             <div>
-              <a class="profile-name" :href="homeHref" :title="profile.nickname">{{ profile.nickname }}</a>
-              <span v-if="profile.level != null" class="profile-level">Lv.{{ profile.level }}</span>
-            </div>
-          </div>
-          <div class="profile-body">
-            <div class="profile-stats">
+          <a class="profile-name" :href="homeHref" :title="profile.nickname">{{ profile.nickname }}</a>
+          <span v-if="profile.level != null" class="profile-level">Lv.{{ profile.level }}</span>
+          <GenderIcon :gender="profile.gender" :size="14" />
+        </div>
+      </div>
+      <div class="profile-body">
+        <div class="profile-stats">
               <a :href="`/home?userId=${userId}&homeMenu=8`" :aria-label="`${profile.nickname}的关注列表`"><strong>{{ profile.followingCount ?? '--' }}</strong><span>关注</span></a>
               <a :href="`/home?userId=${userId}&homeMenu=9`" :aria-label="`${profile.nickname}的粉丝列表`"><strong>{{ profile.followerCount ?? '--' }}</strong><span>粉丝</span></a>
               <div><strong>{{ profile.likeReceived ?? '--' }}</strong><span>获赞</span></div>
@@ -80,7 +83,8 @@
               <el-button size="small" :type="profile.followed ? '' : 'primary'" :loading="following"
                 :disabled="isSelf || messaging" :title="isSelf ? '不能关注自己' : ''"
                 :aria-pressed="!!profile.followed" @click="toggleFollow">
-                {{ profile.followed ? '已关注' : '+ 关注' }}
+                <FollowIcon :followed="profile.followed" :size="12" />
+            {{ profile.followed ? '已关注' : '关注' }}
               </el-button>
               <el-button size="small" :loading="messaging" :disabled="isSelf || following"
                 :title="isSelf ? '不能给自己发消息' : ''" @click="sendMessage">发消息</el-button>
@@ -93,12 +97,14 @@
 </template>
 
 <script setup>
-import { computed, onUnmounted, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { authApi, socialApi } from '@/api/product';
 import { addDialogue } from '@/api/privateMessage';
 import { useGlobalStore } from '@/store/store';
+import GenderIcon from './GenderIcon.vue';
+import FollowIcon from './FollowIcon.vue';
 
 const props = defineProps({
   userId: { type: Number, required: true },
@@ -115,6 +121,12 @@ const props = defineProps({
   initialProfile: { type: Object, default: null },
 });
 const emit = defineEmits(['card-mouseenter', 'card-mouseleave']);
+const isSmallScreen = ref(typeof window !== "undefined" ? window.innerWidth <= 768 : false);
+function updateScreen() { if (typeof window !== "undefined") isSmallScreen.value = window.innerWidth <= 768; }
+onMounted(() => { if (typeof window !== "undefined") window.addEventListener("resize", updateScreen); });
+onBeforeUnmount(() => { if (typeof window !== "undefined") window.removeEventListener("resize", updateScreen); });
+const popoverPlacement = computed(() => (isSmallScreen.value ? "bottom-start" : "right-start"));
+
 const store = useGlobalStore();
 const router = useRouter();
 const profile = ref(null);
@@ -133,6 +145,7 @@ function applyLegacyProfile(raw) {
     avatarUrl: raw.avatarAddress ?? raw.avatarUrl,
     backgroundUrl: raw.backgroundAddress ?? raw.backgroundUrl,
     level: raw.grade ?? raw.level,
+    gender: raw.gender,
     followingCount: raw.followNumber ?? raw.followingCount,
     followerCount: raw.fansNumber ?? raw.followerCount,
     likeReceived: raw.likeNumber ?? raw.likeReceived,
@@ -232,6 +245,9 @@ onUnmounted(() => { generation++; });
 .profile-name { min-width: 0; overflow: hidden; font-size: 15px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .profile-name:hover { color: var(--brand-hover); transition: all 0.3s ease; }
 .profile-level { flex: none; padding: 1px 5px; border-radius: 4px; background: var(--brand-light-9); color: var(--brand-hover); font-size: 10px; }
+.profile-gender { font-size: 14px; margin-left: 4px; vertical-align: middle; font-weight: 700; }
+.profile-gender.male { color: #1890ff; }
+.profile-gender.female { color: #ff4d4f; }
 .profile-body { padding: 8px 16px 10px; }
 .profile-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .profile-stats > div, .profile-stats > a { display: flex; align-items: center; gap: 5px; min-width: 0; color: var(--ink-3); font-size: 12px; }

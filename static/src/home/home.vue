@@ -1,4 +1,4 @@
-<template>
+﻿<template>
     <div class="home" :class="{ 'without-profile': !showProfile }">
         <SpaceProfileCard v-if="!loadMore && showProfile"/>
         <div class="home-content">
@@ -282,6 +282,7 @@ function getSort(){
         .magnum-video{
         position: relative;
         top: 35px;
+        .home-videos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         width: 100%;
         margin-bottom: 34.5px;
         padding-bottom: 24px;
@@ -475,7 +476,7 @@ function getSort(){
             column-gap: 16px;
             row-gap: 23px;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(min(100%, 193px), 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(max(193px, calc(20% - 20px)), 1fr));
                 .video-item{
                     cursor: pointer;
                     position: relative;
@@ -849,4 +850,11 @@ function getSort(){
   .home-user-info-public { margin-left: 0 !important; }
 }
 
+
+@media (max-width: 1200px) {
+  .home .home-div .magnum-video .home-videos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .home .home-div .magnum-video .home-videos { grid-template-columns: minmax(0, 1fr); }
+}
 </style>

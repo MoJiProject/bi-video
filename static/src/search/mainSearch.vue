@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="search-page">
     <div id="fixedBox" class="hiddenBox" :class="{ showHiddenBox: isVisible }">
       <a class="sticky-search-home" href="/" aria-label="返回青芒视频首页">青芒</a>
@@ -194,47 +194,30 @@
                 v-for="(user, index) in searchUserList"
                 :key="index"
               >
-                <img
-                  :src="user.avatarAddress"
-                  @click="openHome(user.userId)"
-                />
-
-                <el-tooltip
-                  popper-class="custom-tooltip1"
-                  class="box-item"
-                  effect="light"
-                  :content="user.userName"
-                  placement="right"
-                  :show-arrow="false"
-                  :offset="20"
-                >
-                  <span
-                    class="user-Name"
-                    @click="openHome(user.userId)"
-                  >{{ user.userName }}
-                    <LevelBadge
-                      v-if="user.grade > 0 && user.grade <= 10"
-                      :level="user.grade"
-                      class="user-grade"
-                      size="xs"
+                <UserHoverCard :user-id="Number(user.userId) || 0" :avatar="user.avatarAddress || ''" :nickname="user.userName || ''" :avatar-size="40">
+                  <template #reference>
+                    <img
+                      :src="user.avatarAddress"
+                      @click="openHome(user.userId)"
                     />
-                  </span>
-                </el-tooltip>
-                <el-tooltip
-                  popper-class="custom-tooltip1"
-                  class="box-item"
-                  effect="light"
-                  :content="
-                    userContent(
-                      user.fansNumber,
-                      user.videoNumber,
-                      user.introduce
-                    )
-                  "
-                  placement="right"
-                  :offset="-350"
-                  :show-arrow="false"
-                >
+                  </template>
+                </UserHoverCard>
+
+                   <UserHoverCard :user-id="Number(user.userId) || 0" :avatar="user.avatarAddress || ''" :nickname="user.userName || ''" :avatar-size="14">
+                     <template #reference>
+                       <span
+                       class="user-Name"
+                       @click="openHome(user.userId)"
+                       >{{ user.userName }}
+                       <LevelBadge
+                       v-if="user.grade > 0 && user.grade <= 10"
+                       :level="user.grade"
+                       class="user-grade"
+                       size="xs"
+                       />
+                       </span>
+                     </template>
+                   </UserHoverCard>
                   <div class="userInfo-Content">
                     <span>{{ user.fansNumber }}粉丝 </span>
                     <span style="margin-left: 5.5px; margin-right: 5.5px"
@@ -243,7 +226,6 @@
                     <span>{{ user.videoNumber }}个视频 </span>
                     <span class="introduce">{{ user.introduce }}</span>
                   </div>
-                </el-tooltip>
                 <div
                   v-if="!user.followed"
                   class="follow"
@@ -282,6 +264,53 @@
               </div>
           </div>
         </div>
+         <div v-if="clickFlag8" class="videoSort">
+           <section class="search-filters" aria-label="动态筛选" style="margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px;">
+             <div class="filter-section">
+               <span class="filter-label">范围</span>
+               <div class="filter-row">
+                 <button
+                   v-for="(opt, i) in POST_SCOPE"
+                   :key="'pscope' + i"
+                   type="button"
+                   class="chip"
+                   :class="{ 'is-on': postScopeIndex === i }"
+                   @click="applyPostScope(i)"
+                 >{{ opt }}</button>
+               </div>
+             </div>
+             <div class="filter-section">
+               <span class="filter-label">类型</span>
+               <div class="filter-row">
+                 <button
+                   v-for="(opt, i) in POST_TYPE"
+                   :key="'ptype' + i"
+                   type="button"
+                   class="chip"
+                   :class="{ 'is-on': postTypeIndex === i }"
+                   @click="applyPostType(i)"
+                 >{{ opt }}</button>
+               </div>
+             </div>
+             <div class="filter-section">
+               <span class="filter-label">排序</span>
+               <div class="filter-row">
+                 <button
+                   v-for="(opt, i) in POST_SORT"
+                   :key="'psort' + i"
+                   type="button"
+                   class="chip"
+                   :class="{ 'is-on': postSortIndex === i }"
+                   @click="applyPostSort(i)"
+                 >{{ opt.label }}</button>
+               </div>
+             </div>
+           </section>
+           <AppEmptyState v-if="!searchPostList.length" kind="search" title="没有找到相关动态" description="试试其他关键词"/>
+           <div class="search-post-item" v-for="post in searchPostList" :key="post.id">
+             <homePost :dynamic="post" />
+           </div>
+         </div>
       </div>
     </div>
     <el-backtop :right="16" :bottom="24"/>
@@ -292,7 +321,9 @@
 import head1 from "../components/mainHead.vue";
 import LevelBadge from "../components/LevelBadge.vue";
 import Searcha from "../components/search.vue";
+import UserHoverCard from '@/components/UserHoverCard.vue';
 import homeVideoCard from "../components/homeVideoCard.vue";
+import homePost from "../home/homePost.vue";
 import { computed, reactive, nextTick, onMounted, ref, watch, onUnmounted } from "vue";
 import { searchApi, socialApi, videoApi } from "../api/product";
 import { ElMessage } from "element-plus";
@@ -320,6 +351,14 @@ const USER_SORT = [
   { label: "Lv等级由低到高" },
 ];
 
+const POST_SORT = [
+  { label: "最新" },
+  { label: "最早" },
+];
+
+const POST_SCOPE = ["公开动态", "关注动态"];
+const POST_TYPE = ["全部", "视频", "图文", "图片"];
+
 const DATE = [
   { label: "全部日期" },
   { label: "最近一天" },
@@ -341,7 +380,9 @@ export default {
     head1,
     LevelBadge,
     Searcha,
+    UserHoverCard,
     homeVideoCard,
+    homePost,
   },
 
   setup() {
@@ -366,8 +407,10 @@ export default {
       classifyIndex: "",
       videoTotal: 0,
       userTotal: 0,
+      postTotal: 0,
     });
     const searchUserList = reactive([]);
+    const searchPostList = reactive([]);
     const expanded = ref(false);
     const windowWidth = ref(0);
     const Videos = reactive([]);
@@ -389,7 +432,7 @@ export default {
       isVisible.value = scrollPosition > 155; // 当滚动超过155px时显示盒子
     };
     const datea = ref("");
-const clickFlag = ref(1);
+const clickFlag = ref(2);
 const clickFlag1 = computed(() => clickFlag.value === 1);
 const clickFlag2 = computed(() => clickFlag.value === 2);
 const clickFlag3 = computed(() => clickFlag.value === 3);
@@ -397,13 +440,14 @@ const clickFlag4 = computed(() => clickFlag.value === 4);
 const clickFlag5 = computed(() => clickFlag.value === 5);
 const clickFlag6 = computed(() => clickFlag.value === 6);
 const clickFlag7 = computed(() => clickFlag.value === 7);
+const clickFlag8 = computed(() => clickFlag.value === 8);
 
 // 结果分类页签。原来是 7 个 ref + 7 个各自把另外 6 个置 false 的函数，
 // 写错一个就会让两个 tab 同时高亮。改成单一 clickFlag，页签表由它派生。
 const resultTabs = computed(() => [
-  { flag: 1, label: "综合", total: null },
   { flag: 2, label: "视频", total: acceptSearchData.videoTotal },
   { flag: 7, label: "用户", total: acceptSearchData.userTotal },
+  { flag: 8, label: "动态", total: acceptSearchData.postTotal },
 ]);
 
 const tabEls = new Map();
@@ -434,11 +478,15 @@ watch(
 
     onMounted(() => {
       nextTick(measureSortLine);
+      window.addEventListener('resize', () => nextTick(measureSortLine));
     });
     // 四个筛选维度的当前选中项下标。原先是 42 个布尔 flag，
     // 每点一次要把同维度的其余 flag 全部置 false。
     const sortIndex = ref(0);
     const userSortIndex = ref(0);
+const postSortIndex = ref(0);
+const postScopeIndex = ref(0);
+const postTypeIndex = ref(0);
     const dateIndex = ref(0);
     const timeIndex = ref(0);
     const classifyIndexRef = ref(0);
@@ -482,40 +530,49 @@ watch(
       }else if(clickFlag7.value){
         userPageNum.value = 1;
         selectUsersAxios();
+      }else if(clickFlag8.value){
+        selectPostsAxios();
       }
    }
 
-    function ClickFlag(n) {
-      clickFlag.value = n;
-      nextTick(measureSortLine);
-      if (n === 7) {
-        selectUsersAxios();
-      }
-    }
+     function ClickFlag(n) {
+       clickFlag.value = n;
+       nextTick(measureSortLine);
+       if (n === 7) {
+         selectUsersAxios();
+       } else if (n === 8) {
+         selectPostsAxios();
+       }
+     }
     /* ---------- 筛选 ----------
        原来这里是 42 个 Click*FlagN 函数：每个函数把自己的 flag 置 true、
        同一维度的其余 4~21 个 flag 逐一置 false，分类组每个函数 22 行赋值，
        整块 770 行。五组筛选其实是同一个「单选」结构，收成一个 applyFilter。 */
-    function applyFilter(dim, index) {
-      if (dim === "classify") {
-        acceptSearchData.classify = CLASSIFY.value[index].value || CLASSIFY.value[index].label;
-        const params = new URLSearchParams(window.location.search);
-        params.delete("categoryId");
-        params.delete("classifyIndex");
-        if (index === 0) params.delete("categoryName");
-        else params.set("categoryName", acceptSearchData.classify);
-        window.history.replaceState({}, document.title, `${window.location.pathname}?${params.toString()}`);
-      } else {
-        acceptSearchData[dim] = index;
-      }
-      if (dim === "userSort") {
-        userPageNum.value = 1;
-        selectUsersAxios();
-        return;
-      }
-      videoPageNum.value = 1;
-      searchByKeyWordVideo();
-    }
+     function applyFilter(dim, index) {
+       if (dim === "sort") sortIndex.value = index;
+       else if (dim === "date") dateIndex.value = index;
+       else if (dim === "time") timeIndex.value = index;
+       else if (dim === "userSort") userSortIndex.value = index;
+       else if (dim === "classify") {
+         acceptSearchData.classify = CLASSIFY.value[index].value || CLASSIFY.value[index].label;
+         classifyIndexRef.value = index;
+         const params = new URLSearchParams(window.location.search);
+         params.delete("categoryId");
+         params.delete("classifyIndex");
+         if (index === 0) params.delete("categoryName");
+         else params.set("categoryName", acceptSearchData.classify);
+         window.history.replaceState({}, document.title, `${window.location.pathname}?${params.toString()}`);
+       } else {
+         acceptSearchData[dim] = index;
+       }
+       if (dim === "userSort") {
+         userPageNum.value = 1;
+         selectUsersAxios();
+         return;
+       }
+       videoPageNum.value = 1;
+       searchByKeyWordVideo();
+     }
     // 保留原函数名，模板里的 @click 不必逐个改
     const ClickSortFlag1 = () => applyFilter("sort", 0);
     const ClickSortFlag2 = () => applyFilter("sort", 1);
@@ -586,8 +643,9 @@ watch(
       } catch (error) {
         ElMessage.error(error.message || "搜索分区加载失败");
       }
-      await searchByKeyWordVideoOnce();
-      selectUsersAxios();
+       await searchByKeyWordVideoOnce();
+       selectUsersAxios();
+       selectPostsAxios();
       const classifyTitle =
         CLASSIFY.value.find((c) => (c.value || c.label) === acceptSearchData.classify)?.label ||
         acceptSearchData.classify;
@@ -716,6 +774,61 @@ watch(
       }
     }
 
+    //根据关键词搜索动态
+    async function selectPostsAxios() {
+      try {
+        const keyWord = currentKeyword();
+        if (!keyWord) {
+          searchPostList.length = 0;
+          acceptSearchData.postTotal = 0;
+          return;
+        }
+        acceptSearchData.keyWord = keyWord;
+        const data = await searchApi.posts({
+          keyword: keyWord,
+          sort: postSortIndex.value === 0 ? "newest" : "oldest",
+          followingOnly: postScopeIndex.value === 1,
+          type: postTypeIndex.value === 0 ? 1 : postTypeIndex.value + 1,
+          pageNum: 1,
+          pageSize: 20,
+        });
+        if (!data) return;
+        const records = data.records || [];
+        searchPostList.length = 0;
+        Object.assign(searchPostList, records);
+        sortPosts();
+        acceptSearchData.postTotal = normalizeTotal(data.total, records.length);
+      } catch (error) {
+        ElMessage({
+          message: "未知错误",
+          type: "error",
+          duration: 1700,
+        });
+      }
+    }
+
+
+    function applyPostSort(index) {
+      postSortIndex.value = index;
+      sortPosts();
+    }
+    function sortPosts() {
+      searchPostList.sort((a, b) => {
+        const cmp = String(a.createdAt || '').localeCompare(String(b.createdAt || ''));
+        return postSortIndex.value === 0 ? -cmp : cmp;
+      });
+    }
+
+
+    function applyPostScope(index) {
+      postScopeIndex.value = index;
+      selectPostsAxios();
+    }
+    function applyPostType(index) {
+      postTypeIndex.value = index;
+      selectPostsAxios();
+    }
+
 
     // 更改视频当前页
     function handleCurrentChangeVideo(val) {
@@ -822,7 +935,8 @@ watch(
       clickFlag4,
       clickFlag5,
       clickFlag6,
-      clickFlag7,
+       clickFlag7,
+       clickFlag8,
       ClickFlag,
       resultTabs,
       sortLine,
@@ -830,15 +944,24 @@ watch(
       // 筛选：模板改用数据表 + 下标，Click*FlagN 保留是为了不改模板里的 @click
       SORT,
       USER_SORT,
+      POST_SORT,
+      POST_SCOPE,
+      POST_TYPE,
       DATE,
       TIME,
       CLASSIFY,
       sortIndex,
       userSortIndex,
+      postSortIndex,
+      postScopeIndex,
+      postTypeIndex,
       dateIndex,
       timeIndex,
       classifyIndexRef,
       applyFilter,
+      applyPostSort,
+      applyPostScope,
+      applyPostType,
       ClickSortFlag1,
       ClickSortFlag2,
       ClickSortFlag3,
@@ -887,7 +1010,8 @@ watch(
       acceptSearchData,
       highlightText,
       selectUsersAxios,
-      searchUserList,
+       searchUserList,
+       searchPostList,
       userContent,
       addFollowAxios,
       deleteFollowAxios,
@@ -994,7 +1118,7 @@ watch(
 
 .sticky-search-home {
   flex: none;
-  color: #37684a;
+  color: var(--brand);
   font-size: 18px;
   font-weight: 700;
   letter-spacing: 2px;
@@ -1031,7 +1155,7 @@ watch(
   display: flex;
   align-items: center;
   gap: 34px;
-  width: 100%;
+  width: 90%;
   box-sizing: border-box;
   padding: 0 var(--page-pad) 10px;
   font-size: 15.5px;
@@ -1244,7 +1368,7 @@ watch(
 .bottomVideo {
   position: static;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(max(200px, calc(20% - 20px)), 1fr));
   gap: 20px 16px;
   width: 100%;
   margin-top: var(--gap-4);
@@ -1295,7 +1419,7 @@ watch(
 .searchUsers {
   position: static;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(max(200px, calc(20% - 20px)), 1fr));
   gap: var(--gap-5);
   width: 100%;
   margin-top: var(--gap-4);
@@ -1356,6 +1480,8 @@ watch(
   transform: none;
   position: static;
 }
+
+.search-post-item { margin-bottom: 16px; }
 
 /* 关注 / 已关注：跟着卡片流式排布，原为 absolute + translate(100px,-55px) */
 .follow,
@@ -1479,4 +1605,9 @@ watch(
    现在 .bottomVideo 是 auto-fill grid，列数由可用宽度和 minmax(228px,1fr)
    自行决定，不再需要按视口枚举列宽。 */
 </style>
-<style lang="scss" scoped src="./mainSearchLayout.scss"></style>
+<style lang="scss" scoped src="./mainSearchLayout.scss">
+@media (max-width: 768px) {
+  .searchUsers { grid-template-columns: minmax(0, 1fr); }
+}
+  .user-hover { display: inline; vertical-align: middle; }
+</style>

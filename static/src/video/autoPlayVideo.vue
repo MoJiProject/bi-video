@@ -1,9 +1,14 @@
 <template>
    <div class="auto-play-video-container" :class="{ 'into-video-all-display-ing': propss.intoVideoAllDisplayIngFlag }">
        <div class="auto-play-video-header">
-         <img @click="openHome(1,store.selectUpVideo.upUser?.id)" class="auto-play-video-avatar" :src="store.selectUpVideo.upUser?.avatarAddress">
-         <span @click="openHome(1,store.selectUpVideo.upUser?.id)" class="auto-play-video-username">{{ store.selectUpVideo.upUser?.userName }}</span>
-         <span v-show="store.selectUpVideo?.isFansFlag===0" class="auto-play-video-follow" @click="store.setAddFollowFlag(1)"> <img src="/img/加关注.png"/> 关注 {{ store.selectUpVideo.upUser?.fansNumber }}</span>
+          <img @click="openHome(1,store.selectUpVideo.upUser?.id)" class="auto-play-video-avatar" :src="store.selectUpVideo.upUser?.avatarAddress">
+          <span @click="openHome(1,store.selectUpVideo.upUser?.id)" class="auto-play-video-username">{{ store.selectUpVideo.upUser?.userName }}</span>
+          <UserHoverCard :user-id="Number(store.selectUpVideo.upUser?.id) || 0" :avatar="store.selectUpVideo.upUser?.avatarAddress || ''" :nickname="store.selectUpVideo.upUser?.userName || ''" :avatar-size="32">
+            <template #reference>
+              <span class="auto-play-video-hover-trigger" @click="openHome(1,store.selectUpVideo.upUser?.id)"></span>
+            </template>
+          </UserHoverCard>
+         <span v-show="store.selectUpVideo?.isFansFlag===0" class="auto-play-video-follow" @click="store.setAddFollowFlag(1)"> <FollowIcon :size="12" /> 关注 {{ store.selectUpVideo.upUser?.fansNumber }}</span>
          <span v-show="store.selectUpVideo?.isFansFlag===1" class="auto-play-video-delete-follow" @click="store.setAddFollowFlag(2)">已关注</span>
          <button type="button" class="auto-play-video-replay" @click="store.setReVideoPlayerFlag(true)">
             <img src="/img/重播灰.png">
@@ -100,6 +105,8 @@
 </template>
 
 <script>
+import UserHoverCard from '../components/UserHoverCard.vue';
+import FollowIcon from '../components/FollowIcon.vue';
 import { reactive, onMounted, ref, watch } from "vue";
 import apiClient from "../api/video/detail";
 import { useGlobalStore } from "../store/store";
@@ -124,8 +131,10 @@ export default {
         }
     },
     components:{
-      videoShareC     
-    },
+      videoShareC,
+       UserHoverCard,
+       FollowIcon,
+     },
     setup(props){
 
         const propss=reactive(props);
@@ -992,4 +1001,7 @@ export default {
 position: absolute;
 z-index: 10000;
 }
+  .auto-play-video-hover-trigger { position: absolute; top: -3px; left: 0; width: 130px; height: 30px; z-index: 2; }
+  .auto-play-video-header:has(.auto-play-video-hover-trigger:hover) .auto-play-video-username { color: #6af5de; transition: all 0.3s ease; }
+  .auto-play-video-header:has(.auto-play-video-hover-trigger:hover) .auto-play-video-avatar { border: 2px solid #0FA68E; transition: all 0.3s ease; }
 </style>

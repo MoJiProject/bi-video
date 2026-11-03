@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="collections">
     <aside :aria-label="isOwner ? '我的收藏夹' : 'TA的收藏夹'">
       <el-button v-if="isOwner" class="folder-create" type="primary" text @click="openEditor()">
@@ -381,7 +381,7 @@ header h2 { margin: 0; }
 header p, header span { color: #8D9794; font-size: 13px; }
 .tools { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
 .tools .el-input { width: 240px; }
-.videos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 193px), 1fr)); gap: 16px; }
+.videos { display: grid; grid-template-columns: repeat(auto-fill, minmax(max(193px, calc(20% - 20px)), 1fr)); gap: 16px; }
 .no-data { padding: 60px; text-align: center; color: #8D9794; }
 .el-pagination { margin-top: 24px; }
 @media (max-width: 720px) {
@@ -390,5 +390,9 @@ header p, header span { color: #8D9794; font-size: 13px; }
   aside button { overflow-wrap: anywhere; }
   .tools > .el-input { width: 100%; }
   .no-data { padding: 40px 12px; }
+}
+
+@media (max-width: 768px) {
+  .videos { grid-template-columns: minmax(0, 1fr); }
 }
 </style>
