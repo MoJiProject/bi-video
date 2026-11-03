@@ -138,6 +138,7 @@
               :avatar="SelectVideoByIdVo.upUser?.avatarAddress"
               :nickname="SelectVideoByIdVo.upUser.userName || ''"
               :avatar-size="30"
+              :teleported="false"
             >
               <template #reference>
                 <span class="intoVideoAllDisplayIngFlagCreator-trigger">

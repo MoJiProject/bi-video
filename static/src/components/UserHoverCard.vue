@@ -39,7 +39,7 @@
   </div>
   <span v-else class="user-hover" @click.stop>
     <el-popover trigger="hover" :trigger-keys="['Space']" placement="bottom-start"
-      :width="300" :show-after="200" :hide-after="250" :show-arrow="false"
+      :width="300" :show-after="200" :hide-after="250" :show-arrow="false" :teleported="teleported"
       :popper-style="{ maxWidth: 'calc(100vw - 32px)', padding: '0', borderRadius: '16px', overflow: 'hidden' }"
       @show="loadProfile">
       <template #reference>
@@ -105,6 +105,10 @@ const props = defineProps({
   nickname: { type: String, default: '' },
   avatar: { type: String, default: '' },
   avatarSize: { type: Number, default: 40 },
+  // 弹层是否 teleport 到 body（Element Plus 默认 true）。
+  // 全屏场景需传 false：原生全屏只渲染全屏元素子树、网页全屏容器 z-index(3000) 高于弹层默认层级，
+  // teleport 到 body 的卡片在全屏下不可见，需内联渲染在全屏元素内部
+  teleported: { type: Boolean, default: true },
   // 受控模式：不使用 el-popover，由父级控制显隐（v-if）与定位（:style 传 left/top）
   controlled: { type: Boolean, default: false },
   // 受控模式的预填资料（兼容旧 userInfo.vue 的字段结构，如 store.eitUserInfo）
