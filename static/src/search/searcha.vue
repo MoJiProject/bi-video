@@ -267,7 +267,6 @@
 </template>
 
 <script>
-import apiClient from "../services/apiClient";
 import { searchApi } from "../api/product";
 import {
   ref,
@@ -431,7 +430,6 @@ export default {
       } catch (error) {}
     }
     //获取关键字
-    let keyWordTIme;
     async function selectKeyWord(Value) {
       if (!Value) {
         keyWord.length = 0;

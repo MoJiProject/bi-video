@@ -75,11 +75,6 @@ onBeforeUnmount(()=>{
   document.documentElement.style.removeProperty('--line-color');
 })
 
-//获取用户ip
-// token 由 /auth/login 返回后存在本地，这里不再向后端要 IP + token。
-async function getUserIp(){
-  store.setUserIp("0.0.0.0");
-}
 watch(()=>store.userInformation,()=>{
   
   backgroundModel.value=parseInt(localStorage.getItem('backgroundModel')) || 0;

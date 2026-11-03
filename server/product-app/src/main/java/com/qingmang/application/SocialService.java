@@ -3,7 +3,6 @@ package com.qingmang.application;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.qingmang.common.constant.BizConstants;
 import com.qingmang.common.exception.BizException;
 import com.qingmang.common.exception.ErrorCode;
 import com.qingmang.domain.social.PrivateMessage;

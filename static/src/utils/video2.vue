@@ -88,7 +88,7 @@
      const video = document.getElementById(id);
      if(video)
      if (video.paused) {  // 只有在视频处于暂停状态时才播放
-         video.play().catch(function(error) {
+         video.play().catch(function() {
          });
      }
  }, 700);  // 1秒后播放视频

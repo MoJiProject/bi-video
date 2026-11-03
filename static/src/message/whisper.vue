@@ -261,13 +261,13 @@
                         <button
                             type="button"
                             class="comment-emoji-content"
-                            :title="`表情 ${index}`"
-                            :aria-label="`表情 ${index}`"
-                            @click="addEmoji(index)"
-                            v-for="index in 176"
+                            :title="`表情 ${index + 69}`"
+                            :aria-label="`表情 ${index + 69}`"
+                            @click="addEmoji(index + 69)"
+                            v-for="index in 107"
                             :key="index"
                             >
-                            <img class="comment-emoji-img" :src="'/img/emoji/' + index + '.png'" alt="">
+                            <img class="comment-emoji-img" :src="'/img/emoji/' + (index + 69) + '.png'" alt="">
                         </button>
                     </div>
                 </div>

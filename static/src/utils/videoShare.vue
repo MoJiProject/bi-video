@@ -80,7 +80,6 @@ const recipientCursor = ref(null);
 const sending = ref(false);
 const loadingRecipients = ref(false);
 const recipientError = ref('');
-const heightFlag=ref(props.heightFlag);
 let scrolledFlag=true;
 let recipientGeneration = 0;
 let recipientOwner = store.userId;

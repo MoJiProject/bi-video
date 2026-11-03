@@ -2313,10 +2313,8 @@ import { sanitizeRichText } from "../utils/richText";
 import {
   authApi,
   fetchMentionUsers,
-  commentApi,
   danmakuApi,
   socialApi,
-  userContentApi,
   videoApi,
 } from "../api/product";
 import { ElMessage } from "element-plus";
@@ -2381,7 +2379,6 @@ const addWaitWatchBlue = "/img/弹幕列表蓝.png"
 const audioBlack = "/img/音量黑.png"
 const closeAudioBlack = "/img/静音黑.png"
 import head1 from "../components/mainHead.vue";
-import LevelBadge from "../components/LevelBadge.vue";
 import { useGlobalStore } from "../store/store";
 import autoPlayVideo from "./autoPlayVideo.vue";
 import autoPlayVideo2 from "./autoPlayVideo2.vue";
@@ -2394,7 +2391,6 @@ export default {
   name: "videoPage",
   components: {
     head1,
-    LevelBadge,
     UserHoverCard,
     autoPlayVideo,
     autoPlayVideo2,
@@ -3888,7 +3884,6 @@ export default {
     //连击
     const StartThreeTime = ref(0);
     let intervalId;
-    let threeForCount = 0;
     function startThree(a) {
       if (a === 1) {
         clearInterval(intervalId);
@@ -3998,7 +3993,6 @@ export default {
           videoCollectClickFlag.value = !!response.data.data.videoCollectClickFlag;
           return true;
         }
-        threeForCount = 0;
       } catch (error) {
         ElMessage({
           message: "未知错误",
@@ -4518,34 +4512,6 @@ export default {
       }).catch(() => {});
     }
 
-    //查询历史记录
-    async function getHistory() {
-      if(!store.userId)
-      return;
-      const urlParams = new URLSearchParams(window.location.search);
-      let videoId = urlParams.get("videoId");
-      videoId = videoId.replace("BV", "");
-      let videos = {
-        userId: store.userId,
-        id: videoId,
-      };
-      const response = await apiClient.post("/history/getHistoryById", videos, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: store.token,
-        },
-      });
-
-      if (response.data.code === 1) {
-        Object.assign(history, response.data.data);
-        seekUpVideo(
-          history.watchCurrentTime !== undefined &&
-          history.watchCurrentTime !== null
-            ? history.watchCurrentTime
-            : 0,
-        );
-      }
-    }
 
     //延时分享窗
     let delayShareTime = null;

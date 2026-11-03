@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 
 /** 用户自己的内容：收藏夹、待看清单、观看记录、投稿。 */
 @Service

@@ -628,7 +628,7 @@ function addImgFlagF(comment){
           });
           return;
         }
-        addFollow(store.token,store.userId,love.userInfo2.id).then(res=>{
+        addFollow(store.token,store.userId,love.userInfo2.id).then(()=>{
           love.isFansFlag=1;
         }).catch(showError)
    
@@ -637,7 +637,7 @@ function addImgFlagF(comment){
   //取消关注用户
   async function deleteFollowAxios(love) {
 
-       deleteFollow(store.token,store.userId,love.userInfo2.id).then(res=>{
+       deleteFollow(store.token,store.userId,love.userInfo2.id).then(()=>{
          love.isFansFlag=0;
        }).catch(showError)
 

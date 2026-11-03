@@ -42,9 +42,9 @@
           <div class="emoji-panel">
             <div class="panel-heading"><strong>表情</strong></div>
             <div class="emoji-grid">
-              <button v-for="number in 176" :key="number" type="button" :title="`表情 ${number}`"
-                :aria-label="`表情 ${number}`" @mousedown.prevent @click="insertEmoji(number)">
-                <img :src="`/img/emoji/${number}.png`" alt="" loading="lazy">
+              <button v-for="number in 107" :key="number" type="button" :title="`表情 ${number + 69}`"
+                :aria-label="`表情 ${number + 69}`" @mousedown.prevent @click="insertEmoji(number + 69)">
+                <img :src="`/img/emoji/${number + 69}.png`" alt="" loading="lazy">
               </button>
             </div>
           </div>
