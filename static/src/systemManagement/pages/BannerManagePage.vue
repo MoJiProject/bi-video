@@ -12,6 +12,7 @@
         <el-button type="primary" @click="handleSearch">查询</el-button>
         <el-button @click="handleReset">重置</el-button>
         <el-button type="success" @click="openEdit()">新增Banner</el-button>
+              <el-button size="small" @click="$exportCsv('banners', banners)">导出 CSV</el-button>
       </div>
       <el-table v-loading="loading" :data="banners" class="sys-table" row-key="id">
         <el-table-column label="图片" width="180" align="center">

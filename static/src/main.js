@@ -12,11 +12,13 @@ import buttonDebounce from "./directives/buttonDebounce";
 import { offlinePreviewEnabled } from "./preview/config";
 import http from "./services/http";
 import { useGlobalStore } from "./store/store";
+import { exportCsv } from "./utils/exportCsv.js";
 
 async function mountApp() {
   const pinia = createPinia();
   const app = createApp(App);
   app.config.globalProperties.$offlinePreview = offlinePreviewEnabled;
+  app.config.globalProperties.$exportCsv = exportCsv;
   if (offlinePreviewEnabled) {
     const [
       { previewAdapter },

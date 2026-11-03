@@ -26,6 +26,7 @@
           >批量删除 ({{ selected.length }})</el-button
         >
         <el-button type="success" @click="openAdd">新增热词</el-button>
+              <el-button size="small" @click="$exportCsv('keywords', keyWords)">导出 CSV</el-button>
       </div>
 
       <el-table

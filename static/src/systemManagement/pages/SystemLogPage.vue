@@ -25,6 +25,7 @@
         <el-button type="primary" @click="handleSearch">查询</el-button>
         <el-button @click="handleReset">重置</el-button>
         <span class="filter-summary">共 {{ logTotal }} 条记录</span>
+              <el-button size="small" @click="$exportCsv('logs', logs)">导出 CSV</el-button>
       </div>
       
       <el-table :data="logs" class="sys-table" row-key="id">

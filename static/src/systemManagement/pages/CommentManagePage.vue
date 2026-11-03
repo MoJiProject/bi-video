@@ -47,6 +47,7 @@
           @click="handleBatchDelete"
           >批量删除 ({{ selected.length }})</el-button
         >
+              <el-button size="small" @click="$exportCsv('comments', comments)">导出 CSV</el-button>
       </div>
 
       <el-table

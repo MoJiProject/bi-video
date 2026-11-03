@@ -34,6 +34,7 @@
         <el-button v-if="query.type === 2" size="small" @click="openBanList">
           封禁记录
         </el-button>
+              <el-button size="small" @click="$exportCsv('users', users)">导出 CSV</el-button>
       </div>
 
       <!-- 列表 -->
