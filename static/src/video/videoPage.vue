@@ -2666,7 +2666,8 @@ export default {
       window.addEventListener("pointerdown", closePlayerPanelsOutside);
       window.addEventListener("resize", handleResize);
       setTimeout(() => {
-        if(scrollFlag)
+        const hasCommentDeepLink = new URLSearchParams(window.location.search).get('commentId');
+        if(scrollFlag && !hasCommentDeepLink)
         window.scrollTo({top: 0, behavior: "smooth"});
         window.removeEventListener("wheel",handleWheel);
       }, 1000);
