@@ -410,7 +410,7 @@ export default {
         }
 
         .auto-play-video-username:hover{
-            text-shadow: 0 0 4px #fff;
+            color: #6af5de;
         }
 
         .auto-play-video-vip{

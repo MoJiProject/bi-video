@@ -93,73 +93,79 @@
   }
 
   .up-video-infos-container {
-    gap: 8px;
-    color: var(--ink-3);
-  }
-
-  .up-user-avatar-wrapper {
-    position: relative;
     display: flex;
-    flex: 0 0 100%;
     flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
-    width: 100%;
-    height: auto;
-    margin: 8px 0 0;
-    padding-top: 14px;
-    border-top: 1px solid var(--line);
-    transform: none;
+    gap: 6px 18px;
+    color: var(--ink-3);
+    font-size: 13px;
+    line-height: 1.6;
   }
 
-  .up-user-avatar {
+  .video-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    img {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      transform: none;
+    }
+  }
+
+  .prohibition-tag {
     position: static;
-    width: 36px;
-    height: 36px;
-    border: 0;
-    border-radius: 50%;
-    box-shadow: none;
-    object-fit: cover;
-    transform: none;
-  }
-
-  .video-creator-name,
-  .video-creator-follow {
-    border: 0;
-    font: inherit;
-    cursor: pointer;
-  }
-
-  .video-creator-name {
-    max-width: min(50%, 360px);
-    padding: 4px 0;
-    color: var(--ink);
-    background: transparent;
-    font-weight: 650;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .video-creator-followers {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 22px;
+    margin: 0;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: var(--fill);
     color: var(--ink-3);
     font-size: 12px;
+    line-height: 1;
+    transform: none;
+
+    .prohibition-sign {
+      position: relative;
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      margin: 0;
+      border: 1.5px solid currentColor;
+      border-radius: 50%;
+      background: transparent;
+      transform: none;
+
+      &::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 1.5px;
+        height: 100%;
+        background: currentColor;
+        transform: translate(-50%, -50%) rotate(-50deg);
+      }
+    }
   }
 
-  .video-creator-follow {
-    min-height: 34px;
-    margin-left: auto;
-    padding: 6px 18px;
-    border-radius: 10px;
-    background: var(--brand);
-    color: #fff;
+  .popover-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 16px;
+    color: var(--ink-3);
     font-size: 13px;
+    line-height: 1.6;
+    transform: none;
   }
 
-  .video-creator-follow[aria-pressed="true"] {
-    color: var(--ink-2);
-    background: var(--fill-soft);
-  }
+  /* 头像/关注行已移入播放器左上角 player-creator-chip（见播放器覆盖区） */
 
   .up-user-info {
     left: 0;
@@ -718,33 +724,38 @@
     white-space: nowrap;
     transform: none;
     pointer-events: none;
+    text-shadow: 0 1px 3px rgb(0 0 0 / 55%);
   }
 
-  /* 全屏时作者信息行：头像 + 昵称，紧跟标题下方 */
+  /* 全屏时作者信息行：头像 + 昵称，位于标题下方并留出呼吸间距 */
   .intoVideoAllDisplayIngFlagCreator {
     position: absolute;
-    top: 44px;
+    top: 54px;
     left: 16px;
     display: flex;
     align-items: center;
     gap: 8px;
     max-width: calc(100% - 32px);
-    padding: 4px 10px 4px 4px;
+    height: 40px;
+    padding: 4px 8px 4px 5px;
     box-sizing: border-box;
+    border: 1px solid rgb(255 255 255 / 16%);
     border-radius: 999px;
-    background: rgb(0 0 0 / 45%);
-    backdrop-filter: blur(6px);
+    background: rgb(255 255 255 / 10%);
+    backdrop-filter: blur(14px) saturate(1.15);
     transform: none;
     z-index: 5;
     pointer-events: auto;
 
     > .intoVideoAllDisplayIngFlagCreator-avatar {
       display: block;
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
+      border: 1.5px solid rgb(255 255 255 / 85%);
       object-fit: cover;
       cursor: pointer;
+      transition: transform 0.18s ease;
     }
 
     > .intoVideoAllDisplayIngFlagCreator-name {
@@ -752,69 +763,145 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      color: #f3f6f7;
+      color: #fff;
       font-size: 13px;
+      font-weight: 600;
       line-height: 1;
+      text-shadow: 0 1px 2px rgb(0 0 0 / 35%);
       cursor: pointer;
+      transition: color 0.15s ease;
+    }
+
+    &:hover > .intoVideoAllDisplayIngFlagCreator-name {
+      color: #6af5de;
     }
 
     > .intoVideoAllDisplayIngFlagCreator-follow {
       flex: none;
-      height: 22px;
-      padding: 0 10px;
+      height: 26px;
+      padding: 0 12px;
       border: 0;
       border-radius: 999px;
-      background: var(--brand, #23aed5);
-      color: #fff;
+      background: rgb(255 255 255 / 92%);
+      color: #1c2b33;
       font-size: 12px;
+      font-weight: 600;
       line-height: 1;
       cursor: pointer;
+      transition: background 0.15s ease, transform 0.15s ease;
 
       &[aria-pressed="true"] {
-        background: rgb(255 255 255 / 18%);
-        color: #cfd6da;
+        background: rgb(255 255 255 / 16%);
+        color: #e8edf0;
       }
       &:hover {
-        opacity: 0.88;
+        background: #fff;
+        transform: translateY(-1px);
+      }
+      &[aria-pressed="true"]:hover {
+        background: rgb(255 255 255 / 24%);
+        transform: none;
       }
     }
   }
 
-  /* 全屏时作者行已包含头像+关注，隐藏旧的关注胶囊避免重叠 */
-  .up-video-container.is-expanded .up-video-avatar-and-addFollow-container,
-  .up-video-container.is-web-fullscreen .up-video-avatar-and-addFollow-container {
-    display: none;
-  }
-
-  .up-video-avatar-and-addFollow-container {
+  /* 非全屏时作者胶囊：播放器左上角（头像 + 昵称 + 关注），悬停可打开资料卡 */
+  .player-creator-chip {
     position: absolute;
-    left: 16px;
-    top: 16px;
+    left: 12px;
+    top: 12px;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    width: auto;
-    height: 34px;
-    padding: 4px 12px 4px 4px;
+    max-width: min(60%, 360px);
+    height: 40px;
+    padding: 4px 8px 4px 5px;
     box-sizing: border-box;
-    background: rgb(0 0 0 / 50%);
+    border: 1px solid rgb(255 255 255 / 16%);
     border-radius: 999px;
+    background: rgb(255 255 255 / 10%);
+    backdrop-filter: blur(14px) saturate(1.15);
     transform: none;
     z-index: 5;
 
-    > img,
-    > span {
-      position: static;
-      transform: none !important;
+    .player-creator-chip-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
     }
-    > .up-video-avatar-and-addFollow-avatar {
-      width: 26px;
-      height: 26px;
+
+    .player-creator-chip-avatar {
+      display: block;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
+      border: 1.5px solid rgb(255 255 255 / 85%);
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform 0.18s ease;
+    }
+
+    .player-creator-chip-trigger:hover .player-creator-chip-avatar {
+      transform: scale(1.08);
+    }
+
+    .player-creator-chip-name {
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #fff;
+      font-size: 13px;
+      line-height: 1;
+      text-shadow: 0 1px 2px rgb(0 0 0 / 35%);
+      cursor: pointer;
+      transition: color 0.15s ease;
+    }
+
+    .player-creator-chip-trigger:hover .player-creator-chip-name {
+      color: #6af5de;
+    }
+
+    .player-creator-chip-follow {
+      flex: none;
+      height: 26px;
+      padding: 0 12px;
+      border: 0;
+      border-radius: 999px;
+      background: rgb(255 255 255 / 92%);
+      color: #1c2b33;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.15s ease;
+
+      &:hover {
+        background: #fff;
+        transform: translateY(-1px);
+      }
+
+      &[aria-pressed="true"] {
+        background: rgb(255 255 255 / 16%);
+        color: #e8edf0;
+      }
+
+      &[aria-pressed="true"]:hover {
+        background: rgb(255 255 255 / 24%);
+        transform: none;
+      }
     }
   }
 
-  /* 旧关注胶囊仅非全屏时显示（全屏时由作者行接管，上方已隐藏） */
+  /* 全屏时作者行由 intoVideoAllDisplayIngFlagCreator 接管，隐藏非全屏胶囊避免重叠 */
+  .up-video-container.is-expanded .player-creator-chip,
+  .up-video-container.is-web-fullscreen .player-creator-chip {
+    display: none;
+  }
 
   .video-waiting,
   .key-info,
@@ -1484,7 +1571,6 @@
     margin: 0 0 6px;
     padding: 0 10px;
     border-radius: 8px;
-    background: var(--fill-soft, #F4F7F6);
     color: var(--ink-3);
     font-size: 11px;
     line-height: 1.4;
@@ -2537,11 +2623,24 @@
       gap: 12px;
       border-radius: 14px;
     }
-    .video-creator-followers {
-      flex: 1 1 auto;
-    }
-    .video-creator-follow {
-      padding: 6px 12px;
+    .player-creator-chip {
+      top: 10px;
+      left: 10px;
+      height: 36px;
+      gap: 6px;
+
+      .player-creator-chip-avatar {
+        width: 26px;
+        height: 26px;
+      }
+      .player-creator-chip-name {
+        max-width: 130px;
+        font-size: 12.5px;
+      }
+      .player-creator-chip-follow {
+        height: 24px;
+        padding: 0 10px;
+      }
     }
     .video-detail-sidebar,
     &.is-theater .video-detail-sidebar {

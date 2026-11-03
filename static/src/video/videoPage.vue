@@ -28,76 +28,22 @@
         >
           <div class="up-videoTitle">{{ SelectVideoByIdVo.upVideo.title }}</div>
         </el-tooltip>
-        <div
-          :class="{
-            titleShowFlagCss: titleShowFlag,
-            allowFlagcss1: SelectVideoByIdVo.upVideo.allowTwo === 0,
-            allowFlagcss2: SelectVideoByIdVo.upVideo.allowTwo === 1,
-          }"
-          class="up-video-infos-container"
-        >
-          <img
-            src="/img/播放量灰.png"
-            style="
-              width: 16.5px;
-              height: 14px;
-              transform: translate(0px, 2.5px);
-              margin-right: 7px;
-            "
-          />
-          <span style="font-size: 12.5px; margin-right: 15px">{{
-            SelectVideoByIdVo.upVideo.playNumber
-          }}</span>
-          <img
-            src="/img/弹幕灰.png"
-            style="
-              width: 16.5px;
-              height: 14px;
-              transform: translate(0px, 2.5px);
-              margin-right: 6px;
-            "
-          />
-          <span style="font-size: 12.5px; margin-right: 12px">{{
-            SelectVideoByIdVo.upVideo.scrollingNumber
-          }}</span>
-          <span style="font-size: 12.5px">{{
-            SelectVideoByIdVo.upVideo.createTime
-          }}</span>
-           <div
+        <div class="up-video-infos-container">
+          <span class="video-meta">
+            <img src="/img/播放量灰.png" alt="" />
+            <span>{{ SelectVideoByIdVo.upVideo.playNumber }}</span>
+          </span>
+          <span class="video-meta">
+            <img src="/img/弹幕灰.png" alt="" />
+            <span>{{ SelectVideoByIdVo.upVideo.scrollingNumber }}</span>
+          </span>
+          <span>{{ SelectVideoByIdVo.upVideo.createTime }}</span>
+          <div
             v-if="SelectVideoByIdVo.upVideo.allowTwo === 0"
             class="prohibition-tag"
           >
             <span class="prohibition-sign"></span>
             <span>未经作者授权，禁止转载</span>
-          </div>
-          <div class="up-user-avatar-wrapper">
-            <UserHoverCard
-              :user-id="Number(SelectVideoByIdVo.upUser.id) || 0"
-              :avatar="SelectVideoByIdVo.upUser?.avatarAddress"
-              :nickname="SelectVideoByIdVo.upUser.userName || ''"
-              :avatar-size="47"
-            >
-              <template #reference>
-                <span class="up-user-hover-trigger">
-                  <img
-                    @click="openHome(1,SelectVideoByIdVo.upUser.id)"
-                    :src="SelectVideoByIdVo.upUser?.avatarAddress"
-                    class="up-user-avatar"
-                  />
-                  <button type="button" class="video-creator-name" @click="openHome(1,SelectVideoByIdVo.upUser.id)">
-                    {{ SelectVideoByIdVo.upUser.userName }}
-                  </button>
-                </span>
-              </template>
-            </UserHoverCard>
-            <span class="video-creator-followers">{{ SelectVideoByIdVo.upUser.fansNumber }} 位关注者</span>
-            <button
-              v-if="String(SelectVideoByIdVo.upUser.id) !== String(store.userId)"
-              type="button"
-              class="video-creator-follow"
-              :aria-pressed="SelectVideoByIdVo.isFansFlag === 1"
-              @click="SelectVideoByIdVo.isFansFlag === 1 ? deleteFollowAxios(SelectVideoByIdVo.upUser.id) : addFollowAxios(SelectVideoByIdVo.upUser.id)"
-            >{{ SelectVideoByIdVo.isFansFlag === 1 ? '已关注' : '关注' }}</button>
           </div>
         </div>
         <div v-if="titleShowFlag" class="expand-icon-container">
@@ -106,44 +52,22 @@
             <div class="show-up-videoTitle">
               {{ SelectVideoByIdVo.upVideo.title }}
             </div>
-            <div style="transform: translate(0px, 5px); color: #8F9794">
-              <img
-                src="/img/播放量灰.png"
-                style="
-                  width: 16.5px;
-                  height: 14px;
-                  transform: translate(0px, 2.5px);
-                  margin-right: 7px;
-                "
-              />
-              <span style="font-size: 12.5px; margin-right: 15px">{{
-                SelectVideoByIdVo.upVideo.playNumber
-              }}</span>
-              <img
-                src="/img/弹幕灰.png"
-                style="
-                  width: 16.5px;
-                  height: 14px;
-                  transform: translate(0px, 2.5px);
-                  margin-right: 6px;
-                "
-              />
-              <span style="font-size: 12.5px; margin-right: 12px">{{
-                SelectVideoByIdVo.upVideo.scrollingNumber
-              }}</span>
-              <span style="font-size: 12.5px">{{
-                SelectVideoByIdVo.upVideo.createTime
-              }}</span>
+            <div class="popover-meta">
+              <span class="video-meta">
+                <img src="/img/播放量灰.png" alt="" />
+                <span>{{ SelectVideoByIdVo.upVideo.playNumber }}</span>
+              </span>
+              <span class="video-meta">
+                <img src="/img/弹幕灰.png" alt="" />
+                <span>{{ SelectVideoByIdVo.upVideo.scrollingNumber }}</span>
+              </span>
+              <span>{{ SelectVideoByIdVo.upVideo.createTime }}</span>
               <div
                 v-if="SelectVideoByIdVo.upVideo.allowTwo === 0"
-                style="
-                  font-size: 12.5px;
-                  transform: translate(32px, 0px);
-                  display: inline-block;
-                "
+                class="prohibition-tag"
               >
                 <span class="prohibition-sign"></span>
-                <span style="margin-left: -2px">未经作者授权，禁止转载</span>
+                <span>未经作者授权，禁止转载</span>
               </div>
             </div>
           </div>
@@ -228,32 +152,48 @@
                   ? deleteFollowAxios(SelectVideoByIdVo.upUser.id)
                   : addFollowAxios(SelectVideoByIdVo.upUser.id)
               "
-            >{{ SelectVideoByIdVo.isFansFlag === 1 ? "已关注" : "关注" }}</button>
+            >{{ SelectVideoByIdVo.isFansFlag === 1 ? "已关注" : "+ 关注" }}</button>
           </div>
+          <!-- 非全屏时：作者胶囊挂在播放器左上角（全屏由 intoVideoAllDisplayIngFlagCreator 接管） -->
           <div
-            v-show="videoFeatureShowFlag"
-            :class="{
-              intoVideoAllDisplayIngFlagavatarandaddFollow:
-                intoVideoAllDisplayIngFlag,
-            }"
-            v-if="SelectVideoByIdVo.isFansFlag === 0"
+            v-show="videoFeatureShowFlag && !intoVideoAllDisplayIngFlag"
+            class="player-creator-chip"
             @mouseover="handlerCleanTime(), (videoLeave = true)"
             @mouseleave="videoLeave = false"
-            v-debounce
-            @click="addFollowAxios(SelectVideoByIdVo.upUser.id)"
-            class="up-video-avatar-and-addFollow-container"
           >
-            <img
-              :src="SelectVideoByIdVo.upUser?.avatarAddress"
-              class="up-video-avatar-and-addFollow-avatar"
-            />
-            <span
-              style="
-                color: white;
-                font-size: 11px;
-                transform: translate(20px, 9px);
+            <UserHoverCard
+              :user-id="Number(SelectVideoByIdVo.upUser.id) || 0"
+              :avatar="SelectVideoByIdVo.upUser?.avatarAddress"
+              :nickname="SelectVideoByIdVo.upUser.userName || ''"
+              :avatar-size="30"
+            >
+              <template #reference>
+                <span class="player-creator-chip-trigger">
+                  <img
+                    :src="SelectVideoByIdVo.upUser?.avatarAddress"
+                    class="player-creator-chip-avatar"
+                    alt=""
+                    @click.stop="openHome(1, SelectVideoByIdVo.upUser.id)"
+                  />
+                  <button
+                    type="button"
+                    class="player-creator-chip-name"
+                    @click.stop="openHome(1, SelectVideoByIdVo.upUser.id)"
+                  >{{ SelectVideoByIdVo.upUser.userName }}</button>
+                </span>
+              </template>
+            </UserHoverCard>
+            <button
+              v-if="String(SelectVideoByIdVo.upUser.id) !== String(store.userId)"
+              type="button"
+              class="player-creator-chip-follow"
+              :aria-pressed="SelectVideoByIdVo.isFansFlag === 1"
+              @click.stop="
+                SelectVideoByIdVo.isFansFlag === 1
+                  ? deleteFollowAxios(SelectVideoByIdVo.upUser.id)
+                  : addFollowAxios(SelectVideoByIdVo.upUser.id)
               "
-              >{{ SelectVideoByIdVo.upUser.userName }}</span>
+            >{{ SelectVideoByIdVo.isFansFlag === 1 ? "已关注" : "+ 关注" }}</button>
           </div>
           <!-- 开始播放 -->
           <button
@@ -4989,10 +4929,6 @@ textarea,
   transform: rotate(180deg);
 }
 
-.titleShowFlagCss {
-  margin-top: 10px;
-}
-
 .show-up-videoTitle-container {
   width: 660px;
   padding: 15px;
@@ -5018,40 +4954,12 @@ textarea,
   visibility: visible;
 }
 
-.up-user-avatar {
-  width: 47px;
-  border-radius: 50%;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.up-user-avatar-wrapper {
-  position: relative;
-  margin-left: auto;
-}
-
-/* UserHoverCard #reference 触发器：头像+创作者名作为整体悬停区，保持原布局 */
-.up-user-hover-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-.up-user-hover-trigger .up-user-avatar {
-  margin: 0;
-}
-
 .prohibition-tag {
   display: inline-flex;
   align-items: center;
   font-size: 12.5px;
   color: #5C6664;
   margin-right: 8px;
-}
-
-.up-user-header {
-  display: flex;
-  transform: translate(800px, -79px);
 }
 
 .up-user-name {
@@ -5063,7 +4971,7 @@ textarea,
   color: #0FA68E;
 }
 
-/* UP 主资料卡已改用 UserHoverCard 组件（el-popover teleport 渲染），旧的 .up-user-info 手写卡样式已删除 */
+/* UP 主资料卡已改用 UserHoverCard 组件（el-popover teleport 渲染），旧的 .up-user-info 手写卡样式已删除；头像行已移入播放器左上角 player-creator-chip */
 
 .sendUpMessageImg {
   width: 13px;
@@ -5177,7 +5085,6 @@ textarea,
   justify-content: center;
   align-items: center;
   background-color: white; /* 背景颜色 */
-  transform: translate(-20px, 15px);
 }
 
 .prohibition-sign::after {
@@ -5190,9 +5097,7 @@ textarea,
 }
 
 .up-video-infos-container {
-  width: 500px;
   position: relative;
-  transform: translate(11px, 20px);
   color: #8F9794;
 }
 
@@ -5217,20 +5122,6 @@ textarea,
   object-fit: contain;
 }
 
-.up-video-avatar-and-addFollow-container {
-  display: flex;
-  position: absolute;
-  width: 89px;
-  height: 32px;
-  background-color: rgba(0, 0, 0, 0.25);
-  border-radius: 17px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  transform: translate(11.5px, 20px);
-  cursor: pointer;
-}
-
-.up-video-container:hover .up-video-avatar-and-addFollow-container,
 .up-video-container:hover .up-VideoProgress,
 .up-video-container:hover .up-video-play-bottom-play,
 .up-video-container:hover .up-video-play-bottom-video-time-container,
@@ -5245,17 +5136,6 @@ textarea,
 .up-video-container:hover .up-video-play-bottom-video-time-input-container,
 .up-video-container:hover .openOrCloseScrollingintovideoAllDisplayIngFlag {
   opacity: 1;
-}
-
-.up-video-avatar-and-addFollow-container:hover {
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.up-video-avatar-and-addFollow-avatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  transform: translate(5px, 4px);
 }
 
 .up-VideoProgress {
@@ -5867,14 +5747,6 @@ textarea,
   transform: translate(13px);
   color: #676b71;
   font-size: 13px;
-}
-
-.allowFlagcss1 {
-  margin-top: 0px;
-}
-
-.allowFlagcss2 {
-  margin-top: 10px;
 }
 
 .up-video-play-bottom-video-close-open-scrolling {
@@ -8248,13 +8120,6 @@ a:hover {
   background: var(--fill);
 }
 
-.video-page .up-user-avatar {
-  width: 44px;
-  height: 44px;
-  border: 2px solid #fff;
-  box-shadow: 0 8px 18px rgba(28, 35, 33, .12);
-}
-
 .video-page .expand-icon-container {
   justify-self: end;
   width: 28px;
@@ -8433,12 +8298,6 @@ a:hover {
 
   .video-page .up-video-infos-container {
     gap: 6px;
-  }
-
-  .video-page .up-user-avatar-wrapper {
-    width: 100%;
-    margin-left: 0;
-    margin-top: 4px;
   }
 
   .video-page .up-video-controls-container .up-video-controls-span {
