@@ -342,7 +342,7 @@ watch(()=>store.homeMenu,()=>{
       transition: background-color .18s, color .18s;
 
       svg { display: block; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-      &:hover { background: var(--brand-light-9); color: var(--brand-hover); }
+      &:hover { background: var(--brand-light-9); color: var(--brand-hover); transition: all 0.3s ease; }
       &:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
     }
     .search-clear { right: 34px; }

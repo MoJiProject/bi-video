@@ -78,7 +78,8 @@ function jumpToAnime(url) {
       }
       .name:hover {
         color: #3CC0A6;
-      }
+        transition: all 0.3s ease;
+}
       .introduce {
         margin-top: 12px;
         margin-bottom: 12px;

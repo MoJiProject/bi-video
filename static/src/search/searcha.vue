@@ -550,6 +550,7 @@ try {
 
 .search-box:hover {
   background-color: white;
+  transition: all 0.3s ease;
 }
 
 /* 输入框聚焦状态 */
@@ -574,7 +575,7 @@ try {
 }
 .search-leading-icon { position: absolute; left: 23px; z-index: 10001; color: var(--brand-hover); pointer-events: none; }
 .search-clear { position: absolute; top: 50%; right: 110px; z-index: 10001; display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 7px; background: transparent; color: var(--ink-2); transform: translateY(-50%); cursor: pointer; }
-.search-clear:hover, .deleteSearchCss:hover { background: var(--brand-light-9); color: var(--brand-hover); }
+.search-clear:hover, .deleteSearchCss:hover { background: var(--brand-light-9); color: var(--brand-hover); transition: all 0.3s ease; }
 .search-clear:focus-visible, .deleteSearchCss:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
 
 /* 当 .search 或其子元素获得焦点时应用样式 */
@@ -589,6 +590,7 @@ try {
   background-color: rgba(255, 255, 255, 1); /* 完全不透明的背景 */
   opacity: 1; /* 完全不透明 */
   z-index: 10000;
+  transition: all 0.3s ease;
 }
 
 /* 盒子的样式 */
@@ -611,6 +613,7 @@ try {
 }
 .box:hover {
   opacity: 1;
+  transition: all 0.3s ease;
 }
 
 .searchContentCss {
@@ -648,6 +651,7 @@ try {
 
 .searchContentCss:hover .searchContentFontCss {
   color: #0FA68E;
+  transition: all 0.3s ease;
 }
 
 .deleteSearchCss {
@@ -670,8 +674,7 @@ try {
 
 .searchContentCss:hover .deleteSearchCss,
 .searchContentCss:focus-within .deleteSearchCss {
-  visibility: visible;
-}
+  visibility: visible;}
 @media (hover: none) {
   .deleteSearchCss { visibility: visible; }
 }
@@ -686,6 +689,7 @@ try {
 
 .searchFewer:hover {
   color: #0FA68E;
+  transition: all 0.3s ease;
 }
 
 .searchFewer {
@@ -698,6 +702,7 @@ try {
 
 .searchMore:hover {
   color: #0FA68E;
+  transition: all 0.3s ease;
 }
 
 .fireSearch {
@@ -735,6 +740,7 @@ li:nth-last-child(-n + 6) .aa {
 
 .fireSearch li:hover {
   background-color: #E0E5E3;
+  transition: all 0.3s ease;
 }
 
 .fireSearch .cc {
@@ -753,6 +759,7 @@ li:nth-last-child(-n + 6) .aa {
 
 .cleanAllSearch:hover {
   color: #0FA68E;
+  transition: all 0.3s ease;
 }
 
 .searchButton {
@@ -774,5 +781,6 @@ li:nth-last-child(-n + 6) .aa {
 
 .searchButton:hover {
   background-color: #69c2ec;
+  transition: all 0.3s ease;
 }
 </style>

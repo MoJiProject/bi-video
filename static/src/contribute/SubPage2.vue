@@ -545,6 +545,7 @@ export default {
 .yesDelete:hover {
   color: white;
   background-color: #5DB0AC;
+  transition: all 0.3s ease;
 }
 
 .videoTitle{
@@ -554,6 +555,7 @@ export default {
 
 .videoTitle:hover{
   color: #0FA68E;
+  transition: all 0.3s ease;
 }
 
 @media (max-width: 1100px) {
@@ -572,7 +574,7 @@ export default {
 .manager-heading a { display: inline-flex; align-items: center; min-height: 38px; padding: 0 16px; border-radius: 10px; background: var(--brand); color: #fff; text-decoration: none; font-size: 13px; }
 .manuscript-statuses { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
 .manuscript-statuses button { box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 16px; min-width: 112px; max-width: 100%; min-height: 40px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink-2); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
-.manuscript-statuses button:hover { border-color: var(--brand-light-7); background: var(--fill-soft); }
+.manuscript-statuses button:hover { border-color: var(--brand-light-7); background: var(--fill-soft); transition: all 0.3s ease; }
 .manuscript-statuses button.active { border-color: var(--brand-light-7); background: var(--brand-light-9); color: var(--brand-hover); }
 .manuscript-statuses strong { font-size: 18px; font-weight: 500; line-height: 1.25; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; min-width: 0; }
 .manuscript-panel { padding: 24px; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
@@ -587,7 +589,7 @@ export default {
 .manuscript-cover > img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; cursor: pointer; }
 .manuscript-card .videoTime { position: absolute; right: 6px; bottom: 6px; width: auto; height: auto; padding: 2px 5px; transform: none; font-size: 10px; }
 .manuscript-card .videoTitle { grid-column: 2; grid-row: 1; min-width: 0; padding: 0; border: 0; background: none; font: inherit; font-size: 15px; line-height: 1.6; text-align: left; color: var(--ink); overflow-wrap: anywhere; cursor: pointer; }
-.manuscript-card .videoTitle:hover { color: var(--brand); }
+.manuscript-card .videoTitle:hover { color: var(--brand); transition: all 0.3s ease; }
 .manuscript-meta { grid-column: 2; grid-row: 2; display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; color: var(--ink-3); font-size: 12px; }
 .manuscript-state { padding: 3px 8px; border-radius: 6px; background: var(--brand-light-9); color: var(--brand-hover); font-size: 11px; }
 .manuscript-state.state-0 { background: #fff7e7; color: #966400; }
@@ -599,7 +601,7 @@ export default {
 .manuscript-metrics .ai img { width: 13px; height: 13px; object-fit: contain; transform: none; }
 .creator-manager button:focus-visible, .creator-manager a:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 .yesDelete { background: var(--brand); }
-.yesDelete:hover { background: var(--brand-hover); }
+.yesDelete:hover { background: var(--brand-hover); transition: all 0.3s ease; }
 @media (max-width: 900px) {
   .manuscript-card { grid-template-columns: 144px minmax(0, 1fr); gap: 10px 16px; }
 }

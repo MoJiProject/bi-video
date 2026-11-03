@@ -140,6 +140,7 @@ img{
 
 .msg-setting:hover .active{
     color: #2BB2A0;
+    transition: all 0.3s ease;
 }
     
 }

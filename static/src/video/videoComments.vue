@@ -562,7 +562,7 @@ h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; f
 .share-tool .coin { display: block; flex: none; width: 16px; height: 16px; align-self: center; }
 .login-hint { margin: 0 0 16px; color: var(--ink-2); font-size: 13px; }
 .login-hint-btn { margin: 0 4px; padding: 0; border: 0; background: none; color: var(--brand-hover); font: inherit; cursor: pointer; }
-.login-hint-btn:hover { text-decoration: underline; }
+.login-hint-btn:hover { text-decoration: underline; transition: all 0.3s ease; }
 .attachments, .comment-images { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
 .attachments > div { width: 90px; }
 .el-image { width: 90px; max-width: 100%; height: 90px; border-radius: 10px; }
@@ -590,7 +590,7 @@ footer .el-button { height: 34px; margin: 0; padding: 0 10px; border-radius: 8px
 .comment-action-icon.is-dislike { transform: rotate(180deg); }
 .login-mask { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: flex-end; justify-content: center; height: 150px; padding-bottom: 18px; background: linear-gradient(180deg, rgba(255, 255, 255, 0), #fff 78%); pointer-events: none; }
 .login-mask-tip { pointer-events: auto; padding: 12px 20px; border: 0; border-radius: 6px; background-color: #e3f5f0; color: #0fa68e; font-family: inherit; font-size: 13.5px; cursor: pointer; transition: 0.2s; }
-.login-mask-tip:hover { background-color: #d0efe8; }
+.login-mask-tip:hover { background-color: #d0efe8; transition: all 0.3s ease; }
 .comment-animation { animation: video-comment-highlight 6s ease forwards; }
 @keyframes video-comment-highlight {
   0% { background-color: #e3f5f0; }

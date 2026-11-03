@@ -398,7 +398,8 @@ export default {
 
   &:hover .title-link {
     color: #0E9C85;
-  }
+    transition: all 0.3s ease;
+}
 }
 
 .sub-text {

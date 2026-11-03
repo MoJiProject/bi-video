@@ -484,6 +484,7 @@ async function selectKeyWord(Value) {
 .search:hover {
   background-color: #fff;
   border-color: #b9cdb5;
+  transition: all 0.3s ease;
 }
 
 .search:focus-within,
@@ -528,7 +529,7 @@ async function selectKeyWord(Value) {
   cursor: pointer;
   transform: none;
 
-  &:hover { color: #355e3d; background: #dfe9d7; }
+  &:hover { color: #355e3d; background: #dfe9d7; transition: all 0.3s ease; }
 }
 
 .deleteAllSearchImg svg,
@@ -568,6 +569,7 @@ async function selectKeyWord(Value) {
   background-color: #e0ecd6;
   border-color: #c7d9bc;
   color: #285438;
+  transition: all 0.3s ease;
 }
 
 .search2:focus-visible { outline: 2px solid #126b58; outline-offset: 1px; }
@@ -650,6 +652,7 @@ async function selectKeyWord(Value) {
 
 .searchContentCss:hover {
   background-color: var(--brand-soft);
+  transition: all 0.3s ease;
 }
 
 .searchContentCss .searchContentFontCss {
@@ -671,6 +674,7 @@ async function selectKeyWord(Value) {
 
 .searchContentCss:hover .searchContentFontCss {
   color: var(--brand);
+  transition: all 0.3s ease;
 }
 
 .deleteSearchCss {
@@ -687,7 +691,7 @@ async function selectKeyWord(Value) {
   color: #87977d;
   cursor: pointer;
 
-  &:hover { background: #f7e9e3; color: #ae6249; }
+  &:hover { background: #f7e9e3; color: #ae6249; transition: all 0.3s ease; }
 }
 
 /* 清空 / 展开 / 收起：行内流式排布 */
@@ -719,7 +723,7 @@ async function selectKeyWord(Value) {
   cursor: pointer;
   transition: color .2s, background-color .2s;
 
-  &:hover { border-color: #e8d4c8; background: #fbf0e9; color: #a86a4c; }
+  &:hover { border-color: #e8d4c8; background: #fbf0e9; color: #a86a4c; transition: all 0.3s ease; }
 }
 
 .deleteAllSearchImg:focus-visible,
@@ -730,6 +734,7 @@ async function selectKeyWord(Value) {
 .searchMore:hover,
 .searchFewer:hover {
   color: var(--brand);
+  transition: all 0.3s ease;
 }
 
 .searchMore,
@@ -766,6 +771,7 @@ async function selectKeyWord(Value) {
 
 .fireSearch li:hover {
   background-color: var(--fill);
+  transition: all 0.3s ease;
 }
 
 .fireSearch .aa {

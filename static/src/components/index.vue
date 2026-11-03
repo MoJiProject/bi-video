@@ -338,6 +338,7 @@ onUnmounted(() => {
   transform: translateY(-3px);
   background: rgba(255, 255, 255, .24);
   border-color: rgba(255, 255, 255, .7);
+  transition: all 0.3s ease;
 }
 
 .hero-card-kicker,
@@ -371,6 +372,7 @@ onUnmounted(() => {
 .hero-btn:hover {
   background: rgba(255, 255, 255, .26);
   border-color: #fff;
+  transition: all 0.3s ease;
 }
 
 .hero-btn:active {
@@ -387,6 +389,7 @@ onUnmounted(() => {
 .hero-btn.is-primary:hover {
   background: var(--brand-soft);
   border-color: var(--brand-soft);
+  transition: all 0.3s ease;
 }
 
 /* ---------- 分类导航 ---------- */
@@ -427,6 +430,7 @@ onUnmounted(() => {
 .rail-chip:hover {
   background: var(--brand-soft);
   color: var(--brand-hover);
+  transition: all 0.3s ease;
 }
 
 .rail-chip.is-on {

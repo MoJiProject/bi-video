@@ -194,7 +194,8 @@ margin-left: -10px;
     }
     .avatar:hover{
     color: #0E9C85;
-    }
+    transition: all 0.3s ease;
+}
     .change-avatar{
     color: #222;
     }
@@ -311,7 +312,8 @@ align-items: center;
         }
         div:hover{
         background: #e5e9ef;
-        }
+        transition: all 0.3s ease;
+}
    }
    .border{
     height: 182px;
@@ -374,6 +376,7 @@ cursor: pointer;
 .active-update-btn:hover{
 background-color: #19AC96;
 border-color: #19AC96;
+transition: all 0.3s ease;
 }
 .avatar-container3{
 padding: 61.5px 20px 56px;
@@ -406,7 +409,8 @@ align-items: center;
     .reset-img:hover {
         color: #19AC96;
         fill: #19AC96;
-    }
+        transition: all 0.3s ease;
+}
     .reset-img svg {
         margin-right: 6px;
     }

@@ -68,7 +68,7 @@
   :deep(.creator-form .permission-field .el-switch) { margin: 0 0 0 auto; }
   :deep(.submit-actions) { display: flex; justify-content: flex-end; padding-top: 18px; border-top: 1px solid var(--line); }
   :deep(.creator-form .commit) { position: static; display: inline-flex; justify-content: center; align-items: center; min-width: 140px; width: auto; height: 42px; padding: 0 24px; transform: none; border: 0; border-radius: 10px; background: var(--brand); color: #fff; font: inherit; font-size: 14px; cursor: pointer; }
-  :deep(.creator-form .commit:hover) { background: var(--brand-hover); }
+  :deep(.creator-form .commit:hover) { background: var(--brand-hover); transition: all 0.3s ease; }
   :deep(.creator-form .commit:focus-visible) { outline: 2px solid var(--brand-hover); outline-offset: 3px; }
 }
 

@@ -421,7 +421,8 @@ export default {
 
   &:hover {
     color: #0E9C85;
-  }
+    transition: all 0.3s ease;
+}
 }
 
 .jump-hint {
@@ -445,7 +446,8 @@ export default {
 
   &:hover {
     color: #19AC96;
-  }
+    transition: all 0.3s ease;
+}
 }
 
 .jump-icon {

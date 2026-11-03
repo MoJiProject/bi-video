@@ -123,6 +123,7 @@ defineEmits(['action']);
 .app-empty-state__actions :deep(.el-button:hover) {
   border-color: var(--brand-hover);
   background: var(--brand-hover);
+  transition: all 0.3s ease;
 }
 .app-empty-state__button:focus-visible,
 .app-empty-state__actions :deep(.el-button:focus-visible) {
@@ -138,6 +139,7 @@ defineEmits(['action']);
   border-color: var(--brand);
   background: var(--brand-light-9);
   color: var(--brand-hover);
+  transition: all 0.3s ease;
 }
 .app-empty-state--compact { min-height: 180px; padding: 24px 16px; }
 .app-empty-state--compact .app-empty-state__icon { width: 56px; height: 56px; margin-bottom: 12px; border-radius: 18px; }

@@ -432,7 +432,8 @@ video{
         }
         .video-title:hover{
         color: #0FA68E;
-        }
+        transition: all 0.3s ease;
+}
         .collect-controls-info{
         position: absolute;
         display: flex;
@@ -481,7 +482,8 @@ video{
                     }
                     span:hover{
                         background-color: #F4F7F6;
-                    }
+                        transition: all 0.3s ease;
+}
             }
         }
         .collect-controls-info:hover{

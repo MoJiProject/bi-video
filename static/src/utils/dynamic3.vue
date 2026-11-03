@@ -488,7 +488,8 @@ function deleteDynamicF(dynamic){
                             }
                             .up-user-name:hover{
                               color: #797F87;
-                            }
+                              transition: all 0.3s ease;
+}
                             .end{
                               font-size: 14.5px;
                               line-height: 25px;
@@ -606,7 +607,8 @@ function deleteDynamicF(dynamic){
                             }
                             div:hover{
                                 background-color: #EFF3F2;
-                            }
+                                transition: all 0.3s ease;
+}
                 }
                 .up-info2{
                         transition-delay: 0.3s;  
@@ -644,7 +646,8 @@ function deleteDynamicF(dynamic){
                             }
                             div:hover{
                                 background-color: #EFF3F2;
-                            }
+                                transition: all 0.3s ease;
+}
                 }
             }
             .up-btn:hover{
@@ -703,6 +706,7 @@ function deleteDynamicF(dynamic){
 .delete-dialog-confirm-btn:hover{
     background-color: #3CC0A6;
     border: 1px solid #3CC0A6;
+    transition: all 0.3s ease;
 }
 
 .delete-dialog-cancel-btn{
@@ -720,6 +724,7 @@ function deleteDynamicF(dynamic){
 
 .delete-dialog-cancel-btn:hover{
     background-color: #E0E5E3;
+    transition: all 0.3s ease;
 }
 
 .delete-dialog-confirm-btn2{

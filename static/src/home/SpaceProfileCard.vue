@@ -24,7 +24,7 @@ const store = useGlobalStore();
 header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
 h3 { margin: 0; color: var(--ink); font-size: 15px; font-weight: 600; line-height: 1.5; }
 header a { padding: 4px 8px; border-radius: 6px; background: var(--brand-light-9); color: var(--brand-hover); font-size: 12px; line-height: 20px; text-decoration: none; }
-header a:hover { background: var(--brand-soft); }
+header a:hover { background: var(--brand-soft); transition: all 0.3s ease; }
 header a:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 dl { display: grid; gap: 12px; margin: 14px 0 0; font-size: 13px; line-height: 1.6; }
 dl > div { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 8px; }

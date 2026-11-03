@@ -68,6 +68,7 @@ a:hover,
 a:focus-visible {
   outline: 2px solid var(--brand);
   outline-offset: 1px;
+  transition: all 0.3s ease;
 }
 .exit-preview {
   color: #a54332;

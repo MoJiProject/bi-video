@@ -290,6 +290,7 @@ export default {
 
 .nav-link:hover {
   color: #0E9C85;
+  transition: all 0.3s ease;
 }
 
 .nav-icon {
@@ -388,6 +389,7 @@ export default {
 .menu-item:hover {
   background-color: #f4f6f9;
   color: #0E9C85;
+  transition: all 0.3s ease;
 }
 
 .menu-item.active {

@@ -377,6 +377,7 @@ export default {
 .auto-play-video-item-wait-watch:hover{
     background-color: rgba(16, 30, 27, .9);
     transform: translateY(-1px);
+    transition: all 0.3s ease;
 }
 
 .auto-play-video-item-wait-watch.is-done{
@@ -387,6 +388,7 @@ export default {
 
 .auto-play-video-item-wait-watch.is-done:hover{
     background-color: rgba(240, 252, 248, .9);
+    transition: all 0.3s ease;
 }
 
 .auto-play-video-item-wait-watch:focus-visible{
@@ -402,6 +404,7 @@ export default {
     left: 260px;
     cursor: pointer;
     color: #8D9794;
+    transition: all 0.3s ease;
 
     &.is-on{
         color: #0FA68E;
@@ -438,7 +441,8 @@ export default {
     }
     .autoPlayVideo2-item-title:hover{
         color: #0FA68E;
-    }
+        transition: all 0.3s ease;
+}
 }
 
 .autoPlayVideo2-item-right-username-container{
@@ -550,5 +554,6 @@ export default {
 
 .show-video-btn:hover{
     background-color: #E0E5E3;
+    transition: all 0.3s ease;
 }
 </style>

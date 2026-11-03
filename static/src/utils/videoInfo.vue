@@ -87,7 +87,8 @@ function openVideo(videoId){
         }
         .title:hover{
           color: #3CC0A6;
-        }
+          transition: all 0.3s ease;
+}
         .introduce{
           font-size: 13px;
           line-height: 18px;

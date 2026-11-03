@@ -216,7 +216,8 @@ watch(typeSource,()=>{
         }
         span:hover{
             color: #0FA68E;
-        }
+            transition: all 0.3s ease;
+}
         .activeStatus{
             background-color: #0FA68E !important;
             color: white !important;
@@ -245,7 +246,8 @@ watch(typeSource,()=>{
         }
         span:hover{
             color: #0FA68E;
-        }
+            transition: all 0.3s ease;
+}
         .activeTags{
             background-color: #0FA68E !important;
             color: white !important;

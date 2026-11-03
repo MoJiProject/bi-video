@@ -215,7 +215,7 @@ onUnmounted(() => { generation++; });
 .user-hover-trigger { display: inline-flex; align-items: center; gap: 10px; min-width: 0; max-width: 100%; color: inherit; text-decoration: none; font-size: 14px; font-weight: 500; line-height: 1.5; }
 .user-hover-trigger > img { flex: none; width: var(--user-avatar-size); height: var(--user-avatar-size); border-radius: 50%; object-fit: cover; background: var(--fill-soft); }
 .user-hover-trigger > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.user-hover-trigger:hover { color: var(--brand-hover); }
+.user-hover-trigger:hover { color: var(--brand-hover); transition: all 0.3s ease; }
 .user-hover-trigger:focus-visible, .user-profile-card a:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; border-radius: 6px; }
 .user-profile-card { color: var(--ink); background: #fff; font-family: var(--el-font-family); font-size: 13px; line-height: 1.5; cursor: auto; }
 .user-profile-card * { box-sizing: border-box; }
@@ -226,13 +226,13 @@ onUnmounted(() => { generation++; });
 .profile-avatar-link > img { display: block; width: 56px; height: 56px; border: 3px solid #fff; border-radius: 50%; background: var(--fill-soft); object-fit: cover; }
 .profile-identity > div { display: flex; align-items: center; gap: 6px; min-width: 0; padding-bottom: 3px; }
 .profile-name { min-width: 0; overflow: hidden; font-size: 15px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-.profile-name:hover { color: var(--brand-hover); }
+.profile-name:hover { color: var(--brand-hover); transition: all 0.3s ease; }
 .profile-level { flex: none; padding: 1px 5px; border-radius: 4px; background: var(--brand-light-9); color: var(--brand-hover); font-size: 10px; }
 .profile-body { padding: 8px 16px 10px; }
 .profile-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .profile-stats > div, .profile-stats > a { display: flex; align-items: center; gap: 5px; min-width: 0; color: var(--ink-3); font-size: 12px; }
 .profile-stats a { color: inherit; text-decoration: none; }
-.profile-stats a:hover strong { color: var(--brand-hover); }
+.profile-stats a:hover strong { color: var(--brand-hover); transition: all 0.3s ease; }
 .profile-stats strong { color: var(--ink-2); font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
 .profile-signature { display: -webkit-box; margin: 10px 0 12px; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color: var(--ink-2); font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
 .profile-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }

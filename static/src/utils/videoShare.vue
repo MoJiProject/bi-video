@@ -271,7 +271,8 @@ return {
 
   .delete-share-info:hover{
     color: #0FA68E;
-  }
+    transition: all 0.3s ease;
+}
 
   .not-share-container{
     height: 90px;
@@ -385,7 +386,8 @@ return {
 
   .share-btn:hover{
     background-color: #00b8f6;
-  }
+    transition: all 0.3s ease;
+}
 
   .not-share-btn{
     position: relative;

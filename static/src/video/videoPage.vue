@@ -130,18 +130,30 @@
           <div
             v-show="intoVideoAllDisplayIngFlag && videoFeatureShowFlag"
             class="intoVideoAllDisplayIngFlagCreator"
+            @mouseover="handlerCleanTime(), (videoLeave = true)"
+            @mouseleave="videoLeave = false"
           >
-            <img
-              :src="SelectVideoByIdVo.upUser?.avatarAddress"
-              class="intoVideoAllDisplayIngFlagCreator-avatar"
-              alt=""
-              @click="openHome(1, SelectVideoByIdVo.upUser.id)"
-            />
-            <span
-              class="intoVideoAllDisplayIngFlagCreator-name"
-              @click="openHome(1, SelectVideoByIdVo.upUser.id)"
-              >{{ SelectVideoByIdVo.upUser.userName }}</span
+            <UserHoverCard
+              :user-id="Number(SelectVideoByIdVo.upUser.id) || 0"
+              :avatar="SelectVideoByIdVo.upUser?.avatarAddress"
+              :nickname="SelectVideoByIdVo.upUser.userName || ''"
+              :avatar-size="30"
             >
+              <template #reference>
+                <span class="intoVideoAllDisplayIngFlagCreator-trigger">
+                  <img
+                    :src="SelectVideoByIdVo.upUser?.avatarAddress"
+                    class="intoVideoAllDisplayIngFlagCreator-avatar"
+                    alt=""
+                    @click.stop="openHome(1, SelectVideoByIdVo.upUser.id)"
+                  />
+                  <span
+                    class="intoVideoAllDisplayIngFlagCreator-name"
+                    @click.stop="openHome(1, SelectVideoByIdVo.upUser.id)"
+                  >{{ SelectVideoByIdVo.upUser.userName }}</span>
+                </span>
+              </template>
+            </UserHoverCard>
             <button
               v-if="String(SelectVideoByIdVo.upUser.id) !== String(store.userId)"
               type="button"
@@ -4923,10 +4935,12 @@ textarea,
 
 .expand-icon-container:hover {
   background-color: #E0E5E3;
+  transition: all 0.3s ease;
 }
 
 .expand-icon-container:hover .expand-icon {
   transform: rotate(180deg);
+  transition: all 0.3s ease;
 }
 
 .show-up-videoTitle-container {
@@ -4951,8 +4965,7 @@ textarea,
 }
 
 .expand-icon-container:hover .show-up-videoTitle-container {
-  visibility: visible;
-}
+  visibility: visible;}
 
 .prohibition-tag {
   display: inline-flex;
@@ -4969,6 +4982,7 @@ textarea,
 
 .up-user-name:hover {
   color: #0FA68E;
+  transition: all 0.3s ease;
 }
 
 /* UP 主资料卡已改用 UserHoverCard 组件（el-popover teleport 渲染），旧的 .up-user-info 手写卡样式已删除；头像行已移入播放器左上角 player-creator-chip */
@@ -4992,6 +5006,7 @@ textarea,
 
 .sendMessage-container:hover .sendUpMessage {
   color: #0FA68E;
+  transition: all 0.3s ease;
 }
 
 .up-user-content {
@@ -5030,6 +5045,7 @@ textarea,
 
 .up-power-container:hover {
   background-color: #FDEEE4;
+  transition: all 0.3s ease;
 }
 
 .up-add-follow-container {
@@ -5069,10 +5085,12 @@ textarea,
 
 .up-delete-follow-container:hover {
   background-color: #EFF3F2;
+  transition: all 0.3s ease;
 }
 
 .up-add-follow-container:hover {
   opacity: 0.9;
+  transition: all 0.3s ease;
 }
 
 .prohibition-sign {
@@ -5136,6 +5154,7 @@ textarea,
 .up-video-container:hover .up-video-play-bottom-video-time-input-container,
 .up-video-container:hover .openOrCloseScrollingintovideoAllDisplayIngFlag {
   opacity: 1;
+  transition: all 0.3s ease;
 }
 
 .up-VideoProgress {
@@ -5229,6 +5248,7 @@ textarea,
 
 .up-video-play-bottom-video-time-container:hover {
   color: white;
+  transition: all 0.3s ease;
 }
 
 .up-video-play-bottom-video-spped {
@@ -5243,6 +5263,7 @@ textarea,
 
 .up-video-play-bottom-video-spped:hover {
   color: white;
+  transition: all 0.3s ease;
 }
 
 .up-video-play-bottom-video-audio {
@@ -5384,6 +5405,7 @@ textarea,
 
 .up-video-play-bottom-video-speed-container span:hover {
   background-color: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
 }
 
 .selectVideoSpped {
@@ -5491,6 +5513,7 @@ textarea,
 
 .up-video-play-bottom-video-set-container span:hover {
   color: #0FA68E;
+  transition: all 0.3s ease;
 }
 
 .video-false-container {
@@ -5511,6 +5534,7 @@ textarea,
   .el-switch__action {
   opacity: 1; /* 鼠标悬停时完全可见 */
   visibility: visible; /* 设置为可见 */
+  transition: all 0.3s ease;
 }
 
 .custom-switch {
@@ -5944,10 +5968,12 @@ textarea,
 
 .scrolling-regulation:hover {
   color: #0FA68E;
+  transition: all 0.3s ease;
 }
 
 .scrolling-regulation1:hover {
   color: white;
+  transition: all 0.3s ease;
 }
 
 .up-video-play-bottom-video-setting-scrolling-container {
@@ -6191,6 +6217,7 @@ textarea,
 
 .up-video-play-bottom-video-open-scrolling-color-info-container-font .ss:hover {
   background-color: #80807f;
+  transition: all 0.3s ease;
 }
 
 .up-video-play-bottom-video-open-scrolling-color-info-container-pattern
@@ -6209,6 +6236,7 @@ textarea,
 
 .scrolling-pattern-roll-container:hover {
   color: white;
+  transition: all 0.3s ease;
 }
 
 .scrolling-pattern-top-container {
@@ -6220,6 +6248,7 @@ textarea,
 
 .scrolling-pattern-top-container:hover {
   color: white;
+  transition: all 0.3s ease;
 }
 
 .scrolling-pattern-bottom-container {
@@ -6231,6 +6260,7 @@ textarea,
 
 .scrolling-pattern-bottom-container:hover {
   color: white;
+  transition: all 0.3s ease;
 }
 
 .up-video-play-bottom-video-open-scrolling-color-info-container-pattern
@@ -6304,12 +6334,14 @@ textarea,
 
 .scrolling-colorful-picker:hover {
   border-color: #cccccc;
+  transition: all 0.3s ease;
 }
 
 /* 选中态保持 1px 边框，只换颜色；
    写成双类选择器是为了在:hover 时也能压过上面的 hover 规则 */
 .scrolling-colorful-picker.scrolling-colorful-picker-active {
   border-color: #0FA68E;
+  transition: all 0.3s ease;
 }
 
 .up-video-play-bottom-video-open-scrolling-color-container:hover
@@ -6551,6 +6583,7 @@ textarea,
 .scrolling-reocation:hover {
   background-color: #0FA68E;
   color: white;
+  transition: all 0.3s ease;
 }
 
 .scrolling-list-item-bottom-end {
@@ -6622,6 +6655,7 @@ textarea,
 
 .up-video-controls-container .up-video-controls-span:hover {
   color: #0FA68E;
+  transition: all 0.3s ease;
 }
 
 .video-share-container{
@@ -7251,6 +7285,7 @@ textarea,
 
 .dialog-footer-input-container:hover {
   border: 1px solid #0FA68E;
+  transition: all 0.3s ease;
 }
 
 .dialog-footer-input-container img {
@@ -7301,6 +7336,7 @@ textarea,
 
 .collect-list-item:hover .collect-list-item-name {
   color: #0FA68E;
+  transition: all 0.3s ease;
 }
 
 .collect-list-item-num {
@@ -7349,6 +7385,7 @@ textarea,
 
 .dialog-footer-item1:hover {
   opacity: 0.9;
+  transition: all 0.3s ease;
 }
 
 .dialog-footer-input {
@@ -7412,6 +7449,7 @@ textarea,
 .addWaitWatch:hover .wait-watch-info {
   opacity: 1;
   visibility: visible;
+  transition: all 0.3s ease;
 }
 
 .wait-watch-info {
@@ -7445,6 +7483,7 @@ textarea,
 
 .wait-watch-info span:hover {
   background-color: #EFF3F2;
+  transition: all 0.3s ease;
 }
 
 .wait-watch-info img {
@@ -7536,6 +7575,7 @@ textarea,
 
 .throw-coin-img-content1:hover {
   border: 2px dashed #0FA68E;
+  transition: all 0.3s ease;
 }
 
 .throw-coin-img-content1 .img-static {
@@ -7607,6 +7647,7 @@ textarea,
 
 .throw-coin-img-content2:hover {
   border: 2px dashed #0FA68E;
+  transition: all 0.3s ease;
 }
 
 .throw-coin-img-content2 .img-static {
@@ -7653,6 +7694,7 @@ textarea,
 
 .throwCoinNumberConten1:hover {
   border: 2px solid #0FA68E;
+  transition: all 0.3s ease;
 }
 
 .throwCoinNumberConten2 {
@@ -7661,6 +7703,7 @@ textarea,
 
 .throwCoinNumberConten2:hover {
   border: 2px solid #0FA68E;
+  transition: all 0.3s ease;
 }
 
 .throwCoinNumberContenImg1 {
@@ -7731,7 +7774,8 @@ textarea,
   }
   span:hover {
     color: #0FA68E;
-  }
+    transition: all 0.3s ease;
+}
 }
 
 .videoContentFlag {
@@ -7768,6 +7812,7 @@ a {
 
 a:hover {
   color: #0FA68E;
+  transition: all 0.3s ease;
 }
 
 .videoPostion {
@@ -8174,6 +8219,7 @@ a:hover {
   border-color: var(--brand-light-5);
   background: var(--brand-soft);
   color: var(--brand-hover);
+  transition: all 0.3s ease;
 }
 
 .video-page .video-page-backtop {
@@ -8217,6 +8263,7 @@ a:hover {
   background: var(--brand-soft);
   color: var(--brand);
   transform: translateY(-1px);
+  transition: all 0.3s ease;
 }
 
 .video-page .up-video-controls-img1,
@@ -8498,5 +8545,6 @@ a:hover {
   .player-tool-button:hover
   img[src$='灰.png'] {
   filter: brightness(0.35);
+  transition: all 0.3s ease;
 }
 </style>

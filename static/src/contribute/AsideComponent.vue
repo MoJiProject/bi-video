@@ -36,7 +36,7 @@ export default {
 .creator-nav { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px; }
 .creator-nav a { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 8px 20px; border-radius: 10px; color: var(--ink-2); text-decoration: none; font-size: 14px; }
 .creator-nav a.active { background: var(--brand-light-9); color: var(--brand-hover); font-weight: 600; }
-.creator-nav a:hover { background: var(--fill-soft); }
+.creator-nav a:hover { background: var(--fill-soft); transition: all 0.3s ease; }
 .creator-nav a:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
 .creator-nav svg { width: var(--icon-sm); height: var(--icon-sm); fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 @media (max-width: 640px) {

@@ -341,6 +341,7 @@ z-index: 999;
 }
 .menu:hover{
     background-color: #f5f5f5;
+    transition: all 0.3s ease;
 }
 .user-info {
     position: absolute;
@@ -409,7 +410,8 @@ z-index: 999;
     .user-avatar-link:hover .avatar-edit-overlay,
     > a:focus-visible .avatar-edit-overlay{
         opacity: 1;
-    }
+        transition: all 0.3s ease;
+}
 
     .user-info-top{
         position: relative;
@@ -491,7 +493,8 @@ z-index: 999;
     .user-info-introduce2:hover{
     background-color: rgba(255, 255, 255, .2);
     box-shadow: 0 0 0 1px rgba(255, 255, 255, .5);
-    }
+    transition: all 0.3s ease;
+}
 
     input{
     position: static;
@@ -553,7 +556,8 @@ z-index: 999;
     }
     .follow:hover{
         background-color: #3CC0A6;
-    }
+        transition: all 0.3s ease;
+}
     .delete-follow{
     cursor: pointer;
     display: flex;
@@ -581,7 +585,8 @@ z-index: 999;
     }
     .delete-follow:hover{
         background-color: rgb(255 255 255 / 40%);
-    }
+        transition: all 0.3s ease;
+}
     .send-message{
     cursor: pointer;
     display: flex;
@@ -599,7 +604,8 @@ z-index: 999;
     }
     .send-message:hover{
         background-color: rgb(255 255 255 / 40%);
-    }
+        transition: all 0.3s ease;
+}
 
 }
 }

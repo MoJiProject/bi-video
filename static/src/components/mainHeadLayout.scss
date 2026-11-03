@@ -30,7 +30,7 @@
   }
 
   .v-header-ul > li:hover,
-  .v-header-ul > li:focus-within { z-index: var(--z-panel); }
+  .v-header-ul > li:focus-within { z-index: var(--z-panel);}
 
   .v-header-ul > li.hd-home { order: 0; }
   .v-header-ul > li.hd-explore { order: 1; }
@@ -93,7 +93,8 @@
       border-color: #d6e7df;
       background: #f0f6f2;
       color: #126b58;
-    }
+      transition: all 0.3s ease;
+}
   }
 
   .menu-chevron {
@@ -150,7 +151,7 @@
     font-size: 13px;
     gap: 6px;
 
-    &:hover { background: #0d5545; }
+    &:hover { background: #0d5545; transition: all 0.3s ease; }
 
     a { gap: 6px; margin: 0; color: #fff; line-height: 1.4; }
   }
@@ -180,7 +181,7 @@
     transition: none;
   }
 
-  .avatar-container:hover .avatar1 { transform: none; }
+  .avatar-container:hover .avatar1 { transform: none; transition: all 0.3s ease; }
   .profile-trigger > .avatar1 {
     margin: 0;
     padding: 0;
@@ -286,11 +287,11 @@
     .profile-stats a { display: flex; min-width: 0; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; border-radius: 8px; }
     .profile-stats strong { max-width: 100%; overflow: hidden; font-size: 17px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
     .profile-stats span { color: var(--ink-2); font-size: 12px; }
-    .profile-stats a:hover { background: var(--fill-soft); color: var(--brand-hover); }
+    .profile-stats a:hover { background: var(--fill-soft); color: var(--brand-hover); transition: all 0.3s ease; }
     .profile-links { display: flex; flex-direction: column; gap: 4px; }
     .profile-links a, .profile-logout { box-sizing: border-box; display: flex; align-items: center; gap: 10px; width: 100%; min-height: 40px; padding: 10px; border-radius: 10px; font-family: inherit; font-size: 13px; font-weight: 400; line-height: 1.5; }
     .profile-links svg { display: block; flex: none; width: 18px; height: 18px; margin: 0; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-    .profile-links a:hover, .profile-logout:hover { background: var(--fill-soft); color: var(--brand-hover); }
+    .profile-links a:hover, .profile-logout:hover { background: var(--fill-soft); color: var(--brand-hover); transition: all 0.3s ease; }
     .profile-logout { margin: 0; border: 0; background: #fff; color: var(--ink-2); text-align: left; }
   }
 
@@ -311,7 +312,7 @@
     white-space: nowrap;
 
     svg { fill: none; stroke: currentColor; stroke-width: 1.5; }
-    &:hover { background: #f1f7f2; border-color: #729b82; }
+    &:hover { background: #f1f7f2; border-color: #729b82; transition: all 0.3s ease; }
   }
 
   .v-header-ul > li.hd-user .avatar { flex: none; width: auto; height: auto; background: transparent; }
@@ -407,7 +408,7 @@
       text-align: center;
       line-height: 1.5;
 
-      &:hover { background: #f0f6f2; color: #126b58; }
+      &:hover { background: #f0f6f2; color: #126b58; transition: all 0.3s ease; }
     }
   }
 
@@ -451,7 +452,7 @@
       white-space: nowrap;
 
       &:hover,
-      &:focus-visible { border-color: #e0eadb; background: #f4f8f0; color: #126b58; }
+      &:focus-visible { border-color: #e0eadb; background: #f4f8f0; color: #126b58; transition: all 0.3s ease; }
 
       &:has(> .number-style) {
         grid-template-columns: 35px minmax(0, 1fr) auto;

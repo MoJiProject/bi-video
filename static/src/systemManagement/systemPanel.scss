@@ -106,7 +106,8 @@ $sys-success: #67c23a;
 
     input:hover {
       border-color: $sys-primary;
-    }
+      transition: all 0.3s ease;
+}
   }
 }
 
@@ -179,7 +180,8 @@ $sys-success: #67c23a;
 
   &:hover .avatar {
     opacity: 0.85;
-  }
+    transition: all 0.3s ease;
+}
 
   .meta {
     margin-left: 8px;
@@ -203,7 +205,8 @@ $sys-success: #67c23a;
 
   &:hover .name {
     color: $sys-primary;
-  }
+    transition: all 0.3s ease;
+}
 }
 
 //评论正文渲染（评论内容本身是富文本HTML）

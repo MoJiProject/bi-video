@@ -257,7 +257,8 @@
          }
          .video-title:hover{
          color: #0FA68E;
-         }
+         transition: all 0.3s ease;
+}
      }
      .up-user-name-link{
         position: relative;

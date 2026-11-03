@@ -245,7 +245,8 @@ return title.replace(regex, '<span class="highlight2">$1</span>');
             }
             .video-title:hover{
             color: #0FA68E;
-            }
+            transition: all 0.3s ease;
+}
             }
             .introduce-container{
             .introduce{

@@ -224,7 +224,7 @@ onUnmounted(() => { active = false; generation++; clearInterval(reminderTimer); 
 .feed-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 28px; padding: 4px 0 24px; border-bottom: 1px solid var(--line); }
 .feed-heading h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); letter-spacing: -.04em; }
 .write-button { display: inline-flex; flex: none; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 0 18px; border: 1px solid #126b58; border-radius: 12px; background: #126b58; color: #fff; font: inherit; font-size: 13px; cursor: pointer; }
-.write-button:hover { background: #0d5545; }
+.write-button:hover { background: #0d5545; transition: all 0.3s ease; }
 .write-button svg, .image-upload svg, .new-posts svg { width: var(--icon-sm); height: var(--icon-sm); fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .feed-layout { display: grid; grid-template-columns: clamp(190px, 16vw, 240px) minmax(0, 1fr); align-items: start; gap: 24px; }
 .feed-layout.is-public { grid-template-columns: minmax(0, 1fr); }
@@ -234,7 +234,7 @@ onUnmounted(() => { active = false; generation++; clearInterval(reminderTimer); 
 .authors-heading > span { box-sizing: border-box; display: inline-flex; flex: none; align-items: center; justify-content: center; min-width: 24px; height: 24px; margin: 0; padding: 0 7px; border-radius: 7px; background: var(--fill-soft); color: var(--ink-3); font-size: 12px; font-weight: 400; line-height: 1; font-variant-numeric: tabular-nums; }
 .author-list { display: flex; flex-direction: column; gap: 5px; max-height: max(180px, calc(100dvh - var(--head-h) - 120px)); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
 .author-list button { box-sizing: border-box; display: flex; flex: none; align-items: center; gap: 10px; width: 100%; min-width: 0; min-height: 48px; margin: 0; padding: 7px 10px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--ink-2); font-family: var(--el-font-family, sans-serif); font-size: 13px; font-weight: 400; line-height: 20px; text-align: left; cursor: pointer; }
-.author-list button:hover { background: var(--fill-soft); }
+.author-list button:hover { background: var(--fill-soft); transition: all 0.3s ease; }
 .author-list button.active { border-color: #cce3d8; background: #edf6f0; color: #126b58; font-weight: 600; }
 .author-list img, .author-symbol { flex: none; width: 32px; height: 32px; border-radius: 10px; object-fit: cover; }
 .author-symbol { display: grid; place-items: center; background: var(--fill-soft); color: #618575; }
@@ -257,7 +257,7 @@ onUnmounted(() => { active = false; generation++; clearInterval(reminderTimer); 
 .visibility :deep(.el-select__wrapper) { border-radius: 10px; }
 .image-upload { position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 36px; max-width: 100%; padding: 6px 10px; border: 1px solid var(--line); border-radius: 10px; color: #126b58; font-size: 12px; cursor: pointer; }
 .image-upload > span { color: var(--ink-3); font-size: 11px; }
-.image-upload:hover { background: var(--fill-soft); }
+.image-upload:hover { background: var(--fill-soft); transition: all 0.3s ease; }
 .image-upload.disabled { opacity: .55; cursor: not-allowed; }
 .image-upload input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .image-upload:focus-within, .write-button:focus-visible, .author-list button:focus-visible { outline: 2px solid #126b58; outline-offset: 3px; }

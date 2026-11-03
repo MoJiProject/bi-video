@@ -342,6 +342,7 @@ addDialogue(store.token,dialogue).then(res=>{
 
 .up-user-info-container-footer-delete-follow:hover {
   background-color: #EFF3F2;
+  transition: all 0.3s ease;
 }
 
 .up-user-info-container-footer-message {
@@ -359,10 +360,12 @@ addDialogue(store.token,dialogue).then(res=>{
 
 .up-user-info-container-footer-add-follow:hover {
   opacity: 0.9;
+  transition: all 0.3s ease;
 }
 
 .up-user-info-container-footer-message:hover {
   color: #0FA68E;
   border: 1px solid #0FA68E;
+  transition: all 0.3s ease;
 }
 </style>

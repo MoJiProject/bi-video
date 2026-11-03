@@ -122,7 +122,7 @@ onMounted(load);
 .avatar-frame { width: 200px; height: 200px; margin: 0 auto; border: 1px solid #abaeaf; border-radius: 50%; }
 .avatar-frame .avatar, .avatar-frame .media-empty { position: absolute; top: 50%; left: 50%; width: 96px; height: 96px; border-radius: 50%; transform: translate(-50%, -50%); }
 .upload-control { position: relative; display: flex; justify-content: center; align-items: center; width: 140px; min-height: 40px; max-width: 100%; margin: 20px auto 0; padding: 8px; border: 1px solid var(--brand); border-radius: 4px; background: var(--brand); color: #fff; font-size: 14px; line-height: 20px; text-align: center; cursor: pointer; }
-.upload-control:hover { border-color: var(--brand-hover); background: var(--brand-hover); }
+.upload-control:hover { border-color: var(--brand-hover); background: var(--brand-hover); transition: all 0.3s ease; }
 .upload-control.disabled { opacity: .6; cursor: wait; }
 .upload-file { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .avatar-frame .upload-control { position: absolute; top: 50%; left: -27px; width: 54px; min-height: 54px; margin: 0; padding: 6px; border-radius: 50%; transform: translateY(-50%); }

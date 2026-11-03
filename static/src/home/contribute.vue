@@ -270,7 +270,8 @@ function handleCurrentChange2(event) {
     }
     .activeMenu:hover {
       background-color: #EFF3F2;
-    }
+      transition: all 0.3s ease;
+}
   }
   .content {
     position: relative;
@@ -319,7 +320,8 @@ function handleCurrentChange2(event) {
         }
         span:hover {
           color: #0FA68E;
-        }
+          transition: all 0.3s ease;
+}
       }
       .video-sort {
         position: relative;
@@ -344,7 +346,8 @@ function handleCurrentChange2(event) {
         }
         span:hover {
           color: #0FA68E;
-        }
+          transition: all 0.3s ease;
+}
         .sortClass {
           color: white !important;
           background-color: #0FA68E !important;
@@ -425,7 +428,8 @@ function handleCurrentChange2(event) {
           }
           input:hover {
             border-color: #0FA68E;
-          }
+            transition: all 0.3s ease;
+}
           input:focus {
             border-color: #0FA68E;
           }

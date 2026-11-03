@@ -103,7 +103,8 @@ if(store.accountMenu!==accountMenu)
     }
     .menu-item:hover{
      background-color: rgb(225, 228, 234, 0.7);
-    }
+     transition: all 0.3s ease;
+}
     .active{
       background-color: var(--brand) !important;
       color: white !important;

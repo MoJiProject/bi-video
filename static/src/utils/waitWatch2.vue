@@ -92,6 +92,7 @@ async function waitWatch(video) {
 .wait-watch:hover {
     background: rgba(16, 30, 27, .9);
     transform: translateY(-1px);
+    transition: all 0.3s ease;
 }
 
 .wait-watch.is-done {
@@ -102,6 +103,7 @@ async function waitWatch(video) {
 
 .wait-watch.is-done:hover {
     background: rgba(240, 252, 248, .9);
+    transition: all 0.3s ease;
 }
 
 .wait-watch:focus-visible {

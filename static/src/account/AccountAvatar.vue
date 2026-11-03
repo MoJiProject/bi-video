@@ -255,6 +255,7 @@ export default {
 
 .choose-box:hover {
     background: #e5e9ef;
+    transition: all 0.3s ease;
 }
 
 .choose-box img {
@@ -285,6 +286,7 @@ export default {
 .reset-img:hover {
     color: var(--Pi4);
     fill: var(--Pi4);
+    transition: all 0.3s ease;
 }
 
 .reset-img svg {

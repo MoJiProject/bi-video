@@ -312,7 +312,8 @@ position: relative;
     }
     button:hover{
         background-color: #19AC96;
-    }
+        transition: all 0.3s ease;
+}
 }
 
 }

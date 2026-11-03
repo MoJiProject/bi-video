@@ -344,7 +344,7 @@ defineExpose({ focus });
 .editor-toolbar { min-width: 0; padding: 7px 10px; border-top: 1px solid var(--fill); }
 .editor-tools { min-width: 0; gap: 4px; }
 .editor-tools :deep(.editor-tool) { box-sizing: border-box; display: inline-flex; flex: none; justify-content: center; align-items: center; gap: 5px; height: 30px; margin: 0; padding: 0 7px; border: 0; border-radius: 6px; background: transparent; color: var(--ink-2); font-family: inherit; font-size: 12px; font-weight: 400; line-height: 20px; cursor: pointer; }
-.editor-tools :deep(.editor-tool:hover) { background: var(--fill-soft); color: var(--brand-hover); }
+.editor-tools :deep(.editor-tool:hover) { background: var(--fill-soft); color: var(--brand-hover); transition: all 0.3s ease; }
 .editor-tools :deep(.editor-tool:disabled) { cursor: not-allowed; opacity: .5; }
 .editor-tools :deep(.editor-tool > svg) { display: block; flex: none; width: 18px; height: 18px; margin: 0; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .editor-tools :deep(.editor-tool > span) { display: inline-flex; align-items: center; height: 20px; line-height: 20px; }
@@ -360,11 +360,11 @@ defineExpose({ focus });
 .panel-heading span { color: var(--ink-3); font-size: 11px; }
 .emoji-grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 3px; max-height: 224px; margin-top: 8px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
 .emoji-grid button { display: grid; place-items: center; min-width: 0; height: 32px; padding: 3px; border: 0; border-radius: 6px; background: transparent; cursor: pointer; }
-.emoji-grid button:hover { background: var(--brand-light-9); }
+.emoji-grid button:hover { background: var(--brand-light-9); transition: all 0.3s ease; }
 .emoji-grid img { display: block; width: 24px; height: 24px; }
 .mention-list { max-height: 248px; margin-top: 6px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
 .mention-list button { display: flex; align-items: center; gap: 9px; width: 100%; min-width: 0; min-height: 44px; padding: 7px 8px; border: 0; border-radius: 7px; background: transparent; color: var(--ink-2); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
-.mention-list button:hover, .mention-list button.selected { background: var(--brand-light-9); color: var(--brand-hover); }
+.mention-list button:hover, .mention-list button.selected { background: var(--brand-light-9); color: var(--brand-hover); transition: all 0.3s ease; }
 .mention-list img { flex: none; width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
 .mention-list button > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mention-list small { flex: none; color: var(--ink-3); font-size: 11px; }

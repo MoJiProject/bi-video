@@ -237,7 +237,8 @@ video{
         }
         .video-title:hover{
         color: #0FA68E;
-        }
+        transition: all 0.3s ease;
+}
         .video-date{
             margin-top: 6px;
             display: flex;

@@ -258,7 +258,8 @@ export default {
     .eit-item:hover,
     .eit-item-active {
         background-color: #EFF3F2;
-    }
+        transition: all 0.3s ease;
+}
 }
 
 .eit-empty {

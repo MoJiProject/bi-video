@@ -1782,6 +1782,7 @@ h1 {
 
 .uploadCoverImg:hover {
   background-color: #5FB9B4;
+  transition: all 0.3s ease;
 }
 
 .commit {
@@ -1799,16 +1800,20 @@ h1 {
 
 .commit:hover {
   background-color: #5FB9B4;
+  transition: all 0.3s ease;
 }
 .el-dialog .el-dialog__headerbtn:hover {
   background-color: white;
+  transition: all 0.3s ease;
 }
 .m-2:hover {
   color: var(--brand-hover) !important;
   background-color: white;
+  transition: all 0.3s ease;
 }
 .forbind:hover {
   color: var(--brand-hover) !important;
+  transition: all 0.3s ease;
 }
 
 :global(.el-popover.contribute-upload-popover) {
@@ -1820,6 +1825,7 @@ h1 {
 
 .forter2 a:hover {
   opacity: 0.7;
+  transition: all 0.3s ease;
 }
 
 .content-input{

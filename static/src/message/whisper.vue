@@ -1556,7 +1556,8 @@ function restoreBodyOverflow() {
         &:hover,
         &[aria-expanded="true"]{
             color: #2BB2A0;
-        }
+            transition: all 0.3s ease;
+}
 
         svg{
             user-select: none;
@@ -1668,7 +1669,8 @@ function restoreBodyOverflow() {
 
                     &:hover{
                       text-decoration: underline;
-                    }
+                      transition: all 0.3s ease;
+}
                     }
                 }
 
@@ -1999,7 +2001,8 @@ function restoreBodyOverflow() {
 
             div:hover{
                 background-color: #d4d4d4;
-            }
+                transition: all 0.3s ease;
+}
 
         }
 
@@ -2106,7 +2109,8 @@ function restoreBodyOverflow() {
 
                 .comment-emoji-content:hover {
                     background-color: #E7F6F3;
-                }
+                    transition: all 0.3s ease;
+}
             }
         }
 
@@ -2174,7 +2178,8 @@ function restoreBodyOverflow() {
             button:hover{
                 background-color: #2BB2A0;
                 border: 1px solid #2BB2A0;
-            }
+                transition: all 0.3s ease;
+}
 
             .sendMessageBtnClass{
                 background-color: white;
@@ -2185,7 +2190,8 @@ function restoreBodyOverflow() {
             .sendMessageBtnClass:hover{
                 background-color: white;
                 border: 1px solid #e7e7e7;
-            }
+                transition: all 0.3s ease;
+}
         }
     }
 
@@ -2211,7 +2217,8 @@ function restoreBodyOverflow() {
 
       .scroll-to-bottom-btn:hover{
         transform: translateY(-4px);
-      }
+        transition: all 0.3s ease;
+}
 
 
 
@@ -2267,7 +2274,8 @@ function restoreBodyOverflow() {
         div:hover{
         color: #2BB2A0;
         background: #e5e9ef;
-        }
+        transition: all 0.3s ease;
+}
     }
 
     .message-setting-dialog:before{
@@ -2506,6 +2514,7 @@ function restoreBodyOverflow() {
 .delete-dialog-cancel-btn:hover{
     background-color: #20AF99;
     color: white;
+    transition: all 0.3s ease;
 }
 
 .delete-dialog-confirm-btn{
@@ -2522,6 +2531,7 @@ function restoreBodyOverflow() {
 
 .delete-dialog-confirm-btn:hover{
     background-color: #2FB4A1;
+    transition: all 0.3s ease;
 }
 
 @media (min-width: 901px){

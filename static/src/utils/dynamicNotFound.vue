@@ -89,7 +89,8 @@ import mainHead from "@/components/mainHead.vue";
       }
       a:hover{
         background-color: #17A08B;
-      }
+        transition: all 0.3s ease;
+}
   }
 }
 

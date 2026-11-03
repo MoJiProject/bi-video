@@ -330,7 +330,8 @@
          }
          .video-title:hover{
          color: #0FA68E;
-         }
+         transition: all 0.3s ease;
+}
          .delete-history{
           position: absolute;
           right: 20px;
@@ -346,13 +347,15 @@
             }
             img:nth-child(1):hover{
              opacity: 0;
-            }
+             transition: all 0.3s ease;
+}
             img:nth-child(2){
              opacity: 0;
             }
             img:nth-child(2):hover{
              opacity: 1;
-            }
+             transition: all 0.3s ease;
+}
          }
      }
      .up-user-name-link{

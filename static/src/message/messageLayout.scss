@@ -93,7 +93,7 @@
         cursor: pointer;
       }
       .liColor .active { background: var(--brand-light-9); color: var(--brand-hover) !important; }
-      li:hover .active { background: var(--fill-soft); color: var(--brand-hover); }
+      li:hover .active { background: var(--fill-soft); color: var(--brand-hover); transition: all 0.3s ease; }
     }
     .message-num { position: static; min-width: 20px; width: auto; padding: 0 5px; background: #e95d68; font-size: 10px; }
     .msg-setting {
@@ -112,7 +112,7 @@
       cursor: pointer;
       img { position: static; width: 16px; height: 16px; }
       .active { position: static; color: var(--ink-2); font-size: 13px; line-height: 1.7; }
-      &.liColor .active, &:hover .active { color: var(--brand-hover) !important; }
+      &.liColor .active, &:hover .active { color: var(--brand-hover) !important; transition: all 0.3s ease; }
     }
   }
 
@@ -190,7 +190,7 @@
               line-height: 1.7;
               overflow-wrap: anywhere;
               a { color: var(--ink); }
-              a:hover, .love-list:hover { color: var(--brand-hover); }
+              a:hover, .love-list:hover { color: var(--brand-hover); transition: all 0.3s ease; }
               span { margin: 0; color: var(--ink-3); font-size: 12px; }
             }
             :is(.reply-right-content-center, .at-right-content-center, .love-right-content-center) {
@@ -230,10 +230,10 @@
                 visibility: visible;
                 cursor: pointer;
                 svg.comment-action-icon { width: 15px; height: 15px; margin-right: -4px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-                &:hover { color: var(--brand-hover); }
+                &:hover { color: var(--brand-hover); transition: all 0.3s ease; }
               }
               // 图标改用与视频评论区同款的描边 SVG（currentColor），hover 变色由上面的 &:hover 统一接管
-              .love-comment2 { color: var(--brand-hover); }
+              .love-comment2 { color: var(--brand-hover); transition: all 0.3s ease; }
             }
             :is(.reply-comment-container, .at-comment-container) {
               display: grid;
@@ -340,8 +340,8 @@
             .message-dnd { display: block; right: 8px; top: 12px; width: 12px; height: 12px; }
             .message-unread-number { right: 6px; top: 12px; min-width: 17px; height: 17px; font-size: 10px; background: #e95d68; }
             .delete-message { position: absolute; left: auto; right: 6px; top: auto; bottom: 9px; display: grid; place-items: center; width: 22px; height: 22px; padding: 4px; transform: none; animation: none; border: 0; border-radius: 6px; background: transparent; color: var(--ink-3); cursor: pointer; svg { width: 14px; height: 14px; } }
-            &:hover, &.message-user-itemBackground { background: var(--brand-light-9); }
-            &:hover .delete-message { transform: none; animation: none; }
+            &:hover, &.message-user-itemBackground { background: var(--brand-light-9); transition: all 0.3s ease; }
+            &:hover .delete-message { transform: none; animation: none; transition: all 0.3s ease; }
           }
         }
       }
@@ -358,8 +358,8 @@
           text-align: left;
           .conversation-back { display: none; }
           .dialogue-title { min-width: 0; padding-right: 28px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-          .message-setting-dialog-img-container { top: 9px; right: 12px; display: grid; place-items: center; width: 32px; height: 32px; padding: 6px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink-2); &:hover, &[aria-expanded="true"] { border-color: var(--brand-light-5); color: var(--brand-hover); } }
-          .message-setting-dialog { top: calc(100% - 4px); right: 12px; width: 172px; max-width: calc(100% - 24px); height: auto; padding: 6px; border-radius: 12px; box-shadow: 0 8px 30px #00000014; z-index: var(--z-panel); &::before { display: none; } button { display: block; width: 100%; min-height: 36px; padding: 8px 10px; border: 0; border-radius: 7px; background: #fff; color: var(--ink-2); font: inherit; font-size: 12px; text-align: left; cursor: pointer; } button:hover:not(:disabled) { background: var(--brand-light-9); color: var(--brand-hover); } button:disabled { color: var(--ink-3); cursor: not-allowed; opacity: .6; } }
+          .message-setting-dialog-img-container { top: 9px; right: 12px; display: grid; place-items: center; width: 32px; height: 32px; padding: 6px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink-2); &:hover, &[aria-expanded="true"] { border-color: var(--brand-light-5); color: var(--brand-hover); transition: all 0.3s ease; } }
+          .message-setting-dialog { top: calc(100% - 4px); right: 12px; width: 172px; max-width: calc(100% - 24px); height: auto; padding: 6px; border-radius: 12px; box-shadow: 0 8px 30px #00000014; z-index: var(--z-panel); &::before { display: none; } button { display: block; width: 100%; min-height: 36px; padding: 8px 10px; border: 0; border-radius: 7px; background: #fff; color: var(--ink-2); font: inherit; font-size: 12px; text-align: left; cursor: pointer; } button:hover:not(:disabled) { background: var(--brand-light-9); color: var(--brand-hover); transition: all 0.3s ease; } button:disabled { color: var(--ink-3); cursor: not-allowed; opacity: .6; } }
         }
         .message-content-container {
           background: var(--fill-soft);
@@ -383,7 +383,7 @@
             }
             &.message-content-container-item2 { flex-direction: row-reverse; .message-user-avatar, .message { float: none; } .message .message-content { border-color: var(--brand-light-7); background: var(--brand-light-9); color: var(--ink); } }
           }
-          .context-menu { width: 160px; max-width: calc(100vw - 16px); padding: 6px; border: 1px solid var(--line); border-radius: 10px; background: #fff; box-shadow: 0 8px 30px #00000014; transition: none; z-index: var(--z-panel); button { display: block; width: 100%; min-height: 34px; padding: 7px 10px; border: 0; border-radius: 6px; background: #fff; color: var(--ink-2); font: inherit; font-size: 12px; text-align: left; cursor: pointer; } button:hover { background: var(--brand-light-9); color: var(--brand-hover); } }
+          .context-menu { width: 160px; max-width: calc(100vw - 16px); padding: 6px; border: 1px solid var(--line); border-radius: 10px; background: #fff; box-shadow: 0 8px 30px #00000014; transition: none; z-index: var(--z-panel); button { display: block; width: 100%; min-height: 34px; padding: 7px 10px; border: 0; border-radius: 6px; background: #fff; color: var(--ink-2); font: inherit; font-size: 12px; text-align: left; cursor: pointer; } button:hover { background: var(--brand-light-9); color: var(--brand-hover); transition: all 0.3s ease; } }
         }
         .message-send-container {
           display: flex;
@@ -397,7 +397,7 @@
             height: 28px;
             flex-shrink: 0;
             gap: 8px;
-            .message-feature-button { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 28px; padding: 5px; border: 0; border-radius: 6px; background: var(--fill-soft); color: var(--ink-3); cursor: pointer; transition: color .15s ease; &:hover { color: var(--brand-hover); } img { width: 20px; height: 20px; margin: 0; } svg { display: block; width: 16px; height: 16px; margin: 0; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; } }
+            .message-feature-button { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 28px; padding: 5px; border: 0; border-radius: 6px; background: var(--fill-soft); color: var(--ink-3); cursor: pointer; transition: color .15s ease; &:hover { color: var(--brand-hover); transition: all 0.3s ease; } img { width: 20px; height: 20px; margin: 0; } svg { display: block; width: 16px; height: 16px; margin: 0; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; } }
             .message-feature-button.message-feature-at { padding: 6px; }
             .eit { position: absolute !important; top: auto; bottom: calc(100% + 8px); left: 40px; width: 300px; max-width: calc(100vw - 160px); height: auto; max-height: min(318px, 40dvh); min-height: 120px; margin: 0; padding: 12px; font-size: 13px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
               .eit-title { width: auto; height: auto; padding: 0 2px 10px; border-bottom: 1px solid var(--fill); color: var(--ink); font-size: 13px; font-weight: 600; }
@@ -406,14 +406,14 @@
                 .eit-item-avatar { position: static; top: auto; left: auto; transform: none; flex: none; width: 28px; height: 28px; }
                 .eit-item-info { position: static; left: auto; padding: 0; flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 0; .eit-item-username { width: auto; font-size: 13px; line-height: 1.4; } .eit-item-fans { font-size: 11px; line-height: 1.4; } }
               }
-              .eit-item:hover, .eit-item-active { background-color: var(--brand-light-9); }
+              .eit-item:hover, .eit-item-active { background-color: var(--brand-light-9); transition: all 0.3s ease; }
               .eit-item-active .eit-item-username { color: var(--brand-hover); }
               .eit-empty { position: static; transform: none; padding: 24px 8px; text-align: center; color: var(--ink-3); font-size: 12px; }
             }
             .message-emoji-list { position: absolute; bottom: calc(100% + 8px); top: auto; left: 0; width: min(320px, 100%); height: auto; max-height: min(320px, 40dvh); border-color: var(--line); border-radius: 8px; box-shadow: none; }
           }
           .message-input-focus { height: 52px; .message-input-container { height: 100%; max-height: 100%; min-height: 28px; font-size: 13px; line-height: 1.7; letter-spacing: 0; &:empty::before { content: attr(data-placeholder); color: var(--ink-3); pointer-events: none; } } }
-          .message-footer-container { position: static; display: flex; justify-content: flex-end; align-items: center; gap: 12px; span { position: static; color: var(--ink-3); font-size: 11px; } button { min-height: 34px; height: auto; border: 0; border-radius: 8px; background: var(--brand); } button:hover { background: var(--brand-hover); border: 0; } .sendMessageBtnClass, .sendMessageBtnClass:hover { background: var(--fill); color: var(--ink-3); border: 0; } }
+          .message-footer-container { position: static; display: flex; justify-content: flex-end; align-items: center; gap: 12px; span { position: static; color: var(--ink-3); font-size: 11px; } button { min-height: 34px; height: auto; border: 0; border-radius: 8px; background: var(--brand); } button:hover { background: var(--brand-hover); border: 0; transition: all 0.3s ease; } .sendMessageBtnClass, .sendMessageBtnClass:hover { background: var(--fill); color: var(--ink-3); border: 0; transition: all 0.3s ease; } }
         }
         .scroll-to-bottom-btn { right: 16px; bottom: 174px; width: 32px; height: 32px; border: 0; background: var(--brand); }
       }
@@ -442,7 +442,7 @@
       border-radius: 12px;
       .title { display: none; }
       ul { flex-direction: row; flex: 4 1 0; width: auto; min-width: 0; gap: 4px; li { flex: 1 1 0; min-width: max-content; width: auto; } .active { justify-content: center; gap: 4px; min-height: 38px; padding: 8px 10px; white-space: nowrap; } }
-      .msg-setting { flex: 1 1 0; min-width: max-content; justify-content: center; align-items: center; width: auto; margin: 0; min-height: 38px; padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; white-space: nowrap; img { display: none; } .active { padding: 0; line-height: 1.6; border-radius: 0; background: transparent; } &:hover { background: var(--fill-soft); } &.liColor { background: var(--brand-light-9); } }
+      .msg-setting { flex: 1 1 0; min-width: max-content; justify-content: center; align-items: center; width: auto; margin: 0; min-height: 38px; padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; white-space: nowrap; img { display: none; } .active { padding: 0; line-height: 1.6; border-radius: 0; background: transparent; } &:hover { background: var(--fill-soft); transition: all 0.3s ease; } &.liColor { background: var(--brand-light-9); } }
     }
   }
 }
@@ -521,5 +521,5 @@
 :global(.el-dialog.message-confirm-dialog .delete-dialog-btn-container) { position: static; display: flex; justify-content: flex-end; gap: 10px; }
 :global(.el-dialog.message-confirm-dialog .delete-dialog-confirm-btn), :global(.el-dialog.message-confirm-dialog .delete-dialog-cancel-btn) { position: static; min-width: 80px; width: auto; min-height: 36px; height: auto; margin: 0; padding: 8px 18px; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--ink-2); cursor: pointer; }
 :global(.el-dialog.message-confirm-dialog .delete-dialog-confirm-btn) { border-color: var(--brand); background: var(--brand); color: #fff; }
-:global(.el-dialog.message-confirm-dialog .delete-dialog-confirm-btn:hover) { background: var(--brand-hover); }
-:global(.el-dialog.message-confirm-dialog .delete-dialog-cancel-btn:hover) { border-color: var(--brand-light-5); background: var(--brand-light-9); color: var(--brand-hover); }
+:global(.el-dialog.message-confirm-dialog .delete-dialog-confirm-btn:hover) { background: var(--brand-hover); transition: all 0.3s ease; }
+:global(.el-dialog.message-confirm-dialog .delete-dialog-cancel-btn:hover) { border-color: var(--brand-light-5); background: var(--brand-light-9); color: var(--brand-hover); transition: all 0.3s ease; }

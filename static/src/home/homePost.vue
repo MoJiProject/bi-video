@@ -204,11 +204,11 @@ async function remove() {
 .post-video-stats > span { display: inline-flex; align-items: center; gap: 5px; min-width: 0; white-space: nowrap; }
 .post-video-stats svg { display: block; flex: none; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .post-video-stats:empty { display: none; }
-.post-video:hover .post-video-title { color: var(--brand-hover); }
+.post-video:hover .post-video-title { color: var(--brand-hover); transition: all 0.3s ease; }
 .home-post > header .content-more { margin-left: auto; }
 .home-post > footer { display: flex; align-items: center; gap: 8px; margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--ink-3); font-size: 13px; }
 .home-post .post-action { display: inline-flex; flex: 1; justify-content: center; align-items: center; gap: 0; min-width: 0; min-height: 38px; height: auto; margin: 0; padding: 8px 10px; border-radius: 9px; color: var(--ink-2); font-size: 13px; line-height: 1.5; text-decoration: none; }
-.home-post .post-action:hover { background: var(--fill-soft); color: var(--brand-hover); }
+.home-post .post-action:hover { background: var(--fill-soft); color: var(--brand-hover); transition: all 0.3s ease; }
 .home-post .post-action.is-liked { color: var(--brand-hover); }
 .home-post .post-action.is-active { color: var(--brand-hover); background: var(--brand-light-9); }
 .home-post > .inline-discussion { margin-top: 16px; padding: 20px 0 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; cursor: auto; }
@@ -216,7 +216,7 @@ async function remove() {
 .home-post .post-action-icon { display: inline-block; flex: none; width: 18px; height: 18px; margin-right: 7px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
 .post-like-summary { display: inline-flex; align-items: center; color: var(--ink-2); }
 .post-permalink { display: inline-flex; margin: 0; color: var(--ink-3); font-size: 13px; text-decoration: none; }
-.post-permalink:hover { color: var(--brand-hover); }
+.post-permalink:hover { color: var(--brand-hover); transition: all 0.3s ease; }
 .post-permalink:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; border-radius: 3px; }
 @container post-card (max-width: 560px) {
   .post-video { grid-template-columns: min(40%, 140px) minmax(0, 1fr); gap: 10px; }

@@ -91,7 +91,7 @@
     font-size: 12px;
     line-height: 32px;
 
-    &:hover { background: #f0f5e9; color: #3b603e; }
+    &:hover { background: #f0f5e9; color: #3b603e; transition: all 0.3s ease; }
     &.is-on { border-color: #e1ead5; background: #edf4e4; color: #3c633b; font-weight: 600; }
     &:focus-visible { outline: 2px solid #6d905b; outline-offset: 2px; }
   }

@@ -240,7 +240,7 @@ export default {
 .preview-caption { display: -webkit-box; margin: 0; padding: 8px 10px; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow-wrap: anywhere; color: var(--ink); font-size: 12px; line-height: 1.6; }
 .cropper-controls { display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
 .crop-confirm { min-height: 38px; padding: 0 24px; border: 0; border-radius: 9px; background: var(--brand); color: #fff; font: inherit; font-size: 14px; cursor: pointer; }
-.crop-confirm:hover:not(:disabled) { background: var(--brand-hover); }
+.crop-confirm:hover:not(:disabled) { background: var(--brand-hover); transition: all 0.3s ease; }
 .crop-confirm:disabled { opacity: .45; cursor: not-allowed; }
 .crop-confirm:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 @media (max-width: 640px) {

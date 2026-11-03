@@ -170,7 +170,7 @@ h2 { margin: 0 0 20px; font-size: 24px; }
 .relation img { display: block; width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
 .profile { grid-column: 2; min-width: 0; }
 .profile > a { display: block; overflow: hidden; color: var(--ink); font-size: 14px; font-weight: 500; line-height: 22px; text-overflow: ellipsis; white-space: nowrap; }
-.profile > a:hover { color: var(--brand-hover); }
+.profile > a:hover { color: var(--brand-hover); transition: all 0.3s ease; }
 .profile > p { margin: 6px 0 0; overflow: hidden; color: var(--ink-3); font-size: 12px; line-height: 20px; text-overflow: ellipsis; white-space: nowrap; }
 .relation-actions { grid-column: 2; display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
 .relation-actions > .el-button { flex: none; width: auto; max-width: 100%; height: 30px; margin: 0; padding: 0 12px; border-radius: 7px; font-size: 12px; }

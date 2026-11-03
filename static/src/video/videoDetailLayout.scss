@@ -507,7 +507,8 @@
     &[aria-pressed="true"] {
       background: rgb(255 255 255 / 14%);
       color: #e5e9eb;
-    }
+      transition: all 0.3s ease;
+}
     /* 禁用态不做视觉弱化（如浏览器全屏时的网页全屏按钮），保持图标正常显示 */
   }
 
@@ -618,7 +619,8 @@
     > button.selectVideoSpped {
       color: var(--brand);
       background: rgb(255 255 255 / 8%);
-    }
+      transition: all 0.3s ease;
+}
   }
 
   .player-popover > .up-video-play-bottom-video-set-container {
@@ -638,7 +640,8 @@
     }
     > span:hover {
       background: rgb(255 255 255 / 8%);
-    }
+      transition: all 0.3s ease;
+}
   }
 
   .player-popover > .up-video-play-bottom-video-set-audio {
@@ -735,6 +738,8 @@
     display: flex;
     align-items: center;
     gap: 8px;
+
+    > .user-hover { display: inline-flex; align-items: center; gap: 8px; }
     max-width: calc(100% - 32px);
     height: 40px;
     padding: 4px 8px 4px 5px;
@@ -747,7 +752,9 @@
     z-index: 5;
     pointer-events: auto;
 
-    > .intoVideoAllDisplayIngFlagCreator-avatar {
+    .intoVideoAllDisplayIngFlagCreator-trigger { display: inline-flex; align-items: center; gap: 8px; }
+
+    .intoVideoAllDisplayIngFlagCreator-avatar {
       display: block;
       width: 30px;
       height: 30px;
@@ -758,7 +765,7 @@
       transition: transform 0.18s ease;
     }
 
-    > .intoVideoAllDisplayIngFlagCreator-name {
+    .intoVideoAllDisplayIngFlagCreator-name {
       max-width: 200px;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -772,9 +779,10 @@
       transition: color 0.15s ease;
     }
 
-    &:hover > .intoVideoAllDisplayIngFlagCreator-name {
+    &:hover .intoVideoAllDisplayIngFlagCreator-name {
       color: #6af5de;
-    }
+      transition: all 0.3s ease;
+}
 
     > .intoVideoAllDisplayIngFlagCreator-follow {
       flex: none;
@@ -797,11 +805,13 @@
       &:hover {
         background: #fff;
         transform: translateY(-1px);
-      }
+        transition: all 0.3s ease;
+}
       &[aria-pressed="true"]:hover {
         background: rgb(255 255 255 / 24%);
         transform: none;
-      }
+        transition: all 0.3s ease;
+}
     }
   }
 
@@ -844,7 +854,8 @@
 
     .player-creator-chip-trigger:hover .player-creator-chip-avatar {
       transform: scale(1.08);
-    }
+      transition: all 0.3s ease;
+}
 
     .player-creator-chip-name {
       max-width: 180px;
@@ -864,7 +875,8 @@
 
     .player-creator-chip-trigger:hover .player-creator-chip-name {
       color: #6af5de;
-    }
+      transition: all 0.3s ease;
+}
 
     .player-creator-chip-follow {
       flex: none;
@@ -883,7 +895,8 @@
       &:hover {
         background: #fff;
         transform: translateY(-1px);
-      }
+        transition: all 0.3s ease;
+}
 
       &[aria-pressed="true"] {
         background: rgb(255 255 255 / 16%);
@@ -893,7 +906,8 @@
       &[aria-pressed="true"]:hover {
         background: rgb(255 255 255 / 24%);
         transform: none;
-      }
+        transition: all 0.3s ease;
+}
     }
   }
 
@@ -1086,7 +1100,8 @@
   }
   :global(.el-dialog.video-collect-dialog .dialog-footer-input-btn:hover) {
     background: #d3eee7;
-  }
+    transition: all 0.3s ease;
+}
   /* 重名错误提示：锚定按钮自身、居中悬浮在正上方，
      不再相对整个弹窗偏移导致溢出被裁 */
   :global(.el-dialog.video-collect-dialog .new-create-collect-info) {
@@ -1478,7 +1493,8 @@
     background: var(--brand-soft);
     color: var(--brand);
     transform: translateY(-1px);
-  }
+    transition: all 0.3s ease;
+}
 
   .addWaitWatch .wait-watch-info > svg,
   .addWaitWatch .wait-watch-info > span {
@@ -1611,7 +1627,8 @@
       background: rgba(15, 166, 142, 0.08);
       box-shadow: 0 2px 10px rgba(15, 166, 142, 0.12);
       transform: translateY(-1px);
-    }
+      transition: all 0.3s ease;
+}
 
     > span {
       position: static !important;
@@ -1640,7 +1657,8 @@
   }
   .scrolling-list-item-bottom:hover .scrolling-list-item-time {
     background: rgba(15, 166, 142, 0.2);
-  }
+    transition: all 0.3s ease;
+}
 
   /* 弹幕内容：中列单行省略，完整内容 hover 有 tooltip */
   .scrolling-list-item-content {
@@ -1657,7 +1675,8 @@
   }
   .scrolling-list-item-bottom:hover .scrolling-list-item-content {
     color: var(--brand-hover, #0C8572);
-  }
+    transition: all 0.3s ease;
+}
 
   /* 第三列：发送时间与撤回按钮同一位置叠放，均左对齐。
      按钮绝对定位不占布局空间；行 hover 时发送时间淡出、撤回原地淡入。
@@ -1710,16 +1729,19 @@
   .scrolling-reocation:focus-visible {
     opacity: 1;
     visibility: visible;
-  }
+    transition: all 0.3s ease;
+}
   .scrolling-reocation:hover {
     background: var(--brand-hover, #0C8572);
-  }
+    transition: all 0.3s ease;
+}
   /* 仅当撤回按钮实际显示（本人弹幕）时，hover 才把发送时间让位给撤回 */
   .scrolling-list-item-bottom:hover
     .scrolling-reocation:not([style*="display: none"])
     + .scrolling-list-item-sendTime {
     opacity: 0;
-  }
+    transition: all 0.3s ease;
+}
 
   /* 滚动区域：品牌色渐变滚动条（单行行高后约可见 5-6 条，不再过高） */
   :deep(.scrolling-list-item-bottom-container) {
@@ -1787,7 +1809,8 @@
   }
   :deep(.autoPlayVideo2-videoList:hover > span) {
     color: var(--brand);
-  }
+    transition: all 0.3s ease;
+}
   :deep(.autoPlayVideo2-videoList.is-on > span) {
     color: var(--brand);
   }
@@ -1879,7 +1902,8 @@
   }
   :deep(.autoPlayVideo2-item .autoPlayVideo2-item-title:hover) {
     color: var(--brand);
-  }
+    transition: all 0.3s ease;
+}
 
   :deep(.autoPlayVideo2-item-right-username-container) {
     position: relative;
@@ -1915,13 +1939,15 @@
   /* hover：名字变品牌色，头像保持显示（覆盖旧徽章 img1 淡出逻辑） */
   :deep(.autoPlayVideo2-item-right-username-container:hover > img) {
     opacity: 1;
-  }
+    transition: all 0.3s ease;
+}
   :deep(
       .autoPlayVideo2-item-right-username-container:hover
         .autoPlayVideo2-item-right-username
     ) {
     color: var(--brand);
-  }
+    transition: all 0.3s ease;
+}
 
   :deep(.autoPlayVideo2-item-right-videoinfo-container) {
     position: static;
@@ -1968,7 +1994,8 @@
   :deep(.autoPlayVideo2-container > .show-video-btn:hover) {
     background: #E8EEEC;
     color: var(--brand);
-  }
+    transition: all 0.3s ease;
+}
 
   :deep(.auto-play-video-item-wait-watch) {
     position: absolute;
@@ -2015,11 +2042,13 @@
   :deep(.auto-play-video-item > span:hover .auto-play-video-item-wait-watch) {
     opacity: 1;
     pointer-events: auto;
-  }
+    transition: all 0.3s ease;
+}
   :deep(.auto-play-video-item-wait-watch:hover) {
     background: rgba(16, 30, 27, .9);
     transform: translateY(-1px);
-  }
+    transition: all 0.3s ease;
+}
   :deep(.auto-play-video-item-wait-watch.is-done) {
     border-color: rgba(255, 255, 255, .4);
     background: rgba(240, 252, 248, .4);
@@ -2027,7 +2056,8 @@
   }
   :deep(.auto-play-video-item-wait-watch.is-done:hover) {
     background: rgba(240, 252, 248, .9);
-  }
+    transition: all 0.3s ease;
+}
 
   .autoPlayVideoContainer {
     position: absolute;
@@ -2146,7 +2176,8 @@
         height: auto;
         max-height: 78px;
         transform: none;
-      }
+        transition: all 0.3s ease;
+}
       .auto-play-video-body .auto-play-video-item span .cancel-auto-play-video {
         left: 6px;
         top: 6px;
@@ -2288,7 +2319,8 @@
   :deep(.auto-play-video-replay:hover) {
     background: rgb(255 255 255 / 16%);
     border-color: rgb(255 255 255 / 32%);
-  }
+    transition: all 0.3s ease;
+}
 
   :deep(.auto-play-video-follow > img),
   :deep(.auto-play-video-replay > img),
@@ -2488,7 +2520,8 @@
     height: auto;
     max-height: 64px;
     transform: none;
-  }
+    transition: all 0.3s ease;
+}
   :deep(.auto-play-video-item .cancel-auto-play-video) {
     position: absolute;
     left: 6px;

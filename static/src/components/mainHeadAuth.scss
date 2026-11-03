@@ -90,7 +90,7 @@
       font-size: 14px;
     }
     .auth-primary { border-color: #476e47; background: #476e47; color: #fff; }
-    .auth-primary:hover { border-color: #355936; background: #355936; }
+    .auth-primary:hover { border-color: #355936; background: #355936; transition: all 0.3s ease; }
     .auth-primary.is-disabled { border-color: #d4dfcb; background: #d4dfcb; color: #fff; }
     .auth-secondary { border-color: #dce6d5; background: #f7faf2; color: #5c7953; }
   }

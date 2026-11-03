@@ -407,7 +407,8 @@ export default {
 
   &:hover {
     color: #0E9C85;
-  }
+    transition: all 0.3s ease;
+}
 }
 
 .sub-text {
@@ -509,7 +510,8 @@ export default {
 
   &:hover {
     background-color: #E7F5F1;
-  }
+    transition: all 0.3s ease;
+}
 }
 
 .alert-num {

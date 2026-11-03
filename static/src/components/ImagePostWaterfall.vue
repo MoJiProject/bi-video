@@ -42,7 +42,7 @@ const failedImages = ref(new Set());
 .image-error { display: grid; place-items: center; min-height: 160px; padding: 12px; background: var(--fill-soft); color: var(--ink-3); font-size: 12px; }
 .image-post-copy { padding: 12px; }
 .image-post-copy h3 { display: -webkit-box; margin: 0 0 10px; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color: var(--ink); font-size: 14px; font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
-.image-post-card a:hover h3 { color: var(--brand-hover); }
+.image-post-card a:hover h3 { color: var(--brand-hover); transition: all 0.3s ease; }
 .image-post-meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 10px; color: var(--ink-3); font-size: 12px; line-height: 20px; }
 .image-post-meta time { min-width: 0; overflow-wrap: anywhere; }
 .image-post-likes { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; font-variant-numeric: tabular-nums; }

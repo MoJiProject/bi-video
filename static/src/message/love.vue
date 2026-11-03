@@ -675,7 +675,8 @@ function addImgFlagF(comment){
       }
       .detail:hover{
         color: #2BB2A0;
-      }
+        transition: all 0.3s ease;
+}
       } 
       .head3{
         margin-top: 10px;
@@ -786,7 +787,8 @@ function addImgFlagF(comment){
             }
             a:hover{
               color: #2BB2A0;
-            }
+              transition: all 0.3s ease;
+}
             span{
               color: #505050;
               margin-left: 12px;
@@ -798,7 +800,8 @@ function addImgFlagF(comment){
 
             .love-list:hover{
                 color: #2BB2A0;
-             }
+                transition: all 0.3s ease;
+}
             
           }
 
@@ -817,7 +820,8 @@ function addImgFlagF(comment){
             }
             a:hover{
               color: #2BB2A0;
-            }
+              transition: all 0.3s ease;
+}
             .love-message-content{
               display: -webkit-box;
               -webkit-box-orient: vertical; /* 必须设置垂直排列 */
@@ -879,7 +883,8 @@ function addImgFlagF(comment){
             }
             .love-comment:hover{
              color: #2BB2A0;
-            }
+             transition: all 0.3s ease;
+}
             .love-comment{
               position: relative;
               display: flex;
@@ -896,7 +901,8 @@ function addImgFlagF(comment){
             }
             .love-comment:hover{
               color: #2BB2A0;
-            }
+              transition: all 0.3s ease;
+}
             .love-comment2{
               position: relative;
               display: flex;
@@ -929,7 +935,8 @@ function addImgFlagF(comment){
             }
             .delete-comment-notification:hover{
               color: #2BB2A0;
-            }
+              transition: all 0.3s ease;
+}
 
             .comment-notification{
               position: relative;
@@ -948,7 +955,8 @@ function addImgFlagF(comment){
             }
             .comment-notification:hover{
               color: #2BB2A0;
-            }
+              transition: all 0.3s ease;
+}
 
             .comment-disable-notification{
               position: relative;
@@ -967,7 +975,8 @@ function addImgFlagF(comment){
             }
             .comment-disable-notification:hover{
               color: #2BB2A0;
-            }
+              transition: all 0.3s ease;
+}
 
           }
 
@@ -1159,6 +1168,7 @@ function addImgFlagF(comment){
 .delete-dialog-cancel-btn:hover{
     background-color: #20AF99;
     color: white;
+    transition: all 0.3s ease;
 }
 
 .delete-dialog-confirm-btn{
@@ -1175,6 +1185,7 @@ function addImgFlagF(comment){
 
 .delete-dialog-confirm-btn:hover{
     background-color: #2FB4A1;
+    transition: all 0.3s ease;
 }
 
 @media (min-width: 901px){

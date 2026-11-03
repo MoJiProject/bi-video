@@ -625,7 +625,8 @@ export default {
 
   &:hover {
     color: #0E9C85;
-  }
+    transition: all 0.3s ease;
+}
 
   &.active {
     color: #0E9C85;
@@ -679,7 +680,8 @@ export default {
 
   &:hover {
     color: #0E9C85;
-  }
+    transition: all 0.3s ease;
+}
 }
 
 .type-tag {

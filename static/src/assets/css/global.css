@@ -330,6 +330,7 @@ body:has(.message-page) {
     color: var(--brand);
     border-color: var(--brand-light-5);
     background: var(--brand-soft);
+    transition: all 0.3s ease;
 }
 
 .text-btn.is-busy {
@@ -352,6 +353,7 @@ body:has(.message-page) {
 .content-more.is-open {
     opacity: 1;
     pointer-events: auto;
+    transition: all 0.3s ease;
 }
 
 .content-more .content-more-trigger {
@@ -370,7 +372,7 @@ body:has(.message-page) {
 }
 
 .content-more-trigger svg { display: block; width: 16px; height: 16px; }
-.content-more .content-more-trigger:hover { background: var(--fill-soft); color: var(--ink); }
+.content-more .content-more-trigger:hover { background: var(--fill-soft); color: var(--ink); transition: all 0.3s ease; }
 .content-more .content-more-trigger:focus-visible { outline: 1px solid var(--brand-light-5); outline-offset: 1px; }
 .content-more .content-more-trigger:disabled { opacity: .5; cursor: not-allowed; }
 .content-more-popper.el-popper { border-color: var(--line); border-radius: 8px; box-shadow: 0 4px 14px rgba(28, 35, 33, .08); }
@@ -379,7 +381,7 @@ body:has(.message-page) {
 .content-more-popper .el-dropdown-menu__item { min-height: 28px; padding: 0 10px; border-radius: 5px; font-size: 12px; }
 .content-more-popper .el-dropdown-menu__item.is-danger:not(.is-disabled) { color: var(--el-color-danger); }
 .content-more-popper .el-dropdown-menu__item.is-danger:not(.is-disabled):hover,
-.content-more-popper .el-dropdown-menu__item.is-danger:not(.is-disabled):focus { background: var(--el-color-danger-light-9); }
+.content-more-popper .el-dropdown-menu__item.is-danger:not(.is-disabled):focus { background: var(--el-color-danger-light-9); transition: all 0.3s ease; }
 
 @media (any-hover: none) {
     .content-more { opacity: 1; pointer-events: auto; }
@@ -431,7 +433,8 @@ body:has(.message-page) {
     }
     :is(.el-overlay-dialog, .el-dialog, .el-message-box, .el-dialog *, .el-message-box *)::-webkit-scrollbar-thumb:hover {
         background: rgba(92, 102, 100, .52);
-    }
+        transition: all 0.3s ease;
+}
     :is(.el-overlay-dialog, .el-dialog, .el-message-box, .el-dialog *, .el-message-box *)::-webkit-scrollbar-button {
         display: none;
         width: 0;

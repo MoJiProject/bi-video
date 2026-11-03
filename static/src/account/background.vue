@@ -311,6 +311,7 @@ cursor: pointer;
 .reset-img:hover {
 color: #19AC96;
 fill: #19AC96;
+transition: all 0.3s ease;
 }
 .reset-img svg {
     margin-right: 6px;
@@ -384,7 +385,9 @@ cursor: pointer;
 }
 .change-background:hover{
 background-color: #19AC96;
-border-color: #19AC96;}
+border-color: #19AC96;
+transition: all 0.3s ease;
+}
 
 }
 

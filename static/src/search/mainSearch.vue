@@ -1075,6 +1075,7 @@ watch(
 }
 .sort .aw:hover {
   color: var(--brand);
+  transition: all 0.3s ease;
 }
 
 .sort-underline {
@@ -1131,6 +1132,7 @@ watch(
 .chip:hover {
   background: var(--fill);
   color: var(--brand);
+  transition: all 0.3s ease;
 }
 
 .chip.is-on {
@@ -1179,6 +1181,7 @@ watch(
 .filter-toggle:hover {
   border-color: var(--brand-light-5);
   color: var(--brand);
+  transition: all 0.3s ease;
 }
 
 .filter-toggle img {
@@ -1231,6 +1234,7 @@ watch(
 .sub-tag:hover {
   background: var(--brand-soft);
   color: var(--brand);
+  transition: all 0.3s ease;
 }
 
 
@@ -1270,10 +1274,12 @@ watch(
 
 .videoBottomInfo:hover .upInfo {
   color: var(--brand);
+  transition: all 0.3s ease;
 }
 
 .title:hover {
   color: #0FA68E;
+  transition: all 0.3s ease;
 }
 .highlight {
   color: #E06B33 !important;
@@ -1332,6 +1338,7 @@ watch(
 
 .user-Name:hover {
   color: var(--brand);
+  transition: all 0.3s ease;
 }
 
 .user-grade {
@@ -1379,6 +1386,7 @@ watch(
 .follow:hover,
 .deleteFollow:hover {
   opacity: .8;
+  transition: all 0.3s ease;
 }
 
 /* 分页条是 .bottomVideo 这个 grid 的一个 item，要占满整行，
@@ -1456,6 +1464,7 @@ watch(
 .page-container input:hover,
 .page-container input:focus {
   border-color: var(--brand);
+  transition: all 0.3s ease;
 }
 
 .page-container input::-webkit-inner-spin-button,

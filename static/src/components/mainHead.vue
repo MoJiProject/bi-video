@@ -2799,8 +2799,7 @@ a {
 }
 
 .v-header-ul li a img:hover {
-  animation: bounce 0.5s ease forwards;
-}
+  animation: bounce 0.5s ease forwards;}
 
 .number-style {
   position: absolute;
@@ -2859,9 +2858,11 @@ a {
 
 .avatar-container:hover .avatar1 {
   transform: translate(-14px, 20px) scale(2.1);
+  transition: all 0.3s ease;
 }
 .avatar-container:hover .avatar1 img {
   transform: translate(3.5px, 0px) scale(1.1);
+  transition: all 0.3s ease;
 }
 
 .avatar1 img {
@@ -2873,6 +2874,7 @@ a {
 .avatar-container:hover .avatar1 img {
   width: 40px; /* Scaled up image width on hover */
   height: 40px; /* Scaled up image height on hover */
+  transition: all 0.3s ease;
 }
 
 .user-info {
@@ -2937,6 +2939,7 @@ a {
 
 .feature div:hover {
   background-color: #E0E5E3;
+  transition: all 0.3s ease;
 }
 
 .feature div span {
@@ -3000,8 +3003,7 @@ a {
   opacity: 0;
 }
 .v-header-ul li.hd-vip:hover .transparent-div12 {
-  visibility: visible;
-}
+  visibility: visible;}
 .vip-introduce div span img {
   width: 26px;
   height: 24px;
@@ -3059,8 +3061,7 @@ a {
   opacity: 0;
 }
 .v-header-ul li.hd-message:hover .transparent-div13 {
-  visibility: visible;
-}
+  visibility: visible;}
 .message-info span {
   height: 40px;
   width: 128px;
@@ -3077,6 +3078,7 @@ a {
 
 .message-info span:hover {
   background-color: #E0E5E3;
+  transition: all 0.3s ease;
 }
 .v-header-ul li.hd-message:hover .message-info {
   transition-delay: 0.2s;
@@ -3147,7 +3149,7 @@ a {
 .login .el-bu:hover {
  
   background-color: #45BBA1;
-  
+  transition: all 0.3s ease;
 }
 
 .zhu-ce {
@@ -3286,7 +3288,7 @@ a {
 
 .el-bu:hover{
   background-color: #45BBA1;
-
+  transition: all 0.3s ease;
 }
 
 .v-header-ul li.hd-message:hover .login-info2,
@@ -3295,6 +3297,7 @@ a {
 .v-header-ul li.hd-history:hover .login-info2 {
   visibility: visible; /* 悬停时可见 */
   opacity: 1; /* 悬停时不透明 */
+  transition: all 0.3s ease;
 }
 
 .v-header-ul li.hd-dynamic a img {
@@ -3328,7 +3331,7 @@ a {
 
 .upload:hover{
   background-color: #F08438;
-
+  transition: all 0.3s ease;
 }
 
 .upload a {
@@ -3365,8 +3368,7 @@ a {
 .v-header-ul li.hd-download:hover,
 .v-header-ul li.hd-user:hover,
 .v-header-ul li.hd-publish:hover {
-  animation: none !important;
-}
+  animation: none !important;}
 
 .newFans {
   position: absolute;
@@ -3406,8 +3408,7 @@ a {
   opacity: 0;
 }
 .v-header-ul li.hd-dynamic:hover .transparent-div14 {
-  visibility: visible;
-}
+  visibility: visible;}
 
 .v-header-ul li.hd-dynamic:hover .dynamic-info {
   transition-delay: 0.2s;
@@ -3431,6 +3432,7 @@ a {
 
 .dynamicContent-item:hover {
   background-color: #E0E5E3;
+  transition: all 0.3s ease;
 }
 
 .dynamicVideoTitle {
@@ -3473,10 +3475,12 @@ a {
 
 .checkAllDynamic:hover .dynamicContent-item {
   background-color: white;
+  transition: all 0.3s ease;
 }
 
 .checkAllDynamic:hover {
   color: black;
+  transition: all 0.3s ease;
 }
 
 .collect-info {
@@ -3515,8 +3519,7 @@ a {
   opacity: 0;
 }
 .v-header-ul li.hd-collect:hover .transparent-div15 {
-  visibility: visible;
-}
+  visibility: visible;}
 .collectContent {
   padding-top: 12px;
   overflow-y: auto; /* 允许垂直滚动 */
@@ -3606,6 +3609,7 @@ a {
 }
 .collectContent-item:hover {
   background-color: #E0E5E3;
+  transition: all 0.3s ease;
 }
 
 .collectVideoTime {
@@ -3716,8 +3720,7 @@ a {
   opacity: 0;
 }
 .v-header-ul li.hd-history:hover .transparent-div16 {
-  visibility: visible;
-}
+  visibility: visible;}
 .history-info {
   position: absolute;
   top: 100%;
@@ -3793,9 +3796,11 @@ a {
 }
 .historyContent-item-today:hover {
   background-color: #E0E5E3;
+  transition: all 0.3s ease;
 }
 .historyContent-item-yesterday:hover {
   background-color: #E0E5E3;
+  transition: all 0.3s ease;
 }
 .historyVideoTime {
   font-size: 11px;
@@ -3869,6 +3874,7 @@ a {
 }
 .checkAllHistory:hover {
   color: black;
+  transition: all 0.3s ease;
 }
 
 .historyVideoProgress {
@@ -3921,6 +3927,7 @@ a {
 
 .head-li1:hover .head-home{
   transform: rotate(180deg);
+  transition: all 0.3s ease;
 }
 
 .dynamic-dataNull{
@@ -4062,6 +4069,7 @@ a {
 .v-header-ul > li.hd-nav > a:hover,
 .v-header-ul > li.hd-download > a:hover {
   color: var(--brand);
+  transition: all 0.3s ease;
 }
 
 /* 中：搜索框。整条横轴只有这一项允许伸缩 */
@@ -4127,6 +4135,7 @@ a {
 .v-header-ul > li.hd-history > a:hover,
 .v-header-ul > li.hd-create > a:hover {
   color: var(--brand);
+  transition: all 0.3s ease;
 }
 
 /* 右：投稿按钮 */
@@ -4153,6 +4162,7 @@ a {
 
 .v-header-ul > li.hd-publish .upload:hover {
   background: var(--accent-hover);
+  transition: all 0.3s ease;
 }
 
 .v-header-ul > li.hd-publish .upload a {
@@ -4218,6 +4228,7 @@ a {
 .v-header-ul > li.hd-history:hover .login-info2 {
   visibility: visible;
   opacity: 1;
+  transition: all 0.3s ease;
 }
 
 /* 面板上方的小三角由面板自己画，去掉原先用来定位的 transparent-div */
@@ -4439,8 +4450,7 @@ a {
 .v-header-ul > li:hover,
 .avatar-container:hover,
 .avatar:hover {
-  z-index: var(--z-top);
-}
+  z-index: var(--z-top);}
 
 .v-header-ul > li .vip-introduce,
 .v-header-ul > li .message-info,

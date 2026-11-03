@@ -1552,6 +1552,7 @@ onBeforeUnmount(() => {
 
 .primary-button:hover {
   background: #0E9B85;
+  transition: all 0.3s ease;
 }
 
 .secondary-button,
@@ -1567,6 +1568,7 @@ onBeforeUnmount(() => {
 /* 只给未激活的按钮加 hover，激活态保持蓝底，避免悬停时颜色来回跳 */
 .secondary-button:not(.secondary-button-active):hover {
   background: #dde4ea;
+  transition: all 0.3s ease;
 }
 
 .secondary-button-active {
@@ -1576,6 +1578,7 @@ onBeforeUnmount(() => {
 
 .secondary-button-active:hover {
   background: #0E9B85;
+  transition: all 0.3s ease;
 }
 
 .leave-button {
@@ -1586,6 +1589,7 @@ onBeforeUnmount(() => {
 
 .leave-button:hover {
   background: #ffe0e0;
+  transition: all 0.3s ease;
 }
 
 .primary-button:disabled,
@@ -1597,10 +1601,12 @@ onBeforeUnmount(() => {
 .primary-button:disabled:hover,
 .secondary-button:disabled:hover {
   background: #0FA68E;
+  transition: all 0.3s ease;
 }
 
 .secondary-button:disabled:not(.secondary-button-active):hover {
   background: #edf1f4;
+  transition: all 0.3s ease;
 }
 
 .member-heading {
@@ -1644,6 +1650,7 @@ onBeforeUnmount(() => {
 
 .member-list li:hover {
   background: #f7fafb;
+  transition: all 0.3s ease;
 }
 
 .member-avatar-wrap {
@@ -1657,6 +1664,7 @@ onBeforeUnmount(() => {
   border-color: #0FA68E;
   box-shadow: 0 0 0 3px rgba(15,166,142, 0.16);
   transform: scale(1.06);
+  transition: all 0.3s ease;
 }
 
 .member-avatar {
@@ -1710,6 +1718,7 @@ onBeforeUnmount(() => {
 
 .member-name-text.clickable:hover {
   color: #0FA68E;
+  transition: all 0.3s ease;
 }
 
 .member-info {
@@ -1735,6 +1744,7 @@ onBeforeUnmount(() => {
 
 .member-avatar-wrap:hover .online-dot {
   transform: scale(1.2);
+  transition: all 0.3s ease;
 }
 
 .online-dot.offline {
@@ -1781,6 +1791,7 @@ onBeforeUnmount(() => {
 
 .icon-button:hover {
   background: #eef2f5;
+  transition: all 0.3s ease;
 }
 
 .icon-button.kick {
@@ -1789,6 +1800,7 @@ onBeforeUnmount(() => {
 
 .icon-button.kick:hover {
   background: #eaf1f6;
+  transition: all 0.3s ease;
 }
 
 .icon-button.block-action {
@@ -1797,6 +1809,7 @@ onBeforeUnmount(() => {
 
 .icon-button.block-action:hover {
   background: #fdecec;
+  transition: all 0.3s ease;
 }
 
 .icon-button.blocked {
@@ -1811,6 +1824,7 @@ onBeforeUnmount(() => {
 
 .icon-button.transfer:hover {
   background: #f1ecfd;
+  transition: all 0.3s ease;
 }
 
 .history-section {
@@ -1842,6 +1856,7 @@ onBeforeUnmount(() => {
 
 .invite-item:hover {
   background: #f7fafb;
+  transition: all 0.3s ease;
 }
 
 .invite-item.selected {
@@ -1910,6 +1925,7 @@ onBeforeUnmount(() => {
 
 .invite-copy-btn:hover {
   background: #e3e9ee;
+  transition: all 0.3s ease;
 }
 
 .invite-send-btn {
@@ -1919,6 +1935,7 @@ onBeforeUnmount(() => {
 
 .invite-send-btn:hover {
   background: #0E9B85;
+  transition: all 0.3s ease;
 }
 
 .invite-send-btn:disabled {
@@ -1976,6 +1993,7 @@ onBeforeUnmount(() => {
 
 .switch-search-btn:hover {
   opacity: 0.88;
+  transition: all 0.3s ease;
 }
 
 .switch-search-btn:disabled {
@@ -2010,6 +2028,7 @@ onBeforeUnmount(() => {
 
 .switch-item:hover {
   background: #f7fafb;
+  transition: all 0.3s ease;
 }
 
 .switch-cover {
@@ -2043,6 +2062,7 @@ onBeforeUnmount(() => {
 
 .switch-item:hover .switch-title {
   color: #0FA68E;
+  transition: all 0.3s ease;
 }
 
 .switch-meta {
@@ -2065,6 +2085,7 @@ onBeforeUnmount(() => {
 
 .history-item:hover {
   background: #f5f8fa;
+  transition: all 0.3s ease;
 }
 
 .history-item small,

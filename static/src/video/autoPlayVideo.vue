@@ -398,7 +398,8 @@ export default {
         }
         .auto-play-video-avatar:hover{
             border: 2px solid #0FA68E;
-        }
+            transition: all 0.3s ease;
+}
 
         .auto-play-video-username{
             position: absolute;
@@ -411,7 +412,8 @@ export default {
 
         .auto-play-video-username:hover{
             color: #6af5de;
-        }
+            transition: all 0.3s ease;
+}
 
         .auto-play-video-vip{
             position: absolute;
@@ -438,8 +440,8 @@ export default {
 
         .auto-play-video-vip:hover{
             background-color: rgba(240,160,60, .2);
-
-        }
+            transition: all 0.3s ease;
+}
 
         .auto-play-video-follow{
             position: absolute;
@@ -469,7 +471,8 @@ export default {
 
         .auto-play-video-follow:hover{
             background-color: #0cbeff;
-        }
+            transition: all 0.3s ease;
+}
 
         .auto-play-video-delete-follow{
             position: absolute;
@@ -490,8 +493,8 @@ export default {
         }
         .auto-play-video-delete-follow:hover{
             background: hsla(0, 0%, 100%, .3);
-
-        }
+            transition: all 0.3s ease;
+}
 
         .auto-play-video-replay{
             position: absolute;
@@ -662,13 +665,14 @@ export default {
 .auto-play-video-item span:hover .auto-play-video-item-video {
     visibility: visible;
     border: 1px solid white;
-
+    transition: all 0.3s ease;
 }
 
 .auto-play-video-item span:hover .auto-play-video-item-title {
     transform: translate(10px, -40px);
     height: 30px;
     -webkit-line-clamp: 2;
+    transition: all 0.3s ease;
 }
 
 }
@@ -718,6 +722,7 @@ export default {
 .auto-play-video-item-wait-watch:hover{
     background-color: rgba(16, 30, 27, .9);
     transform: translateY(-1px);
+    transition: all 0.3s ease;
 }
 
 .auto-play-video-item-wait-watch.is-done{
@@ -728,6 +733,7 @@ export default {
 
 .auto-play-video-item-wait-watch.is-done:hover{
     background-color: rgba(240, 252, 248, .9);
+    transition: all 0.3s ease;
 }
 
 .auto-play-video-item-wait-watch:focus-visible{
@@ -880,8 +886,8 @@ export default {
         .auto-play-video-item span:hover .auto-play-video-item-video{
             visibility: visible;
             border: 1px solid white;
-
-        }
+            transition: all 0.3s ease;
+}
     
             
 

@@ -297,7 +297,8 @@ function getSort(){
             }
             span:hover{
                 color: #0FA68E;
-            }
+                transition: all 0.3s ease;
+}
             }
         }
         .tribute-video{
@@ -318,7 +319,8 @@ function getSort(){
             }
             .title-name:hover{
                 color: #0FA68E;
-            }
+                transition: all 0.3s ease;
+}
             .contribute-total{
                 margin-top: 2px;
             }
@@ -347,7 +349,8 @@ function getSort(){
                 }
                 span:hover{
                     color: #0FA68E;
-                }
+                    transition: all 0.3s ease;
+}
                 .sortClass{
                     color: white !important;
                     background-color: #0FA68E !important;
@@ -380,7 +383,8 @@ function getSort(){
             .more:hover{
                 background-color: #E0E5E3;
                 border: #E0E5E3;
-            }
+                transition: all 0.3s ease;
+}
         }
 
         .collect{
@@ -401,7 +405,8 @@ function getSort(){
             }
             .title-name:hover{
                 color: #0FA68E;
-            }
+                transition: all 0.3s ease;
+}
             .contribute-total{
                 margin-top: 2px;
             }
@@ -430,7 +435,8 @@ function getSort(){
                 }
                 span:hover{
                     color: #0FA68E;
-                }
+                    transition: all 0.3s ease;
+}
                 .sortClass{
                     color: white !important;
                     background-color: #0FA68E !important;
@@ -463,7 +469,8 @@ function getSort(){
             .more:hover{
                 background-color: #E0E5E3;
                 border: #E0E5E3;
-            }
+                transition: all 0.3s ease;
+}
             .collect-list{
             column-gap: 16px;
             row-gap: 23px;
@@ -558,7 +565,8 @@ function getSort(){
                         }
                         .name:hover{
                             color: #0FA68E;
-                        }
+                            transition: all 0.3s ease;
+}
                         .status{
                             font-size: 11.5px;
                             color: #8D9794;
@@ -589,7 +597,8 @@ function getSort(){
             }
             .title-name:hover{
                 color: #0FA68E;
-            }
+                transition: all 0.3s ease;
+}
             .contribute-total{
                 margin-top: 2px;
             }
@@ -618,7 +627,8 @@ function getSort(){
                 }
                 span:hover{
                     color: #0FA68E;
-                }
+                    transition: all 0.3s ease;
+}
                 .sortClass{
                     color: white !important;
                     background-color: #0FA68E !important;
@@ -651,7 +661,8 @@ function getSort(){
             .more:hover{
                 background-color: #E0E5E3;
                 border: #E0E5E3;
-            }
+                transition: all 0.3s ease;
+}
             .video-list{
             column-gap: 16px;
             row-gap: 23px;
@@ -701,7 +712,8 @@ function getSort(){
             }
             span:hover{
                 color: #0FA68E;
-            }
+                transition: all 0.3s ease;
+}
             }
             .video-sort{
             position: relative;
@@ -727,7 +739,8 @@ function getSort(){
                 }
                 span:hover{
                     color: #0FA68E;
-                }
+                    transition: all 0.3s ease;
+}
                 .sortClass{
                     color: white !important;
                     background-color: #0FA68E !important;
@@ -760,7 +773,8 @@ function getSort(){
             .more:hover{
                 background-color: #E0E5E3;
                 border: #E0E5E3;
-            }
+                transition: all 0.3s ease;
+}
                 .video-list{
                 column-gap: 16px;
                 row-gap: 23px;

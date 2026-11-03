@@ -224,6 +224,7 @@ async function toggleMark() {
   border-color: rgba(224, 229, 227, .9);
   background: #fff;
   box-shadow: 0 16px 36px rgba(28, 35, 33, .08);
+  transition: all 0.3s ease;
 }
 
 .vcard.is-selecting { transition: none; }
@@ -250,6 +251,7 @@ async function toggleMark() {
 
 .vcard:not(.is-selecting):hover .vcard-cover-img {
   transform: scale(1.035);
+  transition: all 0.3s ease;
 }
 
 .vcard-duration {
@@ -301,6 +303,7 @@ async function toggleMark() {
 .vcard-mark:focus-visible {
   opacity: 1;
   pointer-events: auto;
+  transition: all 0.3s ease;
 }
 
 @media (hover: none) {
@@ -313,6 +316,7 @@ async function toggleMark() {
 .vcard-mark:hover {
   background: rgba(16, 30, 27, .9);
   transform: translateY(-1px);
+  transition: all 0.3s ease;
 }
 
 .vcard-mark.is-done {
@@ -321,7 +325,7 @@ async function toggleMark() {
   color: var(--brand-hover);
 }
 
-.vcard-mark.is-done:hover { background: rgba(240, 252, 248, .9); }
+.vcard-mark.is-done:hover { background: rgba(240, 252, 248, .9); transition: all 0.3s ease; }
 .vcard-mark:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 .vcard-mark:disabled { cursor: wait; }
 
@@ -359,6 +363,7 @@ async function toggleMark() {
 
 .vcard:not(.is-selecting):hover .vcard-title {
   color: var(--brand);
+  transition: all 0.3s ease;
 }
 
 /* 搜索页传入的 highlightText 会产出 <span class="highlight">，命中词上色 */
@@ -400,6 +405,7 @@ async function toggleMark() {
 
 .vcard:not(.is-selecting) .vcard-author:hover .vcard-author-name {
   color: var(--brand);
+  transition: all 0.3s ease;
 }
 
 .vcard-stats {
