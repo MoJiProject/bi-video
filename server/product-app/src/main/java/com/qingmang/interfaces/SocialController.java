@@ -1,6 +1,7 @@
 package com.qingmang.interfaces;
 
 import com.qingmang.application.SocialService;
+import com.qingmang.application.PostShareService;
 import com.qingmang.common.api.ApiResponse;
 import com.qingmang.common.exception.BizException;
 import com.qingmang.common.exception.ErrorCode;
@@ -28,9 +29,11 @@ import java.util.Map;
 public class SocialController {
 
     private final SocialService social;
+    private final PostShareService postShare;
 
-    public SocialController(SocialService social) {
+    public SocialController(SocialService social, PostShareService postShare) {
         this.social = social;
+        this.postShare = postShare;
     }
 
     @PostMapping("/user/{userId}/follow")
@@ -102,10 +105,19 @@ public class SocialController {
         return ApiResponse.ok(Map.of("liked", liked, "likeCount", current.getLikeCount()));
     }
 
+    @PostMapping("/post/{postId}/share")
+    public ApiResponse<Map<String, Object>> sharePost(@PathVariable Long postId, @RequestBody Map<String, Object> body) {
+        Long me = AuthContext.requireUserId();
+        List<Long> recipients = (List<Long>) body.get("userIdList");
+        String content = body.get("content") == null ? null : body.get("content").toString();
+        return ApiResponse.ok(postShare.share(me, postId, recipients, content));
+    }
+
     @PostMapping("/post")
     public ApiResponse<Map<String, Object>> post(@Valid @RequestBody PostRequest body) {
         Long id = social.post(AuthContext.requireUserId(), body);
         return ApiResponse.ok(Map.of("postId", id));
+    }
     }
 
     @DeleteMapping("/post/{postId}")

@@ -61,7 +61,6 @@
             </ContentMoreMenu>
           </header>
           <richContent :content="root.content"/>
-          <img v-if="(root.imageUrls?.length || 0) > 1" class="note-mark" src="/img/笔记.png" alt="">
           <div v-if="root.imageUrls?.length" class="comment-images">
             <el-image v-for="image in root.imageUrls" :key="image" :src="image"
               :preview-src-list="root.imageUrls" preview-teleported fit="cover"/>
@@ -126,7 +125,6 @@
             </header>
             <small v-if="child.replyToNickname">回复 @{{ child.replyToNickname }}</small>
             <richContent :content="child.content"/>
-            <img v-if="(child.imageUrls?.length || 0) > 1" class="note-mark" src="/img/笔记.png" alt="">
             <div v-if="child.imageUrls?.length" class="comment-images">
               <el-image v-for="image in child.imageUrls" :key="image" :src="image"
                 :preview-src-list="child.imageUrls" preview-teleported fit="cover"/>
@@ -551,11 +549,13 @@ async function like(comment, dislike) {
   busy.value.add(comment.id);
   try {
     const result = await commentApi.like(comment.id, dislike);
-    comment.likeCount = result.likeCount;
-    comment.liked = !dislike && result.active;
-    comment.disliked = dislike && result.active;
+    if (result) {
+      comment.likeCount = typeof result.likeCount === 'number' ? result.likeCount : comment.likeCount;
+      comment.liked = !dislike && !!result.active;
+      comment.disliked = dislike && !!result.active;
+    }
   } catch (error) {
-    ElMessage.error(error.message);
+    ElMessage.error(error?.message || '操作失败');
   } finally {
     busy.value.delete(comment.id);
   }
@@ -639,7 +639,6 @@ time { margin-left: auto; }
 .author-level { flex: none; margin-left: -6px; }
 .author-badge { display: inline-flex; align-items: center; flex: none; margin-left: -6px; padding: 0 5px; border-radius: 4px; background: linear-gradient(135deg, #f7c069, #ea8a2c); color: #fff; font-family: inherit; font-size: 9px; font-weight: 600; line-height: 14px; transform: translateY(0.5px); user-select: none; }
 .pin-badge { flex: none; padding: 1px 6px; border: 1px solid #ff8a4c; border-radius: 3px; color: #ff8a4c; font-size: 12px; line-height: 16px; }
-.note-mark { display: block; width: 48px; height: 22px; margin: 10px 0 -4px; object-fit: contain; }
 .reply-form { margin: 14px 0 4px; }
 .reply .reply-form { margin: 12px 0 0; }
 .rich-content { margin: 12px 0; color: #3e4c45; font-size: 13px; }

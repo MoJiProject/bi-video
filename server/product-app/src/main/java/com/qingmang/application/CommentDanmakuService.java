@@ -207,7 +207,9 @@ public class CommentDanmakuService {
         } else {
             // 赞↔踩 互切
             exist.setIsDislike(dislike);
-            commentLikeMapper.updateById(exist);
+            commentLikeMapper.update(exist, Wrappers.<CommentLike>lambdaUpdate()
+                    .eq(CommentLike::getCommentId, commentId)
+                    .eq(CommentLike::getUserId, userId));
             active = true;
             after = dislike ? 0 : 1;
         }

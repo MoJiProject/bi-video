@@ -82,16 +82,20 @@ public class VideoInteractionService {
         if (exist == null) {
             insertReaction(userId, videoId, ReactionType.LIKE);
             counterMapper.increaseVideoStat(videoId, "like_count", 1);
-            counterMapper.increaseUserStat(video.getOwnerId(), "like_received", 1);
-            authService.addExp(video.getOwnerId(), 1);
+            if (!userId.equals(video.getOwnerId())) {
+                counterMapper.increaseUserStat(video.getOwnerId(), "like_received", 1);
+                authService.addExp(video.getOwnerId(), 1);
+                notifications.publish(userId, video.getOwnerId(), 4, 1, videoId, video.getTitle());
+            }
             dailyInteractionExp.awardLike(userId);
-            notifications.publish(userId, video.getOwnerId(), 4, 1, videoId, video.getTitle());
             liked = true;
         } else {
             reactionMapper.deleteById(exist.getId());
             counterMapper.decreaseVideoStat(videoId, "like_count", 1);
-            counterMapper.increaseUserStat(video.getOwnerId(), "like_received", -1);
-            notifications.removeLike(userId, video.getOwnerId(), 4, 1, videoId);
+            if (!userId.equals(video.getOwnerId())) {
+                counterMapper.increaseUserStat(video.getOwnerId(), "like_received", -1);
+                notifications.removeLike(userId, video.getOwnerId(), 4, 1, videoId);
+            }
             liked = false;
         }
         return state(videoId, liked, null, null);

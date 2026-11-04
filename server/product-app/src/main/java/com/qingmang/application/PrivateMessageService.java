@@ -1,6 +1,7 @@
 package com.qingmang.application;
 
-import com.qingmang.common.exception.BizException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qingmang.common.exception.ErrorCode;
 import java.sql.Statement;
 import java.sql.Timestamp;
@@ -21,15 +22,17 @@ public class PrivateMessageService {
     private final AuthService auth;
     private final ApplicationEventPublisher events;
     private final MediaStorageService media;
+    private final ObjectMapper json;
     private static final String VISIBLE = "m.deleted_at IS NULL AND "
             + "CASE WHEN m.sender_id=? THEN m.sender_deleted_at ELSE m.receiver_deleted_at END IS NULL";
 
     public PrivateMessageService(JdbcTemplate jdbc, AuthService auth, ApplicationEventPublisher events,
-                                 MediaStorageService media) {
+                                  MediaStorageService media, ObjectMapper json) {
         this.jdbc = jdbc;
         this.auth = auth;
         this.events = events;
         this.media = media;
+        this.json = json;
     }
 
     public List<Map<String, Object>> dialogues(Long user, int page) {
@@ -267,10 +270,11 @@ public class PrivateMessageService {
         message.put("deleteSign", 0);
         message.put("sendTime", time(row.get("created_at")));
         message.put("videos", null);
+        message.put("dynamics", null);
         if (type == 4 && !revoked) {
             List<Map<String, Object>> videos = jdbc.queryForList("""
                     SELECT v.id,v.title,v.cover_url AS coverAddress,v.duration_seconds AS videoTime,
-                      u.nickname AS userName,COALESCE(s.danmaku_count,0) AS scrollingNumber
+                      u.id AS userId,u.nickname AS userName,u.avatar_url AS avatarAddress,COALESCE(s.danmaku_count,0) AS scrollingNumber
                     FROM video v JOIN `user` u ON u.id=v.owner_id LEFT JOIN video_stats s ON s.video_id=v.id
                     WHERE v.id=? AND v.status=1 AND v.deleted_at IS NULL
                     """, row.get("content"));
@@ -281,6 +285,35 @@ public class PrivateMessageService {
                 message.put("videos", video);
             }
         }
+        if (type == 5 && !revoked) {
+            List<Map<String, Object>> posts = jdbc.queryForList("""
+                    SELECT p.id,p.title,p.content,p.image_urls,p.created_at,u.id AS userId,u.nickname AS userName,u.avatar_url AS avatarAddress
+                    FROM user_post p JOIN `user` u ON u.id=p.author_id
+                    WHERE p.id=? AND p.status=1 AND p.deleted_at IS NULL
+                    """, row.get("content"));
+            if (!posts.isEmpty()) {
+                Map<String, Object> post = posts.get(0);
+                Map<String, Object> dynamic = new LinkedHashMap<>();
+                dynamic.put("id", post.get("id"));
+                dynamic.put("userId", post.get("userId"));
+                dynamic.put("title", post.get("title"));
+                dynamic.put("content", post.get("content"));
+                dynamic.put("userName", post.get("userName"));
+                dynamic.put("avatarAddress", post.get("avatarAddress"));
+                dynamic.put("createdAt", time(post.get("created_at")));
+                List<String> images = new ArrayList<>();
+                Object rawImages = post.get("image_urls");
+                if (rawImages != null && !String.valueOf(rawImages).isBlank()) {
+                    try {
+                        images = json.readValue(String.valueOf(rawImages), new TypeReference<>() {});
+                    } catch (Exception ignored) {
+                        images = new ArrayList<>();
+                    }
+                }
+                dynamic.put("imageList", images);
+                message.put("dynamics", dynamic);
+            }
+        }
         return message;
     }
 
@@ -289,6 +322,7 @@ public class PrivateMessageService {
         return switch (((Number) row.get("message_type")).intValue()) {
             case 2 -> "[图片]";
             case 4 -> "[视频]";
+            case 5 -> "[动态]";
             default -> row.get("content").toString();
         };
     }

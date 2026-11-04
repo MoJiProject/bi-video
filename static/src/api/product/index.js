@@ -73,13 +73,14 @@ export const userContentApi = {
 
 /** 关注关系与动态。 */
 export const socialApi = {
+  sharePost: (postId, body) => post(`/post/${postId}/share`, body),
   follow: (userId) => post(`/user/${userId}/follow`),
   posts: (params) => get('/post/list', params),
   createPost: (body) => post('/post', { ...body, mentionUserIds: extractMentionIds(body.content) }),
   deletePost: (postId) => del(`/post/${postId}`),
   relations: (params) => get('/relation/list', params),
   authors: (params) => get('/post/authors', params),
-  read: (targetUserId) => post('/post/read', null, { params: { targetUserId } }),
+  read: (targetUserId) => post('/post/read', null, targetUserId == null ? {} : { params: { targetUserId } }),
   pin: (id) => post(`/post/${id}/pin`),
 };
 

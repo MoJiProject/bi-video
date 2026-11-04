@@ -223,11 +223,16 @@ async function like(comment, dislike) {
   busy.value.add(comment.id);
   try {
     const result = await commentApi.like(comment.id, dislike);
-    comment.likeCount = result.likeCount;
-    comment.liked = !dislike && result.active;
-    comment.disliked = dislike && result.active;
-  } catch (error) { ElMessage.error(error.message); }
-  finally { busy.value.delete(comment.id); }
+    if (result) {
+      comment.likeCount = typeof result.likeCount === 'number' ? result.likeCount : comment.likeCount;
+      comment.liked = !dislike && !!result.active;
+      comment.disliked = dislike && !!result.active;
+    }
+  } catch (error) {
+    ElMessage.error(error?.message || '操作失败');
+  } finally {
+    busy.value.delete(comment.id);
+  }
 }
 async function remove(comment) {
   const confirmed = await ElMessageBox.confirm('确定删除这条评论及其回复？', '删除评论', { type: 'warning' }).then(() => true, () => false);

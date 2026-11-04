@@ -169,9 +169,25 @@
                         </div>
                         <div class="share-video-title"><span>{{ message.videos?.title }}</span></div>
                         <div class="share-video-fotter">
-                            <img src="/img/author-badge-default.png">
-                            <span class="share-video-user-name">{{ message.videos?.userName }}</span>
-                            <span class="share-contribute-video">投稿视频</span>
+                            <UserHoverCard :user-id="Number(message.videos?.userId || 0)" :avatar="message.videos?.avatarAddress || '/img/avatar-default.png'" :nickname="message.videos?.userName || '用户'" :avatar-size="24" />
+                            <span class="share-video-badge">视频</span>
+                        </div>
+                    </div>
+                    <div v-if="message.messageType===5&&message.dynamics" class="share-dynamic-container" @click="jumpDynamic(message.dynamics.id)" @contextmenu="handleContextMenu($event,false),messageObj=message">
+                        <div v-if="message.dynamics?.title" class="share-dynamic-title">{{ message.dynamics.title }}</div>
+                        <div v-if="message.dynamics?.content" class="share-dynamic-content">{{ message.dynamics.content }}</div>
+                        <div v-if="dynamicImages(message.dynamics).length" class="share-dynamic-images">
+                            <img v-for="(img, idx) in dynamicImages(message.dynamics).slice(0, 3)" :key="idx" class="share-dynamic-image" :src="img" alt="">
+                            <span v-if="dynamicImages(message.dynamics).length > 3" class="share-dynamic-image-more">+{{ dynamicImages(message.dynamics).length - 3 }}</span>
+                        </div>
+                        <div class="share-dynamic-fotter">
+                            <UserHoverCard :user-id="Number(message.dynamics?.userId || 0)" :avatar="message.dynamics?.avatarAddress || '/img/avatar-default.png'" :nickname="message.dynamics?.userName || '用户'" :avatar-size="24" />
+                            <span class="share-dynamic-badge">动态</span>
+                        </div>
+                    </div>
+                    <div v-if="message.messageType===5&&!message.dynamics" class="delete-dynamic" @contextmenu="handleContextMenu($event,false),messageObj=message">
+                        <div class="delete-info">
+                            <span>动态已被作者删除</span>
                         </div>
                     </div>
                     <div v-if="message.messageType===3&&!message.videos" class="delete-video" @contextmenu="handleContextMenu($event,false),messageObj=message">
@@ -304,6 +320,7 @@ import { authApi } from "../api/product/index";
 import { subscribeChat } from "../services/chatLive";
 import { post } from "../services/http";
 import { sanitizeRichText } from "../utils/richText";
+import UserHoverCard from "../components/UserHoverCard.vue";
 
 function throttle(fn, limit = 150) {
   let inThrottle = false;
@@ -1291,6 +1308,20 @@ function jumpVideo(videoId) {
   if (videoId !== null) window.open(`./video?videoId=BV${videoId}`, 'videoWindow');
 }
 
+function jumpDynamic(dynamicId) {
+  if (dynamicId !== null && dynamicId !== undefined) window.open(`./dynamicDetail?dynamicId=${dynamicId}`, 'dynamicWindow');
+}
+
+function dynamicImages(dynamic) {
+  if (!dynamic) return [];
+  if (Array.isArray(dynamic.imageList)) return dynamic.imageList;
+  if (Array.isArray(dynamic.image_urls)) return dynamic.image_urls;
+  if (typeof dynamic.image_urls === 'string' && dynamic.image_urls.trim()) {
+    try { return JSON.parse(dynamic.image_urls); } catch { return []; }
+  }
+  return [];
+}
+
 function openHome(menu, id) {
   window.open(`./home?homeMenu=${menu}&userId=${id}`, "_blank");
 }
@@ -1681,7 +1712,7 @@ function restoreBodyOverflow() {
                         position: absolute;
                         bottom: 15px;
                         left: 5px;
-                        font-size: 10px;
+                        font-size: 12px;
                         color: #fff;
                         background-color: rgba(0, 0, 0, 0.4);
                         border-radius: 2px;
@@ -1693,17 +1724,19 @@ function restoreBodyOverflow() {
                         position: absolute;
                         bottom: 15px;
                         left: 48px;
-                        font-size: 10px;
+                        font-size: 12px;
                         color: #fff;
                         height: 15px;
                         line-height: 15px;
                     }
                     .share-video-play-btn{
                       position: absolute;
-                      bottom: 12px;
-                      right: 10px;
-                      width: 48px;
-                      height: 48px;
+                      top: 50%;
+                      left: 50%;
+                      transform: translate(-50%, -50%);
+                      width: 72px;
+                      height: 72px;
+                      pointer-events: none;
                     }
                     }
                     
@@ -1719,8 +1752,8 @@ function restoreBodyOverflow() {
                         word-break: break-word;
                         -webkit-line-clamp: 2;
                         -webkit-box-orient: vertical;
-                        font-size: 14px;
-                        line-height: 20px;
+                            font-size: 15px;
+                            line-height: 20px;
                         max-height: 2.857142857142857em;
                         overflow: hidden;
                         }
@@ -1751,11 +1784,96 @@ function restoreBodyOverflow() {
                             text-overflow: ellipsis;
                             overflow: hidden;
                         }
-                        .share-contribute-video{
+                        .share-video-badge{
                             position: absolute;
-                            right: 10px;
+                            right: 12px;
+                            font-size: 11px;
+                            color: #0fa68e;
+                            background: #eaf6f2;
+                            padding: 2px 8px;
+                            border-radius: 10px;
                         }
                     }
+                }
+
+                .share-dynamic-container{
+                  width: min(360px, 100%);
+                  background: #fff;
+                  border: 1px solid #e5e9ef;
+                  border-radius: 0 16px 16px 16px;
+                  overflow: hidden;
+                  cursor: pointer;
+                  transition: box-shadow .2s ease, transform .2s ease;
+                  &:hover { box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+                  .share-dynamic-title{
+                    padding: 10px 12px 4px;
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: #212121;
+                    line-height: 1.4;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                  }
+                  .share-dynamic-content{
+                    padding: 4px 12px 8px;
+                    font-size: 14px;
+                    color: #555;
+                    line-height: 1.5;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 3;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                    word-break: break-word;
+                  }
+                  .share-dynamic-images{
+                    position: relative;
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 2px;
+                    padding: 0 12px 8px;
+                    .share-dynamic-image{
+                      width: 100%;
+                      aspect-ratio: 1;
+                      object-fit: cover;
+                      border-radius: 6px;
+                    }
+                    .share-dynamic-image-more{
+                      position: absolute;
+                      right: 14px;
+                      bottom: 10px;
+                      background: rgba(0,0,0,.5);
+                      color: #fff;
+                      font-size: 11px;
+                      padding: 2px 6px;
+                      border-radius: 4px;
+                    }
+                  }
+                  .share-dynamic-fotter{
+                    display: flex;
+                    position: relative;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 8px 12px;
+                    border-top: 1px solid #e5e9ef;
+                    background-color: white;
+                    color: #999;
+                    font-size: 13px;
+                    .share-dynamic-time{
+                      font-size: 12px;
+                      color: #999;
+                    }
+                    .share-dynamic-badge{
+                      position: absolute;
+                      right: 12px;
+                      font-size: 11px;
+                      color: #0fa68e;
+                      background: #eaf6f2;
+                      padding: 2px 8px;
+                      border-radius: 10px;
+                    }
+                  }
                 }
 
                 .delete-video{
@@ -1855,7 +1973,7 @@ function restoreBodyOverflow() {
                         position: absolute;
                         bottom: 15px;
                         left: 5px;
-                        font-size: 10px;
+                        font-size: 12px;
                         color: #fff;
                         background-color: rgba(0, 0, 0, 0.4);
                         border-radius: 2px;
@@ -1867,7 +1985,7 @@ function restoreBodyOverflow() {
                         position: absolute;
                         bottom: 15px;
                         left: 48px;
-                        font-size: 10px;
+                        font-size: 12px;
                         color: #fff;
                         height: 15px;
                         line-height: 15px;
@@ -1875,10 +1993,12 @@ function restoreBodyOverflow() {
                     }
                     .share-video-play-btn{
                       position: absolute;
-                      bottom: 12px;
-                      right: 10px;
-                      width: 48px;
-                      height: 48px;
+                      top: 50%;
+                      left: 50%;
+                      transform: translate(-50%, -50%);
+                      width: 72px;
+                      height: 72px;
+                      pointer-events: none;
                     }
                     .share-video-title{
                         position: relative;
@@ -1892,8 +2012,8 @@ function restoreBodyOverflow() {
                         word-break: break-word;
                         -webkit-line-clamp: 2;
                         -webkit-box-orient: vertical;
-                        font-size: 14px;
-                        line-height: 20px;
+                            font-size: 15px;
+                            line-height: 20px;
                         max-height: 2.857142857142857em;
                         overflow: hidden;
                         }
@@ -1924,11 +2044,96 @@ function restoreBodyOverflow() {
                             text-overflow: ellipsis;
                             overflow: hidden;
                         }
-                        .share-contribute-video{
+                        .share-video-badge{
                             position: absolute;
-                            right: 10px;
+                            right: 12px;
+                            font-size: 11px;
+                            color: #0fa68e;
+                            background: #eaf6f2;
+                            padding: 2px 8px;
+                            border-radius: 10px;
                         }
                     }
+                }
+
+                .share-dynamic-container{
+                  width: min(360px, 100%);
+                  background: #fff;
+                  border: 1px solid #e5e9ef;
+                  border-radius: 0 16px 16px 16px;
+                  overflow: hidden;
+                  cursor: pointer;
+                  transition: box-shadow .2s ease, transform .2s ease;
+                  &:hover { box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+                  .share-dynamic-title{
+                    padding: 10px 12px 4px;
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: #212121;
+                    line-height: 1.4;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                  }
+                  .share-dynamic-content{
+                    padding: 4px 12px 8px;
+                    font-size: 14px;
+                    color: #555;
+                    line-height: 1.5;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 3;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                    word-break: break-word;
+                  }
+                  .share-dynamic-images{
+                    position: relative;
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 2px;
+                    padding: 0 12px 8px;
+                    .share-dynamic-image{
+                      width: 100%;
+                      aspect-ratio: 1;
+                      object-fit: cover;
+                      border-radius: 6px;
+                    }
+                    .share-dynamic-image-more{
+                      position: absolute;
+                      right: 14px;
+                      bottom: 10px;
+                      background: rgba(0,0,0,.5);
+                      color: #fff;
+                      font-size: 11px;
+                      padding: 2px 6px;
+                      border-radius: 4px;
+                    }
+                  }
+                  .share-dynamic-fotter{
+                    display: flex;
+                    position: relative;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 8px 12px;
+                    border-top: 1px solid #e5e9ef;
+                    background-color: white;
+                    color: #999;
+                    font-size: 13px;
+                    .share-dynamic-time{
+                      font-size: 12px;
+                      color: #999;
+                    }
+                    .share-dynamic-badge{
+                      position: absolute;
+                      right: 12px;
+                      font-size: 11px;
+                      color: #0fa68e;
+                      background: #eaf6f2;
+                      padding: 2px 8px;
+                      border-radius: 10px;
+                    }
+                  }
                 }
 
                 .delete-video{

@@ -1,5 +1,5 @@
-<template>
-  <article class="home-post content-action-surface" :class="{ 'is-navigable': canOpenDetail }" @click="openDetail">
+﻿<template>
+  <article class="home-post content-action-surface" :class="{ 'is-navigable': canOpenDetail }" @click="openDetail" style="position: relative;">
     <header>
       <UserHoverCard class="author" :user-id="dynamic.authorId"
         :avatar="dynamic.authorAvatar" :nickname="dynamic.authorNickname"/>
@@ -43,23 +43,26 @@
         </div>
       </div>
     </a>
-    <footer v-if="dynamic.sourceType !== 2">
+    <footer v-if="dynamic.sourceType !== 2" @click.stop>
       <el-button class="post-action" :class="{ 'is-liked': liked }" text :type="liked ? 'primary' : ''"
         :aria-pressed="liked" :loading="liking" @click="toggleLike">
         <svg class="post-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10H4v10h4m0-10 4-7h1a2 2 0 0 1 2 2l-1 5h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H8V10Z"/></svg>
-        <span>{{ likeCount }} 赞</span>
+        <transition name="count-pop" mode="out-in"><span :key="likeCount" class="count-value">{{ likeCount }} 赞</span></transition>
       </el-button>
       <el-button class="post-action" :class="{ 'is-active': commentsExpanded }" text
         :aria-expanded="commentsExpanded" :aria-controls="commentsId" @click="toggleComments">
         <svg class="post-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18 3 21V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H7Z"/><path d="M7 8h10M7 12h7"/></svg>
-        <span>{{ commentCount }} 评论</span>
+        <transition name="count-pop" mode="out-in"><span :key="commentCount" class="count-value">{{ commentCount }} 评论</span></transition>
       </el-button>
-      <el-button class="post-action" text @click="share">
-        <svg class="post-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 3 7 7-7 7v-4C8 13 5 15 3 20c0-9 4-13 11-13V3Z"/></svg>
-        <span>分享</span>
-      </el-button>
+      <span style="position: relative; display: flex; flex: 1; justify-content: center;">
+        <el-button class="post-action" text @click="shareOpen = !shareOpen" ref="shareBtn">
+          <svg class="post-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 3 7 7-7 7v-4C8 13 5 15 3 20c0-9 4-13 11-13V3Z"/></svg>
+          <span>分享</span>
+        </el-button>
+        <div v-if="shareOpen" class="dynamic-share-wrap" :style="sharePanelStyle" @click.stop><dynamicShare :dynamic="dynamic" :open-flag="shareOpen" /></div>
+      </span>
     </footer>
-    <footer v-else>
+    <footer v-else @click.stop>
       <span class="post-like-summary">
         <svg class="post-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10H4v10h4m0-10 4-7h1a2 2 0 0 1 2 2l-1 5h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H8V10Z"/></svg>
         {{ dynamic.likeCount || 0 }} 赞
@@ -76,6 +79,7 @@ import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { socialApi, videoApi } from '@/api/product';
 import richContent from '@/components/richContent.vue';
+import dynamicShare from '@/utils/dynamicShare.vue';
 import ContentMoreMenu from '@/components/ContentMoreMenu.vue';
 import UserHoverCard from '@/components/UserHoverCard.vue';
 import postComments from '@/dynamic/postComments.vue';
@@ -88,6 +92,23 @@ const props = defineProps({
 });
 const emit = defineEmits(['changed', 'comment-count']);
 const store = useGlobalStore();
+const shareOpen = ref(false);
+const shareBtn = ref(null);
+const sharePanelStyle = computed(() => {
+  if (!shareOpen.value) return {};
+  const base = { position: 'absolute', right: 0, zIndex: 1000 };
+  if (!shareBtn.value) return { ...base, top: '100%', marginTop: '4px' };
+  const el = shareBtn.value.$el || shareBtn.value;
+  const rect = el.getBoundingClientRect();
+  const spaceBelow = window.innerHeight - rect.bottom;
+  const spaceAbove = rect.top;
+  const panelHeight = 420;
+  if (spaceBelow >= panelHeight) return { ...base, top: '100%', marginTop: '4px' };
+  if (spaceAbove >= panelHeight) return { ...base, bottom: '100%', marginBottom: '4px' };
+  return spaceBelow >= spaceAbove
+    ? { ...base, top: '100%', marginTop: '4px' }
+    : { ...base, bottom: '100%', marginBottom: '4px' };
+});
 const router = useRouter();
 const canOpenDetail = computed(() => !props.detail && props.dynamic.sourceType !== 2);
 const detailHref = computed(() => `/dynamicDetail?dynamicId=${props.dynamic.id}`);
@@ -213,6 +234,8 @@ async function remove() {
 .home-post .post-action.is-active { color: var(--brand-hover); background: var(--brand-light-9); }
 .home-post > .inline-discussion { margin-top: 16px; padding: 20px 0 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; cursor: auto; }
 .post-action:focus-visible, .post-video:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+@keyframes count-pop { 0% { transform: scale(1.4); color: var(--brand-hover); } 100% { transform: scale(1); } }
+.count-pop-enter-active { animation: count-pop .25s ease; }
 .home-post .post-action-icon { display: inline-block; flex: none; width: 18px; height: 18px; margin-right: 7px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
 .post-like-summary { display: inline-flex; align-items: center; color: var(--ink-2); }
 .post-permalink { display: inline-flex; margin: 0; color: var(--ink-3); font-size: 13px; text-decoration: none; }
@@ -237,3 +260,8 @@ async function remove() {
   .home-post > .inline-discussion { padding: 16px 0 0; border-radius: 0; }
 }
 </style>
+
+
+
+
+

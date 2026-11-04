@@ -1,4 +1,4 @@
-import { PREVIEW_USER_ID } from "./config";
+﻿import { PREVIEW_USER_ID } from "./config";
 
 function artwork(index, avatar = false) {
   const colors = [
@@ -287,6 +287,26 @@ export function messages(peerId) {
       messageType: 1,
       status: 0,
       sendTime: "2026-10-21 12:22:00",
+    },
+    {
+      id: 504,
+      senderId: Number(peerId),
+      receiverId: PREVIEW_USER_ID,
+      content: "201",
+      messageType: 5,
+      status: 1,
+      sendTime: "2026-10-21 12:23:00",
+      dynamics: { id: 201, userId: PREVIEW_USER_ID, title: "动态标题", content: "动态内容", userName: "预览用户", avatarAddress: "/img/avatar-default.png", createdAt: "2026-10-21 12:23:00", imageList: ["/img/cover-fallback.png"] },
+    },
+    {
+      id: 505,
+      senderId: PREVIEW_USER_ID,
+      receiverId: Number(peerId),
+      content: "101",
+      messageType: 3,
+      status: 1,
+      sendTime: "2026-10-21 12:24:00",
+      videos: legacyVideo(videos[0]),
     },
   ].map((row) => ({
     ...row,
