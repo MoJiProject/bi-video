@@ -32,7 +32,16 @@
           </header>
           <el-input v-model="title" class="composer-title" maxlength="20" show-word-limit aria-label="动态标题（选填）" placeholder="动态标题（选填）"/>
           <PostEditor ref="editor" v-model="content" class="composer-editor" :disabled="publishing"
-            placeholder="输入动态内容…" :max-length="2000" @length="contentLength = $event"/>
+            placeholder="输入动态内容…" :max-length="2000" @length="contentLength = $event">
+            <template #tools>
+              <label class="editor-tool image-upload" :class="{ disabled: uploading || images.length >= 9 }">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/></svg>
+                <span>图片</span>
+                <span v-if="images.length">{{ images.length }}/9</span>
+                <input type="file" multiple accept="image/png,image/jpeg,image/gif" aria-label="添加动态图片，最多九张" :disabled="uploading || images.length >= 9" @change="upload">
+              </label>
+            </template>
+          </PostEditor>
           <div v-if="images.length" class="attachments">
             <div v-for="(image, index) in images" :key="image" class="attachment">
               <span class="attachment-order">{{ index + 1 }}</span>
@@ -45,11 +54,6 @@
             </div>
           </div>
           <div class="publish">
-            <label class="image-upload" :class="{ disabled: uploading || images.length >= 9 }">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/></svg>
-              添加图片 <span>{{ images.length }}/9</span>
-              <input type="file" multiple accept="image/png,image/jpeg,image/gif" aria-label="添加动态图片，最多九张" :disabled="uploading || images.length >= 9" @change="upload">
-            </label>
             <div class="publish-options">
               <el-select v-model="visibility" class="visibility" aria-label="动态可见范围"><el-option label="公开" :value="0"/><el-option label="仅自己" :value="1"/></el-select>
               <el-button type="primary" :loading="publishing || uploading" @click="publish">发布动态</el-button>
@@ -258,12 +262,13 @@ onUnmounted(() => { active = false; generation++; clearInterval(reminderTimer); 
 .publish, .publish-options { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .publish { justify-content: space-between; margin-top: 14px; padding-top: 16px; border-top: 1px solid var(--line); }
 .publish-options { margin-left: auto; }
-.publish-options > .el-button { flex: none; width: auto; max-width: 100%; min-height: 36px; margin: 0; padding: 0 20px; border-radius: 10px; }
+.publish-options > .el-button { flex: none; width: auto; max-width: 100%; min-width: 112px; min-height: 36px; margin: 0; padding: 0 20px; border-radius: 10px; }
 .visibility { width: 112px; }
-.visibility :deep(.el-select__wrapper) { border-radius: 10px; }
-.image-upload { position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 36px; max-width: 100%; padding: 6px 10px; border: 1px solid var(--line); border-radius: 10px; color: #126b58; font-size: 12px; cursor: pointer; }
-.image-upload > span { color: var(--ink-3); font-size: 11px; }
-.image-upload:hover { background: var(--fill-soft); transition: all 0.3s ease; }
+.visibility :deep(.el-select__wrapper) { min-height: 36px; border-radius: 10px; }
+.image-upload { position: relative; }
+.image-upload > span + span { color: var(--ink-3); font-size: 11px; }
+.image-upload > span { font-size: 12px; line-height: 20px; }
+.image-upload:hover { background: var(--fill-soft); color: var(--brand-hover); transition: all 0.3s ease; }
 .image-upload.disabled { opacity: .55; cursor: not-allowed; }
 .image-upload input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .image-upload:focus-within, .write-button:focus-visible, .author-list button:focus-visible { outline: 2px solid #126b58; outline-offset: 3px; }

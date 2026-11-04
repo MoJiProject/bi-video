@@ -377,7 +377,7 @@ function addImgFlagF(comment,flag){
 
     //滚动加载
     function handleScroll(e){
-      if(Scrolled.value&&e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 1){
+      if(Scrolled.value&&e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 40){
         selectReplayCommentF();
       }
     }

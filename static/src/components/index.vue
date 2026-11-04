@@ -198,21 +198,30 @@ async function refresh() {
   refreshing.value = false;
 }
 
+function getScrollTop() {
+  return window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+}
 function onScroll() {
-  sticky.value = window.scrollY >= 120;
+  sticky.value = getScrollTop() >= 120;
   if (hasMore.value && !loading.value) {
-    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 600) load(false);
+    const scrollTop = getScrollTop();
+    const scrollHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+    if (window.innerHeight + scrollTop >= scrollHeight - 600) load(false);
   }
 }
 
 onMounted(async () => {
   window.scrollTo(0, 0);
   window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("touchend", onScroll, { passive: true });
+  window.addEventListener("touchmove", onScroll, { passive: true });
   await Promise.all([load(true), loadBanners(), loadCategories()]);
 });
 
 onUnmounted(() => {
   window.removeEventListener("scroll", onScroll);
+  window.removeEventListener("touchend", onScroll);
+  window.removeEventListener("touchmove", onScroll);
 });
 </script>
 

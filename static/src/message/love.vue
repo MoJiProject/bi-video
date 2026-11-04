@@ -561,14 +561,14 @@ function addImgFlagF(comment){
 
   //滚动加载
   function handleScroll(e){
-      if(Scrolled.value&&e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 1){
+      if(Scrolled.value&&e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 40){
         selectLikeF();
       }
   }
 
   //滚动加载
   function handleScroll2(e){
-      if(detailsMore.value&&e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 1){
+      if(detailsMore.value&&e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 40){
         selectLikeUserF(loves.value);
       }
   }

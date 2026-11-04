@@ -207,50 +207,19 @@
          </button>
 
          <div class="message-send-container">
-            <div class="message-feature-container">
-                <el-tooltip
-                  popper-class="custom-tooltip"
-                  effect="light"
-                  :show-after="300"
-                  content="图片"
-                  placement="left"
-                  :offset="12"
-                  :show-arrow="false"
-                  :hide-after="0"
-                >
-                <button type="button" class="message-feature-button" aria-label="发送图片" @click="addSendImg">
-                  <svg class="message-feature-img" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/></svg>
-                </button>
-                </el-tooltip>
-                <el-tooltip
-                  popper-class="custom-tooltip"
-                  effect="light"
-                  :show-after="300"
-                  content="表情"
-                  placement="right"
-                  :offset="12"
-                  :show-arrow="false"
-                  :hide-after="0"
-                >
-                <button type="button" class="message-feature-emoji message-feature-button" aria-label="表情" :aria-expanded="emojiFlag">
-                  <svg class="message-feature-emoji" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 14a4 4 0 0 0 8 0M8 9h.01M16 9h.01"/></svg>
-                </button>
-                </el-tooltip>
-                <el-tooltip
-                  popper-class="custom-tooltip"
-                  effect="light"
-                  :show-after="300"
-                  content="@"
-                  placement="right"
-                  :offset="12"
-                  :show-arrow="false"
-                  :hide-after="0"
-                >
-                <button type="button" class="message-feature-at message-feature-button" aria-label="提醒某人（@）" @click="addAt">
-                  <svg class="message-feature-at" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg>
-                </button>
-                </el-tooltip>
-                <eit
+             <div class="message-feature-container">
+                 <button type="button" class="message-feature-emoji message-feature-button" aria-label="表情" :aria-expanded="emojiFlag">
+                   <svg class="message-feature-emoji" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 14a4 4 0 0 0 8 0M8 9h.01M16 9h.01"/></svg>
+                   <span>表情</span>
+                 </button>
+                 <button type="button" class="message-feature-button" aria-label="发送图片" @click="addSendImg">
+                   <svg class="message-feature-img" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/></svg>
+                   <span>图片</span>
+                 </button>
+                 <button type="button" class="message-feature-at message-feature-button" aria-label="提醒某人（@）" @click="addAt">
+                   <svg class="message-feature-at" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg>
+                 </button>
+                 <eit
                     v-show="eitFlag"
                     :eitList="store.eitList"
                     :eitKeyWord="eitKeyWord"
@@ -840,11 +809,11 @@ function addEmoji(index) {
   const button = document.createElement("img");
   button.src = `/img/emoji/${index}.png`;
   button.className = "message-emoji-img";
-  button.style.width = "20px";
-  button.style.height = "20px";
+  button.style.width = "24px";
+  button.style.height = "24px";
   button.style.marginRight = "2px";
   button.style.marginLeft = "2px";
-  button.style.transform = "translateY(4px)";
+  button.style.verticalAlign = "middle";
   const selection = window.getSelection();
   if (!range) {
     if (messageInput?.value) {
@@ -1072,7 +1041,7 @@ function insertEitUser() {
     }
   }
 
-  const buttonHtml = `<a href="./home?homeMenu=1&userId=${store.eitUserId}" target="_blank" data-eitt-userId="${store.eitUserId}" contentEditable="false" class="at-msg" style="color:#0A8271;margin-right:3px;">@${store.eitUserName}</a>`;
+  const buttonHtml = `<a href="./home?homeMenu=1&userId=${store.eitUserId}" target="_blank" data-eit-userid="${store.eitUserId}" contentEditable="false" class="at-msg" style="color:#0A8271;margin-right:3px;">@${store.eitUserName}</a>`;
   const fragment = range.createContextualFragment(buttonHtml);
   const lastNode = fragment.lastChild;
   range.insertNode(fragment);
@@ -1239,7 +1208,7 @@ function handleCopyMessage() {
 const _dialogueListScrollHandler = throttle((e) => {
   if (!e.target) return;
   if (!dialogueLoadingFlag.value) return;
-  dialogueLoading.value = e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 1;
+  dialogueLoading.value = e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 40;
   if (dialogueLoading.value) selectDialogueF2();
 }, 150);
 
@@ -1256,7 +1225,7 @@ async function messageListScroll(e){
       showScrollToBottom.value = false;
     }
     if(!messageLoadingFlag.value) return;
-    messageLoading.value = e.target.scrollTop === 0;
+    messageLoading.value = e.target.scrollTop <= 40;
     if(messageLoading.value && dealyFlag){
         dealyFlag = false;
         const oldScrollHeight = e.target.clientHeight;
@@ -1674,6 +1643,16 @@ function restoreBodyOverflow() {
                     }
                 }
 
+                .message-content .inline-emoji {
+                    display: inline-block;
+                    width: 28px;
+                    height: 28px;
+                    vertical-align: middle;
+                }
+                .message-content a[data-eit-userid] {
+                    color: #0a8271;
+                }
+
                 .message-content-img{
                     max-width: 266px;
                     height: 100%;
@@ -1826,17 +1805,27 @@ function restoreBodyOverflow() {
                 overflow: hidden;
                 float: right;
                 color: white;
-                .message-content{
-                    line-height: 1.5;
-                    font-size: 14px;
-                    min-height: 37px;
-                    padding: 8px 16px;
-                    word-wrap: break-all;
-                    word-break: break-all;
-                    background: #79C7B6;
-                    border-radius: 16px 0 16px 16px;
-                    overflow: hidden;
-                }
+                    .message-content{
+                        line-height: 1.5;
+                        font-size: 14px;
+                        min-height: 37px;
+                        padding: 8px 16px;
+                        word-wrap: break-all;
+                        word-break: break-all;
+                        background: #79C7B6;
+                        border-radius: 16px 0 16px 16px;
+                        overflow: hidden;
+                    }
+
+                    .message-content .inline-emoji {
+                        display: inline-block;
+                        width: 28px;
+                        height: 28px;
+                        vertical-align: middle;
+                    }
+                    .message-content a[data-eit-userid] {
+                        color: #0a8271;
+                    }
 
                 .message-content-img{
                     max-width: 266px;
@@ -2039,16 +2028,44 @@ function restoreBodyOverflow() {
             -webkit-box-orient: horizontal;
             flex-direction: row;
             align-items: center;
-            img{
-                margin-right: 16px;
+            gap: 4px;
+            .message-feature-button{
+                box-sizing: border-box;
+                display: inline-flex;
+                flex: none;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                gap: 5px;
+                height: 30px;
+                margin: 0;
+                padding: 0 7px;
+                border: 0;
+                border-radius: 6px;
+                background: transparent;
+                color: var(--ink-2);
+                font-family: inherit;
+                font-size: 12px;
+                font-weight: 400;
+                line-height: 20px;
                 cursor: pointer;
-                user-select: none;
             }
-
+            .message-feature-button:hover{
+                background: var(--fill-soft);
+                color: var(--brand-hover);
+                transition: all 0.3s ease;
+            }
+            .message-feature-button > span{
+                display: inline-flex;
+                align-items: center;
+                height: 20px;
+                line-height: 20px;
+            }
             .message-feature-button svg{
                 display: block;
-                width: 16px;
-                height: 16px;
+                flex: none;
+                width: 18px;
+                height: 18px;
                 margin: 0;
                 fill: none;
                 stroke: currentColor;
@@ -2056,6 +2073,10 @@ function restoreBodyOverflow() {
                 stroke-linecap: round;
                 stroke-linejoin: round;
                 pointer-events: none;
+            }
+            .message-feature-at {
+                width: 30px;
+                padding: 0;
             }
 
             .message-emoji-list{
@@ -2135,6 +2156,18 @@ function restoreBodyOverflow() {
             border-radius: 4px;
             word-break: break-all;
             word-wrap: break-all;
+        }
+        .message-input-container img {
+            width: 24px;
+            height: 24px;
+            vertical-align: middle;
+        }
+        .message-input-container a[data-eit-userid] {
+            padding: 1px 3px;
+            border-radius: 4px;
+            background: var(--brand-light-9);
+            color: #0a8271;
+            text-decoration: none;
         }
 
         .message-input-container::-webkit-scrollbar{

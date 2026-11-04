@@ -99,7 +99,9 @@ function touchEndF(e){
 
     if(delta > 50 && store.homeMenu === 2){
         if(!loadMore2.value && !loadMore.value && !fotterFlag.value){
-            if((window.innerHeight + document.documentElement.scrollTop) >= document.documentElement.offsetHeight - 50){
+            const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+            const scrollHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+            if((window.innerHeight + scrollTop) >= scrollHeight - 50){
                 homeDynamicF()
             }
         }
@@ -149,7 +151,9 @@ watch(()=>store.deleteFlag,()=>{
 //滚动加载
 function handleScroll(){
     if(store.homeMenu === 2 && !loadMore2.value&&!loadMore.value&&!fotterFlag.value){
-        if((window.innerHeight+document.documentElement.scrollTop)>=document.documentElement.offsetHeight-100){
+        const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+        const scrollHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+        if((window.innerHeight + scrollTop) >= scrollHeight - 100){
             homeDynamicF();
         }
     }

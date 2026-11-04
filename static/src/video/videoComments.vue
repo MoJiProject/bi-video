@@ -18,9 +18,11 @@
             <input type="file" accept="image/png,image/jpeg,image/gif" multiple
               aria-label="添加评论图片，最多九张" :disabled="sending || uploading || images.length >= 9" @change="upload">
           </label>
+        </template>
+        <template #after-tools>
           <button type="button" class="editor-tool share-tool" :class="{ checked: shareToDynamic }"
             :aria-pressed="shareToDynamic" :disabled="sending" @click="shareToDynamic = !shareToDynamic">
-            <img class="coin" :src="shareToDynamic ? '/img/投币复选框选中.svg' : '/img/投币复选框.svg'" alt="">
+            <svg class="coin" viewBox="0 0 48 48" aria-hidden="true"><rect x="4" y="4" width="40" height="40" rx="12" fill="none" stroke="currentColor" stroke-width="4"/><path v-if="shareToDynamic" d="M15 25 L24 33 L35 17" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span>同时转发到我的动态</span>
           </button>
         </template>
@@ -84,16 +86,30 @@
             <PostEditor :ref="setReplyInput" v-model="replyContent" compact :max-length="1000" :disabled="replySending"
               :placeholder="`回复 @${root.authorNickname}`" @length="replyContentLength = $event">
               <template #tools>
-                <button type="button" class="editor-tool share-tool" :class="{ checked: replyShareToDynamic }"
-                  :aria-pressed="replyShareToDynamic" :disabled="replySending" @click="replyShareToDynamic = !replyShareToDynamic">
-                  <img class="coin" :src="replyShareToDynamic ? '/img/投币复选框选中.svg' : '/img/投币复选框.svg'" alt="">
-                  <span>同时转发到我的动态</span>
-                </button>
-              </template>
+                  <label class="editor-tool comment-upload" :class="{ disabled: replySending || replyUploading || replyImages.length >= 9 }">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/></svg>
+                    <span>图片</span><span v-if="replyImages.length">{{ replyImages.length }}/9</span>
+                    <input type="file" accept="image/png,image/jpeg,image/gif" multiple
+                      aria-label="添加回复图片，最多九张" :disabled="replySending || replyUploading || replyImages.length >= 9" @change="uploadReply">
+                  </label>
+                </template>
+                <template #after-tools>
+                  <button type="button" class="editor-tool share-tool" :class="{ checked: replyShareToDynamic }"
+                    :aria-pressed="replyShareToDynamic" :disabled="replySending" @click="replyShareToDynamic = !replyShareToDynamic">
+                    <svg class="coin" viewBox="0 0 48 48" aria-hidden="true"><rect x="4" y="4" width="40" height="40" rx="12" fill="none" stroke="currentColor" stroke-width="4"/><path v-if="replyShareToDynamic" d="M15 25 L24 33 L35 17" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>同时转发到我的动态</span>
+                  </button>
+                </template>
               <template #actions>
                 <el-button type="primary" :loading="replySending" @click="sendReply(root)">回复</el-button>
               </template>
             </PostEditor>
+            <div v-if="replyImages.length" class="attachments">
+              <div v-for="(image, index) in replyImages" :key="image">
+                <el-image :src="image" :preview-src-list="replyImages" preview-teleported fit="cover"/>
+                <el-button text type="danger" @click="replyImages.splice(index, 1)">移除</el-button>
+              </div>
+            </div>
           </div>
 
           <article v-for="child in root.replies" :key="child.id"
@@ -135,9 +151,17 @@
               <PostEditor :ref="setReplyInput" v-model="replyContent" compact :max-length="1000" :disabled="replySending"
                 :placeholder="`回复 @${child.authorNickname}`" @length="replyContentLength = $event">
                 <template #tools>
+                  <label class="editor-tool comment-upload" :class="{ disabled: replySending || replyUploading || replyImages.length >= 9 }">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/></svg>
+                    <span>图片</span><span v-if="replyImages.length">{{ replyImages.length }}/9</span>
+                    <input type="file" accept="image/png,image/jpeg,image/gif" multiple
+                      aria-label="添加回复图片，最多九张" :disabled="replySending || replyUploading || replyImages.length >= 9" @change="uploadReply">
+                  </label>
+                </template>
+                <template #after-tools>
                   <button type="button" class="editor-tool share-tool" :class="{ checked: replyShareToDynamic }"
                     :aria-pressed="replyShareToDynamic" :disabled="replySending" @click="replyShareToDynamic = !replyShareToDynamic">
-                    <img class="coin" :src="replyShareToDynamic ? '/img/投币复选框选中.svg' : '/img/投币复选框.svg'" alt="">
+                    <svg class="coin" viewBox="0 0 48 48" aria-hidden="true"><rect x="4" y="4" width="40" height="40" rx="12" fill="none" stroke="currentColor" stroke-width="4"/><path v-if="replyShareToDynamic" d="M15 25 L24 33 L35 17" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span>同时转发到我的动态</span>
                   </button>
                 </template>
@@ -145,6 +169,12 @@
                   <el-button type="primary" :loading="replySending" @click="sendReply(child)">发布评论</el-button>
                 </template>
               </PostEditor>
+              <div v-if="replyImages.length" class="attachments">
+                <div v-for="(image, index) in replyImages" :key="image">
+                  <el-image :src="image" :preview-src-list="replyImages" preview-teleported fit="cover"/>
+                  <el-button text type="danger" @click="replyImages.splice(index, 1)">移除</el-button>
+                </div>
+              </div>
             </div>
           </article>
         </article>
@@ -205,6 +235,8 @@ function setReplyInput(el) {
 }
 const replyContent = ref('');
 const replyContentLength = ref(0);
+const replyImages = ref([]);
+const replyUploading = ref(false);
 const replySending = ref(false);
 const replyShareToDynamic = ref(false);
 const sending = ref(false);
@@ -339,7 +371,7 @@ async function highlightAndScroll(id, fallbackId = null) {
 /** 在某条评论下方直接发布回复，发送后定位到新回复。 */
 async function sendReply(target) {
   if (!signedIn() || replySending.value) return;
-  if (!replyContentLength.value) {
+  if (!replyContentLength.value && !replyImages.value.length) {
     ElMessage.warning('请输入回复内容');
     return;
   }
@@ -349,19 +381,20 @@ async function sendReply(target) {
   }
   replySending.value = true;
   try {
-    const finalContent = sanitizeRichText(await transformContent(replyContent.value));
-    if (!finalContent) {
+    const finalContent = sanitizeRichText(await transformContent(replyContent.value))
+      || (replyImages.value.length ? '分享图片' : '');
+    if (!finalContent && !replyImages.value.length) {
       ElMessage.warning('请输入回复内容');
       return;
     }
     // 后端会把楼中楼自动归位到一级评论下
     const { commentId } = await commentApi.create({
-      videoId: props.videoId, content: finalContent, imageUrls: [], rootId: target.id,
+      videoId: props.videoId, content: finalContent, imageUrls: replyImages.value, rootId: target.id,
     });
     if (replyShareToDynamic.value) {
       try {
         await socialApi.createPost({
-          content: finalContent, imageUrls: [], videoId: props.videoId, visibility: 0,
+          content: finalContent, imageUrls: replyImages.value, videoId: props.videoId, visibility: 0,
         });
       } catch (error) {
         ElMessage.warning(`回复已发送，转发失败：${error.message}`);
@@ -369,6 +402,8 @@ async function sendReply(target) {
     }
     replyContent.value = '';
     replyContentLength.value = 0;
+    replyImages.value = [];
+    replyUploading.value = false;
     replyShareToDynamic.value = false;
     activeReplyId.value = null;
     store.updateVideoInfoFlag = true;
@@ -402,6 +437,29 @@ async function upload(event) {
     ElMessage.error(error.message);
   } finally {
     uploading.value = false;
+    event.target.value = '';
+  }
+}
+async function uploadReply(event) {
+  if (!signedIn()) { event.target.value = ''; return; }
+  const files = Array.from(event.target.files);
+  if (files.length + replyImages.value.length > 9) {
+    ElMessage.warning('最多 9 张图片');
+    event.target.value = '';
+    return;
+  }
+  replyUploading.value = true;
+  try {
+    for (const file of files) {
+      const body = new FormData();
+      body.append('file', file);
+      const image = await post('/media/image', body);
+      replyImages.value.push(image.url);
+    }
+  } catch (error) {
+    ElMessage.error(error.message);
+  } finally {
+    replyUploading.value = false;
     event.target.value = '';
   }
 }
@@ -559,7 +617,8 @@ h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; f
 .comment-upload.disabled { opacity: .55; cursor: not-allowed; }
 .comment-upload input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .share-tool { cursor: pointer; }
-.share-tool .coin { display: block; flex: none; width: 16px; height: 16px; align-self: center; }
+.share-tool .coin { display: block; flex: none; width: 16px !important; height: 16px !important; align-self: center; stroke-width: 4 !important; }
+.share-tool .coin path { stroke-width: 6 !important; }
 .login-hint { margin: 0 0 16px; color: var(--ink-2); font-size: 13px; }
 .login-hint-btn { margin: 0 4px; padding: 0; border: 0; background: none; color: var(--brand-hover); font: inherit; cursor: pointer; }
 .login-hint-btn:hover { text-decoration: underline; transition: all 0.3s ease; }

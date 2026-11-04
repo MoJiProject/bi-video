@@ -54,6 +54,7 @@
           :disabled="disabled" @mousedown.prevent @click="insertMentionPrefix">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg>
         </button>
+        <slot name="after-tools"/>
       </div>
       <span class="editor-count" :class="{ 'is-over-limit': length > maxLength }">{{ length }} / {{ maxLength }}</span>
       <div v-if="$slots.actions" class="editor-actions"><slot name="actions"/></div>

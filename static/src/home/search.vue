@@ -113,6 +113,9 @@ const pageNum = ref(1);
 const pageNum2 = ref(1);
 const dynamicList = reactive([]);
 const fotterFlag = ref(false);
+const touchStartY = ref(0);
+const touchMoveY = ref(0);
+const touchEndY = ref(0);
 const contributeVideos = reactive([]);
 const contributeTotal = ref(0);
 const dynamicTotal = ref(0);
@@ -120,8 +123,16 @@ const keyword = ref(new URL(window.location).searchParams.get("keyword") || "");
 
 onMounted(() => {
   window.addEventListener("scroll", handleScroll);
+  document.addEventListener("touchstart", touchStartF);
+  document.addEventListener("touchmove", touchMoveF);
+  document.addEventListener("touchend", touchEndF);
 });
-onUnmounted(() => window.removeEventListener("scroll", handleScroll));
+onUnmounted(() => {
+  window.removeEventListener("scroll", handleScroll);
+  document.removeEventListener("touchstart", touchStartF);
+  document.removeEventListener("touchmove", touchMoveF);
+  document.removeEventListener("touchend", touchEndF);
+});
 store.setKeyword(keyword.value);
 let videoRequestId = 0;
 let dynamicRequestId = 0;
@@ -230,12 +241,23 @@ watch([sort, pageNum], () => {
 });
 
 //滚动加载
+function touchStartF(e) { touchStartY.value = e.touches[0].clientY; }
+function touchMoveF(e) { touchMoveY.value = e.touches[0].clientY; }
+function touchEndF(e) {
+  touchEndY.value = e.changedTouches[0].clientY;
+  const delta = touchStartY.value - touchEndY.value;
+  if (delta > 30 && store.homeMenu === 10 && !loadMore2.value && !loadMore.value && !fotterFlag.value && searchMenu.value === 2) {
+    const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    const scrollHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+    if (window.innerHeight + scrollTop >= scrollHeight - 100) homeDynamicF();
+  }
+}
+
 function handleScroll() {
   if (store.homeMenu === 10 && !loadMore2.value && !loadMore.value && !fotterFlag.value && searchMenu.value === 2) {
-    if (
-      window.innerHeight + document.documentElement.scrollTop >=
-      document.documentElement.offsetHeight - 100
-    ) {
+    const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    const scrollHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+    if (window.innerHeight + scrollTop >= scrollHeight - 100) {
       homeDynamicF();
     }
   }

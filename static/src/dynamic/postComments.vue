@@ -4,7 +4,6 @@
       <el-radio-group v-model="sort" size="small" aria-label="评论排序"><el-radio-button value="hot">最热</el-radio-button><el-radio-button value="new">最新</el-radio-button></el-radio-group>
     </div>
     <form class="comment-form" @submit.prevent="send">
-      <el-tag v-if="replyTo" closable @close="replyTo = null">回复 @{{ replyTo.authorNickname }}</el-tag>
       <PostEditor ref="input" v-model="content" compact :max-length="1000" :disabled="sending"
         placeholder="发一条友善的评论…" @length="contentLength = $event">
         <template #tools>
@@ -47,11 +46,32 @@
             <svg class="comment-action-icon is-dislike" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10H4v10h4m0-10 4-7h1a2 2 0 0 1 2 2l-1 5h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H8V10Z"/></svg>
             <span>踩</span>
           </el-button>
-          <el-button text @click="reply(comment)">
+          <el-button text @click="toggleReplyBox(comment)">
             <svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18 3 21V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H7Z"/><path d="M7 8h10M7 12h7"/></svg>
             <span>回复</span>
           </el-button>
         </footer>
+        <div v-if="activeReplyId === comment.id" class="reply-form">
+          <PostEditor :ref="setReplyInput" v-model="replyContent" compact :max-length="1000" :disabled="replySending"
+            placeholder="发一条友善的评论…" @length="replyContentLength = $event">
+            <template #tools>
+              <label class="editor-tool comment-upload" :class="{ disabled: replySending || replyUploading || replyImages.length >= 9 }">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/></svg>
+                <span>图片</span><span v-if="replyImages.length">{{ replyImages.length }}/9</span>
+                <input type="file" accept="image/png,image/jpeg,image/gif" multiple aria-label="添加回复图片，最多九张" :disabled="replySending || replyUploading || replyImages.length >= 9" @change="uploadReply">
+              </label>
+            </template>
+            <template #actions>
+              <el-button type="primary" :loading="replySending" @click="sendReply(comment)">回复</el-button>
+            </template>
+          </PostEditor>
+          <div v-if="replyImages.length" class="attachments">
+            <div v-for="(image, index) in replyImages" :key="image">
+              <el-image :src="image" :preview-src-list="replyImages" preview-teleported fit="cover"/>
+              <el-button text type="danger" @click="replyImages.splice(index, 1)">移除</el-button>
+            </div>
+          </div>
+        </div>
       </article>
     </div>
     <loadingIndicator v-if="loading"/>
@@ -63,7 +83,7 @@
   </section>
 </template>
 <script setup>
-import { onUnmounted, ref, watch } from 'vue';
+import { nextTick, onUnmounted, ref, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { commentApi } from '@/api/product';
 import { post } from '@/services/http';
@@ -88,11 +108,20 @@ const loadError = ref('');
 const content = ref('');
 const contentLength = ref(0);
 const images = ref([]);
-const replyTo = ref(null);
+const activeReplyId = ref(null);
+const replyInput = ref(null);
+const replyContent = ref('');
+const replyContentLength = ref(0);
+const replyImages = ref([]);
+const replyUploading = ref(false);
+const replySending = ref(false);
 const sending = ref(false);
 const uploading = ref(false);
 const busy = ref(new Set());
 let generation = 0;
+function setReplyInput(el) {
+  if (el) replyInput.value = el;
+}
 function signedIn() {
   if (store.token) return true;
   store.loginDialogVisible = true;
@@ -120,7 +149,47 @@ async function load() {
   finally { if (current === generation) loading.value = false; }
 }
 function reload() { generation++; rows.value = []; cursorId.value = null; loading.value = false; hasMore.value = false; return load(); }
-function reply(comment) { if (!signedIn()) return; replyTo.value = comment; input.value.focus(); }
+function toggleReplyBox(comment) {
+  if (!signedIn()) return;
+  if (activeReplyId.value === comment.id) {
+    activeReplyId.value = null;
+    return;
+  }
+  activeReplyId.value = comment.id;
+  replyContent.value = '';
+  replyContentLength.value = 0;
+  replyImages.value = [];
+  replyUploading.value = false;
+  nextTick(() => replyInput.value?.focus());
+}
+async function uploadReply(event) {
+  if (!signedIn()) { event.target.value = ''; return; }
+  const files = Array.from(event.target.files);
+  if (files.length + replyImages.value.length > 9) { ElMessage.warning('最多 9 张图片'); event.target.value = ''; return; }
+  replyUploading.value = true;
+  try {
+    for (const file of files) {
+      const body = new FormData(); body.append('file', file);
+      const image = await post('/media/image', body);
+      replyImages.value.push(image.url);
+    }
+  } catch (error) { ElMessage.error(error.message); }
+  finally { replyUploading.value = false; event.target.value = ''; }
+}
+async function sendReply(target) {
+  if (!signedIn() || replySending.value) return;
+  if (!replyContentLength.value && !replyImages.value.length) { ElMessage.warning('请输入评论内容'); return; }
+  if (replyContent.value.length > 1000) { ElMessage.warning('评论内容（含表情和 @ 用户）过长，请适当缩短'); return; }
+  replySending.value = true;
+  try {
+    const finalContent = replyContent.value || (replyImages.value.length ? '分享图片' : '');
+    await commentApi.create({ postId: props.postId, content: finalContent, imageUrls: replyImages.value, rootId: target.id });
+    replyContent.value = ''; replyContentLength.value = 0; replyImages.value = []; replyUploading.value = false; activeReplyId.value = null;
+    await reload();
+    ElMessage.success('回复发布成功');
+  } catch (error) { ElMessage.error(error.message); }
+  finally { replySending.value = false; }
+}
 async function upload(event) {
   if (!signedIn()) { event.target.value = ''; return; }
   const files = Array.from(event.target.files);
@@ -142,8 +211,8 @@ async function send() {
   if (body.length > 1000) { ElMessage.warning('评论内容（含表情和 @ 用户）过长，请适当缩短'); return; }
   sending.value = true;
   try {
-    await commentApi.create({ postId: props.postId, content: body, imageUrls: images.value, rootId: replyTo.value?.id });
-    content.value = ''; images.value = []; replyTo.value = null;
+    await commentApi.create({ postId: props.postId, content: body, imageUrls: images.value, rootId: null });
+    content.value = ''; images.value = [];
     await reload();
     ElMessage.success('评论发布成功');
   } catch (error) { ElMessage.error(error.message); }
