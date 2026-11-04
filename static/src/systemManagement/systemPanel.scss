@@ -228,6 +228,14 @@ $sys-success: #67c23a;
     vertical-align: middle;
   }
 
+  // 内联表情统一 24px、与文字垂直居中（内容里的 img 由 sanitizeRichText 打上 inline-emoji 类）
+  :deep(img.inline-emoji) {
+    width: 24px;
+    height: 24px;
+    max-width: none;
+    object-fit: contain;
+  }
+
   :deep(a) {
     color: $sys-primary;
     text-decoration: none;

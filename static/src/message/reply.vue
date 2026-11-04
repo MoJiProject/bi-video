@@ -85,10 +85,34 @@
                     <button type="button" v-show="reply.replyCommentControls?.controls===1" class="love-comment2" v-debounce @click="commentControlesF(reply)"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10H4v10h4m0-10 4-7h1a2 2 0 0 1 2 2l-1 5h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H8V10Z"/></svg> <span>已赞</span></button>
                     <button type="button" class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=reply.replyComments.id"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg> <span>删除</span></button>
                 </div>
-                <div v-show="reply?.replyFlag" class="reply-comment-container">
-                  <img src="/img/avatar-default.png">
-                  <textarea :id="'reply'+reply.replyComments.id" class="reply-comment-input" v-model="commentContent" placeholder="输入回复内容" aria-label="回复内容"></textarea>
-                  <button type="button" v-debounce class="commit-comment" @click="replayCommentF(reply)">发送回复</button>
+                <div v-if="activeReplyId===reply.id" class="reply-form">
+                  <PostEditor :ref="setReplyInput" v-model="replyContent" compact :max-length="1000" :disabled="replySending"
+                    :placeholder="`回复 @${reply.replyComments.userName}`" @length="replyContentLength = $event">
+                    <template #tools>
+                      <label class="editor-tool comment-upload" :class="{ disabled: replySending || replyUploading || replyImages.length >= 9 }">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/></svg>
+                        <span>图片</span><span v-if="replyImages.length">{{ replyImages.length }}/9</span>
+                        <input type="file" accept="image/png,image/jpeg,image/gif" multiple
+                          aria-label="添加回复图片，最多九张" :disabled="replySending || replyUploading || replyImages.length >= 9" @change="uploadReply">
+                      </label>
+                    </template>
+                    <template #after-tools>
+                      <button type="button" class="editor-tool share-tool" :class="{ checked: replyShareToDynamic }"
+                        :aria-pressed="replyShareToDynamic" :disabled="replySending" @click="replyShareToDynamic = !replyShareToDynamic">
+                        <svg class="coin" viewBox="0 0 48 48" aria-hidden="true"><rect x="4" y="4" width="40" height="40" rx="12" fill="none" stroke="currentColor" stroke-width="4"/><path v-if="replyShareToDynamic" d="M15 25 L24 33 L35 17" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <span>同时转发到我的动态</span>
+                      </button>
+                    </template>
+                    <template #actions>
+                      <el-button type="primary" :loading="replySending" @click="replayCommentF(reply)">回复</el-button>
+                    </template>
+                  </PostEditor>
+                  <div v-if="replyImages.length" class="attachments">
+                    <div v-for="(image, index) in replyImages" :key="image">
+                      <el-image :src="image" :preview-src-list="replyImages" preview-teleported fit="cover"/>
+                      <el-button text type="danger" @click="replyImages.splice(index, 1)">移除</el-button>
+                    </div>
+                  </div>
                 </div>
                 <el-tooltip
                     v-if="!reply.mainComments&&!reply.dynamic&&reply.replyComments.videoId"
@@ -176,9 +200,12 @@ import UserHoverCard from '@/components/UserHoverCard.vue';
    import { nextTick, onMounted, reactive, ref } from 'vue'
    import {useGlobalStore} from "../store/store";
    import { ElMessage } from "element-plus";   
-   import {selectReplayComment,commentControles,deleteCommentNotification,replayComment}  from '../api/comment/index';
+   import {selectReplayComment,commentControles,deleteCommentNotification}  from '../api/comment/index';
    import {putMessageNumber}  from '../api/privateMessage/index';
    import { sanitizeRichText } from "../utils/richText";
+   import { commentApi, socialApi } from '../api/product';
+   import { post } from '../services/http';
+   import PostEditor from '@/components/PostEditor.vue';
 
    const store=useGlobalStore();
   const replyCommentHoverFlag = ref(null); // eslint-disable-line no-unused-vars -- 图标改用 CSS hover 后不再需要
@@ -189,7 +216,20 @@ import UserHoverCard from '@/components/UserHoverCard.vue';
    const deleteCommentDialogFlag=ref(false);
    const deleteCommentNotificaitonId=ref(null);
    const selectReplayCommentFFlag=ref(false);
-   const commentContent=ref("");
+   const activeReplyId=ref(null);
+   const replyInput=ref(null);
+   const replyContent=ref("");
+   const replyContentLength=ref(0);
+   const replyImages=ref([]);
+   const replyUploading=ref(false);
+   const replySending=ref(false);
+   const replyShareToDynamic=ref(false);
+   const setReplyInput=el=>{ if(el) replyInput.value=el; };
+   function signedIn(){
+    if(store.token) return true;
+    store.loginDialogVisible=true;
+    return false;
+   }
    const Scrolled=ref(true);
    const loadError=ref("");
    const loading=ref(false);
@@ -324,54 +364,93 @@ function addImgFlagF(comment,flag){
     }
 
     //回复评论
-    function replayCommentF(reply){
-
-      commentContent.value=`&nbsp;回复 <a href='https://baidu.com' data-eit-userid='${reply.replyComments.userId}' class='at-msg' style='color:#0A8271;'>@${reply.replyComments.userName}</a> ：`+commentContent.value;
-      if(reply.isAuthorFlag===1)
-      commentContent.value = "<img style='width: 24px;height: 24px;display: inline-block;vertical-align: middle;transform: translateY(-1.5px);user-select: none;' src='/img/author-badge.svg'>&nbsp;"+commentContent.value;
-     
-      let comments={
-        content: commentContent.value,
-        imgAddress: null,
-        userId: store.userId,
-        videoId: reply.replyComments.videoId,
-        dynamicId: reply.replyComments.dynamicId,
-        userName: store.userInformation.userName,
-        dynamicFlag: 0,
-        replyCommentId: reply.replyComments.id,
-        mainCommentId: !reply.replyComments.mainCommentId?reply.replyComments.id:reply.replyComments.mainCommentId,
-        replyUserId: reply.replyComments.userId,
+    async function replayCommentF(reply){
+      if(!signedIn() || replySending.value) return;
+      if(!replyContentLength.value && !replyImages.value.length){
+        ElMessage.warning("请输入回复内容");
+        return;
       }
-
-      let addComment={
-        comments,
-        ats:[],
+      if(replyContent.value.length>1000){
+        ElMessage.warning("回复内容（含表情和 @ 用户）过长，请适当缩短");
+        return;
       }
-
-      replayComment(store.token,addComment).then(res=>{
-
-        if(res.data.code===1){
-          ElMessage({
-            message: "评论成功",
-            type: "success",
-            duration: 1700,
-          });
-          commentContent.value="";
-          reply.replyFlag=false;
+      replySending.value=true;
+      try{
+        const content=sanitizeRichText(replyContent.value) || (replyImages.value.length?"分享图片":"");
+        if(!content && !replyImages.value.length){
+          ElMessage.warning("请输入回复内容");
+          return;
         }
-      }).catch(showError)
+        // 后端会把楼中楼自动归位到一级评论下
+        await commentApi.create({
+          videoId: reply.replyComments.videoId || undefined,
+          postId: reply.replyComments.dynamicId || undefined,
+          content,
+          imageUrls: replyImages.value,
+          rootId: reply.replyComments.id,
+        });
+        if(replyShareToDynamic.value){
+          try{
+            await socialApi.createPost({
+              content, imageUrls: replyImages.value,
+              ...(reply.replyComments.videoId ? { videoId: reply.replyComments.videoId } : {}),
+              visibility: 0,
+            });
+          }catch(error){
+            ElMessage.warning(`回复已发送，转发失败：${error.message}`);
+          }
+        }
+        replyContent.value="";
+        replyContentLength.value=0;
+        replyImages.value=[];
+        replyUploading.value=false;
+        replyShareToDynamic.value=false;
+        activeReplyId.value=null;
+        ElMessage.success("回复成功");
+      }catch(error){
+        ElMessage.error(error.message || "回复失败");
+      }finally{
+        replySending.value=false;
+      }
     }
 
     //打开回复评论
     function openReplyComment(reply){
+      if(activeReplyId.value===reply.id){
+        activeReplyId.value=null;
+        return;
+      }
+      activeReplyId.value=reply.id;
+      replyContent.value="";
+      replyContentLength.value=0;
+      replyShareToDynamic.value=false;
+      nextTick(()=>{
+        replyInput.value?.focus();
+      })
+    }
 
-      reply.replyFlag=!reply.replyFlag;
-      if(reply.replyFlag){
-        nextTick(()=>{
-          document.getElementById("reply"+reply.replyComments.id).focus();
-        })
-      }else{
-        commentContent.value="";
+    //上传回复图片
+    async function uploadReply(event){
+      if(!signedIn()){ event.target.value=""; return; }
+      const files=Array.from(event.target.files);
+      if(files.length + replyImages.value.length>9){
+        ElMessage.warning("最多 9 张图片");
+        event.target.value="";
+        return;
+      }
+      replyUploading.value=true;
+      try{
+        for(const file of files){
+          const body=new FormData();
+          body.append("file", file);
+          const image=await post("/media/image", body);
+          replyImages.value.push(image.url);
+        }
+      }catch(error){
+        ElMessage.error(error.message);
+      }finally{
+        replyUploading.value=false;
+        event.target.value="";
       }
     }
 
@@ -631,59 +710,62 @@ function addImgFlagF(comment,flag){
 
           }
 
-          .reply-comment-container{
+          .reply-form{
             position: relative;
-            height: 66.5px;
             width: 100%;
-            margin-bottom: 20px;
-
-            img{
+            margin: 14px 0 4px;
+          }
+          .comment-upload{
+            position: relative;
+          }
+          .comment-upload > span + span{
+            color: var(--ink-3);
+            font-size: 11px;
+          }
+          .comment-upload.disabled{
+            opacity: .55;
+            cursor: not-allowed;
+          }
+          .comment-upload input{
             position: absolute;
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
-            left: -60px;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip-path: inset(50%);
+            white-space: nowrap;
+          }
+          .share-tool{
             cursor: pointer;
-            }
-            .reply-comment-input{
-              position: relative;
-              height: 65px;
-              width: 790px;
-              resize: none;
-              background-color: rgba(255, 255, 255, 0.5);
-              border: 1px solid #e9eaec;
-              overflow: auto;
-              border-radius: 4px;
-              word-break: break-all;
-              color: #555;
-              padding: 5px 10px;
-              font-size: 12px;
-              vertical-align: top; /* 确保文本从顶部开始 */
-              outline: none;
-              margin: 0px;
-            }
-            .reply-comment-input:focus{
-              border-color: #2BB2A0;
-            }
-            .commit-comment{
-              position: absolute;
-              right: 15px;
-              top: 0;
-              width: 70px;
-              height: 64px;
-              display: flex;
-              -webkit-box-pack: center;
-              -ms-flex-pack: center;
-              justify-content: center;
-              -webkit-box-align: center;
-              -ms-flex-align: center;
-              align-items: center;
-              background-color: #0E9C85;
-              border-radius: 4px;
-              color: #fff;
-              border: none;
-              cursor: pointer;
-            }
+          }
+          .share-tool .coin{
+            display: block;
+            flex: none;
+            width: 16px !important;
+            height: 16px !important;
+            align-self: center;
+            stroke-width: 4 !important;
+          }
+          .share-tool .coin path{
+            stroke-width: 6 !important;
+          }
+          .attachments{
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 12px 0;
+          }
+          .attachments > div{
+            width: 90px;
+          }
+          .attachments .el-image{
+            width: 90px;
+            max-width: 100%;
+            height: 90px;
+            border-radius: 10px;
+          }
+          .attachments .el-button{
+            margin: 0;
+            font-size: 12px;
           }
           .comment-content {
             position: absolute;

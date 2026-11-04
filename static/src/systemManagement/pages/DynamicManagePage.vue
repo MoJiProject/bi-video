@@ -60,13 +60,17 @@
 
         <el-table-column label="发布者" width="150" align="left">
           <template #default="scope">
-            <div class="sys-user-link" @click="goUserHome(scope.row.followId)">
-              <img :src="scope.row.followUserAvatar" class="avatar" referrerpolicy="no-referrer" />
-              <div class="meta">
-                <span class="name">{{ scope.row.followUserName }}</span>
-                <span class="sub">ID {{ scope.row.followId }}</span>
-              </div>
-            </div>
+            <UserHoverCard :user-id="Number(scope.row.followId)">
+              <template #reference>
+                <div class="sys-user-link" @click="goUserHome(scope.row.followId)">
+                  <img :src="scope.row.followUserAvatar" class="avatar" referrerpolicy="no-referrer" />
+                  <div class="meta">
+                    <span class="name">{{ scope.row.followUserName }}</span>
+                    <span class="sub">ID {{ scope.row.followId }}</span>
+                  </div>
+                </div>
+              </template>
+            </UserHoverCard>
           </template>
         </el-table-column>
 
@@ -189,6 +193,7 @@ import { onMounted, reactive, ref } from "vue";
 import { ElMessage } from "element-plus";
 import { useGlobalStore } from "../../store/store";
 import SystemPagination from "../components/SystemPagination.vue";
+import UserHoverCard from "../../components/UserHoverCard.vue";
 import {
   deleteDynamic,
   searchDynamics,
@@ -198,7 +203,7 @@ import { confirmDanger, goUserHome, msgOf, shortTime } from "../systemCommon";
 
 export default {
   name: "DynamicManagePage",
-  components: { SystemPagination },
+  components: { SystemPagination, UserHoverCard },
   emits: ["refresh"],
   setup() {
     const store = useGlobalStore();

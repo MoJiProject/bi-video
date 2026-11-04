@@ -78,13 +78,17 @@
 
         <el-table-column label="创作者" width="150" align="left">
           <template #default="scope">
-            <div class="sys-user-link" @click="goUserHome(scope.row.userId)">
-              <img :src="scope.row.userAvatar" class="avatar" referrerpolicy="no-referrer" />
-              <div class="meta">
-                <span class="name">{{ scope.row.userName }}</span>
-                <span class="sub">ID {{ scope.row.userId }}</span>
-              </div>
-            </div>
+            <UserHoverCard :user-id="Number(scope.row.userId)">
+              <template #reference>
+                <div class="sys-user-link" @click="goUserHome(scope.row.userId)">
+                  <img :src="scope.row.userAvatar" class="avatar" referrerpolicy="no-referrer" />
+                  <div class="meta">
+                    <span class="name">{{ scope.row.userName }}</span>
+                    <span class="sub">ID {{ scope.row.userId }}</span>
+                  </div>
+                </div>
+              </template>
+            </UserHoverCard>
           </template>
         </el-table-column>
 
@@ -285,6 +289,7 @@ import { computed, onMounted, reactive, ref } from "vue";
 import { ElMessage } from "element-plus";
 import { useGlobalStore } from "../../store/store";
 import SystemPagination from "../components/SystemPagination.vue";
+import UserHoverCard from "../../components/UserHoverCard.vue";
 import {
   deleteVideo,
   examineVideo,
@@ -298,7 +303,7 @@ import { compactNumber, confirmDanger, goUserHome, goVideoDetail, msgOf, shortTi
 
 export default {
   name: "VideoManagePage",
-  components: { SystemPagination },
+  components: { SystemPagination, UserHoverCard },
   emits: ["refresh"],
   setup() {
     const store = useGlobalStore();

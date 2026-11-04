@@ -56,31 +56,40 @@
 
         <el-table-column label="发送人" min-width="150" align="left">
           <template #default="scope">
-            <div class="sys-user-link" @click="goUserHome(scope.row.senderId)">
-              <img :src="scope.row.senderAvatar" class="avatar" referrerpolicy="no-referrer" />
-              <div class="meta">
-                <span class="name">{{ scope.row.senderName }}</span>
-                <span class="sub">ID {{ scope.row.senderId }}</span>
-              </div>
-            </div>
+            <UserHoverCard :user-id="Number(scope.row.senderId)">
+              <template #reference>
+                <div class="sys-user-link" @click="goUserHome(scope.row.senderId)">
+                  <img :src="scope.row.senderAvatar" class="avatar" referrerpolicy="no-referrer" />
+                  <div class="meta">
+                    <span class="name">{{ scope.row.senderName }}</span>
+                    <span class="sub">ID {{ scope.row.senderId }}</span>
+                  </div>
+                </div>
+              </template>
+            </UserHoverCard>
           </template>
         </el-table-column>
 
         <el-table-column label="接收人" min-width="150" align="left">
           <template #default="scope">
-            <div class="sys-user-link" @click="goUserHome(scope.row.receiverId)">
-              <img :src="scope.row.receiverAvatar" class="avatar" referrerpolicy="no-referrer" />
-              <div class="meta">
-                <span class="name">{{ scope.row.receiverName }}</span>
-                <span class="sub">ID {{ scope.row.receiverId }}</span>
-              </div>
-            </div>
+            <UserHoverCard :user-id="Number(scope.row.receiverId)">
+              <template #reference>
+                <div class="sys-user-link" @click="goUserHome(scope.row.receiverId)">
+                  <img :src="scope.row.receiverAvatar" class="avatar" referrerpolicy="no-referrer" />
+                  <div class="meta">
+                    <span class="name">{{ scope.row.receiverName }}</span>
+                    <span class="sub">ID {{ scope.row.receiverId }}</span>
+                  </div>
+                </div>
+              </template>
+            </UserHoverCard>
           </template>
         </el-table-column>
 
         <el-table-column label="私信内容" min-width="200" align="center">
           <template #default="scope">
-            <div class="sys-comment-html clamp-3">{{ scope.row.content }}</div>
+            <!-- 私信正文是富文本HTML（含表情），必须用v-html渲染，否则标签会当原文显示 -->
+            <div class="sys-comment-html clamp-3" v-html="renderContent(scope.row)"></div>
           </template>
         </el-table-column>
 
@@ -188,16 +197,18 @@ import { computed, onMounted, reactive, ref } from "vue";
 import { ElMessage } from "element-plus";
 import { useGlobalStore } from "../../store/store";
 import SystemPagination from "../components/SystemPagination.vue";
+import UserHoverCard from "../../components/UserHoverCard.vue";
 import {
   deleteMessage,
   searchMessages,
   sendPrivateMessage,
 } from "../../api/systemManagement/index";
 import { goUserHome, msgOf, shortTime } from "../systemCommon";
+import { sanitizeRichText } from "../../utils/richText";
 
 export default {
   name: "MessageManagePage",
-  components: { SystemPagination },
+  components: { SystemPagination, UserHoverCard },
   emits: ["refresh"],
   setup() {
     const store = useGlobalStore();
@@ -225,6 +236,15 @@ export default {
     const sendTargetName = computed(
       () => (sendTarget.value ? `${sendTarget.value.senderName}` : "")
     );
+
+    // 私信正文是富文本HTML（文字类含表情img），净化后用v-html渲染，标签不会当原文显示
+    function renderContent(row) {
+      if (row?.messageType === 1) {
+        return sanitizeRichText(String(row.content || "")) || "（内容已清空）";
+      }
+      // 图片/视频/动态类私信的 content 是URL或ID，同样过净化防止特殊字符被v-html解析
+      return sanitizeRichText(String(row?.content || "")) || "（内容已清空）";
+    }
 
     onMounted(() => {
       loadMessages();
@@ -356,6 +376,7 @@ export default {
       sendContent,
       sendTarget,
       sendTargetName,
+      renderContent,
       loadMessages,
       handleSearch,
       handleReset,

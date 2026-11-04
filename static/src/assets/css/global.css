@@ -609,12 +609,22 @@ body:has(.message-page) {
     transition: all 0.3s ease !important; /* 切换时平滑过渡 */
   }
 
+  /* 全站内联表情统一规格：24px、与文字垂直居中。
+   * sanitizeRichText() 会给所有表情 img 强制加 inline-emoji 类并剥离内联 style，
+   * 所以这条规则是视频评论/动态/私信/admin 评论管理等所有富文本渲染位的统一兜底。 */
+  .inline-emoji {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    object-fit: contain;
+  }
+
   .comment-emoji-img{
-    width:21px;
-    height:21px;
-    display:inline-block;
-    vertical-align:middle;
-    transform:translateY(-3px);
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    vertical-align: middle;
   }
 
 /*
@@ -714,7 +724,6 @@ a{
 }
 
 
-/* �Զ�����Ϣ��ʾ��ʽ������ Element Plus ԭ����� */
 .el-message {
   min-width: 240px;
   max-width: min(420px, calc(100vw - 24px));
@@ -741,7 +750,6 @@ a{
 .el-message--info .el-message__icon { color: var(--brand); }
 
 
-/* ��Ϣ��ʾ��ʽ���� */
 .el-message {
   min-width: 260px !important;
   max-width: min(400px, calc(100vw - 24px)) !important;

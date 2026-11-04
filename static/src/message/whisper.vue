@@ -1674,11 +1674,12 @@ function restoreBodyOverflow() {
                     }
                 }
 
-                .message-content .inline-emoji {
+                .message-content :deep(.inline-emoji) {
                     display: inline-block;
-                    width: 28px;
-                    height: 28px;
+                    width: 24px;
+                    height: 24px;
                     vertical-align: middle;
+                    object-fit: contain;
                 }
                 .message-content a[data-eit-userid] {
                     color: #0a8271;
@@ -1935,11 +1936,12 @@ function restoreBodyOverflow() {
                         overflow: hidden;
                     }
 
-                    .message-content .inline-emoji {
+                    .message-content :deep(.inline-emoji) {
                         display: inline-block;
-                        width: 28px;
-                        height: 28px;
+                        width: 24px;
+                        height: 24px;
                         vertical-align: middle;
+                        object-fit: contain;
                     }
                     .message-content a[data-eit-userid] {
                         color: #0a8271;

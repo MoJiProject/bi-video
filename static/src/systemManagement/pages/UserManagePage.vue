@@ -41,13 +41,17 @@
       <el-table :data="users" class="sys-table" row-key="id">
         <el-table-column label="用户" min-width="180" align="left">
           <template #default="scope">
-            <div class="sys-user-link" @click="goUserHome(scope.row.id)">
-              <img :src="scope.row.avatarAddress" class="avatar" referrerpolicy="no-referrer" />
-              <div class="meta">
-                <span class="name">{{ scope.row.userName }}</span>
-                <span class="sub">{{ scope.row.phone }}</span>
-              </div>
-            </div>
+            <UserHoverCard :user-id="Number(scope.row.id)">
+              <template #reference>
+                <div class="sys-user-link" @click="goUserHome(scope.row.id)">
+                  <img :src="scope.row.avatarAddress" class="avatar" referrerpolicy="no-referrer" />
+                  <div class="meta">
+                    <span class="name">{{ scope.row.userName }}</span>
+                    <span class="sub">{{ scope.row.phone }}</span>
+                  </div>
+                </div>
+              </template>
+            </UserHoverCard>
           </template>
         </el-table-column>
 
@@ -170,6 +174,7 @@ import { onMounted, reactive, ref } from "vue";
 import { ElMessage } from "element-plus";
 import { useGlobalStore } from "../../store/store";
 import SystemPagination from "../components/SystemPagination.vue";
+import UserHoverCard from "../../components/UserHoverCard.vue";
 import {
   banUser,
   putAdmin,
@@ -181,7 +186,7 @@ import { compactNumber, confirmDanger, goUserHome, msgOf, shortTime } from "../s
 
 export default {
   name: "UserManagePage",
-  components: { SystemPagination },
+  components: { SystemPagination, UserHoverCard },
   emits: ["refresh"],
   setup() {
     const store = useGlobalStore();

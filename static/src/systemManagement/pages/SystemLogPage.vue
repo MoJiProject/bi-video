@@ -31,13 +31,17 @@
       <el-table :data="logs" class="sys-table" row-key="id">
         <el-table-column label="操作人" width="164" align="left">
           <template #default="scope">
-            <div class="sys-user-link" @click="goUserHome(scope.row.operatorId)">
-              <img :src="scope.row.operatorAvatar" class="avatar" referrerpolicy="no-referrer" />
-              <div class="meta">
-                <span class="name">{{ scope.row.operatorName || "未知" }}</span>
-                <span class="sub">ID {{ scope.row.operatorId }}</span>
-              </div>
-            </div>
+            <UserHoverCard :user-id="Number(scope.row.operatorId)">
+              <template #reference>
+                <div class="sys-user-link" @click="goUserHome(scope.row.operatorId)">
+                  <img :src="scope.row.operatorAvatar" class="avatar" referrerpolicy="no-referrer" />
+                  <div class="meta">
+                    <span class="name">{{ scope.row.operatorName || "未知" }}</span>
+                    <span class="sub">ID {{ scope.row.operatorId }}</span>
+                  </div>
+                </div>
+              </template>
+            </UserHoverCard>
           </template>
         </el-table-column>
 
@@ -101,12 +105,13 @@ import { onMounted, reactive, ref } from "vue";
 import { ElMessage } from "element-plus";
 import { useGlobalStore } from "../../store/store";
 import SystemPagination from "../components/SystemPagination.vue";
+import UserHoverCard from "../../components/UserHoverCard.vue";
 import { searchLogs } from "../../api/systemManagement/index";
 import { MODULE_LABEL, ACTION_LABEL, ellipsis, goUserHome, msgOf, shortTime } from "../systemCommon";
 
 export default {
   name: "SystemLogPage",
-  components: { SystemPagination },
+  components: { SystemPagination, UserHoverCard },
   emits: ["refresh"],
   setup() {
     const store = useGlobalStore();

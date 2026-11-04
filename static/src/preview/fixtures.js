@@ -208,8 +208,8 @@ export const comments = profiles.slice(1, 3).map((author, index) => ({
   rootId: null,
   content:
     index === 0
-      ? "画面和配色很舒服，期待下一次更新。"
-      : "这是一条稍长的示例评论，用来查看正文换行、作者信息和互动按钮的排列效果。",
+      ? "画面和配色很舒服<img class=\"inline-emoji\" src=\"/img/emoji/102.png\" alt=\"[表情]\">期待下一次更新。"
+      : "这是一条稍长的示例评论，用来查看正文换行、作者信息和互动按钮的排列效果。<img class=\"inline-emoji\" src=\"/img/emoji/120.png\" alt=\"[表情]\">",
   imageUrls: [],
   createdAt: "2026-10-21T12:30:00",
   likeCount: 12 + index,
@@ -228,7 +228,7 @@ export const comments = profiles.slice(1, 3).map((author, index) => ({
             authorAvatar: profiles[0].avatarUrl,
             authorLevel: 5,
             rootId: 301,
-            content: "谢谢你的留言。",
+            content: "谢谢你的留言。<img class=\"inline-emoji\" src=\"/img/emoji/101.png\" alt=\"[表情]\">",
             imageUrls: [],
             createdAt: "2026-10-21T13:00:00",
             likeCount: 2,
@@ -265,7 +265,7 @@ export function messages(peerId) {
       id: 501,
       senderId: Number(peerId),
       receiverId: PREVIEW_USER_ID,
-      content: "你好，想和你交流一下拍摄方法。",
+      content: "你好，想和你交流一下拍摄方法。<img class=\"inline-emoji\" src=\"/img/emoji/89.png\" alt=\"[表情]\">",
       messageType: 1,
       status: 1,
       sendTime: "2026-10-21 12:20:00",

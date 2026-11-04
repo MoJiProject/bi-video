@@ -61,13 +61,17 @@
 
         <el-table-column label="评论人" width="150" align="left">
           <template #default="scope">
-            <div class="sys-user-link" @click="goUserHome(scope.row.userId)">
-              <img :src="scope.row.userAvatar" class="avatar" referrerpolicy="no-referrer" />
-              <div class="meta">
-                <span class="name">{{ scope.row.userName }}</span>
-                <span class="sub">ID {{ scope.row.userId }}</span>
-              </div>
-            </div>
+            <UserHoverCard :user-id="Number(scope.row.userId)">
+              <template #reference>
+                <div class="sys-user-link" @click="goUserHome(scope.row.userId)">
+                  <img :src="scope.row.userAvatar" class="avatar" referrerpolicy="no-referrer" />
+                  <div class="meta">
+                    <span class="name">{{ scope.row.userName }}</span>
+                    <span class="sub">ID {{ scope.row.userId }}</span>
+                  </div>
+                </div>
+              </template>
+            </UserHoverCard>
           </template>
         </el-table-column>
 
@@ -205,12 +209,13 @@ import { ElMessage } from "element-plus";
 import { VideoCamera, Promotion, TopRight } from "@element-plus/icons-vue";
 import { useGlobalStore } from "../../store/store";
 import SystemPagination from "../components/SystemPagination.vue";
+import UserHoverCard from "../../components/UserHoverCard.vue";
 import { deleteComment, searchComments, switchCommentOffShelf } from "../../api/systemManagement/index";
 import { confirmDanger, goUserHome, msgOf, shortTime } from "../systemCommon";
 
 export default {
   name: "CommentManagePage",
-  components: { SystemPagination, VideoCamera, Promotion, TopRight },
+  components: { SystemPagination, UserHoverCard, VideoCamera, Promotion, TopRight },
   emits: ["refresh"],
   setup() {
     const store = useGlobalStore();
