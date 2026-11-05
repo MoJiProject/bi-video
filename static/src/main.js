@@ -9,6 +9,7 @@ import "./assets/css/global.css";
 import router from "./router";
 import ExternalLinkDirective from "./directives/external-link.js"; //这是点击链接新增网页页面的自定义指令
 import buttonDebounce from "./directives/buttonDebounce";
+import MentionHoverDirective from "./directives/mention-hover.js";
 import { offlinePreviewEnabled } from "./preview/config";
 import http from "./services/http";
 import { useGlobalStore } from "./store/store";
@@ -42,6 +43,7 @@ async function mountApp() {
     .component("AppEmptyState", AppEmptyState)
     .directive("debounce", buttonDebounce)
     .directive("external-link", ExternalLinkDirective)
+    .directive("mention-hover", MentionHoverDirective)
     .mount("#app");
 }
 

@@ -1,5 +1,5 @@
 <template>
-    <div class="at-container">
+    <div class="at-container" v-mention-hover>
       <div class="head2">@ 我的</div>
       <div class="at-content" @scroll="handleScroll">
         <div v-show="atList.length>0" class="at-item" v-for="at in atList" :key="at.at.id">

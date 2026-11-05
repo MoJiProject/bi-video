@@ -1,5 +1,5 @@
 <template>
-    <div class="love-container">
+    <div class="love-container" v-mention-hover>
       <div v-show="likeUserList.length===0" class="head2">收到的赞</div>
       <div v-show="likeUserList.length>0" class="head2"><button type="button" class="detail" @click="likeUserList.length=0">‹ 收到的赞</button><span>点赞详情</span></div>
       <a v-if="likeUserList.length!==0&&loves&&loves.likes.likeType===1" :href="'./video?videoId=BV'+loves.videos?.id" target="videoWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">视频：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.videos.title"></span></span></div></a>

@@ -1,5 +1,5 @@
 <template>
-    <div class="reply-container">
+    <div class="reply-container" v-mention-hover>
       <div class="head2">回复我的</div>
       <div class="reply-content" @scroll="handleScroll">
         <div v-show="replyList.length>0" class="reply-item" v-for="reply in replyList" :key="reply.replyComments.id">

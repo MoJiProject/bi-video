@@ -38,6 +38,11 @@
         </div>
       </div>
     </section>
+    <p v-else-if="loading" class="profile-status" role="status">正在加载个人资料…</p>
+    <div v-else-if="errorMessage" class="profile-status" role="alert">
+      <p>{{ errorMessage }}</p>
+      <el-button text type="primary" @click="loadProfile">重新加载</el-button>
+    </div>
   </div>
   <span v-else class="user-hover" @click.stop>
     <el-popover trigger="hover" :trigger-keys="['Space']" :placement="popoverPlacement"
@@ -221,6 +226,10 @@ watch([() => props.userId, () => store.userId], () => {
   errorMessage.value = '';
   following.value = false;
   messaging.value = false;
+  if (props.controlled) loadProfile();
+});
+onMounted(() => {
+  if (props.controlled) loadProfile();
 });
 onUnmounted(() => { generation++; });
 </script>

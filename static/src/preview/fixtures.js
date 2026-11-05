@@ -220,10 +220,10 @@ export const comments = profiles.slice(1, 3).map((author, index) => ({
   authorAvatar: author.avatarUrl,
   authorLevel: author.level,
   rootId: null,
-  content:
-    index === 0
-      ? "画面和配色很舒服<img class=\"inline-emoji\" src=\"/img/emoji/102.png\" alt=\"[表情]\">期待下一次更新。"
-      : "这是一条稍长的示例评论，用来查看正文换行、作者信息和互动按钮的排列效果。<img class=\"inline-emoji\" src=\"/img/emoji/120.png\" alt=\"[表情]\">",
+    content:
+      index === 0
+        ? "画面和配色很舒服<img class=\"inline-emoji\" src=\"/img/emoji/102.png\" alt=\"[表情]\">期待下一次更新，<a href=\"./home?homeMenu=1&userId=1002\" data-eit-userid=\"1002\">@林间记录</a> 一起交流。"
+        : "这是一条稍长的示例评论，用来查看正文换行、作者信息和互动按钮的排列效果。<img class=\"inline-emoji\" src=\"/img/emoji/120.png\" alt=\"[表情]\">",
   imageUrls: [],
   createdAt: "2026-10-21T12:30:00",
   likeCount: 12 + index,
@@ -288,7 +288,7 @@ export function messages(peerId) {
       id: 502,
       senderId: PREVIEW_USER_ID,
       receiverId: Number(peerId),
-      content: "可以的，你平时更喜欢拍摄风景还是人像？",
+      content: "可以的，你平时更喜欢拍摄风景还是人像？<a href=\"./home?homeMenu=1&userId=1002\" data-eit-userid=\"1002\" class=\"at-msg\">@林间记录</a>",
       messageType: 1,
       status: 1,
       sendTime: "2026-10-21 12:21:00",
