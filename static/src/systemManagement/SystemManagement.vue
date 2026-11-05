@@ -293,12 +293,6 @@ export default {
   transition: all 0.3s ease;
 }
 
-.nav-icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 5px;
-}
-
 .header-right {
   margin-left: auto;
   display: flex;

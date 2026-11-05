@@ -40,10 +40,10 @@ watch([() => route.query.dynamicId, () => store.userId], ([value]) => { id.value
 watch(() => store.deleteFlag, value => { if (value === id.value) { generation++; dynamic.value = null; } });
 </script>
 <style scoped>
-.detail { --el-color-primary: #126b58; box-sizing: border-box; display: grid; gap: 18px; width: 100%; min-width: 0; max-width: var(--page-max); margin: auto; padding: 28px var(--page-pad) 48px; color: var(--ink); }
+.detail { --el-color-primary: var(--brand); box-sizing: border-box; display: grid; gap: 18px; width: 100%; min-width: 0; max-width: var(--page-max); margin: auto; padding: 28px var(--page-pad) 48px; color: var(--ink); }
 .detail-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
-.detail-heading > a { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; color: #126b58; font-size: 13px; text-decoration: none; }
-.detail-heading > a:focus-visible { outline: 2px solid #126b58; outline-offset: 3px; }
+.detail-heading > a { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; color: var(--brand); font-size: 13px; text-decoration: none; }
+.detail-heading > a:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 .detail-heading h1 { margin: 0; font-size: 24px; font-weight: 600; }
 @media (max-width: 640px) {
   .detail { gap: 14px; padding-top: 18px; padding-bottom: 32px; }

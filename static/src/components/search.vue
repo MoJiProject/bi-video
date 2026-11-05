@@ -572,7 +572,7 @@ async function selectKeyWord(Value) {
   transition: all 0.3s ease;
 }
 
-.search2:focus-visible { outline: 2px solid #126b58; outline-offset: 1px; }
+.search2:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
 
 .search2 svg {
   flex: none;
@@ -821,5 +821,9 @@ async function selectKeyWord(Value) {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.searchContent{
+  margin-top: 15px;
 }
 </style>

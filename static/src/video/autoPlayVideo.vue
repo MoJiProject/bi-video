@@ -424,34 +424,6 @@ export default {
             transition: all 0.3s ease;
 }
 
-        .auto-play-video-vip{
-            position: absolute;
-            width: 62px;
-            height: 25px;
-            border: 1px solid #EE7A31;
-            color: #EE7A31;
-            font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            border-radius: 3px;
-            line-height: 22px;
-            top: 21.5px;
-            left: 64px;
-            transition: all 0.3s ease;
-            img{
-             width: 16px;
-             height: 16px;
-             margin-left: 9px;
-             margin-right: 2px;
-             transform: translateY(4px);
-            }
-        }
-
-        .auto-play-video-vip:hover{
-            background-color: rgba(240,160,60, .2);
-            transition: all 0.3s ease;
-}
-
         .auto-play-video-follow{
             position: absolute;
             z-index: 1000;
@@ -538,15 +510,6 @@ export default {
             color: hsla(0, 0%, 100%, .9);
             .auto-play-video-operation1{
                 margin-left: 18px;
-                cursor: pointer;
-
-                img{
-                    width: 20px;
-                    height: 20px;
-                }
-            }
-            .auto-play-video-operation2{
-                margin-left: 25.5px;
                 cursor: pointer;
 
                 img{
@@ -763,22 +726,6 @@ export default {
         .auto-play-video-username{
             left: 78px;
         }
-        .auto-play-video-vip{
-            left: 78px;
-            width: 75px;
-            height: 32px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 13px;
-            img{
-                width: 18px;
-                height: 19px;
-                transform: translate(-4px, 0px);
-                margin-right: -3px;
-                margin-left: 3px;
-            }
-        }
         .auto-play-video-follow{
             left: 164px;
             height: 32px;
@@ -902,33 +849,6 @@ export default {
 
     }
 
-}
-
-
-.auto-play-video-item-play-button-container{
-    position: absolute;
-    width: 50px;
-    height: 50px;
-    left: 50px;
-    top: 50px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 50%;
-    background-color: rgba(0, 0, 0, 0.7);
-    div{
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
-        background-color: rgba(255, 255, 255, 0.4);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-            img{
-                width: 18px;
-                height: 24px;
-            }
-    }
 }
 
 

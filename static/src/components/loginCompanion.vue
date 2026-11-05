@@ -31,7 +31,7 @@
       </g>
     </g>
     <g v-if="privateMode" class="companion-lock">
-      <circle cx="136" cy="29" r="18" fill="#126b58" />
+      <circle cx="136" cy="29" r="18" style="fill: var(--brand)" />
       <rect x="129" y="27" width="14" height="11" rx="3" fill="#f4f5d8" />
       <path d="M132 27v-4a4 4 0 0 1 8 0v4" fill="none" stroke="#f4f5d8" stroke-width="2.5" />
     </g>

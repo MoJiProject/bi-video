@@ -496,17 +496,6 @@ export default {
   box-sizing: border-box;
 }
 
-.empty-manuscripts {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  width: 100%;
-  padding: 68px 16px;
-  font-size: 14px;
-  text-align: center;
-}
-
 .videoTime {
   display: flex;
   justify-content: center;

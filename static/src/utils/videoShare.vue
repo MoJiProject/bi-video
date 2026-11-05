@@ -259,20 +259,6 @@ return {
     color: #1C2321;
   }
 
-  .delete-share-info{
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    top: 10px;
-    right: 10px;
-    cursor: pointer;
-  }
-
-  .delete-share-info:hover{
-    color: #0FA68E;
-    transition: all 0.3s ease;
-}
-
   .not-share-container{
     height: 90px;
     text-align: center;

@@ -220,12 +220,6 @@ addDialogue(store.token,dialogue).then(res=>{
   padding-bottom: 40px;
 }
 
-.up-user-avatar-container {
-  display: flex;
-  background-color: yellow;
-  width: 0px;
-}
-
 .up-user-info-bg {
   width: 100%;
   height: 40%;

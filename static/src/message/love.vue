@@ -1003,61 +1003,6 @@ function addImgFlagF(comment){
             top: 30%;
             transform: translateY(-30%);
           }
-
-          .love-comment-container{
-            position: relative;
-            height: 66.5px;
-            width: 100%;
-            margin-bottom: 20px;
-
-            img{
-            position: absolute;
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
-            left: -60px;
-            cursor: pointer;
-            }
-            .love-comment-input{
-              position: relative;
-              height: 65px;
-              width: 790px;
-              resize: none;
-              background-color: rgba(255, 255, 255, 0.5);
-              border: 1px solid #e9eaec;
-              overflow: auto;
-              border-radius: 4px;
-              word-break: break-all;
-              color: #555;
-              padding: 5px 10px;
-              font-size: 12px;
-              vertical-align: top; /* 确保文本从顶部开始 */
-              outline: none;
-              margin: 0px;
-            }
-            .love-comment-input:focus{
-              border-color: #2BB2A0;
-            }
-            .commit-comment{
-              position: absolute;
-              right: 15px;
-              top: 0;
-              width: 70px;
-              height: 64px;
-              display: flex;
-              -webkit-box-pack: center;
-              -ms-flex-pack: center;
-              justify-content: center;
-              -webkit-box-align: center;
-              -ms-flex-align: center;
-              align-items: center;
-              background-color: #0E9C85;
-              border-radius: 4px;
-              color: #fff;
-              border: none;
-              cursor: pointer;
-            }
-          }
           .comment-content {
             position: absolute;
             top: -8px;

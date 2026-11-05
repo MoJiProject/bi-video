@@ -1691,12 +1691,6 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 
-.member-gender {
-  width: 12px;
-  height: 12px;
-  flex: 0 0 12px;
-}
-
 .member-level {
   flex: 0 0 auto;
   margin-left: 2px;

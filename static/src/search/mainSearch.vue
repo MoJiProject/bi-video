@@ -1040,17 +1040,6 @@ const postTypeIndex = ref(0);
   box-sizing: border-box; /* 包括内边距和边框在元素的总宽度和高度中 */
 }
 
-/* 原来写死 width:1425px 靠 left:50% + translateX(-50%) 居中，
-   视口窄于 1425px 就必然出现横向滚动条。改成 max-width 由页面容器控宽。 */
-.SearchBox {
-  user-select: none;
-  height: auto;
-  position: relative;
-  width: 100%;
-  max-width: var(--page-max);
-  margin: 0 auto;
-}
-
 /* 搜索页顶部：大搜索框 + 结果页签，共用一个容器。
    原来这两块是两个各自独立的 absolute/fixed 盒子，
    搜索框靠 left:50% + translate(-50%) 居中、页签靠 height:160px 定位，
@@ -1260,9 +1249,9 @@ const postTypeIndex = ref(0);
 }
 
 .chip.is-on {
-  background: var(--brand-soft);
-  color: var(--brand);
-  font-weight: 600;
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #fff;
 }
 
 .chip-has-sub {
@@ -1337,30 +1326,6 @@ const postTypeIndex = ref(0);
   border-radius: var(--radius-md);
 }
 
-/* 子分类气泡 */
-.sub-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--gap-2);
-  max-width: 420px;
-  cursor: pointer;
-}
-
-.sub-tag {
-  padding: 3px 10px;
-  border-radius: var(--radius-sm);
-  color: var(--ink-2);
-  font-size: 13px;
-  white-space: nowrap;
-  transition: background-color .2s, color .2s;
-}
-
-.sub-tag:hover {
-  background: var(--brand-soft);
-  color: var(--brand);
-  transition: all 0.3s ease;
-}
-
 
 /* 结果网格：卡片复用 homeVideoCard 组件，间距 / 悬停效果与首页列表一致；
    列数固定 5 列封顶（宽屏不再随 auto-fill 挤出第 6 列），
@@ -1372,33 +1337,6 @@ const postTypeIndex = ref(0);
   gap: 20px 16px;
   width: 100%;
   margin-top: var(--gap-4);
-}
-
-.videoBottomInfo {
-  position: static;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-  transform: none;
-  cursor: pointer;
-}
-
-.upInfo {
-  width: auto;
-  color: var(--ink-3);
-  font-size: 12.5px;
-  transform: none;
-  position: static;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: color .2s ease;
-}
-
-.videoBottomInfo:hover .upInfo {
-  color: var(--brand);
-  transition: all 0.3s ease;
 }
 
 .title:hover {
@@ -1536,13 +1474,6 @@ const postTypeIndex = ref(0);
   align-items: center;
   justify-content: center;
   margin-top: 0;
-}
-
-.custom-tooltip1 {
-  display: flex;
-  align-items: center;
-  padding: 5px;
-  border-radius: var(--radius-sm) !important;
 }
 
 .userInfo-Content {

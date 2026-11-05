@@ -10,6 +10,7 @@ import {
   legacyUser,
   legacyVideo,
   replyNotifications,
+  adminUsers,
 } from "./fixtures";
 
 function page(rows, params) {
@@ -236,7 +237,22 @@ export async function previewAdapter(config) {
   let error;
   try {
     if (method === "get") data = read(path, params);
-    else if (method === "post" && path === "/video/selectVideoData")
+    else if (method === "post" && path === "/system/user/searchUsers") {
+      const keyword = String(params.keyword || "").trim();
+      const rows = adminUsers.filter(
+        (row) =>
+          (!keyword ||
+            row.userName.includes(keyword) ||
+            String(row.phone).includes(keyword)) &&
+          (Number(params.type ?? -1) < 0 ||
+            Number(params.type) ===
+              (row.banFlag ? 2 : row.adminFlag ? 1 : 0)) &&
+          (Number(params.loginFlag ?? -1) < 0 ||
+            Number(params.loginFlag) === 1 ||
+            row.loginDateTime < "2026-10-22")
+      );
+      data = page(rows, { ...params, pageSize: 10 });
+    } else if (method === "post" && path === "/video/selectVideoData")
       data = {
         userId: PREVIEW_USER_ID,
         newFansNumber: 128,

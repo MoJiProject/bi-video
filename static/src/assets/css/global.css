@@ -21,9 +21,7 @@
     /* 图标尺寸刻度 —— 全站图标只允许用这几档，避免各处随手写 15px/17px/20px */
     --icon-xs: 14px;
     --icon-sm: 18px;
-    --icon-md: 20px;
     --icon-lg: 24px;
-    --icon-xl: 32px;
 
     /* 间距刻度 */
     --gap-1: 4px;
@@ -48,8 +46,6 @@
     --page-max: 100%;
     --page-pad: clamp(16px, 2.5vw, 64px);
     /* 仅用于正文和表单内部，不限制页面外层。 */
-    --col-narrow: 900px;
-    --col-mid: 1152px;
 
     /* 页头高度：页头自身与所有把页头包成 sticky 容器的页面共用同一个值，
        避免外层 70px、内层 64px 两套高度互相裁切。 */
@@ -95,14 +91,10 @@ body:has(.message-page) {
 
 .icon-xs { width: var(--icon-xs); height: var(--icon-xs); }
 .icon-sm { width: var(--icon-sm); height: var(--icon-sm); }
-.icon-md { width: var(--icon-md); height: var(--icon-md); }
 .icon-lg { width: var(--icon-lg); height: var(--icon-lg); }
-.icon-xl { width: var(--icon-xl); height: var(--icon-xl); }
 
 /* 常见数据图标统一占位。老页面里点赞/踩/播放/弹幕等图标来自多套素材，
    原始宽高不一致时容易出现同一行里高低、大小不齐。 */
-.comment-like-btn,
-.comment-dont-like-btn,
 .video-info-item img,
 .video .info img,
 .vcard-stat img {
@@ -263,27 +255,6 @@ body:has(.message-page) {
 }
 
 /* 表单里的标签与控件成对出现，横向排布时靠它对齐 */
-.form-row {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--gap-4);
-    margin-bottom: var(--gap-5);
-}
-
-.form-label {
-    flex: none;
-    width: 76px;
-    padding-top: 8px;
-    color: var(--ink-2);
-    font-size: 14px;
-    text-align: right;
-}
-
-.form-control {
-    flex: 1 1 auto;
-    min-width: 0;
-}
-
 .section-head {
     display: flex;
     align-items: center;
@@ -648,12 +619,6 @@ a{
 
 /* 一级页面的通用外壳：至少铺满一屏，背景与卡片区分开。
    原来各页自己写 min-height:100vh + 背景图，页面之间高度和底色对不上。 */
-.page-root{
-  box-sizing: border-box;
-  width: 100%;
-  min-height: 100vh;
-}
-
 /* 空状态：没有数据时统一用它。原先各页写 .no-data / .collectIsNull /
    .dynamic-dataNull / .history-system 等十几个名字相近的类，尺寸各不相同。 */
 .empty-state{
@@ -712,10 +677,6 @@ a{
 
 .date-picker{
   --el-text-color-regular: #b3b9b7;
-}
-
-.user-content2 a{
-   color: var(--ink-3);
 }
 
 .at-msg:hover{

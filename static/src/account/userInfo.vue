@@ -256,13 +256,6 @@ position: relative;
         textarea:focus{
         border-color: #409eff;
         }
-        .label2{
-        text-align: right;
-        margin-right: 20px;
-        line-height: 30px;
-        font-size: 14px;
-        color: #606266;
-        }
         .radio{
         font-size: 14px;    
         margin-right: 20px;

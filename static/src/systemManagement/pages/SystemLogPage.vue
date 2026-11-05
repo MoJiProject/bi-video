@@ -204,10 +204,4 @@ export default {
   font-size: 12px;
   color: #8D9794;
 }
-
-.detail-text {
-  font-size: 13px;
-  color: #5C6664;
-  word-break: break-all;
-}
 </style>

@@ -61,6 +61,20 @@ export const profiles = ["预览用户", "林间记录", "镜头日记", "慢慢
   })
 );
 
+export const adminUsers = profiles.map((user, index) => ({
+  id: user.userId,
+  userName: user.nickname,
+  avatarAddress: user.avatarUrl,
+  phone: `138${String(10000000 + index * 1111111).slice(0, 8)}`,
+  videoNumber: user.videoCount || 0,
+  fansNumber: user.followerCount || 0,
+  likeNumber: user.likeReceived || 0,
+  createTime: "2025-03-12T10:30:00",
+  loginDateTime: index === 2 ? "2026-04-02T09:12:00" : "2026-10-28T21:05:00",
+  adminFlag: index === 1,
+  banFlag: index === 3,
+}));
+
 export const videos = [
   "周末的山间徒步记录",
   "一座城市的清晨与傍晚",

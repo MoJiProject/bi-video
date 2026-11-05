@@ -183,7 +183,7 @@
           >
             {{ store.userInformation.allMessageNumber>99? '99+' : store.userInformation.allMessageNumber }}
           </div>
-          <img src="/img/消息黑.png" alt="" />
+          <span class="workspace-icon-mask" style="--icon:url(/img/消息黑.png)" aria-hidden="true"></span>
           <span class="tool-copy">消息<small>回复与互动</small></span>
         </a>
         <div class="login-info2" v-if="!store.userId">
@@ -229,7 +229,7 @@
           >
             {{ store.userInformation.dynamicNumber>99? '99+' : store.userInformation.dynamicNumber }}
           </div>
-          <img src="/img/动态黑.png" alt="" />
+          <span class="workspace-icon-mask" style="--icon:url(/img/动态黑.png)" aria-hidden="true"></span>
           <span class="tool-copy">关注动态<small>关注的人和新鲜事</small></span>
         </a>
         <div class="login-info2" v-if="!store.userId">
@@ -568,7 +568,7 @@
       </li>
       <li class="hd-collect">
         <a :href="'/home?homeMenu=5&userId='+store.userId" target="_blank" rel="noopener noreferrer" @click="requireWorkspaceLogin">
-          <img src="/img/收藏黑.png" alt="" /><span class="tool-copy">我的收藏<small>留住喜欢的作品</small></span>
+          <span class="workspace-icon-mask" style="--icon:url(/img/收藏黑.png)" aria-hidden="true"></span><span class="tool-copy">我的收藏<small>留住喜欢的作品</small></span>
         </a>
         <div class="login-info2" v-if="!store.userId">
           <span style="font-size: 14px; margin-top: 20px"
@@ -738,7 +738,7 @@
       </li>
       <li class="hd-history">
         <a href="/history" target="_blank" rel="noopener noreferrer" @click="requireWorkspaceLogin">
-          <img src="/img/历史黑.png" alt="" /><span class="tool-copy">观看记录<small>接着上次看</small></span>
+          <span class="workspace-icon-mask" style="--icon:url(/img/历史黑.png)" aria-hidden="true"></span><span class="tool-copy">观看记录<small>接着上次看</small></span>
         </a>
         <div class="login-info2" v-if="!store.userId">
           <span style="font-size: 14px; margin-top: 20px"
@@ -1126,7 +1126,7 @@
       </li>
       <li class="hd-create">
         <a href="/contribute" target="_blank" rel="noopener noreferrer" @click="requireWorkspaceLogin">
-          <img src="/img/创作中心黑.png" alt="" /><span class="tool-copy">创作中心<small>管理我的作品</small></span>
+          <span class="workspace-icon-mask" style="--icon:url(/img/创作中心黑.png)" aria-hidden="true"></span><span class="tool-copy">创作中心<small>管理我的作品</small></span>
         </a>
       </li>
       <li class="hd-later">
@@ -2633,12 +2633,6 @@ flag.value = 1;
       font-size: 11px;
    }
    
-   .grade .grade1 .exp,
-   .grade .grade1 .exp2 {
-      width: 18px;
-      height: 11px;
-   }
-   
    .feature div {
       margin-right: 60px;
       width: 180px;
@@ -2691,12 +2685,6 @@ flag.value = 1;
       margin-right: 2px;
       width: 14px;
       height: 14px;
-   }
-   
-   /* 隐藏某些不重要的导航项在非常小的屏幕上 */
-   .hd-download,
-   .hd-vip {
-      display: none;
    }
    
    .avatar1 {
@@ -2898,26 +2886,12 @@ a {
   z-index: 10000;
   border: 1px solid #d3d3d3; /* 浅灰色边框 */
 }
-.grade .grade1 .exp {
-  margin-right: 20px;
-
-  width: 22px;
-  height: 14px;
-}
 .grade {
   display: flex;
   flex-direction: column;
 }
 .grade span {
   transform: translateX(3px);
-}
-.grade .grade1 .exp2 {
-  width: 22px;
-  height: 14px;
-}
-.grade .grade1 {
-  display: flex;
-  justify-content: center;
 }
 .avatar-container:hover .user-info {
   transition-delay: 0.2s;
@@ -3002,19 +2976,12 @@ a {
   height: 22px;
   opacity: 0;
 }
-.v-header-ul li.hd-vip:hover .transparent-div12 {
-  visibility: visible;}
 .vip-introduce div span img {
   width: 26px;
   height: 24px;
 }
 .vip-introduce div span a {
   animation: none !important;
-}
-.v-header-ul li.hd-vip:hover .vip-introduce {
-  transition-delay: 0.2s;
-  visibility: visible;
-  opacity: 1;
 }
 .login-info {
   position: absolute;
@@ -3150,42 +3117,6 @@ a {
  
   background-color: #45BBA1;
   transition: all 0.3s ease;
-}
-
-.zhu-ce {
-  width: 200px;
-  color: black;
-}
-.deng-lu {
-  width: 200px;
-  color: black;
-}
-.dialogin-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 20px;
-}
-
-.dialogin-info .dialogin-title {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-.submit-div {
-  display: flex;
-  justify-content: center;
-}
-.submit-div el-button {
-  width: 140px;
-  height: 36px;
-  border-radius: 5px;
-}
-
-
-.dialogin-info .dialogin-title button {
-  color: black;
-  font-size: 20px;
 }
 
 .sign-in {
@@ -3894,40 +3825,12 @@ a {
   border-radius: 0 0 5px 5px !important;
 }
 
-/* 搜索框外壳：宽度交给父级（pass3 的 .hd-search > *），自身不再定宽。
-   原来这里写死 413px，.head2SearchFlag 写死 337px，浅色页头上就比容器窄一截。 */
-.head-search {
-  width: 100%;
-  height: 40px;
-  transform: none;
-}
-
 .el-form-item{
   margin-bottom: 10px;
 }
 
 .v-header-ul li.hd-vip, li.hd-message, li.hd-dynamic, li.hd-collect, li.hd-history, li.hd-create a{
   font-size: 13px;
-}
-
-/* 浅色页头上的搜索框同样跟随容器宽度，不再单独定 337px */
-.head2SearchFlag {
-  width: 100%;
-  height: 40px;
-  transform: none;
-}
-
-.head-home{
-  width: 8px;
-  margin-left: 6px;                                                                                                                  
-  margin-top: 2px;
-  animation: none !important;
-  transition: 0.3s ease-in-out;
-}
-
-.head-li1:hover .head-home{
-  transform: rotate(180deg);
-  transition: all 0.3s ease;
 }
 
 .dynamic-dataNull{
@@ -3953,46 +3856,6 @@ a {
   color: #fff;
   font-size: 12px;
   line-height: 15px;
-}
-
-.user-info-number{
-  margin-top: 10px;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  padding: 0 30px;
-
-  span{
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: color .3s ease;
-    line-height: 1.6;
-
-    div:nth-child(1){
-    font-weight: 550;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #1C2321;
-
-    span{
-      font-size: 12px;
-      color: #DD5C24;
-    }
-    }
-    div:nth-child(2){
-    font-size: 12px;
-    color: #8D9794;
-    }
-  }
-  span:hover{
-    div{
-      color: #0FA68E;
-    }
-  }
-
 }
 </style>
 
@@ -4046,30 +3909,6 @@ a {
   color: var(--ink);
   font-size: 15px;
   white-space: nowrap;
-}
-
-/* 左：主导航与下载入口 */
-.v-header-ul > li.hd-nav,
-.v-header-ul > li.hd-download {
-  padding: 0 8px;
-}
-
-.v-header-ul > li.hd-nav > a,
-.v-header-ul > li.hd-download > a {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  height: var(--head-h);
-  color: var(--ink-2);
-  font-size: 14px;
-  white-space: nowrap;
-  transition: color .18s ease;
-}
-
-.v-header-ul > li.hd-nav > a:hover,
-.v-header-ul > li.hd-download > a:hover {
-  color: var(--brand);
-  transition: all 0.3s ease;
 }
 
 /* 中：搜索框。整条横轴只有这一项允许伸缩 */
@@ -4243,15 +4082,12 @@ a {
 
 /* 视口收窄时先让出次要入口，搜索框始终保留 */
 @media (max-width: 1400px) {
-   .v-header-ul > li.hd-download { display: none; }
 }
 
 @media (max-width: 1240px) {
-   .v-header-ul > li.hd-vip { display: none; }
 }
 
 @media (max-width: 1120px) {
-   .v-header-ul > li.hd-nav:nth-child(n + 9) { display: none; }
 }
 
 /* 中小屏：整体缩小间距和字号，不改变 flex 单行结构 */
@@ -4281,12 +4117,6 @@ a {
    
    .v-header-ul > li.hd-home > a {
       font-size: 13px;
-   }
-   
-   .v-header-ul > li.hd-nav > a,
-   .v-header-ul > li.hd-download > a {
-      font-size: 12px;
-      padding: 0 4px;
    }
    
    .v-header-ul li a img {
@@ -4342,12 +4172,6 @@ a {
       margin-top: 10px;
    }
    
-   .grade .grade1 .exp,
-   .grade .grade1 .exp2 {
-      width: 18px;
-      height: 11px;
-   }
-   
    .feature div {
       margin-right: 50px;
       width: 180px;
@@ -4375,8 +4199,6 @@ a {
       margin-right: 8px;
       padding: 0 4px;
    }
-   
-   .v-header-ul > li.hd-nav:nth-child(n + 4) { display: none; }
    
    .v-header-ul > li.hd-vip,
    .v-header-ul > li.hd-message,
@@ -4493,16 +4315,7 @@ a {
   transform: none;
 }
 
-.v-header-ul > li.hd-vip .vip-introduce {
-  left: 50%;
-  right: auto;
-  transform: translateX(-50%);
-}
-
 @media (max-width: 1120px) {
-  .v-header-ul > li.hd-nav:nth-child(n + 7) {
-    display: none;
-  }
 }
 
 @media (max-width: 980px) {

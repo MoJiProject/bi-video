@@ -4933,7 +4933,9 @@ textarea,
 }
 
 .expand-icon-container:hover .show-up-videoTitle-container {
-  visibility: visible;}
+  visibility: visible;
+    transition: all 0.3s ease;
+  }
 
 .prohibition-tag {
   display: inline-flex;
@@ -4950,114 +4952,6 @@ textarea,
 
 .up-user-name:hover {
   color: #0FA68E;
-  transition: all 0.3s ease;
-}
-
-/* UP 主资料卡已改用 UserHoverCard 组件（el-popover teleport 渲染），旧的 .up-user-info 手写卡样式已删除；头像行已移入播放器左上角 player-creator-chip */
-
-.sendUpMessageImg {
-  width: 13px;
-  height: 12px;
-  margin-left: 15px;
-  margin-top: 4px;
-  cursor: pointer;
-}
-
-.sendUpMessage {
-  font-size: 13px;
-  color: #64686e;
-  cursor: pointer;
-  margin-left: 5px;
-  margin-top: 1px;
-  transition: none;
-}
-
-.sendMessage-container:hover .sendUpMessage {
-  color: #0FA68E;
-  transition: all 0.3s ease;
-}
-
-.up-user-content {
-  transform: translate(800px, -77px);
-  color: #8F9794;
-  width: 280px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 12.5px;
-}
-
-.up-power-container {
-  width: 106px;
-  height: 27.5px;
-  transform: translate(800px, -72px);
-  font-size: 13px;
-  color: #EE7A31;
-  border-radius: 5px;
-  border: 1px solid #EE7A31;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  user-select: none;
-  text-shadow: 0 0 1px rgba(238,122,49, 0.6);
-  z-index: -500000;
-  position: relative;
-}
-
-.up-power-container img {
-  width: 20px;
-  margin-right: 4.5px;
-  margin-left: -2px;
-}
-
-.up-power-container:hover {
-  background-color: #FDEEE4;
-  transition: all 0.3s ease;
-}
-
-.up-add-follow-container {
-  width: 169px;
-  height: 30px;
-  transform: translate(920px, -102px);
-  color: white;
-  font-size: 13.5px;
-  background-color: #0FA68E;
-  border-radius: 5px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  user-select: none;
-  cursor: pointer;
-  transition: opacity 0.3s ease;
-  position: relative;
-  z-index: -500000;
-}
-
-.up-delete-follow-container {
-  width: 169px;
-  height: 30px;
-  transform: translate(920px, -102px);
-  color: #8F9794;
-  font-size: 13.5px;
-  background-color: #E0E5E3;
-  border-radius: 5px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  user-select: none;
-  cursor: pointer;
-  position: relative;
-  z-index: -500000;
-}
-
-.up-delete-follow-container:hover {
-  background-color: #EFF3F2;
-  transition: all 0.3s ease;
-}
-
-.up-add-follow-container:hover {
-  opacity: 0.9;
   transition: all 0.3s ease;
 }
 
@@ -5143,55 +5037,6 @@ textarea,
 .up-VideoProgress::-webkit-progress-value {
   background-color: #0FA68E; /* 加载的颜色 */
   border-radius: 1px 1px 1px 1px !important;
-}
-
-.up-video-progress-img {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  transform: translate(11px, 337.5px);
-  z-index: 2000;
-  cursor: pointer;
-}
-
-.pointer-top {
-  position: absolute;
-  width: 7px;
-  height: 4px;
-  transform: translate(10px, 338px);
-  z-index: 100;
-  cursor: pointer;
-}
-
-.pointer-bottom {
-  position: absolute;
-  width: 7px;
-  height: 4px;
-  transform: translate(10px, 349px);
-  z-index: 100;
-  cursor: pointer;
-}
-
-.pointer-top-container {
-  position: absolute;
-  width: 676px;
-  height: 5.5px;
-  background-color: aqua;
-  transform: translate(10px, 339px);
-  opacity: 0;
-  z-index: 1000;
-  cursor: pointer;
-}
-
-.pointer-bottom-container {
-  position: absolute;
-  width: 676px;
-  height: 5.5px;
-  background-color: aqua;
-  transform: translate(10px, 347px);
-  opacity: 0;
-  z-index: 1000;
-  cursor: pointer;
 }
 
 .up-video-play-bottom-play {
@@ -5304,20 +5149,6 @@ textarea,
   transform: translate(606.5px, 276px);
   width: 54px;
   height: 50px;
-}
-
-.up-video-play-bottom-video-pointer-time {
-  position: absolute;
-  transform: translate(-6.5px, 315px);
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 40px;
-  height: 18px;
-  font-size: 12px;
-  z-index: 100;
-  background-color: rgba(0, 0, 0, 0.8);
 }
 
 .up-video-play-bottom-video-time-input {
@@ -5561,11 +5392,6 @@ textarea,
   transform: translate(630px, 323px);
 }
 
-.intoVideoAllDisplayIngFlagavatarandaddFollow {
-  position: absolute;
-  transform: translate(31px, 61px) scale(1.2);
-}
-
 .intoVideoAllDisplayIngFlagVideoTitle {
   position: absolute;
   width: 96.5%;
@@ -5606,13 +5432,6 @@ textarea,
   transform: scale(1.2);
   left: 7%;
   top: 94%;
-}
-
-.imageQualityintoVideoAllDisplayIngFlag {
-  position: absolute;
-  transform: scale(1.08);
-  left: 73%;
-  top: 93.9%;
 }
 
 .sppedVideoAllDisplayIngFlag {
@@ -5662,55 +5481,6 @@ textarea,
   transform: scale(1);
   left: 94.5%;
   top: 88%;
-}
-
-.progressintoVideoAllDisplayIngFlag {
-  position: absolute;
-  transform: scale(1);
-  width: 97%;
-  height: 3px;
-  left: 1.5%;
-  top: 90%;
-}
-
-.progressImgintoVideoAllDisplayIngFlag {
-  position: absolute;
-  transform: scale(1);
-  top: 89.25%;
-}
-
-.progressPointerTopintoVideoAllDisplayIngFlag {
-  position: absolute;
-  transform: scale(1);
-  top: 89%;
-}
-
-.progressPointerBottomintoVideoAllDisplayIngFlag {
-  position: absolute;
-  transform: scale(1);
-  top: 91%;
-}
-
-.topContainerintoVideoAllDisplayIngFlag {
-  position: absolute;
-  transform: scale(3);
-  width: 97%;
-  top: 89.5%;
-  left: 1.5%;
-}
-
-.bottomContainerintoVideoAllDisplayIngFlag {
-  position: absolute;
-  transform: scale(3);
-  width: 97%;
-  top: 90.3%;
-  left: 1.5%;
-}
-
-.pointerTImeintoVideoAllDisplayIngFlag {
-  position: absolute;
-  transform: scale(1);
-  top: 85%;
 }
 
 .falseContainerIntoVideoAllDisplayIngFlag {
@@ -6337,13 +6107,6 @@ textarea,
   top: 93.9%;
 }
 
-.closeSettingScrollintovideoAllDisplayIngFlag {
-  position: absolute;
-  transform: scale(1);
-  left: 29.5%;
-  top: 93.8%;
-}
-
 .openOrCloseScrollingintovideoAllDisplayIngFlag {
   position: absolute;
   transform: scale(1);
@@ -6554,13 +6317,6 @@ textarea,
   transition: all 0.3s ease;
 }
 
-.scrolling-list-item-bottom-end {
-  transform: translate(0px, 40px);
-  width: 50px;
-  background-color: #0FA68E;
-  height: 30px;
-}
-
 .up-video-controls-container {
   display: flex;
   align-items: center;
@@ -6589,12 +6345,6 @@ textarea,
   height: 23px;
 }
 
-.up-video-controls-img2 {
-  width: 23px;
-  height: 23px;
-  transition: none;
-}
-
 .up-video-controls-img3 {
   width: 23px;
   height: 23px;
@@ -6603,15 +6353,6 @@ textarea,
 .up-video-controls-img4 {
   height: 20px;
   width: 24px;
-}
-
-.up-video-controls-img5 {
-  width: 3.5px;
-  height: 16.5px;
-  position: absolute;
-  left: 686px;
-  top: 21px;
-  cursor: pointer;
 }
 
 .up-video-controls-container .up-video-controls-span {
@@ -6636,12 +6377,6 @@ textarea,
 .up-video-controls-span1 {
   position: absolute;
   left: 36px;
-  top: 21.5px;
-}
-
-.up-video-controls-span2 {
-  position: absolute;
-  left: 136px;
   top: 21.5px;
 }
 
@@ -6699,14 +6434,6 @@ textarea,
   box-sizing: border-box; /* round 动画的 1.5px 边框向内绘制，圆环不再向右下扩张 */
   pointer-events: none;
   z-index: 1;
-}
-
-.up-video-controls-div2 {
-  position: absolute;
-  width: 28px;
-  height: 28px;
-  left: 98.5px;
-  top: 13.5px;
 }
 
 @keyframes round {
@@ -7201,10 +6928,6 @@ textarea,
   color: #0FA68E;
 }
 
-.videoThrowCoinClickFlag {
-  color: #0FA68E;
-}
-
 .videoCollectClickFlag {
   color: #0FA68E;
 }
@@ -7477,124 +7200,6 @@ textarea,
   align-items: center;
 }
 
-.throwCoinDialog {
-  height: 475.5px;
-  transform: translate(-8px);
-}
-
-.throw-coin-title {
-  position: absolute;
-  left: 49.7%;
-  transform: translate(-50%, -23px);
-  font-size: 15.5px;
-}
-
-.throw-coin-title span {
-  font-size: 28px;
-  margin: 0 5px 0 5px;
-  color: #0FA68E;
-}
-
-.throw-coin-submit {
-  position: absolute;
-  width: 66px;
-  height: 31px !important;
-  font-size: 15.5px;
-  background-color: #0FA68E !important;
-  color: white !important;
-  left: 50%;
-  transform: translate(-50%, 343px);
-  border: none !important;
-}
-
-.throw-coin-img-content1 {
-  position: absolute;
-  width: 160px;
-  height: 230px;
-  cursor: pointer;
-  border: 2px dashed #cdd0d5;
-  left: 14%;
-  transform: translate(-14%, 52px);
-  border-radius: 5px;
-  background-image: url("/img/22-coin-ani.png");
-  background-repeat: no-repeat;
-  background-position: 20px 18px;
-  background-size: auto 193px;
-  animation: throwCoinImg1 1s steps(24) infinite;
-}
-
-.throw-coin-img-content1 .overlay1 {
-  position: absolute;
-  width: 20px;
-  height: 30%;
-  top: 50%;
-  left: 87.5%;
-  background-color: white;
-}
-
-.throw-coin-img-content1 .overlay2 {
-  position: absolute;
-  width: 20px;
-  height: 70%;
-  top: 15%;
-  left: 0%;
-  background-color: white;
-}
-
-.throw-coin-img-content1:hover {
-  border: 2px dashed #0FA68E;
-  transition: all 0.3s ease;
-}
-
-.throw-coin-img-content1 .img-static {
-  width: 120px;
-  height: 193px;
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%);
-}
-
-.throw-coin-img-content1 span {
-  color: #8F9794;
-  font-size: 13.5px;
-  display: block;
-  transform: translate(-110px, 10px);
-}
-
-.throw-coin-img-content2 {
-  position: absolute;
-  width: 160px;
-  cursor: pointer;
-  height: 230px;
-  border: 2px dashed #cdd0d5;
-  left: 88.4%;
-  transform: translate(-88.4%, 52px);
-  border-radius: 5px;
-  background-image: url("/img/33-coin-ani.png");
-  background-repeat: no-repeat;
-  background-position: 19px 17.5px;
-  background-size: auto 193px;
-  animation: throwCoinImg2 1s steps(24) infinite;
-}
-
-.throw-coin-img-content2 .overlay1 {
-  position: absolute;
-  width: 20px;
-  height: 30%;
-  top: 15%;
-  left: 87.5%;
-  background-color: white;
-}
-
-.throw-coin-img-content2 .overlay2 {
-  position: absolute;
-  width: 20px;
-  height: 55%;
-  top: 15%;
-  left: 0%;
-  background-color: white;
-}
-
 @keyframes throwCoinImg1 {
   0% {
     background-position: 20px 17.5px;
@@ -7611,75 +7216,6 @@ textarea,
   100% {
     background-position: -2868.27px 18px;
   }
-}
-
-.throw-coin-img-content2:hover {
-  border: 2px dashed #0FA68E;
-  transition: all 0.3s ease;
-}
-
-.throw-coin-img-content2 .img-static {
-  width: 122px;
-  height: 193px;
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%);
-}
-
-.throw-coin-img-content2 span {
-  color: #8F9794;
-  font-size: 13px;
-  display: block;
-  transform: translate(-110px, 10px);
-}
-
-.throw-coin-check-box {
-  position: absolute;
-  transform: translate(21.5px, 302px);
-  font-size: 12px;
-  display: flex;
-  cursor: pointer;
-  align-items: center;
-}
-
-.throw-coin-check-box img {
-  width: 16px;
-  height: 16px;
-  margin-right: 5px;
-}
-
-.throw-coin-fotter {
-  position: absolute;
-  left: 50%;
-  font-size: 12px;
-  color: #8F9794;
-  transform: translate(-50%, 390px);
-}
-
-.throwCoinNumberConten1 {
-  border: 2px solid #0FA68E;
-}
-
-.throwCoinNumberConten1:hover {
-  border: 2px solid #0FA68E;
-  transition: all 0.3s ease;
-}
-
-.throwCoinNumberConten2 {
-  border: 2px solid #0FA68E;
-}
-
-.throwCoinNumberConten2:hover {
-  border: 2px solid #0FA68E;
-  transition: all 0.3s ease;
-}
-
-.throwCoinNumberContenImg1 {
-  background-image: none;
-}
-
-.throwCoinNumberContenImg2 {
-  background-image: none;
 }
 
 .scrolling-content-container {
@@ -8051,16 +7587,6 @@ a:hover {
 
 .video-page .video-tage-container {
   width: 100%;
-}
-
-/* 本页没有侧栏：原先 pass1 写的 .up-user-info-container /
-   .up-video-recommend-container 这两块在模板里根本不存在
-   （UP 主卡片是播放器的 hover 浮层，相关推荐组件 import 了但没用），
-   那几条规则从来没生效过，留着只会误导。 */
-.video-page .video-share-container {
-  grid-column: 1;
-  grid-row: auto;
-  position: static;
 }
 
 /* 窄屏：侧栏落到主栏下方 */

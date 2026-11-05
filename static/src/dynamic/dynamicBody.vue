@@ -229,12 +229,10 @@ watch(() => store.deleteFlag, id => { rows.value = rows.value.filter(row => row.
 onUnmounted(() => { active = false; generation++; clearInterval(reminderTimer); });
 </script>
 <style scoped>
-.feed { --el-color-primary: #126b58; box-sizing: border-box; width: 100%; min-width: 0; max-width: var(--page-max); margin: auto; padding: 32px var(--page-pad) 56px; color: var(--ink); }
+.feed { --el-color-primary: var(--brand); box-sizing: border-box; width: 100%; min-width: 0; max-width: var(--page-max); margin: auto; padding: 32px var(--page-pad) 56px; color: var(--ink); }
 .feed *, .feed *::before, .feed *::after { box-sizing: border-box; }
 .feed-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 28px; padding: 4px 0 24px; border-bottom: 1px solid var(--line); }
 .feed-heading h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); letter-spacing: -.04em; }
-.write-button { display: inline-flex; flex: none; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 0 18px; border: 1px solid #126b58; border-radius: 12px; background: #126b58; color: #fff; font: inherit; font-size: 13px; cursor: pointer; }
-.write-button:hover { background: #0d5545; transition: all 0.3s ease; }
 .write-button svg, .image-upload svg, .new-posts svg { width: var(--icon-sm); height: var(--icon-sm); fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .feed-layout { display: grid; grid-template-columns: clamp(190px, 16vw, 240px) minmax(0, 1fr); align-items: start; gap: 24px; }
 .feed-layout.is-public { grid-template-columns: minmax(0, 1fr); }
@@ -245,7 +243,7 @@ onUnmounted(() => { active = false; generation++; clearInterval(reminderTimer); 
 .author-list { display: flex; flex-direction: column; gap: 5px; max-height: max(180px, calc(100dvh - var(--head-h) - 120px)); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
 .author-list button { box-sizing: border-box; display: flex; flex: none; align-items: center; gap: 10px; width: 100%; min-width: 0; min-height: 48px; margin: 0; padding: 7px 10px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--ink-2); font-family: var(--el-font-family, sans-serif); font-size: 13px; font-weight: 400; line-height: 20px; text-align: left; cursor: pointer; }
 .author-list button:hover { background: var(--fill-soft); transition: all 0.3s ease; }
-.author-list button.active { border-color: #cce3d8; background: #edf6f0; color: #126b58; font-weight: 600; }
+.author-list button.active { border-color: #cce3d8; background: #edf6f0; color: var(--brand); font-weight: 600; }
 .author-list img, .author-symbol { flex: none; width: 32px; height: 32px; border-radius: 10px; object-fit: cover; }
 .author-symbol { display: grid; place-items: center; background: var(--fill-soft); color: #618575; }
 .author-symbol svg { display: block; width: 18px; height: 18px; margin: 0; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
@@ -271,7 +269,7 @@ onUnmounted(() => { active = false; generation++; clearInterval(reminderTimer); 
 .image-upload:hover { background: var(--fill-soft); color: var(--brand-hover); transition: all 0.3s ease; }
 .image-upload.disabled { opacity: .55; cursor: not-allowed; }
 .image-upload input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-.image-upload:focus-within, .write-button:focus-visible, .author-list button:focus-visible { outline: 2px solid #126b58; outline-offset: 3px; }
+.image-upload:focus-within, .write-button:focus-visible, .author-list button:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 .author-list button:focus-visible { outline-offset: -2px; }
 .attachments { display: grid; grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); gap: 10px; margin-top: 14px; }
 .attachment { position: relative; min-width: 0; padding: 5px; border: 1px solid var(--line); border-radius: 12px; background: var(--fill-soft); }
@@ -287,11 +285,10 @@ onUnmounted(() => { active = false; generation++; clearInterval(reminderTimer); 
 .scope-tabs, .type-tabs { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 12px; background: var(--fill-soft); }
 .filters :deep(.el-radio-button__inner) { padding: 9px 14px; border: 0; border-radius: 9px; background: transparent; box-shadow: none; font-size: 12px; }
 .filters :deep(.el-radio-button:first-child .el-radio-button__inner), .filters :deep(.el-radio-button:last-child .el-radio-button__inner) { border: 0; border-radius: 9px; }
-.scope-tabs :deep(.el-radio-button) { --el-radio-button-checked-bg-color: #126b58; --el-radio-button-checked-border-color: #126b58; }
-.type-tabs :deep(.el-radio-button) { --el-radio-button-checked-bg-color: #fff; --el-radio-button-checked-text-color: #126b58; --el-radio-button-checked-border-color: transparent; }
+.scope-tabs :deep(.el-radio-button) { --el-radio-button-checked-bg-color: var(--brand); --el-radio-button-checked-border-color: var(--brand); }
 .filters :deep(.el-radio-button.is-active .el-radio-button__inner) { background: var(--el-radio-button-checked-bg-color); color: var(--el-radio-button-checked-text-color, #fff); box-shadow: 0 1px 3px rgba(27, 54, 39, .08); }
-.filters :deep(.el-radio-button__original-radio:focus-visible + .el-radio-button__inner) { outline: 2px solid #126b58; outline-offset: 2px; }
-.new-posts { width: 100%; min-height: 42px; margin: 0; border: 1px solid #cce3d8; border-radius: 12px; background: #edf6f0; color: #126b58; }
+.filters :deep(.el-radio-button__original-radio:focus-visible + .el-radio-button__inner) { outline: 2px solid var(--brand); outline-offset: 2px; }
+.new-posts { width: 100%; min-height: 42px; margin: 0; border: 1px solid #cce3d8; border-radius: 12px; background: #edf6f0; color: var(--brand); }
 .new-posts svg { margin-right: 8px; }
 .load-more { align-self: center; min-width: 180px; min-height: 42px; margin: 4px 0; border-radius: 12px; color: var(--ink-2); }
 .feed-end { margin: 8px 0; color: var(--ink-3); font-size: 12px; text-align: center; line-height: 1.8; }
@@ -310,7 +307,6 @@ onUnmounted(() => { active = false; generation++; clearInterval(reminderTimer); 
 @media (max-width: 640px) {
   .feed { padding-top: 20px; padding-bottom: 32px; }
   .feed-heading { gap: 14px; margin-bottom: 18px; padding-bottom: 18px; }
-  .write-button { min-height: 36px; padding: 0 12px; font-size: 12px; }
   .authors { padding: 12px 10px 6px; border-radius: 14px; }
   .composer, .timeline-controls { padding: 16px; border-radius: 16px; }
   .composer-heading { margin-bottom: 16px; }
