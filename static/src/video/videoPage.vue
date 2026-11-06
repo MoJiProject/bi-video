@@ -104,6 +104,45 @@
             playsinline
             class="up-user-video-player"
           ></video>
+          <div v-show="!intoVideoAllDisplayIngFlag" class="danmaku-overlay">
+            <scrollingList
+              :list="ScrollingDataList"
+              :getCurrentTime="getScrollingCurrentTime"
+              :player="upVideoPlayer"
+              :innerWidth="innerWidth"
+              :openFlag="openOrCloseScrollingFlag"
+              :rollOpenFlag="scrollingRollOpenFlag"
+              :filexdOpenFlag="scrollingFilexdOpenFlag"
+              :displayAreaValue="scrollingDisplayAreaValue"
+              :displayFontSizeValue="scrollingDisplayFontSizeValue"
+              :displayOpacityValue="scrollingDisplayOpacityValue"
+              :speedValue="scrollingDisplaySpeedValue"
+              :checkBoxOpenFlag="checkBoxOpenFlag"
+              :userId="store.userId"
+              @videoClick="pausedOrPlayUpVideo"
+              @copyScrolling="copyScrolling"
+            />
+          </div>
+          <div v-show="intoVideoAllDisplayIngFlag" class="danmaku-overlay">
+            <scrollingList
+              :list="ScrollingDataList"
+              :getCurrentTime="getScrollingCurrentTime"
+              :player="upVideoPlayer"
+              :allDisplay="true"
+              :innerWidth="innerWidth"
+              :openFlag="openOrCloseScrollingFlag"
+              :rollOpenFlag="scrollingRollOpenFlag"
+              :filexdOpenFlag="scrollingFilexdOpenFlag"
+              :displayAreaValue="scrollingDisplayAreaValue"
+              :displayFontSizeValue="scrollingDisplayFontSizeValue"
+              :displayOpacityValue="scrollingDisplayOpacityValue"
+              :speedValue="scrollingDisplaySpeedValue"
+              :checkBoxOpenFlag="checkBoxOpenFlag"
+              :userId="store.userId"
+              @videoClick="pausedOrPlayUpVideo"
+              @copyScrolling="copyScrolling"
+            />
+          </div>
           <div
             v-show="
               !setVideoAutoRePlayFlag &&
@@ -1227,47 +1266,6 @@
             class="video-false-container"
           ></div>
             </div>
-          </div>
-          <!-- 弹幕 -->
-          <div v-show="!intoVideoAllDisplayIngFlag">
-            <scrollingList
-              :list="ScrollingDataList"
-              :getCurrentTime="getScrollingCurrentTime"
-              :player="upVideoPlayer"
-              :innerWidth="innerWidth"
-              :openFlag="openOrCloseScrollingFlag"
-              :rollOpenFlag="scrollingRollOpenFlag"
-              :filexdOpenFlag="scrollingFilexdOpenFlag"
-              :displayAreaValue="scrollingDisplayAreaValue"
-              :displayFontSizeValue="scrollingDisplayFontSizeValue"
-              :displayOpacityValue="scrollingDisplayOpacityValue"
-              :speedValue="scrollingDisplaySpeedValue"
-              :checkBoxOpenFlag="checkBoxOpenFlag"
-              :userId="store.userId"
-              @videoClick="pausedOrPlayUpVideo"
-              @copyScrolling="copyScrolling"
-            />
-          </div>
-          <!-- 放大视频后的弹幕 -->
-          <div v-show="intoVideoAllDisplayIngFlag">
-            <scrollingList
-              :list="ScrollingDataList"
-              :getCurrentTime="getScrollingCurrentTime"
-              :player="upVideoPlayer"
-              :allDisplay="true"
-              :innerWidth="innerWidth"
-              :openFlag="openOrCloseScrollingFlag"
-              :rollOpenFlag="scrollingRollOpenFlag"
-              :filexdOpenFlag="scrollingFilexdOpenFlag"
-              :displayAreaValue="scrollingDisplayAreaValue"
-              :displayFontSizeValue="scrollingDisplayFontSizeValue"
-              :displayOpacityValue="scrollingDisplayOpacityValue"
-              :speedValue="scrollingDisplaySpeedValue"
-              :checkBoxOpenFlag="checkBoxOpenFlag"
-              :userId="store.userId"
-              @videoClick="pausedOrPlayUpVideo"
-              @copyScrolling="copyScrolling"
-            />
           </div>
           <!-- 快捷键提示  -->
           <div
@@ -2463,6 +2461,7 @@ export default {
       playerMetrics.chromeHeight = playerChrome.value?.offsetHeight || 0;
     }
     const openPlayerPanel = ref(null);
+    let playerPopoverCloseTimer = null;
     let previousBodyOverflow = "";
     watch(isWebFullscreen, (expanded) => {
       if (expanded) {
@@ -2482,13 +2481,30 @@ export default {
     }
 
     function openPlayerPopover(event, panel) {
+      if (playerPopoverCloseTimer !== null) {
+        clearTimeout(playerPopoverCloseTimer);
+        playerPopoverCloseTimer = null;
+      }
       if (event.pointerType === "mouse") openPlayerPanel.value = panel;
     }
 
-    function leavePlayerPopover(event) {
-      if (openPlayerPanel.value === "text") return;
-      if (event.pointerType === "mouse" && !event.currentTarget.contains(document.activeElement)) {
+    function schedulePlayerPopoverClose() {
+      if (playerPopoverCloseTimer !== null) clearTimeout(playerPopoverCloseTimer);
+      playerPopoverCloseTimer = setTimeout(() => {
+        playerPopoverCloseTimer = null;
+        if (
+          document.querySelector(".video-danmaku-color-palette:hover") ||
+          document.querySelector(".player-popover:hover") ||
+          (document.activeElement instanceof Element &&
+            document.activeElement.closest(".player-popover"))
+        ) return;
         openPlayerPanel.value = null;
+      }, 300);
+    }
+
+    function leavePlayerPopover(event) {
+      if (event.pointerType === "mouse" && !event.currentTarget.contains(document.activeElement)) {
+        schedulePlayerPopoverClose();
       }
     }
 
@@ -2721,6 +2737,7 @@ export default {
 
     //卸载时移除事件监听
     onBeforeUnmount(() => {
+      if (playerPopoverCloseTimer !== null) clearTimeout(playerPopoverCloseTimer);
       stopScrollingClock();
       playerResizeObserver?.disconnect();
       stopMoving(null, false);
@@ -3685,22 +3702,19 @@ export default {
       if (newValue === null) sendScrollingColor.value = "#FFFFFF";
     });
 
-    //监视是否在取色器对话框上
-    let popperContainer = null;
+    // 跟踪取色器弹层，避免将页面级 popper 根容器误判为仍在颜色面板内
     const handleMouseMove = (event) => {
-      // 元素还在时复用，避免每次移动鼠标都查询整篇文档
-      if (popperContainer === null || !popperContainer.isConnected)
-        popperContainer = document.querySelector(
-          '[id^="el-popper-container-"]',
-        );
-
-      const el = popperContainer;
-      if (el != null) {
-        if (el.contains(event.target)) {
-          predefineColorsHoverFlag.value = true;
-        } else {
-          predefineColorsHoverFlag.value = false;
-        }
+      const onColorPalette = event.target instanceof Element &&
+        event.target.closest(".video-danmaku-color-palette") !== null;
+      predefineColorsHoverFlag.value = onColorPalette;
+      const onPlayerPopover = event.target instanceof Element &&
+        event.target.closest(".player-popover") !== null;
+      if (onColorPalette || onPlayerPopover) {
+        if (playerPopoverCloseTimer === null) return;
+        clearTimeout(playerPopoverCloseTimer);
+        playerPopoverCloseTimer = null;
+      } else if (openPlayerPanel.value !== null && playerPopoverCloseTimer === null) {
+        schedulePlayerPopoverClose();
       }
     };
 
@@ -6116,7 +6130,18 @@ textarea,
 
 .scrolling-container {
   position: relative;
+  width: 100%;
   /* 弹幕层浮在视频之上，默认不拦截鼠标事件，否则双击视频无法触发全屏 */
+  pointer-events: none;
+}
+
+.danmaku-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
   pointer-events: none;
 }
 

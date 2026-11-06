@@ -9,7 +9,7 @@
         <div
             v-show="
                 openFlag &&
-                scrollingDisplayTime(scrolling.videoTime, allDisplay) &&
+                scrollingDisplayTime(scrolling, allDisplay) &&
                 scrolling.location === 1 &&
                 !rollOpenFlag &&
                 scrollingDisplayFunction(scrolling)
@@ -19,7 +19,7 @@
                 color: isColorful(scrolling) ? 'transparent' : `${scrolling.color}`,
                 fontSize: scrollingFontSize(scrolling.size),
                 top: `${scrollingTop(scrolling)}px`,
-                transform: scrollingTranslateX(scrolling.videoTime, allDisplay),
+                transform: scrollingTranslateX(scrolling, allDisplay),
                 opacity: `${parseFloat(displayOpacityValue) / 100}`,
                 padding: scrolling.userId === userId ? '1px' : '0px',
                 border:
@@ -129,6 +129,8 @@ defineEmits(["videoClick", "copyScrolling"]);
 const trackWidth = ref(0);
 const trackHeight = ref(0);
 let resizeObserver = null;
+let activeSpeedRate = getSpeedRate(props.speedValue, props.checkBoxOpenFlag);
+const speedAnchors = new Map();
 
 // 测量基准取 video 元素本身而不是它的容器：小屏视频只占容器高度(94%)，
 // 用容器高度会让末行落到视频画面之外；全屏时两者相等所以看不出差别
@@ -174,7 +176,27 @@ onBeforeUnmount(() => {
         resizeObserver.disconnect();
         resizeObserver = null;
     }
+    speedAnchors.clear();
 });
+
+watch(
+  () => [props.speedValue, props.checkBoxOpenFlag],
+  () => {
+    const now = scrollingCurrentTime();
+    const activeIds = new Set();
+    for (const scrolling of props.list) {
+      if (scrolling.location !== 1) continue;
+      activeIds.add(scrolling.id);
+      if (now < Number(scrolling.videoTime || 0)) continue;
+      const progress = scrollingProgress(scrolling, props.allDisplay, activeSpeedRate, now);
+      speedAnchors.set(scrolling.id, { time: now, progress });
+    }
+    for (const id of speedAnchors.keys()) {
+      if (!activeIds.has(id)) speedAnchors.delete(id);
+    }
+    activeSpeedRate = getSpeedRate(props.speedValue, props.checkBoxOpenFlag);
+  }
+);
 
 // 播放器当前时间统一走父组件的 rAF 时钟，避免依赖 player 元素导致顶/底弹幕不显示
 function scrollingCurrentTime() {
@@ -206,53 +228,65 @@ function scrollingTop(scrolling) {
   return Math.round((scrollingPercent(scrolling) / 100) * trackHeight.value);
 }
 
-function scrollingSpeedRate() {
-  if (props.checkBoxOpenFlag) {
-    return 1;
-  }
-
-  return 1 + (parseInt(props.speedValue) - 50) / 100;
+function getSpeedRate(speedValue, checkBoxOpenFlag) {
+  if (checkBoxOpenFlag) return 1;
+  return 1 + (parseInt(speedValue) - 50) / 100;
 }
 
 // 各分辨率下的基准宽高与行进距离，容器按实际尺寸等比缩放
 const BASE_REFERENCE = {
-  normal: { width: 700, height: 419, distance: 2350, duration: 13 },
-  allDisplay: { width: 1920, height: 1080, distance: 3100, duration: 16 },
+  normal: { width: 700, duration: 6 },
+  allDisplay: { width: 1920, duration: 8 },
 };
 
 function scrollingReference(isAllDisplay) {
   return isAllDisplay ? BASE_REFERENCE.allDisplay : BASE_REFERENCE.normal;
 }
 
-function scrollingDuration(isAllDisplay) {
+function scrollingBaseDuration(isAllDisplay) {
   const base = scrollingReference(isAllDisplay);
-  const rate = Math.max(scrollingSpeedRate(), 0.1);
   // 未测量到容器时按基准宽度计算，避免用 window 宽度把弹幕带偏
   const width = trackWidth.value || base.width;
   // 距离随宽度等比放大，用同样的时长保持视觉速度一致
-  return (base.duration * width) / base.width / rate;
+  return (base.duration * width) / base.width;
 }
 
-function scrollingElapsed(videoTime) {
-  return props.getCurrentTime() - Number(videoTime || 0);
+function scrollingProgress(
+  scrolling,
+  isAllDisplay,
+  speedRate = activeSpeedRate,
+  now = scrollingCurrentTime()
+) {
+  const videoTime = Number(scrolling.videoTime || 0);
+  const anchor = scrolling.location === 1 ? speedAnchors.get(scrolling.id) : null;
+  if (anchor && now >= anchor.time && anchor.time >= videoTime) {
+    return Math.min(
+      Math.max(
+        anchor.progress + ((now - anchor.time) * speedRate) / scrollingBaseDuration(isAllDisplay),
+        0
+      ),
+      1
+    );
+  }
+
+  if (anchor && now < anchor.time) speedAnchors.delete(scrolling.id);
+  const elapsed = now - videoTime;
+  return Math.min(Math.max((elapsed * speedRate) / scrollingBaseDuration(isAllDisplay), 0), 1);
 }
 
-function scrollingTranslateX(videoTime, isAllDisplay) {
-  const duration = scrollingDuration(isAllDisplay);
-  const elapsed = scrollingElapsed(videoTime);
-  const progress = Math.min(Math.max(elapsed / duration, 0), 1);
+function scrollingTranslateX(scrolling, isAllDisplay) {
+  const progress = scrollingProgress(scrolling, isAllDisplay);
   const base = scrollingReference(isAllDisplay);
   const width = trackWidth.value || base.width;
-  // 起点由 CSS 的 left:100% 决定，这里只需走完容器宽度即可完全移出
-  const distance = (base.distance * width) / base.width;
-
-  return `translateX(${-distance * progress}px)`;
+  // 从播放器右边缘开始，移动一个播放器宽度和弹幕自身宽度后完全离场
+  const distance = width * progress;
+  const danmakuWidth = progress * 100;
+  return `translateX(calc(-${distance}px - ${danmakuWidth}%))`;
 }
 
 //滚动弹幕显示时间
-function scrollingDisplayTime(videoTime, isAllDisplay) {
-  const elapsed = scrollingElapsed(videoTime);
-  return elapsed >= 0 && elapsed <= scrollingDuration(isAllDisplay);
+function scrollingDisplayTime(scrolling, isAllDisplay) {
+  return scrollingProgress(scrolling, isAllDisplay) < 1;
 }
 
 function scrollingFontSize(size) {
@@ -272,7 +306,7 @@ function scrollingDisplayFunction(scrolling) {
 const visibleList = computed(() => {
   const current = props.getCurrentTime();
   const duration =
-    Math.max(scrollingDuration(false), scrollingDuration(true)) + 1;
+    Math.max(scrollingBaseDuration(false), scrollingBaseDuration(true)) * 2 + 1;
   const result = [];
   for (let i = 0; i < props.list.length; i++) {
     const videoTime = Number(props.list[i].videoTime || 0);
