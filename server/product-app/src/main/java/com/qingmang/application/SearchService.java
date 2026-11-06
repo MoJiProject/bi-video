@@ -12,7 +12,6 @@ import com.qingmang.interfaces.vo.VideoListItemVO;
 import com.qingmang.interfaces.vo.PostVO;
 import com.qingmang.infrastructure.mapper.SocialQueryMapper;
 import com.qingmang.support.AuthContext;
-import com.qingmang.support.AuthContext;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 

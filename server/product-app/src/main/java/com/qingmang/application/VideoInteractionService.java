@@ -15,7 +15,6 @@ import com.qingmang.domain.interaction.mapper.WatchLaterMapper;
 import com.qingmang.domain.interaction.mapper.VideoReactionMapper;
 import com.qingmang.domain.video.Video;
 import com.qingmang.domain.video.mapper.VideoMapper;
-import com.qingmang.domain.video.mapper.VideoStatsMapper;
 import com.qingmang.domain.user.UserPrivacy;
 import com.qingmang.domain.user.mapper.UserPrivacyMapper;
 import com.qingmang.infrastructure.mapper.CounterMapper;
@@ -45,7 +44,6 @@ public class VideoInteractionService {
     private final FavoriteFolderMapper folderMapper;
     private final FavoriteItemMapper favoriteItemMapper;
     private final VideoMapper videoMapper;
-    private final VideoStatsMapper statsMapper;
     private final CounterMapper counterMapper;
     private final AuthService authService;
     private final UserPrivacyMapper privacyMapper;
@@ -55,7 +53,7 @@ public class VideoInteractionService {
     public VideoInteractionService(VideoReactionMapper reactionMapper, WatchLaterMapper watchLaterMapper,
                                    WatchHistoryMapper historyMapper, FavoriteFolderMapper folderMapper,
                                    FavoriteItemMapper favoriteItemMapper, VideoMapper videoMapper,
-                                   VideoStatsMapper statsMapper, CounterMapper counterMapper,
+                                   CounterMapper counterMapper,
                                    AuthService authService, UserPrivacyMapper privacyMapper,
                                    NotificationCenterService notifications,
                                    DailyInteractionExpService dailyInteractionExp) {
@@ -65,7 +63,6 @@ public class VideoInteractionService {
         this.folderMapper = folderMapper;
         this.favoriteItemMapper = favoriteItemMapper;
         this.videoMapper = videoMapper;
-        this.statsMapper = statsMapper;
         this.counterMapper = counterMapper;
         this.authService = authService;
         this.privacyMapper = privacyMapper;

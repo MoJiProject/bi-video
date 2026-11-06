@@ -39,6 +39,7 @@ CREATE TABLE `user`
     `phone`         VARCHAR(20)     NULL COMMENT '手机号',
     `email`         VARCHAR(128)    NULL COMMENT '邮箱',
     `role`          TINYINT         NOT NULL DEFAULT 0 COMMENT '角色 0普通用户 1管理员',
+    `is_super_admin` TINYINT(1)     NOT NULL DEFAULT 0 COMMENT '超级管理员标志 0否 1是',
     `status`        TINYINT         NOT NULL DEFAULT 1 COMMENT '状态 0禁用 1正常',
     `level`         TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '等级 0-10',
     `exp`           INT UNSIGNED    NOT NULL DEFAULT 0 COMMENT '当前等级经验',

@@ -12,7 +12,6 @@ import com.qingmang.domain.interaction.WatchHistory;
 import com.qingmang.domain.interaction.WatchLater;
 import com.qingmang.domain.interaction.mapper.WatchHistoryMapper;
 import com.qingmang.domain.interaction.mapper.WatchLaterMapper;
-import com.qingmang.domain.video.mapper.VideoMapper;
 import com.qingmang.infrastructure.mapper.CounterMapper;
 import com.qingmang.infrastructure.mapper.UserContentQueryMapper;
 import com.qingmang.interfaces.vo.FolderVO;
@@ -33,19 +32,17 @@ public class UserContentService {
     private final FavoriteItemMapper itemMapper;
     private final WatchLaterMapper watchLaterMapper;
     private final WatchHistoryMapper historyMapper;
-    private final VideoMapper videoMapper;
     private final CounterMapper counterMapper;
     private final UserContentQueryMapper queryMapper;
 
     public UserContentService(FavoriteFolderMapper folderMapper, FavoriteItemMapper itemMapper,
                               WatchLaterMapper watchLaterMapper, WatchHistoryMapper historyMapper,
-                              VideoMapper videoMapper, CounterMapper counterMapper,
+                              CounterMapper counterMapper,
                               UserContentQueryMapper queryMapper) {
         this.folderMapper = folderMapper;
         this.itemMapper = itemMapper;
         this.watchLaterMapper = watchLaterMapper;
         this.historyMapper = historyMapper;
-        this.videoMapper = videoMapper;
         this.counterMapper = counterMapper;
         this.queryMapper = queryMapper;
     }

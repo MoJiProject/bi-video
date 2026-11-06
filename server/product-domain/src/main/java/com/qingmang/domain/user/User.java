@@ -47,6 +47,9 @@ public class User implements Serializable {
 
     private Integer role;
 
+    @TableField("is_super_admin")
+    private Integer superAdmin;
+
     private Integer status;
 
     private Integer level;

@@ -14,7 +14,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.qingmang.domain.social.mapper.PrivateMessageMapper;
 import com.qingmang.domain.social.mapper.UserFollowMapper;
 import com.qingmang.domain.social.mapper.UserPostMapper;
-import com.qingmang.domain.user.mapper.UserStatsMapper;
 import com.qingmang.infrastructure.mapper.CounterMapper;
 import com.qingmang.infrastructure.mapper.SocialQueryMapper;
 import com.qingmang.interfaces.dto.PostRequest;
@@ -32,7 +31,6 @@ public class SocialService {
     private final UserFollowMapper followMapper;
     private final UserPostMapper postMapper;
     private final PrivateMessageMapper privateMessageMapper;
-    private final UserStatsMapper statsMapper;
     private final CounterMapper counterMapper;
     private final SocialQueryMapper queryMapper;
     private final ObjectMapper json;
@@ -43,13 +41,12 @@ public class SocialService {
 
     public SocialService(UserFollowMapper followMapper, UserPostMapper postMapper,
                          PrivateMessageMapper privateMessageMapper,
-                         UserStatsMapper statsMapper, CounterMapper counterMapper,
+                         CounterMapper counterMapper,
                          SocialQueryMapper queryMapper, ObjectMapper json, AuthService auth, PostLikeMapper postLikes,
                          MentionNotificationService mentions, NotificationCenterService notifications) {
         this.followMapper = followMapper;
         this.postMapper = postMapper;
         this.privateMessageMapper = privateMessageMapper;
-        this.statsMapper = statsMapper;
         this.counterMapper = counterMapper;
         this.queryMapper = queryMapper;
         this.json = json;

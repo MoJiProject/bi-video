@@ -6,10 +6,6 @@ import com.qingmang.common.constant.BizConstants;
 import com.qingmang.common.enums.ReactionType;
 import com.qingmang.common.exception.BizException;
 import com.qingmang.common.exception.ErrorCode;
-import com.qingmang.domain.favorite.mapper.FavoriteFolderMapper;
-import com.qingmang.domain.user.mapper.UserMapper;
-import com.qingmang.domain.user.mapper.UserStatsMapper;
-import com.qingmang.domain.video.mapper.VideoMapper;
 import com.qingmang.domain.video.mapper.VideoStatsMapper;
 import com.qingmang.infrastructure.mapper.CounterMapper;
 import com.qingmang.infrastructure.mapper.VideoQueryMapper;
@@ -33,23 +29,14 @@ import java.util.Map;
 public class VideoQueryService {
 
     private final VideoQueryMapper queryMapper;
-    private final VideoMapper videoMapper;
     private final VideoStatsMapper statsMapper;
-    private final UserMapper userMapper;
-    private final UserStatsMapper userStatsMapper;
-    private final FavoriteFolderMapper folderMapper;
     private final CounterMapper counterMapper;
 
-    public VideoQueryService(VideoQueryMapper queryMapper, VideoMapper videoMapper,
-                             VideoStatsMapper statsMapper, UserMapper userMapper,
-                             UserStatsMapper userStatsMapper, FavoriteFolderMapper folderMapper,
+    public VideoQueryService(VideoQueryMapper queryMapper,
+                             VideoStatsMapper statsMapper,
                              CounterMapper counterMapper) {
         this.queryMapper = queryMapper;
-        this.videoMapper = videoMapper;
         this.statsMapper = statsMapper;
-        this.userMapper = userMapper;
-        this.userStatsMapper = userStatsMapper;
-        this.folderMapper = folderMapper;
         this.counterMapper = counterMapper;
     }
 

@@ -14,7 +14,6 @@ import com.qingmang.domain.user.UserStats;
 import com.qingmang.domain.user.mapper.UserMapper;
 import com.qingmang.domain.user.mapper.UserPrivacyMapper;
 import com.qingmang.domain.user.mapper.UserStatsMapper;
-import com.qingmang.infrastructure.mapper.CounterMapper;
 import com.qingmang.infrastructure.mapper.UserQueryMapper;
 import com.qingmang.interfaces.dto.LoginRequest;
 import com.qingmang.interfaces.dto.RegisterRequest;
@@ -49,20 +48,18 @@ public class AuthService {
     private final UserStatsMapper statsMapper;
     private final FavoriteFolderMapper folderMapper;
     private final UserQueryMapper queryMapper;
-    private final CounterMapper counterMapper;
     private final MentionNotificationService mentions;
     private final NotificationCenterService notifications;
 
     public AuthService(UserMapper userMapper, UserPrivacyMapper privacyMapper,
                        UserStatsMapper statsMapper, FavoriteFolderMapper folderMapper,
-                       UserQueryMapper queryMapper, CounterMapper counterMapper,
+                       UserQueryMapper queryMapper,
                        MentionNotificationService mentions, NotificationCenterService notifications) {
         this.userMapper = userMapper;
         this.privacyMapper = privacyMapper;
         this.statsMapper = statsMapper;
         this.folderMapper = folderMapper;
         this.queryMapper = queryMapper;
-        this.counterMapper = counterMapper;
         this.mentions = mentions;
         this.notifications = notifications;
     }
@@ -77,9 +74,11 @@ public class AuthService {
         user.setPhone(isBlank(req.getPhone()) ? null : req.getPhone());
         user.setLevel(0);
         user.setExp(0);
-        user.setRole(0);
         user.setStatus(1);
 
+        boolean firstUser = userMapper.selectCount(Wrappers.<User>emptyWrapper()) == 0;
+        user.setRole(firstUser ? 1 : 0);
+        user.setSuperAdmin(firstUser ? 1 : 0);
         try {
             userMapper.insert(user);
         } catch (DuplicateKeyException e) {

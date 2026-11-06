@@ -74,9 +74,10 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="身份" width="96" align="center" fixed="right">
+        <el-table-column label="身份" width="112" align="center" fixed="right">
           <template #default="scope">
-            <span v-if="scope.row.banFlag" class="sys-tag tag-danger">已封禁</span>
+            <span v-if="scope.row.superAdminFlag" class="sys-tag tag-primary">超级管理员</span>
+            <span v-else-if="scope.row.banFlag" class="sys-tag tag-danger">已封禁</span>
             <span v-else-if="scope.row.adminFlag" class="sys-tag tag-primary">管理员</span>
             <span v-else class="sys-tag tag-grey">普通用户</span>
           </template>
@@ -88,15 +89,19 @@
               v-if="scope.row.banFlag"
               size="small"
               type="success"
+              :disabled="scope.row.superAdminFlag"
+              title="超级管理员不可被封禁或修改"
               @click="handleUnban(scope.row)"
               >解封</el-button
             >
             <el-button v-else size="small" type="danger"
-              :disabled="String(scope.row.id) === String(store.userId)"
+              :disabled="scope.row.superAdminFlag || String(scope.row.id) === String(store.userId)"
+              :title="scope.row.superAdminFlag ? '超级管理员不可被封禁或修改' : ''"
               @click="handleBan(scope.row)">封禁</el-button>
             <el-button
               size="small"
-              :disabled="String(scope.row.id) === String(store.userId)"
+              :disabled="scope.row.superAdminFlag || String(scope.row.id) === String(store.userId)"
+              :title="scope.row.superAdminFlag ? '超级管理员不可被封禁或修改' : ''"
               @click="handleAdmin(scope.row)"
               >{{ scope.row.adminFlag ? "取消管理员" : "设为管理员" }}</el-button
             >

@@ -97,6 +97,7 @@ public class AdminManagementService {
                 yield page("SELECT u.id,u.nickname AS userName,u.username,u.phone,u.avatar_url AS avatarAddress,"
                         + "u.created_at AS createTime,u.last_login_at AS loginDateTime,"
                         + "CASE WHEN u.role=1 THEN 1 ELSE 0 END AS adminFlag,"
+                        + "CASE WHEN u.is_super_admin=1 THEN 1 ELSE 0 END AS superAdminFlag,"
                         + "CASE WHEN u.status=0 THEN 1 ELSE 0 END AS banFlag,"
                         + "COALESCE(s.video_count,0) AS videoNumber,COALESCE(s.follower_count,0) AS fansNumber,"
                         + "COALESCE(s.like_received,0) AS likeNumber",
@@ -260,6 +261,7 @@ public class AdminManagementService {
     private Object changeUser(Long actor, String action, Long target, AdminCommand command, String reason) {
         Map<String, Object> user = locked("user", target);
         requirePermission(!Objects.equals(actor, target));
+        requirePermission(number(user.get("is_super_admin")) != 1);
         if (action.equals("putAdmin")) {
             require(command.getAdminFlag() != null, "请明确指定管理员身份");
             if (command.getAdminFlag()) require(number(user.get("status")) == 1, "已封禁用户不能设为管理员");
