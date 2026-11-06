@@ -261,7 +261,7 @@ public class AdminManagementService {
     private Object changeUser(Long actor, String action, Long target, AdminCommand command, String reason) {
         Map<String, Object> user = locked("user", target);
         requirePermission(!Objects.equals(actor, target));
-        requirePermission(number(user.get("is_super_admin")) != 1);
+        require(number(user.get("is_super_admin")) != 1, "超级管理员不可被封禁或取消管理员");
         if (action.equals("putAdmin")) {
             require(command.getAdminFlag() != null, "请明确指定管理员身份");
             if (command.getAdminFlag()) require(number(user.get("status")) == 1, "已封禁用户不能设为管理员");
