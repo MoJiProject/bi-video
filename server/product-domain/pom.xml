@@ -2,7 +2,7 @@
 <!--
   product-domain: 领域模型层。
   只放实体与 Mapper 接口，不依赖 Web 层，也不放业务逻辑。
-  对应数据库 product 库，表结构见 sql/product/01_schema.sql。
+  对应数据库 product 库，表结构见 sql/product/table.sql。
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">

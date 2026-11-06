@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { offlinePreviewEnabled, PREVIEW_TOKEN } from '../preview/config';
 
-const TOKEN_KEY = 'bi_video_token';
+const TOKEN_KEY = 'qingmang_video_token';
 const BASE_URL = import.meta.env?.VITE_API_BASE || '/api';
 
 /**

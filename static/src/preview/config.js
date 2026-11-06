@@ -1,6 +1,6 @@
 export const PREVIEW_USER_ID = 1001;
 export const PREVIEW_TOKEN = "offline-preview-not-a-real-token";
-const PREVIEW_KEY = "bi_video_offline_preview";
+const PREVIEW_KEY = "qingmang_video_offline_preview";
 
 function resolvePreviewMode() {
   if (process.env.NODE_ENV !== "development") return false;

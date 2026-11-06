@@ -13,13 +13,13 @@
 
 
     <!-- 项目的基本信息 -->
-    <groupId>com.moji.bi.video</groupId>
-    <artifactId>bi-video</artifactId>
+    <groupId>com.moji.qingmang.video</groupId>
+    <artifactId>qingmang-video</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging> <!-- 表示这是一个聚合 POM，不直接生成构件 -->
 
-    <name>bi-video</name>
-    <description>bi-video</description>
+    <name>qingmang-video</name>
+    <description>qingmang-video</description>
     <url/>
     <licenses>
         <license/>

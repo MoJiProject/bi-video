@@ -2,8 +2,8 @@
 import { defineStore } from 'pinia'
 import { offlinePreviewEnabled, PREVIEW_USER_ID, PREVIEW_TOKEN } from '../preview/config'
 
-const TOKEN_KEY = 'bi_video_token'
-const USER_ID_KEY = 'bi_video_user_id'
+const TOKEN_KEY = 'qingmang_video_token'
+const USER_ID_KEY = 'qingmang_video_user_id'
 
 function getStoredToken() {
   if (offlinePreviewEnabled) return PREVIEW_TOKEN

@@ -1,18 +1,6 @@
 -- =============================================================================
 --  青芒视频 · product 库 · 表结构
 --  目标库: product        字符集: utf8mb4 / utf8mb4_unicode_ci    引擎: InnoDB
---
---  与旧库 bi_video 的主要差异：
---    1. 全库 utf8mb4（旧的混用 utf8 三字节，存不了 emoji/生僻字）
---    2. 补齐外键约束（旧的完全靠应用层保证，加了索引与级联）
---    3. 拆表：dynamic 一张表塞了三件事 -> user_post / watch_later / user_follow
---    4. 拆表：likes + collects 混存 -> video_reaction / favorite_item
---    5. 删除 fans 表：它和 follow 是同一份数据的两种写法，由 user_follow 反向查询
---    6. 删除 at 表：并入 notification（type = MENTION）
---    7. 计数类字段从主表拆到 *_stats，主表只放业务字段
---    8. 时间/开关统一类型：datetime 用 DATETIME，标记位用 TINYINT(1)
---       （旧的 scrolling.send_time / history.watch_video_time 是 varchar）
---    9. 魔法字符串改外键：videos.sub_zone_key -> video.category_id
 --  =============================================================================
 
 SET NAMES utf8mb4;
