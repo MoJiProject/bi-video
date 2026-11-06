@@ -2317,7 +2317,7 @@ import {
   socialApi,
   videoApi,
 } from "../api/product";
-import { ElMessage } from "element-plus";
+import { videoMessage as ElMessage } from "../utils/videoMessage";
 const upVideoPlayGray = "/img/播放灰.png"
 const upVideoPlayWhite = "/img/播放白.png"
 const intoAllDisplayGray = "/img/进入全屏灰.png"
@@ -7186,36 +7186,33 @@ textarea,
 
 .waitWatchMsg {
   position: absolute;
-  width: 120px;
-  font-size: 12px;
-  height: 26px;
-  border-radius: 5px;
-  left: -47px;
-  top: -58px;
-  padding: 2px 0 2px 0;
-  background-color: rgb(0, 0, 0, 0.8);
-  color: white;
+  min-width: 108px;
+  max-width: 220px;
+  height: auto;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  border-radius: 10px;
+  left: 50%;
+  top: -46px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  background-color: rgba(28, 35, 33, 0.92);
+  color: #fff;
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 6px;
+  box-shadow: 0 8px 20px rgba(28, 35, 33, 0.22);
+  backdrop-filter: blur(6px);
+  z-index: 2;
+  animation: waitWatchMsgIn .18s ease-out;
 }
 
-@keyframes throwCoinImg1 {
-  0% {
-    background-position: 20px 17.5px;
-  }
-  100% {
-    background-position: -2867.27px 17.5px;
-  }
-}
-
-@keyframes throwCoinImg2 {
-  0% {
-    background-position: 19px 18px;
-  }
-  100% {
-    background-position: -2868.27px 18px;
-  }
+@keyframes waitWatchMsgIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 .scrolling-content-container {

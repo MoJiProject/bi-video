@@ -209,27 +209,15 @@ function updateBackground() {
         return;
     }
     loading.value = true;
-    uploadBackground(store.token,store.userId,backgroundAddress.value).then(res => {
-        if(res.data.code===1)
-        {
-            store.userInformation.backgroundAddress = backgroundAddress.value;
-            backgroundAddress.value = null;
-            ElMessage({
-                message: res.data.data,
-                type: "warning",
-                duration: 1700,
-            });
-        }
-        else
-        {
-            ElMessage({
-                message: res.data.msg,
-                type: "warning",
-                duration: 1700,
-            });
-        }
+    uploadBackground(store.token, backgroundAddress.value).then(res => {
+        store.userInformation.backgroundAddress = res.data.data.url;
+        backgroundAddress.value = null;
+        ElMessage.success('背景更新成功');
+    }).catch(error => {
+        ElMessage.error(error.message || '背景更新失败');
+    }).finally(() => {
         loading.value = false;
-    })
+    });
 }
 
 //重置背景
@@ -252,7 +240,8 @@ function resetImg() {
 }
 
 .account-user-background{
-height: 100%;
+min-width: 0;
+min-height: 100%;
 
 .title{
 display: block;
@@ -263,7 +252,7 @@ font-size: 14px;
 color: #1C2321;
 cursor: default;
 text-align: left;
-padding-left: 30px;
+padding: 0 30px;
 color: #0E9C85;
 border-bottom: 1px solid #ddd;
 
@@ -278,9 +267,9 @@ border-bottom: 1px solid #ddd;
     }
 }
 .background-container{
-padding: 20px;
-height: calc(100% - 50px);
-overflow-y: auto;
+padding: 20px clamp(16px, 3vw, 28px) 28px;
+width: 100%;
+min-width: 0;
 box-sizing: border-box;
 
     .title2{
@@ -290,6 +279,8 @@ box-sizing: border-box;
     .default-background{
     margin-top: 14px;
     width: 100%;
+    max-width: 100%;
+    overflow: hidden;
     //与目标裁剪比例6.4:1一致，预览即上传后效果
     aspect-ratio: 1280 / 200;
     background-size: cover;
@@ -358,9 +349,11 @@ transition: all 0.3s ease;
     border-radius: 10px;
 }
 .info{
-margin-top: 16px;
+margin: 16px auto 0;
+max-width: 520px;
+padding: 0 12px;
 text-align: center;
-line-height: 16px;
+line-height: 1.5;
 color: #8c959c;
 font-size: 12px;
 }
@@ -369,7 +362,7 @@ position: relative;
 margin-top: 20px;
 left: 50%;
 transform: translateX(-50%);
-width: 140px;
+width: min(140px, 100%);
 height: 40px;
 font-size: 14px;
 line-height: 32px;
@@ -394,15 +387,30 @@ transition: all 0.3s ease;
 @media (max-width: 720px){
     .account-user-background{
         .title{
-            padding-left: 18px;
+            padding: 0 18px;
         }
 
         .background-container{
-            padding: 16px 14px 22px;
+            padding: 16px 14px 24px;
 
             .default-background{
                 border-radius: 14px;
+                aspect-ratio: 3 / 1;
             }
+        }
+    }
+}
+
+@media (max-width: 380px){
+    .account-user-background{
+        .title{
+            padding-right: 12px;
+            padding-left: 12px;
+        }
+
+        .background-container{
+            padding-right: 12px;
+            padding-left: 12px;
         }
     }
 }

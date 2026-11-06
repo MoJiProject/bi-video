@@ -124,29 +124,21 @@ function resetImg() {
 
 //发送裁剪图片
 function send(img) {
-    if(!img)
+    if(!img || loading.value)
         return;
     loading.value = true;
-    uploadAvatar(store.token,store.userId,img).then(res => {
-        if(res.data.code === 1) {
-            ElMessage({
-                message: '头像更新成功',
-                type: "success",
-                duration: 1700,
-            });
-            store.userInformation.avatarAddress = img;
-            uploadFlag.value = false;
-            avatarAddress.value = null;
-            cutOrder.value = false;
-        } else {
-            ElMessage({
-                message: '头像更新失败',
-                type: "error",
-                duration: 1700,
-            });
-        }
+    uploadAvatar(store.token, img).then(res => {
+        const avatarUrl = res.data.data.url;
+        store.userInformation.avatarAddress = avatarUrl;
+        uploadFlag.value = false;
+        avatarAddress.value = null;
+        cutOrder.value = false;
+        ElMessage.success('头像更新成功');
+    }).catch(error => {
+        ElMessage.error(error.message || '头像更新失败');
+    }).finally(() => {
         loading.value = false;
-    })
+    });
 }
 
 </script>
@@ -160,6 +152,7 @@ function send(img) {
 }
 
 .account-user-avatar{
+    min-width: 0;
 
 .title{
 display: block;
@@ -170,7 +163,7 @@ font-size: 14px;
 color: #1C2321;
 cursor: default;
 text-align: left;
-padding-left: 30px;
+padding: 0 30px;
 color: #0E9C85;
 border-bottom: 1px solid #ddd;
 
@@ -272,20 +265,24 @@ padding: 20px 0;
     }
 }
 .avatar-container2{
-padding: 120px clamp(24px, 12vw, 230px);
-display: flex;
+padding: clamp(36px, 8vw, 96px) clamp(16px, 5vw, 56px);
+display: grid;
+grid-template-columns: minmax(0, 1fr) 1px minmax(120px, 1fr);
 min-height: 300px;
-justify-content: space-around;
+justify-content: center;
+gap: clamp(20px, 4vw, 40px);
 align-items: center;
 
    .btn{
-    float: left;
-    margin-right: 40px;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
      
         div{
         cursor: pointer;
         background: #f1f2f5;
-        width: 178px;
+        width: min(100%, 210px);
+        min-width: 0;
         height: 84px;
         top: 0;
         left: 0;
@@ -319,14 +316,14 @@ align-items: center;
     height: 182px;
     width: 1px;
     background: #abaeaf;
-    float: left;
    }
    .avatar-container{
-    margin-left: 40px;
-    float: left;
+    min-width: 0;
     text-align: center;
 
         img{
+        display: block;
+        max-width: 100%;
         width: 96px;
         height: 96px;
         overflow: hidden;
@@ -342,9 +339,11 @@ align-items: center;
    }
 }
 .info{
-margin-top: 25px;    
+margin: 25px auto 0;
+max-width: 100%;
+padding: 0 16px;
 text-align: center;  
-line-height: 16px;
+line-height: 1.5;
 color: #8c959c;
 font-size: 12px;
 }
@@ -379,19 +378,18 @@ border-color: #19AC96;
 transition: all 0.3s ease;
 }
 .avatar-container3{
-padding: 61.5px 20px 56px;
+padding: 48px clamp(16px, 4vw, 40px) 56px;
 position: relative;
-top: 24px;
 display: flex;
+flex-wrap: wrap;
 justify-content: center;
 align-items: center;
+gap: 32px 40px;
 
     .cropper{
     height: 182px;
-    width: 182px;
+    width: min(182px, 100%);
     position: relative;
-    top: -2px;
-    margin-right: 40px;
     z-index: 30;
     }
     .reset-img {
@@ -418,10 +416,9 @@ align-items: center;
     height: 182px;
     width: 1px;
     background: #abaeaf;
-    float: left;
     }
     .img-preview-wrap {
-    margin-left: 40px;
+    min-width: 0;
     }
     .pre-container {
     overflow: hidden;
@@ -444,15 +441,16 @@ align-items: center;
 @media (max-width: 720px){
     .account-user-avatar{
         .title{
-            padding-left: 18px;
+            padding: 0 18px;
         }
 
         .avatar-container2,
         .avatar-container3{
-            padding: 28px 16px;
+            padding: 28px 16px 36px;
             min-height: auto;
+            grid-template-columns: minmax(0, 1fr);
             flex-direction: column;
-            gap: 24px;
+            gap: 20px;
         }
 
         .avatar-container2{
@@ -471,8 +469,6 @@ align-items: center;
         }
 
         .avatar-container3{
-            top: 0;
-
             .cropper{
                 margin-right: 0;
             }
@@ -485,6 +481,20 @@ align-items: center;
             .img-preview-wrap{
                 margin-left: 0;
             }
+        }
+    }
+}
+
+@media (max-width: 380px){
+    .account-user-avatar{
+        .avatar-container2,
+        .avatar-container3{
+            padding-right: 12px;
+            padding-left: 12px;
+        }
+
+        .avatar-container .content{
+            max-width: calc(100vw - 72px);
         }
     }
 }

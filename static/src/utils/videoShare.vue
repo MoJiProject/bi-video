@@ -47,7 +47,7 @@
 import { reactive, ref, watch } from "vue";
 import { useGlobalStore } from "../store/store";
 import { get, post } from '../services/http';
-import { ElMessage } from "element-plus";
+import { videoMessage as ElMessage } from "./videoMessage";
 
  
 export default {

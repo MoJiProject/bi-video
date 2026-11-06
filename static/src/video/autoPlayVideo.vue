@@ -3,12 +3,12 @@
        <div class="auto-play-video-header">
           <img @click="openHome(1,store.selectUpVideo.upUser?.id)" class="auto-play-video-avatar" :src="store.selectUpVideo.upUser?.avatarAddress">
           <span @click="openHome(1,store.selectUpVideo.upUser?.id)" class="auto-play-video-username">{{ store.selectUpVideo.upUser?.userName }}</span>
-          <UserHoverCard :user-id="Number(store.selectUpVideo.upUser?.id) || 0" :avatar="store.selectUpVideo.upUser?.avatarAddress || ''" :nickname="store.selectUpVideo.upUser?.userName || ''" :avatar-size="32">
+          <UserHoverCard :user-id="Number(store.selectUpVideo.upUser?.id) || 0" :avatar="store.selectUpVideo.upUser?.avatarAddress || ''" :nickname="store.selectUpVideo.upUser?.userName || ''" :avatar-size="32" :teleported="false">
             <template #reference>
               <span class="auto-play-video-hover-trigger" @click="openHome(1,store.selectUpVideo.upUser?.id)"></span>
             </template>
           </UserHoverCard>
-         <span v-show="store.selectUpVideo?.isFansFlag===0" class="auto-play-video-follow" @click="store.setAddFollowFlag(1)"> <FollowIcon :size="12" /> 关注 {{ store.selectUpVideo.upUser?.fansNumber }}</span>
+         <span v-show="store.selectUpVideo?.isFansFlag===0" class="auto-play-video-follow" @click="store.setAddFollowFlag(1)"> <FollowIcon :size="12" /> 关注</span>
          <span v-show="store.selectUpVideo?.isFansFlag===1" class="auto-play-video-delete-follow" @click="store.setAddFollowFlag(2)">已关注</span>
          <button type="button" class="auto-play-video-replay" @click="store.setReVideoPlayerFlag(true)">
             <img src="/img/重播灰.png">
@@ -23,11 +23,13 @@
                 <img v-show="!propss.videoCollectClickFlag" src="/img/收藏灰.png">
                 <img v-show="propss.videoCollectClickFlag" src="/img/视频收藏蓝.png">
                 <span style="margin-left: 1px;" :style="{color: propss.videoCollectClickFlag? 'var(--brand)':'white'}">收藏</span></span>
-            <span class="auto-play-video-operation4" @click="shareHoverF2()" @mouseleave="shareHoverF(false)">
+            <span ref="shareTrigger" class="auto-play-video-operation4" @click="shareHoverF2()" @mouseleave="shareHoverF(false)">
                 <img v-show="!propss.videoShareClickFlag" src="/img/分享灰.png">
                 <img v-show="propss.videoShareClickFlag" src="/img/视频分享蓝.png">
                 <span style="margin-left: 1px;" :style="{color: propss.videoShareClickFlag? 'var(--brand)':'white'}">分享</span></span>
-            <div v-show="shareHover&&store.shareHover" class="video-share-container" @mouseover="shareHoverF(true)" @mouseleave="shareHoverF(false)"><videoShareC :share-hover="shareHover" :height-flag="true"/></div>
+            <Teleport to="body" :disabled="propss.intoVideoAllDisplayIngFlag">
+              <div v-show="shareHover&&store.shareHover" class="video-share-container" :style="!propss.intoVideoAllDisplayIngFlag ? sharePopupStyle : undefined" @mouseover="shareHoverF(true)" @mouseleave="shareHoverF(false)"><videoShareC :share-hover="shareHover" :height-flag="true"/></div>
+            </Teleport>
             </div>
        </div>
        <div class="auto-play-video-body">
@@ -66,7 +68,7 @@
                 <span class="auto-play-video-item-title">{{ video.videoTitle }}</span>
                </span>
            </div>
-           <div v-show="propss.intoVideoAllDisplayIngFlag" class="auto-play-video-item" v-for="video in store.autoVideoList.slice(0,8)" :key="video.videoId" @click="intoVideo(video)">
+           <div v-show="propss.intoVideoAllDisplayIngFlag" class="auto-play-video-item" v-for="video in store.autoVideoList.slice(0,6)" :key="video.videoId" @click.stop="intoVideo(video)">
                <span @mousemove="videoMouseover(video.videoId+'auto2')" @mouseleave="videoMouseleave(video.videoId+'auto2')">
                 <div v-show="video.videoId===store.autoVideoList[0].videoId&&store.AutoPlayVideoList" class="cancel-auto-play-video" @click.stop="cancelAutoPlayVideo">
                    取消连播
@@ -107,12 +109,12 @@
 <script>
 import UserHoverCard from '../components/UserHoverCard.vue';
 import FollowIcon from '../components/FollowIcon.vue';
-import { reactive, onMounted, ref, watch } from "vue";
+import { reactive, onMounted, onBeforeUnmount, ref, watch } from "vue";
 import apiClient from "../api/video/detail";
 import { useGlobalStore } from "../store/store";
 import videoShareC from '../utils/videoShare.vue';
 import { navigateToVideo } from '../services/watchTogetherBridge';
-import { ElMessage } from "element-plus";
+import { videoMessage as ElMessage } from "../utils/videoMessage";
 export default {
     name: "autoPlayVideo",
     props:{
@@ -143,6 +145,41 @@ export default {
         const setAutoPlayVideoListLocal=ref(false);
         let videoAutoPlayTIme={};
         const shareHover=ref(false);
+        const shareTrigger=ref(null);
+        const sharePopupStyle=ref({});
+        let delayShareTime = null;
+
+        function updateSharePopupPosition(){
+            if(propss.intoVideoAllDisplayIngFlag || !shareTrigger.value) return;
+
+            const rect=shareTrigger.value.getBoundingClientRect();
+            const popupWidth=Math.min(500, window.innerWidth - 32);
+            const popupMaxHeight=Math.min(320, window.innerHeight - 32);
+            const left=Math.max(16, Math.min(rect.right - popupWidth, window.innerWidth - popupWidth - 16));
+            const top=Math.max(16, Math.min(rect.bottom + 8, window.innerHeight - popupMaxHeight - 16))+50;
+            sharePopupStyle.value={
+                position:'fixed',
+                zIndex:10000,
+                top:`${top}px`,
+                right:'auto',
+                bottom:'auto',
+                left:`${left}px`,
+                width:`${popupWidth}px`,
+                maxHeight:`${popupMaxHeight}px`,
+                overflowY:'auto',
+                transform:'none',
+            };
+        }
+
+        onMounted(()=>{
+            window.addEventListener('resize', updateSharePopupPosition);
+            window.addEventListener('scroll', updateSharePopupPosition, true);
+        });
+        onBeforeUnmount(()=>{
+            window.removeEventListener('resize', updateSharePopupPosition);
+            window.removeEventListener('scroll', updateSharePopupPosition, true);
+            clearTimeout(delayShareTime);
+        });
 
        
         onMounted(async()=>{
@@ -308,12 +345,12 @@ export default {
         })
 
          //延时分享窗
-        let delayShareTime = null;
         function shareHoverF(flag){
         if(flag)
         {
             clearTimeout(delayShareTime);
             delayShareTime=setTimeout(()=>{
+            updateSharePopupPosition();
             shareHover.value=true;
             store.setShareHover(true);   
             },300)
@@ -338,6 +375,7 @@ export default {
                 }
             else
                 {
+                    updateSharePopupPosition();
                     store.setShareHover(true);
                     shareHover.value=true;
                 }
@@ -365,6 +403,8 @@ export default {
             videoMouseleave,
             shareHover,
             shareHoverF,
+            shareTrigger,
+            sharePopupStyle,
             openHome,
             shareHoverF2,
         }

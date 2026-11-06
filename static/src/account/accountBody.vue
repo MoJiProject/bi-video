@@ -1,13 +1,18 @@
 <template>
   <div class="account-body">
-      <accountEditor/>
+      <accountUserInfo v-if="store.accountMenu === 1"/>
+      <accountUserAvatar v-else-if="store.accountMenu === 2"/>
+      <accountUserBackground v-else/>
   </div>
 </template>
 
 <script setup>
-import accountEditor from './accountEditor.vue';
+import { useGlobalStore } from "../store/store";
+import accountUserInfo from "./userInfo.vue";
+import accountUserAvatar from "./avatar.vue";
+import accountUserBackground from "./background.vue";
 
-
+const store = useGlobalStore();
 </script>
 
 <style lang="scss" scoped>

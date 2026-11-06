@@ -4,16 +4,7 @@
         <div class="user-info">
             <div class="content">
                 <span class="label">昵称:</span>
-                <input type="text" maxlength="10" :disabled="true" v-model="store.userInformation.userName">
-            </div>
-            <div class="content">
-                <span class="label">修改密码:</span>
-                <input type="password" maxlength="16" placeholder="请输入旧密码" v-model="password">
-                <input type="password" maxlength="16" placeholder="请输入新密码" v-model="newPassword">
-            </div>
-            <div class="content">
-                <span class="label">手机号:</span>
-                <input type="text" @input="formatPhone" maxlength="11" placeholder="请输入手机号" v-model="store.userInformation.phone"/>
+                <input type="text" maxlength="20" v-model="store.userInformation.userName">
             </div>
             <div class="content">
                 <span class="label">我的签名:</span>
@@ -21,9 +12,11 @@
             </div>
             <div class="content">
                 <span class="label">性别:</span>
-                <span class="radio" :class="{'active-radio':radioFlag===1}" @click="radioFlag=1">男</span>
-                <span class="radio" :class="{'active-radio':radioFlag===2}" @click="radioFlag=2">女</span>
-                <span class="radio" :class="{'active-radio':radioFlag===0}" @click="radioFlag=0">保密</span>
+                <div class="radio-options">
+                    <span class="radio" :class="{'active-radio':radioFlag===1}" @click="radioFlag=1">男</span>
+                    <span class="radio" :class="{'active-radio':radioFlag===2}" @click="radioFlag=2">女</span>
+                    <span class="radio" :class="{'active-radio':radioFlag===0}" @click="radioFlag=0">保密</span>
+                </div>
             </div>
             <div class="content">
                 <span class="label">出生日期:</span>
@@ -36,132 +29,55 @@
             </div>
         </div>
         <div class="btn-container">
-             <button v-debounce @click="submitChange">保存</button>
+             <button v-debounce :disabled="saving" @click="submitChange">{{ saving ? "保存中..." : "保存" }}</button>
         </div>
     </div>
   </template>
   
 <script setup>
 import { useGlobalStore } from "@/store/store";
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { ElMessage } from "element-plus";
-import { putUserInfo } from "@/api/user/index";
+import { updateAccount } from "@/api/user/index";
 
 const store = useGlobalStore();
-const password = ref("");
-const newPassword = ref("");
-const radioFlag = ref(store.userInformation.gender);//0保密 1男 2女
-
-watch(() => store.userInformation.userName, () => {
-    store.userInformation.userName=store.userInformation.userName.trim();
-})
-
-watch(password, () => {
-    password.value=password.value.trim();
-})
-
-watch(newPassword, () => {
-    newPassword.value=newPassword.value.trim();
-})
-
-//检验手机号
-function formatPhone(event) {
-  const rawValue = event.target.value;
-  const numericValue = rawValue.replace(/\D/g, ''); // 只保留数字
-  store.userInformation.phone = numericValue;
-}
-
+const radioFlag = ref(store.userInformation.gender ?? 0);//0保密 1男 2女
 
 //提交修改
-let submitFlag = true;
-function submitChange() {
-    if(!submitFlag){
-        ElMessage({
-        message: "提交频繁，请稍后再试",
-        type: "warning",
-        duration: 1700,
-        });
-        return;
-    }
-    submitFlag = false;
-    if (store.userInformation.userName.trim() === "") {
-        ElMessage({
-        message: "昵称不能为空",
-        type: "warning",
-        duration: 1700,
-        });
-        return;
-    }
-    if (password.value.trim() !== "" && newPassword.value.trim() === "") {
-        ElMessage({
-        message: "请输入新密码",
-        type: "warning",
-        duration: 1700,
-        });
-        return;
-    }
-    if (password.value.trim() !== "" && newPassword.value.trim() !== "") {
-        if (password.value.trim() === newPassword.value.trim()) {
-            ElMessage({
-            message: "新密码不能与旧密码相同",
-            type: "warning",
-            duration: 1700,
-            });
-            return;
-        }
-        if (password.value.trim().length < 4 || newPassword.value.trim().length < 4) {
-            ElMessage({
-            message: "密码长度不能小于4位",
-            type: "warning",
-            duration: 1700,
-            });
-            return;
-        }
-    }
-    if (store.userInformation.phone.trim() === "") {
-        ElMessage({
-        message: "手机号不能为空",
-        type: "warning",
-        duration: 1700,
-        });
-        return;
-    }
-    if(store.userInformation.phone.trim().length!==11){
-        ElMessage({
-        message: "手机号不足11位",
-        type: "warning",
-        duration: 1700,
-        });
-        return;
-    }
-    store.userInformation.gender = radioFlag.value;
-    const date = new Date(store.userInformation.birthday);
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    store.userInformation.birthday = `${y}-${m}-${d}`;
-    store.userInformation.password1 = password.value.trim();
-    store.userInformation.newPassword = newPassword.value.trim();
-    store.userInformation.control=1;
+const saving = ref(false);
+function formatBirthday(value) {
+    if (!value) return null;
+    if (typeof value === "string") return value.slice(0, 10);
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, "0");
+    const day = String(value.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
 
-    putUserInfo(store.token, store.userInformation).then(res => {
-        if (res.data.code === 1) {
-            ElMessage({
-            message: "修改成功",
-            type: "success",
-            duration: 1700,
-            });
-        }else{
-            ElMessage({
-            message: res.data.msg,
-            type: "warning",
-            duration: 1700,
-            });
-        }
-    });
-    setTimeout(() => {
-       submitFlag = true;
-    }, 5000);
+async function submitChange() {
+    if (saving.value) return;
+    const nickname = store.userInformation.userName?.trim();
+    if (!nickname) {
+        ElMessage.warning("昵称不能为空");
+        return;
+    }
+
+    saving.value = true;
+    try {
+        await updateAccount(store.token, {
+            nickname,
+            signature: store.userInformation.introduce || "",
+            gender: radioFlag.value,
+            birthday: formatBirthday(store.userInformation.birthday),
+        });
+        store.userInformation.userName = nickname;
+        store.userInformation.gender = radioFlag.value;
+        ElMessage.success("修改成功");
+    } catch (error) {
+        ElMessage.error(error.message || "保存个人信息失败");
+    } finally {
+        saving.value = false;
+    }
 }
 
 
@@ -176,53 +92,51 @@ function submitChange() {
 }
 
 .account-user-info{
-min-height: 500px;
+min-height: 100%;
 
 .title{
 display: block;
 width: 100%;
-height: 50px;
-line-height: 50px;
+min-height: 50px;
+line-height: 1.4;
 font-size: 14px;
 color: #1C2321;
 cursor: default;
 text-align: left;
-padding-left: 30px;
+padding: 17px 30px;
 color: #0E9C85;
 border-bottom: 1px solid #ddd;
+display: flex;
+align-items: center;
 
     span{
-    float: left;
+    flex: none;
     width: 4px;
     height: 16px;
-    margin-top: 18px;
     background-color: #0E9C85;
     border-radius: 4px;
     margin-right: 5px;
     }
 }
 .user-info{
-padding: 20px 20px 0;
+padding: 24px clamp(16px, 4vw, 40px) 0;
 position: relative;
     .content{
-        margin-bottom: 22px;
-        display: flex;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        gap: 10px 0;
+        margin-bottom: 20px;
+        display: grid;
+        grid-template-columns: minmax(95px, 115px) minmax(0, 1fr);
+        align-items: start;
+        gap: 10px 16px;
         .label{
-        width: 95px;
-        flex: 0 0 95px;
         text-align: right;
-        margin-right: 20px;
         line-height: 30px;
         font-size: 14px;
         color: #606266;
         }
         input{
-        width: 225px;
+        width: min(100%, 420px);
+        min-width: 0;
         height: 30px;
-        margin-right: 40px;
         background-color: #fff;
         background-image: none;
         border-radius: 4px;
@@ -239,7 +153,8 @@ position: relative;
         border-color: #409eff;
         }
         textarea{
-        width: min(618px, calc(100% - 115px));
+        width: min(100%, 618px);
+        min-width: 0;
         height: 88px;
         resize: none;
         display: block;
@@ -256,9 +171,14 @@ position: relative;
         textarea:focus{
         border-color: #409eff;
         }
+        .radio-options{
+        min-width: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 12px;
+        }
         .radio{
         font-size: 14px;    
-        margin-right: 20px;
         padding: 5px 8px;
         color: #717171;
         border: 1px solid #bfcbd9;
@@ -277,12 +197,16 @@ position: relative;
     }
 }
 .btn-container{
-    position: relative;
-    height: 70px;
+    display: flex;
+    justify-content: center;
+    padding: 28px 16px 32px;
 
     button{
     width: 110px;
-    display: inline-block;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     line-height: 1;
     cursor: pointer;
     border: 1px solid #0E9C85;
@@ -295,52 +219,54 @@ position: relative;
     padding: 12px 20px;
     font-size: 14px;
     border-radius: 4px;
-    position: absolute;
     transition: all .3s ease;
-    top: 90%;
-    left: 50%;
     color: #fff;
-    transform: translate(-50%, -50%);
     background-color: #0E9C85;
     }
     button:hover{
         background-color: #19AC96;
         transition: all 0.3s ease;
 }
+    button:disabled{
+        cursor: wait;
+        opacity: .7;
+    }
 }
 
 }
 
 @media (max-width: 720px){
     .account-user-info{
-        min-height: auto;
-
         .title{
-            padding-left: 18px;
+            padding: 15px 18px;
         }
 
         .user-info{
-            padding: 18px 14px 0;
+            padding: 20px 16px 0;
 
             .content{
-                flex-direction: column;
+                grid-template-columns: minmax(0, 1fr);
                 gap: 8px;
 
                 .label{
                     width: auto;
-                    flex-basis: auto;
                     text-align: left;
-                    margin-right: 0;
                     line-height: 22px;
                 }
 
                 input,
                 textarea{
                     width: 100%;
-                    margin-right: 0;
                 }
             }
         }
+    }
+}
+
+@media (max-width: 380px){
+    .account-user-info .user-info{
+        padding-right: 12px;
+        padding-left: 12px;
     }
 }
 

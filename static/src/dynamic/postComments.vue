@@ -32,7 +32,23 @@
             <el-dropdown-item class="is-danger" :disabled="busy.has(comment.id)" @click="remove(comment)">删除</el-dropdown-item>
           </ContentMoreMenu>
         </header>
-        <small v-if="comment.replyToNickname">回复 @{{ comment.replyToNickname }}</small>
+        <small v-if="comment.replyToNickname" class="reply-target">
+          <span>回复</span>
+          <UserHoverCard
+            v-if="getReplyTarget(comment, root)"
+            :user-id="getReplyTarget(comment, root).userId"
+            :avatar="getReplyTarget(comment, root).avatar"
+            :nickname="comment.replyToNickname"
+            :avatar-size="14"
+          >
+            <template #reference>
+              <a class="reply-target-link" :href="`/home?userId=${getReplyTarget(comment, root).userId}`" target="_blank" rel="noopener noreferrer">
+                @{{ comment.replyToNickname }}
+              </a>
+            </template>
+          </UserHoverCard>
+          <span v-else class="reply-target-name">@{{ comment.replyToNickname }}</span>
+        </small>
         <richContent :content="comment.content"/>
         <div v-if="comment.imageUrls?.length" class="comment-images">
           <el-image v-for="image in comment.imageUrls" :key="image" :src="image" :preview-src-list="comment.imageUrls" preview-teleported fit="cover"/>
@@ -121,6 +137,22 @@ const busy = ref(new Set());
 let generation = 0;
 function setReplyInput(el) {
   if (el) replyInput.value = el;
+}
+function getReplyTarget(comment, root) {
+  const replies = root.replies || [];
+  const targetId = comment.replyToId ?? comment.replyCommentId;
+  const targetComment = [root, ...replies].find(
+    (item) => targetId != null && String(item.id) === String(targetId),
+  ) || [root, ...replies].find(
+    (item) => item.authorNickname === comment.replyToNickname,
+  );
+  const userId = targetComment?.authorId ?? comment.replyToUserId ?? comment.replyToAuthorId;
+  if (!userId) return null;
+
+  return {
+    userId: Number(userId),
+    avatar: targetComment?.authorAvatar ?? comment.replyToAvatar ?? comment.replyToAvatarAddress ?? '',
+  };
 }
 function signedIn() {
   if (store.token) return true;
@@ -265,9 +297,15 @@ h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; f
 .attachments > div { width: 90px; }
 .el-image { width: 90px; max-width: 100%; height: 90px; border-radius: 10px; }
 .attachments .el-button { margin: 0; font-size: 12px; }
-.comment { min-width: 0; padding: 24px 0; border-bottom: 1px solid var(--line); }
+.comment { min-width: 0; margin-left: 24px; padding: 20px 0; border-bottom: 1px solid var(--line); }
 .comment article { min-width: 0; }
-.reply { margin: 18px 0 0 40px; padding-left: 16px; border-left: 2px solid #edf2ef; }
+.reply { margin: 14px 0 0; padding-left: 12px; border-left: 2px solid #edf2ef; }
+.reply-target { display: flex; align-items: center; gap: 5px; width: fit-content; max-width: 100%; margin: 10px 0 4px; color: var(--ink-3); font-size: 12px; line-height: 1.5; }
+.reply-target :deep(.user-hover) { display: inline-flex; }
+.reply-target-link,
+.reply-target-name { border-radius: 4px; color: var(--brand-hover); font-weight: 500; text-decoration: none; transition: color .18s ease, background-color .18s ease; }
+.reply-target-link { padding: 1px; }
+.reply-target + :deep(.rich-content) { margin-top: 4px; }
 header a { display: flex; align-items: center; gap: 10px; min-width: 0; max-width: 100%; color: inherit; text-decoration: none; font-size: 13px; font-weight: 500; }
 header a span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 header img { flex: none; width: 32px; height: 32px; border-radius: 10px; object-fit: cover; }
@@ -283,7 +321,8 @@ footer .el-button { height: 34px; margin: 0; padding: 0 10px; border-radius: 8px
 @media (max-width: 640px) {
   .discussion { padding: 16px; border-radius: 16px; }
   .heading { gap: 10px; padding-bottom: 14px; }
-  .reply { margin-left: 12px; padding-left: 12px; }
+  .comment { margin-left: 12px; padding: 18px 0; }
+  .reply { padding-left: 10px; }
   header { gap: 8px; }
   time { margin-left: 42px; }
 }

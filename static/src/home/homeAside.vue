@@ -1,4 +1,11 @@
 <template>
+    <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+      <defs>
+        <filter id="homeAsideIconBrand" color-interpolation-filters="sRGB">
+          <feColorMatrix type="matrix" values="0 0 0 0 0.0588235  0 0 0 0 0.6509804  0 0 0 0 0.5568627  0 0 0 1 0" />
+        </filter>
+      </defs>
+    </svg>
     <nav class="home-aside" aria-label="个人空间导航">
         <div class="home-aside-logo">
            <div class="left">
@@ -281,14 +288,19 @@ watch(()=>store.homeMenu,()=>{
             span{
                 color: #0FA68E;
             }
+            img{
+                filter: url(#homeAsideIconBrand);
+            }
         }
         span.is-on{
-            font-weight: bold;
             span{
                 color: #0FA68E;
             }
             .num{
                 color: #0FA68E;
+            }
+            img{
+                filter: url(#homeAsideIconBrand);
             }
         }
     }

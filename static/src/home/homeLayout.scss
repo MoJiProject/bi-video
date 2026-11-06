@@ -35,11 +35,14 @@
     .home-aside-logo { flex-direction: column; align-items: stretch; min-width: 0; gap: 14px; padding-top: 20px; padding-bottom: 0; }
     .home-aside-logo .left { flex: auto; gap: 12px; margin: 0; padding: 10px 14px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
     .home-aside-logo .left .left-part1 { flex: 1; gap: 4px; padding: 2px 0 6px; scrollbar-width: thin; }
-    .home-aside-logo .left .left-part1 > span { gap: 6px; min-height: 44px; height: auto; margin: 0; padding: 10px 12px; border-radius: 10px; }
-    .home-aside-logo .left .left-part1 > span span { margin: 0; font-size: 14px; color: var(--ink-2); }
+    .home-aside-logo .left .left-part1 > span { gap: 6px; min-height: 44px; height: auto; margin: 0; padding: 10px 12px; border-radius: 10px; transition: background-color 0.2s ease; }
+    .home-aside-logo .left .left-part1 > span span { margin: 0; font-size: 14px; color: var(--ink-2); transition: color 0.2s ease; }
+    .home-aside-logo .left .left-part1 > span:hover span { color: var(--brand-hover); }
+    .home-aside-logo .left .left-part1 > span:hover img { filter: url(#homeAsideIconBrand); }
     .home-aside-logo .left .left-part1 > span .num { padding: 2px 5px; border-radius: 5px; background: var(--fill-soft); font-size: 11px; }
-    .home-aside-logo .left .left-part1 > span.is-on { background: var(--brand-light-9); font-weight: 600; }
+    .home-aside-logo .left .left-part1 > span.is-on { background: var(--brand-light-9); }
     .home-aside-logo .left .left-part1 > span.is-on span { color: var(--brand-hover); }
+    .home-aside-logo .left .left-part1 > span.is-on img { filter: url(#homeAsideIconBrand); }
     .home-aside-logo .left .line { height: 2px; background: var(--brand); }
     .home-aside-logo .left .search-box { width: clamp(160px, 14vw, 230px); height: 38px; margin: 0; }
     .home-aside-logo .left .search-box .left-part2 { width: 100%; height: 38px; border-radius: 10px; background: var(--fill-soft); color: var(--ink); font-size: 12px; }

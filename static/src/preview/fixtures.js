@@ -230,7 +230,7 @@ export const comments = profiles.slice(1, 3).map((author, index) => ({
   pinned: false,
   liked: false,
   disliked: false,
-  replyCount: index === 0 ? 1 : 0,
+  replyCount: index === 0 ? 2 : 0,
   replies:
     index === 0
       ? [
@@ -246,6 +246,24 @@ export const comments = profiles.slice(1, 3).map((author, index) => ({
             imageUrls: [],
             createdAt: "2026-10-21T13:00:00",
             likeCount: 2,
+            pinned: false,
+            replyCount: 0,
+            replies: [],
+          },
+          {
+            id: 304,
+            videoId: 101,
+            authorId: profiles[2].userId,
+            authorNickname: profiles[2].nickname,
+            authorAvatar: profiles[2].avatarUrl,
+            authorLevel: profiles[2].level,
+            rootId: 301,
+            replyToId: 303,
+            replyToNickname: profiles[0].nickname,
+            content: "补充回复上一条回复，这就是一条楼中楼示例。",
+            imageUrls: [],
+            createdAt: "2026-10-21T13:12:00",
+            likeCount: 1,
             pinned: false,
             replyCount: 0,
             replies: [],

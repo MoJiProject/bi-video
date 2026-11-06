@@ -2017,7 +2017,7 @@
     visibility: visible;
     opacity: 0;
     pointer-events: none;
-    z-index: 5;
+    z-index: 1000;
     transform: none;
     cursor: pointer;
     transition: opacity .2s ease, background-color .2s ease, transform .2s ease;
@@ -2066,7 +2066,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding: 20px 24px calc(var(--chrome-height) + 20px);
+    padding: 20px 24px;
     box-sizing: border-box;
     background: #000;
     overflow: auto;
@@ -2079,7 +2079,7 @@
 
   /* 全屏外壳：更深的沉浸底色 + 更大的呼吸空间 */
   .autoPlayVideoContainer.autoPlayVideoContainer1 {
-    padding: 36px 48px calc(var(--chrome-height) + 32px);
+    padding: 36px 48px;
     background: #000;
   }
 
@@ -2091,7 +2091,6 @@
       transform: none;
 
       .auto-play-video-header {
-        flex-wrap: nowrap;
         .auto-play-video-avatar {
           flex: 0 0 auto;
           width: 48px;
@@ -2131,17 +2130,41 @@
 
       .auto-play-video-body {
         transform: none;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 18px;
       }
-      /* 全屏 8 条全部显示（撤销非全屏的条数隐藏） */
-      .auto-play-video-body > .auto-play-video-item:nth-child(n + 5) {
-        display: block;
-      }
-      /* 全屏窄容器（如小窗口网页全屏）回落 3 列，避免卡片过挤 */
       @container (max-width: 999px) {
         .auto-play-video-body {
           grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        .auto-play-video-body > .auto-play-video-item:nth-child(n + 14) {
+          display: none;
+        }
+      }
+      @container (max-width: 700px) {
+        .auto-play-video-body {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
+        }
+        .auto-play-video-body > .auto-play-video-item:nth-child(n + 11) {
+          display: none;
+        }
+      }
+      @container (max-width: 560px) {
+        .auto-play-video-body {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .auto-play-video-body > .auto-play-video-item:nth-child(n + 8) {
+          display: none;
+        }
+        :deep(.auto-play-video-item) {
+          max-width: 240px;
+          justify-self: center;
+        }
+      }
+      @container (max-height: 900px) {
+        .auto-play-video-body > .auto-play-video-item:nth-child(n + 12) {
+          display: none;
         }
       }
       .auto-play-video-body-video-recommend {
@@ -2261,6 +2284,19 @@
     justify-content: flex-end;
     align-items: center;
     gap: 18px;
+  }
+
+  @container (max-width: 620px) {
+    .autoPlayVideoContainer1 > :deep(.auto-play-video-container.into-video-all-display-ing .auto-play-video-header) {
+      flex-wrap: wrap;
+      row-gap: 8px;
+      justify-content: center;
+    }
+    .autoPlayVideoContainer1 > :deep(.auto-play-video-container.into-video-all-display-ing .auto-play-video-header > .auto-play-video-operation) {
+      flex: 0 0 100%;
+      justify-content: center;
+      gap: 50px;
+    }
   }
 
   :deep(.auto-play-video-header > img),
@@ -2428,6 +2464,7 @@
       :deep(.auto-play-video-header > .auto-play-video-operation) {
         flex-basis: 100%;
         justify-content: center;
+        gap: 50px;
       }
       /* 两行头部：弹窗仍锚定第二行操作组下方，小屏整体居中、收小限高 */
       :deep(.auto-play-video-container .auto-play-video-operation > .video-share-container) {
@@ -2776,6 +2813,7 @@
     :deep(.auto-play-video-header > .auto-play-video-operation) {
       flex-basis: 100%;
       justify-content: center;
+      gap: 50px;
     }
     /* 两行头部：弹窗仍锚定第二行操作组下方，小屏整体居中、收小限高 */
     :deep(.auto-play-video-container .auto-play-video-operation > .video-share-container) {
