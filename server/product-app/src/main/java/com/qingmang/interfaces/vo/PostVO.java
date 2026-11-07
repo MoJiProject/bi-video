@@ -17,6 +17,7 @@ public class PostVO {
     private Long videoId;
     private String videoTitle;
     private String videoCover;
+    private String playUrl;
     private Integer videoDuration;
     private String videoDescription;
     private Long videoPlayCount;

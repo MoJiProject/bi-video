@@ -21,4 +21,10 @@ public class MediaController {
         if ("avatar".equals(category) || "background".equals(category)) auth.updateMedia(userId, category, url);
         return ApiResponse.ok(Map.of("url", url));
     }
+    @DeleteMapping
+    public ApiResponse<Void> delete(@RequestParam String url) {
+        Long userId = AuthContext.requireUserId();
+        media.delete(url, userId);
+        return ApiResponse.ok();
+    }
 }

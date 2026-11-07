@@ -11,6 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -21,6 +24,9 @@ import java.util.Set;
 
 @Service
 public class PublishingService {
+    private static final DateTimeFormatter DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     private final JdbcTemplate jdbc;
     private final MediaStorageService media;
     private final AuthService auth;
@@ -211,11 +217,22 @@ public class PublishingService {
         int seconds = number(row.get("duration_seconds"));
         v.put("videoTime", "%02d:%02d".formatted(seconds / 60, seconds % 60));
         Object created = row.get("created_at");
-        v.put("createTime", created == null ? null : created.toString().replace("T", " "));
+        v.put("createTime", formatDateTime(created));
         for (String[] pair : List.of(new String[]{"playNumber","play_count"}, new String[]{"likeNumber","like_count"},
                 new String[]{"commentNumber","comment_count"}, new String[]{"collectNumber","favorite_count"},
                 new String[]{"shareNumber","share_count"}, new String[]{"scrollingNumber","danmaku_count"})) v.put(pair[0], row.get(pair[1]));
         return v;
+    }
+
+    private static String formatDateTime(Object value) {
+        if (value == null) return null;
+        if (value instanceof Timestamp timestamp) {
+            return timestamp.toLocalDateTime().format(DATE_TIME_FORMATTER);
+        }
+        if (value instanceof LocalDateTime dateTime) {
+            return dateTime.format(DATE_TIME_FORMATTER);
+        }
+        throw new IllegalStateException("Unexpected created_at type: " + value.getClass().getName());
     }
 
     private static int number(Object value) {

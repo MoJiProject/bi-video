@@ -10,6 +10,7 @@ public class VideoListItemVO {
     private Long id;
     private String title;
     private String coverUrl;
+    private String playUrl;
     private Integer durationSeconds;
     private LocalDateTime publishedAt;
 

@@ -170,7 +170,7 @@
             <circle cx="12" cy="8" r="4" /><path d="M4 21v-2a8 8 0 0 1 16 0v2" />
           </svg>
           <span class="header-menu-label">我的空间</span>
-          <span v-if="store.userInformation?.allMessageNumber > 0" class="workspace-unread" aria-label="有未读消息"></span>
+          <span v-if="store.userInformation?.allMessageNumber > 0 || store.userInformation?.dynamicNumber > 0" class="workspace-unread" aria-label="有未读消息"></span>
           <span class="menu-chevron" aria-hidden="true"></span>
         </button>
         <div v-show="activeMenu === 'workspace'" class="workspace-panel">
@@ -1537,7 +1537,7 @@ import {
   fetchHistory,
   toggleWatchLater,
 } from "../services/headerPanels";
-import { authApi, fetchPublishingCategories } from "../api/product";
+import { authApi, socialApi, fetchPublishingCategories } from "../api/product";
 import { mapUser } from "../api/home/user";
 import { getToken, setToken } from "../services/http";
 import { forgetPassword } from "../services/account";
@@ -2202,6 +2202,12 @@ flag.value = 1;
         if (applyAuthUser(me)) {
           dynamics.length = 0;
           await getDynamicAxiso();
+          try {
+            const page = await socialApi.authors({});
+            const unread = (page?.records || []).reduce((sum, a) => sum + Number(a.unreadCount || 0), 0);
+            store.userInformation = { ...store.userInformation, dynamicNumber: unread };
+            store.setUserInformation(store.userInformation);
+          } catch (e) {}
           await getNewFansNumberAxiso();
           await selectCollect();
           if(collectDtoList.length!==0)
@@ -2289,8 +2295,14 @@ flag.value = 1;
       dynamicss.length = 0;
       notHistoryDynamic.length = 0;
       notWatchDynamicFlag.value = false;
-      await getDynamicAxiso();
-      await refreshUser();
+       await getDynamicAxiso();
+       await refreshUser();
+       try {
+         const page = await socialApi.authors({});
+         const unread = (page?.records || []).reduce((sum, a) => sum + Number(a.unreadCount || 0), 0);
+         store.userInformation = { ...store.userInformation, dynamicNumber: unread };
+         store.setUserInformation(store.userInformation);
+       } catch (e) {}
     }
 
     //查询所有收藏

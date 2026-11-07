@@ -117,7 +117,7 @@
           style="width: 10px; transform: rotate(180deg)"
         />
       </div>
-      <div v-show="fireSearch.length === 10" class="searchContent">
+      <div v-show="fireSearch.length > 0" class="searchContent">
         <div class="box-title">
           qingmang热搜
         </div>
@@ -195,6 +195,7 @@ export default {
     const imgFlag2 = ref(false);
     const showMore = ref(false);
     const placeholderWord=ref(null);
+let placeholderWordTimer;
     const showFewerFlag = ref(false);
     const fireSearch = reactive([]);
     const keyWord = reactive([]);
@@ -218,19 +219,22 @@ export default {
       getBoxHeight();
       document.addEventListener("scroll",handleScroll);
 
-        setTimeout(() => {
-          placeholderWord.value = props.handleUrlChange ? "输入关键字搜索" : store.placeholderWord;
-          if(!placeholderWord.value)
-            getPlaceholder();
-        }, 200);
+       setTimeout(() => {
+           placeholderWord.value = props.handleUrlChange ? "输入关键字搜索" : store.placeholderWord;
+           if(!placeholderWord.value)
+             getPlaceholder();
+           placeholderWordTimer = setInterval(() => {
+             if (!props.handleUrlChange && !Content.value) getPlaceholder();
+           }, 30000);
+         }, 200);
 
     });
 
-    onBeforeUnmount(() => {
-      document.removeEventListener("mousedown", handleClickInside);
-      document.removeEventListener("scroll",handleScroll);
-
-    });
+       onBeforeUnmount(() => {
+         document.removeEventListener("mousedown", handleClickInside);
+         window.removeEventListener("scroll",handleScroll);
+         clearInterval(placeholderWordTimer);
+       });
 
     function saveSearchContent() {
       if (Content.value.length > 0) {
@@ -333,7 +337,7 @@ export default {
       try {
         const list = await searchApi.hot(10);
         fireSearch.length = 0;
-        list.forEach((k) => fireSearch.push(k.keyword));
+        list.forEach((k) => fireSearch.push({ word: k.keyword }));
       } catch (error) { ElMessage.error(error.message); }
     }
     //获取关键字
@@ -413,8 +417,17 @@ async function selectKeyWord(Value) {
 
 //获取placeholder
       async function getPlaceholder(){
-        // 新后端没有随机占位词接口，固定用品牌标语
-        placeholderWord.value = "分享每一次观看";
+        try {
+          const list = await searchApi.hot(50);
+          if (list?.length) {
+            const pick = list[Math.floor(Math.random() * list.length)];
+            placeholderWord.value = pick?.keyword || pick?.word || "分享每一次观看";
+          } else {
+            placeholderWord.value = "分享每一次观看";
+          }
+        } catch (error) {
+          placeholderWord.value = "分享每一次观看";
+        }
       }
 
 
@@ -607,6 +620,38 @@ async function selectKeyWord(Value) {
   overflow-x: hidden;
   overflow-y: auto;
   transform: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(92, 102, 100, .32) transparent;
+}
+
+.box::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.box::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.box::-webkit-scrollbar-thumb {
+  min-height: 32px;
+  border-radius: 999px;
+  background: rgba(92, 102, 100, .32);
+}
+
+.box::-webkit-scrollbar-thumb:hover {
+  background: rgba(92, 102, 100, .52);
+  transition: all 0.3s ease;
+}
+
+.box::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.box::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 .box-title {

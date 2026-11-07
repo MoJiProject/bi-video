@@ -19,7 +19,7 @@
       </PostEditor>
       <div v-if="images.length" class="attachments">
         <div v-for="(image, index) in images" :key="image"><el-image :src="image" :preview-src-list="images" preview-teleported fit="cover"/>
-          <el-button text type="danger" @click="images.splice(index, 1)">移除</el-button></div>
+          <el-button text type="danger" @click="URL.revokeObjectURL(images[index]); images.splice(index, 1); imageFiles.splice(index, 1)">移除</el-button></div>
       </div>
     </form>
     <div v-for="root in rows" :key="root.id" class="comment">
@@ -84,7 +84,7 @@
           <div v-if="replyImages.length" class="attachments">
             <div v-for="(image, index) in replyImages" :key="image">
               <el-image :src="image" :preview-src-list="replyImages" preview-teleported fit="cover"/>
-              <el-button text type="danger" @click="replyImages.splice(index, 1)">移除</el-button>
+              <el-button text type="danger" @click="URL.revokeObjectURL(replyImages[index]); replyImages.splice(index, 1); replyImageFiles.splice(index, 1)">移除</el-button>
             </div>
           </div>
         </div>
@@ -102,7 +102,7 @@
 import { nextTick, onUnmounted, ref, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { commentApi } from '@/api/product';
-import { post } from '@/services/http';
+import { post, del } from '@/services/http';
 import { useGlobalStore } from '@/store/store';
 import richContent from '@/components/richContent.vue';
 import ContentMoreMenu from '@/components/ContentMoreMenu.vue';
@@ -124,11 +124,13 @@ const loadError = ref('');
 const content = ref('');
 const contentLength = ref(0);
 const images = ref([]);
+const imageFiles = ref([]);
 const activeReplyId = ref(null);
 const replyInput = ref(null);
 const replyContent = ref('');
 const replyContentLength = ref(0);
 const replyImages = ref([]);
+const replyImageFiles = ref([]);
 const replyUploading = ref(false);
 const replySending = ref(false);
 const sending = ref(false);
@@ -198,57 +200,77 @@ async function uploadReply(event) {
   if (!signedIn()) { event.target.value = ''; return; }
   const files = Array.from(event.target.files);
   if (files.length + replyImages.value.length > 9) { ElMessage.warning('最多 9 张图片'); event.target.value = ''; return; }
-  replyUploading.value = true;
-  try {
-    for (const file of files) {
-      const body = new FormData(); body.append('file', file);
-      const image = await post('/media/image', body);
-      replyImages.value.push(image.url);
-    }
-  } catch (error) { ElMessage.error(error.message); }
-  finally { replyUploading.value = false; event.target.value = ''; }
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) { ElMessage.warning('请上传图片'); continue; }
+    if (file.size > 10 * 1024 * 1024) { ElMessage.warning('图片大小不能超过10M'); continue; }
+    const url = URL.createObjectURL(file);
+    replyImages.value.push(url);
+    replyImageFiles.value.push(file);
+  }
+  event.target.value = '';
 }
 async function sendReply(target) {
   if (!signedIn() || replySending.value) return;
   if (!replyContentLength.value && !replyImages.value.length) { ElMessage.warning('请输入评论内容'); return; }
   if (replyContent.value.length > 1000) { ElMessage.warning('评论内容（含表情和 @ 用户）过长，请适当缩短'); return; }
   replySending.value = true;
+  replyUploading.value = true;
+  let uploaded = [];
   try {
-    const finalContent = replyContent.value || (replyImages.value.length ? '分享图片' : '');
-    await commentApi.create({ postId: props.postId, content: finalContent, imageUrls: replyImages.value, rootId: target.id });
-    replyContent.value = ''; replyContentLength.value = 0; replyImages.value = []; replyUploading.value = false; activeReplyId.value = null;
+    uploaded = [];
+    for (const file of replyImageFiles.value) {
+      const body = new FormData(); body.append('file', file);
+      const image = await post('/media/image', body);
+      uploaded.push(image.url);
+    }
+    const finalContent = replyContent.value || (uploaded.length ? '分享图片' : '');
+    await commentApi.create({ postId: props.postId, content: finalContent, imageUrls: uploaded, rootId: target.id });
+    replyImages.value.forEach(url => URL.revokeObjectURL(url));
+    replyContent.value = ''; replyContentLength.value = 0; replyImages.value = []; replyImageFiles.value = []; replyUploading.value = false; activeReplyId.value = null;
     await reload();
     ElMessage.success('回复发布成功');
-  } catch (error) { ElMessage.error(error.message); }
-  finally { replySending.value = false; }
+  } catch (error) {
+    for (const url of uploaded) { try { await del('/media', { params: { url } }); } catch (e) {} }
+    ElMessage.error(error.message);
+  } finally { replySending.value = false; replyUploading.value = false; }
 }
 async function upload(event) {
   if (!signedIn()) { event.target.value = ''; return; }
   const files = Array.from(event.target.files);
   if (files.length + images.value.length > 9) { ElMessage.warning('最多 9 张图片'); event.target.value = ''; return; }
-  uploading.value = true;
-  try {
-    for (const file of files) {
-      const body = new FormData(); body.append('file', file);
-      const image = await post('/media/image', body);
-      images.value.push(image.url);
-    }
-  } catch (error) { ElMessage.error(error.message); }
-  finally { uploading.value = false; event.target.value = ''; }
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) { ElMessage.warning('请上传图片'); continue; }
+    if (file.size > 10 * 1024 * 1024) { ElMessage.warning('图片大小不能超过10M'); continue; }
+    const url = URL.createObjectURL(file);
+    images.value.push(url);
+    imageFiles.value.push(file);
+  }
+  event.target.value = '';
 }
 async function send() {
   if (!signedIn() || sending.value || uploading.value) return;
-  if (!contentLength.value) { ElMessage.warning('请输入评论内容'); return; }
-  const body = content.value;
-  if (body.length > 1000) { ElMessage.warning('评论内容（含表情和 @ 用户）过长，请适当缩短'); return; }
+  if (!contentLength.value && !images.value.length) { ElMessage.warning('请输入评论内容'); return; }
+  if (content.value.length > 1000) { ElMessage.warning('评论内容（含表情和 @ 用户）过长，请适当缩短'); return; }
   sending.value = true;
+  uploading.value = true;
+  let uploaded = [];
   try {
-    await commentApi.create({ postId: props.postId, content: body, imageUrls: images.value, rootId: null });
-    content.value = ''; images.value = [];
+    uploaded = [];
+    for (const file of imageFiles.value) {
+      const body = new FormData(); body.append('file', file);
+      const image = await post('/media/image', body);
+      uploaded.push(image.url);
+    }
+    const body = content.value;
+    await commentApi.create({ postId: props.postId, content: body || (uploaded.length ? '分享图片' : ''), imageUrls: uploaded, rootId: null });
+    images.value.forEach(url => URL.revokeObjectURL(url));
+    content.value = ''; images.value = []; imageFiles.value = [];
     await reload();
     ElMessage.success('评论发布成功');
-  } catch (error) { ElMessage.error(error.message); }
-  finally { sending.value = false; }
+  } catch (error) {
+    for (const url of uploaded) { try { await del('/media', { params: { url } }); } catch (e) {} }
+    ElMessage.error(error.message);
+  } finally { sending.value = false; uploading.value = false; }
 }
 async function like(comment, dislike) {
   if (!signedIn()) return;

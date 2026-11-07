@@ -1,5 +1,6 @@
 <template>
   <router-view class="router-view"/>
+  <el-backtop :right="24" />
   <component v-if="$offlinePreview" :is="'OfflinePreviewToolbar'"/>
   <GlobalMentionHoverCard />
 </template>

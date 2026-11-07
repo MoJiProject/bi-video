@@ -64,7 +64,7 @@
               <el-button v-if="form.imageUrl" :disabled="uploading || submitting || cropDialogVisible || !!pendingUploadOptions"
                 @click="openExistingImageCrop">裁剪</el-button>
             </div>
-            <span class="field-tip">支持JPG、PNG、GIF，最大10MB；上传后可拖动图片选取首页显示范围（24:5），建议使用清晰的大图。GIF裁剪后会转为静态图片。</span>
+            <span class="field-tip">支持JPG、PNG、GIF，最大10MB；上传后可拖动图片选取首页显示范围（24:4），建议使用清晰的大图。GIF裁剪后会转为静态图片。</span>
           </div>
         </el-form-item>
         <el-form-item label="内容（选填）">
@@ -88,7 +88,8 @@
     </el-dialog>
     <el-dialog v-model="cropDialogVisible" class="sys-dialog banner-crop-dialog" title="选择Banner显示范围"
       width="min(640px, calc(100vw - 24px))" align-center :close-on-click-modal="false"
-      :show-close="!uploading" :close-on-press-escape="!uploading" @closed="handleCropClosed">
+      :show-close="!uploading" :close-on-press-escape="!uploading" @opened="initializeCropViewport"
+      @closed="handleCropClosed">
       <div class="crop-instructions">拖动图片调整显示位置，使用滑块缩放。框内区域会按首页横幅比例裁剪；GIF将转为静态图片。</div>
       <div ref="cropViewportRef" class="crop-viewport" @pointerdown="startCropDrag"
         @pointermove="moveCropDrag" @pointerup="endCropDrag" @pointercancel="endCropDrag">
@@ -105,7 +106,7 @@
       <template #footer>
         <el-button :disabled="uploading" @click="cropDialogVisible = false">取消</el-button>
         <el-button type="primary" :loading="uploading" :disabled="!cropHasEnoughResolution"
-          @click="confirmCrop">裁剪并上传</el-button>
+          @click="confirmCrop">裁剪</el-button>
       </template>
     </el-dialog>
   </div>
@@ -133,12 +134,17 @@ const cropViewportRef = ref(null);
 const cropImageRef = ref(null);
 const cropImageSource = ref("");
 const cropImageSize = reactive({ width: 0, height: 0 });
+const bannerAspectRatio = 6;
+const cropOutputWidth = 1920;
+const minCropWidth = 1280;
 const cropViewportWidth = ref(0);
 const cropViewportHeight = ref(0);
 const cropZoom = ref(1);
 const cropOffset = reactive({ x: 0, y: 0 });
 let pendingUploadOptions = null;
 let pendingOriginalImageUrl = "";
+let pendingOriginalFile = null;
+let pendingCroppedFile = null;
 let cropOutputType = "image/jpeg";
 let dragStart = null;
 const form = reactive({
@@ -171,15 +177,17 @@ const cropSourceRect = computed(() => {
     height: cropViewportHeight.value / scale,
   };
 });
+const cropOutputHeight = cropOutputWidth / bannerAspectRatio;
+const minCropHeight = minCropWidth / bannerAspectRatio;
 const cropHasEnoughResolution = computed(() =>
-  cropSourceRect.value.width >= 1280 && cropSourceRect.value.height >= 267,
+  cropSourceRect.value.width >= minCropWidth && cropSourceRect.value.height >= minCropHeight,
 );
 const cropMaxZoom = computed(() => {
   if (!cropImageSize.width || !cropImageSize.height || !cropViewportWidth.value) return 1;
   const scale = cropScale.value;
   const widthAtMinimumZoom = cropViewportWidth.value / scale;
   const heightAtMinimumZoom = cropViewportHeight.value / scale;
-  return Math.max(1, Math.min(3, widthAtMinimumZoom / 1280, heightAtMinimumZoom / 267));
+  return Math.max(1, Math.min(3, widthAtMinimumZoom / minCropWidth, heightAtMinimumZoom / minCropHeight));
 });
 const cropImageStyle = computed(() => ({
   left: `${cropOffset.x}px`,
@@ -239,6 +247,10 @@ async function openEdit(row) {
     content: row.content || "", linkUrl: row.linkUrl || "",
     sortOrder: row.sortOrder, enabled: row.enabled,
   } : { imageUrl: "", originalImageUrl: "", content: "", linkUrl: "", sortOrder: 0, enabled: true });
+  pendingUploadOptions = null;
+  pendingOriginalImageUrl = "";
+  pendingOriginalFile = null;
+  pendingCroppedFile = null;
   dialogVisible.value = true;
   await nextTick();
   formRef.value.clearValidate();
@@ -253,17 +265,18 @@ async function uploadImage(options) {
     return;
   }
   pendingUploadOptions = options;
+  pendingOriginalFile = file;
   pendingOriginalImageUrl = "";
   uploading.value = true;
   cropOutputType = file.type === "image/jpeg" ? "image/jpeg" : "image/png";
   try {
-    const result = await uploadBannerImage(file);
-    pendingOriginalImageUrl = result.url;
-    cropOutputType = file.type === "image/jpeg" ? "image/jpeg" : "image/png";
-    await loadCropImage(result.url);
+    const objectUrl = URL.createObjectURL(file);
+    pendingOriginalImageUrl = objectUrl;
+    await loadCropImage(objectUrl);
   } catch (error) {
-    ElMessage.error(error.message || "原图上传失败");
+    ElMessage.error(error.message || "读取图片失败");
     pendingUploadOptions = null;
+    pendingOriginalFile = null;
     pendingOriginalImageUrl = "";
     options.onError(error);
   } finally {
@@ -294,9 +307,6 @@ async function loadCropImage(source) {
     cropOffset.x = 0;
     cropOffset.y = 0;
     cropDialogVisible.value = true;
-    await nextTick();
-    updateCropViewport();
-    centerCropImage();
   } catch (error) {
     ElMessage.error(error.message || "无法读取图片");
     cleanupCrop();
@@ -311,6 +321,11 @@ function updateCropViewport() {
   cropViewportWidth.value = width;
   cropViewportHeight.value = height;
   clampCropOffset();
+}
+
+function initializeCropViewport() {
+  updateCropViewport();
+  centerCropImage();
 }
 
 function clampCropOffset() {
@@ -352,8 +367,8 @@ function setCropZoom(value) {
 async function createCroppedImage() {
   const { x, y, width, height } = cropSourceRect.value;
   const canvas = document.createElement("canvas");
-  canvas.width = 1920;
-  canvas.height = 400;
+  canvas.width = cropOutputWidth;
+  canvas.height = cropOutputHeight;
   const context = canvas.getContext("2d");
   const image = cropImageRef.value;
   if (!context || !image) throw new Error("无法创建裁剪图片");
@@ -406,17 +421,19 @@ async function confirmCrop() {
     const file = await createCroppedImage();
     if (file.size > 10 * 1024 * 1024) throw new Error("裁剪后的图片超过10MB，请缩小裁剪区域后重试");
     pendingUploadOptions = null;
-    const result = await uploadBannerImage(file);
-    form.imageUrl = result.url;
-    form.originalImageUrl = pendingOriginalImageUrl || result.url;
+    if (pendingCroppedFile && typeof URL !== 'undefined' && form.imageUrl?.startsWith('blob:')) URL.revokeObjectURL(form.imageUrl);
+    pendingCroppedFile = file;
+    const previewUrl = URL.createObjectURL(file);
+    form.imageUrl = previewUrl;
+    form.originalImageUrl = pendingOriginalImageUrl || form.originalImageUrl;
     formRef.value.clearValidate("imageUrl");
-    if (options) options.onSuccess(result);
+    if (options) options.onSuccess({ url: previewUrl });
     else ElMessage.success("图片裁剪成功");
     pendingOriginalImageUrl = "";
     cropDialogVisible.value = false;
     cleanupCrop();
   } catch (error) {
-    ElMessage.error(error.message || "图片裁剪或上传失败");
+    ElMessage.error(error.message || "图片裁剪失败");
     if (options) options.onError(error);
   } finally {
     uploading.value = false;
@@ -428,7 +445,22 @@ async function submit() {
   const valid = await formRef.value.validate().then(() => true, () => false);
   if (!valid) return;
   submitting.value = true;
+  uploading.value = true;
   try {
+    if (pendingCroppedFile) {
+      let originalUrl = form.originalImageUrl;
+      if (pendingOriginalFile) {
+        const originalResult = await uploadBannerImage(pendingOriginalFile);
+        originalUrl = originalResult.url;
+      }
+      const croppedResult = await uploadBannerImage(pendingCroppedFile);
+      form.imageUrl = croppedResult.url;
+      form.originalImageUrl = originalUrl || croppedResult.url;
+      if (pendingOriginalFile && pendingOriginalImageUrl?.startsWith('blob:')) URL.revokeObjectURL(pendingOriginalImageUrl);
+      if (pendingCroppedFile) pendingCroppedFile = null;
+      pendingOriginalFile = null;
+      pendingOriginalImageUrl = "";
+    }
     await saveBanner(editId.value, { ...form, content: form.content.trim(), linkUrl: form.linkUrl.trim() });
     ElMessage.success("保存成功");
     dialogVisible.value = false;
@@ -437,6 +469,7 @@ async function submit() {
     ElMessage.error(error.message || "保存Banner失败");
   } finally {
     submitting.value = false;
+    uploading.value = false;
   }
 }
 
@@ -477,7 +510,7 @@ onUnmounted(() => {
 .edit-preview { width: 100%; height: 200px; background: $sys-bg; border-radius: 6px; }
 .field-tip { display: block; color: $sys-sub; font-size: 12px; line-height: 1.6; }
 .crop-instructions { margin-bottom: 12px; color: $sys-sub; font-size: 13px; line-height: 1.6; }
-.crop-viewport { position: relative; width: 100%; max-width: 560px; aspect-ratio: 24 / 5; margin: 0 auto; overflow: hidden; background: #171a18; cursor: grab; touch-action: none; user-select: none; }
+.crop-viewport { position: relative; width: 100%; max-width: 560px; aspect-ratio: 6 / 1; margin: 0 auto; overflow: hidden; background: #171a18; cursor: grab; touch-action: none; user-select: none; }
 .crop-viewport:active { cursor: grabbing; }
 .crop-viewport img { position: absolute; max-width: none; pointer-events: none; }
 .crop-controls { display: flex; align-items: center; gap: 16px; margin-top: 20px; color: $sys-sub; font-size: 13px; }

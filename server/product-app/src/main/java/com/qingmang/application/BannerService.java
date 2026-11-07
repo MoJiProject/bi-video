@@ -77,8 +77,17 @@ public class BannerService {
                 || request.getEnabled() == null)
             throw new BizException(ErrorCode.PARAM_INVALID);
         String image = trim(request.getImageUrl());
+        String previousImage = banner.getImageUrl();
         media.requireStoredImage(image);
         banner.setImageUrl(image);
+        String originalImage = trim(request.getOriginalImageUrl());
+        String previousOriginal = banner.getOriginalImageUrl();
+        if (originalImage.isEmpty()) {
+            originalImage = banner.getOriginalImageUrl() == null || banner.getOriginalImageUrl().isBlank()
+                    ? image : banner.getOriginalImageUrl();
+        }
+        media.requireStoredImage(originalImage);
+        banner.setOriginalImageUrl(originalImage);
         banner.setContent(content);
         banner.setLinkUrl(link);
         banner.setSortOrder(request.getSortOrder());
@@ -92,6 +101,10 @@ public class BannerService {
             changed = banners.updateById(banner);
         }
         if (changed != 1) throw new BizException(ErrorCode.DB_ERROR);
+        if (previousImage != null && !previousImage.isBlank() && !previousImage.equals(image))
+            media.delete(previousImage, admin.getId());
+        if (previousOriginal != null && !previousOriginal.isBlank() && !previousOriginal.equals(originalImage))
+            media.delete(previousOriginal, admin.getId());
         audit(admin, banner, id == null ? "addBanner" : "putBanner", ip);
         return banner;
     }
@@ -101,6 +114,11 @@ public class BannerService {
         User admin = requireAdmin(userId);
         Banner banner = requireBanner(id);
         if (banners.deleteById(id) != 1) throw new BizException(ErrorCode.DB_ERROR);
+        if (banner.getImageUrl() != null && !banner.getImageUrl().isBlank())
+            media.delete(banner.getImageUrl(), admin.getId());
+        if (banner.getOriginalImageUrl() != null && !banner.getOriginalImageUrl().isBlank()
+                && !banner.getOriginalImageUrl().equals(banner.getImageUrl()))
+            media.delete(banner.getOriginalImageUrl(), admin.getId());
         audit(admin, banner, "deleteBanner", ip);
     }
 

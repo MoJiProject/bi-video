@@ -10,14 +10,14 @@
     <div v-else-if="shareUserList.length>0" class="share-container" ref="scrollContainer" @wheel.prevent="handleWheel">
       <div class="share-item" v-for="user in shareUserList" :key="user.id" @click="clickUser(user)">
         <img class="avatar" :src="user.avatarAddress">
-        <img class="check" v-show="user?.checkFlag" src="/img/选中.png">
+        <span class="check" v-show="user?.checkFlag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L19 7" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         <span style="color: #1C2321;">{{ user.userName }}</span>
       </div>
     </div>
     <div class="line"></div>
     <div class="share-input-row">
       <textarea class="share-textarea" placeholder="请输入分享内容" maxlength="500" :disabled="sending" v-model="shareContent"></textarea>
-      <img class="cover" :src="coverUrl" />
+      <img v-if="coverUrl" class="cover" :src="coverUrl" />
     </div>
     <button v-debounce v-if="shareUserList.length>0&&checkSelectUser()" class="share-btn" :disabled="sending" @click="shareDynamicF">{{ sending ? '发送中' : '发送' }}</button>
     <button v-debounce v-else class="not-share-btn">发送</button>
@@ -112,7 +112,7 @@ export default {
 
     const coverUrl = ref('');
     watch(() => props.dynamic, (d) => {
-      coverUrl.value = d?.imageList?.[0] || d?.videoCover || d?.authorAvatar || '/img/cover-fallback.png';
+      coverUrl.value = d?.imageList?.[0] || d?.videoCover || '';
     }, { immediate: true });
 
     async function shareDynamicF() {
@@ -172,7 +172,8 @@ export default {
   .share-container { display: flex; gap: 12px; overflow-x: auto; padding: 8px 0; }
   .share-item { position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
   .share-item .avatar { width: 48px; height: 48px; border-radius: 50%; }
-  .share-item .check { position: absolute; right: 0; bottom: 20px; width: 16px; height: 16px; border-radius: 50%; background: #fff; }
+  .share-item .check { position: absolute; right: 0; bottom: 20px; width: 16px; height: 16px; border-radius: 50%; background: var(--brand); display: flex; align-items: center; justify-content: center; border: 1px solid var(--brand); box-sizing: border-box; }
+.share-item .check svg { width: 12px; height: 12px; }
   .share-item span { font-size: 12px; margin-top: 4px; max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   .line { height: 1px; background: #e0e5e3; }
@@ -183,7 +184,7 @@ export default {
 
   .share-btn, .not-share-btn { width: 100%; height: 32px; border: none; border-radius: 4px; color: #fff; cursor: pointer; }
   .share-btn { background: #0fa68e; }
-  .share-btn:hover { background: #00b8f6; }
+  .share-btn:hover { background: var(--brand-hover); }
   .not-share-btn { background: #e0e5e3; cursor: not-allowed; }
 }
 </style>

@@ -33,7 +33,7 @@
       <div v-if="images.length" class="attachments">
         <div v-for="(image, index) in images" :key="image">
           <el-image :src="image" :preview-src-list="images" preview-teleported fit="cover"/>
-          <el-button text type="danger" @click="images.splice(index, 1)">移除</el-button>
+          <el-button text type="danger" @click="URL.revokeObjectURL(images[index]); images.splice(index, 1); imageFiles.splice(index, 1)">移除</el-button>
         </div>
       </div>
     </form>
@@ -186,7 +186,7 @@
               <div v-if="replyImages.length" class="attachments">
                 <div v-for="(image, index) in replyImages" :key="image">
                   <el-image :src="image" :preview-src-list="replyImages" preview-teleported fit="cover"/>
-                  <el-button text type="danger" @click="replyImages.splice(index, 1)">移除</el-button>
+<el-button text type="danger" @click="URL.revokeObjectURL(replyImages[index]); replyImages.splice(index, 1); replyImageFiles.splice(index, 1)">移除</el-button>
                 </div>
               </div>
             </div>
@@ -215,7 +215,7 @@
 import { computed, nextTick, onUnmounted, ref, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { commentApi, socialApi } from '@/api/product';
-import { get, post } from '@/services/http';
+import { get, post, del } from '@/services/http';
 import { sanitizeRichText } from '@/utils/richText';
 import { useGlobalStore } from '@/store/store';
 import richContent from '@/components/richContent.vue';
@@ -241,6 +241,7 @@ const loadError = ref('');
 const content = ref('');
 const contentLength = ref(0);
 const images = ref([]);
+const imageFiles = ref([]);
 const activeReplyId = ref(null);
 const replyInput = ref(null);
 /** 函数式模板 ref：同一时刻只展开一个回复框，避免 v-for 内字符串 ref 变成数组 */
@@ -250,6 +251,7 @@ function setReplyInput(el) {
 const replyContent = ref('');
 const replyContentLength = ref(0);
 const replyImages = ref([]);
+const replyImageFiles = ref([]);
 const replyUploading = ref(false);
 const replySending = ref(false);
 const replyShareToDynamic = ref(false);
@@ -410,21 +412,29 @@ async function sendReply(target) {
     return;
   }
   replySending.value = true;
+  replyUploading.value = true;
+  let uploaded = [];
   try {
+    uploaded = [];
+    for (const file of replyImageFiles.value) {
+      const body = new FormData(); body.append('file', file);
+      const image = await post('/media/image', body);
+      uploaded.push(image.url);
+    }
     const finalContent = sanitizeRichText(await transformContent(replyContent.value))
-      || (replyImages.value.length ? '分享图片' : '');
-    if (!finalContent && !replyImages.value.length) {
+      || (uploaded.length ? '分享图片' : '');
+    if (!finalContent && !uploaded.length) {
       ElMessage.warning('请输入回复内容');
       return;
     }
     // 后端会把楼中楼自动归位到一级评论下
     const { commentId } = await commentApi.create({
-      videoId: props.videoId, content: finalContent, imageUrls: replyImages.value, rootId: target.id,
+      videoId: props.videoId, content: finalContent, imageUrls: uploaded, rootId: target.id,
     });
     if (replyShareToDynamic.value) {
       try {
         await socialApi.createPost({
-          content: finalContent, imageUrls: replyImages.value, videoId: props.videoId, visibility: 0,
+          content: finalContent, imageUrls: uploaded, videoId: props.videoId, visibility: 0,
         });
       } catch (error) {
         ElMessage.warning(`回复已发送，转发失败：${error.message}`);
@@ -432,7 +442,9 @@ async function sendReply(target) {
     }
     replyContent.value = '';
     replyContentLength.value = 0;
+    replyImages.value.forEach(url => URL.revokeObjectURL(url));
     replyImages.value = [];
+    replyImageFiles.value = [];
     replyUploading.value = false;
     replyShareToDynamic.value = false;
     activeReplyId.value = null;
@@ -441,57 +453,37 @@ async function sendReply(target) {
     await highlightAndScroll(commentId);
     ElMessage.success('回复成功');
   } catch (error) {
+    for (const url of uploaded) { try { await del('/media', { params: { url } }); } catch (e) {} }
     ElMessage.error(error.message || '回复失败');
   } finally {
     replySending.value = false;
+    replyUploading.value = false;
   }
 }
 
 async function upload(event) {
   if (!signedIn()) { event.target.value = ''; return; }
   const files = Array.from(event.target.files);
-  if (files.length + images.value.length > 9) {
-    ElMessage.warning('最多 9 张图片');
-    event.target.value = '';
-    return;
+  if (files.length + images.value.length > 9) { ElMessage.warning('最多 9 张图片'); event.target.value = ''; return; }
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) { ElMessage.warning('请上传图片'); continue; }
+    if (file.size > 10 * 1024 * 1024) { ElMessage.warning('图片大小不能超过10M'); continue; }
+    images.value.push(URL.createObjectURL(file));
+    imageFiles.value.push(file);
   }
-  uploading.value = true;
-  try {
-    for (const file of files) {
-      const body = new FormData();
-      body.append('file', file);
-      const image = await post('/media/image', body);
-      images.value.push(image.url);
-    }
-  } catch (error) {
-    ElMessage.error(error.message);
-  } finally {
-    uploading.value = false;
-    event.target.value = '';
-  }
+  event.target.value = '';
 }
 async function uploadReply(event) {
   if (!signedIn()) { event.target.value = ''; return; }
   const files = Array.from(event.target.files);
-  if (files.length + replyImages.value.length > 9) {
-    ElMessage.warning('最多 9 张图片');
-    event.target.value = '';
-    return;
+  if (files.length + replyImages.value.length > 9) { ElMessage.warning('最多 9 张图片'); event.target.value = ''; return; }
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) { ElMessage.warning('请上传图片'); continue; }
+    if (file.size > 10 * 1024 * 1024) { ElMessage.warning('图片大小不能超过10M'); continue; }
+    replyImages.value.push(URL.createObjectURL(file));
+    replyImageFiles.value.push(file);
   }
-  replyUploading.value = true;
-  try {
-    for (const file of files) {
-      const body = new FormData();
-      body.append('file', file);
-      const image = await post('/media/image', body);
-      replyImages.value.push(image.url);
-    }
-  } catch (error) {
-    ElMessage.error(error.message);
-  } finally {
-    replyUploading.value = false;
-    event.target.value = '';
-  }
+  event.target.value = '';
 }
 
 /** 发布前内容管线：网址转链接、时间转可跳转 time-span、BV 链接转视频标题（视频页独有）。 */
@@ -544,35 +536,47 @@ async function send() {
     return;
   }
   sending.value = true;
+  uploading.value = true;
+  let uploaded = [];
   try {
+    uploaded = [];
+    for (const file of imageFiles.value) {
+      const body = new FormData(); body.append('file', file);
+      const image = await post('/media/image', body);
+      uploaded.push(image.url);
+    }
     const finalContent = sanitizeRichText(await transformContent(content.value))
-      || (images.value.length ? '分享图片' : '');
+      || (uploaded.length ? '分享图片' : '');
     const { commentId } = await commentApi.create({
       videoId: props.videoId,
       content: finalContent,
-      imageUrls: images.value,
+      imageUrls: uploaded,
       rootId: null,
     });
     if (shareToDynamic.value) {
       try {
         await socialApi.createPost({
-          content: finalContent, imageUrls: images.value, videoId: props.videoId, visibility: 0,
+          content: finalContent, imageUrls: uploaded, videoId: props.videoId, visibility: 0,
         });
       } catch (error) {
         ElMessage.warning(`评论已发送，转发失败：${error.message}`);
       }
     }
     content.value = '';
+    images.value.forEach(url => URL.revokeObjectURL(url));
     images.value = [];
+    imageFiles.value = [];
     shareToDynamic.value = false;
     store.updateVideoInfoFlag = true;
     await reload();
     await highlightAndScroll(commentId);
     ElMessage.success('发送成功');
   } catch (error) {
+    for (const url of uploaded) { try { await del('/media', { params: { url } }); } catch (e) {} }
     ElMessage.error(error.message || '发送失败');
   } finally {
     sending.value = false;
+    uploading.value = false;
   }
 }
 

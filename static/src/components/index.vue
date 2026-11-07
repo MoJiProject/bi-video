@@ -39,7 +39,7 @@
       </section>
     </div>
 
-    <!-- 分类导航：一行可横滑的胶囊，不再是原来那块 110px 的绝对定位色块 -->
+    <!-- 分类导航：胶囊按可用宽度自动换行 -->
     <nav class="rail-wrap">
       <div class="rail page">
         <button
@@ -86,7 +86,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
 import head1 from "./mainHead.vue";
 import homeVideoCard from "./homeVideoCard.vue";
 import HomeBannerCarousel from "./HomeBannerCarousel.vue";
@@ -111,6 +111,7 @@ const refreshing = ref(false);
 const sticky = ref(false);
 const feedRef = ref(null);
 const banners = ref([]);
+const sortMode = ref("hot");
 
 async function loadBanners() {
   try {
@@ -156,22 +157,26 @@ function goWatchLater() {
   requireLoginThen("/waitWatch");
 }
 
-function goCategory(category) {
+async function goCategory(category) {
   const name = category.value;
   if (name === "推荐") {
     scrollToFeed();
-    refresh();
+    sortMode.value = "hot";
+    cursorId.value = null;
+    hasMore.value = true;
+    await load(true, "hot");
     return;
   }
   window.location.href = "/search?keyword=&categoryId=" + encodeURIComponent(category.id);
 }
 
-async function load(reset) {
+async function load(reset, sortOverride) {
   if (loading.value) return;
   if (!reset && !hasMore.value) return;
   loading.value = true;
   try {
-    const sort = activeCategory.value === "推荐" ? "hot" : "latest";
+    const sort = sortOverride || sortMode.value;
+    sortMode.value = sort;
     const data = await videoApi.list({
       sort,
       cursorId: reset ? undefined : cursorId.value || undefined,
@@ -191,10 +196,28 @@ async function load(reset) {
 }
 
 async function refresh() {
+  const feed = feedRef.value;
+  const oldHeight = feed ? feed.offsetHeight : 0;
+  const oldScroll = window.scrollY;
+  if (feed && oldHeight) feed.style.minHeight = `${oldHeight}px`;
   refreshing.value = true;
+  sortMode.value = "random";
   cursorId.value = null;
   hasMore.value = true;
-  await load(true);
+  videos.value = [];
+  await load(false, "random");
+  if (!videos.value.length) {
+    sortMode.value = "hot";
+    cursorId.value = null;
+    hasMore.value = true;
+    videos.value = [];
+    await load(false, "hot");
+  }
+  await nextTick();
+  window.scrollTo(0, oldScroll);
+  requestAnimationFrame(() => {
+    if (feed) feed.style.minHeight = '';
+  });
   refreshing.value = false;
 }
 
@@ -418,14 +441,9 @@ onUnmounted(() => {
 .rail {
   display: flex;
   gap: var(--gap-2);
-  overflow-x: auto;
+  flex-wrap: wrap;
   min-width: 0;
   padding: 10px var(--page-pad);
-  scrollbar-width: none;
-}
-
-.rail::-webkit-scrollbar {
-  display: none;
 }
 
 .rail-chip {

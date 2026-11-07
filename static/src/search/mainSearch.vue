@@ -141,7 +141,7 @@
           <AppEmptyState v-if="Videos.length === 0" kind="search" title="没有找到相关作品"
             description="试试其他关键词，或切换一个感兴趣的分区"/>
 
-          <div class="bottomVideo">
+          <div class="bottomVideo" ref="searchListRef">
             <!-- 与首页视频列表同款卡片组件：封面 16:9、时长角标、
                  悬停预览、稍后观看、UP 主头像行、播放/弹幕数；
                  highlightText 传入后标题命中关键词会高亮 -->
@@ -414,6 +414,7 @@ export default {
     const expanded = ref(false);
     const windowWidth = ref(0);
     const Videos = reactive([]);
+const searchListRef = ref(null);
     const availableCategories = ref(null);
     const CLASSIFY = computed(() => [
       { label: "全部分类", value: "全部" },
@@ -720,30 +721,38 @@ const postTypeIndex = ref(0);
 
     /* api/product 的 get 已经把 {code,msg,data} 的 data 拆出来了，
        这里拿到的是 PageResult 本体，不要再取 response.data.data。 */
-    async function fetchVideos() {
-      let categoryId;
-      if (acceptSearchData.classify !== "全部") {
-        if (!availableCategories.value) availableCategories.value = await videoApi.categories();
-        const category = availableCategories.value.find(item => item.name === acceptSearchData.classify);
-        if (!category) throw new Error("该分区暂不可用，请选择其他分区");
-        categoryId = category.id;
-      }
-      const params = {
-        keyword: acceptSearchData.keyWord,
-        categoryId,
-        sort: sortIndex.value === 2 ? "newest" : "hot",
-        pageNum: videoPageNum.value,
-        pageSize: 20,
-      };
-      const data = acceptSearchData.keyWord.trim()
-        ? await searchApi.videos(params)
-        : await videoApi.list({ ...params, sort: sortIndex.value === 2 ? "latest" : "hot" });
-      if (!data) return;
-      const records = (data.records || []).map(toVideoCard);
-      Videos.length = 0;
-      Object.assign(Videos, records);
-      acceptSearchData.videoTotal = normalizeTotal(data.total, records.length);
-    }
+     async function fetchVideos() {
+       const listEl = searchListRef.value;
+       const oldHeight = listEl ? listEl.offsetHeight : 0;
+       const oldScroll = window.scrollY;
+       if (listEl && oldHeight) listEl.style.minHeight = `${oldHeight}px`;
+       let categoryId;
+       if (acceptSearchData.classify !== "全部") {
+         if (!availableCategories.value) availableCategories.value = await videoApi.categories();
+         const category = availableCategories.value.find(item => item.name === acceptSearchData.classify);
+         if (!category) throw new Error("该分区暂不可用，请选择其他分区");
+         categoryId = category.id;
+       }
+       const params = {
+         keyword: acceptSearchData.keyWord,
+         categoryId,
+         sort: sortIndex.value === 2 ? "newest" : "hot",
+         pageNum: videoPageNum.value,
+         pageSize: 20,
+       };
+       const data = acceptSearchData.keyWord.trim()
+         ? await searchApi.videos(params)
+         : await videoApi.list({ ...params, sort: sortIndex.value === 2 ? "latest" : "hot" });
+       if (!data) return;
+       const records = (data.records || []).map(toVideoCard);
+       Videos.length = 0;
+       Object.assign(Videos, records);
+       acceptSearchData.videoTotal = normalizeTotal(data.total, records.length);
+       nextTick(() => {
+         window.scrollTo(0, oldScroll);
+         requestAnimationFrame(() => { if (listEl) listEl.style.minHeight = ''; });
+       });
+     }
 
     //根据关键词搜索用户
     async function selectUsersAxios() {

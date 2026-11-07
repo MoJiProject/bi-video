@@ -9,8 +9,8 @@
         <div class="image-post-copy">
           <h3 v-if="item.title?.trim()" :title="item.title">{{ item.title }}</h3>
           <div class="image-post-meta">
-            <time :datetime="item.createdAt" :title="item.createdAt?.replace('T', ' ')">
-              {{ item.createdAt?.replace('T', ' ').slice(0, 16) }}
+            <time :datetime="formatTime(item.createdAt)" :title="formatTime(item.createdAt)">
+              {{ formatTime(item.createdAt).slice(0, 16) }}
             </time>
             <span class="image-post-likes" :title="`${item.likeCount ?? 0} 个赞`" :aria-label="`${item.likeCount ?? 0} 个赞`">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10H4v10h4m0-10 4-7h1a2 2 0 0 1 2 2l-1 5h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H8V10Z"/></svg>
@@ -31,6 +31,10 @@ defineProps({
 });
 
 const failedImages = ref(new Set());
+
+function formatTime(value) {
+  return (value || '').replace('T', ' ').slice(0, 19);
+}
 </script>
 
 <style scoped>

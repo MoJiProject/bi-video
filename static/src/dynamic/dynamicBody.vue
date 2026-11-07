@@ -1,5 +1,5 @@
 <template>
-  <main class="feed">
+  <main class="feed" ref="feedRef">
     <header class="feed-heading">
       <h1>动态</h1>
     </header>
@@ -21,7 +21,7 @@
                   :class="{ active: targetUserId === author.userId }" :aria-pressed="targetUserId === author.userId"
                   @click="selectAuthor(author.userId)">
             <img :src="author.avatarUrl" alt=""><span class="author-name" :title="author.nickname">{{ author.nickname }}</span>
-            <el-tag v-if="author.unreadCount" size="small" type="danger" round>{{ author.unreadCount }}</el-tag>
+            <span v-if="author.unreadCount" class="dynamic-unread-number">{{ author.unreadCount > 99 ? '99+' : author.unreadCount }}</span>
           </button>
         </nav>
       </aside>
@@ -49,7 +49,7 @@
               <div class="image-actions">
                 <el-button text :disabled="index === 0" @click="moveImage(index, -1)">前移</el-button>
                 <el-button text :disabled="index === images.length - 1" @click="moveImage(index, 1)">后移</el-button>
-                <el-button text type="danger" @click="images.splice(index, 1)">移除</el-button>
+                <el-button text type="danger" @click="URL.revokeObjectURL(images[index]); images.splice(index, 1); imageFiles.splice(index, 1)">移除</el-button>
               </div>
             </div>
           </div>
@@ -77,10 +77,6 @@
             </el-radio-group>
           </div>
         </section>
-        <el-button v-if="scope === 'following' && unreadCount" class="new-posts" @click="reload">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12-1l2 6M4 12l2 6a7 7 0 0 0 12-1"/></svg>
-          {{ unreadCount }} 条新动态，点击刷新
-        </el-button>
         <el-alert v-if="reminderError" :title="reminderError" type="error" :closable="false" show-icon/>
         <ImagePostWaterfall v-if="type === 4" :posts="visibleRows"/>
         <div v-else class="dynamic-posts">
@@ -95,16 +91,22 @@
   </main>
 </template>
 <script setup>
-import { computed, onUnmounted, ref, watch } from 'vue';
+import { computed, nextTick, onUnmounted, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { socialApi } from '@/api/product';
-import { post } from '@/services/http';
+import { post, del } from '@/services/http';
 import { useGlobalStore } from '@/store/store';
 import homePost from '@/home/homePost.vue';
 import loadingIndicator from '@/components/loadingIndicator.vue';
 import PostEditor from '@/components/PostEditor.vue';
 import ImagePostWaterfall from '@/components/ImagePostWaterfall.vue';
 
+const feedRef = ref(null);
+const preservedHeight = ref(0);
+const feedStyle = computed(() => preservedHeight.value ? { minHeight: `${preservedHeight.value}px` } : undefined);
+let previousScrollY = 0;
+let previousHeight = 0;
+let scrollRestoreFrame = 0;
 const store = useGlobalStore();
 const rows = ref([]);
 const authors = ref([]);
@@ -121,6 +123,7 @@ const content = ref('');
 const contentLength = ref(0);
 const editor = ref(null);
 const images = ref([]);
+const imageFiles = ref([]);
 const visibility = ref(0);
 const publishing = ref(false);
 const uploading = ref(false);
@@ -162,14 +165,35 @@ async function refreshAuthors() {
   if (active && store.userId === userId) authors.value = result;
 }
 async function reload() {
+  const feed = feedRef.value;
+  const oldHeight = feed ? feed.offsetHeight : 0;
+  const oldScroll = window.scrollY;
+  if (feed && oldHeight) feed.style.minHeight = `${oldHeight}px`;
+
   generation++; rows.value = []; cursorId.value = null; hasMore.value = false; loading.value = false;
   const current = generation;
   const loaded = await load();
-  if (!loaded || current !== generation) return;
+  if (loaded && current === generation) {
+    await nextTick();
+    window.scrollTo(0, oldScroll);
+    requestAnimationFrame(() => { if (feed) feed.style.minHeight = ''; });
+  } else {
+    if (feed) feed.style.minHeight = '';
+  }
   if (!store.userId || scope.value !== 'following') return;
-  try {
-    await socialApi.read(targetUserId.value || undefined);
+  if (!targetUserId.value) {
     await refreshAuthors();
+    return;
+  }
+  try {
+    await socialApi.read(targetUserId.value);
+    await refreshAuthors();
+    // 清除该作者的未读数量（header 徽标同步减少）
+    const currentUnread = Number(store.userInformation?.dynamicNumber || 0);
+    const author = authors.value.find(a => a.userId === targetUserId.value);
+    const authorUnread = Number(author?.unreadCount || 0);
+    store.userInformation = { ...store.userInformation, dynamicNumber: Math.max(0, currentUnread - authorUnread) };
+    store.setUserInformation(store.userInformation);
   } catch (error) { reminderError.value = error.message; }
 }
 function selectAuthor(id) {
@@ -179,34 +203,44 @@ function selectAuthor(id) {
 async function upload(event) {
   const files = Array.from(event.target.files);
   if (files.length > 9 - images.value.length) { ElMessage.warning('最多上传 9 张图片'); event.target.value = ''; return; }
-  uploading.value = true;
-  try {
-    for (const file of files) {
-      const body = new FormData();
-      body.append('file', file);
-      const result = await post('/media/image', body);
-      images.value.push(result.url);
-    }
-  } catch (error) { ElMessage.error(error.message); }
-  finally { uploading.value = false; event.target.value = ''; }
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) { ElMessage.warning('请上传图片'); continue; }
+    if (file.size > 10 * 1024 * 1024) { ElMessage.warning('图片大小不能超过10M'); continue; }
+    images.value.push(URL.createObjectURL(file));
+    imageFiles.value.push(file);
+  }
+  event.target.value = '';
 }
 function moveImage(index, direction) {
   const target = index + direction;
   if (target < 0 || target >= images.value.length) return;
   [images.value[index], images.value[target]] = [images.value[target], images.value[index]];
+  [imageFiles.value[index], imageFiles.value[target]] = [imageFiles.value[target], imageFiles.value[index]];
 }
 async function publish() {
   if (publishing.value || uploading.value) return;
   if (!contentLength.value && !images.value.length) { ElMessage.warning('请输入内容或添加图片'); return; }
   if (contentLength.value > 2000) { ElMessage.warning('动态正文不能超过 2000 字'); return; }
   publishing.value = true;
+  uploading.value = true;
+  let uploaded = [];
   try {
-    await socialApi.createPost({ title: title.value, content: content.value, imageUrls: images.value, visibility: visibility.value });
-    title.value = ''; content.value = ''; contentLength.value = 0; images.value = [];
+    uploaded = [];
+    for (const file of imageFiles.value) {
+      const body = new FormData();
+      body.append('file', file);
+      const result = await post('/media/image', body);
+      uploaded.push(result.url);
+    }
+    await socialApi.createPost({ title: title.value, content: content.value, imageUrls: uploaded, visibility: visibility.value });
+    images.value.forEach(url => URL.revokeObjectURL(url));
+    title.value = ''; content.value = ''; contentLength.value = 0; images.value = []; imageFiles.value = [];
     await reload();
     ElMessage.success('发布成功');
-  } catch (error) { ElMessage.error(error.message); }
-  finally { publishing.value = false; }
+  } catch (error) {
+    for (const url of uploaded) { try { await del('/media', { params: { url } }); } catch (e) {} }
+    ElMessage.error(error.message);
+  } finally { publishing.value = false; uploading.value = false; }
 }
 watch([scope, targetUserId, type, sortOrder], reload);
 watch(scope, value => { if (value === 'public') targetUserId.value = null; });
@@ -249,6 +283,8 @@ onUnmounted(() => { active = false; generation++; clearInterval(reminderTimer); 
 .author-symbol svg { display: block; width: 18px; height: 18px; margin: 0; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .author-name { display: block; flex: 1; min-width: 0; margin: 0; padding: 0; overflow: hidden; line-height: 20px; text-overflow: ellipsis; white-space: nowrap; }
 .author-list .el-tag { flex: none; max-width: 64px; overflow: hidden; }
+.dynamic-unread-number { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: #fff; line-height: 16px; font-size: 12px; border-radius: 8px; height: 16px; min-width: 16px; padding: 0 4px; text-align: center; background-color: #ff4d4f; }
+.author-list button { position: relative; }
 .timeline { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .composer { min-width: 0; padding: 24px; border: 1px solid #dbe7df; border-radius: 20px; background: #fff; box-shadow: 0 4px 20px rgba(29, 64, 43, .025); font-family: var(--el-font-family); }
 .composer-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }

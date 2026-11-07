@@ -96,7 +96,7 @@
 </template>
 
 <script setup>
-import { computed, onUnmounted, ref, watch } from "vue";
+import { computed, nextTick, onUnmounted, ref, watch } from "vue";
 import { useGlobalStore } from "../store/store";
 import UserHoverCard from "./UserHoverCard.vue";
 import { videoApi } from "../api/product";
@@ -124,13 +124,16 @@ let timer = null;
 const DEFAULT_AVATAR = "/img/avatar-default.png";
 const FALLBACK_COVER = "/img/cover-fallback.png";
 
-watch(
-  () => [props.video.id, props.video.watchLater],
-  () => {
-    coverSrc.value = props.video.coverUrl || FALLBACK_COVER;
-    inWatchLater.value = !!props.video.watchLater;
+watch(previewing, (val) => {
+  if (val) {
+    nextTick(() => {
+      const el = previewEl.value;
+      if (el) {
+        el.play().catch(() => {});
+      }
+    });
   }
-);
+});
 
 const durationText = computed(() => {
   const total = props.video.durationSeconds || 0;

@@ -8,6 +8,7 @@ import com.qingmang.common.exception.ErrorCode;
 import com.qingmang.domain.social.PrivateMessage;
 import com.qingmang.domain.social.UserFollow;
 import com.qingmang.domain.social.UserPost;
+import com.qingmang.application.MediaStorageService;
 import com.qingmang.domain.social.PostLike;
 import com.qingmang.domain.social.mapper.PostLikeMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,6 +29,7 @@ import java.util.List;
 @Service
 public class SocialService {
 
+    private final MediaStorageService media;
     private final UserFollowMapper followMapper;
     private final UserPostMapper postMapper;
     private final PrivateMessageMapper privateMessageMapper;
@@ -40,11 +42,13 @@ public class SocialService {
     private final NotificationCenterService notifications;
 
     public SocialService(UserFollowMapper followMapper, UserPostMapper postMapper,
-                         PrivateMessageMapper privateMessageMapper,
-                         CounterMapper counterMapper,
-                         SocialQueryMapper queryMapper, ObjectMapper json, AuthService auth, PostLikeMapper postLikes,
-                         MentionNotificationService mentions, NotificationCenterService notifications) {
+                          PrivateMessageMapper privateMessageMapper,
+                          CounterMapper counterMapper,
+                          SocialQueryMapper queryMapper, ObjectMapper json, AuthService auth, PostLikeMapper postLikes,
+                          MediaStorageService media,
+                          MentionNotificationService mentions, NotificationCenterService notifications) {
         this.followMapper = followMapper;
+        this.media = media;
         this.postMapper = postMapper;
         this.privateMessageMapper = privateMessageMapper;
         this.counterMapper = counterMapper;
@@ -222,6 +226,12 @@ public class SocialService {
         }
         postMapper.deleteById(postId);
         counterMapper.increaseUserStat(p.getAuthorId(), "post_count", -1);
+        if (p.getImageUrls() != null && !p.getImageUrls().isBlank()) {
+            try {
+                List<String> imgs = json.readValue(p.getImageUrls(), new TypeReference<List<String>>() {});
+                for (String img : imgs) media.delete(img, p.getAuthorId());
+            } catch (Exception ignored) {}
+        }
     }
 
     /** otherId 为空看我关注的人，否则看关注我的人。 */

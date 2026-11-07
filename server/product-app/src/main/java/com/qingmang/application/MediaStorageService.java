@@ -45,6 +45,21 @@ public class MediaStorageService {
         }
     }
 
+    public void delete(String url, Long userId) {
+        if (url == null || url.isBlank() || userId == null || !url.startsWith("/upload/")) return;
+        Path candidate = root.resolve(url.substring("/upload/".length())).normalize();
+        if (!candidate.startsWith(root)) return;
+        Path fileNamePath = candidate.getFileName();
+        if (fileNamePath == null) return;
+        String fileName = fileNamePath.toString();
+        if (!fileName.startsWith(userId + "_")) return;
+        try {
+            Files.deleteIfExists(candidate);
+        } catch (IOException e) {
+            throw new BizException(ErrorCode.UPLOAD_FAILED, "清理图片失败");
+        }
+    }
+
     public void requireStoredImage(String url) {
         if (url == null || !url.matches("/upload/image/[0-9]+_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(png|jpg|gif)")
                 || !Files.isRegularFile(root.resolve(url.substring("/upload/".length()))))

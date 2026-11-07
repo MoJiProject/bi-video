@@ -6,9 +6,9 @@
       <el-tag v-if="dynamic.isPinned" size="small">置顶</el-tag>
       <span v-if="dynamic.sourceType === 2">图文评论</span>
       <a v-if="canOpenDetail" class="post-permalink" :href="detailHref" aria-label="查看动态详情">
-        <time>{{ dynamic.createdAt?.replace('T', ' ') }}</time>
+        <time>{{ formatTime(dynamic.createdAt) }}</time>
       </a>
-      <time v-else>{{ dynamic.createdAt?.replace('T', ' ') }}</time>
+      <time v-else>{{ formatTime(dynamic.createdAt) }}</time>
       <ContentMoreMenu v-if="dynamic.videoId || (dynamic.isSelf && dynamic.sourceType !== 2)"
         label="更多动态操作" :disabled="saving || pinning || deleting">
         <el-dropdown-item v-if="dynamic.videoId" :disabled="saving || pinning || deleting" @click="toggleWatchLater">
@@ -26,8 +26,9 @@
       <el-image v-for="image in dynamic.imageList" :key="image" :src="image"
         :preview-src-list="dynamic.imageList" preview-teleported fit="cover"/>
     </div>
-    <a v-if="dynamic.videoId" class="post-video" :href="'./video?videoId=BV' + dynamic.videoId" target="_blank" rel="noopener noreferrer">
-      <img :src="dynamic.videoCover" alt="">
+    <a v-if="dynamic.videoId" class="post-video" :href="'./video?videoId=BV' + dynamic.videoId" target="_blank" rel="noopener noreferrer" @mouseenter="onEnter" @mouseleave="onLeave">
+      <img v-show="!previewing" :src="dynamic.videoCover || '/img/cover-fallback.png'" alt="">
+      <video v-if="previewing && dynamic.playUrl" ref="previewEl" class="post-video-preview" :src="dynamic.playUrl" muted loop playsinline preload="none" disablePictureInPicture></video>
       <div class="post-video-info">
         <span class="post-video-title">{{ dynamic.videoTitle }}</span>
         <p v-if="dynamic.videoDescription?.trim()" class="post-video-description">{{ dynamic.videoDescription }}</p>
@@ -74,7 +75,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { socialApi, videoApi } from '@/api/product';
@@ -113,6 +114,9 @@ const router = useRouter();
 const canOpenDetail = computed(() => !props.detail && props.dynamic.sourceType !== 2);
 const detailHref = computed(() => `/dynamicDetail?dynamicId=${props.dynamic.id}`);
 const commentsId = computed(() => `post-comments-${props.dynamic.id}`);
+function formatTime(value) {
+  return (value || '').replace('T', ' ').slice(0, 19);
+}
 const commentsExpanded = ref(props.detail);
 const commentsMounted = ref(props.detail);
 const commentCount = ref(props.dynamic.commentCount || 0);
@@ -145,7 +149,18 @@ const liking = ref(false);
 const pinning = ref(false);
 const saving = ref(false);
 const watchLater = ref(!!props.dynamic.watchLater);
+const previewing = ref(false);
+const previewEl = ref(null);
+let hoverTimer = null;
 watch(() => [props.dynamic.id, props.dynamic.watchLater], () => { watchLater.value = !!props.dynamic.watchLater; });
+watch(previewing, (val) => {
+  if (val) {
+    nextTick(() => {
+      const el = previewEl.value;
+      if (el) el.play().catch(() => {});
+    });
+  }
+});
 async function togglePin() {
   if (pinning.value || deleting.value || saving.value) return;
   pinning.value = true;
@@ -160,6 +175,21 @@ async function toggleWatchLater() {
   try { watchLater.value = await videoApi.watchLater(props.dynamic.videoId); }
   catch (error) { ElMessage.error(error.message); }
   finally { saving.value = false; }
+}
+function onEnter() {
+  if (!props.dynamic.playUrl) return;
+  clearTimeout(hoverTimer);
+  hoverTimer = setTimeout(() => { previewing.value = true; }, 400);
+}
+function onLeave() {
+  clearTimeout(hoverTimer);
+  const el = previewEl.value;
+  if (el) {
+    el.pause();
+    el.removeAttribute('src');
+    el.load();
+  }
+  previewing.value = false;
 }
 async function share() {
   const url = `${location.origin}${detailHref.value}`;
@@ -218,6 +248,7 @@ async function remove() {
 .images .el-image:only-child { grid-column: 1 / -1; max-width: 440px; aspect-ratio: 4 / 3; }
 .post-video { box-sizing: border-box; display: grid; grid-template-columns: min(40%, 180px) minmax(0, 1fr); align-items: stretch; gap: 16px; width: 100%; min-width: 0; margin: 16px 0; padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--fill-soft); color: var(--ink); font-size: 14px; font-weight: 500; line-height: 1.7; text-decoration: none; }
 .post-video > img { align-self: start; width: 100%; height: auto; aspect-ratio: 16 / 10; border-radius: 8px; object-fit: cover; }
+.post-video-preview { align-self: start; width: 100%; height: auto; aspect-ratio: 16 / 10; border-radius: 8px; object-fit: cover; }
 .post-video-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; min-height: 0; overflow: hidden; overflow-wrap: anywhere; }
 .post-video-title { display: -webkit-box; flex: none; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-height: 20px; }
 .post-video-description { display: -webkit-box; flex: none; margin: 0; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 4; color: var(--ink-2); font-size: 12px; font-weight: 400; line-height: 20px; white-space: pre-line; }
@@ -260,7 +291,6 @@ async function remove() {
   .home-post > .inline-discussion { padding: 16px 0 0; border-radius: 0; }
 }
 </style>
-
 
 
 

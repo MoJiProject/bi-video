@@ -1,5 +1,5 @@
 ﻿<template>
-  <section class="library" :class="{ 'library--logged-out': !store.token }" :aria-label="title">
+  <section class="library" ref="libraryRef" :class="{ 'library--logged-out': !store.token }" :aria-label="title">
     <header class="library-head">
       <h1><span class="library-icon" aria-hidden="true">
         <svg v-if="isHistory" viewBox="0 0 24 24"><path d="M3 11a9 9 0 1 1 2.6 7.4M3 4v7h7M12 7v5l3 2"/></svg>
@@ -68,8 +68,9 @@
               :aria-disabled="managing ? busy : undefined" :aria-label="managing ? video.title : undefined"
               @click.capture="selectInstead($event, video.id)" @keydown="selectByKey($event, video.id)">
               <div class="cover">
-                <a v-if="!managing && video.available !== false" :href="videoUrl(video)" target="_blank" rel="noopener noreferrer" :aria-label="video.title">
-                  <img :src="video.coverUrl || '/img/cover-fallback.png'" :alt="video.title" loading="lazy" @error="coverFallback"/>
+                <a v-if="!managing && video.available !== false" :href="videoUrl(video)" target="_blank" rel="noopener noreferrer" :aria-label="video.title" @mouseenter="onEnter(video)" @mouseleave="onLeave(video)">
+                  <img v-show="previewingId !== video.id" :src="video.coverUrl || '/img/cover-fallback.png'" :alt="video.title" loading="lazy" @error="coverFallback"/>
+                  <video v-if="previewingId === video.id && video.playUrl" :ref="el => setPreviewRef(video.id, el)" class="library-preview" :src="video.playUrl" muted loop playsinline preload="none" disablePictureInPicture></video>
                 </a>
                 <button v-else-if="managing" type="button" class="select-cover" :aria-label="`${selected.includes(video.id) ? '取消选择' : '选择'} ${video.title}`"
                   :aria-pressed="selected.includes(video.id)" :disabled="busy" tabindex="-1">
@@ -137,6 +138,7 @@ import ContentMoreMenu from './ContentMoreMenu.vue';
 
 const props = defineProps({ kind: { type: String, required: true } });
 const store = useGlobalStore();
+const libraryRef = ref(null);
 const isHistory = computed(() => props.kind === 'history');
 const title = computed(() => isHistory.value ? '历史记录' : '稍后再看');
 const rows = ref([]);
@@ -217,6 +219,36 @@ const groups = computed(() => {
   return !isHistory.value && order.value === 'oldest' ? populated.reverse() : populated;
 });
 
+const previewingId = ref(null);
+const previewEls = new Map();
+let hoverTimer = null;
+function setPreviewRef(id, el) {
+  if (el) previewEls.set(id, el);
+  else previewEls.delete(id);
+}
+function onEnter(video) {
+  if (managing.value || !video.playUrl) return;
+  clearTimeout(hoverTimer);
+  hoverTimer = setTimeout(() => {
+    if (managing.value) return;
+    previewingId.value = video.id;
+    nextTick(() => {
+      const el = previewEls.get(video.id);
+      if (el) el.play().catch(() => {});
+    });
+  }, 400);
+}
+function onLeave(video) {
+  clearTimeout(hoverTimer);
+  const el = previewEls.get(video.id);
+  if (el) {
+    el.pause();
+    el.removeAttribute('src');
+    el.load();
+  }
+  if (previewingId.value === video.id) previewingId.value = null;
+}
+
 async function load() {
   if (!store.token || loading.value || busy.value) return;
   const current = generation;
@@ -251,6 +283,10 @@ async function load() {
   }
 }
 function reload() {
+  const lib = libraryRef.value;
+  const oldHeight = lib ? lib.offsetHeight : 0;
+  const oldScroll = window.scrollY;
+  if (lib && oldHeight) lib.style.minHeight = `${oldHeight}px`;
   activeRequest?.abort();
   generation++;
   rows.value = [];
@@ -260,8 +296,12 @@ function reload() {
   cursorTime.value = null;
   hasMore.value = false;
   error.value = '';
-  loading.value = false;
-  if (store.token) load();
+  load().then(() => {
+    nextTick(() => {
+      window.scrollTo(0, oldScroll);
+      requestAnimationFrame(() => { if (lib) lib.style.minHeight = ''; });
+    });
+  });
 }
 function search() { appliedKeyword.value = keyword.value.trim(); reload(); }
 function chooseTime(value) { timeFilter.value = value; customDates.value = null; reload(); }
@@ -487,6 +527,7 @@ onBeforeUnmount(() => { generation++; activeRequest?.abort(); observer?.disconne
 .library-video.is-selecting:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 .cover { position: relative; overflow: hidden; border-radius: 10px; aspect-ratio: 16 / 9; background: var(--fill); }
 .cover a, .select-cover { display: block; width: 100%; height: 100%; padding: 0; border: 0; cursor: pointer; }
+.library-preview { width: 100%; height: 100%; object-fit: cover; display: block; }
 .cover img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .cover a:focus-visible, .select-cover:focus-visible { outline: 3px solid var(--brand); outline-offset: -3px; }
 .video-title:focus-visible, .author:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }

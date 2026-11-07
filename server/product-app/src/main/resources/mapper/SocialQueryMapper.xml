@@ -16,6 +16,7 @@
         <result column="video_id" property="videoId"/>
         <result column="video_title" property="videoTitle"/>
         <result column="video_cover" property="videoCover"/>
+        <result column="play_url" property="playUrl"/>
         <result column="video_duration" property="videoDuration"/>
         <result column="video_description" property="videoDescription"/>
         <result column="video_play_count" property="videoPlayCount"/>
@@ -58,7 +59,7 @@
                p.like_count, p.comment_count, p.share_count, p.created_at,
                u.nickname AS author_nickname, u.avatar_url AS author_avatar,
                u.signature AS author_signature,
-               v.title AS video_title, v.cover_url AS video_cover,
+               v.title AS video_title, v.cover_url AS video_cover, v.play_url AS play_url,
                v.duration_seconds AS video_duration,
                <include refid="postVideoDetails"/>,
                EXISTS (SELECT 1 FROM post_like r WHERE r.user_id = #{viewerId}
@@ -84,7 +85,7 @@
         SELECT p.id, p.author_id, p.content, p.title, p.image_urls, v.id AS video_id, p.is_pinned,
                p.like_count, p.comment_count, p.share_count, p.created_at,
                u.nickname AS author_nickname, u.avatar_url AS author_avatar, u.signature AS author_signature,
-               v.title AS video_title, v.cover_url AS video_cover, v.duration_seconds AS video_duration,
+               v.title AS video_title, v.cover_url AS video_cover, v.play_url AS play_url, v.duration_seconds AS video_duration,
                <include refid="postVideoDetails"/>,
                EXISTS(SELECT 1 FROM post_like l WHERE l.post_id = p.id AND l.user_id = #{viewerId}) AS liked,
                EXISTS(SELECT 1 FROM watch_later wl WHERE wl.video_id = p.video_id AND wl.user_id = #{viewerId}) AS watch_later
@@ -100,7 +101,7 @@
         SELECT p.id, p.author_id, p.content, p.title, p.image_urls, v.id AS video_id, p.is_pinned,
                p.like_count, p.comment_count, p.share_count, p.created_at,
                u.nickname AS author_nickname, u.avatar_url AS author_avatar, u.signature AS author_signature,
-               v.title AS video_title, v.cover_url AS video_cover, v.duration_seconds AS video_duration,
+               v.title AS video_title, v.cover_url AS video_cover, v.play_url AS play_url, v.duration_seconds AS video_duration,
                <include refid="postVideoDetails"/>,
                EXISTS(SELECT 1 FROM post_like l WHERE l.post_id=p.id AND l.user_id=#{viewerId}) AS liked,
                EXISTS(SELECT 1 FROM watch_later w WHERE w.video_id=p.video_id AND w.user_id=#{viewerId}) AS watch_later
@@ -186,7 +187,7 @@
         SELECT p.id, p.author_id, p.content, p.title, p.image_urls, p.video_id, p.is_pinned,
                p.like_count, p.comment_count, p.share_count, p.created_at,
                u.nickname AS author_nickname, u.avatar_url AS author_avatar, u.signature AS author_signature,
-               v.title AS video_title, v.cover_url AS video_cover, v.duration_seconds AS video_duration,
+               v.title AS video_title, v.cover_url AS video_cover, v.play_url AS play_url, v.duration_seconds AS video_duration,
                <include refid="postVideoDetails"/>,
                EXISTS (SELECT 1 FROM post_like r WHERE r.user_id = #{viewerId}
                        AND r.post_id = p.id) AS liked,

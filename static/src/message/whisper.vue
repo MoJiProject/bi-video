@@ -1705,10 +1705,17 @@ function restoreBodyOverflow() {
                 }
 
                 .message-content-img{
-                    max-width: 266px;
-                    height: 100%;
+                    max-width: 260px;
+                    max-height: 260px;
+                    height: auto;
                     border-radius: 0px 16px 16px 16px;
                     vertical-align: middle;
+                    :deep(img), :deep(.el-image__inner) {
+                        max-width: 260px !important;
+                        max-height: 260px !important;
+                        width: auto !important;
+                        height: auto !important;
+                    }
                 }
 
                 .share-video-container{
@@ -1967,10 +1974,17 @@ function restoreBodyOverflow() {
                     }
 
                 .message-content-img{
-                    max-width: 266px;
-                    height: 100%;
+                    max-width: 260px;
+                    max-height: 260px;
+                    height: auto;
                     border-radius: 16px 0px 16px 16px;
                     vertical-align: middle;
+                    :deep(img), :deep(.el-image__inner) {
+                        max-width: 260px !important;
+                        max-height: 260px !important;
+                        width: auto !important;
+                        height: auto !important;
+                    }
                 }
 
                 .share-video-container{

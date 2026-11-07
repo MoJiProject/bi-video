@@ -14,7 +14,7 @@
             </header>
             <div class="activity-layout" :class="{ 'has-profile': (store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicBirthday===1 }">
                 <SpaceProfileCard v-if="(store.userId!==null&&store.userId===userId)||store.homeUserInformation.publicBirthday===1" class="activity-profile"/>
-                <div class="activity-stream">
+                <div class="activity-stream" ref="streamRef">
                     <loadingIndicator v-show="loadMore"/>
                     <ImagePostWaterfall v-if="dynamicMenu===3" :posts="dynamicList"/>
                     <template v-else>
@@ -32,7 +32,7 @@
 </template>
   
 <script setup>
-import { onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { nextTick, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useGlobalStore } from '../store/store';
 import dynamicC from "./homePost.vue";
 import loadingIndicator from "@/components/loadingIndicator.vue";
@@ -47,6 +47,7 @@ const loadMore=ref(true);
 const loadMore2=ref(false);
 const userId = parseInt(new URL(window.location).searchParams.get("userId")) || store.userId;
 const pageNum=ref(1);
+const streamRef = ref(null);
 const dynamicList=reactive([]);
 const fotterFlag=ref(false);
 const touchStartY = ref(0)
@@ -76,13 +77,22 @@ watch([() => store.homeUserInformation.id, dynamicMenu], ([id])=>{
 }, { immediate: true })
 
 function reloadPosts() {
+    const stream = streamRef.value;
+    const oldHeight = stream ? stream.offsetHeight : 0;
+    const oldScroll = window.scrollY;
+    if (stream && oldHeight) stream.style.minHeight = `${oldHeight}px`;
     requestId++;
     pageNum.value=1;
     fotterFlag.value=false;
     loadMore2.value=false;
     store.commentOpenFlag=false;
     dynamicList.length=0;
-    homeDynamicF();
+    homeDynamicF().then(() => {
+      nextTick(() => {
+        window.scrollTo(0, oldScroll);
+        requestAnimationFrame(() => { if (stream) stream.style.minHeight = ''; });
+      });
+    });
 }
 
 function touchStartF(e){

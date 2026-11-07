@@ -2,6 +2,7 @@ package com.qingmang.application;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.qingmang.common.exception.BizException;
 import com.qingmang.common.exception.ErrorCode;
 import java.sql.Statement;
 import java.sql.Timestamp;
@@ -190,10 +191,13 @@ public class PrivateMessageService {
         auth.requireActiveUser(user);
         Map<String, Object> row = requireMessage(user, id);
         if (!user.equals(number(row.get("sender_id")))) throw new BizException(ErrorCode.NO_PERMISSION);
+        String content = row.get("content") == null ? "" : row.get("content").toString();
+        int type = row.get("message_type") instanceof Number n ? n.intValue() : 1;
         int changed = jdbc.update("UPDATE private_message SET revoked_at=NOW(3),content='',is_read=1 "
                 + "WHERE id=? AND sender_id=? AND revoked_at IS NULL AND created_at>=DATE_SUB(NOW(3),INTERVAL 3 MINUTE)",
                 id, user);
         if (changed != 1) throw new BizException(ErrorCode.OPERATION_FAILED, "消息已撤回或超过3分钟");
+        if (type == 2 && !content.isBlank()) media.delete(content, user);
         publish(row, id, "updated", null);
     }
 
@@ -202,8 +206,15 @@ public class PrivateMessageService {
         auth.requireActiveUser(user);
         Map<String, Object> row = requireMessage(user, id);
         boolean sender = user.equals(number(row.get("sender_id")));
+        int type = row.get("message_type") instanceof Number n ? n.intValue() : 1;
+        String content = row.get("content") == null ? "" : row.get("content").toString();
+        Long senderId = number(row.get("sender_id"));
         jdbc.update("UPDATE private_message SET " + (sender ? "sender" : "receiver") + "_deleted_at=NOW(3)"
                 + (sender ? "" : ",is_read=1") + " WHERE id=?", id);
+        // 双方都删除后清理图片消息对应的图片
+        Map<String, Object> updated = jdbc.queryForMap("SELECT sender_deleted_at,receiver_deleted_at,message_type,content FROM private_message WHERE id=?", id);
+        boolean bothDeleted = updated.get("sender_deleted_at") != null && updated.get("receiver_deleted_at") != null;
+        if (bothDeleted && type == 2 && !content.isBlank()) media.delete(content, senderId);
         publish(row, id, "deleted", user);
     }
 

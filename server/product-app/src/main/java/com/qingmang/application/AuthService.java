@@ -9,6 +9,7 @@ import com.qingmang.common.exception.ErrorCode;
 import com.qingmang.domain.favorite.FavoriteFolder;
 import com.qingmang.domain.favorite.mapper.FavoriteFolderMapper;
 import com.qingmang.domain.user.User;
+import com.qingmang.application.MediaStorageService;
 import com.qingmang.domain.user.UserPrivacy;
 import com.qingmang.domain.user.UserStats;
 import com.qingmang.domain.user.mapper.UserMapper;
@@ -43,6 +44,7 @@ public class AuthService {
     private static final List<String> HOME_SECTIONS = List.of("magnum-video", "tribute-video",
             "collect", "follow-anime", "love-video");
 
+    private final MediaStorageService media;
     private final UserMapper userMapper;
     private final UserPrivacyMapper privacyMapper;
     private final UserStatsMapper statsMapper;
@@ -53,9 +55,10 @@ public class AuthService {
 
     public AuthService(UserMapper userMapper, UserPrivacyMapper privacyMapper,
                        UserStatsMapper statsMapper, FavoriteFolderMapper folderMapper,
-                       UserQueryMapper queryMapper,
+                       UserQueryMapper queryMapper, MediaStorageService media,
                        MentionNotificationService mentions, NotificationCenterService notifications) {
         this.userMapper = userMapper;
+        this.media = media;
         this.privacyMapper = privacyMapper;
         this.statsMapper = statsMapper;
         this.folderMapper = folderMapper;
@@ -178,6 +181,18 @@ public class AuthService {
     }
 
     @Transactional
+    public void updateMedia(Long userId, String category, String url) {
+        requireActiveUser(userId);
+        if (!"avatar".equals(category) && !"background".equals(category)) throw new BizException(ErrorCode.PARAM_INVALID);
+        User current = userMapper.selectById(userId);
+        String oldUrl = "avatar".equals(category) ? current.getAvatarUrl() : current.getBackgroundUrl();
+        userMapper.update(null, Wrappers.<User>lambdaUpdate().eq(User::getId, userId)
+                .set("avatar".equals(category), User::getAvatarUrl, url)
+                .set("background".equals(category), User::getBackgroundUrl, url));
+        if (oldUrl != null && !oldUrl.equals(url)) media.delete(oldUrl, userId);
+    }
+
+    @Transactional
     public void updateProfile(Long userId, ProfileUpdateRequest request) {
         requireActiveUser(userId);
         userMapper.update(null, Wrappers.<User>lambdaUpdate().eq(User::getId, userId)
@@ -191,15 +206,6 @@ public class AuthService {
                 .set(User::getNickname, request.getNickname().trim())
                 .set(User::getSignature, request.getSignature())
                 .set(User::getGender, request.getGender()).set(User::getBirthday, request.getBirthday()));
-    }
-
-    @Transactional
-    public void updateMedia(Long userId, String category, String url) {
-        requireActiveUser(userId);
-        if (!"avatar".equals(category) && !"background".equals(category)) throw new BizException(ErrorCode.PARAM_INVALID);
-        userMapper.update(null, Wrappers.<User>lambdaUpdate().eq(User::getId, userId)
-                .set("avatar".equals(category), User::getAvatarUrl, url)
-                .set("background".equals(category), User::getBackgroundUrl, url));
     }
 
     @Transactional

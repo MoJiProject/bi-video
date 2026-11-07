@@ -469,18 +469,11 @@
           <span style="font-size: 14px"
             ><span style="color: red">*&nbsp;</span>简介</span
           >
-          <span v-show="placeholderFlag" class="placeholder">视频类型：动漫杂谈<br/>相关题材：可填写多个<br/>简介：...</span>
-          <span class="content-length">{{ content.length }}/2000</span>
-          <div class="content-input" @click="handleContent" @input="handleContent" contenteditable="true" 
-          @keyup.left="handleContent" @keyup.right="handleContent" @keyup.up="handleContent" @keyup.down="handleContent">
-          </div>
-          <div v-show="eitFlag" class="eit-container" 
-          :style="{
-            left: eitLocationX-284+'px',
-            top: eitLocationY-330+'px',
-          }">
-            <eit :eitList="eitList" :eitKeyWord="eitKeyWord"/>
-          </div>
+          <PostEditor
+            v-model="video.contentHtml"
+            :placeholder="descriptionPlaceholder"
+            :max-length="2000"
+          />
         </div>
 
         <div class="form-field permission-field">
@@ -527,7 +520,7 @@
 <script>
 import apiClient from "../services/apiClient";
 import { offlinePreviewEnabled } from "../preview/config";
-import { fetchMentionUsers, fetchPublishingCategories } from "../api/product";
+import { fetchPublishingCategories } from "../api/product";
 import { sanitizeRichText, extractMentionIds } from "../utils/richText";
 import { uploadVideoByChunks } from "../utils/chunkUpload";
 import { reactive, onMounted, ref, computed, nextTick, watch, onUnmounted } from "vue";
@@ -541,17 +534,16 @@ import {
   normalizeCoverFile,
 } from "../utils/remoteVideo";
 import CropperCompVue from "./CropperComp.vue";
-import eit from "../components/eit.vue";
+import PostEditor from "../components/PostEditor.vue";
 export default {
   name: "MainComponent",
-  components: {
-    CropperCompVue,
-    eit,
-  },
+components: {
+  CropperCompVue,
+  PostEditor,
+},
   setup() {
     const store = useGlobalStore();
     const loading = ref(false);
-    const storer=reactive(store);
     const dialogVisible = ref(false);
     let nextRoute = null;
     const inputValue = ref("");
@@ -571,14 +563,7 @@ export default {
     const videoSize = ref(0);
     const coverImg = ref(0);
     const content = ref("");
-    const placeholderFlag = ref(true);
     const centerDialogVisible = ref(false);
-    const eitLocationX=ref(null);
-    const eitLocationY=ref(null);
-    const eitFlag=ref(false);
-    const eitList=reactive({});
-    const eitKeyWord=ref("");
-    const eitUserNames=ref([]);
     const video = reactive({
       id: 0,
       userId: 0,
@@ -586,8 +571,9 @@ export default {
       remoteUrl: "",
       tag: [],
       title: "",
-      content: "",
-      videoAddress: "",
+       content: "",
+       contentHtml: "",
+       videoAddress: "",
       likeNumber: 0,
       commentNumber: 0,
       collectNumber: 0,
@@ -615,8 +601,13 @@ export default {
     const showEditor = computed(
       () => offlinePreviewEnabled || fileListVideo.value.length === 1 || video.videoSource === 1
     );
+    watch(() => video.contentHtml, (html) => {
+      const doc = new DOMParser().parseFromString(html || "", "text/html");
+      video.content = (doc.body.textContent || "").trim();
+    }, { immediate: true });
     //远程视频取不到首帧时投稿使用的默认封面
     const defaultCoverSrc = "/img/page-bg-7.png";
+    const descriptionPlaceholder = "视频类型：动漫杂谈\n相关题材：可填写多个\n简介：...";
     const handleSourceTypeChange = (value) => {
       if (value === 1) {
         //远程视频无需本地文件，清理已选择的本地视频
@@ -756,16 +747,13 @@ export default {
 
     onMounted(() => {
       window.scrollTo({top: 0, behavior: "smooth"});
-      getEitList();
       fetchPublishingCategories().then(rows => { countries.value = rows; })
         .catch(error => ElMessage.error(error.message || "加载投稿分区失败"));
-      window.addEventListener("click", handleClickOutside);
       window.addEventListener("beforeunload",handleOnload);
       
     });
 
     onUnmounted(() => {
-      window.removeEventListener("click", handleClickOutside);
       window.removeEventListener("beforeunload",handleOnload);
     })
 
@@ -780,11 +768,6 @@ export default {
        
     }
 
-    function handleClickOutside(event) {
-      if (!(event.target.className === "content-input"||event.target.className === "placeholder"||event.target.className === "eit-container"||event.target.className === "content-length"))
-        eitFlag.value=false;
-    }
-  
     //重新上传视频
     function reVideo() {
       handleRemoveVideo();
@@ -1411,8 +1394,9 @@ export default {
       remoteVideoCode.value = "";
       video.tag = [];
       dynamicTags.value = [];
-      video.content = "";
-      video.title = "";
+       video.content = "";
+       video.contentHtml = "";
+       video.title = "";
       video.subZoneKey = "";
       video.subZoneValue = "";
       const inputDom = document.querySelector(".content-input");
@@ -1420,154 +1404,6 @@ export default {
       video.type = 0;
 
     }
-
-     //获取@用户列表
-    async function getEitList(){
-
-      try {
-
-        Object.assign(eitList, await fetchMentionUsers());
-        
-      } catch (error) {
-        ElMessage.error(error.message || "加载可提及用户失败");
-      }
-
-    }
-
-     //简介输入框
-    let eitRange = null;
-     function handleContent(){  
-
-      const inputDom = document.querySelector(".content-input");
-      if(inputDom.innerText.length>2000)
-      inputDom.innerText=inputDom.innerText.slice(0,2000);
-      if(inputDom.innerHTML.trim().length>0)
-     { 
-      video.contentHtml = inputDom.innerHTML;
-      video.content = inputDom.innerText.trim();
-      placeholderFlag.value=false;
-    }
-      else
-    { 
-      video.contentHtml = "";
-      placeholderFlag.value=true;
-    }
-    
-      // 获取当前选区和光标位置
-      const selection = window.getSelection();
-      if (!selection.rangeCount) return; // 如果没有选区，直接返回
-
-      const currentRange = selection.getRangeAt(0);
-      if (!inputDom.contains(currentRange.commonAncestorContainer)) return;
-      eitRange = currentRange.cloneRange();
-
-      // 获取光标的 X 坐标
-      eitLocationX.value = currentRange.getBoundingClientRect().x;
-
-      // 根据光标 Y 坐标更新位置
-      eitLocationY.value = currentRange.getBoundingClientRect().y > 350
-        ? 241
-        : currentRange.getBoundingClientRect().y;
-
-      // 获取光标前的所有文本
-      const textBeforeCursor =  getTextBeforeCursor(currentRange);
-
-      // 检测是否包含 @ 并提取关键字
-      const atIndex = textBeforeCursor.lastIndexOf("@");
-      if (atIndex !== -1) {
-        const text = textBeforeCursor.substring(atIndex);
-        if (text.length > 20 || text.includes(" ")) {
-          eitFlag.value = false;
-          return;
-        }
-        eitFlag.value = true;
-        eitKeyWord.value = text.substring(1).trim();
-      } else {
-        eitFlag.value = false;
-      }
-    }
-    
-    // 获取光标之前的文本，支持嵌套子节点
-    function getTextBeforeCursor(range) {
-      let textBeforeCursor = "";
-      let currentNode = range.startContainer;
-
-      // 遍历节点，拼接光标前的文本
-      while (currentNode) {
-        if (currentNode.nodeType === Node.TEXT_NODE) {
-          // 如果是文本节点，拼接到结果中
-          textBeforeCursor = currentNode.textContent.slice(0, range.startOffset) + textBeforeCursor;
-          break;
-        }
-        // 如果是元素节点，继续向上遍历
-        currentNode = currentNode.previousSibling || currentNode.parentNode;
-      }
-
-      return textBeforeCursor;
-    }
-
-    //添加@用户
-    function insertEit() {
-
-        // 获取当前选区和光标位置
-        const selection = window.getSelection();
-        const inputDom = document.querySelector(".content-input");
-        if (selection?.rangeCount) {
-          const currentRange = selection.getRangeAt(0);
-          if (inputDom?.contains(currentRange.commonAncestorContainer)) {
-            eitRange = currentRange.cloneRange();
-          }
-        }
-        if (!eitRange?.startContainer || !inputDom?.contains(eitRange.startContainer)) return;
-        const range = eitRange;
-
-        // 找到最近的 `@` 并删除关键字
-        const containerText = range.startContainer.textContent;
-        const startOffset = range.startOffset;
-        const atIndex = containerText.lastIndexOf("@", startOffset - 1);
-
-        if (atIndex !== -1) {
-          // 构建新内容，删除 @关键字
-          const beforeAt = containerText.slice(0, atIndex); // `@` 之前的内容
-          const afterAt = containerText.slice(startOffset); // 光标之后的内容
-          range.startContainer.textContent = beforeAt + afterAt;
-
-          // 更新 Range 位置
-          const newOffset = atIndex; // 新光标位置在 `@` 之前
-          range.setStart(range.startContainer, newOffset);
-          range.setEnd(range.startContainer, newOffset);
-        }
-
-        // 创建新的按钮元素
-        const button = `<a m1a,s,a2href="./home?homeMenu=1&userId=${store.eitUserId}"  contentEditable="false" class="at-msg" style="color:#0A8271;">@${store.eitUserName}&nbsp;</a>`;
-        // 插入新按钮到光标位置
-        const fragment = range.createContextualFragment(button); // 创建 DOM 片段
-        const lastChild = fragment.lastChild;
-        range.insertNode(lastChild); // 插入按钮
-
-        // 设置光标位置到按钮后面
-        const newRange = document.createRange();
-        newRange.setStartAfter(lastChild);
-        newRange.setEndAfter(lastChild);
-        selection.removeAllRanges();
-        selection.addRange(newRange);
-
-        // 清空输入框
-        if(!eitUserNames.value.includes(store.eitUserName))
-          eitUserNames.value.push(store.eitUserName);
-        eitKeyWord.value = "";
-        eitFlag.value = false;
-        store.setEitUserName("");
-        handleContent();
-    }
-     
-    watch(()=>storer.eitUserName,()=>{
-
-      if(storer.eitUserName!== "")
-      insertEit();
-
-     })
-
 
     //转换成html
     async function publishComment() {
@@ -1700,13 +1536,7 @@ export default {
       loading,
       store,
       content,
-      eitList,
-      handleContent,
-      placeholderFlag,
-      eitLocationX,
-      eitLocationY,
-      eitFlag,
-      eitKeyWord,
+      descriptionPlaceholder,
     };
   },
   beforeRouteLeave(to, from, next) {

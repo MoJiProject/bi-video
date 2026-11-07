@@ -9,7 +9,7 @@
     <input
       type="text"
       class="search-box"
-      placeholder="输入关键字搜索"
+      :placeholder="defaultHotWord || '输入关键字搜索'"
       maxlength="30"
       @focus="showBox = true"
       v-model="Content"
@@ -295,6 +295,8 @@ export default {
     const mainSearchFlag = ref(props.mainSearchFlag);
     const showBox = ref(false); // 控制盒子显示的状态
     const Content = ref("");
+    const defaultHotWord = ref("");
+    let hotWordTimer;
     const searchDatas = reactive([]);
     const flag = ref(false);
     const searchHeight = ref(0);
@@ -315,16 +317,19 @@ export default {
     onMounted(() => {
       document.addEventListener("mousedown", handleClickInside);
       window.addEventListener("scroll", handleScroll);
-      selectFireWord();
-      selectSearchContent();
+       selectFireWord();
+       refreshDefaultHotWord();
+       const hotWordTimer = setInterval(refreshDefaultHotWord, 30000);
+       selectSearchContent();
       const urlParams = new URLSearchParams(window.location.search);
       Content.value = urlParams.get("keyword");
     });
 
-    onBeforeUnmount(() => {
-      document.removeEventListener("mousedown", handleClickInside);
-      window.removeEventListener("scroll", handleScroll);
-    });
+       onBeforeUnmount(() => {
+         document.removeEventListener("mousedown", handleClickInside);
+         window.removeEventListener("scroll", handleScroll);
+         clearInterval(hotWordTimer);
+       });
 
     function saveSearchContent() {
       if (Content.value.length > 0) {
@@ -422,11 +427,20 @@ export default {
       imgFlag1.value = false;
     }
 
-    async function selectFireWord() {
+async function selectFireWord() {
+  try {
+    const list = await searchApi.hot(10);
+    fireSearch.length = 0;
+    list.forEach((k) => fireSearch.push(k.keyword));
+      } catch (error) {}
+    }
+    async function refreshDefaultHotWord() {
       try {
-        const list = await searchApi.hot(10);
-        fireSearch.length = 0;
-        list.forEach((k) => fireSearch.push(k.keyword));
+        const list = await searchApi.hot(50);
+        if (list?.length) {
+          const pick = list[Math.floor(Math.random() * list.length)];
+          defaultHotWord.value = pick?.keyword || pick?.word || '';
+        }
       } catch (error) {}
     }
     //获取关键字

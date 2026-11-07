@@ -10,7 +10,7 @@
       <div v-else-if="shareUserList.length>0" class="share-container"  ref="scrollContainer"  @wheel.prevent="handleWheel">
           <div class="share-item" v-for="user in shareUserList" :key="user.id" @click="clickUser(user)">
               <img class="avatar" :src="user.avatarAddress">
-              <img class="check" v-show="user?.checkFlag" src="/img/选中.png">
+              <span class="check" v-show="user?.checkFlag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L19 7" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
               <span style="color: #1C2321;">{{ user.userName }}</span>
           </div>
       </div>
@@ -293,12 +293,18 @@ return {
       .check{
         position: absolute;
         right: 0; /* 替代 transform */
-        bottom: 37px; /* 替代 transform */
+        top: 40px; /* 替代 transform */
         width: 16px;
-        background-color: white;
+        background-color: var(--brand);
         height: 16px;
         border-radius: 50%;
+        border: 1px solid var(--brand);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
       }
+      .check svg { width: 12px; height: 12px; }
       span{
         position: absolute;
         top: 60px;
@@ -370,7 +376,7 @@ return {
   }
 
   .share-btn:hover{
-    background-color: #00b8f6;
+    background-color: var(--brand-hover);
     transition: all 0.3s ease;
 }
 

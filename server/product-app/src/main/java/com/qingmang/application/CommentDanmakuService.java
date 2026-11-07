@@ -14,6 +14,7 @@ import com.qingmang.domain.interaction.mapper.DanmakuMapper;
 import com.qingmang.domain.video.mapper.VideoMapper;
 import com.qingmang.domain.user.mapper.UserMapper;
 import com.qingmang.domain.social.UserPost;
+import com.qingmang.application.MediaStorageService;
 import com.qingmang.domain.social.mapper.UserPostMapper;
 import com.qingmang.infrastructure.mapper.CounterMapper;
 import com.qingmang.infrastructure.mapper.InteractionQueryMapper;
@@ -36,6 +37,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 @Service
 public class CommentDanmakuService {
 
+    private final MediaStorageService media;
     private final CommentMapper commentMapper;
     private final CommentLikeMapper commentLikeMapper;
     private final DanmakuMapper danmakuMapper;
@@ -53,9 +55,11 @@ public class CommentDanmakuService {
                                  DanmakuMapper danmakuMapper, VideoMapper videoMapper,
                                  UserMapper userMapper, CounterMapper counterMapper,
                                  InteractionQueryMapper queryMapper, ObjectMapper json, UserPostMapper postMapper,
+                                 MediaStorageService media,
                                  ApplicationEventPublisher events, MentionNotificationService mentions,
                                  NotificationCenterService notifications) {
         this.commentMapper = commentMapper;
+        this.media = media;
         this.commentLikeMapper = commentLikeMapper;
         this.danmakuMapper = danmakuMapper;
         this.videoMapper = videoMapper;
@@ -254,6 +258,12 @@ public class CommentDanmakuService {
         commentMapper.update(null, Wrappers.<Comment>lambdaUpdate()
                 .eq(Comment::getId, commentId).set(Comment::getDeletedAt, LocalDateTime.now()));
         adjustCommentCount(c, -removed);
+        if (c.getImageUrls() != null && !c.getImageUrls().isBlank()) {
+            try {
+                List<String> imgs = json.readValue(c.getImageUrls(), new TypeReference<List<String>>() {});
+                for (String img : imgs) media.delete(img, c.getAuthorId());
+            } catch (Exception ignored) {}
+        }
         if (c.getRootId() != null) {
             commentMapper.update(null, Wrappers.<Comment>lambdaUpdate()
                     .eq(Comment::getId, c.getRootId()).setSql("reply_count = GREATEST(reply_count - 1, 0)"));
