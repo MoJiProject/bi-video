@@ -232,7 +232,7 @@ export default {
           users.value = res.data.data.records;
           total.value = res.data.data.total;
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "加载用户列表失败");
@@ -268,7 +268,7 @@ export default {
     //提交封禁
     async function submitBan() {
       if (!banReason.value.trim()) {
-        ElMessage("请填写封禁原因");
+        ElMessage.warning("请填写封禁原因");
         return;
       }
       submitting.value = true;
@@ -283,7 +283,7 @@ export default {
           banDialogVisible.value = false;
           loadUsers();
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "封禁失败");
@@ -312,7 +312,7 @@ export default {
           ElMessage.success(msgOf(res));
           loadUsers();
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "解封失败");
@@ -337,7 +337,7 @@ export default {
           ElMessage.success(`已将「${row.userName}」${action}`);
           loadUsers();
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "操作失败");
@@ -367,7 +367,7 @@ export default {
           banList.value = res.data.data.records;
           banTotal.value = res.data.data.total;
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "加载封禁记录失败");

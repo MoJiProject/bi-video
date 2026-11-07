@@ -202,7 +202,7 @@ export default {
           total.value = res.data.data.total;
           selected.value = [];
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "加载搜索词失败");
@@ -253,7 +253,7 @@ export default {
     async function submitEdit() {
       const word = editWord.value.trim();
       if (!word || word.length > 64) {
-        ElMessage("搜索词须为 1 至 64 个字符");
+        ElMessage.warning("搜索词须为 1 至 64 个字符");
         return;
       }
       submitting.value = true;
@@ -267,7 +267,7 @@ export default {
           editDialogVisible.value = false;
           loadKeyWords();
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "保存失败");
@@ -296,7 +296,7 @@ export default {
           countDialogVisible.value = false;
           loadKeyWords();
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "保存失败");
@@ -328,7 +328,7 @@ export default {
           deleteDialogVisible.value = false;
           loadKeyWords();
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "删除失败");

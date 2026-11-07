@@ -1222,7 +1222,7 @@
                         <el-input
                           v-model="loginForm.userName"
                           @input="removeSpaces"
-                          maxlength="10"
+                          maxlength="16"
                           placeholder="请输入账号"
                           style="border: none"
                           @keydown.enter="loginAxios"
@@ -1305,7 +1305,7 @@
                           v-model="signinForm.userName"
                           placeholder="请输入账号"
                           @input="removeSpaces1"
-                          maxlength="10"
+                          maxlength="16"
                           style="border: none"
                           @keydown.enter="sigininAxios"
                         />
@@ -1424,7 +1424,7 @@
                       <el-form-item label="账号">
                         <el-input
                           @input="removeSpaces2"
-                          maxlength="10"
+                          maxlength="16"
                           v-model="forgetPasswordForm.userName"
                           placeholder="请输入账号"
                           @keydown.enter="putPasswordAxios"

@@ -2613,6 +2613,7 @@ export default {
     const collectSubimtFlag = ref(false);
     const addWaitWatchHoverFlag = ref(false);
     const waitWatchMsg = ref("");
+    let waitWatchMsgTimer = null;
     const keyInfo = ref("");
     const audioInfoFlag = ref(false);
     const watchingNumber = ref(null);
@@ -2773,6 +2774,7 @@ export default {
       clearTimeout(keyInfoTime);
       clearTimeout(delayShareTime);
       clearTimeout(AutoPlayVideoListTime);
+      clearTimeout(waitWatchMsgTimer);
       clearInterval(intervalId);
     });
 
@@ -4351,10 +4353,14 @@ export default {
             waitWatchMsg.value = "已添加至稍后观看";
           else if (response.data.data === "0")
             waitWatchMsg.value = "已从稍后观看中移除";
+          clearTimeout(waitWatchMsgTimer);
+          waitWatchMsgTimer = setTimeout(() => {
+            waitWatchMsg.value = "";
+            waitWatchMsgTimer = null;
+          }, 2000);
+        } else {
+          ElMessage.warning({ message: response.data.msg || "操作失败" });
         }
-        setTimeout(() => {
-          waitWatchMsg.value = "";
-        }, 2000);
       } catch (error) {
         ElMessage({
           message: "未知错误",
@@ -6358,7 +6364,7 @@ textarea,
   top: 50%;
   width: 75px;
   height: 55px;
-  margin: -27.5px 0 0 -37.5px;
+  margin: -80px 0 0 -37.5px;
   object-fit: contain;
   pointer-events: none;
   z-index: 3;
@@ -6508,73 +6514,73 @@ textarea,
   top: 86.67%; /* dot center (15,28) in 30px box */
   left: 43.33%;
   animation: dotMoveBottom 0.5s ease-in-out infinite;
-  background-color: #0FA68E;
+  background-color: #ff4d6d;
 }
 .dot:nth-child(2) {
   top: 0%; /* dot center (15,2) */
   left: 43.33%;
   animation: dotMoveTop 0.5s ease-in-out infinite;
-  background-color: #2CBEA8;
+  background-color: #ff9f1c;
 }
 .dot:nth-child(3) {
   top: 16.67%; /* dot center (8,7) */
   left: 20%;
   animation: dotMoveTopLeft 0.5s ease-in-out infinite;
-  background-color: #58CCB9;
+  background-color: #ffd60a;
 }
 .dot:nth-child(4) {
   top: 16.67%; /* dot center (22,7) */
   left: 66.67%;
   animation: dotMoveTopRight 0.5s ease-in-out infinite;
-  background-color: #0FA68E;
+  background-color: #8ac926;
 }
 .dot:nth-child(5) {
   top: 43.33%; /* dot center (28,15) */
   left: 86.67%;
   animation: dotMoveRight 0.5s ease-in-out infinite;
-  background-color: #2CBEA8;
+  background-color: #2ec4b6;
 }
 .dot:nth-child(6) {
   top: 43.33%; /* dot center (2,15) */
   left: 0%;
   animation: dotMoveLeft 0.5s ease-in-out infinite;
-  background-color: #58CCB9;
+  background-color: #00b4d8;
 }
 .dot:nth-child(7) {
   top: 70%; /* dot center (8,23) */
   left: 20%;
   animation: dotMoveBottomLeft 0.5s ease-in-out infinite;
-  background-color: #07856F;
+  background-color: #3a86ff;
 }
 .dot:nth-child(8) {
   top: 70%; /* dot center (22,23) */
   left: 66.67%;
   animation: dotMoveBottomRight 0.5s ease-in-out infinite;
-  background-color: #0FA68E;
+  background-color: #8338ec;
 }
 .dot:nth-child(9) {
   top: 73.33%; /* dot center (24,24) */
   left: 73.33%;
   animation: dotMoveRightBottom 0.5s ease-in-out infinite;
-  background-color: #2CBEA8;
+  background-color: #ff006e;
 }
 .dot:nth-child(10) {
   top: 13.33%; /* dot center (6,6) */
   left: 13.33%;
   animation: dotMoveLeftTop 0.5s ease-in-out infinite;
-  background-color: #07856F;
+  background-color: #fb5607;
 }
 .dot:nth-child(11) {
   top: 73.33%; /* dot center (6,24) */
   left: 13.33%;
   animation: doMoveLeftBottom 0.5s ease-in-out infinite;
-  background-color: #58CCB9;
+  background-color: #caffbf;
 }
 .dot:nth-child(12) {
   top: 13.33%; /* dot center (24,6) */
   left: 73.33%;
   animation: dotMoveRightTop 0.5s ease-in-out infinite;
-  background-color: #0FA68E;
+  background-color: #b5179e;
 }
 
 @keyframes dotMoveBottom {
@@ -7232,12 +7238,6 @@ textarea,
   box-shadow: 0 8px 20px rgba(28, 35, 33, 0.22);
   backdrop-filter: blur(6px);
   z-index: 2;
-  animation: waitWatchMsgIn .18s ease-out;
-}
-
-@keyframes waitWatchMsgIn {
-  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
-  to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 .scrolling-content-container {

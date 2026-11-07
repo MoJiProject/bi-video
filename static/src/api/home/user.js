@@ -15,7 +15,7 @@ export function mapUser(user) {
     grade: user.level,
     collectNumber: user.favoriteCount,
     videoNumber: user.videoCount,
-    dynamicNumber: user.postCount,
+    dynamicNumber: 0,
     ownDynamicNumber: user.postCount,
     createTime: user.createdAt,
     adminFlag: user.role === 1,

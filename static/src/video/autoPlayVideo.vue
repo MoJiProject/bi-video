@@ -16,16 +16,15 @@
          </button>
          <div class="auto-play-video-operation">
             <span class="auto-play-video-operation1" @click="waitLike">
-                <img v-show="!propss.likeVideoClickFlag" src="/img/点赞灰.png">
-                <img v-show="propss.likeVideoClickFlag" src="/img/点赞蓝小.png">
-                <span :style="{color: propss.likeVideoClickFlag? 'var(--brand)':'white'}">点赞</span></span>
+                <img :src="propss.likeVideoClickFlag ? '/img/点赞青.png' : '/img/点赞灰.png'">
+                <span class="auto-play-video-like-label" :style="{color: propss.likeVideoClickFlag? 'var(--brand)':'white'}">点赞</span></span>
             <span class="auto-play-video-operation3" @click="store.setLTCAFlag(3)">
                 <img v-show="!propss.videoCollectClickFlag" src="/img/收藏灰.png">
-                <img v-show="propss.videoCollectClickFlag" src="/img/视频收藏蓝.png">
+                <img v-show="propss.videoCollectClickFlag" src="/img/收藏青.png">
                 <span style="margin-left: 1px;" :style="{color: propss.videoCollectClickFlag? 'var(--brand)':'white'}">收藏</span></span>
             <span ref="shareTrigger" class="auto-play-video-operation4" @click="shareHoverF2()" @mouseleave="shareHoverF(false)">
                 <img v-show="!propss.videoShareClickFlag" src="/img/分享灰.png">
-                <img v-show="propss.videoShareClickFlag" src="/img/视频分享蓝.png">
+                <img v-show="propss.videoShareClickFlag" src="/img/分享青.png">
                 <span style="margin-left: 1px;" :style="{color: propss.videoShareClickFlag? 'var(--brand)':'white'}">分享</span></span>
             <Teleport to="body" :disabled="propss.intoVideoAllDisplayIngFlag">
               <div v-show="shareHover&&store.shareHover" class="video-share-container" :style="!propss.intoVideoAllDisplayIngFlag ? sharePopupStyle : undefined" @mouseover="shareHoverF(true)" @mouseleave="shareHoverF(false)"><videoShareC :share-hover="shareHover" :height-flag="true"/></div>
@@ -552,9 +551,17 @@ export default {
                 margin-left: 18px;
                 cursor: pointer;
 
+                .auto-play-video-like-label{
+                    font-size: 12px;
+                    font-weight: 400;
+                    line-height: 15px;
+                }
+
                 img{
-                    width: 20px;
-                    height: 20px;
+                    width: 17px;
+                    height: 17px;
+                    object-fit: contain;
+                    vertical-align: middle;
                 }
             }
             .auto-play-video-operation3{
@@ -929,7 +936,7 @@ export default {
         width: 20px;
         height: 24px;
         animation: l3 6s infinite linear;
-        transform: rotate(93deg) translateX(2px);
+        transform: rotate(0deg);
       }
   }
 

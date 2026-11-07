@@ -264,7 +264,7 @@ export default {
           total.value = res.data.data.total;
           selected.value = [];
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "加载私信列表失败");
@@ -309,7 +309,7 @@ export default {
     async function submitSend() {
       const content = sendContent.value.trim();
       if (!content) {
-        ElMessage("请输入私信内容");
+        ElMessage.warning("请输入私信内容");
         return;
       }
       submitting.value = true;
@@ -323,7 +323,7 @@ export default {
           ElMessage.success(msgOf(res));
           sendDialogVisible.value = false;
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "发送失败");
@@ -352,7 +352,7 @@ export default {
           deleteDialogVisible.value = false;
           loadMessages();
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "删除失败");

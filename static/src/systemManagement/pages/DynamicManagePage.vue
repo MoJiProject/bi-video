@@ -245,7 +245,7 @@ export default {
           total.value = res.data.data.total;
           selected.value = [];
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "加载动态列表失败");
@@ -289,7 +289,7 @@ export default {
     //跳转到动态详情
     function goDynamicDetail(dynamicId) {
       if (!dynamicId) {
-        ElMessage("该动态缺少id，无法跳转");
+        ElMessage.warning("该动态缺少id，无法跳转");
         return;
       }
       window.open(`/dynamicDetail?dynamicId=${dynamicId}`, "_blank");
@@ -321,7 +321,7 @@ export default {
           deleteDialogVisible.value = false;
           loadDynamics();
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error("删除失败");
@@ -352,7 +352,7 @@ export default {
           ElMessage.success(msgOf(res));
           loadDynamics();
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error("操作失败");

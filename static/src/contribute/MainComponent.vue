@@ -1044,7 +1044,6 @@ export default {
         ElMessage({
           message: "请填写可用的视频直链",
           type: "warning",
-          offset: 376,
         });
         return;
       }
@@ -1058,7 +1057,6 @@ export default {
         ElMessage({
           message: "请上传封面",
           type: "warning",
-          offset: 376,
         });
         return;
       }
@@ -1067,7 +1065,6 @@ export default {
         ElMessage({
           message: "简介太短了",
           type: "warning",
-          offset: 376,
         });
         return;
       }
@@ -1086,7 +1083,6 @@ export default {
             ElMessage({
               message: "请先上传视频",
               type: "warning",
-              offset: 376,
             });
             return;
           }
@@ -1096,7 +1092,6 @@ export default {
             ElMessage({
               message: "视频上传失败，请重新选择视频",
               type: "error",
-              offset: 376,
             });
             return;
           }
@@ -1374,7 +1369,6 @@ export default {
           ElMessage({
             message: "标签已存在",
             type: "warning",
-            offset: 376,
           });
           return; // 直接返回，不添加标签
         }
@@ -1386,7 +1380,6 @@ export default {
           ElMessage({
             message: "标签不能超过5个",
             type: "warning",
-            offset: 376,
           });
         }
       }

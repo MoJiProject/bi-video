@@ -142,7 +142,7 @@ export default {
           total.value = res.data.data.total;
           logTotal.value = res.data.data.total;
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "加载操作日志失败");

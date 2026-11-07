@@ -72,8 +72,13 @@
                 <div></div>
              </div>
            </div>
+           <AppEmptyState
+             v-if="dialogueList.length===0&&dialogueState==='ready'"
+             class="conversation-empty-state"
+             title="暂无会话"
+             compact
+           />
         </div> 
-        <AppEmptyState v-if="dialogueList.length===0&&dialogueState==='ready'" title="暂无会话" compact/>
         </div>
         <div v-show="currentDialogue" class="body-right">
          <div class="message-username-title">
@@ -1389,10 +1394,24 @@ function restoreBodyOverflow() {
     }
 
     .message-user-list{
+      position: relative;
       width: 100%;
       height: calc(100% - 36px);
         overflow-y: auto;
         overflow-x: hidden;
+
+        :deep(.conversation-empty-state){
+          position: absolute;
+          inset: 0;
+          box-sizing: border-box;
+          width: 100%;
+          height: 100%;
+          min-height: 0;
+          padding: 16px;
+          border: 0;
+          border-radius: 0;
+          background: transparent;
+        }
 
 
         .message-user-item{

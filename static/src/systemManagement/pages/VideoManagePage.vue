@@ -377,7 +377,7 @@ export default {
           counts.reject = res.data.data.rejectNumber;
           selected.value = [];
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "加载视频列表失败");
@@ -431,7 +431,7 @@ export default {
           ElMessage.success(msgOf(res));
           loadVideos();
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "审核失败");
@@ -462,7 +462,7 @@ export default {
           ElMessage.success(msgOf(res));
           loadVideos();
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "上架失败");
@@ -490,7 +490,7 @@ export default {
     async function submitReasonAction() {
       const reason = reasonText.value.trim();
       if (!reason) {
-        ElMessage("请填写原因");
+        ElMessage.warning("请填写原因");
         return;
       }
       submitting.value = true;
@@ -512,7 +512,7 @@ export default {
           reasonDialogVisible.value = false;
           loadVideos();
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "操作失败");
@@ -543,11 +543,11 @@ export default {
           ids: pendingIds.value,
         });
         if (res.data.code === 1) {
-          ElMessage(`已删除 ${res.data.data.deleteNumber} 个视频，此操作不可恢复`);
+          ElMessage.success(`已删除 ${res.data.data.deleteNumber} 个视频，此操作不可恢复`);
           deleteDialogVisible.value = false;
           loadVideos();
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "删除失败");

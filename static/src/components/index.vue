@@ -6,7 +6,7 @@
 
     <!-- 首屏 -->
     <div class="home-head" @mousemove="onMouseMove">
-      <section class="hero">
+      <section class="hero" :class="{ 'has-banner': banners.length }">
         <HomeBannerCarousel v-if="banners.length" :banners="banners" />
         <div class="hero-inner page" :class="{ 'is-banner-placeholder': banners.length }"
           :inert="banners.length ? true : undefined" :aria-hidden="banners.length ? 'true' : undefined">
@@ -269,6 +269,11 @@ onUnmounted(() => {
   align-items: center;
 }
 
+.hero.has-banner {
+  min-height: 0;
+  aspect-ratio: 24 / 5;
+}
+
 .hero::after {
   content: "";
   position: absolute;
@@ -294,7 +299,7 @@ onUnmounted(() => {
   color: #fff;
 }
 
-.hero-inner.is-banner-placeholder { visibility: hidden; pointer-events: none; }
+.hero-inner.is-banner-placeholder { display: none; }
 
 .hero-title {
   margin: 0 0 var(--gap-2);

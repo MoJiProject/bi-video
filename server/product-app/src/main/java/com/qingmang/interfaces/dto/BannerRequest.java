@@ -12,6 +12,8 @@ public class BannerRequest {
     @NotBlank(message = "请上传Banner图片")
     @Size(max = 512, message = "图片地址过长")
     private String imageUrl;
+    @Size(max = 512, message = "原图地址过长")
+    private String originalImageUrl;
     @Size(max = 200, message = "内容不能超过200个字符")
     private String content;
     @Size(max = 2000, message = "链接不能超过2000个字符")

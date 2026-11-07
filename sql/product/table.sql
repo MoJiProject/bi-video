@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS `banner`;
 CREATE TABLE `banner` (
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `image_url` VARCHAR(512) NOT NULL COMMENT '图片地址',
+    `original_image_url` VARCHAR(512) NULL COMMENT '原始图片地址，用于重新裁剪',
     `content` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '可选内容，填写时链接必填',
     `link_url` VARCHAR(2000) NOT NULL DEFAULT '' COMMENT 'HTTP/HTTPS或站内链接',
     `sort_order` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '数字越小越靠前',
@@ -28,7 +29,7 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user`
 (
     `id`            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '用户ID',
-    `username`      VARCHAR(32)     NOT NULL COMMENT '登录账号，唯一',
+    `username`      VARCHAR(32)     CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '登录账号，唯一',
     `password_hash` VARCHAR(100)    NOT NULL COMMENT '密码哈希，禁止存明文',
     `nickname`      VARCHAR(32)     NOT NULL COMMENT '昵称',
     `avatar_url`    VARCHAR(512)    NOT NULL DEFAULT '/img/avatar-default.png' COMMENT '头像地址',

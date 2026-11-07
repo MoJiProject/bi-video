@@ -14,6 +14,7 @@ public class Banner implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long id;
     private String imageUrl;
+    private String originalImageUrl;
     private String content;
     private String linkUrl;
     private Integer sortOrder;

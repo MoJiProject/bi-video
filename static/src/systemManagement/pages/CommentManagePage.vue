@@ -101,7 +101,7 @@
               @click="goVideoComment(scope.row)"
             >
               <el-icon class="jump-icon"><VideoCamera /></el-icon>
-              <span class="sys-clip">{{ scope.row.videoTitle || "视频已删除" }}</span>
+              <span class="sys-clip">视频</span>
             </div>
             <div
               v-else-if="scope.row.dynamicId"
@@ -109,7 +109,7 @@
               @click="goDynamicDetail(scope.row)"
             >
               <el-icon class="jump-icon"><Promotion /></el-icon>
-              <span>动态 #{{ scope.row.dynamicId }}</span>
+              <span>动态</span>
             </div>
             <span v-else class="sub-text">-</span>
           </template>
@@ -256,7 +256,7 @@ export default {
           total.value = res.data.data.total;
           selected.value = [];
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error("加载评论列表失败");
@@ -306,7 +306,7 @@ export default {
         goDynamicDetail(row);
         return;
       }
-      ElMessage("该评论没有关联的视频或动态，无法跳转");
+      ElMessage.warning("该评论没有关联的视频或动态，无法跳转");
     }
 
     function handleReset() {
@@ -350,7 +350,7 @@ export default {
           deleteDialogVisible.value = false;
           loadComments();
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error("删除失败");
@@ -381,7 +381,7 @@ export default {
           ElMessage.success(msgOf(res));
           loadComments();
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error("操作失败");

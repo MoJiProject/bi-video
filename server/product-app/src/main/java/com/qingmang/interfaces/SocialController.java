@@ -118,7 +118,6 @@ public class SocialController {
         Long id = social.post(AuthContext.requireUserId(), body);
         return ApiResponse.ok(Map.of("postId", id));
     }
-    }
 
     @DeleteMapping("/post/{postId}")
     public ApiResponse<Void> deletePost(@PathVariable Long postId) {

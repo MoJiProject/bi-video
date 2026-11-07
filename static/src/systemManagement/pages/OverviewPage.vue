@@ -232,7 +232,7 @@ export default {
         if (res.data.code === 1) {
           Object.assign(overview, res.data.data);
         } else {
-          ElMessage(msgOf(res));
+          ElMessage.warning(msgOf(res));
         }
       } catch (error) {
         ElMessage.error(error.message || "加载概览数据失败");

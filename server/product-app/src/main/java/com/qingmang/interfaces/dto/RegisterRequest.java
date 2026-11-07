@@ -9,8 +9,7 @@ import lombok.Data;
 public class RegisterRequest {
 
     @NotBlank(message = "账号不能为空")
-    @Size(min = 4, max = 20, message = "账号长度 4-20 位")
-    @Pattern(regexp = "^[a-zA-Z][a-zA-Z0-9_]*$", message = "账号只能以字母开头，其余为字母数字下划线")
+    @Size(min = 1, max = 16, message = "账号长度 1-16 位")
     private String username;
 
     @NotBlank(message = "密码不能为空")

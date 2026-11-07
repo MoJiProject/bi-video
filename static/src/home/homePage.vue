@@ -1,5 +1,5 @@
 <template>
-  <div v-if="ready && userId !== null" class="home-page">
+  <div ref="homePageRef" v-if="ready && userId !== null" class="home-page" :style="homePageStyle">
     <loadingBar :active="barActive" :percent="barPercent" :min-duration="initialLoadFinished?260:400"/>
     <home-head/>
     <homeAside/>
@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import {useGlobalStore} from "../store/store";
 import { authApi } from "../api/product";
 import { ElMessage } from 'element-plus';
@@ -23,9 +23,87 @@ import { useBodyLayout } from '@/composables/useBodyLayout';
 const store = useGlobalStore();
 const initialLoadFinished = ref(false);
 const menuLoading = ref(false);
+const homePageRef = ref(null);
+const preservedPageHeight = ref(0);
 const urlUserId = parseInt(new URL(window.location).searchParams.get("userId")) || null;
 const userId = computed(() => urlUserId || store.userId);
 const ready = ref(false);
+const homePageStyle = computed(() => preservedPageHeight.value
+  ? { minHeight: `${preservedPageHeight.value}px` }
+  : undefined);
+
+let previousScrollY = 0;
+let previousDocumentHeight = 0;
+let pageResizeObserver = null;
+let scrollRestoreFrame = 0;
+let resizeCheckFrame = 0;
+
+function getDocumentHeight() {
+  return Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+}
+
+function preserveHomeScroll() {
+  const page = homePageRef.value;
+  if (!page) return;
+
+  const documentHeight = getDocumentHeight();
+  const scrollY = window.scrollY;
+  const pageTop = page.getBoundingClientRect().top + scrollY;
+
+  if (documentHeight < previousDocumentHeight && previousScrollY > 0) {
+    const scrollYToRestore = previousScrollY;
+    preservedPageHeight.value = Math.max(
+      preservedPageHeight.value,
+      previousDocumentHeight - pageTop,
+      previousScrollY + window.innerHeight - pageTop,
+      0,
+    );
+    if (scrollY < scrollYToRestore) {
+      nextTick(() => {
+        cancelAnimationFrame(scrollRestoreFrame);
+        scrollRestoreFrame = requestAnimationFrame(() => {
+          if (preservedPageHeight.value && window.scrollY < scrollYToRestore) {
+            window.scrollTo(0, scrollYToRestore);
+          }
+        });
+      });
+    }
+  } else if (
+    preservedPageHeight.value &&
+    documentHeight > pageTop + preservedPageHeight.value + 1
+  ) {
+    preservedPageHeight.value = 0;
+  }
+
+  previousScrollY = window.scrollY;
+  previousDocumentHeight = Math.max(
+    getDocumentHeight(),
+    pageTop + preservedPageHeight.value,
+  );
+}
+
+function handleHomeScroll() {
+  const documentHeight = getDocumentHeight();
+  if (
+    preservedPageHeight.value &&
+    window.scrollY === 0 &&
+    documentHeight >= previousDocumentHeight
+  ) {
+    preservedPageHeight.value = 0;
+  }
+  if (documentHeight >= previousDocumentHeight) {
+    previousScrollY = window.scrollY;
+    previousDocumentHeight = documentHeight;
+  }
+}
+
+function scheduleHomeResizeCheck() {
+  if (resizeCheckFrame) return;
+  resizeCheckFrame = requestAnimationFrame(() => {
+    resizeCheckFrame = 0;
+    preserveHomeScroll();
+  });
+}
 
 useBodyLayout({});
 
@@ -81,11 +159,23 @@ onMounted(async () => {
   }
   handlePopState();
   ready.value = true;
+  await nextTick();
+  previousScrollY = window.scrollY;
+  previousDocumentHeight = getDocumentHeight();
+  if (typeof ResizeObserver !== 'undefined' && homePageRef.value) {
+    pageResizeObserver = new ResizeObserver(scheduleHomeResizeCheck);
+    pageResizeObserver.observe(homePageRef.value);
+  }
+  window.addEventListener('scroll', handleHomeScroll, { passive: true });
   window.addEventListener('popstate', handlePopState);
   
 });
 
 onBeforeUnmount(()=>{
+  cancelAnimationFrame(scrollRestoreFrame);
+  cancelAnimationFrame(resizeCheckFrame);
+  pageResizeObserver?.disconnect();
+  window.removeEventListener('scroll', handleHomeScroll);
   window.removeEventListener('popstate', handlePopState);
 });
 
