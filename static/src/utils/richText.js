@@ -43,6 +43,7 @@ export function sanitizeRichText(value) {
             const inferredUserId = (!userId && url.origin === location.origin && url.pathname === '/home' && (node.textContent || '').trim().startsWith('@'))
               ? url.searchParams.get('userId') : null;
             if (inferredUserId && /^\d+$/.test(inferredUserId)) element.setAttribute('data-eit-userid', inferredUserId);
+            if (element.hasAttribute('data-eit-userid')) element.className = 'at-msg';
           }
         } catch (error) {
           if (!(error instanceof TypeError)) throw error;
@@ -51,7 +52,7 @@ export function sanitizeRichText(value) {
     } else if (tags.has(node.tagName)) {
       element = document.createElement(node.tagName.toLowerCase());
       const time = node.getAttribute('data-time');
-      // 允许 mm:ss �?hh:mm:ss（含全角冒号），与视频页点击跳转的解析规则一�?
+      // 兝许 mm:ss �?hh:mm:ss（坫全角冒坷），与视频页点击跳转的解枝规则一�?
       if (time && /^\d{1,6}[�?]\d{2}([�?]\d{2})?$/.test(time)) {
         element.setAttribute('data-time', time);
         element.className = 'time-span';

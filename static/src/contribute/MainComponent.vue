@@ -44,16 +44,52 @@
           type="textarea"
           :rows="4"
           placeholder="支持 mp4 / webm 等可直连的视频地址，例如&#10;https://xxx.cos.ap-guangzhou.myqcloud.com/xxx.mp4"
-        />
-        <div
-          v-if="remoteVideoUrl"
-          style="
-            font-size: 12px;
-            color: #67c23a;
-            margin-top: 10px;
-            word-break: break-all;
-          "
-        >
+         />
+         <div style="margin-top: 12px">
+           <div style="font-size: 13px; color: var(--brand-hover); margin-bottom: 6px">
+             从网页抓取视频
+           </div>
+           <div style="display: flex; gap: 8px">
+             <el-input
+               v-model="remotePageUrl"
+               placeholder="粘贴包含视频的网页地址，例如文章/播放页"
+             />
+             <el-button
+               :loading="extractingRemote"
+               @click="extractRemoteVideoFromPage"
+             >
+               抓取
+             </el-button>
+           </div>
+           <div
+             v-if="remoteCandidates.length"
+             style="margin-top: 8px; font-size: 12px; color: #9c9f9f"
+           >
+             <div>识别到的视频源：</div>
+             <div
+               v-for="(candidate, index) in remoteCandidates"
+               :key="index"
+               style="
+                 margin-top: 4px;
+                 word-break: break-all;
+                 cursor: pointer;
+                 color: var(--brand-hover);
+               "
+               @click="remoteVideoCode = candidate"
+             >
+               {{ candidate }}
+             </div>
+           </div>
+         </div>
+         <div
+           v-if="remoteVideoUrl"
+           style="
+             font-size: 12px;
+             color: #67c23a;
+             margin-top: 10px;
+             word-break: break-all;
+           "
+         >
           链接可用：{{ remoteVideoUrl }}
         </div>
         <div
@@ -84,9 +120,9 @@
               background-color: #000;
             "
           >
-            <video
-              :src="remoteVideoUrl"
-              controls
+             <video
+               ref="remotePreviewVideo"
+               controls
               preload="metadata"
               referrerpolicy="no-referrer"
               style="width: 100%; height: 100%; outline: none"
@@ -532,9 +568,12 @@ import {
   formatSecondsToVideoTime,
   fetchDefaultRemoteCover,
   normalizeCoverFile,
+  extractRemoteThumbnails,
 } from "../utils/remoteVideo";
 import CropperCompVue from "./CropperComp.vue";
 import PostEditor from "../components/PostEditor.vue";
+import Hls from "hls.js";
+if (typeof window !== "undefined" && !window.Hls) window.Hls = Hls;
 export default {
   name: "MainComponent",
 components: {
@@ -594,9 +633,39 @@ components: {
     const uploadRef2 = ref(null);
     const thumbnail = ref(null);
     const remoteVideoCode = ref("");
+    const remotePageUrl = ref("");
+    const extractingRemote = ref(false);
+    const remoteCandidates = ref([]);
+    const remotePreviewVideo = ref(null);
     //远程播放器地址，由用户粘贴的iframe代码/地址解析得到
     const remoteVideoUrl = computed(() =>
       parseRemoteVideoUrl(remoteVideoCode.value)
+    );
+    const remoteHls = ref(null);
+    watch(
+      [remoteVideoUrl, remotePreviewVideo],
+      ([url, videoEl]) => {
+        if (remoteHls.value) {
+          remoteHls.value.destroy();
+          remoteHls.value = null;
+        }
+        if (!videoEl) return;
+        if (!url) {
+          videoEl.removeAttribute("src");
+          videoEl.load();
+          return;
+        }
+        if (url.toLowerCase().includes(".m3u8") && Hls.isSupported()) {
+          const hls = new Hls();
+          remoteHls.value = hls;
+          hls.loadSource(url);
+          hls.attachMedia(videoEl);
+        } else {
+          videoEl.src = url;
+          videoEl.load();
+        }
+      },
+      { immediate: true }
     );
     const showEditor = computed(
       () => offlinePreviewEnabled || fileListVideo.value.length === 1 || video.videoSource === 1
@@ -619,6 +688,22 @@ components: {
         video.remoteUrl = "";
       }
     };
+    const captureRemoteCover = async (url) => {
+      if (!url || fileListCover.value.length > 0) return;
+      thumbnails.value = [];
+      try {
+        await extractRemoteThumbnails(url, (frame) => {
+          thumbnails.value = [...thumbnails.value, frame];
+          if (!thumbnail.value) {
+            thumbnail.value = frame;
+            temp.value = frame;
+          }
+        });
+      } catch (e) {
+        void e;
+      }
+    };
+
     //远程视频自动取时长，封面由用户上传或用默认图
     let durationTimer = null;
     watch(remoteVideoUrl, (url) => {
@@ -630,6 +715,7 @@ components: {
         //时长来自metadata，不需要跨域就能拿到
         if (duration > 0) video.videoTime = formatSecondsToVideoTime(duration);
       }, 800);
+      captureRemoteCover(url);
     });
     const fileNameWithoutExtension = ref("");
     const thumbnails = ref([]);
@@ -806,8 +892,9 @@ components: {
             "Authorization": store.token,
           },
         });
-      } catch (error) {
-      }
+       } catch (error) {
+         void error;
+       }
     }
 
     function cancelAndCleanVideoUpload() {
@@ -852,7 +939,6 @@ components: {
         ElMessage({
           message: error.message || "视频上传失败",
           type: "error",
-          offset: 300,
         });
         return "";
       });
@@ -1031,6 +1117,19 @@ components: {
         return;
       }
 
+      if (!video.title.trim()) {
+        ElMessage({ message: "请填写标题", type: "warning" });
+        return;
+      }
+      if (!video.subZoneKey) {
+        ElMessage({ message: "请选择分区", type: "warning" });
+        return;
+      }
+      if (dynamicTags.value.length === 0) {
+        ElMessage({ message: "请至少添加一个标签", type: "warning" });
+        return;
+      }
+
       // 封面必填；远程视频未手动上传时使用默认封面
       if (
         fileListCover.value.length === 0 &&
@@ -1058,9 +1157,12 @@ components: {
           //远程投稿只保存链接，不上传视频文件。
           //这里必须同步写回video对象：下面的for循环会把video的所有字段再追加一次，
           //若这里单独append，同一个key出现两次，Spring绑定会拼成"url,"这种带逗号的值
-          video.videoSource = 1;
-          video.remoteUrl = remoteVideoUrl.value;
-          if (!video.videoTime) video.videoTime = "00:00";
+           video.videoSource = 1;
+           video.remoteUrl = remoteVideoUrl.value;
+           if (!video.videoTime) {
+             const duration = await readRemoteDuration(remoteVideoUrl.value);
+             video.videoTime = duration > 0 ? formatSecondsToVideoTime(duration) : "00:00";
+           }
         } else {
           if (!file || !videoUploadPromise.value) {
             ElMessage({
@@ -1128,7 +1230,6 @@ components: {
           ElMessage({
             message: "视频上传成功",
             type: "success",
-            offset: 300,
           });
           window.removeEventListener("beforeunload",handleOnload);
           loading.value = false;
@@ -1141,7 +1242,6 @@ components: {
           ElMessage({
             message: response.data.msg,
             type: "warning",
-            offset: 300,
           });
           location.reload();
         }
@@ -1151,7 +1251,6 @@ components: {
         ElMessage({
           message: error.message || "未知错误",
           type: "error",
-          offset: 300,
         });
       }
     };
@@ -1400,7 +1499,7 @@ components: {
       video.subZoneKey = "";
       video.subZoneValue = "";
       const inputDom = document.querySelector(".content-input");
-      inputDom.innerHTML = "";
+      if (inputDom) inputDom.innerHTML = "";
       video.type = 0;
 
     }
@@ -1468,8 +1567,9 @@ components: {
             link.innerHTML = `<img style="width: 14px;height: 14px;padding-right: 2px;transform: translateY(1px);" src="/img/视频标题.png">${res.data.data}<br>`;
             link.target = "_blank";
           }
-        } catch (error) {
-        }
+         } catch (error) {
+           void error;
+         }
         }
     }
     video.contentHtml = sanitizeRichText(container.innerHTML.replace(/(<div>\s*<br\s*\/?>\s*<\/div>\s*)+$/, ''));
@@ -1478,10 +1578,44 @@ components: {
 
      
 
+    const extractRemoteVideoFromPage = async () => {
+      if (!remotePageUrl.value) {
+        ElMessage({ message: "请填写网页地址", type: "warning" });
+        return;
+      }
+      extractingRemote.value = true;
+      remoteCandidates.value = [];
+      try {
+        const res = await apiClient.get("/upload/extractRemoteVideo", {
+          params: { url: remotePageUrl.value },
+        });
+        const data = res?.data?.data ?? res?.data;
+        remoteCandidates.value = Array.isArray(data) ? data : [];
+        if (remoteCandidates.value.length > 0) {
+          remoteVideoCode.value = remoteCandidates.value[0];
+          ElMessage({ message: "抓取成功", type: "success" });
+        } else {
+          ElMessage({ message: "未识别到视频源", type: "warning" });
+        }
+      } catch (error) {
+        ElMessage({
+          message: error?.message || "抓取失败",
+          type: "error",
+        });
+      } finally {
+        extractingRemote.value = false;
+      }
+    };
+
     return {
       beforeUploadVideo,
       centerDialogVisible,
       remoteVideoCode,
+      remotePageUrl,
+      extractingRemote,
+      remoteCandidates,
+      extractRemoteVideoFromPage,
+      remotePreviewVideo,
       remoteVideoUrl,
       defaultCoverSrc,
       showEditor,

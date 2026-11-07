@@ -98,7 +98,6 @@
             @canplay="onVideoCanPlay"
             @waiting="videoWaitingF"
             @canplaythrough="onCanPlayThrough"
-            :src="playVideoSrc"
             :poster="offlinePreviewEnabled ? SelectVideoByIdVo.upVideo.coverAddress : undefined"
             referrerpolicy="no-referrer"
             playsinline
@@ -2308,6 +2307,7 @@ import apiClient from "../api/video/detail";
 import { getToken } from "../services/http";
 import { mapUser } from "../api/home/user";
 import { sanitizeRichText } from "../utils/richText";
+import Hls from "hls.js";
 import {
   authApi,
   fetchMentionUsers,
@@ -2521,11 +2521,38 @@ export default {
     const remoteVideoSrc = computed(() =>
       isRemoteVideo.value ? SelectVideoByIdVo.upVideo.remoteUrl : ""
     );
-    const playVideoSrc = computed(() =>
-      isRemoteVideo.value
-        ? remoteVideoSrc.value
-        : SelectVideoByIdVo.upVideo.videoAddress
-    );
+     const playVideoSrc = computed(() =>
+       isRemoteVideo.value
+         ? remoteVideoSrc.value
+         : SelectVideoByIdVo.upVideo.videoAddress
+     );
+     const detailHls = ref(null);
+     watch(
+       [playVideoSrc, upVideoPlayer],
+       ([url, videoEl]) => {
+         if (detailHls.value) {
+           detailHls.value.destroy();
+           detailHls.value = null;
+         }
+         if (!videoEl || !url) {
+           if (videoEl) {
+             videoEl.removeAttribute("src");
+             videoEl.load();
+           }
+           return;
+         }
+         if (String(url).toLowerCase().includes(".m3u8") && Hls.isSupported()) {
+           const hls = new Hls();
+           detailHls.value = hls;
+           hls.loadSource(url);
+           hls.attachMedia(videoEl);
+         } else {
+           videoEl.src = url;
+           videoEl.load();
+         }
+       },
+       { immediate: true }
+     );
     const watchTogetherHost = computed(
       () => (intoVideoAllDisplayIngFlag.value ? upVideoContainer.value : null) || 'body'
     );
@@ -2724,9 +2751,9 @@ export default {
         localStorage.getItem("setVideoOpenAutoPlayFlag") === "true"
           ? true
           : false;
-      upDateOpenAutoPlayVideo();
-      await updateScrolling(true);
-      if (pageDisposed) return;
+       upDateOpenAutoPlayVideo();
+       await updateScrolling(false);
+       if (pageDisposed) return;
       liveReady = true;
       startVideoLive();
       
@@ -3009,11 +3036,16 @@ export default {
         if (store.userId === null) userId.value = 0;
         else userId.value = store.userId;
 
-        const video = await videoApi.detail(videoId);
-        if (!video) {
-          if (isInit) window.location.href = "./videoNotFound";
-          return;
-        }
+         const video = await videoApi.detail(videoId);
+         if (!video) {
+           if (isInit) window.location.href = "./videoNotFound";
+           return;
+         }
+         //非管理员/超级管理员不能查看未审核视频
+         if (video.status !== 1 && !offlinePreviewEnabled && !store.userInformation?.adminFlag) {
+           window.location.href = "./videoNotFound";
+           return;
+         }
 
         const upVideo = mapUpVideo(video);
         const upUser = mapUpUser({
@@ -3797,7 +3829,7 @@ export default {
       pendingDanmakuEvents.length = 0;
       if (!SelectVideoByIdVo.upVideo?.id) return;
       stopVideoLive = connectVideoLive(SelectVideoByIdVo.upVideo.id, {
-        open: () => updateScrolling(true),
+         open: () => updateScrolling(false),
         message: applyDanmakuEvent,
         status: status => { liveStatus.value = status; if (status !== 'connected') watchingNumber.value = null; },
         error: error => ElMessage.error(error.message),

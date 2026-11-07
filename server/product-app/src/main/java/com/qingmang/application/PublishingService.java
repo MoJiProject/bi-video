@@ -249,4 +249,145 @@ public class PublishingService {
             throw new BizException(ErrorCode.PARAM_INVALID, "视频直链格式不正确");
         }
     }
+
+    public List<String> extractRemoteVideoUrls(String pageUrl) {
+        String normalized = normalizeRemoteUrl(pageUrl);
+        List<String> result = new ArrayList<>();
+        Set<String> seen = new java.util.LinkedHashSet<>();
+        //如果传入本身就是可播放的视频地址，直接返回
+        if (isDirectVideoUrl(normalized)) {
+            seen.add(normalized);
+        }
+        try {
+            java.net.HttpURLConnection connection = (java.net.HttpURLConnection) new java.net.URL(normalized).openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(15000);
+            connection.setReadTimeout(20000);
+            connection.setInstanceFollowRedirects(true);
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 13; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36");
+            connection.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+            connection.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8");
+            connection.setRequestProperty("Referer", normalized);
+            connection.setRequestProperty("Connection", "keep-alive");
+            int status = connection.getResponseCode();
+            if (status >= 400) {
+                throw new BizException(ErrorCode.PARAM_INVALID, "页面抓取失败：" + status);
+            }
+            java.io.InputStream stream = status >= 400 ? connection.getErrorStream() : connection.getInputStream();
+            if (stream == null) throw new BizException(ErrorCode.PARAM_INVALID, "页面抓取失败：空响应");
+            StringBuilder bodyBuilder = new StringBuilder();
+            try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(stream, java.nio.charset.StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    bodyBuilder.append(line).append('\n');
+                    if (bodyBuilder.length() > 2_000_000) break;
+                }
+            }
+            String body = bodyBuilder.toString();
+            if (body.length() > 2_000_000) body = body.substring(0, 2_000_000);
+            collectFromHtml(body, normalized, seen);
+        } catch (BizException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "页面抓取失败：" + (e.getMessage() == null ? "未知错误" : e.getMessage()));
+        }
+        result.addAll(seen);
+        if (result.isEmpty()) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "未在页面中识别到可播放的视频源");
+        }
+        if (result.size() > 20) result = new ArrayList<>(result.subList(0, 20));
+        return result;
+    }
+
+    private static String normalizeRemoteUrl(String value) {
+        if (value == null || value.isBlank()) throw new BizException(ErrorCode.PARAM_INVALID, "请填写页面地址");
+        String v = value.trim();
+        if (v.startsWith("//")) v = "https:" + v;
+        try {
+            URI uri = new URI(v);
+            if (!Set.of("http", "https").contains(Objects.toString(uri.getScheme(), "").toLowerCase(Locale.ROOT))
+                    || uri.getHost() == null) throw new BizException(ErrorCode.PARAM_INVALID, "页面地址格式不正确");
+        } catch (URISyntaxException e) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "页面地址格式不正确");
+        }
+        return v;
+    }
+
+    private static boolean isDirectVideoUrl(String url) {
+        String lower = url.toLowerCase(Locale.ROOT);
+        return lower.matches(".*\\.(m3u8|mp4|webm|flv|mov|mkv|m4v|m3u)(\\?.*)?$");
+    }
+
+    private static void collectFromHtml(String body, String baseUrl, Set<String> seen) {
+        //meta 标签中的视频地址
+        for (String attr : new String[]{"og:video", "og:video:url", "og:video:secure_url", "twitter:player:stream"}) {
+            java.util.regex.Matcher m = java.util.regex.Pattern.compile(
+                    "<meta[^>]+(?:property|name)\\s*=\\s*['\"]" + java.util.regex.Pattern.quote(attr) + "['\"][^>]*content\\s*=\\s*['\"]([^'\"]+)['\"]",
+                    java.util.regex.Pattern.CASE_INSENSITIVE).matcher(body);
+            while (m.find()) addCandidate(seen, m.group(1), baseUrl);
+            java.util.regex.Matcher m2 = java.util.regex.Pattern.compile(
+                    "<meta[^>]+content\\s*=\\s*['\"]([^'\"]+)['\"][^>]*(?:property|name)\\s*=\\s*['\"]" + java.util.regex.Pattern.quote(attr) + "['\"]",
+                    java.util.regex.Pattern.CASE_INSENSITIVE).matcher(body);
+            while (m2.find()) addCandidate(seen, m2.group(1), baseUrl);
+        }
+        //video/source 标签
+        java.util.regex.Matcher vm = java.util.regex.Pattern.compile(
+                "<(?:video|source)[^>]+src\\s*=\\s*['\"]([^'\"]+)['\"]", java.util.regex.Pattern.CASE_INSENSITIVE).matcher(body);
+        while (vm.find()) addCandidate(seen, vm.group(1), baseUrl);
+        //data-src / data-url
+        java.util.regex.Matcher dm = java.util.regex.Pattern.compile(
+                "data-(?:src|url|video)\\s*=\\s*['\"]([^'\"]+)['\"]", java.util.regex.Pattern.CASE_INSENSITIVE).matcher(body);
+        while (dm.find()) addCandidate(seen, dm.group(1), baseUrl);
+        //JSON 字段
+        java.util.regex.Matcher jm = java.util.regex.Pattern.compile(
+                "\"(?:url|src|playUrl|videoUrl|video_url|source|file|mp4|m3u8)\"\\s*:\\s*\"([^\"]+)\"",
+                java.util.regex.Pattern.CASE_INSENSITIVE).matcher(body);
+        while (jm.find()) addCandidate(seen, jm.group(1), baseUrl);
+        //直接出现的视频链接
+        java.util.regex.Matcher um = java.util.regex.Pattern.compile(
+                "https?://[^'\"<>\\s]+?\\.(?:m3u8|mp4|webm|flv|mov|mkv|m4v|m3u)(?:\\?[^'\"<>\\s]*)?",
+                java.util.regex.Pattern.CASE_INSENSITIVE).matcher(body);
+        while (um.find()) addCandidate(seen, um.group(0), baseUrl);
+    }
+
+    private static String extractVideoId(String url) {
+        if (url == null) return null;
+        try {
+            URI uri = new URI(url);
+            String query = uri.getQuery();
+            if (query == null) return null;
+            for (String part : query.split("&")) {
+                String[] kv = part.split("=", 2);
+                if (kv.length == 2 && "videoId".equalsIgnoreCase(kv[0])) {
+                    return kv[1];
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        //兜底：路径或字符串中匹配 BV 数字
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("BV(\\d+)", java.util.regex.Pattern.CASE_INSENSITIVE).matcher(url);
+        if (m.find()) return m.group(1);
+        return null;
+    }
+    private static void addCandidate(Set<String> seen, String raw, String baseUrl) {
+        if (raw == null) return;
+        String v = raw.trim().replace("\\/", "/").replace("\\u0026", "&");
+        if (v.isEmpty() || v.startsWith("data:") || v.startsWith("blob:")) return;
+        if (v.startsWith("//")) v = "https:" + v;
+        if (!v.toLowerCase(Locale.ROOT).startsWith("http://") && !v.toLowerCase(Locale.ROOT).startsWith("https://")) {
+            //尝试相对路径拼接
+            try {
+                v = new URI(baseUrl).resolve(v).toString();
+            } catch (Exception e) {
+                return;
+            }
+        }
+        if (!v.toLowerCase(Locale.ROOT).startsWith("http://") && !v.toLowerCase(Locale.ROOT).startsWith("https://")) return;
+        String lower = v.toLowerCase(Locale.ROOT);
+        if (!(lower.contains(".m3u8") || lower.contains(".mp4") || lower.contains(".webm") || lower.contains(".flv")
+                || lower.contains(".mov") || lower.contains(".mkv") || lower.contains(".m4v") || lower.contains(".m3u"))) return;
+        if (v.length() > 2000) return;
+        seen.add(v);
+    }
 }
+

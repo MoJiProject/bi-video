@@ -71,7 +71,6 @@
           <div class="manuscript-actions content-card-actions">
           <ContentMoreMenu :label="`${video.title}的稿件操作`">
             <el-dropdown-item @click="$router.push({ path: '/contribute/edit', query: { videoId: video.id } })">编辑</el-dropdown-item>
-            <el-dropdown-item v-if="video.status !== 0 || video.status !== 2" @click="viewVideoData">数据</el-dropdown-item>
             <el-dropdown-item class="is-danger" @click="tempDelete(video)">删除</el-dropdown-item>
           </ContentMoreMenu>
           <div
@@ -193,18 +192,15 @@
       width="min(392px, calc(100vw - 32px))"
       title="删除稿件"
       center
-      :modal="false"
+      align-center
     >
-      <span>
+      <div class="delete-dialog-body">
         确定要删除该稿件吗？
-      </span>
+      </div>
       <template #footer>
         <div class="dialog-footer">
-          <el-button v-debounce class="yesDelete" @click="deleteVideo">确定</el-button>
-          <el-button v-debounce
-            @click="dialogVisible = false"
-            >取消</el-button
-          >
+          <el-button v-debounce class="yesDelete dialog-btn" @click="deleteVideo">确定</el-button>
+          <el-button v-debounce class="dialog-btn" @click="dialogVisible = false">取消</el-button>
         </div>
       </template>
     </el-dialog>
@@ -417,14 +413,6 @@ export default {
       dialogVisible.value = true;
     }
 
-    function viewVideoData() {
-      ElMessage({
-        message: "该功能尚未开发(累)",
-        type: "warning",
-        duration: 1700,
-      });
-    }
-
     //打开视频页
     function openVideo(video) {
        
@@ -467,7 +455,6 @@ export default {
       deleteVideo,
       dialogVisible,
       tempDelete,
-      viewVideoData,
       openVideo,
     };
   },
@@ -527,8 +514,8 @@ export default {
   background-color: #0E9C85;
   color: white;
   border: none;
-  width: 90px;
-  height: 28px;
+  min-width: 88px;
+  height: 32px;
 }
 
 .yesDelete:hover {
@@ -591,6 +578,10 @@ export default {
 .creator-manager button:focus-visible, .creator-manager a:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 .yesDelete { background: var(--brand); }
 .yesDelete:hover { background: var(--brand-hover); transition: all 0.3s ease; }
+.creator-dialog :deep(.el-dialog__body) { text-align: center; }
+.delete-dialog-body { text-align: center; }
+.dialog-footer { display: flex; justify-content: center; gap: 12px; }
+.dialog-btn { min-width: 88px; height: 32px; }
 @media (max-width: 900px) {
   .manuscript-card { grid-template-columns: 144px minmax(0, 1fr); gap: 10px 16px; }
 }

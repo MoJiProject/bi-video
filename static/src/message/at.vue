@@ -77,7 +77,7 @@
                 </div>
                 <div v-if="activeReplyId===at.at.id" class="reply-form">
                   <PostEditor :ref="setReplyInput" v-model="replyContent" compact :max-length="1000" :disabled="replySending"
-                    :placeholder="`回复 @${at.comments.userName}`" @length="replyContentLength = $event">
+                    :placeholder="`回复 @${at.userName}`" @length="replyContentLength = $event">
                     <template #tools>
                       <label class="editor-tool comment-upload" :class="{ disabled: replySending || replyUploading || replyImages.length >= 9 }">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/></svg>
@@ -164,9 +164,18 @@
                 <a :href="'./video?videoId=BV'+at.at.videoId" target="videoWindow">
                   <div class="at-right-content-center">{{ at.videos.title }}</div>
                 </a>
-                <div class="at-right-content-bottom">
-                  <button type="button" class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg> <span>删除</span></button>
-                </div>
+              <div class="at-right-content-bottom">
+                <button type="button" class="at-comment" @click="openReplyComment(at)"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18 3 21V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H7Z"/><path d="M7 8h10M7 12h7"/></svg> <span>回复</span></button>
+                <button type="button" class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg> <span>删除</span></button>
+              </div>
+              <div v-if="activeReplyId===at.at.id" class="reply-form">
+                <PostEditor :ref="setReplyInput" v-model="replyContent" compact :max-length="1000" :disabled="replySending"
+                  :placeholder="`回复 @${at.userName}`" @length="replyContentLength = $event">
+                  <template #actions>
+                    <el-button type="primary" :loading="replySending" @click="replayCommentF(at)">回复</el-button>
+                  </template>
+                </PostEditor>
+              </div>
               </div>
               <div v-else class="at-right-content">
                  <div class="at-right-content-top">
@@ -196,9 +205,10 @@
                   </div>
                 </a>
                 <div class="at-right-content-bottom">
-                    <span class="at-time">{{ at.dynamic?.publishTime }}</span>
-                    <button type="button" class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg> <span>删除</span></button>
-                </div>
+                  <span class="at-time">{{ at.dynamic?.publishTime }}</span>
+                  <button type="button" class="at-comment" @click="openReplyComment(at)"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18 3 21V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H7Z"/><path d="M7 8h10M7 12h7"/></svg> <span>回复</span></button>
+                  <button type="button" class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg> <span>删除</span></button>
+              </div>
                 <el-tooltip
                     v-if="at.dynamic?.imgAddress"
                     popper-class="custom-tooltip"
@@ -210,9 +220,17 @@
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a v-if="at.dynamic?.imgAddress" class="at-video-cover-container" :href="'./dynamicDetail?dynamicId='+at.at.dynamicId" target="dynamicWindow"><img class="at-video-cover" :src="at.dynamic?.imgAddress.split(',')[0]"></a>
-                </el-tooltip>
-                <div class="at-line"></div>
+<a v-if="at.dynamic?.imgAddress" class="at-video-cover-container" :href="'./dynamicDetail?dynamicId='+at.at.dynamicId" target="dynamicWindow"><img class="at-video-cover" :src="at.dynamic?.imgAddress.split(',')[0]"></a>
+</el-tooltip>
+<div v-if="activeReplyId===at.at.id" class="reply-form">
+  <PostEditor :ref="setReplyInput" v-model="replyContent" compact :max-length="1000" :disabled="replySending"
+    :placeholder="`回复 @${at.userName}`" @length="replyContentLength = $event">
+    <template #actions>
+      <el-button type="primary" :loading="replySending" @click="replayCommentF(at)">回复</el-button>
+    </template>
+  </PostEditor>
+</div>
+<div class="at-line"></div>
               </div>
            </div>
         </div>
@@ -449,14 +467,18 @@ function addImgFlagF(comment){
         ElMessage.warning("请输入回复内容");
         return;
       }
-      // 后端会把楼中楼自动归位到一级评论下
-      await commentApi.create({
-        videoId: at.comments.videoId || undefined,
-        postId: at.comments.dynamicId || undefined,
-        content,
-        imageUrls: replyImages.value,
-        rootId: at.comments.id,
-      });
+const comment = at.comments || {};
+const videoId = comment.videoId || at.at?.videoId || undefined;
+const postId = comment.dynamicId || at.at?.dynamicId || undefined;
+const rootId = comment.id || undefined;
+// 后端会把楼中楼自动归位到一级评论下
+await commentApi.create({
+  videoId,
+  postId,
+  content,
+  imageUrls: replyImages.value,
+  rootId,
+});
       if(replyShareToDynamic.value){
         try{
           await socialApi.createPost({
@@ -988,4 +1010,6 @@ function addImgFlagF(comment){
   }
   
     .user-hover { display: inline; vertical-align: middle; }
+    :deep(.at-msg) { color: #0A8271; text-decoration: none; }
+    :deep(.at-msg:hover) { color: var(--brand); }
 </style>

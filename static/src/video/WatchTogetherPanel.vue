@@ -258,6 +258,7 @@
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import apiClient from '../services/apiClient';
+import { mapRelatedVideo } from '../api/video/detail';
 import { createWatchTogetherClient } from '../services/watchTogetherClient';
 import {
   registerWatchTogetherBridge,
@@ -302,7 +303,7 @@ const inviteOpen = ref(false);
 const inviteFriends = ref([]);
 const inviteSelected = ref([]);
 const inviteTitle = ref('');
-const invitePageNum = ref(1);
+const inviteCursor = ref(null);
 const inviteHasMore = ref(true);
 const inviteLoading = ref(false);
 const inviteSending = ref(false);
@@ -912,16 +913,17 @@ async function loadInviteFriends() {
   if (inviteLoading.value || !inviteHasMore.value || !store.userId) return;
   inviteLoading.value = true;
   try {
-    const response = await apiClient.get('/user/selectFollowAndFans', {
-      params: { userId: store.userId, pageNum: invitePageNum.value },
+    const response = await apiClient.get('/share/recipients', {
+      params: inviteCursor.value ? { cursorId: inviteCursor.value } : {},
     });
-    const list = Array.isArray(response.data.data) ? response.data.data : [];
+    const page = response.data.data || {};
+    const list = Array.isArray(page.records) ? page.records : [];
     inviteFriends.value = [
       ...inviteFriends.value,
       ...list.filter(item => item?.id && item.id !== store.userId),
     ];
-    inviteHasMore.value = list.length > 0;
-    invitePageNum.value += 1;
+    inviteHasMore.value = Boolean(page.hasMore);
+    inviteCursor.value = page.cursorId ?? null;
   } catch {
     notify('error', '好友列表加载失败');
   } finally {
@@ -1087,8 +1089,12 @@ async function loadRelatedVideos() {
   if (!props.videoId) return;
   searching.value = true;
   try {
-    const response = await apiClient.post('/video/getVideoPageByVideo', { id: props.videoId });
-    switchVideos.value = pickSwitchVideos(response.data.data);
+    const response = await apiClient.get('/video/list', {
+      params: { pageNum: 1, pageSize: 13, sort: 'hot' },
+    });
+    const page = response.data.data || {};
+    const list = Array.isArray(page.records) ? page.records : [];
+    switchVideos.value = pickSwitchVideos(list.map(mapRelatedVideo));
   } catch {
     notify('error', '相关视频加载失败');
   } finally {
@@ -1109,17 +1115,17 @@ async function searchSwitchVideos() {
   }
   searching.value = true;
   try {
-    const response = await apiClient.post('/search/searchVideoByKeyWord', {
-      userId: store.userId || 0,
-      keyWord,
-      classifyIndex: '',
-      classify: '全部',
-      date: 0,
-      time: 0,
-      sort: 0,
-      videoPageNum: 1,
+    const response = await apiClient.get('/search/video', {
+      params: {
+        keyword: keyWord,
+        sort: 'hot',
+        pageNum: 1,
+        pageSize: 20,
+      },
     });
-    switchVideos.value = pickSwitchVideos(response.data.data?.selectVideoDtoList);
+    const page = response.data.data || {};
+    const list = Array.isArray(page.records) ? page.records : [];
+    switchVideos.value = pickSwitchVideos(list.map(mapRelatedVideo));
     switchSearched.value = true;
   } catch {
     notify('error', '搜索失败，请稍后重试');

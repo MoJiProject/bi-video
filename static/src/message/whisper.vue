@@ -91,8 +91,8 @@
                 'message-setting-dialog-class': messageDialogFlag,
                 'message-setting-dialog-class2': !messageDialogFlag,
             }">
-              <button type="button" class="message-setting-action" v-show="currentDialogue?.dialogue.upDateTime===null" @click="changeUpStatusF(currentDialogue)">置顶聊天</button>
-              <button type="button" class="message-setting-action" v-show="currentDialogue?.dialogue.upDateTime!==null" @click="changeUpStatusF(currentDialogue)">取消置顶</button>
+              <button type="button" class="message-setting-action" v-show="!currentDialogue?.dialogue?.upDateTime" @click="changeUpStatusF(currentDialogue)">置顶聊天</button>
+              <button type="button" class="message-setting-action" v-show="currentDialogue?.dialogue?.upDateTime" @click="changeUpStatusF(currentDialogue)">取消置顶</button>
               <button type="button" class="message-setting-action" v-show="currentDialogue?.dialogue.dnd===0" @click="changeDndStatusF(currentDialogue)">开启免打扰</button>
               <button type="button" class="message-setting-action" v-show="currentDialogue?.dialogue.dnd===1" @click="changeDndStatusF(currentDialogue)">关闭免打扰</button>
               <button type="button" disabled>加入黑名单</button>
@@ -180,7 +180,7 @@
                     </div>
                     <div v-if="message.messageType===5&&message.dynamics" class="share-dynamic-container" @click="jumpDynamic(message.dynamics.id)" @contextmenu="handleContextMenu($event,false),messageObj=message">
                         <div v-if="message.dynamics?.title" class="share-dynamic-title">{{ message.dynamics.title }}</div>
-                        <div v-if="message.dynamics?.content" class="share-dynamic-content">{{ message.dynamics.content }}</div>
+                        <div v-if="message.dynamics?.content" class="share-dynamic-content" v-html="sanitizeRichText(message.dynamics.content)"></div>
                         <div v-if="dynamicImages(message.dynamics).length" class="share-dynamic-images">
                             <img v-for="(img, idx) in dynamicImages(message.dynamics).slice(0, 3)" :key="idx" class="share-dynamic-image" :src="img" alt="">
                             <span v-if="dynamicImages(message.dynamics).length > 3" class="share-dynamic-image-more">+{{ dynamicImages(message.dynamics).length - 3 }}</span>
@@ -1719,7 +1719,8 @@ function restoreBodyOverflow() {
                 }
 
                 .share-video-container{
-                  width: min(360px, 100%);
+                  width: 360px;
+                    max-width: 100%;
                     height: auto;
                     min-height: 273px;
                     max-height: 293px;
@@ -1824,7 +1825,8 @@ function restoreBodyOverflow() {
                 }
 
                 .share-dynamic-container{
-                  width: min(360px, 100%);
+                  width: 360px;
+                  max-width: 100%;
                   background: #fff;
                   border: 1px solid #e5e9ef;
                   border-radius: 0 16px 16px 16px;
@@ -1849,10 +1851,12 @@ function restoreBodyOverflow() {
                     color: #555;
                     line-height: 1.5;
                     display: -webkit-box;
-                    -webkit-line-clamp: 3;
+                    -webkit-line-clamp: 2;
                     -webkit-box-orient: vertical;
                     overflow: hidden;
                     word-break: break-word;
+                    :deep(.at-msg) { color: #0A8271; text-decoration: none; }
+                    :deep(.at-msg:hover) { color: var(--brand); }
                   }
                   .share-dynamic-images{
                     position: relative;
@@ -1988,7 +1992,8 @@ function restoreBodyOverflow() {
                 }
 
                 .share-video-container{
-                  width: min(360px, 100%);
+                  width: 360px;
+                    max-width: 100%;
                     height: auto;
                     min-height: 273px;
                     max-height: 293px;
@@ -2092,7 +2097,8 @@ function restoreBodyOverflow() {
                 }
 
                 .share-dynamic-container{
-                  width: min(360px, 100%);
+                  width: 360px;
+                  max-width: 100%;
                   background: #fff;
                   border: 1px solid #e5e9ef;
                   border-radius: 0 16px 16px 16px;
@@ -2117,10 +2123,12 @@ function restoreBodyOverflow() {
                     color: #555;
                     line-height: 1.5;
                     display: -webkit-box;
-                    -webkit-line-clamp: 3;
+                    -webkit-line-clamp: 2;
                     -webkit-box-orient: vertical;
                     overflow: hidden;
                     word-break: break-word;
+                    :deep(.at-msg) { color: #0A8271; text-decoration: none; }
+                    :deep(.at-msg:hover) { color: var(--brand); }
                   }
                   .share-dynamic-images{
                     position: relative;

@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 public class VideoDetailVO {
 
     private Long id;
+    private Integer status;
     private String title;
     private String description;
     private String descriptionHtml;

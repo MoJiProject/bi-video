@@ -2,49 +2,27 @@
     <div class="love-container" v-mention-hover>
       <div v-show="likeUserList.length===0" class="head2">收到的赞</div>
       <div v-show="likeUserList.length>0" class="head2"><button type="button" class="detail" @click="likeUserList.length=0">‹ 收到的赞</button><span>点赞详情</span></div>
-      <a v-if="likeUserList.length!==0&&loves&&loves.likes.likeType===1" :href="'./video?videoId=BV'+loves.videos?.id" target="videoWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">视频：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.videos.title"></span></span></div></a>
-      <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===2&&(loves.comments.deleteSign===0&&loves.comments.status===0)&&!loves.comments.dynamicId" :href="'./video?videoId=BV'+loves.comments.videoId+'&commentId='+`${loves.comments.mainCommentId?loves.comments.mainCommentId:loves.comments?.id}`+'&replyId='+loves.comments?.id" target="videoWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">评论：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.videos.title"></span></span></div></a>
-      <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===2&&(loves.comments.deleteSign===1||loves.comments.status===1)&&!loves.comments.dynamicId" :href="'./video?videoId=BV'+loves.comments.videoId" target="videoWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">评论：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.videos.title"></span></span></div></a>
-      <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===2&&(loves.comments.deleteSign===0&&loves.comments.status===0)&&loves.comments.dynamicId" :href="'./dynamicDetail?dynamicId='+loves.comments.dynamicId+'&commentId='+`${loves.comments.mainCommentId?loves.comments.mainCommentId:loves.comments?.id}`+'&replyId='+loves.comments?.id" target="dynamicWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">评论：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.dynamic.title"></span></span></div></a>
-      <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===2&&(loves.comments.deleteSign===1||loves.comments.status===1)&&loves.comments.dynamicId" :href="'./dynamicDetail?dynamicId='+loves.comments.dynamicId" target="dynamicWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">评论：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.dynamic.title"></span></span></div></a>
-      <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===3" :href="'./dynamicDetail?dynamicId='+loves.dynamic?.id" target="dynamicWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">动态：<span v-html="loves.comments!==null?addImgFlagF(loves.comments):loves.dynamic.title"></span></span></div></a>
+      <a v-if="likeUserList.length!==0&&loves&&loves.likes.likeType===1" :href="'./video?videoId=BV'+loves.videos?.id" target="videoWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">视频：<span v-html="loves.comments?addImgFlagF(loves.comments):loves.videos.title"></span></span></div></a>
+      <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===2&&(loves.comments.deleteSign===0&&loves.comments.status===0)&&!loves.comments.dynamicId" :href="'./video?videoId=BV'+loves.comments.videoId+'&commentId='+`${loves.comments.mainCommentId?loves.comments.mainCommentId:loves.comments?.id}`+'&replyId='+loves.comments?.id" target="videoWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">评论：<span v-html="loves.comments?addImgFlagF(loves.comments):loves.videos.title"></span></span></div></a>
+      <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===2&&(loves.comments.deleteSign===1||loves.comments.status===1)&&!loves.comments.dynamicId" :href="'./video?videoId=BV'+loves.comments.videoId" target="videoWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">评论：<span v-html="loves.comments?addImgFlagF(loves.comments):loves.videos.title"></span></span></div></a>
+      <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===2&&(loves.comments.deleteSign===0&&loves.comments.status===0)&&loves.comments.dynamicId" :href="'./dynamicDetail?dynamicId='+loves.comments.dynamicId+'&commentId='+`${loves.comments.mainCommentId?loves.comments.mainCommentId:loves.comments?.id}`+'&replyId='+loves.comments?.id" target="dynamicWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">评论：<span v-html="loves.comments?addImgFlagF(loves.comments):loves.dynamic.title"></span></span></div></a>
+      <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===2&&(loves.comments.deleteSign===1||loves.comments.status===1)&&loves.comments.dynamicId" :href="'./dynamicDetail?dynamicId='+loves.comments.dynamicId" target="dynamicWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">评论：<span v-html="loves.comments?addImgFlagF(loves.comments):loves.dynamic.title"></span></span></div></a>
+      <a v-else-if="likeUserList.length!==0&&loves&&loves.likes.likeType===3" :href="'./dynamicDetail?dynamicId='+loves.dynamic?.id" target="dynamicWindow"><div class="head2" :class="{'head3':likeUserList.length!==0}"><span class="detail">动态：<span v-html="loves.comments?addImgFlagF(loves.comments):loves.dynamic.title"></span></span></div></a>
       <div v-show="likeUserList.length===0" class="love-content" @scroll="handleScroll">
         <div v-show="loveList.length>0 && love.id" class="love-item" v-for="love in loveList" :key="love.id">
            <div v-if="love.userInfoList?.length===1 && love.userInfoList?.[0]" class="love-item-content">
-              <el-tooltip
-                    popper-class="custom-tooltip"
-                    effect="light"
-                    :show-after="300"
-                    :content="love.userInfoList[0].userName"
-                    placement="bottom-end"
-                    :offset="12"
-                    :show-arrow="false"
-                    :hide-after="0"
-                  >
-                  <UserHoverCard :user-id="Number(love.userInfoList[0].id) || 0" :avatar="love.userInfoList[0].avatarAddress || ''" :nickname="love.userInfoList[0].userName || ''" :avatar-size="32">
+              <UserHoverCard :user-id="Number(love.userInfoList[0].id) || 0" :avatar="love.userInfoList[0].avatarAddress || ''" :nickname="love.userInfoList[0].userName || ''" :avatar-size="32">
                      <template #reference>
                        <a :href="'./home?homeMenu=1&userId='+love.userInfoList[0].id" target="_blank"><img class="love-user-avatar" :src="love.userInfoList[0].avatarAddress"></a>
                      </template>
                    </UserHoverCard>
-              </el-tooltip>
               <div class="love-right-content">
                  <div class="love-right-content-top">
-                  <el-tooltip
-                    popper-class="custom-tooltip"
-                    effect="light"
-                    :show-after="300"
-                    :content="love.userInfoList[0].userName"
-                    placement="bottom-end"
-                    :offset="12"
-                    :show-arrow="false"
-                    :hide-after="0"
-                  >
                   <UserHoverCard :user-id="Number(love.userInfoList[0].id) || 0" :avatar="love.userInfoList[0].avatarAddress || ''" :nickname="love.userInfoList[0].userName || ''" :avatar-size="14">
                      <template #reference>
                        <a :href="'./home?homeMenu=1&userId='+love.userInfoList[0].id" target="_blank">{{ love.userInfoList[0].userName }}</a>
                      </template>
                    </UserHoverCard>
-                  </el-tooltip>
                   <span v-if="love.likes.likeType===1" class="love-list" @click="selectLikeUserF(love)">赞了我的视频</span>
                   <span v-else-if="love.likes.likeType===2" class="love-list" @click="selectLikeUserF(love)">赞了我的评论</span>
                   <span v-else-if="love.likes.likeType===3" class="love-list" @click="selectLikeUserF(love)">赞了我的动态</span>
@@ -56,9 +34,9 @@
                     <span v-show="love.comments?.likeWarn===1||love.videos?.likeWarn===1||love.dynamic?.likeWarn===1" class="comment-notification" @click="dndLikeNotificationF(love)"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><path d="m2 2 20 20"/></svg> <span>不再通知</span></span>
                     <span v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="comment-disable-notification" @click="dndLikeNotificationF(love)"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg> <span>接收通知</span></span>
                 </div>
-                <img v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="love-dnd" src="/img/dnd.svg">
+                
                 <el-tooltip
-                    v-if="love.comments!==null"
+                    v-if="love.comments"
                     popper-class="custom-tooltip"
                     effect="light"
                     :show-after="300"
@@ -68,10 +46,12 @@
                     :hide-after="0"
                   >
                   <template #content>
-                      <div v-if="love.comments!==null" v-html="addImgFlagF(love.comments)"></div>
+                      <div v-if="love.comments" v-html="addImgFlagF(love.comments)"></div>
                   </template>
-                  <a v-if="love.comments!==null&&(love.comments.deleteSign===0&&love.comments.status===0)" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId+'&commentId='+`${love.comments.mainCommentId?love.comments.mainCommentId:love.comments.id}`+'&replyId='+love.comments.id" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
-                  <a v-else-if="love.comments!==null&&(love.comments.deleteSign===1||love.comments.status===1)" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
+                  <a v-if="love.comments&&(love.comments.deleteSign===0&&love.comments.status===0)&&!love.comments.dynamicId" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId+'&commentId='+`${love.comments.mainCommentId?love.comments.mainCommentId:love.comments.id}`+'&replyId='+love.comments.id" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
+                  <a v-else-if="love.comments&&(love.comments.deleteSign===0&&love.comments.status===0)&&love.comments.dynamicId" class="comment-content" :href="'./dynamicDetail?dynamicId='+love.comments.dynamicId+'&commentId='+`${love.comments.mainCommentId?love.comments.mainCommentId:love.comments.id}`+'&replyId='+love.comments.id" target="dynamicWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
+                  <a v-else-if="love.comments&&(love.comments.deleteSign===1||love.comments.status===1)&&!love.comments.dynamicId" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
+                  <a v-else-if="love.comments&&(love.comments.deleteSign===1||love.comments.status===1)&&love.comments.dynamicId" class="comment-content" :href="'./dynamicDetail?dynamicId='+love.comments.dynamicId" target="dynamicWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
                 </el-tooltip>
                 <el-tooltip
                     v-if="love.likes.likeType===1"
@@ -103,61 +83,29 @@
               </div>
            </div>
            <div v-else-if="love.comments?.likeCommentNumber===2||love.videos?.likeNumber===2||love.dynamic?.likeNumber===2" class="love-item-content">
-              <el-tooltip
-                    popper-class="custom-tooltip"
-                    effect="light"
-                    :show-after="300"
-                    :content="love.userInfoList[0].userName"
-                    placement="bottom-end"
-                    :offset="12"
-                    :show-arrow="false"
-                    :hide-after="0"
-                  >
-                  <a :href="'./home?homeMenu=1&userId='+love.userInfoList[0].id" target="_blank"><img class="love-user-avatar1" :src="love.userInfoList[0].avatarAddress"></a>
-              </el-tooltip>
-              <el-tooltip
-                    popper-class="custom-tooltip"
-                    effect="light"
-                    :show-after="300"
-                    :content="love.userInfoList[1].userName"
-                    placement="bottom-end"
-                    :offset="12"
-                    :show-arrow="false"
-                    :hide-after="0"
-                  >
-                  <a :href="'./home?homeMenu=1&userId='+love.userInfoList[1].id" target="_blank"><img class="love-user-avatar2" :src="love.userInfoList[1].avatarAddress"></a>
-              </el-tooltip>
+              <UserHoverCard :user-id="Number(love.userInfoList[0].id) || 0" :avatar="love.userInfoList[0].avatarAddress || ''" :nickname="love.userInfoList[0].userName || ''" :avatar-size="32">
+                      <template #reference>
+                        <a :href="'./home?homeMenu=1&userId='+love.userInfoList[0].id" target="_blank" style="position:absolute;left:16px;top:12px;width:32px;height:32px;display:block;"><img class="love-user-avatar1" style="position:static;width:100%;height:100%;" :src="love.userInfoList[0].avatarAddress"></a>
+                      </template>
+                    </UserHoverCard>
+              <UserHoverCard :user-id="Number(love.userInfoList[1].id) || 0" :avatar="love.userInfoList[1].avatarAddress || ''" :nickname="love.userInfoList[1].userName || ''" :avatar-size="32">
+                      <template #reference>
+                        <a :href="'./home?homeMenu=1&userId='+love.userInfoList[1].id" target="_blank" style="position:absolute;left:0;top:0;width:32px;height:32px;display:block;"><img class="love-user-avatar2" style="position:static;width:100%;height:100%;" :src="love.userInfoList[1].avatarAddress"></a>
+                      </template>
+                    </UserHoverCard>
               <div class="love-right-content">
                  <div class="love-right-content-top">
-                  <el-tooltip
-                    popper-class="custom-tooltip"
-                    effect="light"
-                    :show-after="300"
-                    :content="love.userInfoList[0].userName"
-                    placement="bottom-end"
-                    :offset="12"
-                    :show-arrow="false"
-                    :hide-after="0"
-                  >
-                  <a :href="'./home?homeMenu=1&userId='+love.userInfoList[0].id" target="_blank">{{ love.userInfoList[0].userName }}、</a>
-                  </el-tooltip>
-                  <el-tooltip
-                    popper-class="custom-tooltip"
-                    effect="light"
-                    :show-after="300"
-                    :content="love.userInfoList[1].userName"
-                    placement="bottom-end"
-                    :offset="12"
-                    :show-arrow="false"
-                    :hide-after="0"
-                  >
+                  <UserHoverCard :user-id="Number(love.userInfoList[0].id) || 0" :avatar="love.userInfoList[0].avatarAddress || ''" :nickname="love.userInfoList[0].userName || ''" :avatar-size="14">
+                      <template #reference>
+                        <a :href="'./home?homeMenu=1&userId='+love.userInfoList[0].id" target="_blank">{{ love.userInfoList[0].userName }}、</a>
+                      </template>
+                    </UserHoverCard>
                   <UserHoverCard :user-id="Number(love.userInfoList[1].id) || 0" :avatar="love.userInfoList[1].avatarAddress || ''" :nickname="love.userInfoList[1].userName || ''" :avatar-size="14">
                      <template #reference>
                        <a :href="'./home?homeMenu=1&userId='+love.userInfoList[1].id" target="_blank">{{ love.userInfoList[1].userName }}</a>
                      </template>
                    </UserHoverCard>
-                  </el-tooltip>
-                  <span v-if="love.comments!==null" class="love-list" @click="selectLikeUserF(love)">赞了我的评论</span>
+                  <span v-if="love.comments" class="love-list" @click="selectLikeUserF(love)">赞了我的评论</span>
                   <span v-else class="love-list" @click="selectLikeUserF(love)">赞了我的视频</span>
                 </div>
                 <div class="love-right-content-center">
@@ -168,7 +116,7 @@
                     <span v-show="love.comments?.likeWarn===1||love.videos?.likeWarn===1||love.dynamic?.likeWarn===1" class="comment-notification" @click="dndLikeNotificationF(love)"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><path d="m2 2 20 20"/></svg> <span>不再通知</span></span>
                     <span v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="comment-disable-notification" @click="dndLikeNotificationF(love)"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg> <span>接收通知</span></span>
                 </div>
-                <img v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="love-dnd" src="/img/dnd.svg">
+                
                 <el-tooltip
                     v-if="love.likes.likeType===2"
                     popper-class="custom-tooltip"
@@ -182,8 +130,10 @@
                   <template #content>
                       <div v-if="love.likes.likeType===2" v-html="addImgFlagF(love.comments)"></div>
                   </template>
-                  <a v-if="love.comments!==null&&(love.comments.deleteSign===0&&love.comments.status===0)" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId+'&commentId='+`${love.comments.mainCommentId?love.comments.mainCommentId:love.comments.id}`+'&replyId='+love.comments.id" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
-                  <a v-else-if="love.comments!==null&&(love.comments.deleteSign===1||love.comments.status===1)" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>                </el-tooltip>
+                  <a v-if="love.comments&&(love.comments.deleteSign===0&&love.comments.status===0)&&!love.comments.dynamicId" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId+'&commentId='+`${love.comments.mainCommentId?love.comments.mainCommentId:love.comments.id}`+'&replyId='+love.comments.id" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
+                  <a v-else-if="love.comments&&(love.comments.deleteSign===0&&love.comments.status===0)&&love.comments.dynamicId" class="comment-content" :href="'./dynamicDetail?dynamicId='+love.comments.dynamicId+'&commentId='+`${love.comments.mainCommentId?love.comments.mainCommentId:love.comments.id}`+'&replyId='+love.comments.id" target="dynamicWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
+                  <a v-else-if="love.comments&&(love.comments.deleteSign===1||love.comments.status===1)&&!love.comments.dynamicId" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
+                  <a v-else-if="love.comments&&(love.comments.deleteSign===1||love.comments.status===1)&&love.comments.dynamicId" class="comment-content" :href="'./dynamicDetail?dynamicId='+love.comments.dynamicId" target="dynamicWindow"><span v-html="addImgFlagF(love.comments)"></span></a>                </el-tooltip>
                 <el-tooltip
                     v-if="love.likes.likeType===1"
                     popper-class="custom-tooltip"
@@ -214,61 +164,29 @@
               </div>
            </div>
            <div v-else-if="love.comments?.likeCommentNumber>2||love.videos?.likeNumber>2||love.dynamic?.likeNumber>2" class="love-item-content">
-            <el-tooltip
-                    popper-class="custom-tooltip"
-                    effect="light"
-                    :show-after="300"
-                    :content="love.userInfoList[0].userName"
-                    placement="bottom-end"
-                    :offset="12"
-                    :show-arrow="false"
-                    :hide-after="0"
-                  >
-                  <a :href="'./home?homeMenu=1&userId='+love.userInfoList[0].id" target="_blank"><img class="love-user-avatar1" :src="love.userInfoList[0].avatarAddress"></a>
-              </el-tooltip>
-              <el-tooltip
-                    popper-class="custom-tooltip"
-                    effect="light"
-                    :show-after="300"
-                    :content="love.userInfoList[1].userName"
-                    placement="bottom-end"
-                    :offset="12"
-                    :show-arrow="false"
-                    :hide-after="0"
-                  >
-                  <a :href="'./home?homeMenu=1&userId='+love.userInfoList[1].id" target="_blank"><img class="love-user-avatar2" :src="love.userInfoList[1].avatarAddress"></a>
-              </el-tooltip>
+            <UserHoverCard :user-id="Number(love.userInfoList[0].id) || 0" :avatar="love.userInfoList[0].avatarAddress || ''" :nickname="love.userInfoList[0].userName || ''" :avatar-size="32">
+                      <template #reference>
+                        <a :href="'./home?homeMenu=1&userId='+love.userInfoList[0].id" target="_blank" style="position:absolute;left:16px;top:12px;width:32px;height:32px;display:block;"><img class="love-user-avatar1" style="position:static;width:100%;height:100%;" :src="love.userInfoList[0].avatarAddress"></a>
+                      </template>
+                    </UserHoverCard>
+              <UserHoverCard :user-id="Number(love.userInfoList[1].id) || 0" :avatar="love.userInfoList[1].avatarAddress || ''" :nickname="love.userInfoList[1].userName || ''" :avatar-size="32">
+                      <template #reference>
+                        <a :href="'./home?homeMenu=1&userId='+love.userInfoList[1].id" target="_blank" style="position:absolute;left:0;top:0;width:32px;height:32px;display:block;"><img class="love-user-avatar2" style="position:static;width:100%;height:100%;" :src="love.userInfoList[1].avatarAddress"></a>
+                      </template>
+                    </UserHoverCard>
               <div class="love-right-content">
                  <div class="love-right-content-top">
-                  <el-tooltip
-                    popper-class="custom-tooltip"
-                    effect="light"
-                    :show-after="300"
-                    :content="love.userInfoList[0].userName"
-                    placement="bottom-end"
-                    :offset="12"
-                    :show-arrow="false"
-                    :hide-after="0"
-                  >
-                  <a :href="'./home?homeMenu=1&userId='+love.userInfoList[0].id" target="_blank">{{ love.userInfoList[0].userName }}、</a>
-                  </el-tooltip>
-                  <el-tooltip
-                    popper-class="custom-tooltip"
-                    effect="light"
-                    :show-after="300"
-                    :content="love.userInfoList[1].userName"
-                    placement="bottom-end"
-                    :offset="12"
-                    :show-arrow="false"
-                    :hide-after="0"
-                  >
+                  <UserHoverCard :user-id="Number(love.userInfoList[0].id) || 0" :avatar="love.userInfoList[0].avatarAddress || ''" :nickname="love.userInfoList[0].userName || ''" :avatar-size="14">
+                      <template #reference>
+                        <a :href="'./home?homeMenu=1&userId='+love.userInfoList[0].id" target="_blank">{{ love.userInfoList[0].userName }}、</a>
+                      </template>
+                    </UserHoverCard>
                   <UserHoverCard :user-id="Number(love.userInfoList[1].id) || 0" :avatar="love.userInfoList[1].avatarAddress || ''" :nickname="love.userInfoList[1].userName || ''" :avatar-size="14">
                      <template #reference>
                        <a :href="'./home?homeMenu=1&userId='+love.userInfoList[1].id" target="_blank">{{ love.userInfoList[1].userName }}</a>
                      </template>
                    </UserHoverCard>
-                  </el-tooltip>
-                  <span v-if="love.comments!==null" class="love-list" @click="selectLikeUserF(love)">等总计{{ love.comments.likeCommentNumber }}人赞了我的评论</span>
+                  <span v-if="love.comments" class="love-list" @click="selectLikeUserF(love)">等总计{{ love.comments.likeCommentNumber }}人赞了我的评论</span>
                   <span v-else class="love-list" @click="selectLikeUserF(love)">等总计{{ love.videos.likeNumber }}人赞了我的视频</span>
                 </div>
                 <div class="love-right-content-center">
@@ -279,7 +197,7 @@
                     <span v-show="love.comments?.likeWarn===1||love.videos?.likeWarn===1||love.dynamic?.likeWarn===1" class="comment-notification" @click="dndLikeNotificationF(love)"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><path d="m2 2 20 20"/></svg> <span>不再通知</span></span>
                     <span v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="comment-disable-notification" @click="dndLikeNotificationF(love)"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg> <span>接收通知</span></span>
                 </div>
-                <img v-show="love.comments?.likeWarn===0||love.videos?.likeWarn===0||love.dynamic?.likeWarn===0" class="love-dnd" src="/img/dnd.svg">
+                
                 <el-tooltip
                     v-if="love.likes.likeType===2"
                     popper-class="custom-tooltip"
@@ -293,8 +211,10 @@
                   <template #content>
                       <div v-if="love.likes.likeType===2" v-html="addImgFlagF(love.comments)"></div>
                   </template>
-                  <a v-if="love.comments!==null&&(love.comments.deleteSign===0&&love.comments.status===0)" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId+'&commentId='+`${love.comments.mainCommentId?love.comments.mainCommentId:love.comments.id}`+'&replyId='+love.comments.id" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
-                  <a v-else-if="love.comments!==null&&(love.comments.deleteSign===1||love.comments.status===1)" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>                </el-tooltip>
+                  <a v-if="love.comments&&(love.comments.deleteSign===0&&love.comments.status===0)&&!love.comments.dynamicId" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId+'&commentId='+`${love.comments.mainCommentId?love.comments.mainCommentId:love.comments.id}`+'&replyId='+love.comments.id" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
+                  <a v-else-if="love.comments&&(love.comments.deleteSign===0&&love.comments.status===0)&&love.comments.dynamicId" class="comment-content" :href="'./dynamicDetail?dynamicId='+love.comments.dynamicId+'&commentId='+`${love.comments.mainCommentId?love.comments.mainCommentId:love.comments.id}`+'&replyId='+love.comments.id" target="dynamicWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
+                  <a v-else-if="love.comments&&(love.comments.deleteSign===1||love.comments.status===1)&&!love.comments.dynamicId" class="comment-content" :href="'./video?videoId=BV'+love.comments.videoId" target="videoWindow"><span v-html="addImgFlagF(love.comments)"></span></a>
+                  <a v-else-if="love.comments&&(love.comments.deleteSign===1||love.comments.status===1)&&love.comments.dynamicId" class="comment-content" :href="'./dynamicDetail?dynamicId='+love.comments.dynamicId" target="dynamicWindow"><span v-html="addImgFlagF(love.comments)"></span></a>                </el-tooltip>
                 <el-tooltip
                     v-if="love.likes.likeType===1"
                     popper-class="custom-tooltip"
@@ -335,38 +255,19 @@
       <div class="love-content" v-show="likeUserList.length>0" @scroll="handleScroll2">
         <div v-show="loveList.length>0" class="love-item" v-for="love in likeUserList" :key="love?.id">
           <div class="love-item-content" style="cursor: default;">
-                <el-tooltip
-                      popper-class="custom-tooltip"
-                      effect="light"
-                      :show-after="300"
-                      :content="love.userInfo2.userName"
-                      placement="bottom-end"
-                      :offset="12"
-                      :show-arrow="false"
-                      :hide-after="0"
-                    >
-                    <a :href="'./home?homeMenu=1&userId='+love.userInfo2.id" target="_blank"><img class="love-user-avatar" :src="love.userInfo2.avatarAddress"></a>
-                </el-tooltip>
+                <UserHoverCard :user-id="Number(love.userInfo2.id) || 0" :avatar="love.userInfo2.avatarAddress || ''" :nickname="love.userInfo2.userName || ''" :avatar-size="32">
+                      <template #reference>
+                        <a :href="'./home?homeMenu=1&userId='+love.userInfo2.id" target="_blank"><img class="love-user-avatar" :src="love.userInfo2.avatarAddress"></a>
+                      </template>
+                    </UserHoverCard>
                 <div class="love-right-content">
                   <div class="love-right-content-top">
-                    <el-tooltip
-                      popper-class="custom-tooltip"
-                      effect="light"
-                      :show-after="300"
-                      :content="love.userInfo2.userName"
-                      placement="bottom-end"
-                      :offset="12"
-                      :show-arrow="false"
-                      :hide-after="0"
-                    >
-                    <a :href="'./home?homeMenu=1&userId='+love.userInfo2.id" target="_blank">{{ love.userInfo2.userName }}</a>
-                    </el-tooltip>
+                    <UserHoverCard :user-id="Number(love.userInfo2.id) || 0" :avatar="love.userInfo2.avatarAddress || ''" :nickname="love.userInfo2.userName || ''" :avatar-size="14">
+                      <template #reference>
+                        <a :href="'./home?homeMenu=1&userId='+love.userInfo2.id" target="_blank">{{ love.userInfo2.userName }}</a>
+                      </template>
+                    </UserHoverCard>
                     <span>赞了我</span>
-                  </div>
-                  <div class="love-right-content-center">
-                     <button v-debounce v-show="love.isFansFlag===0" @click="addFollowAxios(love)">关注</button>
-                     <button v-debounce style="background-color: #e5e9ef;" v-show="love.isFansFlag===1&&!deleteFollowHoverFlag!==love.id" @mouseover="deleteFollowHoverFlag=love.id" @click="deleteFollowAxios(love)">已关注</button>
-                     <button v-debounce style="background-color: #e5e9ef;" v-show="love.isFansFlag===1&&deleteFollowHoverFlag===love.id"  @mouseleave="deleteFollowHoverFlag=null" @click="deleteFollowAxios(love)">取消关注</button>
                   </div>
                   <div class="love-right-content-bottom">
                     <span class="love-time">{{ love.likeTime }}</span>
@@ -410,7 +311,6 @@ import UserHoverCard from '@/components/UserHoverCard.vue';
   import { ElMessage } from "element-plus";   
   import {putMessageNumber}  from '../api/privateMessage/index';
   import {selectLike,deleteCommentNotification,dndLikeNotification,selectLikeUser}  from '../api/comment/index';
-  import {addFollow,deleteFollow}  from '../api/user/index';
   import { sanitizeRichText } from "../utils/richText";
 
 
@@ -425,7 +325,6 @@ import UserHoverCard from '@/components/UserHoverCard.vue';
   const likeUserList=reactive([]);
   const pageNum2=ref(1);
   const loves=ref(null);
-  const deleteFollowHoverFlag=ref(null);
   const loadError=ref("");
   const loading=ref(false);
   const detailsLoading=ref(false);
@@ -633,32 +532,6 @@ function addImgFlagF(comment){
       detailsMore.value=true;
     }
   })
-
-  //关注用户
-  async function addFollowAxios(love) {
-
-        if (store.userId === love.userInfo2.id) {
-          ElMessage({
-            message: "不能关注自己哦",
-            type: "warning",
-            duration: 1700,
-          });
-          return;
-        }
-        addFollow(store.token,store.userId,love.userInfo2.id).then(()=>{
-          love.isFansFlag=1;
-        }).catch(showError)
-   
-  }
-
-  //取消关注用户
-  async function deleteFollowAxios(love) {
-
-       deleteFollow(store.token,store.userId,love.userInfo2.id).then(()=>{
-         love.isFansFlag=0;
-       }).catch(showError)
-
-  }
 
 
   </script>
@@ -1015,7 +888,7 @@ function addImgFlagF(comment){
             -webkit-box-orient: vertical;
             overflow: hidden; /* 必须要有 */
             text-overflow: ellipsis; /* 省略号生效 */
-            -webkit-line-clamp: 3;
+            -webkit-line-clamp: 2;
             word-break: break-all; /* 避免单词中间断行 */
             font-size: 14px;
             line-height: 16.5px;
@@ -1188,4 +1061,6 @@ function addImgFlagF(comment){
 }
   
   .user-hover { display: inline; vertical-align: middle; }
+  :deep(.at-msg) { color: #0A8271; text-decoration: none; }
+  :deep(.at-msg:hover) { color: var(--brand); }
 </style>

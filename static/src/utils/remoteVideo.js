@@ -1,8 +1,8 @@
 const MAX_URL_LENGTH = 1000;
+const MAX_REMOTE_FRAMES = 30;
 
 function normalizeUrl(url) {
   if (!url) return null;
-  //去掉首尾空白以及复制链接时可能带进来的逗号、分号、句号
   let value = String(url).trim().replace(/^[,;.\s]+|[,;.\s]+$/g, "");
   if (!value || value.length > MAX_URL_LENGTH) return null;
   if (value.startsWith("//")) value = "https:" + value;
@@ -12,23 +12,11 @@ function normalizeUrl(url) {
   return value;
 }
 
-/**
- * 解析远程视频直链，用户过期后可在编辑页手动更换
- */
 export function parseRemoteVideoUrl(raw) {
   if (!raw) return null;
   return normalizeUrl(String(raw));
 }
 
-/**
- * 读取远程视频时长，单位秒
- *
- * 注意不能设crossOrigin="anonymous"，否则浏览器会按CORS模式请求，
- * 源站不回Access-Control-Allow-Origin时请求被直接拦掉，metadata都读不到。
- * <video>跨域读metadata本身不需要CORS协议。
- *
- * @returns {Promise<number>} 取不到时返回0
- */
 export function readRemoteDuration(url) {
   if (!url) return Promise.resolve(0);
   return new Promise((resolve) => {
@@ -58,9 +46,6 @@ export function readRemoteDuration(url) {
   });
 }
 
-/**
- * 秒数转成"mm:ss"
- */
 export function formatSecondsToVideoTime(seconds) {
   if (!Number.isFinite(seconds) || seconds <= 0) return "";
   const minutes = Math.floor(seconds / 60);
@@ -68,9 +53,6 @@ export function formatSecondsToVideoTime(seconds) {
   return `${minutes < 10 ? "0" : ""}${minutes}:${rest < 10 ? "0" : ""}${rest}`;
 }
 
-/**
- * 远程视频取不到首帧时使用的默认封面
- */
 export async function fetchDefaultRemoteCover() {
   const response = await fetch("/img/page-bg-7.png");
   if (!response.ok) throw new Error("读取默认封面失败");
@@ -103,4 +85,126 @@ export async function normalizeCoverFile(file) {
 
 export function isRemoteVideo(video) {
   return !!video && video.videoSource === 1 && !!video.remoteUrl;
+}
+
+function cleanupHls(hls) {
+  if (hls) {
+    try { hls.destroy(); } catch (e) { void e; }
+  }
+}
+
+function waitForEvent(target, eventName, timeoutMs = 15000) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error("timeout"));
+    }, timeoutMs);
+    const onOk = () => { cleanup(); resolve(); };
+    const onErr = () => { cleanup(); reject(new Error("media error")); };
+    const cleanup = () => {
+      clearTimeout(timer);
+      target.removeEventListener(eventName, onOk);
+      target.removeEventListener("error", onErr);
+    };
+    target.addEventListener(eventName, onOk, { once: true });
+    target.addEventListener("error", onErr, { once: true });
+  });
+}
+
+function seekTo(videoEl, time) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error("seek timeout"));
+    }, 10000);
+    const onSeeked = () => { cleanup(); resolve(); };
+    const onErr = () => { cleanup(); reject(new Error("seek error")); };
+    const cleanup = () => {
+      clearTimeout(timer);
+      videoEl.removeEventListener("seeked", onSeeked);
+      videoEl.removeEventListener("error", onErr);
+    };
+    videoEl.addEventListener("seeked", onSeeked, { once: true });
+    videoEl.addEventListener("error", onErr, { once: true });
+    try {
+      videoEl.currentTime = Math.max(0, time);
+    } catch (e) {
+      cleanup();
+      reject(e);
+    }
+  });
+}
+
+export async function extractRemoteThumbnails(url, onFrame) {
+  if (!url) return [];
+  const frames = [];
+  const videoEl = document.createElement("video");
+  videoEl.preload = "auto";
+  videoEl.muted = true;
+  videoEl.playsInline = true;
+  try {
+    videoEl.crossOrigin = "anonymous";
+  } catch (e) {
+    void e;
+  }
+
+  let hls = null;
+  const isHls = String(url).toLowerCase().includes(".m3u8");
+  if (isHls && window.Hls && window.Hls.isSupported()) {
+    hls = new window.Hls();
+    hls.loadSource(url);
+    hls.attachMedia(videoEl);
+  } else {
+    videoEl.src = url;
+  }
+
+  try {
+    await waitForEvent(videoEl, "loadedmetadata");
+  } catch (e) {
+    cleanupHls(hls);
+    return frames;
+  }
+
+  const duration = Number.isFinite(videoEl.duration) ? videoEl.duration : 0;
+  if (duration <= 0) {
+    cleanupHls(hls);
+    return frames;
+  }
+
+  const count = Math.min(MAX_REMOTE_FRAMES, Math.max(8, Math.floor(duration)));
+  const step = duration / (count + 1);
+  const times = [];
+  for (let i = 0; i < count; i++) {
+    times.push(Math.min(duration - 0.1, (i + 1) * step));
+  }
+  if (times.length === 0) times.push(0);
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+
+  for (const t of times) {
+    try {
+      await seekTo(videoEl, t);
+      canvas.width = videoEl.videoWidth || 480;
+      canvas.height = videoEl.videoHeight || 270;
+      if (ctx) {
+        ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL("image/jpeg");
+        frames.push(dataUrl);
+        if (typeof onFrame === "function") onFrame(dataUrl, frames.length - 1);
+      }
+    } catch (e) {
+      break;
+    }
+  }
+
+  cleanupHls(hls);
+  try {
+    videoEl.pause();
+    videoEl.removeAttribute("src");
+    videoEl.load();
+  } catch (e) {
+    void e;
+  }
+  return frames;
 }

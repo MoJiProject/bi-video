@@ -9,14 +9,15 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
     "axios": "^1.9.0",
     "core-js": "^3.8.3",
     "element-plus": "^2.9.10",
+    "hls.js": "^1.7.4",
     "pinia": "^3.0.2",
     "sortablejs": "^1.15.6",
     "vue": "^3.2.13",
-    "vue-router": "^4.5.1",
-    "@element-plus/icons-vue": "^2.3.1"
+    "vue-router": "^4.5.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
@@ -49,36 +50,39 @@
       "parser": "@babel/eslint-parser"
     },
     "rules": {
-      "vue/multi-word-component-names": ["error", {
-        "ignores": [
-          "index",
-          "Eit",
-          "home",
-          "dynamic",
-          "contribute",
-          "lists",
-          "collect",
-          "followAnime",
-          "settings",
-          "follow",
-          "fans",
-          "search",
-          "whisper",
-          "comment",
-          "Comment",
-          "video5",
-          "video6",
-          "video7",
-          "video8",
-          "dynamic2",
-          "dynamic3",
-          "video",
-          "at",
-          "config",
-          "love",
-          "reply"
-        ]
-      }]
+      "vue/multi-word-component-names": [
+        "error",
+        {
+          "ignores": [
+            "index",
+            "Eit",
+            "home",
+            "dynamic",
+            "contribute",
+            "lists",
+            "collect",
+            "followAnime",
+            "settings",
+            "follow",
+            "fans",
+            "search",
+            "whisper",
+            "comment",
+            "Comment",
+            "video5",
+            "video6",
+            "video7",
+            "video8",
+            "dynamic2",
+            "dynamic3",
+            "video",
+            "at",
+            "config",
+            "love",
+            "reply"
+          ]
+        }
+      ]
     }
   },
   "browserslist": [

@@ -107,10 +107,15 @@ public class SocialController {
 
     @PostMapping("/post/{postId}/share")
     public ApiResponse<Map<String, Object>> sharePost(@PathVariable Long postId, @RequestBody Map<String, Object> body) {
-        Long me = AuthContext.requireUserId();
-        List<Long> recipients = (List<Long>) body.get("userIdList");
-        String content = body.get("content") == null ? null : body.get("content").toString();
-        return ApiResponse.ok(postShare.share(me, postId, recipients, content));
+Long me = AuthContext.requireUserId();
+    List<?> rawRecipients = (List<?>) body.get("userIdList");
+    List<Long> recipients = rawRecipients == null ? null
+            : rawRecipients.stream()
+                    .map(value -> value instanceof Number ? ((Number) value).longValue()
+                            : Long.valueOf(String.valueOf(value)))
+                    .toList();
+    String content = body.get("content") == null ? null : body.get("content").toString();
+    return ApiResponse.ok(postShare.share(me, postId, recipients, content));
     }
 
     @PostMapping("/post")

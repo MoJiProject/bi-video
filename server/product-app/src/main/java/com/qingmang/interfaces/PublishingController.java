@@ -105,4 +105,11 @@ public class PublishingController {
     public ApiResponse<Map<String, Object>> statistics() {
         return ApiResponse.ok(publishing.statistics(AuthContext.requireUserId()));
     }
+
+    @GetMapping("/upload/extractRemoteVideo")
+    public ApiResponse<List<String>> extractRemoteVideo(@RequestParam String url) {
+        Long actor = AuthContext.requireUserId();
+        auth.requireActiveUser(actor);
+        return ApiResponse.ok(publishing.extractRemoteVideoUrls(url));
+    }
 }

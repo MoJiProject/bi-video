@@ -12,9 +12,10 @@ import com.qingmang.domain.interaction.mapper.CommentLikeMapper;
 import com.qingmang.domain.interaction.mapper.CommentMapper;
 import com.qingmang.domain.interaction.mapper.DanmakuMapper;
 import com.qingmang.domain.video.mapper.VideoMapper;
+import com.qingmang.domain.user.User;
 import com.qingmang.domain.user.mapper.UserMapper;
 import com.qingmang.domain.social.UserPost;
-import com.qingmang.application.MediaStorageService;
+import com.qingmang.support.AuthContext;
 import com.qingmang.domain.social.mapper.UserPostMapper;
 import com.qingmang.infrastructure.mapper.CounterMapper;
 import com.qingmang.infrastructure.mapper.InteractionQueryMapper;
@@ -293,9 +294,15 @@ public class CommentDanmakuService {
 
     @Transactional(readOnly = true)
     public Map<String, Object> danmakuSnapshot(Long videoId, int limit) {
+        return danmakuSnapshot(videoId, limit, AuthContext.currentUserIdOrNull());
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> danmakuSnapshot(Long videoId, int limit, Long viewerId) {
         var video = videoMapper.selectById(videoId);
-        if (video == null || !Integer.valueOf(1).equals(video.getStatus()))
-            throw new BizException(ErrorCode.VIDEO_NOT_FOUND);
+        if (video == null || video.getDeletedAt() != null
+                || (!isAdminViewer(viewerId) && !Integer.valueOf(1).equals(video.getStatus())))
+        throw new BizException(ErrorCode.VIDEO_NOT_FOUND);
         return Map.of("records", danmaku(videoId, limit), "count", danmakuCount(videoId));
     }
 
@@ -323,7 +330,8 @@ public class CommentDanmakuService {
         if (c.getPostId() != null) requirePost(c.getPostId(), viewerId);
         else {
             var video = videoMapper.selectById(c.getVideoId());
-            if (video == null || !Integer.valueOf(1).equals(video.getStatus()))
+            if (video == null || video.getDeletedAt() != null
+                    || (!isAdminViewer(viewerId) && !Integer.valueOf(1).equals(video.getStatus())))
                 throw new BizException(ErrorCode.VIDEO_NOT_FOUND);
         }
         Long rootId = c.getRootId() == null ? c.getId() : c.getRootId();
@@ -393,6 +401,14 @@ public class CommentDanmakuService {
 
     private long danmakuCount(Long videoId) {
         return danmakuMapper.selectCount(Wrappers.<Danmaku>lambdaQuery().eq(Danmaku::getVideoId, videoId));
+    }
+
+    private boolean isAdminViewer(Long userId) {
+        if (userId == null) return false;
+        User user = userMapper.selectById(userId);
+        if (user == null || user.getDeletedAt() != null || !Integer.valueOf(1).equals(user.getStatus()))
+            return false;
+        return Integer.valueOf(1).equals(user.getRole()) || Integer.valueOf(1).equals(user.getSuperAdmin());
     }
 
     private void parseImages(CommentVO vo) {

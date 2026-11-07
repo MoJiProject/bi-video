@@ -24,7 +24,7 @@
     </form>
     <div v-for="root in rows" :key="root.id" class="comment">
       <article v-for="comment in [root, ...(root.replies || [])]" :key="comment.id"
-        class="content-action-surface" :class="{ reply: comment.rootId }">
+        class="content-action-surface" :data-id="comment.id" :class="{ reply: comment.rootId, 'comment-highlight': highlightId === comment.id }">
         <header><UserHoverCard :user-id="comment.authorId" :avatar="comment.authorAvatar"
             :nickname="comment.authorNickname" :avatar-size="32"/>
           <time>{{ comment.createdAt?.replace('T', ' ') }}</time>
@@ -102,7 +102,7 @@
 import { nextTick, onUnmounted, ref, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { commentApi } from '@/api/product';
-import { post, del } from '@/services/http';
+import { post, del, get } from '@/services/http';
 import { useGlobalStore } from '@/store/store';
 import richContent from '@/components/richContent.vue';
 import ContentMoreMenu from '@/components/ContentMoreMenu.vue';
@@ -136,6 +136,11 @@ const replySending = ref(false);
 const sending = ref(false);
 const uploading = ref(false);
 const busy = ref(new Set());
+const highlightId = ref(null);
+const deepParams = new URLSearchParams(window.location.search);
+const deepCommentId = parseInt(deepParams.get('commentId')) || null;
+const deepReplyId = parseInt(deepParams.get('replyId')) || null;
+let deepLinkHandled = false;
 let generation = 0;
 function setReplyInput(el) {
   if (el) replyInput.value = el;
@@ -174,6 +179,7 @@ async function load() {
     emit('count', page.total);
     cursorId.value = page.cursorId;
     hasMore.value = page.hasMore;
+    handleDeepLink();
   } catch (error) {
     if (current === generation) {
       loadError.value = error.message || '评论加载失败';
@@ -183,6 +189,38 @@ async function load() {
   finally { if (current === generation) loading.value = false; }
 }
 function reload() { generation++; rows.value = []; cursorId.value = null; loading.value = false; hasMore.value = false; return load(); }
+async function handleDeepLink() {
+  if (deepLinkHandled || !deepCommentId || !rows.value.length) return;
+  deepLinkHandled = true;
+  try {
+    let target = await get(`/comment/${deepCommentId}`);
+    const targetPostId = target.dynamicId ?? target.postId ?? target.post_id;
+    if (String(targetPostId) !== String(props.postId)) return;
+    const rootId = target.rootId ?? target.mainCommentId ?? target.root_id;
+    if (rootId) {
+      const root = await get(`/comment/${rootId}`);
+      const rootPostId = root.dynamicId ?? root.postId ?? root.post_id;
+      if (String(rootPostId) !== String(props.postId)) return;
+      target = root;
+    }
+    if (!rows.value.some((row) => row.id === target.id || (row.replies || []).some((r) => r.id === target.id))) {
+      rows.value.unshift(target);
+    }
+    await highlightAndScroll(deepReplyId || deepCommentId, deepReplyId ? deepCommentId : null);
+  } catch (error) {
+    /* ignore missing/deleted deep-linked comment */
+  }
+}
+async function highlightAndScroll(id, fallbackId = null) {
+  if (!id) return;
+  highlightId.value = null;
+  await nextTick();
+  highlightId.value = id;
+  await nextTick();
+  const el = document.querySelector(`.discussion [data-id="${id}"]`)
+    || (fallbackId && document.querySelector(`.discussion [data-id="${fallbackId}"]`));
+  el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
 function toggleReplyBox(comment) {
   if (!signedIn()) return;
   if (activeReplyId.value === comment.id) {
@@ -340,6 +378,11 @@ footer .el-button { height: 34px; margin: 0; padding: 0 10px; border-radius: 8px
 .comment-action-icon.is-dislike { transform: rotate(180deg); }
 .load-more { display: flex; min-height: 38px; margin: 20px auto 0; border-radius: 10px; }
 .comment-load-error { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 16px 0; color: var(--ink-2); font-size: 13px; }
+.comment-highlight { animation: post-comment-highlight 6s ease forwards; }
+@keyframes post-comment-highlight {
+  0% { background-color: rgba(43, 178, 160, 0.22); }
+  100% { background-color: transparent; }
+}
 @media (max-width: 640px) {
   .discussion { padding: 16px; border-radius: 16px; }
   .heading { gap: 10px; padding-bottom: 14px; }
