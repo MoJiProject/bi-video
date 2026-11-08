@@ -71,6 +71,17 @@ export const useGlobalStore = defineStore('global', {
       homeLoadMenuList: [],//home加载菜单列表
     }
   },
+  getters: {
+    userLevel: (state) => Number(state.userInformation?.grade ?? 0),
+    colorfulVisibleLevel: () => 4,
+    colorfulSendableLevel: () => 5,
+    colorfulVisible: (state) => Number(state.userInformation?.grade ?? 0) >= 4,
+    colorfulSendable: (state) => Number(state.userInformation?.grade ?? 0) >= 5,
+    danmakuEmojiSendable: (state) => Number(state.userInformation?.grade ?? 0) >= 6,
+    danmakuEmojiLevel: () => 6,
+    danmakuEmojiMax: () => 10,
+    danmakuTextMax: () => 20,
+  },
   actions: {
     setSearchDisplayFlag(newValue) {
       this.searchDisplayFlag = newValue

@@ -268,7 +268,7 @@ CREATE TABLE `danmaku`
     `id`           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `video_id`     BIGINT UNSIGNED NOT NULL COMMENT '视频ID',
     `user_id`      BIGINT UNSIGNED NULL COMMENT '发送者，NULL 表示游客',
-    `content`      VARCHAR(255)    NOT NULL COMMENT '内容',
+    `content`      VARCHAR(1000)  NOT NULL COMMENT '内容',
     `color`        VARCHAR(9)      NOT NULL DEFAULT '#FFFFFF' COMMENT '颜色 #RRGGBB',
     `font_size`    SMALLINT        NOT NULL DEFAULT 25 COMMENT '字号',
     `colorful`     TINYINT(1)      NOT NULL DEFAULT 0 COMMENT '彩色弹幕',

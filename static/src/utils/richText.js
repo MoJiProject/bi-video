@@ -14,8 +14,13 @@ export function extractMentionIds(value) {
   return [...ids];
 }
 
+const sanitizeCache = new Map();
+const SANITIZE_CACHE_LIMIT = 500;
+
 export function sanitizeRichText(value) {
-  const source = new DOMParser().parseFromString(value || '', 'text/html').body;
+  const key = value || '';
+  if (sanitizeCache.has(key)) return sanitizeCache.get(key);
+  const source = new DOMParser().parseFromString(key, 'text/html').body;
   const result = document.createElement('div');
   function append(node, parent) {
     if (node.nodeType === Node.TEXT_NODE) { parent.append(document.createTextNode(node.textContent)); return; }
@@ -28,6 +33,7 @@ export function sanitizeRichText(value) {
       element.src = src;
       element.alt = node.getAttribute('alt') || '[表情]';
       element.className = 'inline-emoji';
+      element.decoding = 'async';
     } else if (node.tagName === 'A') {
       const href = node.getAttribute('href');
       if (href) {
@@ -52,7 +58,6 @@ export function sanitizeRichText(value) {
     } else if (tags.has(node.tagName)) {
       element = document.createElement(node.tagName.toLowerCase());
       const time = node.getAttribute('data-time');
-      // 兝许 mm:ss �?hh:mm:ss（坫全角冒坷），与视频页点击跳转的解枝规则一�?
       if (time && /^\d{1,6}[�?]\d{2}([�?]\d{2})?$/.test(time)) {
         element.setAttribute('data-time', time);
         element.className = 'time-span';
@@ -63,5 +68,8 @@ export function sanitizeRichText(value) {
     if (element) parent.append(element);
   }
   for (const child of source.childNodes) append(child, result);
-  return result.innerHTML;
+  const output = result.innerHTML;
+  if (sanitizeCache.size >= SANITIZE_CACHE_LIMIT) sanitizeCache.clear();
+  sanitizeCache.set(key, output);
+  return output;
 }

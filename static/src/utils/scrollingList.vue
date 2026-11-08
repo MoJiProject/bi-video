@@ -34,11 +34,7 @@
                 scrollingColorful: isColorful(scrolling),
             }"
         >
-            <span
-                class="scrolling-content-container"
-                @click.stop="$emit('copyScrolling', scrolling.content)"
-                >{{ scrolling.content }}
-            </span>
+            <span class="scrolling-content-container" @click.stop="$emit('copyScrolling', scrolling.content)" v-html="renderContent(scrolling.content)"></span>
         </div>
         <!-- 顶部弹幕 -->
         <div
@@ -64,11 +60,7 @@
                 scrollingColorful: isColorful(scrolling),
             }"
         >
-            <span
-                class="scrolling-content-container"
-                @click.stop="$emit('copyScrolling', scrolling.content)"
-                >{{ scrolling.content }}
-            </span>
+            <span class="scrolling-content-container" @click.stop="$emit('copyScrolling', scrolling.content)" v-html="renderContent(scrolling.content)"></span>
         </div>
         <!-- 底部弹幕，小屏压在下半 6 行(row 6~11)，全屏压在第 13~25 行 -->
         <div
@@ -94,17 +86,14 @@
                 scrollingColorful: isColorful(scrolling),
             }"
         >
-            <span
-                class="scrolling-content-container"
-                @click.stop="$emit('copyScrolling', scrolling.content)"
-                >{{ scrolling.content }}
-            </span>
+            <span class="scrolling-content-container" @click.stop="$emit('copyScrolling', scrolling.content)" v-html="renderContent(scrolling.content)"></span>
         </div>
     </div>
 </template>
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { sanitizeRichText } from './richText';
 
 const props = defineProps({
     list: { type: Array, default: () => [] },
@@ -213,6 +202,10 @@ function scrollingCurrentTime() {
 // 是否彩色弹幕
 function isColorful(scrolling) {
   return Number(scrolling.colorful) === 1;
+}
+
+function renderContent(content) {
+  return sanitizeRichText(content || '');
 }
 
 // 当前模式用的纵向位置百分比，钳到 0~100

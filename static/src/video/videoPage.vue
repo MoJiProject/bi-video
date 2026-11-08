@@ -281,7 +281,7 @@
           <div
             ref="playerChrome"
             class="player-chrome"
-            :class="{ 'is-visible': videoFeatureShowFlag || !pausedOrPlayVideoFlag }"
+             :class="{ 'is-visible': videoFeatureShowFlag || !pausedOrPlayVideoFlag || danmakuEmojiOpen || danmakuEmojiOpen2 }"
             @pointerenter="videoFeatureShowFlag = true, handlerCleanTime(), videoLeave = true"
             @pointerleave="videoLeave = false, videoMove()"
           >
@@ -819,12 +819,12 @@
               inputContainerintoVideoAllDisplayIngFlag:
                 intoVideoAllDisplayIngFlag,
             }"
-            v-show="
-              openOrCloseScrollingFlag &&
-              intoVideoAllDisplayIngFlag &&
-              videoFeatureShowFlag
-            "
-            class="up-video-play-bottom-video-open-scrolling-container1"
+             v-show="
+               openOrCloseScrollingFlag &&
+               intoVideoAllDisplayIngFlag &&
+               (videoFeatureShowFlag || danmakuEmojiOpen)
+             "
+             class="up-video-play-bottom-video-open-scrolling-container1"
           >
             <div
             :style="{ display: store.userId ? 'initial' : 'none' }"
@@ -977,27 +977,29 @@
                     :predefine="predefineColors"
                     @change="sendScrollingColorful = 0"
                   />
-                  <div
-                    class="scrolling-colorful-picker"
-                    :class="{ 'scrolling-colorful-picker-active': sendScrollingColorful === 1 }"
-                    @click="sendScrollingColorful = 1"
-                  >
-                    <span class="scrolling-colorful-picker-text"></span>
-                  </div>
+                   <div
+                     v-if="store.colorfulVisible"
+                     class="scrolling-colorful-picker"
+                     :class="{ 'scrolling-colorful-picker-active': sendScrollingColorful === 1 }"
+                     @click="store.colorfulSendable ? (sendScrollingColorful = 1) : ElMessage.warning({ message: '需要达到 Lv.' + store.colorfulSendableLevel + ' 才能发送彩色弹幕', appendTo: intoVideoAllDisplayIngFlag ? upVideoContainer : document.body })"
+                   >
+                     <span class="scrolling-colorful-picker-text"></span>
+                   </div>
                 </div>
               </div>
             </div>
-            <input
-              :style="{ display: store.userId ? 'initial' : 'none' }"
-              class="up-video-play-bottom-video-close-scrolling-input1"
-              type="text"
-              maxlength="50"
-              @focus="sendScrollingInputStatus = true"
-              @blur="sendScrollingInputStatus = false"
-              v-model="sendScrollingText"
-              @keydown.enter="sendScrollingAxios"
-              placeholder="输入弹幕"
-            />
+             <div
+               ref="danmakuInputEl"
+               :style="{ display: store.userId ? 'initial' : 'none' }"
+               class="up-video-play-bottom-video-close-scrolling-input1"
+               contenteditable="true"
+               role="textbox"
+               data-placeholder="输入弹幕"
+               @focus="sendScrollingInputStatus = true"
+               @blur="sendScrollingInputStatus = false; syncDanmakuInput(1)"
+               @input="syncDanmakuInput(1)"
+               @keydown.enter.prevent="sendScrollingAxios"
+             ></div>
             <span
               v-show="store.userId === null"
               style="color: #b9b7b8; position: absolute"
@@ -1026,7 +1028,20 @@
                 href="https://www.qingmang.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
                 >互动规范 ></a
               ></span>
-            <span class="send-scrolling-btn-open1" @click="sendScrollingAxios"
+               <span v-if="store.danmakuEmojiSendable" style="position:relative;display:inline-block;margin-right:6px;">
+                 <button type="button" class="player-tool-button" @click.stop="danmakuEmojiOpen = !danmakuEmojiOpen; videoFeatureShowFlag = true; handlerCleanTime()">
+                   <svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="9"/><path d="M8 14a4 4 0 0 0 8 0M8 9h.01M16 9h.01"/></svg>
+                 </button>
+                 <div v-show="danmakuEmojiOpen" class="message-emoji-list" style="position:absolute;bottom:42px;right:0;z-index:2000;">
+                   <div class="emoji-title">表情</div>
+                   <div class="emoji-grid">
+                     <button v-for="number in 107" :key="number" type="button" class="comment-emoji-content" @mousedown.prevent @click="insertDanmakuEmoji(number + 69)">
+                       <img class="comment-emoji-img" :src="`/img/emoji/${number + 69}.png`" alt="" loading="lazy" />
+                     </button>
+                   </div>
+                 </div>
+               </span>
+             <span class="send-scrolling-btn-open1" @click="sendScrollingAxios"
               >发送</span>
           </div>
           <!-- 倍速 -->
@@ -1835,27 +1850,29 @@
                     :predefine="predefineColors"
                     @change="sendScrollingColorful = 0"
                   />
-                  <div
-                    class="scrolling-colorful-picker"
-                    :class="{ 'scrolling-colorful-picker-active': sendScrollingColorful === 1 }"
-                    @click="sendScrollingColorful = 1"
-                  >
-                    <span class="scrolling-colorful-picker-text"></span>
-                  </div>
+                   <div
+                     v-if="store.colorfulVisible"
+                     class="scrolling-colorful-picker"
+                     :class="{ 'scrolling-colorful-picker-active': sendScrollingColorful === 1 }"
+                     @click="store.colorfulSendable ? (sendScrollingColorful = 1) : ElMessage.warning({ message: '需要达到 Lv.' + store.colorfulSendableLevel + ' 才能发送彩色弹幕', appendTo: intoVideoAllDisplayIngFlag ? upVideoContainer : document.body })"
+                   >
+                     <span class="scrolling-colorful-picker-text"></span>
+                   </div>
                 </div>
               </div>
             </div>
-            <input
-              class="up-video-play-bottom-video-close-scrolling-input"
-              :style="{ display: store.userId ? 'initial' : 'none' }"
-              type="text"
-              maxlength="50"
-              @focus="sendScrollingInputStatus = true"
-              @blur="sendScrollingInputStatus = false"
-              v-model="sendScrollingText"
-              @keydown.enter="sendScrollingAxios"
-              placeholder="输入弹幕"
-            />
+             <div
+               ref="danmakuInputEl2"
+               class="up-video-play-bottom-video-close-scrolling-input"
+               :style="{ display: store.userId ? 'initial' : 'none' }"
+               contenteditable="true"
+               role="textbox"
+               data-placeholder="输入弹幕"
+               @focus="sendScrollingInputStatus = true"
+               @blur="sendScrollingInputStatus = false; syncDanmakuInput(2)"
+               @input="syncDanmakuInput(2)"
+               @keydown.enter.prevent="sendScrollingAxios"
+             ></div>
             <span
               v-show="store.userId === null"
               style="color: #999999; position: absolute"
@@ -1884,7 +1901,20 @@
                 href="https://www.qingmang.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
                 >互动规范 ></a
               ></span>
-            <span class="send-scrolling-btn-open" @click="sendScrollingAxios"
+               <span v-if="store.danmakuEmojiSendable" style="position:relative;display:inline-block;margin-right:6px;">
+                  <button type="button" class="player-tool-button danmaku-emoji-trigger" @click.stop="danmakuEmojiOpen2 = !danmakuEmojiOpen2; videoFeatureShowFlag = true; handlerCleanTime()">
+                   <svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="9"/><path d="M8 14a4 4 0 0 0 8 0M8 9h.01M16 9h.01"/></svg>
+                 </button>
+                 <div v-show="danmakuEmojiOpen2" class="message-emoji-list" style="position:absolute;bottom:42px;right:0;z-index:2000;">
+                   <div class="emoji-title">表情</div>
+                   <div class="emoji-grid">
+                     <button v-for="number in 107" :key="number" type="button" class="comment-emoji-content" @mousedown.prevent @click="insertDanmakuEmoji(number + 69)">
+                       <img class="comment-emoji-img" :src="`/img/emoji/${number + 69}.png`" alt="" loading="lazy" />
+                     </button>
+                   </div>
+                 </div>
+               </span>
+             <span class="send-scrolling-btn-open" @click="sendScrollingAxios"
               >发送</span>
           </div>
         </div>
@@ -2224,26 +2254,28 @@
                         "
                         >{{ videoTimeFormat(scrollingData.videoTime) }}</span
                       >
-                      <el-tooltip
-                        popper-class="custom-tooltip"
-                        class="dynamicContent-item-tooltip"
-                        effect="light"
-                        :content="scrollingData.content"
-                        placement="bottom"
-                        :show-after="300"
-                        :offset="12"
-                        :show-arrow="false"
-                        :hide-after="0"
-                      >
-                        <span
-                          class="scrolling-list-item-content"
-                          @click="
-                            upVideoPlayer.currentTime =
-                              scrollingData.videoTime - 0.1
-                          "
-                          >{{ scrollingData.content }}
-                        </span>
-                      </el-tooltip>
+                        <el-tooltip
+                          popper-class="custom-tooltip"
+                          class="dynamicContent-item-tooltip"
+                          effect="light"
+                          :content="sanitizeRichText(scrollingData.content)"
+                          raw-content
+                          placement="bottom"
+                          :show-after="300"
+                          :offset="12"
+                          :show-arrow="false"
+                          :hide-after="0"
+                        >
+                          <span
+                            class="scrolling-list-item-content"
+                            @click="
+                              upVideoPlayer.currentTime =
+                                scrollingData.videoTime - 0.1
+                            "
+                            v-html="sanitizeRichText(scrollingData.content)"
+                          >
+                          </span>
+                        </el-tooltip>
                       <div class="scrolling-list-item-opcell">
                         <button
                           type="button"
@@ -2378,6 +2410,7 @@ const audioBlack = "/img/音量黑.png"
 const closeAudioBlack = "/img/静音黑.png"
 import head1 from "../components/mainHead.vue";
 import { useGlobalStore } from "../store/store";
+import { useRoute, useRouter } from "vue-router";
 import autoPlayVideo from "./autoPlayVideo.vue";
 import autoPlayVideo2 from "./autoPlayVideo2.vue";
 import videoComments from "./videoComments.vue";
@@ -2399,6 +2432,8 @@ export default {
   },
   setup() {
     const store = useGlobalStore();
+    const route = useRoute();
+    const router = useRouter();
     const userId = ref(0);
     const onloadPage = ref(false);
     const titleShowFlag = ref(false);
@@ -2605,7 +2640,15 @@ export default {
     const scrollingDisplaySpeedValue = ref(50);
     const sendScrollingFontSize = ref(20);
     const sendScrollingColor = ref("#ffffff");
-    const sendScrollingColorful = ref(0);
+     const sendScrollingColorful = ref(0);
+     const danmakuIsEmpty = computed(() => {
+       const v = (sendScrollingText.value || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, '').replace(/\s/g, '');
+       return !v;
+     });
+     const danmakuInputEl = ref(null);
+     const danmakuInputEl2 = ref(null);
+     const danmakuEmojiOpen = ref(false);
+     const danmakuEmojiOpen2 = ref(false);
     const predefineColorsHoverFlag = ref(false);
     const sendScrollingText = ref("");
     const ScrollingData = ref([]);
@@ -3088,9 +3131,11 @@ export default {
         store.setSelectUpVideo({ upVideo, upUser, isFansFlag: SelectVideoByIdVo.isFansFlag });
         document.title = upVideo.title + "-青芒视频";
         checkVideoTitle(upVideo.title);
-        onloadPage.value = true;
-        await nextTick();
-        handleVideoContentHeight();
+         onloadPage.value = true;
+         upVideoProgress.value = 0;
+         await nextTick();
+         handleVideoContentHeight();
+         upDateOpenAutoPlayVideo();
         if (isInit && video.watchProgress > 0) {
           history.watchCurrentTime = video.watchProgress;
           seekUpVideo(video.watchProgress);
@@ -3753,23 +3798,47 @@ export default {
     };
 
     //发送弹幕保存弹幕请求
-    async function sendScrollingAxios() {
-      try {
-        if (sendScrollingText.value.trim().length === 0) return;
+     async function sendScrollingAxios() {
+       danmakuEmojiOpen.value = false;
+       danmakuEmojiOpen2.value = false;
+       try {
+        const normalized = sendScrollingText.value.replace(/<br\s*\/?>/gi, '').replace(/&nbsp;/g, ' ').replace(/<[^>]*>/g, '').trim();
+        if (!normalized && !(sendScrollingText.value.match(/<img[^>]*inline-emoji[^>]*>/g) || []).length) return;
 
         if (store.userId === null) {
           loginDialogVisibleFlag.value =
             loginDialogVisibleFlag.value === 0 ? 1 : 0;
           return;
         }
-        ScrollingData.value.content = sendScrollingText.value.trim();
+         let scrollingContent = sendScrollingText.value.trim();
+         if (!store.danmakuEmojiSendable) {
+           const strippedContent = scrollingContent
+             .replace(/<img[^>]*class=["'][^"']*inline-emoji[^"']*["'][^>]*>/gi, '')
+             .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{FE0F}\u{200D}]/gu, '');
+           if (strippedContent !== scrollingContent) {
+             ElMessage.warning({ message: '需要达到 Lv.' + store.danmakuEmojiLevel + ' 才能发送表情弹幕', appendTo: intoVideoAllDisplayIngFlag.value ? upVideoContainer.value : document.body });
+           }
+           scrollingContent = strippedContent;
+         }
+          if (!scrollingContent) return;
+          const emojiCount = (scrollingContent.match(/<img[^>]*class=["'][^"']*inline-emoji[^"']*["'][^>]*>/gi) || []).length;
+          const textLength = scrollingContent.replace(/<[^>]*>/g, '').length;
+          if (emojiCount > store.danmakuEmojiMax) {
+            ElMessage.warning({ message: '表情最多 ' + store.danmakuEmojiMax + ' 个', appendTo: intoVideoAllDisplayIngFlag.value ? upVideoContainer.value : document.body });
+            return;
+          }
+          if (textLength > store.danmakuTextMax) {
+            ElMessage.warning({ message: '文字最多 ' + store.danmakuTextMax + ' 个', appendTo: intoVideoAllDisplayIngFlag.value ? upVideoContainer.value : document.body });
+            return;
+          }
+         ScrollingData.value.content = scrollingContent;
         ScrollingData.value.color = sendScrollingColor.value;
         ScrollingData.value.size = sendScrollingFontSize.value;
         ScrollingData.value.userId = store.userId;
         ScrollingData.value.videoId = SelectVideoByIdVo.upVideo?.id;
         ScrollingData.value.videoTime = upVideoPlayer.value.currentTime;
         ScrollingData.value.location = scrollingPattern.value;
-        ScrollingData.value.colorful = sendScrollingColorful.value;
+         ScrollingData.value.colorful = store.colorfulSendable ? sendScrollingColorful.value : 0;
         const created = await danmakuApi.create({
           videoId: ScrollingData.value.videoId,
           content: ScrollingData.value.content,
@@ -3779,12 +3848,53 @@ export default {
           colorful: Number(ScrollingData.value.colorful) === 1,
           videoTimeMs: Math.round(ScrollingData.value.videoTime * 1000),
         });
-        applyDanmakuEvent({ type: 'danmaku.created', danmaku: created, count: created.totalCount });
-        sendScrollingText.value = "";
+         applyDanmakuEvent({ type: 'danmaku.created', danmaku: created, count: created.totalCount });
+         sendScrollingText.value = "";
+         if (danmakuInputEl.value) danmakuInputEl.value.innerHTML = "";
+         if (danmakuInputEl2.value) danmakuInputEl2.value.innerHTML = "";
       } catch (error) { ElMessage.error(error.message || "弹幕发送失败"); }
     }
 
-    let danmakuLoading = false;
+      function syncDanmakuInput(which) {
+        const el = which === 1 ? danmakuInputEl.value : danmakuInputEl2.value;
+        if (el) {
+          let html = el.innerHTML;
+          html = html.replace(/<br\s*\/?>/gi, '').replace(/&nbsp;/g, ' ');
+          if (!html.trim()) {
+            html = '';
+            el.innerHTML = '';
+          }
+          sendScrollingText.value = html;
+        }
+      }
+     function insertDanmakuEmoji(number) {
+       if (!store.danmakuEmojiSendable) {
+         ElMessage.warning({ message: '需要达到 Lv.' + store.danmakuEmojiLevel + ' 才能发送表情弹幕', appendTo: intoVideoAllDisplayIngFlag.value ? upVideoContainer.value : document.body });
+         return;
+       }
+       let activeEl = document.activeElement;
+       if (activeEl !== danmakuInputEl.value && activeEl !== danmakuInputEl2.value) {
+         if (danmakuInputEl2.value && danmakuInputEl2.value.innerHTML.trim()) activeEl = danmakuInputEl2.value;
+         else if (danmakuInputEl.value && danmakuInputEl.value.innerHTML.trim()) activeEl = danmakuInputEl.value;
+         else activeEl = danmakuInputEl.value || danmakuInputEl2.value;
+       }
+       syncDanmakuInput(activeEl === danmakuInputEl2.value ? 2 : 1);
+       const tag = `<img class="inline-emoji" src="/img/emoji/${number}.png" alt="[表情]">`;
+       sendScrollingText.value = (sendScrollingText.value || '') + tag;
+       if (danmakuInputEl.value) danmakuInputEl.value.innerHTML = sendScrollingText.value;
+       if (danmakuInputEl2.value) danmakuInputEl2.value.innerHTML = sendScrollingText.value;
+       const el = activeEl || danmakuInputEl.value || danmakuInputEl2.value;
+       if (el) {
+         el.focus();
+         const range = document.createRange();
+         range.selectNodeContents(el);
+         range.collapse(false);
+         const sel = window.getSelection();
+         sel.removeAllRanges();
+         sel.addRange(range);
+       }
+     }
+     let danmakuLoading = false;
     let danmakuGeneration = 0;
     let liveVideoId;
     const pendingDanmakuEvents = [];
@@ -4526,7 +4636,15 @@ export default {
         }
       },
     );
-    //监视进度条 播放完毕后自动播放下一个
+    watch(
+      () => route.query.videoId,
+      (newId, oldId) => {
+        if (newId && newId !== oldId) {
+          autoPlayVideoFlag.value = route.query.autoFlag;
+          getVideoAndUser();
+        }
+      },
+    );
     watch(
       [upVideoProgress, () => store.AutoPlayVideoList],
       ([progress, autoPlayVideoList]) => {
@@ -4534,7 +4652,11 @@ export default {
         if (parseInt(progress) === 100 && autoPlayVideoList)
           AutoPlayVideoListTime = setTimeout(() => {
             if (store.AutoPlayVideoList)
-              window.location.href = `./video?videoId=BV${store.autoVideoList[0].videoId}&autoFlag=1`;
+              router.push({
+                path: "/video",
+                query: { videoId: "BV" + store.autoVideoList[0].videoId, autoFlag: 1 },
+              });
+              store.setUpdateVideoInfoFlag(true);
           }, 4500);
       },
     );
@@ -4791,7 +4913,13 @@ export default {
       scrollingDisplaySpeedValue,
       sendScrollingFontSize,
       sendScrollingColor,
-      sendScrollingColorful,
+       sendScrollingColorful,
+       danmakuEmojiOpen,
+       danmakuEmojiOpen2,
+       danmakuInputEl,
+       danmakuInputEl2,
+       syncDanmakuInput,
+       insertDanmakuEmoji,
       predefineColors,
       predefineColorsHoverFlag,
       sendScrollingText,
@@ -4849,6 +4977,7 @@ export default {
       likeVideoFlag,
       sendScrollingInputStatus,
       copyScrolling,
+      sanitizeRichText,
       store,
       loginDialogVisibleFlag,
       videoContentFlag,
@@ -5650,6 +5779,7 @@ textarea,
   display: flex;
   justify-content: center;
   align-items: center;
+  user-select: none;
   border-radius: 0px 8px 8px 0px;
   cursor: pointer;
 }
@@ -5661,12 +5791,96 @@ textarea,
   width: 62px;
   height: 32px;
   display: flex;
+  user-select: none;
   justify-content: center;
   align-items: center;
   border-radius: 0px 8px 8px 0px;
   cursor: pointer;
 }
 
+.danmaku-emoji-panel::-webkit-scrollbar {
+  width: 6px;
+}
+.danmaku-emoji-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+.danmaku-emoji-panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 3px;
+}
+.danmaku-emoji-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+.danmaku-emoji-panel {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+.message-emoji-list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  border: 1px solid #E0E5E3;
+  border-radius: 8px;
+  padding: 12px;
+  background-color: #fff;
+  z-index: 20;
+  .emoji-title {
+    flex-shrink: 0;
+    padding: 0 2px 10px;
+    border-bottom: 1px solid #EFF3F2;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1C2321;
+  }
+  .emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 3px;
+    max-height: 224px;
+    margin-top: 8px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  .comment-emoji-content {
+    display: grid;
+    place-items: center;
+    min-width: 0;
+    height: 32px;
+    padding: 3px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    img {
+      width: 24px;
+      height: 24px;
+    }
+  }
+  .comment-emoji-content:hover {
+    background-color: #E7F6F3;
+    transition: all 0.3s ease;
+  }
+}
+.player-tool-button.danmaku-emoji-trigger:hover {
+  color: var(--brand-hover, #0C8572) !important;
+  background: rgb(0 0 0 / 6%) !important;
+}
+.up-video-play-bottom-video-close-scrolling-input1:empty::before,
+.up-video-play-bottom-video-close-scrolling-input:empty::before {
+  content: attr(data-placeholder);
+  color: #999;
+  pointer-events: none;
+}
+.up-video-play-bottom-video-close-scrolling-input1,
+.up-video-play-bottom-video-close-scrolling-input {
+  outline: none;
+  line-height: 30px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .up-video-play-bottom-video-close-open-scrolling-info {
   position: absolute;
   font-size: 11px;
@@ -6165,8 +6379,9 @@ textarea,
 
 .scrollingLocationTop {
   position: absolute;
-  width: 700px;
-  left: -700px;
+  width: 100%;
+  left: 0;
+  text-align: center;
   z-index: -2;
 }
 
@@ -6177,16 +6392,17 @@ textarea,
 
 .scrollingLocationBottom {
   position: absolute;
-  width: 700px;
-  left: -700px;
+  width: 100%;
+  left: 0;
+  text-align: center;
   z-index: -2;
 }
 
 .scrollingLocationTop1 {
   position: absolute;
   width: 100vw;
-  left: -100vw;
-  top: 5px;
+  left: 0;
+  text-align: center;
   z-index: -2;
 }
 
@@ -6197,9 +6413,9 @@ textarea,
 }
 
 .scrollingLocationBottom1 {
-  top: 5px;
   width: 100vw;
-  left: -100vw;
+  left: 0;
+  text-align: center;
   position: absolute;
   z-index: -2;
 }

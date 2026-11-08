@@ -547,9 +547,9 @@ async function transformContent(html) {
   // BV 链接 → 视频标题 + 标题图标（视频页独有）
   const container = document.createElement('div');
   container.innerHTML = result;
-  for (const link of container.querySelectorAll('a')) {
+  await Promise.all(Array.from(container.querySelectorAll('a')).map(async (link) => {
     const match = (link.getAttribute('href') || '').match(/BV([0-9]+)/);
-    if (!match) continue;
+    if (!match) return;
     try {
       const title = await get(`/video/getVideoTitle/${match[1]}`);
       if (title) {
@@ -557,7 +557,7 @@ async function transformContent(html) {
         link.target = '_blank';
       }
     } catch (error) { /* 标题获取失败时保留原链接 */ }
-  }
+  }));
   return container.innerHTML.replace(/(<div>\s*<br\s*\/?>\s*<\/div>\s*)+$/, '');
 }
 

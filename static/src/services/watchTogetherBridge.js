@@ -1,5 +1,7 @@
 import { ref } from 'vue';
 import { ElMessage } from 'element-plus';
+import router from '../router';
+import { useGlobalStore } from '../store/store';
 
 // 一起看的 WebSocket 连接只由 WatchTogetherPanel 持有，页面里的其他组件
 // （相关推荐、自动连播列表等）通过这里请求切换房间视频，避免各自再连一条连接。
@@ -33,5 +35,6 @@ export function navigateToVideo(video) {
     api.notify ? api.notify('warning', message) : ElMessage({ type: 'warning', message });
     return;
   }
-  window.location.href = `./video?videoId=BV${videoId}`;
+  router.push({ path: '/video', query: { videoId: `BV${videoId}` } });
+  useGlobalStore().setUpdateVideoInfoFlag(true);
 }

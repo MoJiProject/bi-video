@@ -15,7 +15,7 @@ public class DanmakuPostRequest {
     private Long videoId;
 
     @NotBlank(message = "弹幕内容不能为空")
-    @Size(max = 100, message = "弹幕最多 100 字")
+    @Size(max = 1000, message = "弹幕内容过长")
     private String content;
 
     @Pattern(regexp = "^#[0-9A-Fa-f]{6}$", message = "颜色必须是 #RRGGBB")

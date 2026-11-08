@@ -265,6 +265,7 @@ import {
   unregisterWatchTogetherBridge,
 } from '../services/watchTogetherBridge';
 import { useGlobalStore } from '../store/store';
+import router from '../router';
 import LevelBadge from '../components/LevelBadge.vue';
 import GenderIcon from '../components/GenderIcon.vue';
 
@@ -775,7 +776,10 @@ function applyVideoSwitch(nextRoom) {
   const url = new URL(window.location.href);
   url.searchParams.set('videoId', `BV${target}`);
   url.searchParams.set('room', roomId.value || nextRoom.roomId);
-  window.location.href = url.toString();
+  router.push({ path: '/video', query: Object.fromEntries(url.searchParams) });
+  store.setUpdateVideoInfoFlag(true);
+  // 切换视频后等待新视频加载完成再同步进度
+  setTimeout(() => applyRoomState(nextRoom, null), 800);
 }
 
 function isStaleMessage(message) {
@@ -1199,7 +1203,8 @@ function openHistoryRoom(item) {
   const url = new URL(window.location.href);
   url.searchParams.set('videoId', `BV${item.videoId}`);
   url.searchParams.set('room', item.roomId);
-  window.location.href = url.toString();
+  router.push({ path: '/video', query: Object.fromEntries(url.searchParams) });
+  store.setUpdateVideoInfoFlag(true);
 }
 
 function formatDate(value) {

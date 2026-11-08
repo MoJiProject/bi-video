@@ -96,6 +96,10 @@ public class CommentDanmakuService {
         }
         if (!roots.isEmpty()) {
             for (CommentVO root : roots) {
+                if (root.getReplyCount() == null || root.getReplyCount() == 0) {
+                    root.setReplies(List.of());
+                    continue;
+                }
                 List<CommentVO> replies = queryMapper.selectRepliesByRoot(root.getId(), 0, 11, viewerId);
                 boolean replyHasMore = replies.size() > 10;
                 if (replyHasMore) replies = replies.subList(0, 10);
@@ -355,9 +359,13 @@ public class CommentDanmakuService {
         Long rootId = c.getRootId() == null ? c.getId() : c.getRootId();
         CommentVO root = queryMapper.selectComment(rootId, viewerId);
         if (root == null) throw new BizException(ErrorCode.COMMENT_NOT_FOUND);
-        List<CommentVO> replies = queryMapper.selectRepliesByRoot(rootId, 0, 11, viewerId);
-        boolean hasMore = replies.size() > 10;
-        if (hasMore) replies = replies.subList(0, 10);
+        List<CommentVO> replies;
+        if (root.getReplyCount() == null || root.getReplyCount() == 0) {
+            replies = List.of();
+        } else {
+            replies = queryMapper.selectRepliesByRoot(rootId, 0, 11, viewerId);
+            if (replies.size() > 10) replies = replies.subList(0, 10);
+        }
         replies.forEach(this::parseImages);
         root.setReplies(replies);
         parseImages(root);
