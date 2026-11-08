@@ -37,14 +37,10 @@
                     >
                       <a class="add-reply-user-name" v-if="reply.replyComments.replyCommentId!==reply.replyComments.mainCommentId" :href="'./home?homeMenu=1&userId='+store.userId" target="_blank">@{{ store?.userInformation.userName }} :</a>
                     </el-tooltip>
-                    <span v-html="addImgFlagF(reply.replyComments,false)"></span> 
-                  </div>
-                   <div class="reply-message-content2">
-                       <span>{{ store?.userInformation.userName }} : </span>
-                       <span class="reply-message-content1" v-html="addImgFlagF(reply.mainComments,true)"></span>
+                     <span v-html="addImgFlagF(reply.replyComments,false)"></span> 
                    </div>
-                 </a>
-                 <a v-else-if="reply.mainComments&&!reply.dynamic&&reply.replyComments.videoId&&!reply.replyComments.dynamicId&&(reply.replyComments.deleteSign===1||reply.replyComments.status===1)" class="reply-message-content" :href="'./video?videoId=BV'+reply.mainComments?.videoId" target="videoWindow">
+                   </a>
+                  <a v-else-if="reply.mainComments&&!reply.dynamic&&reply.replyComments.videoId&&!reply.replyComments.dynamicId&&(reply.replyComments.deleteSign===1||reply.replyComments.status===1)" class="reply-message-content" :href="'./video?videoId=BV'+reply.mainComments?.videoId" target="videoWindow">
                   <div class="reply-message-content">
                     <span v-if="reply.replyComments.replyCommentId!==reply.replyComments.mainCommentId">回复 </span>
                     <el-tooltip
@@ -60,14 +56,10 @@
                     >
                       <a class="add-reply-user-name" v-if="reply.replyComments.replyCommentId!==reply.replyComments.mainCommentId" :href="'./home?homeMenu=1&userId='+store.userId" target="_blank">@{{ store?.userInformation.userName }} :</a>
                     </el-tooltip>
-                    <span v-html="addImgFlagF(reply.replyComments,false)"></span> 
-                  </div>
-                   <div class="reply-message-content2">
-                       <span>{{ store?.userInformation.userName }} : </span>
-                       <span class="reply-message-content1" v-html="addImgFlagF(reply.mainComments,true)"></span>
+                     <span v-html="addImgFlagF(reply.replyComments,false)"></span> 
                    </div>
-                 </a>
-                 <a v-else-if="!reply.mainComments&&reply.replyComments.videoId&&!reply.dynamic&&!reply.replyComments.dynamicId" class="reply-message-content" :href="'./video?videoId=BV'+reply.replyComments?.videoId+'&commentId='+reply.replyComments?.id" target="videoWindow">
+                   </a>
+                  <a v-else-if="!reply.mainComments&&reply.replyComments.videoId&&!reply.dynamic&&!reply.replyComments.dynamicId" class="reply-message-content" :href="'./video?videoId=BV'+reply.replyComments?.videoId+'&commentId='+reply.replyComments?.id" target="videoWindow">
                   <div class="reply-message-content">
                     <span v-html="addImgFlagF(reply.replyComments,false)"></span> 
                   </div>
@@ -76,9 +68,13 @@
                   <div class="reply-message-content">
                     <span v-html="addImgFlagF(reply.replyComments,false)"></span> 
                   </div>
-                 </a>
-                </div>
-                <div class="reply-right-content-bottom">
+                  </a>
+                  <a v-if="reply.mainComments && !reply.dynamic && reply.replyComments.videoId && !reply.replyComments.dynamicId" class="reply-message-content2" :href="(reply.mainComments?.deleteSign===0&&reply.mainComments?.status===0)?'./video?videoId=BV'+reply.replyComments.videoId+'&commentId='+reply.replyComments.mainCommentId+'&replyId='+reply.mainComments.id:'./video?videoId=BV'+reply.replyComments.videoId" target="videoWindow">
+                        <span>{{ store?.userInformation.userName }} : </span>
+                        <span class="reply-message-content1" v-html="addImgFlagF(reply.mainComments,true)"></span>
+                  </a>
+                  </div>
+                 <div class="reply-right-content-bottom">
                     <span class="reply-time">{{ reply.replyComments.commentTime }}</span>
                     <button type="button" class="reply-comment" @click="openReplyComment(reply)"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18 3 21V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H7Z"/><path d="M7 8h10M7 12h7"/></svg> <span>回复</span></button>
                     <button type="button" v-show="reply.replyCommentControls?.controls!==1" class="love-comment" v-debounce @click="commentControlesF(reply)"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10H4v10h4m0-10 4-7h1a2 2 0 0 1 2 2l-1 5h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H8V10Z"/></svg> <span>点赞</span></button>
@@ -114,31 +110,33 @@
                     </div>
                   </div>
                 </div>
-                <el-tooltip
-                    v-if="!reply.mainComments&&!reply.dynamic&&reply.replyComments.videoId"
-                    popper-class="custom-tooltip"
-                    effect="light"
-                    :show-after="300"
-                    :content="reply.videoTitle"
-                    placement="bottom-end"
-                    :offset="12"
-                    :show-arrow="false"
-                    :hide-after="0"
-                  >
-                  <a v-if="!reply.mainComments&&!reply.dynamic&&reply.replyComments.videoId" class="reply-video-cover-container" :href="'./video?videoId=BV'+reply.replyComments.videoId" target="videoWindow"><img class="reply-video-cover" :src="reply.coverAddress"></a>
+                 <el-tooltip
+                     v-if="!reply.mainComments&&!reply.dynamic&&reply.replyComments.videoId"
+                     popper-class="custom-tooltip"
+                     effect="light"
+                     :show-after="300"
+                     :content="reply.videos?.title"
+                     placement="bottom-end"
+                     :offset="12"
+                     :show-arrow="false"
+                     :hide-after="0"
+                   >
+                   <a v-if="!reply.mainComments&&!reply.dynamic&&reply.replyComments.videoId" class="reply-video-cover-container" :href="'./video?videoId=BV'+reply.replyComments.videoId" target="videoWindow"><img class="reply-video-cover" :src="reply.videos?.coverAddress"></a>
                 </el-tooltip>
-                <el-tooltip
-                    v-if="!reply.mainComments&&(reply.dynamic||reply.replyComments.dynamicId)&&reply.dynamic.imgAddress"
-                    popper-class="custom-tooltip"
-                    effect="light"
-                    :show-after="300"
-                    :content="reply.dynamic.title"
-                    placement="bottom-end"
-                    :offset="12"
-                    :show-arrow="false"
-                    :hide-after="0"
-                  >
-                  <a v-if="!reply.mainComments&&(reply.dynamic||reply.replyComments.dynamicId)&&reply.dynamic.imgAddress" class="reply-video-cover-container" :href="'./dynamicDetail?dynamicId='+reply.replyComments.dynamicId+'&commentId='+(reply.replyComments?.mainCommentId||reply.replyComments?.id)+'&replyId='+reply.replyComments?.id" target="dynamicWindow"><img class="reply-video-cover" :src="reply.dynamic.imgAddress.split(',')[0].split('?')[0]"></a>
+                 <el-tooltip
+                     v-if="!reply.mainComments&&(reply.dynamic||reply.replyComments.dynamicId)&&reply.dynamic.imgAddress"
+                     popper-class="custom-tooltip"
+                     effect="light"
+                     :show-after="300"
+                     placement="bottom-end"
+                     :offset="12"
+                     :show-arrow="false"
+                     :hide-after="0"
+                   >
+                     <template #content>
+                       <div v-html="sanitizeRichText(reply.dynamic?.content || reply.dynamic?.title || '')"></div>
+                     </template>
+                   <a v-if="!reply.mainComments&&(reply.dynamic||reply.replyComments.dynamicId)&&reply.dynamic.imgAddress" class="reply-video-cover-container" :href="'./dynamicDetail?dynamicId='+reply.replyComments.dynamicId" target="dynamicWindow"><img class="reply-video-cover" :src="reply.dynamic.imgAddress.split(',')[0].split('?')[0]"></a>
                 </el-tooltip>
 <el-tooltip
     v-if="reply.mainComments&&(reply.replyComments.videoId||reply.replyComments.dynamicId)"
@@ -594,6 +592,7 @@ function addImgFlagF(comment,flag){
               line-height: 18px;
               max-height: 2.571428571428572em;
             }
+            }
             .reply-message-content2{
               display: -webkit-box;
               -webkit-box-orient: vertical; /* 必须设置垂直排列 */
@@ -608,7 +607,6 @@ function addImgFlagF(comment,flag){
               font-size: 12px;
               line-height: 16.5px;
               max-height: 2.666666666666667em;
-            }
             }
             .add-reply-user-name{
               color: #0F7E77;

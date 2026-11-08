@@ -36,7 +36,7 @@ export function subscribeChat(onChange, onReady, onError) {
         if (socket.readyState === WebSocket.OPEN) socket.send('{"type":"ping"}');
       }, 20000);
     };
-    socket.onerror = () => onError(new Error('私信实时连接异常，正在尝试恢复'));
+    socket.onerror = () => { if (closed) return; onError(new Error('私信实时连接异常，正在尝试恢复')); };
     socket.onclose = event => {
       clearInterval(heartbeat);
       if (closed) return;

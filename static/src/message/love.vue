@@ -71,12 +71,14 @@
                     popper-class="custom-tooltip"
                     effect="light"
                     :show-after="300"
-                    :content="love.dynamic.title"
                     placement="bottom-end"
                     :offset="12"
                     :show-arrow="false"
                     :hide-after="0"
                   >
+                    <template #content>
+                      <div v-html="sanitizeRichText(love.dynamic?.content || love.dynamic?.title || '')"></div>
+                    </template>
                   <a v-if="love.likes.likeType===3&&love.dynamic.imgAddress" class="love-video-cover-container" :href="'./dynamicDetail?dynamicId='+love.dynamic.id" target="dynamicWindow"><img class="love-video-cover" :src="love.dynamic.imgAddress.split(',')[0]"></a>
                 </el-tooltip>
                 <div class="love-line"></div>
@@ -152,12 +154,14 @@
                     popper-class="custom-tooltip"
                     effect="light"
                     :show-after="300"
-                    :content="love.dynamic.title"
                     placement="bottom-end"
                     :offset="12"
                     :show-arrow="false"
                     :hide-after="0"
                   >
+                    <template #content>
+                      <div v-html="sanitizeRichText(love.dynamic?.content || love.dynamic?.title || '')"></div>
+                    </template>
                   <a v-if="love.likes.likeType===3&&love.dynamic.imgAddress" class="love-video-cover-container" :href="'./dynamicDetail?dynamicId='+love.dynamic.id" target="dynamicWindow"><img class="love-video-cover" :src="love.dynamic.imgAddress.split(',')[0]"></a>
                 </el-tooltip>
                 <div class="love-line"></div>
@@ -233,12 +237,14 @@
                     popper-class="custom-tooltip"
                     effect="light"
                     :show-after="300"
-                    :content="love.dynamic.title"
                     placement="bottom-end"
                     :offset="12"
                     :show-arrow="false"
                     :hide-after="0"
                   >
+                    <template #content>
+                      <div v-html="sanitizeRichText(love.dynamic?.content || love.dynamic?.title || '')"></div>
+                    </template>
                   <a v-if="love.likes.likeType===3&&love.dynamic.imgAddress" class="love-video-cover-container" :href="'./dynamicDetail?dynamicId='+love.dynamic.id" target="dynamicWindow"><img class="love-video-cover" :src="love.dynamic.imgAddress.split(',')[0]"></a>
                 </el-tooltip>
                 <div class="love-line"></div>

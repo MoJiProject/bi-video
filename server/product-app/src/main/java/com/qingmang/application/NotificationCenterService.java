@@ -145,6 +145,33 @@ public class NotificationCenterService {
             item.put("likeTime", time(row.get("likeTime")));
             result.add(item);
         }
+        // include self if the owner liked their own content
+        if (page == 1) {
+            String table;
+            String column;
+            String extra = "";
+            if (type == 1) { table = "video_reaction"; column = "video_id"; extra = " AND reaction_type=1"; }
+            else if (type == 2) { table = "comment_like"; column = "comment_id"; extra = " AND is_dislike=0"; }
+            else { table = "post_like"; column = "post_id"; extra = ""; }
+            Long selfCount = jdbc.queryForObject("SELECT COUNT(*) FROM " + table + " WHERE user_id=? AND " + column + "=?" + extra,
+                    Long.class, user, targetId);
+            if (selfCount != null && selfCount > 0) {
+                boolean already = result.stream().anyMatch(r -> user.equals(((Number) ((Map<?, ?>) r.get("userInfo2")).get("id")).longValue()));
+                if (!already) {
+                    List<Map<String, Object>> selfRows = jdbc.queryForList("SELECT nickname AS userName, avatar_url AS avatarAddress FROM `user` WHERE id=?", user);
+                    String selfName = selfRows.isEmpty() ? "" : String.valueOf(selfRows.get(0).get("userName"));
+                    String selfAvatar = selfRows.isEmpty() ? "" : String.valueOf(selfRows.get(0).get("avatarAddress"));
+                    Object selfTime = jdbc.queryForObject("SELECT created_at FROM " + table + " WHERE user_id=? AND " + column + "=?" + extra + " LIMIT 1",
+                            Object.class, user, targetId);
+                    Map<String, Object> item = new LinkedHashMap<>();
+                    item.put("id", user);
+                    item.put("userInfo2", Map.of("id", user, "userName", selfName, "avatarAddress", selfAvatar));
+                    item.put("isFansFlag", 0);
+                    item.put("likeTime", time(selfTime));
+                    result.add(0, item);
+                }
+            }
+        }
         return result;
     }
 
@@ -231,8 +258,7 @@ public class NotificationCenterService {
                 """, id);
         Map<String, Object> row = rows.isEmpty() ? Map.of() : rows.get(0);
         Long postId = id(row.get("post_id"));
-        boolean available = !rows.isEmpty() && row.get("deleted_at") == null && ((Number) row.get("status")).intValue() == 1
-                && (postId == null || postAvailable(postId, viewer));
+        boolean available = !rows.isEmpty() && row.get("deleted_at") == null && ((Number) row.get("status")).intValue() == 1;
         result.put("id", id);
         result.put("videoId", row.get("video_id"));
         result.put("dynamicId", postId);

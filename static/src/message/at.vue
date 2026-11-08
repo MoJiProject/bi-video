@@ -105,7 +105,7 @@
                   </div>
                 </div>
                 <el-tooltip
-                    v-if="at.comments.mainCommentId!==null"
+                    v-if="at.comments.mainCommentId!==null && at.mainComments"
                     popper-class="custom-tooltip"
                     effect="light"
                     :show-after="300"
@@ -117,9 +117,9 @@
                   <template #content>
                       <div v-if="at.comments.mainCommentId!==null" v-html="addImgFlagF(at.mainComments)"></div>
                   </template>
-                  <a v-if="at.comments.mainCommentId!==null&&(at.comments.deleteSign===0&&at.comments.status===0)&&!at.comments.dynamicId" class="comment-content" :href="'./video?videoId=BV'+at.at.videoId+'&commentId='+`${at.comments.mainCommentId?at.comments.mainCommentId:at.comments.id}`+'&replyId='+at.comments.id" target="videoWindow"><span v-html="addImgFlagF(at.mainComments)"></span></a>
+                  <a v-if="at.comments.mainCommentId!==null&&(at.comments.deleteSign===0&&at.comments.status===0)&&!at.comments.dynamicId" class="comment-content" :href="'./video?videoId=BV'+at.at.videoId+'&commentId='+`${at.comments.mainCommentId?at.comments.mainCommentId:at.comments.id}`+'&replyId='+at.mainComments.id" target="videoWindow"><span v-html="addImgFlagF(at.mainComments)"></span></a>
                   <a v-else-if="at.comments.mainCommentId!==null&&(at.comments.deleteSign===1||at.comments.status===1)&&!at.comments.dynamicId" class="comment-content" :href="'./video?videoId=BV'+at.at.videoId" target="videoWindow"><span v-html="addImgFlagF(at.mainComments)"></span></a>
-                  <a v-else-if="at.comments.mainCommentId!==null&&(at.comments.deleteSign===0&&at.comments.status===0)&&at.comments.dynamicId" class="comment-content" :href="'./dynamicDetail?dynamicId='+at.comments.dynamicId+'&commentId='+`${at.comments.mainCommentId?at.comments.mainCommentId:at.comments.id}`+'&replyId='+at.comments.id" target="dynamicWindow"><span v-html="addImgFlagF(at.mainComments)"></span></a>
+                  <a v-else-if="at.comments.mainCommentId!==null&&(at.comments.deleteSign===0&&at.comments.status===0)&&at.comments.dynamicId" class="comment-content" :href="'./dynamicDetail?dynamicId='+at.comments.dynamicId+'&commentId='+`${at.comments.mainCommentId?at.comments.mainCommentId:at.comments.id}`+'&replyId='+at.mainComments.id" target="dynamicWindow"><span v-html="addImgFlagF(at.mainComments)"></span></a>
                   <a v-else-if="at.comments.mainCommentId!==null&&(at.comments.deleteSign===1||at.comments.status===1)&&at.comments.dynamicId" class="comment-content" :href="'./dynamicDetail?dynamicId='+at.comments.dynamicId" target="dynamicWindow"><span v-html="addImgFlagF(at.mainComments)"></span></a>
                 </el-tooltip>
                 <el-tooltip
@@ -133,7 +133,7 @@
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a v-if="at.comments.mainCommentId===null&&(at.comments.deleteSign===0&&at.comments.status===0)&&!at.comments.dynamicId" class="at-video-cover-container" :href="'./video?videoId=BV'+at.at.videoId+'&commentId='+`${at.comments.mainCommentId?at.comments.mainCommentId:at.comments.id}`+'&replyId='+at.comments.id" target="videoWindow"><img class="at-video-cover" :src="at.videos.coverAddress"></a>
+                  <a v-if="at.comments.mainCommentId===null&&(at.comments.deleteSign===0&&at.comments.status===0)&&!at.comments.dynamicId" class="at-video-cover-container" :href="'./video?videoId=BV'+at.at.videoId" target="videoWindow"><img class="at-video-cover" :src="at.videos.coverAddress"></a>
                   <a v-else-if="at.comments.mainCommentId===null&&(at.comments.deleteSign===1||at.comments.status===1)&&!at.comments.dynamicId" class="at-video-cover-container" :href="'./video?videoId=BV'+at.at.videoId" target="videoWindow"><img class="at-video-cover" :src="at.videos.coverAddress"></a>
                 </el-tooltip>
                 <el-tooltip
@@ -141,13 +141,15 @@
                     popper-class="custom-tooltip"
                     effect="light"
                     :show-after="300"
-                    :content="at.dynamic.title"
                     placement="bottom-end"
                     :offset="12"
                     :show-arrow="false"
                     :hide-after="0"
                   >
-                  <a v-if="at.comments.mainCommentId===null&&(at.comments.deleteSign===0&&at.comments.status===0)&&at.comments.dynamicId&&at.dynamic.imgAddress" class="at-video-cover-container" :href="'./dynamicDetail?dynamicId='+at.comments.dynamicId+'&commentId='+`${at.comments.mainCommentId?at.comments.mainCommentId:at.comments.id}`+'&replyId='+at.comments.id" target="dynamicWindow"><img class="at-video-cover" :src="at.dynamic.imgAddress.split(',')[0]"></a>
+                    <template #content>
+                      <div v-html="sanitizeRichText(at.dynamic?.content || at.dynamic?.title || '')"></div>
+                    </template>
+                  <a v-if="at.comments.mainCommentId===null&&(at.comments.deleteSign===0&&at.comments.status===0)&&at.comments.dynamicId&&at.dynamic.imgAddress" class="at-video-cover-container" :href="'./dynamicDetail?dynamicId='+at.comments.dynamicId" target="dynamicWindow"><img class="at-video-cover" :src="at.dynamic.imgAddress.split(',')[0]"></a>
                   <a v-else-if="at.comments.mainCommentId===null&&(at.comments.deleteSign===1||at.comments.status===1)&&at.comments.dynamicId&&at.dynamic.imgAddress" class="at-video-cover-container" :href="'./dynamicDetail?dynamicId='+at.comments.dynamicId" target="dynamicWindow"><img class="at-video-cover" :src="at.dynamic.imgAddress.split(',')[0]"></a>
                 </el-tooltip>
                 <div class="at-line"></div>
@@ -209,17 +211,19 @@
                   <button type="button" class="at-comment" @click="openReplyComment(at)"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18 3 21V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H7Z"/><path d="M7 8h10M7 12h7"/></svg> <span>回复</span></button>
                   <button type="button" class="delete-comment-notification" @click="deleteCommentDialogFlag=true,deleteCommentNotificaitonId=at.at.id"><svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg> <span>删除</span></button>
               </div>
-                <el-tooltip
+                 <el-tooltip
                     v-if="at.dynamic?.imgAddress"
                     popper-class="custom-tooltip"
                     effect="light"
                     :show-after="300"
-                    :content="at.dynamic?.title"
                     placement="bottom-end"
                     :offset="12"
                     :show-arrow="false"
                     :hide-after="0"
                   >
+                    <template #content>
+                      <div v-html="sanitizeRichText(at.dynamic?.content || at.dynamic?.title || '')"></div>
+                    </template>
 <a v-if="at.dynamic?.imgAddress" class="at-video-cover-container" :href="'./dynamicDetail?dynamicId='+at.at.dynamicId" target="dynamicWindow"><img class="at-video-cover" :src="at.dynamic?.imgAddress.split(',')[0]"></a>
 </el-tooltip>
 <div v-if="activeReplyId===at.at.id" class="reply-form">
