@@ -34,10 +34,6 @@
   :deep(.creator-video-upload .el-upload__text) { display: flex; flex-direction: column; gap: 8px; align-items: center; color: var(--ink-2); font-size: 12px; }
   :deep(.upload-pick-label) { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 24px; border-radius: 10px; background: var(--brand); color: #fff; font-size: 14px; }
   :deep(.form-section-heading) { margin: 4px 0 0; color: var(--ink); font-size: 18px; font-weight: 600; }
-  :deep(.upload-guidance) { display: flex; flex-direction: column; gap: 14px; min-width: 0; color: var(--ink-3); font-size: 12px; line-height: 1.8; }
-  :deep(.upload-guidance > div:first-child) { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
-  :deep(.upload-guidance > div:first-child > span) { display: block !important; transform: none !important; }
-  :deep(.upload-guidance .forter2) { margin: 0; }
   :deep(.creator-form) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 24px; width: 100%; max-width: none; padding: 0; }
   :deep(.creator-form > .form-field) { position: relative; display: flex; flex-wrap: wrap; gap: 12px; min-width: 0; margin: 0; width: auto; height: auto; }
   :deep(.creator-form > .form-field > span:first-child) { flex-basis: 100%; color: var(--ink-2); font-size: 13px !important; }

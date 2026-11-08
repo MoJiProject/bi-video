@@ -2,7 +2,7 @@
   <div class="creator-manager">
     <div class="manager-heading">
       <h1>稿件管理</h1>
-      <router-link to="/contribute">＋ 视频投稿</router-link>
+      <router-link to="/contribute">视频投稿 →</router-link>
     </div>
     <div class="manuscript-statuses" aria-label="稿件状态">
       <button type="button" @click="allUpload" :class="{ active: click4 === 1 }" :aria-pressed="click4 === 1">
@@ -547,7 +547,7 @@ export default {
 .creator-manager { min-width: 0; color: var(--ink); font-family: var(--el-font-family); }
 .manager-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
 .manager-heading h1 { margin: 0; font-size: 24px; font-weight: 600; }
-.manager-heading a { display: inline-flex; align-items: center; min-height: 38px; padding: 0 16px; border-radius: 10px; background: var(--brand); color: #fff; text-decoration: none; font-size: 13px; }
+.manager-heading a { color: var(--brand-hover); font-size: 13px; text-decoration: none; }
 .manuscript-statuses { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
 .manuscript-statuses button { box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 16px; min-width: 112px; max-width: 100%; min-height: 40px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink-2); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
 .manuscript-statuses button:hover { border-color: var(--brand-light-7); background: var(--fill-soft); transition: all 0.3s ease; }
