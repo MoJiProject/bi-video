@@ -60,6 +60,7 @@
         JOIN favorite_item src ON src.video_id = s.video_id AND src.folder_id = #{sourceId}
         JOIN favorite_item dst ON dst.video_id = src.video_id AND dst.folder_id = #{targetId}
         SET s.favorite_count = CASE WHEN s.favorite_count &gt; 0 THEN s.favorite_count - 1 ELSE 0 END
+        WHERE src.folder_id = #{sourceId} AND dst.folder_id = #{targetId}
     </update>
 
     <delete id="removeDuplicateFolderItems">

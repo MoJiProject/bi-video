@@ -53,8 +53,6 @@ public class HomeLibraryService {
                     FavoriteItem copy = new FavoriteItem().setFolderId(request.getTargetFolderId())
                             .setUserId(ownerId).setVideoId(item.getVideoId());
                     items.insert(copy);
-                    counters.increaseVideoStat(item.getVideoId(), "favorite_count", 1);
-                    counters.increaseUserStat(ownerId, "favorite_count", 1);
                     changed++;
                 }
             }
@@ -80,8 +78,12 @@ public class HomeLibraryService {
     private void remove(Long ownerId, FavoriteItem item) {
         if (items.delete(Wrappers.<FavoriteItem>lambdaQuery().eq(FavoriteItem::getId, item.getId())
                 .eq(FavoriteItem::getUserId, ownerId)) > 0) {
-            counters.decreaseVideoStat(item.getVideoId(), "favorite_count", 1);
-            counters.increaseUserStat(ownerId, "favorite_count", -1);
+            long remaining = items.selectCount(Wrappers.<FavoriteItem>lambdaQuery()
+                    .eq(FavoriteItem::getUserId, ownerId).eq(FavoriteItem::getVideoId, item.getVideoId()));
+            if (remaining == 0) {
+                counters.decreaseVideoStat(item.getVideoId(), "favorite_count", 1);
+                counters.increaseUserStat(ownerId, "favorite_count", -1);
+            }
         }
     }
 

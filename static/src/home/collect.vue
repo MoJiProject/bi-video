@@ -95,7 +95,7 @@
         <el-form-item label="封面图片">
           <div class="folder-cover-editor">
             <div class="folder-cover-preview">
-              <img v-if="form.coverUrl" :src="form.coverUrl" alt="收藏夹封面预览">
+              <img v-if="coverPreview || form.coverUrl" :src="coverPreview || form.coverUrl" alt="收藏夹封面预览">
               <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <rect x="3" y="4" width="18" height="16" rx="3"/>
@@ -110,7 +110,7 @@
                 <el-button :loading="coverUploading" :disabled="saving" @click="coverInput?.click()">
                   {{ form.coverUrl ? '更换封面' : '上传图片' }}
                 </el-button>
-                <el-button v-if="form.coverUrl" :disabled="coverUploading || saving" @click="form.coverUrl = ''">移除</el-button>
+                <el-button v-if="coverPreview || form.coverUrl" :disabled="coverUploading || saving" @click="removeCover">移除</el-button>
               </div>
               <p class="folder-cover-hint">支持 JPG、PNG、GIF，不超过 10MB。建议使用横版图片。</p>
             </div>
@@ -144,7 +144,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { useGlobalStore } from '@/store/store';
 import { getCollectsClassify, getCollectByName, batchFolderVideos, clearInvalidFolderVideos } from '@/api/home';
 import { userContentApi } from '@/api/product';
-import { post } from '@/services/http';
+import { post, del } from '@/services/http';
 import homeVideoCard from '@/components/homeVideoCard.vue';
 import ContentMoreMenu from '@/components/ContentMoreMenu.vue';
 import loadingIndicator from '@/components/loadingIndicator.vue';
@@ -169,6 +169,9 @@ const editingId = ref(null);
 const saving = ref(false);
 const coverInput = ref(null);
 const coverUploading = ref(false);
+const coverFile = ref(null);
+const coverObjectUrl = ref('');
+const coverPreview = computed(() => coverObjectUrl.value);
 const busy = ref(false);
 const batchMode = ref(false);
 const selecting = computed(() => batchMode.value && isOwner.value && scope.value === 1);
@@ -290,41 +293,67 @@ async function clearInvalid() {
 }
 function openEditor(folder) {
   if (saving.value || coverUploading.value) return;
+  if (coverObjectUrl.value) {
+    URL.revokeObjectURL(coverObjectUrl.value);
+    coverObjectUrl.value = '';
+  }
+  coverFile.value = null;
   editingId.value = folder?.id || null;
   Object.assign(form, { name: folder?.name || '', description: folder?.description || '',
     coverUrl: folder?.coverUrl || '', visibility: folder?.visibility ?? 1 });
   editorVisible.value = true;
 }
+watch(editorVisible, (visible) => {
+  if (!visible && coverObjectUrl.value) {
+    URL.revokeObjectURL(coverObjectUrl.value);
+    coverObjectUrl.value = '';
+    coverFile.value = null;
+  }
+});
 async function uploadCover(event) {
   const input = event.target;
   const file = input.files?.[0];
   if (!file) return;
-  if (coverUploading.value || saving.value) { input.value = ''; return; }
   if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type) || !file.size || file.size > 10 * 1024 * 1024) {
     ElMessage.warning('请选择不超过 10MB 的 JPG、PNG 或 GIF 图片');
     input.value = '';
     return;
   }
-  coverUploading.value = true;
-  try {
-    const body = new FormData();
-    body.append('file', file);
-    const result = await post('/media/image', body);
-    if (!result?.url || typeof result.url !== 'string') throw new Error('上传未返回图片地址，请重试');
-    form.coverUrl = result.url;
-    ElMessage.success('封面已上传，保存后生效');
-  } catch (error) {
-    ElMessage.error(error.message || '封面上传失败，请重试');
-  } finally {
-    coverUploading.value = false;
-    input.value = '';
+  if (coverObjectUrl.value) URL.revokeObjectURL(coverObjectUrl.value);
+  coverFile.value = file;
+  coverObjectUrl.value = URL.createObjectURL(file);
+  input.value = '';
+}
+function removeCover() {
+  if (coverObjectUrl.value) {
+    URL.revokeObjectURL(coverObjectUrl.value);
+    coverObjectUrl.value = '';
   }
+  coverFile.value = null;
+  form.coverUrl = '';
 }
 async function saveFolder() {
   if (saving.value || coverUploading.value) return;
   if (!form.name.trim()) { ElMessage.warning('请输入收藏夹名称'); return; }
   saving.value = true;
   try {
+    if (coverFile.value) {
+      coverUploading.value = true;
+      try {
+        const body = new FormData();
+        body.append('file', coverFile.value);
+        const result = await post('/media/image', body);
+        if (!result?.url || typeof result.url !== 'string') throw new Error('上传未返回图片地址，请重试');
+        form.coverUrl = result.url;
+        if (coverObjectUrl.value) {
+          URL.revokeObjectURL(coverObjectUrl.value);
+          coverObjectUrl.value = '';
+        }
+        coverFile.value = null;
+      } finally {
+        coverUploading.value = false;
+      }
+    }
     const body = { ...form, name: form.name.trim() };
     if (editingId.value) await userContentApi.renameFolder(editingId.value, body);
     else {
@@ -344,8 +373,12 @@ async function removeFolder() {
   const confirmed = await ElMessageBox.confirm('删除后，视频将移入默认收藏夹。是否继续？', '删除收藏夹',
     { type: 'warning' }).then(() => true, () => false);
   if (!confirmed) return;
+  const coverUrl = selected.value?.coverUrl;
   try {
     await userContentApi.deleteFolder(selectedId.value);
+    if (coverUrl) {
+      try { await del('/media', { url: coverUrl }); } catch (error) { console.warn(error); }
+    }
     await loadFolders();
   } catch (error) { ElMessage.error(error.message); }
 }

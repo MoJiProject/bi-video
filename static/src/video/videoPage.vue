@@ -2063,9 +2063,10 @@
               <el-dialog
                 v-model="collectDialogVisible"
                 width="min(420px, calc(100vw - 32px))"
+                top="50vh"
                 center
-                append-to-body
-                :append-to="watchTogetherHost"
+                :append-to-body="!intoVideoAllDisplayIngFlag"
+                :append-to="intoVideoAllDisplayIngFlag ? upVideoContainer : undefined"
                 class="collect-dialog video-collect-dialog"
               >
                 <div class="collect-dialog-title">添加到收藏夹</div>
@@ -2079,7 +2080,7 @@
                       v-for="collectInfo in collectInfoList"
                       :key="collectInfo.id"
                       @mouseover="collectCheckBoxHoverFlag = collectInfo.id"
-                      @mouseleave="collectCheckBoxHoverFlag = collectInfo.id"
+                      @mouseleave="collectCheckBoxHoverFlag = null"
                       @click="addCollectVideo(collectInfo)"
                     >
                       <div>
@@ -3724,8 +3725,7 @@ export default {
       // E键收藏
       else if (
         (event.key === "E" || event.key === "e") &&
-        !isInputField &&
-        !intoVideoAllDisplayIngFlag.value
+        !isInputField
       ) {
         collectDialogVisible.value = true;
       }
@@ -4597,7 +4597,6 @@ export default {
             loginDialogVisibleFlag.value =
               loginDialogVisibleFlag.value === 0 ? 1 : 0;
           } else {
-            toggleFullscreen2();
             collectDialogVisible.value = true;
           }
         }
@@ -7187,7 +7186,8 @@ textarea,
 }
 
 .collect-dialog {
-  transform: translate(-8px, 32px);
+  margin-top: 50vh !important;
+  transform: translate(-8px, -50%) !important;
   height: 427px;
 }
 

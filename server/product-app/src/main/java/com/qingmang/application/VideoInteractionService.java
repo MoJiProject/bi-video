@@ -111,19 +111,27 @@ public class VideoInteractionService {
                 .eq(FavoriteItem::getVideoId, videoId));
         boolean collected;
         if (exist == null) {
+            boolean firstCollection = favoriteItemMapper.selectCount(Wrappers.<FavoriteItem>lambdaQuery()
+                    .eq(FavoriteItem::getUserId, userId).eq(FavoriteItem::getVideoId, videoId)) == 0;
             FavoriteItem item = new FavoriteItem();
             item.setFolderId(target);
             item.setUserId(userId);
             item.setVideoId(videoId);
             favoriteItemMapper.insert(item);
-            counterMapper.increaseVideoStat(videoId, "favorite_count", 1);
-            counterMapper.increaseUserStat(userId, "favorite_count", 1);
-            dailyInteractionExp.awardFavorite(userId);
+            if (firstCollection) {
+                counterMapper.increaseVideoStat(videoId, "favorite_count", 1);
+                counterMapper.increaseUserStat(userId, "favorite_count", 1);
+                dailyInteractionExp.awardFavorite(userId);
+            }
             collected = true;
         } else {
             favoriteItemMapper.deleteById(exist.getId());
-            counterMapper.decreaseVideoStat(videoId, "favorite_count", 1);
-            counterMapper.increaseUserStat(userId, "favorite_count", -1);
+            boolean stillCollected = favoriteItemMapper.selectCount(Wrappers.<FavoriteItem>lambdaQuery()
+                    .eq(FavoriteItem::getUserId, userId).eq(FavoriteItem::getVideoId, videoId)) > 0;
+            if (!stillCollected) {
+                counterMapper.decreaseVideoStat(videoId, "favorite_count", 1);
+                counterMapper.increaseUserStat(userId, "favorite_count", -1);
+            }
             collected = false;
         }
         syncFolderCount(target);

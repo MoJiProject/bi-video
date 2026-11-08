@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.qingmang.common.api.PageResult;
 import com.qingmang.common.exception.BizException;
 import com.qingmang.common.exception.ErrorCode;
+import com.qingmang.application.MediaStorageService;
 import com.qingmang.domain.favorite.FavoriteFolder;
 import com.qingmang.domain.favorite.FavoriteItem;
 import com.qingmang.domain.favorite.mapper.FavoriteFolderMapper;
@@ -34,17 +35,20 @@ public class UserContentService {
     private final WatchHistoryMapper historyMapper;
     private final CounterMapper counterMapper;
     private final UserContentQueryMapper queryMapper;
+    private final MediaStorageService media;
 
     public UserContentService(FavoriteFolderMapper folderMapper, FavoriteItemMapper itemMapper,
                               WatchLaterMapper watchLaterMapper, WatchHistoryMapper historyMapper,
                               CounterMapper counterMapper,
-                              UserContentQueryMapper queryMapper) {
+                              UserContentQueryMapper queryMapper,
+                              MediaStorageService media) {
         this.folderMapper = folderMapper;
         this.itemMapper = itemMapper;
         this.watchLaterMapper = watchLaterMapper;
         this.historyMapper = historyMapper;
         this.counterMapper = counterMapper;
         this.queryMapper = queryMapper;
+        this.media = media;
     }
 
     public List<FolderVO> folders(Long userId) {
@@ -110,16 +114,16 @@ public class UserContentService {
         if (Boolean.TRUE.equals(f.getIsDefault())) {
             throw new BizException(ErrorCode.CANNOT_DELETE_DEFAULT_FOLDER);
         }
+        String coverUrl = f.getCoverUrl();
         // 先把内容搬到默认夹，再删空夹
         FavoriteFolder def = defaultFolder(userId);
-        queryMapper.decreaseDuplicateFolderStats(folderId, def.getId());
-        int duplicates = queryMapper.removeDuplicateFolderItems(folderId, def.getId());
-        if (duplicates > 0) counterMapper.increaseUserStat(userId, "favorite_count", -duplicates);
+        queryMapper.removeDuplicateFolderItems(folderId, def.getId());
         itemMapper.update(null, Wrappers.<FavoriteItem>lambdaUpdate()
                 .eq(FavoriteItem::getFolderId, folderId)
                 .set(FavoriteItem::getFolderId, def.getId()));
         folderMapper.deleteById(folderId);
         syncFolderCount(def.getId());
+        media.delete(coverUrl, userId);
     }
 
     @Transactional

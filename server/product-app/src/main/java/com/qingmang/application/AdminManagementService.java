@@ -429,7 +429,7 @@ public class AdminManagementService {
                 jdbc.update("UPDATE favorite_folder SET item_count=(SELECT COUNT(*) FROM favorite_item WHERE folder_id=?)"
                         + " WHERE id=?", folder, folder);
             for (Long collector : collectors)
-                jdbc.update("UPDATE user_stats SET favorite_count=(SELECT COUNT(*) FROM favorite_item WHERE user_id=?)"
+                jdbc.update("UPDATE user_stats SET favorite_count=(SELECT COUNT(DISTINCT video_id) FROM favorite_item WHERE user_id=?)"
                         + " WHERE user_id=?", collector, collector);
         }
         authors.forEach(this::refreshAuthor);

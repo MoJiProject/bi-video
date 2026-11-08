@@ -180,7 +180,7 @@ class AuthenticatedFeatureApiTests(unittest.TestCase):
         if not configured:
             raise unittest.SkipTest("Set API_USERNAME and API_PASSWORD for user APIs")
         cls.username, password = configured
-        cls.token = login(cls, cls.username, password)
+        cls.token = login(cls(), cls.username, password)
 
     @classmethod
     def tearDownClass(cls):
@@ -225,12 +225,12 @@ class AuthenticatedFeatureApiTests(unittest.TestCase):
         )
         self.assertIsInstance(uploaded, dict)
 
-        stats = self.assert_user_api(
-            "/api/video/selectVideoData",
+        stats = assert_api_success(
+            self,
+            request("/api/video/selectVideoData", method="POST", token=self.token),
             "my publishing statistics",
-            dict,
         )
-        self.assertIsInstance(stats, dict)
+        self.assertIsInstance(stats, dict, "my publishing statistics")
 
     def test_social_notifications_messages_and_share_recipients(self):
         routes = (
@@ -367,7 +367,7 @@ class AdminFeatureApiTests(unittest.TestCase):
                 "Set API_ADMIN_USERNAME and API_ADMIN_PASSWORD for admin APIs"
             )
         username, password = configured
-        cls.token = login(cls, username, password)
+        cls.token = login(cls(), username, password)
 
     @classmethod
     def tearDownClass(cls):
