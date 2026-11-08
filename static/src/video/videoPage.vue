@@ -4989,14 +4989,6 @@ textarea,
     transition: all 0.3s ease;
   }
 
-.prohibition-tag {
-  display: inline-flex;
-  align-items: center;
-  font-size: 12.5px;
-  color: #5C6664;
-  margin-right: 8px;
-}
-
 .up-user-name {
   font-size: 14.5px;
   cursor: pointer;
@@ -5005,27 +4997,6 @@ textarea,
 .up-user-name:hover {
   color: #0FA68E;
   transition: all 0.3s ease;
-}
-
-.prohibition-sign {
-  width: 9px; /* 标识的宽度 */
-  height: 9px; /* 标识的高度 */
-  border: 2.5px solid #E2603C; /* 圆圈的边框颜色 */
-  border-radius: 50%; /* 使其成为圆形 */
-  position: relative; /* 相对定位，便于内部斜杠定位 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: white; /* 背景颜色 */
-}
-
-.prohibition-sign::after {
-  content: "";
-  position: absolute;
-  width: 2.5px; /* 斜杠的宽度 */
-  height: 100%; /* 斜杠的高度 */
-  background-color: #E2603C; /* 斜杠的颜色 */
-  transform: rotate(-50deg); /* 旋转斜杠 */
 }
 
 .up-video-infos-container {
@@ -7704,13 +7675,6 @@ a:hover {
   padding: 8px 24px 18px;
   border-top: 0;
   border-radius: 0 0 18px 18px;
-}
-
-.video-page .prohibition-tag {
-  height: 24px;
-  padding: 0 10px;
-  border-radius: var(--radius-pill);
-  background: var(--fill);
 }
 
 .video-page .expand-icon-container {

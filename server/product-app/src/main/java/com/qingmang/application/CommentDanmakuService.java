@@ -95,14 +95,13 @@ public class CommentDanmakuService {
             roots = roots.subList(0, size);
         }
         if (!roots.isEmpty()) {
-            List<Long> rootIds = roots.stream().map(CommentVO::getId).toList();
-            List<CommentVO> replies = queryMapper.selectReplies(rootIds, viewerId);
-            Map<Long, List<CommentVO>> grouped = new HashMap<>();
-            for (CommentVO r : replies) {
-                parseImages(r);
-                grouped.computeIfAbsent(r.getRootId(), k -> new ArrayList<>()).add(r);
+            for (CommentVO root : roots) {
+                List<CommentVO> replies = queryMapper.selectRepliesByRoot(root.getId(), 0, 11, viewerId);
+                boolean replyHasMore = replies.size() > 10;
+                if (replyHasMore) replies = replies.subList(0, 10);
+                replies.forEach(this::parseImages);
+                root.setReplies(replies);
             }
-            roots.forEach(r -> r.setReplies(grouped.getOrDefault(r.getId(), List.of())));
         }
         roots.forEach(this::parseImages);
         Map<String, Object> data = new HashMap<>(4);
@@ -239,6 +238,25 @@ public class CommentDanmakuService {
                 .setSql("like_count = GREATEST(like_count + " + delta + ", 0)"));
     }
 
+    public Map<String, Object> replies(Long rootId, int pageNum, int size, Long viewerId) {
+        if (rootId == null || size < 1 || size > 100) throw new BizException(ErrorCode.PARAM_INVALID);
+        if (pageNum < 1 || pageNum > 1000) throw new BizException(ErrorCode.PARAM_INVALID);
+        Comment root = commentMapper.selectById(rootId);
+        if (root == null || root.getDeletedAt() != null || !Integer.valueOf(1).equals(root.getStatus())
+                || root.getRootId() != null) throw new BizException(ErrorCode.COMMENT_NOT_FOUND);
+        int offset = (pageNum - 1) * size;
+        List<CommentVO> list = queryMapper.selectRepliesByRoot(rootId, offset, size + 1, viewerId);
+        boolean hasMore = list.size() > size;
+        if (hasMore) list = list.subList(0, size);
+        list.forEach(this::parseImages);
+        Map<String, Object> data = new HashMap<>(4);
+        data.put("records", list);
+        data.put("hasMore", hasMore);
+        data.put("pageNum", pageNum);
+        data.put("total", root.getReplyCount() == null ? 0 : root.getReplyCount());
+        return data;
+    }
+
     @Transactional
     public void delete(Long userId, Long commentId, boolean admin) {
         Comment c = commentMapper.selectById(commentId);
@@ -337,7 +355,9 @@ public class CommentDanmakuService {
         Long rootId = c.getRootId() == null ? c.getId() : c.getRootId();
         CommentVO root = queryMapper.selectComment(rootId, viewerId);
         if (root == null) throw new BizException(ErrorCode.COMMENT_NOT_FOUND);
-        List<CommentVO> replies = queryMapper.selectReplies(List.of(rootId), viewerId);
+        List<CommentVO> replies = queryMapper.selectRepliesByRoot(rootId, 0, 11, viewerId);
+        boolean hasMore = replies.size() > 10;
+        if (hasMore) replies = replies.subList(0, 10);
         replies.forEach(this::parseImages);
         root.setReplies(replies);
         parseImages(root);

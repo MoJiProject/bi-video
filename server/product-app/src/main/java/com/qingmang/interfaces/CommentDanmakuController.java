@@ -50,6 +50,13 @@ public class CommentDanmakuController {
         return ApiResponse.ok(service.detail(commentId, AuthContext.currentUserIdOrNull()));
     }
 
+    @GetMapping("/comment/{rootId}/replies")
+    public ApiResponse<Map<String, Object>> replies(@PathVariable Long rootId,
+                                                   @RequestParam(defaultValue = "1") int pageNum,
+                                                   @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.ok(service.replies(rootId, pageNum, size, AuthContext.currentUserIdOrNull()));
+    }
+
     @PostMapping("/comment/{commentId}/pin")
     public ApiResponse<Map<String, Object>> pin(@PathVariable Long commentId) {
         return ApiResponse.ok(Map.of("pinned", service.togglePin(AuthContext.requireUserId(), commentId)));

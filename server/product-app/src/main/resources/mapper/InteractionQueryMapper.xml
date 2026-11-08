@@ -78,18 +78,16 @@
         WHERE c.id=#{commentId} AND c.status=1 AND c.deleted_at IS NULL
     </select>
 
-    <select id="selectReplies" resultMap="commentMap">
+    <select id="selectRepliesByRoot" resultMap="commentMap">
         SELECT <include refid="commentColumns"/>
         FROM comment c
         JOIN `user` u ON u.id = c.author_id
         LEFT JOIN `user` ru ON ru.id = c.reply_to_user_id
-        WHERE c.root_id IN
-        <foreach collection="rootIds" item="rid" open="(" separator="," close=")">
-            #{rid}
-        </foreach>
+        WHERE c.root_id = #{rootId}
           AND c.status = 1
           AND c.deleted_at IS NULL
-        ORDER BY c.id ASC
+        ORDER BY c.like_count DESC, c.id DESC
+        LIMIT #{offset}, #{limit}
     </select>
 
     <select id="selectPostComments" resultMap="commentMap">

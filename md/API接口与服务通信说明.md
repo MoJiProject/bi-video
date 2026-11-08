@@ -64,6 +64,7 @@
 | POST | `/video/{videoId}/watch` | 路径参数 `videoId`；查询参数 `progressSeconds`（默认 0） | 观看状态 `Map<String,Object>` |
 | GET | `/video/{videoId}/state` | 路径参数 `videoId`；支持匿名查询 | 互动状态 `Map<String,Object>` |
 | GET | `/comment/list` | 查询参数 `videoId`/`postId`/`cursorId`/`sort`/`size` | 评论分页 `Map<String,Object>` |
+| GET | `/comment/{rootId}/replies` | 路径参数 `rootId`；可选查询参数 `cursorId`、`size` | 回复评论分页 `Map<String,Object>` |
 | POST | `/comment` | JSON `CommentPostRequest` | `{commentId: ...}` |
 | GET | `/comment/{commentId}` | 路径参数 `commentId` | `CommentVO` |
 | POST | `/comment/{commentId}/pin` | 路径参数 `commentId` | `{pinned: boolean}` |

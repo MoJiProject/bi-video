@@ -40,6 +40,7 @@ export async function fetchPublishingCategories() {
 /** 评论与弹幕。 */
 export const commentApi = {
   list: (params) => get('/comment/list', params),
+  replies: (rootId, params) => get(`/comment/${rootId}/replies`, params),
   create: (body) => post('/comment', { ...body, mentionUserIds: extractMentionIds(body.content) }),
   like: (commentId, dislike = false) => post(`/comment/${commentId}/like`, null, { params: { dislike } }),
   remove: (commentId) => del(`/comment/${commentId}`),

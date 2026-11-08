@@ -111,7 +111,12 @@
             </div>
           </div>
 
-          <article v-for="child in root.replies" :key="child.id"
+          <div v-if="root.replyCount" class="replies">
+            <button type="button" class="reply-toggle" @click="toggleReplies(root)">
+              {{ root.repliesExpanded ? '收起回复' : `展开 ${root.replyCount} 条回复` }}
+            </button>
+            <template v-if="root.repliesExpanded">
+              <article v-for="child in root.replies" :key="child.id"
             class="content-action-surface reply" :data-id="child.id" :class="{ 'comment-animation': highlightId === child.id }">
             <header>
               <UserHoverCard :user-id="child.authorId" :avatar="child.authorAvatar"
@@ -191,6 +196,9 @@
               </div>
             </div>
           </article>
+              <el-button v-if="root.replyHasMore" class="load-more-replies" :loading="root.replyLoading" @click="loadMoreReplies(root)">加载更多回复</el-button>
+            </template>
+          </div>
         </article>
       </div>
 
@@ -327,6 +335,7 @@ async function load() {
     });
     if (current !== generation) return;
     rows.value.push(...page.records);
+    for (const root of page.records) normalizeRoot(root);
     total.value = page.total;
     store.setCommentNumber(page.total);
     emit('count', page.total);
@@ -367,6 +376,7 @@ async function handleDeepLink() {
       let insertAt = rows.value.findIndex((row) => !row.pinned);
       if (insertAt === -1) insertAt = rows.value.length;
       rows.value.splice(insertAt, 0, target);
+      normalizeRoot(target);
     }
     await highlightAndScroll(deepReplyId || deepCommentId, deepReplyId ? deepCommentId : null);
   } catch (error) {
@@ -386,6 +396,31 @@ function toggleReplyBox(comment) {
   replyContentLength.value = 0;
   replyShareToDynamic.value = false;
   nextTick(() => replyInput.value?.focus());
+}
+
+function normalizeRoot(root) {
+  root.replies = root.replies || [];
+  root.repliesExpanded = (root.replyCount || 0) <= 2 && root.replies.length > 0;
+  root.replyPage = 1;
+  root.replyHasMore = (root.replyCount || 0) > root.replies.length;
+  root.replyLoading = false;
+}
+function toggleReplies(root) {
+  root.repliesExpanded = !root.repliesExpanded;
+}
+async function loadMoreReplies(root) {
+  if (root.replyLoading || !root.replyHasMore) return;
+  root.replyLoading = true;
+  root.replyPage += 1;
+  try {
+    const page = await commentApi.replies(root.id, { pageNum: root.replyPage, size: 10 });
+    root.replies.push(...(page.records || []));
+    root.replyHasMore = !!page.hasMore;
+  } catch (error) {
+    ElMessage.error(error?.message || '加载回复失败');
+  } finally {
+    root.replyLoading = false;
+  }
 }
 
 /** 高亮指定评论并平滑滚动到可视区（发送、深链后定位用）。 */
@@ -450,8 +485,9 @@ async function sendReply(target) {
     activeReplyId.value = null;
     store.updateVideoInfoFlag = true;
     await reload();
+    const expandedRoot = rows.value.find((row) => row.id === (target.rootId ?? target.id));
+    if (expandedRoot) expandedRoot.repliesExpanded = true;
     await highlightAndScroll(commentId);
-    ElMessage.success('回复成功');
   } catch (error) {
     for (const url of uploaded) { try { await del('/media', { params: { url } }); } catch (e) {} }
     ElMessage.error(error.message || '回复失败');
@@ -697,7 +733,10 @@ footer .el-button { height: 34px; margin: 0; padding: 0 10px; border-radius: 8px
   0% { background-color: #e3f5f0; }
   100% { background-color: transparent; }
 }
-.load-more { display: flex; min-height: 38px; margin: 20px auto 0; border-radius: 10px; }
+.replies { margin-top: 10px; }
+.reply-toggle { margin: 4px 0 8px; padding: 4px 8px; border: 0; background: none; color: var(--brand-hover); font-size: 12px; cursor: pointer; }
+.reply-toggle:hover { text-decoration: underline; }
+.load-more-replies { display: flex; min-height: 32px; margin: 8px 0 0 12px; border-radius: 8px; }
 .comment-load-error { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 16px 0; color: var(--ink-2); font-size: 13px; }
 @media (max-width: 640px) {
   .discussion { padding: 16px; border-radius: 16px; }

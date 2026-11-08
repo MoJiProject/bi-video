@@ -23,7 +23,7 @@
       </div>
     </form>
     <div v-for="root in rows" :key="root.id" class="comment">
-      <article v-for="comment in [root, ...(root.replies || [])]" :key="comment.id"
+      <article v-for="comment in (root.repliesExpanded ? [root, ...(root.replies || [])] : [root])" :key="comment.id"
         class="content-action-surface" :data-id="comment.id" :class="{ reply: comment.rootId, 'comment-highlight': highlightId === comment.id }">
         <header><UserHoverCard :user-id="comment.authorId" :avatar="comment.authorAvatar"
             :nickname="comment.authorNickname" :avatar-size="32"/>
@@ -89,6 +89,12 @@
           </div>
         </div>
       </article>
+      <div v-if="root.replyCount" class="replies-meta">
+        <button type="button" class="reply-toggle" @click="toggleReplies(root)">
+          {{ root.repliesExpanded ? '收起回复' : `展开 ${root.replyCount} 条回复` }}
+        </button>
+        <el-button v-if="root.repliesExpanded && root.replyHasMore" class="load-more-replies" :loading="root.replyLoading" @click="loadMoreReplies(root)">加载更多回复</el-button>
+      </div>
     </div>
     <loadingIndicator v-if="loading"/>
     <div v-if="loadError" class="comment-load-error" role="alert">
@@ -161,6 +167,30 @@ function getReplyTarget(comment, root) {
     avatar: targetComment?.authorAvatar ?? comment.replyToAvatar ?? comment.replyToAvatarAddress ?? '',
   };
 }
+function normalizeRoot(root) {
+  root.replies = root.replies || [];
+  root.repliesExpanded = (root.replyCount || 0) <= 2 && root.replies.length > 0;
+  root.replyPage = 1;
+  root.replyHasMore = (root.replyCount || 0) > root.replies.length;
+  root.replyLoading = false;
+}
+function toggleReplies(root) {
+  root.repliesExpanded = !root.repliesExpanded;
+}
+async function loadMoreReplies(root) {
+  if (root.replyLoading || !root.replyHasMore) return;
+  root.replyLoading = true;
+  root.replyPage += 1;
+  try {
+    const page = await commentApi.replies(root.id, { pageNum: root.replyPage, size: 10 });
+    root.replies.push(...(page.records || []));
+    root.replyHasMore = !!page.hasMore;
+  } catch (error) {
+    ElMessage.error(error?.message || '加载回复失败');
+  } finally {
+    root.replyLoading = false;
+  }
+}
 function signedIn() {
   if (store.token) return true;
   store.loginDialogVisible = true;
@@ -175,6 +205,7 @@ async function load() {
     const page = await commentApi.list({ postId: props.postId, cursorId: cursorId.value, size: 10, sort: sort.value });
     if (current !== generation) return;
     rows.value.push(...page.records);
+    for (const root of page.records) normalizeRoot(root);
     total.value = page.total;
     emit('count', page.total);
     cursorId.value = page.cursorId;
@@ -205,6 +236,7 @@ async function handleDeepLink() {
     }
     if (!rows.value.some((row) => row.id === target.id || (row.replies || []).some((r) => r.id === target.id))) {
       rows.value.unshift(target);
+      normalizeRoot(target);
     }
     await highlightAndScroll(deepReplyId || deepCommentId, deepReplyId ? deepCommentId : null);
   } catch (error) {
@@ -266,6 +298,8 @@ async function sendReply(target) {
     replyImages.value.forEach(url => URL.revokeObjectURL(url));
     replyContent.value = ''; replyContentLength.value = 0; replyImages.value = []; replyImageFiles.value = []; replyUploading.value = false; activeReplyId.value = null;
     await reload();
+    const expandedRoot = rows.value.find((row) => row.id === (target.rootId ?? target.id));
+    if (expandedRoot) expandedRoot.repliesExpanded = true;
     ElMessage.success('回复发布成功');
   } catch (error) {
     for (const url of uploaded) { try { await del('/media', { params: { url } }); } catch (e) {} }
@@ -376,7 +410,10 @@ footer { gap: 6px; }
 footer .el-button { height: 34px; margin: 0; padding: 0 10px; border-radius: 8px; font-size: 12px; }
 .comment-action-icon { display: inline-block; flex: none; width: 18px; height: 18px; margin-right: 6px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .comment-action-icon.is-dislike { transform: rotate(180deg); }
-.load-more { display: flex; min-height: 38px; margin: 20px auto 0; border-radius: 10px; }
+.replies-meta { display: flex; align-items: center; gap: 8px; margin: 8px 0 0 12px; }
+.reply-toggle { padding: 4px 8px; border: 0; background: none; color: var(--brand-hover); font-size: 12px; cursor: pointer; }
+.reply-toggle:hover { text-decoration: underline; }
+.load-more-replies { min-height: 32px; border-radius: 8px; }
 .comment-load-error { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 16px 0; color: var(--ink-2); font-size: 13px; }
 .comment-highlight { animation: post-comment-highlight 6s ease forwards; }
 @keyframes post-comment-highlight {

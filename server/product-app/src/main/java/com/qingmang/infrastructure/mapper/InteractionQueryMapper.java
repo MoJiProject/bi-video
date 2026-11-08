@@ -26,6 +26,11 @@ public interface InteractionQueryMapper {
     List<CommentVO> selectReplies(@Param("rootIds") List<Long> rootIds,
                                   @Param("viewerId") Long viewerId);
 
+    List<CommentVO> selectRepliesByRoot(@Param("rootId") Long rootId,
+                                       @Param("offset") int offset,
+                                       @Param("limit") int limit,
+                                       @Param("viewerId") Long viewerId);
+
     CommentVO selectComment(@Param("commentId") Long commentId, @Param("viewerId") Long viewerId);
 
     long countComments(@Param("videoId") Long videoId);
