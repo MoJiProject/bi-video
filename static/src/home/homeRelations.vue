@@ -54,6 +54,7 @@ import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { useGlobalStore } from '@/store/store';
 import { fansOrFollow, addFollow, deleteFollow, selectUserInfo } from '@/api/home/user';
+import { socialApi } from '@/api/product';
 import { addDialogue } from '@/api/privateMessage';
 import loadingIndicator from '@/components/loadingIndicator.vue';
 import UserHoverCard from '@/components/UserHoverCard.vue';
@@ -83,6 +84,10 @@ function changeMenu(menu) {
   if (store.userId !== homeUserId && !(menu === 8 ? profile.publicFollowList : profile.publicFansList)) {
     ElMessage.warning('由于该用户隐私设置，列表不可见');
     return;
+  }
+  // 当查看粉丝列表时标记已读（后端更新 last_view_fans_count）
+  if (menu === 9 && store.userId === homeUserId) {
+    socialApi.markFansViewed(homeUserId).catch(() => {});
   }
   store.setHomeMenu(menu, homeUserId, true);
 }

@@ -58,6 +58,8 @@ export const profiles = ["预览用户", "林间记录", "镜头日记", "慢慢
     atMessageWarn: 1,
     likeMessageWarn: 1,
     backgroundModel: 0,
+    newFansCount: index === 0 ? 5 : 0,
+    lastViewFansCount: index === 0 ? 1275 : 1280,
   })
 );
 

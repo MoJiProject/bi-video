@@ -67,4 +67,7 @@ public class User implements Serializable {
 
     @TableField("deleted_at")
     private LocalDateTime deletedAt;
+
+    @TableField("last_view_fans_count")
+    private Long lastViewFansCount;
 }

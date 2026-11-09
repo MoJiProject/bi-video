@@ -92,6 +92,12 @@ public class SocialController {
         return ApiResponse.ok();
     }
 
+    @PostMapping("/user/{userId}/fans/viewed")
+    public ApiResponse<Void> markFansViewed(@PathVariable Long userId) {
+        social.markFansViewed(AuthContext.requireUserId());
+        return ApiResponse.ok();
+    }
+
     @GetMapping("/post/{postId}")
     public ApiResponse<PostVO> detail(@PathVariable Long postId) {
         return ApiResponse.ok(social.detail(postId, AuthContext.currentUserIdOrNull()));

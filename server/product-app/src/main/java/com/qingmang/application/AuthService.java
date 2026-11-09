@@ -173,6 +173,16 @@ public class AuthService {
         if (viewer == null) {
             vo.setFollowed(null);
         }
+        // 新粉丝数 = 当前粉丝数 - 上次查看粉丝列表时的粉丝数（仅本人可见）
+        if (userId.equals(viewer)) {
+            if (vo.getFollowerCount() != null && vo.getFollowerCount() > 0) {
+                User owner = userMapper.selectById(userId);
+                Long stored = owner != null ? (owner.getLastViewFansCount() == null ? 0L : owner.getLastViewFansCount()) : 0L;
+                vo.setNewFansCount(Math.max(0L, vo.getFollowerCount() - stored));
+            } else {
+                vo.setNewFansCount(0L);
+            }
+        }
         return vo;
     }
 

@@ -6,6 +6,7 @@
     <select id="selectProfile" resultType="com.qingmang.interfaces.vo.UserProfileVO">
         SELECT u.id AS user_id, u.username, u.nickname, u.avatar_url, u.background_url, u.signature,
                u.gender, u.birthday, u.level, u.exp, u.role, u.created_at,
+               u.last_view_fans_count,
                COALESCE(p.show_favorite_list, FALSE) AS show_favorite_list,
                COALESCE(p.show_follow_list, FALSE) AS show_follow_list,
                COALESCE(p.show_fans_list, FALSE) AS show_fans_list,

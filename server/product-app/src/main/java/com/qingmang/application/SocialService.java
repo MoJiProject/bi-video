@@ -10,11 +10,15 @@ import com.qingmang.domain.social.UserFollow;
 import com.qingmang.domain.social.UserPost;
 import com.qingmang.application.MediaStorageService;
 import com.qingmang.domain.social.PostLike;
-import com.qingmang.domain.social.mapper.PostLikeMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.qingmang.domain.social.mapper.PostLikeMapper;
 import com.qingmang.domain.social.mapper.PrivateMessageMapper;
 import com.qingmang.domain.social.mapper.UserFollowMapper;
 import com.qingmang.domain.social.mapper.UserPostMapper;
+import com.qingmang.domain.user.User;
+import com.qingmang.domain.user.UserStats;
+import com.qingmang.domain.user.mapper.UserStatsMapper;
+import com.qingmang.domain.user.mapper.UserMapper;
 import com.qingmang.infrastructure.mapper.CounterMapper;
 import com.qingmang.infrastructure.mapper.SocialQueryMapper;
 import com.qingmang.interfaces.dto.PostRequest;
@@ -40,13 +44,16 @@ public class SocialService {
     private final PostLikeMapper postLikes;
     private final MentionNotificationService mentions;
     private final NotificationCenterService notifications;
+    private final UserMapper userMapper;
+    private final UserStatsMapper statsMapper;
 
     public SocialService(UserFollowMapper followMapper, UserPostMapper postMapper,
                           PrivateMessageMapper privateMessageMapper,
                           CounterMapper counterMapper,
                           SocialQueryMapper queryMapper, ObjectMapper json, AuthService auth, PostLikeMapper postLikes,
                           MediaStorageService media,
-                          MentionNotificationService mentions, NotificationCenterService notifications) {
+                          MentionNotificationService mentions, NotificationCenterService notifications,
+                          UserMapper userMapper, UserStatsMapper statsMapper) {
         this.followMapper = followMapper;
         this.media = media;
         this.postMapper = postMapper;
@@ -58,6 +65,8 @@ public class SocialService {
         this.postLikes = postLikes;
         this.mentions = mentions;
         this.notifications = notifications;
+        this.userMapper = userMapper;
+        this.statsMapper = statsMapper;
     }
 
     @Transactional
@@ -249,6 +258,20 @@ public class SocialService {
 
     public void markFeedRead(Long viewerId, Long targetUserId) {
         queryMapper.markFeedRead(viewerId, targetUserId);
+    }
+
+    /** 标记用户已查看粉丝列表，更新 last_view_fans_count 以便后续计算新粉丝。 */
+    @Transactional
+    public void markFansViewed(Long userId) {
+        requireActiveUser(userId);
+        UserStats stats = statsMapper.selectOne(Wrappers.<UserStats>lambdaQuery()
+                .eq(UserStats::getUserId, userId));
+        if (stats == null) return;
+        User user = userMapper.selectById(userId);
+        if (user != null) {
+            user.setLastViewFansCount(stats.getFollowerCount() == null ? 0L : stats.getFollowerCount().longValue());
+            userMapper.updateById(user);
+        }
     }
 
     public int unreadPrivateMessageCount(Long userId) {

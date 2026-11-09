@@ -48,4 +48,5 @@ public class UserProfileVO {
     private Integer replyMessageWarn;
     private Integer atMessageWarn;
     private Integer likeMessageWarn;
+    private Long newFansCount;
 }

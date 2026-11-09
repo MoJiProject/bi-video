@@ -179,7 +179,7 @@
         <if test="cursorId != null">
           AND f.id &lt; #{cursorId}
         </if>
-        ORDER BY f.id DESC
+        ORDER BY f.created_at DESC
         LIMIT #{limit}
     </select>
 

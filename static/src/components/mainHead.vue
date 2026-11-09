@@ -73,13 +73,13 @@
             </div>
             <nav class="profile-stats" aria-label="个人数据">
               <a :href="'/home?homeMenu=8&userId='+store.userId" target="_blank" rel="noopener noreferrer" @click="closeHeaderMenus">
-                <strong :title="String(profileUser.followNumber ?? '--')">{{ profileUser.followNumber ?? '--' }}</strong><span>关注</span>
+                <strong :title="String(profileUser.followNumber || 0)">{{ profileUser.followNumber || 0}}</strong><span>关注</span>
               </a>
               <a :href="'/home?homeMenu=9&userId='+store.userId" target="_blank" rel="noopener noreferrer" @click="closeHeaderMenus">
-                <strong :title="String(profileUser.fansNumber ?? '--')">{{ profileUser.fansNumber ?? '--' }}</strong><span>粉丝</span>
+                <strong :title="String(profileUser.fansNumber || 0)">{{ profileUser.fansNumber || 0 }}<span v-if="(profileUser.newFansCount ?? 0) > 0" class="newFans-badge">+{{ profileUser.newFansCount }}</span></strong><span>粉丝</span>
               </a>
               <a :href="'/home?homeMenu=2&userId='+store.userId" target="_blank" rel="noopener noreferrer" @click="closeHeaderMenus">
-                <strong :title="String(profileUser.ownDynamicNumber ?? '--')">{{ profileUser.ownDynamicNumber ?? '--' }}</strong><span>动态</span>
+                <strong :title="String(profileUser.ownDynamicNumber || 0)">{{ profileUser.ownDynamicNumber || 0 }}</strong><span>动态</span>
               </a>
             </nav>
             <nav class="profile-links" aria-label="账号管理">
@@ -2208,7 +2208,6 @@ flag.value = 1;
             store.userInformation = { ...store.userInformation, dynamicNumber: unread };
             store.setUserInformation(store.userInformation);
           } catch (e) {}
-          await getNewFansNumberAxiso();
           await selectCollect();
           if(collectDtoList.length!==0)
           changerCollect.value=collectDtoList[0].id;
@@ -2247,12 +2246,6 @@ flag.value = 1;
       } catch (error) {
         ElMessage.error(error.message);
       }
-    }
-
-//获取新粉丝数量
-    // 新后端暂未提供「新粉丝数」接口，先归零，不再请求不存在的地址
-    async function getNewFansNumberAxiso() {
-      NewFansNumber.value = 0;
     }
 
     //按真实发布时间降序，videoId是入库主键，与审核通过时间不一致，不能用于排序
@@ -3313,11 +3306,18 @@ a {
 .v-header-ul li.hd-publish:hover {
   animation: none !important;}
 
-.newFans {
-  position: absolute;
-  font-size: 14px;
-  transform: translate(2px, 8px);
-  color: #DD5C24;
+.newFans-badge {
+  margin-left: 4px !important;
+  color: #DD5C24 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 1.6 !important;
+  vertical-align: middle !important;
+}
+
+.profile-stats strong {
+  display: inline-flex !important;
+  align-items: center !important;
 }
 
 .dynamic-info {

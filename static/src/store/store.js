@@ -69,6 +69,7 @@ export const useGlobalStore = defineStore('global', {
       mouseX: 0,//鼠标x轴坐标
       collectNumber: 0,
       homeLoadMenuList: [],//home加载菜单列表
+      newFansNumber: 0,//新增粉丝数量，未查看粉丝列表前显示提醒
     }
   },
   getters: {
@@ -258,6 +259,9 @@ export const useGlobalStore = defineStore('global', {
     },
     setHomeLoadMenuList(newValue) {
       this.homeLoadMenuList.push(newValue)
+    },
+    setNewFansNumber(newValue) {
+      this.newFansNumber = newValue
     },
   }
 })

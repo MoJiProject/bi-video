@@ -83,6 +83,7 @@ export const socialApi = {
   authors: (params) => get('/post/authors', params),
   read: (targetUserId) => post('/post/read', null, targetUserId == null ? {} : { params: { targetUserId } }),
   pin: (id) => post(`/post/${id}/pin`),
+  markFansViewed: (userId) => post(`/user/${userId}/fans/viewed`),
 };
 
 /** 搜索。 */
