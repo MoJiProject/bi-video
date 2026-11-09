@@ -1028,19 +1028,19 @@
                 href="https://www.qingmang.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
                 >互动规范 ></a
               ></span>
-               <span v-if="store.danmakuEmojiSendable" style="position:relative;display:inline-block;margin-right:6px;">
-                 <button type="button" class="player-tool-button" @click.stop="danmakuEmojiOpen = !danmakuEmojiOpen; videoFeatureShowFlag = true; handlerCleanTime()">
-                   <svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="9"/><path d="M8 14a4 4 0 0 0 8 0M8 9h.01M16 9h.01"/></svg>
-                 </button>
-                 <div v-show="danmakuEmojiOpen" class="message-emoji-list" style="position:absolute;bottom:42px;right:0;z-index:2000;">
-                   <div class="emoji-title">表情</div>
-                   <div class="emoji-grid">
-                     <button v-for="number in 107" :key="number" type="button" class="comment-emoji-content" @mousedown.prevent @click="insertDanmakuEmoji(number + 69)">
-                       <img class="comment-emoji-img" :src="`/img/emoji/${number + 69}.png`" alt="" loading="lazy" />
-                     </button>
-                   </div>
-                 </div>
-               </span>
+<span v-if="store.danmakuEmojiSendable" style="position:relative;display:inline-block;margin-right:6px;">
+                  <button type="button" class="player-tool-button" @click.stop="danmakuEmojiOpen = !danmakuEmojiOpen; videoFeatureShowFlag = true; handlerCleanTime()">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="9"/><path d="M8 14a4 4 0 0 0 8 0M8 9h.01M16 9h.01"/></svg>
+                  </button>
+                  <div v-show="danmakuEmojiOpen" class="message-emoji-list" style="position:absolute;bottom:42px;right:0;z-index:2000;">
+                    <div class="emoji-title">表情</div>
+                    <div class="emoji-grid">
+                      <button v-for="number in (store.danmakuEmojiSendableLevel8 ? 107 : (store.danmakuEmojiSendableLevel7 ? 82 : 52))" :key="number" type="button" class="comment-emoji-content" @mousedown.prevent @click="insertDanmakuEmoji(number + 69)">
+                        <img class="comment-emoji-img" :src="`/img/emoji/${number + 69}.png`" alt="" loading="lazy" />
+                      </button>
+                    </div>
+                  </div>
+                </span>
              <span class="send-scrolling-btn-open1" @click="sendScrollingAxios"
               >发送</span>
           </div>
@@ -1901,19 +1901,19 @@
                 href="https://www.qingmang.com/blackboard/help.html#/?qid=f80ff5461cc94a53a24fd1a42ce90fe0"
                 >互动规范 ></a
               ></span>
-               <span v-if="store.danmakuEmojiSendable" style="position:relative;display:inline-block;margin-right:6px;">
-                  <button type="button" class="player-tool-button danmaku-emoji-trigger" @click.stop="danmakuEmojiOpen2 = !danmakuEmojiOpen2; videoFeatureShowFlag = true; handlerCleanTime()">
-                   <svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="9"/><path d="M8 14a4 4 0 0 0 8 0M8 9h.01M16 9h.01"/></svg>
-                 </button>
-                 <div v-show="danmakuEmojiOpen2" class="message-emoji-list" style="position:absolute;bottom:42px;right:0;z-index:2000;">
-                   <div class="emoji-title">表情</div>
-                   <div class="emoji-grid">
-                     <button v-for="number in 107" :key="number" type="button" class="comment-emoji-content" @mousedown.prevent @click="insertDanmakuEmoji(number + 69)">
-                       <img class="comment-emoji-img" :src="`/img/emoji/${number + 69}.png`" alt="" loading="lazy" />
-                     </button>
-                   </div>
-                 </div>
-               </span>
+<span v-if="store.danmakuEmojiSendable" style="position:relative;display:inline-block;margin-right:6px;">
+                   <button type="button" class="player-tool-button danmaku-emoji-trigger" @click.stop="danmakuEmojiOpen2 = !danmakuEmojiOpen2; videoFeatureShowFlag = true; handlerCleanTime()">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="9"/><path d="M8 14a4 4 0 0 0 8 0M8 9h.01M16 9h.01"/></svg>
+                  </button>
+                  <div v-show="danmakuEmojiOpen2" class="message-emoji-list" style="position:absolute;bottom:42px;right:0;z-index:2000;">
+                    <div class="emoji-title">表情</div>
+                    <div class="emoji-grid">
+                      <button v-for="number in (store.danmakuEmojiSendableLevel8 ? 107 : (store.danmakuEmojiSendableLevel7 ? 82 : 52))" :key="number" type="button" class="comment-emoji-content" @mousedown.prevent @click="insertDanmakuEmoji(number + 69)">
+                        <img class="comment-emoji-img" :src="`/img/emoji/${number + 69}.png`" alt="" loading="lazy" />
+                      </button>
+                    </div>
+                  </div>
+                </span>
              <span class="send-scrolling-btn-open" @click="sendScrollingAxios"
               >发送</span>
           </div>

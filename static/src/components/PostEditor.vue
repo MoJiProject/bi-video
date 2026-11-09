@@ -42,7 +42,7 @@
           <div class="emoji-panel">
             <div class="panel-heading"><strong>表情</strong></div>
             <div class="emoji-grid">
-              <button v-for="number in 107" :key="number" type="button" :title="`表情 ${number + 69}`"
+              <button v-for="number in (store.danmakuEmojiSendableLevel8 ? 107 : (store.danmakuEmojiSendableLevel7 ? 82 : 52))" :key="number" type="button" :title="`表情 ${number + 69}`"
                 :aria-label="`表情 ${number + 69}`" @mousedown.prevent @click="insertEmoji(number + 69)">
                 <img :src="`/img/emoji/${number + 69}.png`" alt="" loading="lazy">
               </button>

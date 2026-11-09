@@ -248,15 +248,15 @@
                 <div v-show="emojiFlag" class="message-emoji-list">
                    <div class="emoji-title">表情</div>
                    <div class="emoji-grid">
-                        <button
-                            type="button"
-                            class="comment-emoji-content"
-                            :title="`表情 ${index + 69}`"
-                            :aria-label="`表情 ${index + 69}`"
-                            @click="addEmoji(index + 69)"
-                            v-for="index in 107"
-                            :key="index"
-                            >
+<button
+                             type="button"
+                             class="comment-emoji-content"
+                             :title="`表情 ${index + 69}`"
+                             :aria-label="`表情 ${index + 69}`"
+                             @click="addEmoji(index + 69)"
+                             v-for="index in (store.danmakuEmojiSendableLevel8 ? 107 : (store.danmakuEmojiSendableLevel7 ? 82 : 52))"
+                             :key="index"
+                             >
                             <img class="comment-emoji-img" :src="'/img/emoji/' + (index + 69) + '.png'" alt="">
                         </button>
                     </div>

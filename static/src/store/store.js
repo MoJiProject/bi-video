@@ -82,6 +82,8 @@ export const useGlobalStore = defineStore('global', {
     danmakuEmojiLevel: () => 6,
     danmakuEmojiMax: () => 10,
     danmakuTextMax: () => 20,
+    danmakuEmojiSendableLevel7: (state) => Number(state.userInformation?.grade ?? 0) >= 7,
+    danmakuEmojiSendableLevel8: (state) => Number(state.userInformation?.grade ?? 0) >= 8,
   },
   actions: {
     setSearchDisplayFlag(newValue) {
