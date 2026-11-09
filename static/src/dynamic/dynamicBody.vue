@@ -143,7 +143,7 @@ async function load() {
       followingOnly: scope.value === 'following', type: type.value, sort: sortOrder.value, cursorId: cursorId.value, size: 20 });
     if (current !== generation) return;
     const ids = new Set(rows.value.map(item => item.id));
-    rows.value.push(...page.records.filter(item => !ids.has(item.id)));
+    rows.value.push(...(page.records ?? []).filter(item => !ids.has(item.id)));
     cursorId.value = page.cursorId;
     hasMore.value = page.hasMore;
     return true;
@@ -158,7 +158,7 @@ async function refreshAuthors() {
   let more = true;
   while (more) {
     const page = await socialApi.authors({ cursorId: cursor });
-    result.push(...page.records);
+    result.push(...(page.records ?? []));
     cursor = page.cursorId;
     more = page.hasMore;
   }

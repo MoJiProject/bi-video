@@ -56,7 +56,7 @@
         <footer>
           <el-button text :type="comment.liked ? 'primary' : ''" :aria-pressed="!!comment.liked" :disabled="busy.has(comment.id)" @click="like(comment, false)">
             <svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10H4v10h4m0-10 4-7h1a2 2 0 0 1 2 2l-1 5h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H8V10Z"/></svg>
-            <span>{{ comment.likeCount || 0 }} 赞</span>
+            <transition name="count-pop" mode="out-in"><span :key="comment.likeCount" class="count-value">{{ comment.likeCount || 0 }} 赞</span></transition>
           </el-button>
           <el-button text :type="comment.disliked ? 'primary' : ''" :aria-pressed="!!comment.disliked" :disabled="busy.has(comment.id)" @click="like(comment, true)">
             <svg class="comment-action-icon is-dislike" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10H4v10h4m0-10 4-7h1a2 2 0 0 1 2 2l-1 5h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H8V10Z"/></svg>
@@ -426,6 +426,6 @@ footer .el-button { height: 34px; margin: 0; padding: 0 10px; border-radius: 8px
   .comment { margin-left: 12px; padding: 18px 0; }
   .reply { padding-left: 10px; }
   header { gap: 8px; }
-  time { margin-left: 42px; }
-}
+time { margin-left: 42px; }
+  }
 </style>

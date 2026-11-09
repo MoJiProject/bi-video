@@ -4,7 +4,7 @@
         <img class="dynamic-img" :src="props.dynamic.imgAddress.split(',')[0]">
         <div class="overlay">
                 <div>
-                    <img src="/img/点赞白.png"><span>{{ dynamic.likeNumber }}</span>
+                    <img src="/img/点赞白.png"><transition name="count-pop" mode="out-in"><span :key="props.dynamic.likeNumber" class="count-value">{{ dynamic.likeNumber }}</span></transition>
                 </div>
         </div>
       </div>
@@ -113,7 +113,7 @@ function openDynamic(dynamicId){
     .introduce:hover{
         color: #0FA68E;
         transition: all 0.3s ease;
-}
+    }
 }
 
 </style>

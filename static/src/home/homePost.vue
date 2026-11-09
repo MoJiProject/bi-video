@@ -58,7 +58,7 @@
       <span style="position: relative; display: flex; flex: 1; justify-content: center;">
         <el-button class="post-action" text @click="shareOpen = !shareOpen" ref="shareBtn">
           <svg class="post-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 3 7 7-7 7v-4C8 13 5 15 3 20c0-9 4-13 11-13V3Z"/></svg>
-          <span>分享</span>
+          <transition name="count-pop" mode="out-in"><span :key="dynamic.shareCount" class="count-value">分享 {{ dynamic.shareCount || 0 }}</span></transition>
         </el-button>
         <div v-if="shareOpen" class="dynamic-share-wrap" :style="sharePanelStyle" @click.stop><dynamicShare :dynamic="dynamic" :open-flag="shareOpen" /></div>
       </span>
@@ -265,8 +265,6 @@ async function remove() {
 .home-post .post-action.is-active { color: var(--brand-hover); background: var(--brand-light-9); }
 .home-post > .inline-discussion { margin-top: 16px; padding: 20px 0 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; cursor: auto; }
 .post-action:focus-visible, .post-video:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
-@keyframes count-pop { 0% { transform: scale(1.4); color: var(--brand-hover); } 100% { transform: scale(1); } }
-.count-pop-enter-active { animation: count-pop .25s ease; }
 .home-post .post-action-icon { display: inline-block; flex: none; width: 18px; height: 18px; margin-right: 7px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
 .post-like-summary { display: inline-flex; align-items: center; color: var(--ink-2); }
 .post-permalink { display: inline-flex; margin: 0; color: var(--ink-3); font-size: 13px; text-decoration: none; }

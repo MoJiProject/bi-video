@@ -14,7 +14,7 @@
             </time>
             <span class="image-post-likes" :title="`${item.likeCount ?? 0} 个赞`" :aria-label="`${item.likeCount ?? 0} 个赞`">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10H4v10h4m0-10 4-7h1a2 2 0 0 1 2 2l-1 5h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H8V10Z"/></svg>
-              {{ item.likeCount ?? 0 }}
+              <transition name="count-pop" mode="out-in"><span :key="item.likeCount" class="count-value">{{ item.likeCount ?? 0 }}</span></transition>
             </span>
           </div>
         </div>

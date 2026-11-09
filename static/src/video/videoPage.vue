@@ -1996,7 +1996,7 @@
               <span
                 :class="{ likeVideoClickFlag: likeVideoClickFlag }"
                 class="up-video-controls-span1"
-                >{{ SelectVideoByIdVo.upVideo.likeNumber }}</span>
+                ><transition name="count-pop" mode="out-in"><span :key="SelectVideoByIdVo.upVideo.likeNumber" class="count-value">{{ SelectVideoByIdVo.upVideo.likeNumber }}</span></transition></span>
             </span>
           </el-tooltip>
           <!-- 收藏 -->

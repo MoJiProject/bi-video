@@ -69,7 +69,7 @@
             <el-button text :type="root.liked ? 'primary' : ''" :aria-pressed="!!root.liked"
               :disabled="busy.has(root.id)" @click="like(root, false)">
               <svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10H4v10h4m0-10 4-7h1a2 2 0 0 1 2 2l-1 5h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H8V10Z"/></svg>
-              <span>{{ root.likeCount || 0 }} 赞</span>
+              <transition name="count-pop" mode="out-in"><span :key="root.likeCount" class="count-value">{{ root.likeCount || 0 }} 赞</span></transition>
             </el-button>
             <el-button text :type="root.disliked ? 'primary' : ''" :aria-pressed="!!root.disliked"
               :disabled="busy.has(root.id)" @click="like(root, true)">
@@ -153,8 +153,8 @@
             <footer>
               <el-button text :type="child.liked ? 'primary' : ''" :aria-pressed="!!child.liked"
                 :disabled="busy.has(child.id)" @click="like(child, false)">
-                <svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10H4v10h4m0-10 4-7h1a2 2 0 0 1 2 2l-1 5h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H8V10Z"/></svg>
-                <span>{{ child.likeCount || 0 }} 赞</span>
+              <svg class="comment-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10H4v10h4m0-10 4-7h1a2 2 0 0 1 2 2l-1 5h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H8V10Z"/></svg>
+              <transition name="count-pop" mode="out-in"><span :key="child.likeCount" class="count-value">{{ child.likeCount || 0 }} 赞</span></transition>
               </el-button>
               <el-button text :type="child.disliked ? 'primary' : ''" :aria-pressed="!!child.disliked"
                 :disabled="busy.has(child.id)" @click="like(child, true)">

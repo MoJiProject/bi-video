@@ -739,3 +739,7 @@ a{
 /* Mobile adaptation: smooth touch scrolling for data lists */
 .at-content, .love-content, .reply-content, .message-user-list, .message-content-container { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
 @media (max-width: 768px) { body { min-width: 0 !important; } html { -webkit-text-size-adjust: 100%; } }
+
+/* 计数变化动画：点赞数/分享数等数字更新时的缩放闪烁效果 */
+@keyframes count-pop { 0% { transform: scale(1.4); color: var(--brand-hover); } 100% { transform: scale(1); } }
+.count-pop-enter-active { animation: count-pop .25s ease; }
