@@ -84,6 +84,7 @@
                v.duration_seconds, v.published_at,
                u.id AS owner_id, u.nickname AS owner_nickname, u.avatar_url AS owner_avatar,
                u.signature AS owner_signature,
+               u.name_color AS owner_name_color,
                COALESCE(us.follower_count, 0) AS follower_count,
                CASE WHEN f.id IS NULL THEN FALSE ELSE TRUE END AS owner_followed,
                COALESCE(s.play_count, 0)     AS play_count,

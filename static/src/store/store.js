@@ -5,12 +5,15 @@ import { offlinePreviewEnabled, PREVIEW_USER_ID, PREVIEW_TOKEN } from '../previe
 const TOKEN_KEY = 'qingmang_video_token'
 const USER_ID_KEY = 'qingmang_video_user_id'
 const USER_NAME_COLOR_KEY = 'qingmang_video_user_name_color'
+//彩色名字哨兵值：不是真实颜色，仅本地标记，展示端识别后渲染彩虹渐变
+const USER_NAME_COLOR_RAINBOW = 'rainbow'
 
 //用户名字颜色，仅本地保存，不上传服务器；离线预览模式下同样可用
 function getStoredUserNameColor() {
   if (typeof localStorage === 'undefined') return null
   const raw = localStorage.getItem(USER_NAME_COLOR_KEY)
   if (!raw) return null
+  if (raw === USER_NAME_COLOR_RAINBOW) return USER_NAME_COLOR_RAINBOW
   return /^#[0-9a-fA-F]{6}$/.test(raw) ? raw : null
 }
 
@@ -89,13 +92,22 @@ export const useGlobalStore = defineStore('global', {
     colorfulVisible: (state) => Number(state.userInformation?.grade ?? 0) >= 4,
     colorfulSendable: (state) => Number(state.userInformation?.grade ?? 0) >= 5,
     danmakuEmojiSendable: (state) => Number(state.userInformation?.grade ?? 0) >= 6,
+    //弹幕表情等级限制，6级解锁
     danmakuEmojiLevel: () => 6,
     danmakuEmojiMax: () => 10,
     danmakuTextMax: () => 20,
+    //表情包扩充，7级解锁
     danmakuEmojiSendableLevel7: (state) => Number(state.userInformation?.grade ?? 0) >= 7,
+    //表情包再次扩充，8级解锁
     danmakuEmojiSendableLevel8: (state) => Number(state.userInformation?.grade ?? 0) >= 8,
+    //名字颜色 Lv.9 解锁
     userNameColorSettableLevel: () => 9,
     userNameColorSettable: (state) => Number(state.userInformation?.grade ?? 0) >= 9,
+    //彩色名字哨兵值，展示端识别后渲染彩虹渐变
+    userNameColorRainbow: () => USER_NAME_COLOR_RAINBOW,
+    //彩色名字 Lv.10 解锁
+    userNameRainbowSettableLevel: () => 10,
+    userNameRainbowSettable: (state) => Number(state.userInformation?.grade ?? 0) >= 10,
   },
   actions: {
     setSearchDisplayFlag(newValue) {
@@ -182,6 +194,8 @@ export const useGlobalStore = defineStore('global', {
     },
     setUserInformation(newValue) {
       this.userInformation = newValue
+      //服务端返回的 nameColor 优先，同步成全局预览值（登录/资料刷新都会走这里）
+      this.userNameColor = newValue?.nameColor ?? null
     },
     setUserNameColor(newValue) {
       if (typeof localStorage === 'undefined') return
@@ -191,7 +205,8 @@ export const useGlobalStore = defineStore('global', {
         localStorage.removeItem(USER_NAME_COLOR_KEY)
         return
       }
-      if (!/^#[0-9a-fA-F]{6}$/.test(newValue)) return
+      //彩色哨兵值或 #RRGGBB 均可保存
+      if (newValue !== USER_NAME_COLOR_RAINBOW && !/^#[0-9a-fA-F]{6}$/.test(newValue)) return
       this.userNameColor = newValue
       localStorage.setItem(USER_NAME_COLOR_KEY, newValue)
     },

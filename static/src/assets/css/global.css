@@ -743,3 +743,41 @@ a{
 /* 计数变化动画：点赞数/分享数等数字更新时的缩放闪烁效果 */
 @keyframes count-pop { 0% { transform: scale(1.4); color: var(--brand-hover); } 100% { transform: scale(1); } }
 .count-pop-enter-active { animation: count-pop .25s ease; }
+
+.rainbow-name,
+.rainbow-name.rainbow-name {
+  font-weight: 700;
+  text-shadow: none;
+  background-image:
+    linear-gradient(
+      115deg,
+      transparent 35%,
+      rgba(255, 255, 255, .85) 50%,
+      transparent 65%
+    ),
+    linear-gradient(
+      100deg,
+      #ff5fa2 0%,
+      #ff9a6b 14%,
+      #ffd166 28%,
+      #8ce99a 42%,
+      #4dd4e6 56%,
+      #6aa8ff 70%,
+      #b18cff 84%,
+      #ff7ad9 100%
+    );
+  background-size: 220% 100%, 8em 100%;
+  background-position: 180% 0, 0 0;
+  background-repeat: no-repeat, repeat-x;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: rainbow-name-sheen 3.2s linear infinite;
+}
+
+/* 左→右循环扫过的高光层：驱动高光层 background-position，底层渐变静止 */
+@keyframes rainbow-name-sheen {
+  0%   { background-position: 180% 0, 0 0; }
+  100% { background-position: -80% 0, 0 0;  }
+}

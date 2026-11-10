@@ -28,7 +28,7 @@ export const profiles = ["预览用户", "林间记录", "镜头日记", "慢慢
       index === 0
         ? "这是本地预览资料，不对应真实账号。"
         : "摄影、旅行与生活记录",
-    level: 9 - index,
+    level: 10 - index,
     exp: index === 0 ? 340 : index === 1 ? 510 : 180,
     role: 1,
     favoriteCount: 24,

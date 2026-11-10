@@ -27,6 +27,7 @@ public class VideoDetailVO {
     private String ownerNickname;
     private String ownerAvatar;
     private String ownerSignature;
+    private String ownerNameColor;
     private Long followerCount;
     private Boolean ownerFollowed = false;
 

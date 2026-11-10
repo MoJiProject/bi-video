@@ -14,4 +14,8 @@ public class AccountUpdateRequest {
     private Integer gender;
     @PastOrPresent
     private LocalDate birthday;
+    /** 名字颜色：#RRGGBB 或 rainbow；null 表示清除恢复默认黑 */
+    @Pattern(regexp = "^#[0-9a-fA-F]{6}$|^rainbow$", message = "名字颜色格式不合法")
+    @Size(max = 16)
+    private String nameColor;
 }

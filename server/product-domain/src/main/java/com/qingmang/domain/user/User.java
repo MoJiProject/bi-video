@@ -70,4 +70,7 @@ public class User implements Serializable {
 
     @TableField("last_view_fans_count")
     private Long lastViewFansCount;
+
+    @TableField("name_color")
+    private String nameColor;
 }

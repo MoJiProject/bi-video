@@ -47,7 +47,7 @@
         <article class="content-action-surface" :data-id="root.id" :class="{ 'comment-animation': highlightId === root.id }">
           <header>
             <UserHoverCard :user-id="root.authorId" :avatar="root.authorAvatar"
-              :nickname="root.authorNickname" :avatar-size="32"/>
+              :nickname="root.authorNickname" :avatar-size="32" :name-color="root.authorNameColor"/>
             <LevelBadge v-if="root.authorLevel" class="author-level" :level="root.authorLevel" size="xs"/>
             <span v-if="isVideoAuthor(root)" class="author-badge">作者</span>
             <span v-if="root.pinned" class="pin-badge">置顶</span>
@@ -120,7 +120,7 @@
             class="content-action-surface reply" :data-id="child.id" :class="{ 'comment-animation': highlightId === child.id }">
             <header>
               <UserHoverCard :user-id="child.authorId" :avatar="child.authorAvatar"
-                :nickname="child.authorNickname" :avatar-size="28"/>
+                :nickname="child.authorNickname" :avatar-size="28" :name-color="child.authorNameColor"/>
               <LevelBadge v-if="child.authorLevel" class="author-level" :level="child.authorLevel" size="xs"/>
               <span v-if="isVideoAuthor(child)" class="author-badge">作者</span>
               <time>{{ formatTime(child.createdAt) }}</time>
@@ -138,7 +138,12 @@
                 :avatar-size="14"
               >
                 <template #reference>
-                  <a class="reply-target-link" :href="`/home?userId=${getReplyTarget(child, root).userId}`" target="_blank" rel="noopener noreferrer">
+                  <a
+                    class="reply-target-link"
+                    :href="`/home?userId=${getReplyTarget(child, root).userId}`"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     @{{ child.replyToNickname }}
                   </a>
                 </template>

@@ -14,6 +14,7 @@
     .user-info { column-gap: 18px; }
     .user-info .user-avatar-link .user-avatar { border: 3px solid rgba(255, 255, 255, .9); object-fit: cover; box-shadow: 0 4px 18px rgba(0, 0, 0, .12); }
     .user-info .user-info-top .user-name { font-size: 24px; font-weight: 600; letter-spacing: .01em; }
+    .user-info .user-info-top .user-name.rainbow-name { font-weight: 700; text-shadow: none; }
     .user-info .user-info-introduce, .user-info .user-info-introduce2 { height: 24px; padding: 2px 0; color: #f0f6f2; line-height: 20px; }
     .user-info .user-info-introduce2 { border-radius: 4px; cursor: text; }
     .user-info input { min-height: 28px; padding: 4px 8px; border-radius: 6px; }

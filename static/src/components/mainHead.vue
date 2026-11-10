@@ -53,7 +53,7 @@
               target="_blank" rel="noopener noreferrer" @click="closeHeaderMenus">
               <img :src="profileUser.avatarAddress" alt="个人头像"/>
               <div class="profile-identity-copy">
-                <strong :title="profileUser.userName" :style="store.userNameColor ? { color: store.userNameColor } : {}">{{ profileUser.userName || '个人空间' }}</strong>
+                <strong :title="profileUser.userName" :class="{ 'rainbow-name': store.userNameColor === store.userNameColorRainbow }" :style="store.userNameColor && store.userNameColor !== store.userNameColorRainbow ? { color: store.userNameColor } : {}">{{ profileUser.userName || '个人空间' }}</strong>
                 <small>UID {{ store.userId }}</small>
               </div>
               <span class="profile-arrow" aria-hidden="true">›</span>

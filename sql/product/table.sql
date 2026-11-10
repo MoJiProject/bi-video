@@ -49,6 +49,7 @@ CREATE TABLE `user`
     `last_login_at` DATETIME(3)     NULL COMMENT '最后登录时间',
     `deleted_at`    DATETIME(3)     NULL COMMENT '软删除时间，NULL 表示未删除',
     `last_view_fans_count` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '用户最后查看粉丝列表时的粉丝数，用于计算未读新粉丝',
+    `name_color` VARCHAR(16) NULL COMMENT '名字颜色 #RRGGBB 或 rainbow',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_user_username` (`username`),
     KEY `idx_user_phone` (`phone`),

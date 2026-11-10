@@ -779,6 +779,12 @@
       transition: color 0.15s ease;
     }
 
+    /* 彩色名字：覆盖局部字重与阴影，保证与全局 .rainbow-name 观感一致 */
+    .intoVideoAllDisplayIngFlagCreator-name.rainbow-name {
+      font-weight: 700;
+      text-shadow: none;
+    }
+
     &:hover .intoVideoAllDisplayIngFlagCreator-name {
       color: #6af5de;
       transition: all 0.3s ease;
@@ -864,13 +870,19 @@
       white-space: nowrap;
       padding: 0;
       border: 0;
-      background: transparent;
+      background-color: transparent;
       color: #fff;
       font-size: 13px;
       line-height: 1;
       text-shadow: 0 1px 2px rgb(0 0 0 / 35%);
       cursor: pointer;
       transition: color 0.15s ease;
+    }
+
+    /* 彩色名字：覆盖局部字重与阴影；hover 只改 color，会被 text-fill-color 中和 */
+    .player-creator-chip-name.rainbow-name {
+      font-weight: 700;
+      text-shadow: none;
     }
 
     .player-creator-chip-trigger:hover .player-creator-chip-name {

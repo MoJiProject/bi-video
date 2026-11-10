@@ -15,6 +15,7 @@ public class CommentVO {
     private String authorNickname;
     private String authorAvatar;
     private Integer authorLevel;
+    private String authorNameColor;
 
     private Long rootId;
     private Long replyToUserId;

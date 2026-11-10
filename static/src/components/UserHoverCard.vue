@@ -14,8 +14,8 @@
           <img :src="profile.avatarUrl" alt="">
         </a>
         <div>
-          <a class="profile-name" :href="homeHref" :title="profile.nickname" :style="selfNameColor ? { color: selfNameColor } : {}">{{ profile.nickname }}</a>
-          <span v-if="profile.level != null" class="profile-level">Lv.{{ profile.level }}</span>
+          <a class="profile-name" :href="homeHref" :title="profile.nickname" :class="{ 'rainbow-name': isRainbowName }" :style="selfNameColor ? { color: selfNameColor } : {}">{{ profile.nickname }}</a>
+          <LevelBadge :level="profile.level" size="sm" />
           <GenderIcon :gender="profile.gender" :size="14" />
         </div>
       </div>
@@ -55,7 +55,7 @@
           <a class="user-hover-trigger" :href="homeHref"
             :style="{ '--user-avatar-size': `${avatarSize}px` }"
             :aria-label="`${nickname}，查看主页，按空格查看个人资料`">
-            <img :src="avatar" alt=""><span :style="selfNameColor ? { color: selfNameColor } : {}">{{ nickname }}</span>
+            <img :src="avatar" alt=""><span :class="{ 'rainbow-name': isRainbowName && !nameColorDisabled }" :style="selfNameColor && !nameColorDisabled ? { color: selfNameColor } : {}">{{ nickname }}</span>
           </a>
         </slot>
       </template>
@@ -72,8 +72,8 @@
               <img :src="profile.avatarUrl" alt="">
             </a>
             <div>
-          <a class="profile-name" :href="homeHref" :title="profile.nickname" :style="selfNameColor ? { color: selfNameColor } : {}">{{ profile.nickname }}</a>
-          <span v-if="profile.level != null" class="profile-level">Lv.{{ profile.level }}</span>
+          <a class="profile-name" :href="homeHref" :title="profile.nickname" :class="{ 'rainbow-name': isRainbowName }" :style="selfNameColor ? { color: selfNameColor } : {}">{{ profile.nickname }}</a>
+          <LevelBadge :level="profile.level" size="sm" />
           <GenderIcon :gender="profile.gender" :size="14" />
         </div>
       </div>
@@ -110,6 +110,7 @@ import { addDialogue } from '@/api/privateMessage';
 import { useGlobalStore } from '@/store/store';
 import GenderIcon from './GenderIcon.vue';
 import FollowIcon from './FollowIcon.vue';
+import LevelBadge from './LevelBadge.vue';
 
 const props = defineProps({
   userId: { type: Number, required: true },
@@ -124,6 +125,10 @@ const props = defineProps({
   controlled: { type: Boolean, default: false },
   // 受控模式的预填资料（兼容旧 userInfo.vue 的字段结构，如 store.eitUserInfo）
   initialProfile: { type: Object, default: null },
+  // 关闭名字颜色（含彩色渐变）：私信分享卡片等不需要名字颜色的场景传 true
+  nameColorDisabled: { type: Boolean, default: false },
+  // 外部触发器要显示的名字颜色（数据库里存的值），不传时用 profile.nameColor 兜底
+  nameColor: { type: String, default: null },
 });
 const emit = defineEmits(['card-mouseenter', 'card-mouseleave']);
 const isSmallScreen = ref(typeof window !== "undefined" ? window.innerWidth <= 768 : false);
@@ -141,8 +146,16 @@ const following = ref(false);
 const messaging = ref(false);
 const homeHref = computed(() => `/home?userId=${props.userId}`);
 const isSelf = computed(() => props.userId === store.userId);
-//本人名字颜色（本地设置），仅对自己的名字生效
-const selfNameColor = computed(() => (isSelf.value && store.userNameColor ? store.userNameColor : null));
+//目标用户名字颜色：prop 优先（父级数据已带颜色），资料加载后用 profile.nameColor 兜底；
+//本人时本地预览值（store.userNameColor，已同步服务端值）优先，保证改色立即生效
+const targetNameColor = computed(() => {
+  if (isSelf.value) return store.userNameColor ?? null;
+  return props.nameColor ?? profile.value?.nameColor ?? null;
+});
+//彩色名字用 rainbow-name 渐变 class 展示
+const isRainbowName = computed(() => targetNameColor.value === store.userNameColorRainbow);
+const selfNameColor = computed(() => (targetNameColor.value && targetNameColor.value !== store.userNameColorRainbow ? targetNameColor.value : null));
+// nameColorDisabled：仅去掉外部触发器名字的颜色，hover 个人资料卡里的名字照常显示
 let generation = 0;
 
 // 受控模式：把旧 userInfo.vue 的字段结构（store.eitUserInfo）映射为卡片资料
@@ -153,6 +166,7 @@ function applyLegacyProfile(raw) {
     backgroundUrl: raw.backgroundAddress ?? raw.backgroundUrl,
     level: raw.grade ?? raw.level,
     gender: raw.gender,
+    nameColor: raw.nameColor ?? null,
     followingCount: raw.followNumber ?? raw.followingCount,
     followerCount: raw.fansNumber ?? raw.followerCount,
     likeReceived: raw.likeNumber ?? raw.likeReceived,
@@ -255,7 +269,6 @@ onUnmounted(() => { generation++; });
 .profile-identity > div { display: flex; align-items: center; gap: 6px; min-width: 0; padding-bottom: 3px; }
 .profile-name { min-width: 0; overflow: hidden; font-size: 15px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .profile-name:hover { color: var(--brand-hover); transition: all 0.3s ease; }
-.profile-level { flex: none; padding: 1px 5px; border-radius: 4px; background: var(--brand-light-9); color: var(--brand-hover); font-size: 10px; }
 .profile-gender { font-size: 14px; margin-left: 4px; vertical-align: middle; font-weight: 700; }
 .profile-gender.male { color: #1890ff; }
 .profile-gender.female { color: #ff4d4f; }

@@ -174,7 +174,7 @@
                         </div>
                         <div class="share-video-title"><span>{{ message.videos?.title }}</span></div>
                         <div class="share-video-fotter">
-                            <UserHoverCard :user-id="Number(message.videos?.userId || 0)" :avatar="message.videos?.avatarAddress || '/img/avatar-default.png'" :nickname="message.videos?.userName || '用户'" :avatar-size="24" />
+                            <UserHoverCard :user-id="Number(message.videos?.userId || 0)" :avatar="message.videos?.avatarAddress || '/img/avatar-default.png'" :nickname="message.videos?.userName || '用户'" :avatar-size="24" name-color-disabled />
                             <span class="share-video-badge">视频</span>
                         </div>
                     </div>
@@ -186,7 +186,7 @@
                             <span v-if="dynamicImages(message.dynamics).length > 3" class="share-dynamic-image-more">+{{ dynamicImages(message.dynamics).length - 3 }}</span>
                         </div>
                         <div class="share-dynamic-fotter">
-                            <UserHoverCard :user-id="Number(message.dynamics?.userId || 0)" :avatar="message.dynamics?.avatarAddress || '/img/avatar-default.png'" :nickname="message.dynamics?.userName || '用户'" :avatar-size="24" />
+                            <UserHoverCard :user-id="Number(message.dynamics?.userId || 0)" :avatar="message.dynamics?.avatarAddress || '/img/avatar-default.png'" :nickname="message.dynamics?.userName || '用户'" :avatar-size="24" name-color-disabled />
                             <span class="share-dynamic-badge">动态</span>
                         </div>
                     </div>

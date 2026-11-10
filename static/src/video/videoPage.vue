@@ -188,6 +188,8 @@
                   />
                   <span
                     class="intoVideoAllDisplayIngFlagCreator-name"
+                    :class="{ 'rainbow-name': SelectVideoByIdVo.upUser.nameColor === store.userNameColorRainbow }"
+                    :style="SelectVideoByIdVo.upUser.nameColor && SelectVideoByIdVo.upUser.nameColor !== store.userNameColorRainbow ? { color: SelectVideoByIdVo.upUser.nameColor } : {}"
                     @click.stop="openHome(1, SelectVideoByIdVo.upUser.id)"
                   >{{ SelectVideoByIdVo.upUser.userName }}</span>
                 </span>
@@ -229,6 +231,8 @@
                   <button
                     type="button"
                     class="player-creator-chip-name"
+                    :class="{ 'rainbow-name': SelectVideoByIdVo.upUser.nameColor === store.userNameColorRainbow }"
+                    :style="SelectVideoByIdVo.upUser.nameColor && SelectVideoByIdVo.upUser.nameColor !== store.userNameColorRainbow ? { color: SelectVideoByIdVo.upUser.nameColor } : {}"
                     @click.stop="openHome(1, SelectVideoByIdVo.upUser.id)"
                   >{{ SelectVideoByIdVo.upUser.userName }}</button>
                 </span>
@@ -3056,6 +3060,7 @@ export default {
         avatarAddress: u.avatarUrl,
         backgroundAddress: u.backgroundUrl,
         introduce: u.signature,
+        nameColor: u.nameColor ?? null,
         grade: u.level || 0,
         gender: u.gender == null ? 0 : u.gender,
         followNumber: u.followingCount || 0,
@@ -3096,6 +3101,7 @@ export default {
           id: video.ownerId,
           nickname: video.ownerNickname,
           avatarUrl: video.ownerAvatar,
+          nameColor: video.ownerNameColor,
         });
 
         /* UP 主资料在新接口里是独立的 /api/auth/user/{id}。

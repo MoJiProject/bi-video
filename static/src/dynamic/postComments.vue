@@ -26,7 +26,7 @@
       <article v-for="comment in (root.repliesExpanded ? [root, ...(root.replies || [])] : [root])" :key="comment.id"
         class="content-action-surface" :data-id="comment.id" :class="{ reply: comment.rootId, 'comment-highlight': highlightId === comment.id }">
         <header><UserHoverCard :user-id="comment.authorId" :avatar="comment.authorAvatar"
-            :nickname="comment.authorNickname" :avatar-size="32"/>
+            :nickname="comment.authorNickname" :avatar-size="32" :name-color="comment.authorNameColor"/>
           <time>{{ comment.createdAt?.replace('T', ' ') }}</time>
           <ContentMoreMenu v-if="comment.authorId === store.userId" label="更多评论操作" :disabled="busy.has(comment.id)">
             <el-dropdown-item class="is-danger" :disabled="busy.has(comment.id)" @click="remove(comment)">删除</el-dropdown-item>
@@ -42,7 +42,12 @@
             :avatar-size="14"
           >
             <template #reference>
-              <a class="reply-target-link" :href="`/home?userId=${getReplyTarget(comment, root).userId}`" target="_blank" rel="noopener noreferrer">
+              <a
+                class="reply-target-link"
+                :href="`/home?userId=${getReplyTarget(comment, root).userId}`"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 @{{ comment.replyToNickname }}
               </a>
             </template>

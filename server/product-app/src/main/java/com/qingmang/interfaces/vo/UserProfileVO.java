@@ -21,6 +21,7 @@ public class UserProfileVO {
     private Integer level;
     private Integer exp;
     private Integer role;
+    private String nameColor;
     private Boolean followed;
     private Boolean isSelf;
     private Boolean showFavoriteList;

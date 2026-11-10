@@ -233,6 +233,7 @@
     }
     .profile-identity-copy { display: flex; flex: 1; flex-direction: column; min-width: 0; gap: 4px; }
     .profile-identity-copy strong { overflow: hidden; font-size: 17px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+    .profile-identity-copy strong.rainbow-name { font-weight: 700; text-shadow: none; }
     .profile-identity-copy small { color: var(--ink-3); font-size: 11px; }
     .profile-arrow { margin-left: auto; color: var(--ink-3); font-size: 20px; }
     .profile-signature {

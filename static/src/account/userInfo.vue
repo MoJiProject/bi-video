@@ -31,14 +31,22 @@
                 <span class="label">名字颜色:</span>
                 <div class="name-color-row">
                     <el-color-picker
-                        :model-value="store.userNameColor"
+                        :model-value="store.userNameColor === store.userNameColorRainbow ? null : store.userNameColor"
                         :disabled="!store.userNameColorSettable"
                         :predefine="nameColorPresets"
                         @change="changeNameColor"
                     />
-                    <span class="color-hint">
-                        {{ store.userNameColorSettable ? (store.userNameColor ? '点击色块可修改，清空恢复默认黑色（仅保存在本地）' : '未设置，默认黑色（仅保存在本地）') : `Lv.${store.userNameColorSettableLevel} 解锁` }}
-                    </span>
+                    <div
+                        class="rainbow-swatch"
+                        :class="{
+                            'rainbow-swatch-active': store.userNameColor === store.userNameColorRainbow,
+                            'rainbow-swatch-locked': !store.userNameRainbowSettable
+                        }"
+                        :title="store.userNameRainbowSettable ? '彩色名字（与彩色弹幕同款渐变）' : `Lv.${store.userNameRainbowSettableLevel} 解锁`"
+                        @click="selectRainbowName"
+                    >
+                        <span class="rainbow-swatch-text"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -63,10 +71,16 @@ const nameColorPresets = [
     "#0E9C85", "#409EFF", "#8E44AD", "#E05C9B", "#7F8C8D",
 ];
 
-//名字颜色仅保存在本地，选中即生效；置空恢复默认黑色
+//名字颜色：选中即本地预览，保存后写入数据库
 function changeNameColor(value) {
     if (!store.userNameColorSettable) return;
     store.setUserNameColor(value && value !== "null" ? value : null);
+}
+
+//彩色名字：与取色器互斥，再次点击取消
+function selectRainbowName() {
+    if (!store.userNameRainbowSettable) return;
+    store.setUserNameColor(store.userNameColor === store.userNameColorRainbow ? null : store.userNameColorRainbow);
 }
 
 //提交修改
@@ -95,6 +109,7 @@ async function submitChange() {
             signature: store.userInformation.introduce || "",
             gender: radioFlag.value,
             birthday: formatBirthday(store.userInformation.birthday),
+            nameColor: store.userNameColor ?? null,
         });
         store.userInformation.userName = nickname;
         store.userInformation.gender = radioFlag.value;
@@ -224,7 +239,66 @@ position: relative;
         display: flex;
         align-items: center;
         flex-wrap: wrap;
-        gap: 8px 12px;
+        gap: 8px;
+        //彩色名字色板：1:1 复用弹幕发送栏的彩色弹幕按钮样式（白框+渐变内盒）
+        .rainbow-swatch{
+            position: relative;
+            box-sizing: border-box;
+            width: 32px;
+            height: 32px;
+            flex: none;
+            border: 1px solid #ffffff;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+            &::before{
+                content: '';
+                position: absolute;
+                left: 4px;
+                top: 4px;
+                width: 22px;
+                height: 22px;
+                border-radius: 2px;
+                //与彩色弹幕/彩色名字同款 100deg 八段霓虹渐变，色板即实际效果预览
+                background-image: linear-gradient(
+                    100deg,
+                    #ff5fa2 0%,
+                    #ff9a6b 14%,
+                    #ffd166 28%,
+                    #8ce99a 42%,
+                    #4dd4e6 56%,
+                    #6aa8ff 70%,
+                    #b18cff 84%,
+                    #ff7ad9 100%
+                );
+            }
+            &:hover{
+                border-color: #cccccc;
+                transition: all 0.3s ease;
+            }
+            &.rainbow-swatch-active{
+                border-color: #0FA68E;
+                transition: all 0.3s ease;
+            }
+            &.rainbow-swatch-locked{
+                opacity: 0.45;
+                filter: grayscale(0.5);
+                &:hover{
+                    border-color: #ffffff;
+                }
+            }
+        }
+        .rainbow-swatch-text{
+            position: relative;
+            z-index: 1;
+            display: block;
+            width: 100%;
+            height: 100%;
+            line-height: 30px;
+            text-align: center;
+            font-size: 15px;
+            color: #ffffff;
+        }
         .color-hint{
             font-size: 12px;
             color: #909399;

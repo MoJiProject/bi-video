@@ -2,7 +2,7 @@
    <div class="auto-play-video-container" :class="{ 'into-video-all-display-ing': propss.intoVideoAllDisplayIngFlag }">
        <div class="auto-play-video-header">
           <img @click="openHome(1,store.selectUpVideo.upUser?.id)" class="auto-play-video-avatar" :src="store.selectUpVideo.upUser?.avatarAddress">
-          <span @click="openHome(1,store.selectUpVideo.upUser?.id)" class="auto-play-video-username">{{ store.selectUpVideo.upUser?.userName }}</span>
+          <span @click="openHome(1,store.selectUpVideo.upUser?.id)" class="auto-play-video-username" :class="{ 'rainbow-name': store.selectUpVideo.upUser?.nameColor === store.userNameColorRainbow }" :style="store.selectUpVideo.upUser?.nameColor && store.selectUpVideo.upUser?.nameColor !== store.userNameColorRainbow ? { color: store.selectUpVideo.upUser.nameColor } : {}">{{ store.selectUpVideo.upUser?.userName }}</span>
           <UserHoverCard :user-id="Number(store.selectUpVideo.upUser?.id) || 0" :avatar="store.selectUpVideo.upUser?.avatarAddress || ''" :nickname="store.selectUpVideo.upUser?.userName || ''" :avatar-size="32" :teleported="false">
             <template #reference>
               <span class="auto-play-video-hover-trigger" @click="openHome(1,store.selectUpVideo.upUser?.id)"></span>

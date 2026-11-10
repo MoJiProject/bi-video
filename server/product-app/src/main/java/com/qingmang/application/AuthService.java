@@ -212,10 +212,25 @@ public class AuthService {
     @Transactional
     public void updateAccount(Long userId, AccountUpdateRequest request) {
         requireActiveUser(userId);
+        String nameColor = normalizeNameColor(userId, request.getNameColor());
         userMapper.update(null, Wrappers.<User>lambdaUpdate().eq(User::getId, userId)
                 .set(User::getNickname, request.getNickname().trim())
                 .set(User::getSignature, request.getSignature())
-                .set(User::getGender, request.getGender()).set(User::getBirthday, request.getBirthday()));
+                .set(User::getGender, request.getGender()).set(User::getBirthday, request.getBirthday())
+                .set(User::getNameColor, nameColor));
+    }
+
+    /** null 清除；纯色需 9 级，rainbow 需 10 级 */
+    private String normalizeNameColor(Long userId, String nameColor) {
+        if (nameColor == null || nameColor.isBlank()) return null;
+        User user = userMapper.selectById(userId);
+        int level = user.getLevel() == null ? 0 : user.getLevel();
+        if ("rainbow".equals(nameColor)) {
+            if (level < 10) throw new BizException(ErrorCode.PARAM_INVALID, "10级才能使用彩虹名字");
+        } else if (level < 9) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "9级才能设置名字颜色");
+        }
+        return nameColor;
     }
 
     @Transactional
