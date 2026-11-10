@@ -91,6 +91,7 @@
 | POST | `/user/{userId}/follow` | 路径参数 `userId` | 关注状态 `Map<String,Object>` |
 | PUT | `/user/{userId}/follow` | 路径参数 `userId` | `null` |
 | DELETE | `/user/{userId}/follow` | 路径参数 `userId` | `null` |
+| POST | `/user/{userId}/fans/viewed` | 路径参数 `userId` | `null`；标记已查看粉丝列表，清除新粉丝提醒 |
 | GET | `/post/list` | 查询参数 `targetUserId`、`cursorId`、`size`、`followingOnly` | 动态分页 `Map<String,Object>` |
 | POST | `/post/{postId}/pin` | 路径参数 `postId` | `Boolean` |
 | GET | `/user/mentions` | 可选查询参数 `cursorId` | 提及用户分页 `Map<String,Object>` |
