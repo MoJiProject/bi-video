@@ -14,7 +14,7 @@
           <img :src="profile.avatarUrl" alt="">
         </a>
         <div>
-          <a class="profile-name" :href="homeHref" :title="profile.nickname">{{ profile.nickname }}</a>
+          <a class="profile-name" :href="homeHref" :title="profile.nickname" :style="selfNameColor ? { color: selfNameColor } : {}">{{ profile.nickname }}</a>
           <span v-if="profile.level != null" class="profile-level">Lv.{{ profile.level }}</span>
           <GenderIcon :gender="profile.gender" :size="14" />
         </div>
@@ -55,7 +55,7 @@
           <a class="user-hover-trigger" :href="homeHref"
             :style="{ '--user-avatar-size': `${avatarSize}px` }"
             :aria-label="`${nickname}，查看主页，按空格查看个人资料`">
-            <img :src="avatar" alt=""><span>{{ nickname }}</span>
+            <img :src="avatar" alt=""><span :style="selfNameColor ? { color: selfNameColor } : {}">{{ nickname }}</span>
           </a>
         </slot>
       </template>
@@ -72,7 +72,7 @@
               <img :src="profile.avatarUrl" alt="">
             </a>
             <div>
-          <a class="profile-name" :href="homeHref" :title="profile.nickname">{{ profile.nickname }}</a>
+          <a class="profile-name" :href="homeHref" :title="profile.nickname" :style="selfNameColor ? { color: selfNameColor } : {}">{{ profile.nickname }}</a>
           <span v-if="profile.level != null" class="profile-level">Lv.{{ profile.level }}</span>
           <GenderIcon :gender="profile.gender" :size="14" />
         </div>
@@ -141,6 +141,8 @@ const following = ref(false);
 const messaging = ref(false);
 const homeHref = computed(() => `/home?userId=${props.userId}`);
 const isSelf = computed(() => props.userId === store.userId);
+//本人名字颜色（本地设置），仅对自己的名字生效
+const selfNameColor = computed(() => (isSelf.value && store.userNameColor ? store.userNameColor : null));
 let generation = 0;
 
 // 受控模式：把旧 userInfo.vue 的字段结构（store.eitUserInfo）映射为卡片资料

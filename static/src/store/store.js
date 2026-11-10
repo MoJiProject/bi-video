@@ -4,6 +4,15 @@ import { offlinePreviewEnabled, PREVIEW_USER_ID, PREVIEW_TOKEN } from '../previe
 
 const TOKEN_KEY = 'qingmang_video_token'
 const USER_ID_KEY = 'qingmang_video_user_id'
+const USER_NAME_COLOR_KEY = 'qingmang_video_user_name_color'
+
+//用户名字颜色，仅本地保存，不上传服务器；离线预览模式下同样可用
+function getStoredUserNameColor() {
+  if (typeof localStorage === 'undefined') return null
+  const raw = localStorage.getItem(USER_NAME_COLOR_KEY)
+  if (!raw) return null
+  return /^#[0-9a-fA-F]{6}$/.test(raw) ? raw : null
+}
 
 function getStoredToken() {
   if (offlinePreviewEnabled) return PREVIEW_TOKEN
@@ -70,6 +79,7 @@ export const useGlobalStore = defineStore('global', {
       collectNumber: 0,
       homeLoadMenuList: [],//home加载菜单列表
       newFansNumber: 0,//新增粉丝数量，未查看粉丝列表前显示提醒
+      userNameColor: getStoredUserNameColor(),//用户名字颜色（本地设置，默认黑色）
     }
   },
   getters: {
@@ -84,6 +94,8 @@ export const useGlobalStore = defineStore('global', {
     danmakuTextMax: () => 20,
     danmakuEmojiSendableLevel7: (state) => Number(state.userInformation?.grade ?? 0) >= 7,
     danmakuEmojiSendableLevel8: (state) => Number(state.userInformation?.grade ?? 0) >= 8,
+    userNameColorSettableLevel: () => 9,
+    userNameColorSettable: (state) => Number(state.userInformation?.grade ?? 0) >= 9,
   },
   actions: {
     setSearchDisplayFlag(newValue) {
@@ -170,6 +182,18 @@ export const useGlobalStore = defineStore('global', {
     },
     setUserInformation(newValue) {
       this.userInformation = newValue
+    },
+    setUserNameColor(newValue) {
+      if (typeof localStorage === 'undefined') return
+      if (newValue === null || newValue === undefined || newValue === '') {
+        //清除后恢复默认黑色
+        this.userNameColor = null
+        localStorage.removeItem(USER_NAME_COLOR_KEY)
+        return
+      }
+      if (!/^#[0-9a-fA-F]{6}$/.test(newValue)) return
+      this.userNameColor = newValue
+      localStorage.setItem(USER_NAME_COLOR_KEY, newValue)
     },
     setUpdateVideoInfoFlag(newValue) {
       this.updateVideoInfoFlag = newValue

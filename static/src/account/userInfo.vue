@@ -27,6 +27,20 @@
                 placeholder="请选择日期"
                 />
             </div>
+            <div class="content">
+                <span class="label">名字颜色:</span>
+                <div class="name-color-row">
+                    <el-color-picker
+                        :model-value="store.userNameColor"
+                        :disabled="!store.userNameColorSettable"
+                        :predefine="nameColorPresets"
+                        @change="changeNameColor"
+                    />
+                    <span class="color-hint">
+                        {{ store.userNameColorSettable ? (store.userNameColor ? '点击色块可修改，清空恢复默认黑色（仅保存在本地）' : '未设置，默认黑色（仅保存在本地）') : `Lv.${store.userNameColorSettableLevel} 解锁` }}
+                    </span>
+                </div>
+            </div>
         </div>
         <div class="btn-container">
              <button v-debounce :disabled="saving" @click="submitChange">{{ saving ? "保存中..." : "保存" }}</button>
@@ -42,6 +56,18 @@ import { updateAccount } from "@/api/user/index";
 
 const store = useGlobalStore();
 const radioFlag = ref(store.userInformation.gender ?? 0);//0保密 1男 2女
+
+//名字颜色本地预设色板
+const nameColorPresets = [
+    "#000000", "#F56C6C", "#E6A23C", "#F0A03C", "#67C23A",
+    "#0E9C85", "#409EFF", "#8E44AD", "#E05C9B", "#7F8C8D",
+];
+
+//名字颜色仅保存在本地，选中即生效；置空恢复默认黑色
+function changeNameColor(value) {
+    if (!store.userNameColorSettable) return;
+    store.setUserNameColor(value && value !== "null" ? value : null);
+}
 
 //提交修改
 const saving = ref(false);
@@ -192,6 +218,18 @@ position: relative;
         background-color: #1E9E8C !important;
         border-color: #1E9E8C !important;
         color: #fff !important;
+        }
+        .name-color-row{
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px 12px;
+        .color-hint{
+            font-size: 12px;
+            color: #909399;
+            line-height: 1.4;
+        }
         }
 
     }

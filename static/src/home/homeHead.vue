@@ -16,7 +16,7 @@
                     <div v-if="store.userId===store.homeUserInformation?.id" class="avatar-edit-overlay">更换头像</div>
             </div>
             <div class="user-info-top">
-                <span class="user-name">{{ store.homeUserInformation?.userName }}</span>
+                <span class="user-name" :style="store.userId === store.homeUserInformation?.id && store.userNameColor ? { color: store.userNameColor } : {}">{{ store.homeUserInformation?.userName }}</span>
                 <LevelBadge v-if="store.homeUserInformation.grade" class="level-icon" :level="store.homeUserInformation.grade" size="md" />
                 <GenderIcon :gender="store.homeUserInformation?.gender" :size="18" />
             </div>
