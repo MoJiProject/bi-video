@@ -27,7 +27,7 @@
                 placeholder="请选择日期"
                 />
             </div>
-            <div class="content">
+            <div class="content" v-if="store.userNameColorSettable">
                 <span class="label">名字颜色:</span>
                 <div class="name-color-row">
                     <el-color-picker
@@ -38,6 +38,7 @@
                     />
                     <div
                         class="rainbow-swatch"
+                        v-if="store.userNameRainbowSettable"
                         :class="{
                             'rainbow-swatch-active': store.userNameColor === store.userNameColorRainbow,
                             'rainbow-swatch-locked': !store.userNameRainbowSettable

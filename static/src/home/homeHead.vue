@@ -441,7 +441,7 @@ z-index: 999;
         .level-icon{
             flex: none;
             position: relative;
-            top: -1px;
+            top: 2px;
             margin-right: 8px;
         }
         .gender-icon{
