@@ -9,7 +9,6 @@ import com.qingmang.common.exception.ErrorCode;
 import com.qingmang.domain.favorite.FavoriteFolder;
 import com.qingmang.domain.favorite.mapper.FavoriteFolderMapper;
 import com.qingmang.domain.user.User;
-import com.qingmang.application.MediaStorageService;
 import com.qingmang.domain.user.UserPrivacy;
 import com.qingmang.domain.user.UserStats;
 import com.qingmang.domain.user.mapper.UserMapper;

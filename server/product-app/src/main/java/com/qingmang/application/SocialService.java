@@ -263,7 +263,7 @@ public class SocialService {
     /** 标记用户已查看粉丝列表，更新 last_view_fans_count 以便后续计算新粉丝。 */
     @Transactional
     public void markFansViewed(Long userId) {
-        requireActiveUser(userId);
+        auth.requireActiveUser(userId);
         UserStats stats = statsMapper.selectOne(Wrappers.<UserStats>lambdaQuery()
                 .eq(UserStats::getUserId, userId));
         if (stats == null) return;
